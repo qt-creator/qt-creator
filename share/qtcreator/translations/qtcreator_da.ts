@@ -1434,14 +1434,11 @@ Installer en SDK af mindst API version %1.</translation>
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Tester</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation>&amp;Tests</translation>
@@ -1502,9 +1499,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Selected test was not found (%1).</source>
         <translation>Valgte test blev ikke fundet (%1).</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -1544,9 +1538,6 @@ Eksekverbar: %2</translation>
         <source>Execution took %1.</source>
         <translation>Eksekvering tog %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
         <translation>Omdanner fejl til fejlretter-brudpunkter.</translation>
@@ -1625,9 +1616,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Sæt GTest-filteret til at blive brugt til gruppering.
 Se Google Test-dokumentation for yderligere information om GTest-filtre.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Entering test function %1::%2</source>
         <translation>Træder ind i testfunktion %1::%2</translation>
@@ -1672,9 +1660,6 @@ Se Google Test-dokumentation for yderligere information om GTest-filtre.</transl
         <source>Test execution took %1 ms.</source>
         <translation>Testeksekvering tog %1 ms.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Aktiverer afbrydning af tests ved påstande.</translation>
@@ -1751,9 +1736,6 @@ Warning: Plain text misses some information, such as duration.</source>
 
 Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>Vælg kør-konfiguration</translation>
@@ -1778,9 +1760,6 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
         <source>Working Directory:</source>
         <translation>Arbejdsmappe:</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation>ADVARSEL for AutoTest-plugin: Ingen filer tilbage efter filtrering af testskanmapper. Tjek testfilterindstillinger.</translation>
@@ -1833,16 +1812,10 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
         <source>Show Data Functions</source>
         <translation>Vis data-funktioner</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Tests</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>Stop testkørsel</translation>
@@ -1963,16 +1936,10 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>AutoTest-fejlret</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Testkørsel annulleret af bruger.</translation>
@@ -2077,9 +2044,6 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
         <source>Build failed. Canceling test run.</source>
         <translation>Byg mislykkedes. Annullerer testkørsel.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -2182,9 +2146,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Enables grouping of test cases.</source>
         <translation>Aktivér gruppering af testsager.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Ingen aktive test-frameworks.</translation>
@@ -2569,7 +2530,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Enhedstypen understøttes ikke af Qt versionen.</translation>
@@ -3691,7 +3652,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoint</source>
         <translation>Brudpunkt</translation>
@@ -3799,14 +3760,11 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>CMakeFilesProjectNode</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>CMake-moduler</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>Current CMake: %1</source>
         <translation>Aktuelle CMake: %1</translation>
@@ -4497,9 +4455,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>*** cmake process exited with exit code %1.</source>
         <translation>*** cmake proces afsluttede med afslutningskode %1.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Måltype: </translation>
@@ -5487,7 +5442,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Åbn link</translation>
@@ -9123,7 +9078,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Rediger</translation>
@@ -9761,9 +9716,6 @@ Flag: %3</translation>
         <source>&amp;Port:</source>
         <translation>&amp;Port:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>New</source>
         <translation>Ny</translation>
@@ -10261,9 +10213,6 @@ Flag: %3</translation>
         <source>Stopped at internal breakpoint %1 in thread %2.</source>
         <translation>Stoppet ved internt brudpunkt %1 i tråd %2.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Vælg lokal mellemlager-mappe</translation>
@@ -10288,9 +10237,6 @@ Flag: %3</translation>
         <source>The folder &quot;%1&quot; could not be created.</source>
         <translation>Mappen &quot;%1&quot; kunne ikke oprettes.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++-undtagelse</translation>
@@ -10315,9 +10261,6 @@ Flag: %3</translation>
         <source>Output:</source>
         <translation>Output:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Failed to Start the Debugger</source>
         <translation>Kunne ikke starte fejlretteren</translation>
@@ -10378,16 +10321,10 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &quot;%1&quot;.</source>
         <translation>&quot;Vælg widget som skal overvåges&quot;: Understøttes ikke i tilstanden &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -10433,16 +10370,10 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uses CDB&apos;s native console for console applications. This overrides the setting in Environment &gt; System. The native console does not prompt on application exit. It is suitable for diagnosing cases in which the application does not start up properly in the configured console and the subsequent attach fails.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bruger CDB&apos;s egen konsol til konsolprogrammer. Det tilsidesætter indstillingen i Miljø &gt; System. Egen konsol spørger ikke ved afslutning af program. Det er egnet til diagnosticering af sager hvor programmer ikke starter ordentligt i den konfigureret konsol og de efterfølgende mislykkede tilkoblinger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>CDB-stier</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Symbolstier</translation>
@@ -10451,9 +10382,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Source Paths</source>
         <translation>Kildestier</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>Indsæt symbol-server...</translation>
@@ -10478,9 +10406,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation>Konfigurer symbol-sti som bruges til at lokalisere fejlret-symbol-filer.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Adfærd</translation>
@@ -10581,9 +10506,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Always adds a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation>Tilføj altid et brudpunkt på &lt;i&gt;%1()&lt;/i&gt;-funktionen.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Vis fejlretnings-, log- og infomeddelelser.</translation>
@@ -10604,9 +10526,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Debugger Console</source>
         <translation>Fejlretterkonsol</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Kopiér</translation>
@@ -10619,9 +10538,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>C&amp;lear</source>
         <translation>&amp;Ryd</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No Memory Viewer Available</source>
         <translation>Ingen hukommelsesfremviser tilgængelig</translation>
@@ -10782,16 +10698,10 @@ Sætning af brudpunkter efter filnavn og linjenummer kan mislykkes.</translation
         <source>Jump to Line %1</source>
         <translation>Hop til linje %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging has finished</source>
         <translation>Fejlretning er fuldført</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>Fejlretteren som bruges til dette kit.</translation>
@@ -10804,9 +10714,6 @@ Sætning af brudpunkter efter filnavn og linjenummer kan mislykkes.</translation
         <source>None</source>
         <translation>Ingen</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Ryd indhold</translation>
@@ -10819,9 +10726,6 @@ Sætning af brudpunkter efter filnavn og linjenummer kan mislykkes.</translation
         <source>Reload Debugging Helpers</source>
         <translation>Genindlæs fejlretningshjælpere</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Fejlret</translation>
@@ -10949,9 +10853,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Tries to install missing debug information.</source>
         <translation>Prøver at installere manglende fejlretinformation.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.</extracomment>
@@ -11360,9 +11261,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Debugger finished.</source>
         <translation>Fejlretter afsluttet.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Configure Debugger...</source>
         <translation>Konfigurer fejlretter...</translation>
@@ -11583,9 +11481,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Create Full Backtrace</source>
         <translation>Opret fuld backtrace</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;ny kilde&gt;</translation>
@@ -11642,9 +11537,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Qt Sources</source>
         <translation>Qt-kilder</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Expression %1 in function %2 from line %3 to %4</source>
         <translation>Udtryk %1 i funktion %2 fra linje %3 til %4</translation>
@@ -11665,9 +11557,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Expression too complex</source>
         <translation>Udtryk for kompleks</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The gdb process failed to start.</source>
         <translation>Gdp-processen kunne ikke starte.</translation>
@@ -12038,9 +11927,6 @@ Du kan vælge mellem at vente længere tid eller afbryde fejlretning.</numerusfo
         <translation>Oprettelse af forbindelse til fjern-server mislykkedes:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -12211,23 +12097,14 @@ længere på lansomme maskiner. Værdien bør i dette tilfælde øges.</translat
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Keeps debugging all children after a fork.&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Fortsætter fejlretning af alle børn efter en fork.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>GDB udvidet</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Skriv Ctrl-&lt;Retur&gt; for at eksekvere en linje.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Stopping temporarily</source>
         <translation>Stopper midlertidigt</translation>
@@ -12300,9 +12177,6 @@ længere på lansomme maskiner. Værdien bør i dette tilfælde øges.</translat
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Use Debugging Helper</source>
         <translation>Brug fejlretningshjælper</translation>
@@ -12339,9 +12213,6 @@ længere på lansomme maskiner. Værdien bør i dette tilfælde øges.</translat
         <source>Display string length:</source>
         <translation>Vis strenglængde:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger &amp;Log</source>
         <translation>Fejlretter&amp;log</translation>
@@ -12372,9 +12243,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>Log File</source>
         <translation>Logfil</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>Hukommelse ved register &quot;%1&quot; (0x%2)</translation>
@@ -12387,9 +12255,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>Memory at 0x%1</source>
         <translation>Hukommelse ved 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Modulnavn</translation>
@@ -12414,9 +12279,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>End Address</source>
         <translation>Slutadresse</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Kan ikke oprette midlertidig fil: %1</translation>
@@ -12429,9 +12291,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>Cannot open FiFo %1: %2</source>
         <translation>Kan ikke åbne FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Python Error</source>
         <translation>Python-fejl</translation>
@@ -12472,9 +12331,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>An unknown error in the Pdb process occurred.</source>
         <translation>Der opstod en ukendt fejl i Pdb-processen.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ debugger activated</source>
         <translation>C++-fejlretter aktiveret</translation>
@@ -12483,9 +12339,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>QML debugger activated</source>
         <translation>QML-fejlretter aktiveret</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Ingen program-ouput modtaget i tide</translation>
@@ -12536,9 +12389,6 @@ Vil du prøve igen?</translation>
         <source>QML Debugger disconnected.</source>
         <translation>QML-fejlretter forbindelse afbrudt.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>Succes:</translation>
@@ -12551,9 +12401,6 @@ Vil du prøve igen?</translation>
         <source>Properties</source>
         <translation>Egenskaber</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>Indhold som ASCII-tegn</translation>
@@ -12634,9 +12481,6 @@ Vil du prøve igen?</translation>
         <source>Edit bits %1...%2 of register %3</source>
         <translation>Rediger bit %1...%2 af register %3</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Fejlretterindstillinger</translation>
@@ -12661,9 +12505,6 @@ Vil du prøve igen?</translation>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Aktivér fejlretning af underprocesser</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Download af fjern-fil lykkedes.</translation>
@@ -12676,9 +12517,6 @@ Vil du prøve igen?</translation>
         <source>Remove Snapshot</source>
         <translation>Fjern øjebliksbillede</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>Internt navn</translation>
@@ -12699,9 +12537,6 @@ Vil du prøve igen?</translation>
         <source>Open File &quot;%1&quot;</source>
         <translation>Åbn filen &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Address:</source>
         <translation>Adresse:</translation>
@@ -12814,16 +12649,10 @@ Vil du prøve igen?</translation>
         <source>Try to Load Unknown Symbols</source>
         <translation>Prøv at indlæse ukendte symboler</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Stack</source>
         <translation>Stak</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Start fejlretter</translation>
@@ -12907,9 +12736,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>&amp;Recent:</source>
         <translation>&amp;Nylige:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching %1 CDB extension (&lt;code&gt;%2&lt;/code&gt; or &lt;code&gt;%3&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%4&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%5 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Fjern-CDB&apos;en skal indlæse den matchende %1 CDB-udvidelse (henholdvis &lt;code&gt;%2&lt;/code&gt; eller &lt;code&gt;%3&lt;/code&gt;).&lt;/p&gt;&lt;p&gt;Kopiér den til fjern-maskingen og sæt miljøvariablen &lt;code&gt;%4&lt;/code&gt; til at pege til dens mappe.&lt;/p&gt;&lt;p&gt;Start fjern-CDB&apos;en som &lt;code&gt;%5 &amp;lt;eksekverbar&amp;gt;&lt;/code&gt; for at bruge TCP/IP som kommunikationsprotokol.&lt;/p&gt;&lt;p&gt;Indtast forbindelsesparameterne som:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -12922,9 +12748,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>&amp;Connection:</source>
         <translation>&amp;Forbindelse:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Start fjern-motor</translation>
@@ -12949,9 +12772,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>&amp;Inferior path:</source>
         <translation>&amp;Laverestående sti:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Set up Symbol Paths</source>
         <translation>Opsæt symbol-stier</translation>
@@ -12968,9 +12788,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Use Microsoft Symbol Server</source>
         <translation>Brug Microsoft symbol-server</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Terminal: kan ikke åbne /dev/ptmx: %1</translation>
@@ -12999,9 +12816,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Terminal: Read failed: %1</source>
         <translation>Terminal: læsning mislykkedes: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Tråd-id:</translation>
@@ -13050,9 +12864,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Core</source>
         <translation>Kerne</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Formats</source>
         <translation>Typeformater</translation>
@@ -13069,9 +12880,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Misc Types</source>
         <translation>Diverse typer</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>Tilkobl til proces endnu ikke startet</translation>
@@ -13120,9 +12928,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Attach</source>
         <translation>Tilkobl</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;tom&gt;</translation>
@@ -13595,9 +13400,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Locals and Expressions</source>
         <translation>Locals og expressions</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Start fjern-analyse</translation>
@@ -13826,7 +13628,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>DevelopmentTeam</name>
+    <name>::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation>%1 - Ledig provisioneringsteam : %2</translation>
@@ -14150,7 +13952,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Slet tegn</translation>
@@ -15225,14 +15027,7 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Test</source>
         <translation>Google-test</translation>
@@ -15243,9 +15038,6 @@ See also Google Test settings.</source>
         <translation>Aktivér eller deaktivér gruppering af testsager efter mappe eller gtest-filter.
 Se også Google-test-indstillinger.</translation>
     </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation>&lt;matcher&gt;</translation>
@@ -17362,7 +17154,7 @@ Lad være tom for at gennemsøge filsystemet.</translation>
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -17927,14 +17719,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <translation>&amp;Led efter:</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>Åbn link</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Åbn link som ny side</translation>
-    </message>
-    <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Kopiér fulde sti til udklipsholder</translation>
     </message>
@@ -18052,9 +17836,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Size: %1x%2, %3 byte, format: %4, depth: %5</source>
         <translation>Størrelse: %1x%2, %3 byte, format: %4, dybde: %5</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Fil:</translation>
@@ -18074,9 +17855,6 @@ Would you like to overwrite it?</source>
         <translation>%1 findes allerede.
 Vil du overskrive den?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Eksportér %1</translation>
@@ -18097,9 +17875,6 @@ Vil du overskrive den?</translation>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>Kunne ikke skrive filen &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Pause Animation</source>
         <translation>Pause animation</translation>
@@ -18108,9 +17883,6 @@ Vil du overskrive den?</translation>
         <source>Play Animation</source>
         <translation>Afspil animation</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Billedformat understøttes ikke.</translation>
@@ -18123,9 +17895,6 @@ Vil du overskrive den?</translation>
         <source>Failed to read image.</source>
         <translation>Kunne ikke læse billede.</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Fit to Screen</source>
         <translation>Tilpas til skærm</translation>
@@ -28681,11 +28450,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>JS-kilde for %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonym funktion</translation>
@@ -29531,9 +29296,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Split Initializer</source>
         <translation>Opdel initialiserer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>Bibliotek ved %1</translation>
@@ -29600,7 +29362,7 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;aktuel fil&gt;</translation>
@@ -30578,7 +30340,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
@@ -30772,9 +30534,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Qt Class Generation</source>
         <translation>Qt-klassegenerering</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Indlejring af brugerflade-klassen</translation>
@@ -30807,9 +30566,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Add Qt version #ifdef for module names</source>
         <translation>Tilføj Qt version #ifdef for modulnavne</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Eksempler</translation>
@@ -30862,9 +30618,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Search in Tutorials...</source>
         <translation>Søg i vejledninger...</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version:</source>
         <translation>Qt version:</translation>
@@ -30877,9 +30630,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>%1 (invalid)</source>
         <translation>%1 (ugyldig)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;angiv et navn&gt;</translation>
@@ -30960,9 +30710,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>The Qt version selected must match the device type.</source>
         <translation>Den valgte Qt version skal matche enhedstypen.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Fuld sti til værtens bin-mappe af det aktuelle projekts Qt version.</translation>
@@ -30971,9 +30718,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>Fuld sti til værtens mål-mappe af det aktuelle projekts Qt version.&lt;br&gt;Du vil formodentligt hellere have %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Versionsnavn:</translation>
@@ -30986,9 +30730,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Edit</source>
         <translation>Rediger</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Tilføj...</translation>
@@ -31001,23 +30742,14 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Clean Up</source>
         <translation>Ryd op</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Fejlretningshjælper byglog</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <translation>[ineksakt] </translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Qt version</translation>
@@ -31114,23 +30846,17 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Path to the qmake executable</source>
         <translation>Sti til qmake-eksekverbaren</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Ingen fabrik fundet for qmake: &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>QtTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt-test</translation>
     </message>
-</context>
-<context>
-    <name>QtTestTreeItem</name>
     <message>
         <source>inherited</source>
         <translation>nedarvet</translation>
@@ -31237,14 +30963,11 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QuickTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation>Quick-test</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;unavngivet&gt;</translation>
@@ -31317,9 +31040,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Deploy to Remote Linux Host</source>
         <translation>Udsend til fjern-Linux-vært</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Ingen udsendelseshandling nødvendig. Springer over.</translation>
@@ -31348,9 +31068,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Connection error: %1</source>
         <translation>Forbindelsesfejl: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Kan ikke udsende: %1</translation>
@@ -31367,9 +31084,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Deploy step finished.</source>
         <translation>Udsendelsestrin fuldført.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Oprettelse af forbindelse mislykkedes: %1</translation>
@@ -31378,9 +31092,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Installing package failed.</source>
         <translation>Installation af pakke mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Uploadede pakkefil med succes.</translation>
@@ -31393,9 +31104,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Package installed.</source>
         <translation>Pakke installeret.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Package modified files only</source>
         <translation>Pak kun ændrede filer</translation>
@@ -31408,9 +31116,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Create tarball:</source>
         <translation>Opret tarball:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP-initialisering mislykkedes: %1</translation>
@@ -31447,9 +31152,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Uploading file &quot;%1&quot;...</source>
         <translation>Uploader filen &quot;%1&quot;...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Upload filer via SFTP</translation>
@@ -31542,16 +31244,10 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Key via ssh-agent</source>
         <translation>Nøgle via ssh-agent</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Ny generisk Linux-enhed konfigurationsopsætning</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Opsummering</translation>
@@ -31562,9 +31258,6 @@ In addition, device connectivity will be tested.</source>
         <translation>Den nye enhedskonfiguration vil nu blive oprettet.
 Derudover testes enhedens forbindelse.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Forbindelse</translation>
@@ -31577,9 +31270,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Generic Linux Device</source>
         <translation>Generisk Linux-enhed</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Opretter forbindelse til vært...</translation>
@@ -31616,16 +31306,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>The following specified ports are currently in use: %1</source>
         <translation>Følgende porte er aktuelt i brug: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Kør brugerdefineret fjern-kommando</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Trinvis udsendelse</translation>
@@ -31638,9 +31322,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Command line:</source>
         <translation>Kommandolinje:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>Assistent side</translation>
@@ -31681,9 +31362,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Agent</source>
         <translation>Agent</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Generisk Linux</translation>
@@ -31692,9 +31370,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Deploy Public Key...</source>
         <translation>Udsend offentlig nøgle...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Forbereder SFTP-forbindelse...</translation>
@@ -31715,16 +31390,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Failed to upload package: %2</source>
         <translation>Kunne ikke uploade pakke: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MB</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote executable:</source>
         <translation>Fjern-eksekverbar:</translation>
@@ -31745,9 +31414,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Run &quot;%1&quot;</source>
         <translation>Kør &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Fejl: ingen enhed</translation>
@@ -31768,16 +31434,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Remote stderr was: &quot;%1&quot;</source>
         <translation>Fjern-stderr var: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (standard)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Vælg offentlig nøgle-fil</translation>
@@ -31798,9 +31458,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Close</source>
         <translation>Luk</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Fjern-proces holdt op med at virke.</translation>
@@ -31827,16 +31484,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Cannot check for free disk space: &quot;%1&quot; is not an absolute path.</source>
         <translation>Kan ikke tjekke for ledig diskplads: &quot;%1&quot; er ikke en absolut sti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Tjek for ledig diskplads</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Ingen kommandolinje givet.</translation>
@@ -31861,9 +31512,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Remote command finished successfully.</source>
         <translation>Fjern-kommando fuldført med succes.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Rensmiljø</translation>
@@ -31872,9 +31520,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>System Environment</source>
         <translation>Systemmiljø</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Hent enhedsmiljø</translation>
@@ -31891,9 +31536,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Fetching environment failed: %1</source>
         <translation>Hentning af miljø mislykkedes: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on device:</source>
         <translation>Eksekverbar på enhed:</translation>
@@ -31906,16 +31548,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Executable on host:</source>
         <translation>Eksekverbar på vært:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Afslutningskode er %1. stderr:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Fejl ved offentlig nøgle: %1</translation>
@@ -31928,9 +31564,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Key deployment failed: %1.</source>
         <translation>Udsendelse af nøgle mislykkedes: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Pakning afsluttede med succes.</translation>
@@ -31979,9 +31612,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Create tarball</source>
         <translation>Opret tarball</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Intet tarball oprettelsestrin fundet.</translation>
@@ -32000,17 +31630,6 @@ Derudover testes enhedens forbindelse.</translation>
     <message>
         <source>Required disk space:</source>
         <translation>Krævet diskplads:</translation>
-    </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Præfiks:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Sprog:</translation>
     </message>
 </context>
 <context>
@@ -32063,9 +31682,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Could not copy the file to %1.</source>
         <translation>Kunne ikke kopiere filen til %1.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Fortryd</translation>
@@ -32089,10 +31705,6 @@ Derudover testes enhedens forbindelse.</translation>
     <message>
         <source>Remove Prefix...</source>
         <translation>Fjern præfiks...</translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
-        <translation>Fjern manglende filer</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -32146,9 +31758,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Rename Prefix</source>
         <translation>Omdøb præfiks</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Åbn fil</translation>
@@ -32161,16 +31770,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Copy Resource Path to Clipboard</source>
         <translation>Kopiér ressourcesti til udklipsholder</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>Alle filer (*)</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Filnavnet er tomt.</translation>
@@ -32183,9 +31786,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>The &lt;RCC&gt; root element is missing.</source>
         <translation>Rodelementet &lt;RCC&gt; mangler.</translation>
     </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 præfiks: %2</translation>
@@ -33567,7 +33167,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>TestTreeItem</name>
+    <name>::Autotest</name>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (ingen)</translation>
@@ -36143,7 +35743,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Vælg emne</translation>
@@ -37181,9 +36781,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Calls</source>
         <translation>Kald</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Forrige kommando er endnu ikke færdig.</translation>
@@ -37216,9 +36813,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Callgrind unpaused.</source>
         <translation>Callgrind fjernet fra pause.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funktion:</translation>
@@ -37290,9 +36884,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Incl. Cost: %1</source>
         <translation>Inkl. pris: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 i %2</translation>
@@ -37301,9 +36892,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>%1:%2 in %3</source>
         <translation>%1:%2 i %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Sidste-niveau</translation>
@@ -37360,9 +36948,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Position:</source>
         <translation>Position:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -37371,9 +36956,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>in %1</source>
         <translation>i %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Valgrind funktion-profilering bruger Callgrind-værktøjet til at optage funktionskald når et program kører.</translation>
@@ -37538,9 +37120,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Parsing Profile Data...</source>
         <translation>Parser profildata...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profilerer</translation>
@@ -37549,16 +37128,10 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Profiling %1</source>
         <translation>Profilerer %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Undertryk fejl</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Eksterne fejl</translation>
@@ -37715,16 +37288,10 @@ Når et problem detekteres, afbrydes programmet og kan fejlrettes.</translation>
             <numerusform>Logfil behandlet. %n problemstillinger blev fundet.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analyserer hukommelse</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>Gem undertrykkelse</translation>
@@ -37741,9 +37308,6 @@ Når et problem detekteres, afbrydes programmet og kan fejlrettes.</translation>
         <source>Select Suppression File</source>
         <translation>Vælg undertrykkelsesfil</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Generiske indstillinger</translation>
@@ -37912,23 +37476,14 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
         <translation>Valgrind-undertrykkelsesfil (*.supp);;Alle filer (*)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind-indstillinger</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind-valgmuligheder: %1</translation>
@@ -37963,16 +37518,10 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <translation>Proces afsluttede med returværdi %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Alle funktioner med en inkluderende &quot;cost ratio&quot; højere end %1 (%2 er skjult)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer på %1:</translation>
@@ -37981,9 +37530,6 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <source>LogServer on %1:</source>
         <translation>LogServer på %1:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Placering:</translation>
@@ -37992,9 +37538,6 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <source>Instruction pointer:</source>
         <translation>Instruktionspeger:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Problemstilling</translation>
@@ -38003,9 +37546,6 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <source>%1 in function %2</source>
         <translation>%1 i funktionen %2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Kunne ikke parse heks-tal fra &quot;%1&quot; (%2)</translation>
@@ -38058,9 +37598,6 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <source>Unexpected exception caught during parsing.</source>
         <translation>Fangede uventet undtagelse under parsing.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Beskrivelse</translation>
@@ -40374,14 +39911,11 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>AddAnalysisMessageSuppressionComment</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Tilføj en kommentar for at undertrykke denne meddelelse</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Kodemodel advarsel</translation>
@@ -40656,7 +40190,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>HeobDialog</name>
+    <name>::Valgrind</name>
     <message>
         <source>XML output file:</source>
         <translation>XML-output-fil:</translation>
@@ -40765,13 +40299,6 @@ Gemning mislykkedes.</translation>
         <source>OK</source>
         <translation>OK</translation>
     </message>
-    <message>
-        <source>Heob</source>
-        <translation>Heob</translation>
-    </message>
-</context>
-<context>
-    <name>HeobData</name>
     <message>
         <source>Process %1</source>
         <translation>Proces %1</translation>

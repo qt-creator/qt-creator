@@ -75,6 +75,8 @@ public:
     virtual QString groupingToolTip() const { return {}; }
 
     ITestFramework *asFramework() final { return this; }
+    // helper for matching a function symbol's name to a test of this framework
+    virtual QStringList testNameForSymbolName(const QString &symbolName) const;
 
 protected:
     virtual ITestParser *createTestParser() = 0;

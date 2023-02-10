@@ -80,18 +80,13 @@ RemoteLinuxPlugin::~RemoteLinuxPlugin()
     delete dd;
 }
 
-QVector<QObject *> RemoteLinuxPlugin::createTestObjects() const
-{
-    return {
-#ifdef WITH_TESTS
-        new FileSystemAccessTest,
-#endif
-    };
-}
-
 void RemoteLinuxPlugin::initialize()
 {
     dd = new RemoteLinuxPluginPrivate;
+
+#ifdef WITH_TESTS
+    addTest<FileSystemAccessTest>();
+#endif
 }
 
 } // namespace Internal

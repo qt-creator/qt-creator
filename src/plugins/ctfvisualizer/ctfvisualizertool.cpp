@@ -7,6 +7,7 @@
 #include "ctfstatisticsmodel.h"
 #include "ctfstatisticsview.h"
 #include "ctftimelinemodel.h"
+#include "ctfvisualizertr.h"
 #include "ctfvisualizertraceview.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>

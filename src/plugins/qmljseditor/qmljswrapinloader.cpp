@@ -62,13 +62,10 @@ protected:
 template <typename T>
 class Operation: public QmlJSQuickFixOperation
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJSEditor::Internal::Operation)
-
     T *m_objDef;
 
 public:
-    Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-              T *objDef)
+    Operation(const QmlJSQuickFixAssistInterface *interface, T *objDef)
         : QmlJSQuickFixOperation(interface, 0)
         , m_objDef(objDef)
     {
@@ -82,7 +79,7 @@ public:
         QString tryName = base;
         int extraNumber = 1;
         const ObjectValue *found = nullptr;
-        const ScopeChain &scope = assistInterface()->semanticInfo().scopeChain();
+        const ScopeChain &scope = semanticInfo().scopeChain();
         forever {
             scope.lookup(tryName, &found);
             if (!found || extraNumber > 1000)
@@ -157,7 +154,7 @@ public:
 } // end of anonymous namespace
 
 
-void matchWrapInLoaderQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+void matchWrapInLoaderQuickFix(const QmlJSQuickFixAssistInterface *interface, QuickFixOperations &result)
 {
     const int pos = interface->currentFile()->cursor().position();
 

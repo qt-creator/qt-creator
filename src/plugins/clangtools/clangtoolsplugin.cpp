@@ -167,6 +167,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
         button->setPopupMode(QToolButton::InstantPopup);
         button->setIcon(icon);
         button->setToolTip(Tr::tr("Analyze File..."));
+        button->setProperty("noArrow", true);
         widget->toolBar()->addWidget(button);
         const auto toolsMenu = new QMenu(widget);
         button->setMenu(toolsMenu);

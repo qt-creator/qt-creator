@@ -121,8 +121,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
 
     // Create copy if needed
     if (config.isReadOnly()) {
-        const QString name = QCoreApplication::translate("ClangDiagnosticConfig",
-                                                         "Project: %1 (based on %2)")
+        const QString name = Tr::tr("Project: %1 (based on %2)")
                                  .arg(project->displayName(), config.displayName());
         config = ClangDiagnosticConfigsModel::createCustomConfig(config, name);
     }
@@ -141,9 +140,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     projectSettings.setDiagnosticConfigId(config.id());
 
     // Notify the user about changed project specific settings
-    const QString text
-        = QCoreApplication::translate("ClangDiagnosticConfig",
-                                      "Changes applied in Projects Mode > Clang Code Model");
+    const QString text = Tr::tr("Changes applied in Projects Mode > Clang Code Model");
     FadingIndicator::showText(Core::ICore::mainWindow(),
                               text,
                               FadingIndicator::SmallText);
@@ -192,7 +189,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
                 line = match.captured(6).toInt(&ok);
                 column = 0;
             }
-            FilePath auxFilePath = FilePath::fromUserInput(match.captured(1));
+            FilePath auxFilePath = mapper(FilePath::fromUserInput(match.captured(1)));
             if (auxFilePath.isRelativePath() && auxFilePath.fileName() == filePath.fileName())
                 auxFilePath = filePath;
             aux.location = {auxFilePath, line, column - 1};
@@ -326,7 +323,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
 
 bool ClangdTextMark::addToolTipContent(QLayout *target) const
 {
-    const auto canApplyFixIt = [c = m_client, diag = m_lspDiagnostic, fp = fileName()] {
+    const auto canApplyFixIt = [c = m_client, diag = m_lspDiagnostic, fp = filePath()] {
         return QTC_GUARD(c) && c->reachable() && c->hasDiagnostic(fp, diag);
     };
     const QString clientName = QTC_GUARD(m_client) ? m_client->name() : "clangd [unknown]";

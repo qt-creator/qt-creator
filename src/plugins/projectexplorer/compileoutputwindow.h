@@ -6,11 +6,11 @@
 #include "buildstep.h"
 
 #include "projectexplorersettings.h"
-#include "projectexplorertr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/ioutputpane.h>
 
+#include <QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;
@@ -36,7 +36,8 @@ public:
 
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override { return Tr::tr("Compile Output"); }
+    QString displayName() const override {
+        return QCoreApplication::translate("::ProjectExplorer","Compile Output"); }
     int priorityInStatusBar() const override;
     void clearContents() override;
     bool canFocus() const override;

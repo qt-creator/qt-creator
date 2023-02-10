@@ -489,7 +489,7 @@ void FollowSymbolTest::initTestCase()
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (clangdFromEnv.isEmpty())
         return;
-    ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+    ClangdSettings::setClangdFilePath(Utils::FilePath::fromUserInput(clangdFromEnv));
     const auto clangd = ClangdSettings::instance().clangdFilePath();
     if (clangd.isEmpty() || !clangd.exists())
         return;

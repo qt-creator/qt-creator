@@ -952,7 +952,7 @@ namespace ADS
         const bool success = write(workspace, data, &errorString);
         if (!success)
             QMessageBox::critical(parent,
-                                  QCoreApplication::translate("Utils::FileSaverBase", "File Error"),
+                                  QCoreApplication::translate("::Utils", "File Error"),
                                   errorString);
         return success;
     }

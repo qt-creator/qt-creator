@@ -36,8 +36,7 @@ FilePaths FSEngine::registeredDeviceRoots()
 
 void FSEngine::addDevice(const FilePath &deviceRoot)
 {
-    if (deviceRoot.hasFileAccess())
-        deviceRoots().append(deviceRoot);
+    deviceRoots().append(deviceRoot);
 }
 
 void FSEngine::removeDevice(const FilePath &deviceRoot)

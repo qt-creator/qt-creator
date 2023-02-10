@@ -113,8 +113,7 @@ void McuSdkRepository::expandVariablesAndWildcards()
             }
             // drop empty_split_entry(linux)|root(windows)
             QString root = pathComponents.takeFirst();
-            if (root.isEmpty()) // Linux
-                root = "/";
+            root.append('/'); // ensure we have a path (UNIX just a '/', Windows 'C:/' or similar)
 
             package->setPath(
                 expandWildcards(FilePath::fromString(root),

@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QCoreApplication>
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -27,7 +26,6 @@ class Project;
 
 class GitLabCloneDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(GitLab::GitLabCloneDialog)
 public:
     explicit GitLabCloneDialog(const Project &project, QWidget *parent = nullptr);
 

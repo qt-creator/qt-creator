@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace QmakeProjectManager {
+namespace Fossil {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::QmakeProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(::Fossil)
 };
 
-} // namespace QmakeProjectManager
+} // namespace Fossil

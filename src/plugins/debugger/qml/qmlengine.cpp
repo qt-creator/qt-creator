@@ -1079,7 +1079,7 @@ void QmlEnginePrivate::updateScriptSource(const QString &fileName, int lineOffse
     }
 
     //update open editors
-    QString titlePattern = QCoreApplication::translate("QmlEngine", "JS Source for %1").arg(fileName);
+    QString titlePattern = Tr::tr("JS Source for %1").arg(fileName);
     //Check if there are open editors with the same title
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *doc: documents) {
@@ -2044,7 +2044,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
 
     stackFrame.function = extractString(body.value("func"));
     if (stackFrame.function.isEmpty())
-        stackFrame.function = QCoreApplication::translate("QmlEngine", "Anonymous Function");
+        stackFrame.function = Tr::tr("Anonymous Function");
     stackFrame.file = FilePath::fromString(
         engine->toFileInProject(extractString(body.value("script"))));
     stackFrame.usable = stackFrame.file.isReadableFile();

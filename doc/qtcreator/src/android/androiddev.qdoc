@@ -169,9 +169,9 @@
 
     \section2 Managing Android SDK Packages
 
-    Since Android SDK Tools version 25.3.0, only a command-line tool,
-    \l {sdkmanager}, is provided by Android for SDK package management.
-    To make SDK management easier, \QC provides an SDK Manager for
+    Since Android SDK Tools version 25.3.0, Android has only a command-line
+    tool, \l {sdkmanager}, for SDK package management. To make SDK management
+    easier, \QC has an SDK Manager for
     installing, updating, and removing SDK packages. You can still use
     sdkmanager for advanced SDK management.
 

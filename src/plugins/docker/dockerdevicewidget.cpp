@@ -182,10 +182,13 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         logView->clear();
         dockerDevice->updateContainerAccess();
 
-        const FilePath clangdPath = dockerDevice->systemEnvironment()
-                                        .searchInPath("clangd", {}, [](const FilePath &clangd) {
-                                            return Utils::checkClangdVersion(clangd);
-                                        });
+        const FilePath clangdPath = dockerDevice->filePath("clangd")
+                                        .searchInPath({},
+                                                      FilePath::AppendToPath,
+                                                      [](const FilePath &clangd) {
+                                                          return Utils::checkClangdVersion(clangd);
+                                                      });
+
         if (!clangdPath.isEmpty())
             m_clangdExecutable->setFilePath(clangdPath);
 

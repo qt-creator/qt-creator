@@ -2378,7 +2378,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -2491,9 +2491,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Second chance exceptions</source>
         <translation>セカンドチャンスの例外</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br/&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server, to also use a local symbol cache.&lt;br/&gt;A fast internet connection is required for this to work smoothly,&lt;br/&gt;and a delay might occur when connecting for the first time and caching the symbols.&lt;/p&gt;&lt;p&gt;What would you like to set up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このデバッガは Microsoft の公開シンボルサーバーを利用する設定ではありません。&lt;br/&gt;オペレーティングシステムのライブラリのシンボルはサーバーから取得することが推奨されています。&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;注意:&lt;/span&gt; Microsoft のシンボルサーバーを用いる場合、ローカルにシンボルキャッシュを持つことも推奨されています。&lt;br/&gt;快適な作業には高速なインターネット回線が必要です。&lt;br/&gt;また、初めて接続しシンボルをキャッシュする際には遅延が生じるでしょう。&lt;/p&gt;&lt;p&gt;どのように設定しますか？&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -5635,9 +5632,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Edit</source>
         <translation>編集</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>追加...</translation>
@@ -5658,9 +5652,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Link with Qt...</source>
         <translation>Qt にリンクする...</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>デバッグヘルパのビルドログ</translation>
@@ -5764,9 +5755,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Specific &amp;key</source>
         <translation>特定のキー(&amp;K)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -5820,7 +5808,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
@@ -5852,10 +5840,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Add Prefix</source>
         <translation>プレフィックスの追加</translation>
-    </message>
-    <message>
-        <source>Add Files</source>
-        <translation>ファイルの追加</translation>
     </message>
 </context>
 <context>
@@ -7154,7 +7138,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>トピックの選択</translation>
@@ -8659,7 +8643,7 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Sessions</source>
         <translation>セッション</translation>
@@ -8678,14 +8662,11 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>::QtSupport</name>
     <message>
         <source>Search in Examples...</source>
         <translation>サンプルを検索...</translation>
     </message>
-</context>
-<context>
-    <name>tutorials</name>
     <message>
         <source>Search in Tutorials...</source>
         <translation>チュートリアルを検索...</translation>
@@ -8714,7 +8695,7 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -8727,9 +8708,6 @@ preferShaping プロパティを false に設定すると、このような機�
         <source>Delete</source>
         <translation>削除</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (最後のセッション)</translation>
@@ -14847,7 +14825,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
@@ -15720,9 +15698,6 @@ Flags: %3</source>
         <source>Add Breakpoint</source>
         <translation>ブレークポイントを追加</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The console process &quot;%1&quot; could not be started.</source>
         <translation>コンソールプロセス &quot;%1&quot; を起動できませんでした。</translation>
@@ -15811,9 +15786,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>&quot;Select Widget to Watch&quot;: Please stop the application first.</source>
         <translation>&quot;監視対象のウィジェットの選択&quot;: 先にアプリケーションを停止してください。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++ 例外</translation>
@@ -15838,9 +15810,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>Output:</source>
         <translation>出力:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>シンボルのパス</translation>
@@ -15853,9 +15822,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>CDB Paths</source>
         <translation>CDB のパス</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>動作</translation>
@@ -16233,9 +16199,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>Display thread names</source>
         <translation>スレッド名を表示する</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>デバッガ起動</translation>
@@ -16355,9 +16318,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Attach to %1</source>
         <translation>%1 にアタッチ</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Kit:</source>
         <translation>キット:</translation>
@@ -16366,9 +16326,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Port:</source>
         <translation>ポート(&amp;P):</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;リモート CDB には対応する Qt Creator CDB エクステンション(&lt;code&gt;%1&lt;/code&gt; か &lt;code&gt;%2&lt;/code&gt;)が必要です。&lt;/p&gt;&lt;p&gt;エクステンションをリモートマシンにコピーして、環境変数 &lt;code&gt;%3&lt;/code&gt; にそのフォルダを設定してください。&lt;/p&gt;&lt;p&gt;リモート CDB は TCP/IP を接続プロトコルとして使用するように &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; と実行してください。&lt;/p&gt;&lt;p&gt;接続パラメータには以下を使用してください:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -16385,9 +16342,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Connection:</source>
         <translation>接続(&amp;C):</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>開始アドレスの選択</translation>
@@ -16396,9 +16350,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Enter an address:</source>
         <translation>アドレスを入力:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>リモートエンジン開始</translation>
@@ -16423,9 +16374,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Inferior path:</source>
         <translation>対象プログラムのパス(&amp;I):</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Formats</source>
         <translation>型の表示形式</translation>
@@ -17798,9 +17746,6 @@ markers in the source code editor.</source>
         <source>Interrupting not possible</source>
         <translation>割り込み不可</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>リモートエラー</translation>
@@ -17919,16 +17864,10 @@ markers in the source code editor.</source>
         <source>An unknown error in the LLDB process occurred.</source>
         <translation>LLDB プロセスにて未知のエラーが発生しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>リモートファイルのダウンロードが成功しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>コアファイルを読み込み</translation>
@@ -17981,9 +17920,6 @@ markers in the source code editor.</source>
         <source>Select Remote Core File</source>
         <translation>リモートコアファイルの選択</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>内容をクリア</translation>
@@ -17996,16 +17932,10 @@ markers in the source code editor.</source>
         <source>Reload Debugging Helpers</source>
         <translation>デバッグヘルパを再読込する</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>1行だけ実行するには、Ctrl+&lt;リターン&gt;キーを押してください。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>デバッガログ</translation>
@@ -18050,9 +17980,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Log File</source>
         <translation>ログファイル</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>レジスタ &quot;%1&quot; (0x%2) の指すメモリ</translation>
@@ -18097,9 +18024,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>None</source>
         <translation>シンボルなし</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>一時ファイルを作成できません: %1</translation>
@@ -18112,9 +18036,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Cannot open FiFo %1: %2</source>
         <translation>FiFo %1 を開けません: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Adapter start failed</source>
         <translation>アダプタの開始に失敗しました</translation>
@@ -18151,9 +18072,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>An unknown error in the Pdb process occurred.</source>
         <translation>Pdb プロセスにて未知のエラーが発生しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>QML と C++ の同時デバッグに必要なスレーブ側のデバッグエンジンが作成できませんでした: %1</translation>
@@ -18166,9 +18084,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>QML debugger activated</source>
         <translation>QML デバッガがアクティブになりました</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>時間内にアプリケーション出力を受信できません</translation>
@@ -18186,10 +18101,6 @@ Do you want to retry?</source>
     <message>
         <source>QML Debugger: Remote host closed connection.</source>
         <translation>QML デバッガ: リモートホストが接続を閉じました。</translation>
-    </message>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>%1 の JavaScript ソース</translation>
     </message>
     <message>
         <source>Could not connect to the in-process QML debugger. %1</source>
@@ -18239,9 +18150,6 @@ Do you want to retry?</source>
         <source>QML Debugger: Connection failed.</source>
         <translation>QML デバッガの接続に失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>成功:</translation>
@@ -18254,9 +18162,6 @@ Do you want to retry?</source>
         <source>Properties</source>
         <translation>プロパティ</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>ASCII 文字列としての値</translation>
@@ -18345,9 +18250,6 @@ Do you want to retry?</source>
         <source>Cannot Create</source>
         <translation>作成不可</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>シンボルサーバーの挿入...</translation>
@@ -18384,9 +18286,6 @@ Do you want to retry?</source>
         <source>Remove Snapshot</source>
         <translation>スナップショットを削除</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>内部名</translation>
@@ -20804,13 +20703,6 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>Git Repository Browser Command</source>
         <translation>Git リポジトリブラウザコマンド</translation>
-    </message>
-</context>
-<context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>シェーダ記述言語(GLSL)</translation>
     </message>
 </context>
 <context>
@@ -23329,10 +23221,6 @@ Excluding: %2
         <translation>名前</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
         <source>Make Default</source>
         <translation>既定にする</translation>
     </message>
@@ -24305,10 +24193,6 @@ to project &quot;%2&quot;.</source>
         <translation>名前変更して開く(&amp;O)</translation>
     </message>
     <message>
-        <source>New Project</source>
-        <translation>新しいプロジェクト</translation>
-    </message>
-    <message>
         <source>Open Session #%1</source>
         <translation>セッション #%1 を開く</translation>
     </message>
@@ -24342,22 +24226,6 @@ to project &quot;%2&quot;.</source>
         <translation>セッション</translation>
     </message>
     <message>
-        <source>%1 (last session)</source>
-        <translation>%1 (最後のセッション)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation>%1 (現在のセッション)</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>名前を変更</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>project</source>
         <comment>Appears in &quot;Open project &lt;name&gt;&quot;</comment>
         <translation>プロジェクト</translation>
@@ -24382,20 +24250,6 @@ to project &quot;%2&quot;.</source>
         <source>Open</source>
         <translation>開く</translation>
     </message>
-    <message>
-        <source>Sessions</source>
-        <translation>セッション</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>ビルドと実行</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Summary</source>
         <translation>概要</translation>
@@ -27793,9 +27647,6 @@ Do you want to save the data first?</source>
         <source>Main QML file:</source>
         <translation>メイン QML ファイル:</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;現在のファイル&gt;</translation>
@@ -28057,9 +27908,6 @@ Do you want to save the data first?</source>
         <comment>Qt version is used for Boot2Qt development</comment>
         <translation>Boot2Qt</translation>
     </message>
-</context>
-<context>
-    <name>BaseQtVersion</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Qt がサポートしていないデバイスの種類です。</translation>
@@ -28124,9 +27972,6 @@ Do you want to save the data first?</source>
         <source>Requires Qt 5.0.0 or newer.</source>
         <translation>Qt 5.0.0 以降が必要です。</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -28219,17 +28064,6 @@ cannot be found in the path.</source>
         <translation>プロジェクトをコピーできません</translation>
     </message>
     <message>
-        <source>Search in Examples...</source>
-        <translation>サンプルを検索...</translation>
-    </message>
-    <message>
-        <source>Search in Tutorials...</source>
-        <translation>チュートリアルを検索...</translation>
-    </message>
-</context>
-<context>
-    <name>::QtSupport</name>
-    <message>
         <source>Qt version:</source>
         <translation>Qt バージョン:</translation>
     </message>
@@ -28237,9 +28071,6 @@ cannot be found in the path.</source>
         <source>%1 (invalid)</source>
         <translation>%1 (無効)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;名前を入力&gt;</translation>
@@ -28348,9 +28179,6 @@ cannot be found in the path.</source>
         <source>qmake Location</source>
         <translation>qmake のパス</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>現在のプロジェクトの Qt のホスト上の bin ディレクトリのフルパスです。</translation>
@@ -28359,9 +28187,6 @@ cannot be found in the path.</source>
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>現在のプロジェクトの Qt のターゲット上の bin ディレクトリのフルパスです。%1 が使用できるかもしれません。</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>qmake 用ファクトリが見つかりません: &quot;%1&quot;</translation>
@@ -28397,9 +28222,6 @@ cannot be found in the path.</source>
         <source>Connection error: %1</source>
         <translation>接続エラー: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>デプロイエラー: %1</translation>
@@ -28416,9 +28238,6 @@ cannot be found in the path.</source>
         <source>Deploy step finished.</source>
         <translation>デプロイステップが完了しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>パッケージファイルのアップロードが成功しました。</translation>
@@ -28431,9 +28250,6 @@ cannot be found in the path.</source>
         <source>Package installed.</source>
         <translation>パッケージをインストールしました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP 初期化失敗: %1</translation>
@@ -28470,9 +28286,6 @@ cannot be found in the path.</source>
         <source>All files successfully deployed.</source>
         <translation>すべてのファイルのデプロイが成功しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>増分デプロイ</translation>
@@ -28485,16 +28298,10 @@ cannot be found in the path.</source>
         <source>Upload files via SFTP</source>
         <translation>SFTP 経由でファイルをアップロード</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>新しい一般的な Linux デバイスの設定</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>接続</translation>
@@ -28503,9 +28310,6 @@ cannot be found in the path.</source>
         <source>Choose a Private Key File</source>
         <translation>秘密鍵ファイルの選択</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>概要</translation>
@@ -28516,9 +28320,6 @@ In addition, device connectivity will be tested.</source>
         <translation>新しいデバイス設定が作成されます。
 あわせてデバイスの接続確認も実行されます。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>一般的な Linux</translation>
@@ -28531,9 +28332,6 @@ In addition, device connectivity will be tested.</source>
         <source>Deploy Public Key...</source>
         <translation>公開鍵をデプロイ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>ホストに接続中...</translation>
@@ -28570,9 +28368,6 @@ In addition, device connectivity will be tested.</source>
         <source>The following specified ports are currently in use: %1</source>
         <translation>以下の指定されたポートは既に使用中です: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>SFTP 接続の準備中...</translation>
@@ -28597,9 +28392,6 @@ In addition, device connectivity will be tested.</source>
         <source>Failed to upload package: %2</source>
         <translation>パッケージアップロード失敗: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>公開鍵ファイルを選択してください</translation>
@@ -28620,9 +28412,6 @@ In addition, device connectivity will be tested.</source>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Creating remote socket ...</source>
         <translation>リモートソケットを作成しています ...</translation>
@@ -28639,9 +28428,6 @@ In addition, device connectivity will be tested.</source>
         <source>Failure running remote process.</source>
         <translation>リモートプロセスの実行に失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>リモートプロセスがクラッシュしました。</translation>
@@ -28666,9 +28452,6 @@ In addition, device connectivity will be tested.</source>
             <numerusform>リモートのファイルシステムは %n MBytes の空き容量がありますので、続行します。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote path to check for free space:</source>
         <translation>空き容量を確認するリモートのパス:</translation>
@@ -28685,9 +28468,6 @@ In addition, device connectivity will be tested.</source>
         <source>Check for free disk space</source>
         <translation>ディスクの空き容量チェック</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>コマンドラインが設定されていません。</translation>
@@ -28716,9 +28496,6 @@ In addition, device connectivity will be tested.</source>
         <source>Remote command finished successfully.</source>
         <translation>リモートコマンドは正常に終了しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking available ports...</source>
         <translation>使用可能なポートを確認中...</translation>
@@ -28739,16 +28516,10 @@ In addition, device connectivity will be tested.</source>
         <source>Initial setup failed: %1</source>
         <translation>初回セットアップ失敗: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>リモート Linux ホストにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>環境変数なし</translation>
@@ -28757,9 +28528,6 @@ In addition, device connectivity will be tested.</source>
         <source>System Environment</source>
         <translation>システム環境変数</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>デバイス環境の取得</translation>
@@ -28776,9 +28544,6 @@ In addition, device connectivity will be tested.</source>
         <source>Fetching environment failed: %1</source>
         <translation>環境の取得に失敗: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>エラー: デバイスなし</translation>
@@ -28799,9 +28564,6 @@ In addition, device connectivity will be tested.</source>
         <source>Remote stderr was: &quot;%1&quot;</source>
         <translation>リモート側の標準エラー出力: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>接続エラー: %1</translation>
@@ -28810,9 +28572,6 @@ In addition, device connectivity will be tested.</source>
         <source>Installing package failed.</source>
         <translation>パッケージのインストールに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (on Remote Device)</source>
         <translation>%1 (リモートデバイス上)</translation>
@@ -28822,16 +28581,10 @@ In addition, device connectivity will be tested.</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation>リモートデバイスで実行</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(リモートの一般的な Linux ホスト上)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>ホスト上の実行可能ファイル:</translation>
@@ -28864,9 +28617,6 @@ In addition, device connectivity will be tested.</source>
         <source>Remote path not set</source>
         <translation>リモートのパスが設定されていません</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>デバッグエラー: キットにデバイスがありません。</translation>
@@ -28879,16 +28629,10 @@ In addition, device connectivity will be tested.</source>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>デバッグエラー: ローカル実行ファイルが設定されていません。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>終了コードは %1 です。 標準エラー出力:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>公開鍵エラー: %1</translation>
@@ -28897,9 +28641,6 @@ In addition, device connectivity will be tested.</source>
         <source>Key deployment failed: %1.</source>
         <translation>鍵ファイルの転送に失敗: %1。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>パッケージ化が成功しました。</translation>
@@ -28960,16 +28701,10 @@ In addition, device connectivity will be tested.</source>
         <source>Create tarball</source>
         <translation>tar ファイルの作成</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (既定)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>tarball 作成ステップが見つかりません。</translation>
@@ -28984,10 +28719,6 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Add Files</source>
         <translation>ファイルを追加</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation>プレフィックスを追加</translation>
     </message>
     <message>
         <source>Invalid file location</source>
@@ -29029,9 +28760,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could not copy the file to %1.</source>
         <translation>ファイル %1 をコピーできませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>ファイル名が未入力です。</translation>
@@ -29044,16 +28772,10 @@ In addition, device connectivity will be tested.</source>
         <source>The &lt;RCC&gt; root element is missing.</source>
         <translation>&lt;RCC&gt; にルート要素がありません。</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>すべてのファイル (*)</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -29077,10 +28799,6 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Remove Prefix...</source>
         <translation>プレフィックスを削除する...</translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
-        <translation>存在しないファイルを削除する</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -29122,9 +28840,6 @@ In addition, device connectivity will be tested.</source>
         <source>Rename Prefix</source>
         <translation>プレフィックス名の変更</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
@@ -30320,9 +30035,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Calls</source>
         <translation>呼出回数</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>前のコマンドが完了していません。</translation>
@@ -30359,9 +30071,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Downloading remote profile data...</source>
         <translation>リモートプロファイルデータをダウンロード中...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>関数:</translation>
@@ -30432,9 +30141,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Incl. Cost: %1</source>
         <translation>全体コスト: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%2 の %1</translation>
@@ -30443,9 +30149,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>%1:%2 in %3</source>
         <translation>%3 の %1:%2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最終レベル</translation>
@@ -30502,16 +30205,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Position:</source>
         <translation>位置:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>全体のコスト率が %1 より高いすべての関数 (%2 個の関数が非表示)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>%1 の XmlServer:</translation>
@@ -30520,16 +30217,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>LogServer on %1:</source>
         <translation>%1 の LogServer:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing memory of %1</source>
         <translation>%1 のメモリ解析中</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>%1</translation>
@@ -30538,16 +30229,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>%1%2</source>
         <translation>%1%2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>エラーを抑制</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部エラー</translation>
@@ -30670,9 +30355,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
             <numerusform>ログファイルを解析しました。%n 個の問題が見つかりました。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>抑制ファイルの保存</translation>
@@ -30689,9 +30371,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Select Suppression File</source>
         <translation>抑制ファイルを選択</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind オプション: %1</translation>
@@ -30730,16 +30409,10 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Could not determine remote PID.</source>
         <translation>リモートの PID が取得できませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind の設定</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>問題</translation>
@@ -30748,9 +30421,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>%1 in function %2</source>
         <translation>関数 %2 の %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>パス:</translation>
@@ -30759,9 +30429,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Instruction pointer:</source>
         <translation>命令ポインタ:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>&quot;%1&quot; (%2) からの16進数を解析できません</translation>
@@ -30814,9 +30481,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Unexpected exception caught during parsing.</source>
         <translation>解析中に予期せぬ例外を catch しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>説明</translation>
@@ -31102,15 +30766,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>リンクを開く</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>リンクを新しいページで開く</translation>
-    </message>
+    <name>::Help</name>
 </context>
 <context>
     <name>MimeType</name>
@@ -32965,7 +32621,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>文字を削除する</translation>
@@ -34477,11 +34133,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>SessionActionLabel</name>
-    <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>::ExtensionSystem</name>
@@ -35365,9 +35017,6 @@ the program.</source>
         <source>Show Data Functions</source>
         <translation>データ関数を表示する</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>テスト</translation>
@@ -35426,9 +35075,6 @@ the program.</source>
         <source>Execution took %1.</source>
         <translation>実行時間は %1 でした。</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>テスト実行の停止</translation>
@@ -35545,9 +35191,6 @@ the program.</source>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>テスト実行はユーザーによってキャンセルされました。</translation>
@@ -36975,7 +36618,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>リビジョン &quot;%1&quot; のアノテーション</translation>
@@ -37270,9 +36913,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Jump to Line %1</source>
         <translation>%1 行目にジャンプ</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>不明</translation>
@@ -37450,9 +37090,6 @@ Affected are breakpoints %1</source>
         <source>Tries to install missing debug information.</source>
         <translation>不足するデバッグ情報のインストールを試みます。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot start %1 without a project. Please open the project and try again.</source>
         <translation>プロジェクト無しでは %1 を開始できません。プロジェクトを開いた後に再度試してください。</translation>
@@ -37485,9 +37122,6 @@ Affected are breakpoints %1</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%2モードのアプリケーションに対してツール &quot;%1&quot; を実行しようとしています。このツールは%3モードでの利用を想定しています。&lt;/p&gt;&lt;p&gt;バイナリが最適化済みかどうかによって実行時の特性は大きく異なります。あるモードでの解析結果が別のモードには当てはまらない場合もあります。&lt;/p&gt;&lt;p&gt;デバッグシンボルが含まれないバイナリに対してデバッグシンボルが必要なツールを実行する場合には関数名が取得できなかったり結果が不十分なものになることもあります。&lt;/p&gt;&lt;p&gt;%2モードでのツールの実行を継続しますか？&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>デバッガ設定</translation>
@@ -37508,9 +37142,6 @@ Affected are breakpoints %1</source>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;前提条件は？&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (直前)</translation>
@@ -37535,9 +37166,6 @@ Affected are breakpoints %1</source>
         <source>Expression too complex</source>
         <translation>複雑すぎる式</translation>
     </message>
-</context>
-<context>
-    <name>QmlEngine</name>
     <message>
         <source>JS Source for %1</source>
         <translation>%1 の JS ソース</translation>
@@ -37546,9 +37174,6 @@ Affected are breakpoints %1</source>
         <source>Anonymous Function</source>
         <translation>無名関数</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>ターミナル: /dev/ptmx を開けません: %1</translation>
@@ -37577,9 +37202,6 @@ Affected are breakpoints %1</source>
         <source>Terminal: Read failed: %1</source>
         <translation>ターミナル: 読み込みに失敗しました: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -39139,7 +38761,7 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -39170,9 +38792,6 @@ Would you like to overwrite it?</source>
         <translation>%1 は既に存在しています。
 上書きしますか？</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>%1 のエクスポート</translation>
@@ -40708,13 +40327,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
 <context>
     <name>::QtSupport</name>
     <message>
-        <source>[Inexact] </source>
-        <translation>[不完全] </translation>
-    </message>
-</context>
-<context>
-    <name>::QtSupport</name>
-    <message>
         <source>Qt Versions</source>
         <translation>Qt バージョン</translation>
     </message>
@@ -40725,17 +40337,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
 </context>
 <context>
     <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>プレフィックス:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>言語:</translation>
-    </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 プレフィックス: %2</translation>
@@ -41719,18 +41320,11 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Tests</source>
         <translation>Google Tests</translation>
     </message>
-    <message>
-        <source>Google Test</source>
-        <translation>Google Test</translation>
-    </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>parameterized</source>
         <translation>パラメータ化</translation>
@@ -41739,9 +41333,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>typed</source>
         <translation>型付け</translation>
     </message>
-</context>
-<context>
-    <name>QtTestFramework</name>
     <message>
         <source>Qt Tests</source>
         <translation>Qt テスト</translation>
@@ -41750,16 +41341,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Qt Test</source>
         <translation>Qt Test</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestFramework</name>
     <message>
         <source>Quick Tests</source>
         <translation>Quick テスト</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;無名&gt;</translation>
@@ -41768,23 +41353,14 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;テストケースの実行や選択が正常に動作するようにすべてのテストケースに名前を付けてください。&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>自動テストのデバッグ</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
         <translation>有効なテストフレームワークが存在しないため、AutoTest プラグインを使用できません。</translation>
     </message>
-</context>
-<context>
-    <name>TestTreeItem</name>
     <message>
         <source> (none)</source>
         <translation> (なし)</translation>
@@ -42510,9 +42086,6 @@ Output:
         <source>Directory</source>
         <translation>ディレクトリ</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Walltime</source>
         <translation>総経過時間</translation>
@@ -42558,7 +42131,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Format instead of indenting</source>
         <translation>インデントの代わりにフォーマットを行う</translation>
@@ -43328,9 +42901,6 @@ Output:
         <source>None of the following variants could be correctly parsed:</source>
         <translation>以下のデータのいずれも正しく解析できませんでした:</translation>
     </message>
-</context>
-<context>
-    <name>JsonRpcMessageHandler</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation>JSON メッセージ &quot;%1&quot; を解析できませんでした。</translation>
@@ -43339,9 +42909,6 @@ Output:
         <source>Expected a JSON object, but got a JSON &quot;%1&quot;.</source>
         <translation>読み込まれた JSON &quot;%1&quot; は JSON オブジェクトではありませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; にはパラメータがありません。</translation>
@@ -43649,13 +43216,6 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
-    <message>
-        <source>Testing</source>
-        <translation>自動テスト</translation>
-    </message>
-</context>
-<context>
     <name>::Autotest</name>
     <message>
         <source>Testing</source>
@@ -43745,26 +43305,13 @@ in &quot;%2&quot;.
         <source>Selected test was not found (%1).</source>
         <translation>選択したテストが見つかりませんでした (%1)。</translation>
     </message>
-</context>
-<context>
-    <name>BoostTestFramework</name>
     <message>
         <source>Boost Test</source>
         <translation>Boost Test</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test execution took %1</source>
         <translation>テストの実行時間: %1</translation>
-    </message>
-</context>
-<context>
-    <name>BoostTestTreeItem</name>
-    <message>
-        <source>parameterized</source>
-        <translation>パラメータ化</translation>
     </message>
     <message>
         <source>fixture</source>
@@ -43774,16 +43321,6 @@ in &quot;%2&quot;.
         <source>templated</source>
         <translation>テンプレ化</translation>
     </message>
-</context>
-<context>
-    <name>CatchFramework</name>
-    <message>
-        <source>Catch Test</source>
-        <translation>Catch Test</translation>
-    </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
         <translation>実行中: %1 &quot;%2&quot;</translation>
@@ -43804,41 +43341,18 @@ in &quot;%2&quot;.
         <source>Finished executing %1 &quot;%2&quot;</source>
         <translation>%1 &quot;%2&quot; の実行を終了しました</translation>
     </message>
-</context>
-<context>
-    <name>CatchTestFramework</name>
     <message>
         <source>Catch Test</source>
         <translation>キャッチテスト</translation>
     </message>
-</context>
-<context>
-    <name>CatchTreeItem</name>
-    <message>
-        <source>parameterized</source>
-        <translation>パラメータ化</translation>
-    </message>
-    <message>
-        <source>fixture</source>
-        <translation>フィクスチャ</translation>
-    </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests for %1</source>
         <translation>%1のテストを実行中</translation>
     </message>
-</context>
-<context>
-    <name>CTestTool</name>
     <message>
         <source>CTest</source>
         <translation>CTest</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Global</source>
         <translation>グローバル</translation>
@@ -43859,23 +43373,14 @@ in &quot;%2&quot;.
         <source>None</source>
         <translation>なし</translation>
     </message>
-</context>
-<context>
-    <name>QtTestTreeItem</name>
     <message>
         <source>inherited</source>
         <translation>継承</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>テストの実行ファイルがクラッシュしました。</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>実行構成を選択する</translation>
@@ -44237,18 +43742,10 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>RunControl</name>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 がクラッシュしました。</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>%2 exited with code %1</source>
         <translation>%2 はコード %1 で終了しました</translation>
-    </message>
-    <message>
-        <source>Starting %1 %2...</source>
-        <translation>起動中 %1 %2...</translation>
     </message>
 </context>
 <context>
@@ -44673,9 +44170,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;シンボルの選択&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>プロジェクト: %1 (%2 を使用)</translation>
@@ -44684,9 +44178,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Changes applied in Projects Mode &gt; Clang Code Model</source>
         <translation>Projects Mode &gt; Clang コードモデルで適用される変更点</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>コードモデルの警告</translation>
@@ -44703,9 +44194,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Disable Diagnostic in Current Project</source>
         <translation>現在のプロジェクトの診断を無効化する</translation>
     </message>
-</context>
-<context>
-    <name>ClangUtils</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation>ビルドディレクトリを取得できませんでした。</translation>
@@ -44714,9 +44202,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Could not create &quot;%1&quot;: %2</source>
         <translation>ファイル %1 を作成できませんでした: %2</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clazy の問題</translation>
@@ -44727,7 +44212,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatPlugin</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>使用した clang-format 設定ファイルを開く</translation>
@@ -44883,54 +44368,10 @@ Output:
         <source>Save with Encoding</source>
         <translation>指定された文字コードで保存</translation>
     </message>
-</context>
-<context>
-    <name>ExternalTool</name>
     <message>
         <source>System Environment</source>
         <translation>システム環境変数</translation>
     </message>
-</context>
-<context>
-    <name>::Core</name>
-</context>
-<context>
-    <name>EditorManager</name>
-    <message>
-        <source>Go Back</source>
-        <translation>戻る</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>進む</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>保存(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>名前を付けて保存(&amp;A)...</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>上下に分割</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>左右に分割</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>新規ウィンドウで開く</translation>
-    </message>
-    <message>
-        <source>Close Document</source>
-        <translation>ドキュメントを閉じる</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>%1 %2%3</source>
         <translation>%1 %2%3</translation>
@@ -45177,11 +44618,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
-    <message>
-        <source>&amp;Attach to Process</source>
-        <translation>プロセスにアタッチ(&amp;A)</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>::Debugger</name>
@@ -45309,9 +44746,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Show Sections</source>
         <translation>セクションを表示</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>N/A</source>
         <translation>N/A</translation>
@@ -45474,37 +44908,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Imageviewer</name>
-    <message>
-        <source>Ctrl+=</source>
-        <translation>Ctrl+=</translation>
-    </message>
-    <message>
-        <source>Switch Background</source>
-        <translation>バックグラウンド切替</translation>
-    </message>
-    <message>
-        <source>Ctrl+[</source>
-        <translation>Ctrl+[</translation>
-    </message>
-    <message>
-        <source>Switch Outline</source>
-        <translation>外枠表示切替</translation>
-    </message>
-    <message>
-        <source>Ctrl+]</source>
-        <translation>Ctrl+]</translation>
-    </message>
-    <message>
-        <source>Toggle Animation</source>
-        <translation>アニメーションの切替</translation>
-    </message>
-    <message>
-        <source>Export Image</source>
-        <translation>画像のエクスポート</translation>
-    </message>
-</context>
-<context>
     <name>::ImageViewer</name>
     <message>
         <source>File:</source>
@@ -45600,16 +45003,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation>プロビジョニング・プロファイルの有効期限が切れています。有効期限: %1</translation>
     </message>
-</context>
-<context>
-    <name>DevelopmentTeam</name>
     <message>
         <source>Yes</source>
         <translation>はい</translation>
     </message>
-</context>
-<context>
-    <name>::Ios</name>
 </context>
 <context>
     <name>::LanguageClient</name>
@@ -46023,11 +45420,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation>デプロイせずに実行</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::ProjectExplorer</name>
@@ -46074,10 +45467,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Run as root user</source>
         <translation>管理者として実行する</translation>
-    </message>
-    <message>
-        <source>%2 exited with code %1</source>
-        <translation>%2 はコード %1 で終了しました</translation>
     </message>
     <message>
         <source>Files</source>
@@ -47334,28 +46723,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlJSHoverHandler</name>
-    <message>
-        <source>Library at %1</source>
-        <translation>%1 のライブラリ</translation>
-    </message>
-    <message>
-        <source>Dumped plugins successfully.</source>
-        <translation>プラグインのダンプに成功しました。</translation>
-    </message>
-    <message>
-        <source>Read typeinfo files successfully.</source>
-        <translation>typeinfo ファイルの読み込みに成功しました。</translation>
-    </message>
-</context>
-<context>
-    <name>AddAnalysisMessageSuppressionComment</name>
-    <message>
-        <source>Add a Comment to Suppress This Message</source>
-        <translation>このメッセージを抑止する為のコメントを追加します</translation>
-    </message>
-</context>
-<context>
     <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
@@ -47412,21 +46779,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
-    </message>
-</context>
-<context>
-    <name>::QtSupport</name>
-    <message>
-        <source>Device type is not supported by Qt version.</source>
-        <translation>Qt がサポートしていないデバイスの種類です。</translation>
-    </message>
-    <message>
-        <source>The compiler &quot;%1&quot; (%2) cannot produce code for the Qt version &quot;%3&quot; (%4).</source>
-        <translation>コンパイラ &quot;%1&quot; (%2) は、Qt バージョン &quot;%3&quot; (%4) 用のコードを生成できません。</translation>
-    </message>
-    <message>
-        <source>The compiler &quot;%1&quot; (%2) may not produce code compatible with the Qt version &quot;%3&quot; (%4).</source>
-        <translation>コンパイラ &quot;%1&quot; (%2) は Qt バージョン &quot;%3&quot; (%4) と互換性のあるコードを生成しない可能性があります。</translation>
     </message>
 </context>
 <context>
@@ -47519,17 +46871,11 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Path to the qmake executable</source>
         <translation>qmake 実行ファイルのパス</translation>
     </message>
-</context>
-<context>
-    <name>ProMessageHandler</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
         <translation>[不完全] </translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>QML デバッグを無効化します。QML プロファイラは利用可能です。</translation>
@@ -47549,9 +46895,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Install root:</source>
         <translation>インストールルート:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Command line:</source>
         <translation>コマンドライン:</translation>
@@ -47560,9 +46903,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Run custom remote command</source>
         <translation>カスタムリモートコマンド実行</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>リモート・デバイス上の &quot;%1&quot; を終了中です...</translation>
@@ -47579,9 +46919,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Kill current application instance</source>
         <translation>現在のアプリケーションのインスタンスを強制終了</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>X11 Forwarding</source>
         <translation>X11 フォワーディング</translation>
@@ -47590,9 +46927,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Forward to local display</source>
         <translation>ローカルディスプレイに転送する</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Failed to create remote directories: %1</source>
         <translation>リモート・ディレクトリの作成に失敗しました: %1</translation>
@@ -47609,9 +46943,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>rsync failed with exit code %1.</source>
         <translation>rsync は終了コード %1 で失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Flags:</source>
         <translation>フラグ:</translation>
@@ -48181,9 +47512,6 @@ Row: %4, Column: %5
         <source>Profiling %1</source>
         <translation>%1 のプロファイル中</translation>
     </message>
-</context>
-<context>
-    <name>HeobDialog</name>
     <message>
         <source>New</source>
         <translation>新規作成</translation>
@@ -48204,9 +47532,6 @@ Row: %4, Column: %5
         <source>%1 (copy)</source>
         <translation>%1 (コピー)</translation>
     </message>
-</context>
-<context>
-    <name>HeobData</name>
     <message>
         <source>Process %1</source>
         <translation>プロセス %1</translation>
@@ -48216,18 +47541,6 @@ Row: %4, Column: %5
     <message>
         <source>Analyzing finished.</source>
         <translation>解析が終了しました。</translation>
-    </message>
-    <message>
-        <source>Error: &quot;%1&quot; could not be started: %2</source>
-        <translation>エラー: &quot;%1&quot; を開始できませんでした: %2</translation>
-    </message>
-    <message>
-        <source>Error: no Valgrind executable set.</source>
-        <translation>エラー: Valgrind の実行ファイルが指定されていません。</translation>
-    </message>
-    <message>
-        <source>Process terminated.</source>
-        <translation>プロセスが終了しました。</translation>
     </message>
 </context>
 <context>

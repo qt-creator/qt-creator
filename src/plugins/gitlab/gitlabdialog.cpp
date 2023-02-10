@@ -7,6 +7,7 @@
 #include "gitlabparameters.h"
 #include "gitlabplugin.h"
 #include "gitlabprojectsettings.h"
+#include "gitlabtr.h"
 
 #include <projectexplorer/session.h>
 
@@ -46,7 +47,7 @@ GitLabDialog::GitLabDialog(QWidget *parent)
     : QDialog(parent)
     , m_lastTreeViewQuery(Query::NoQuery)
 {
-    setWindowTitle(tr("GitLab"));
+    setWindowTitle(Tr::tr("GitLab"));
     resize(665, 530);
 
     m_mainLabel = new QLabel;
@@ -59,9 +60,9 @@ GitLabDialog::GitLabDialog(QWidget *parent)
 
     m_searchLineEdit = new QLineEdit(this);
     m_searchLineEdit->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_searchLineEdit->setPlaceholderText(tr("Search"));
+    m_searchLineEdit->setPlaceholderText(Tr::tr("Search"));
 
-    auto searchPB = new QPushButton(tr("Search"));
+    auto searchPB = new QPushButton(Tr::tr("Search"));
     searchPB->setDefault(true);
 
     m_treeView = new QTreeView(this);
@@ -75,18 +76,18 @@ GitLabDialog::GitLabDialog(QWidget *parent)
     m_firstToolButton->setText(QString::fromUtf8("|<"));
 
     m_previousToolButton = new QToolButton(this);
-    m_previousToolButton->setText(tr("..."));
+    m_previousToolButton->setText(Tr::tr("..."));
 
     m_currentPageLabel = new QLabel(this);
-    m_currentPageLabel->setText(tr("0"));
+    m_currentPageLabel->setText(Tr::tr("0"));
 
     m_nextToolButton = new QToolButton(this);
-    m_nextToolButton->setText(tr("..."));
+    m_nextToolButton->setText(Tr::tr("..."));
 
     m_lastToolButton = new QToolButton(this);
     m_lastToolButton->setText(QString::fromUtf8(">|"));
 
-    m_clonePB = new QPushButton(Utils::Icons::DOWNLOAD.icon(), tr("Clone..."), this);
+    m_clonePB = new QPushButton(Utils::Icons::DOWNLOAD.icon(), Tr::tr("Clone..."), this);
     m_clonePB->setEnabled(false);
 
     auto buttonBox = new QDialogButtonBox(this);
@@ -102,7 +103,7 @@ GitLabDialog::GitLabDialog(QWidget *parent)
                 m_detailsLabel
             },
             st,
-            tr("Remote:"),
+            Tr::tr("Remote:"),
             m_remoteComboBox
         },
         Space(40),
@@ -293,34 +294,34 @@ void GitLabDialog::handleUser(const User &user)
     m_currentUserId = user.id;
 
     if (!user.error.message.isEmpty()) {
-        m_mainLabel->setText(tr("Not logged in."));
+        m_mainLabel->setText(Tr::tr("Not logged in."));
         if (user.error.code == 1) {
-            m_detailsLabel->setText(tr("Insufficient access token."));
+            m_detailsLabel->setText(Tr::tr("Insufficient access token."));
             m_detailsLabel->setToolTip(user.error.message + QLatin1Char('\n')
-                                          + tr("Permission scope read_api or api needed."));
+                                          + Tr::tr("Permission scope read_api or api needed."));
         } else if (user.error.code >= 300 && user.error.code < 400) {
-            m_detailsLabel->setText(tr("Check settings for misconfiguration."));
+            m_detailsLabel->setText(Tr::tr("Check settings for misconfiguration."));
             m_detailsLabel->setToolTip(user.error.message);
         } else {
             m_detailsLabel->setText({});
             m_detailsLabel->setToolTip({});
         }
         updatePageButtons();
-        m_treeViewTitle->setText(tr("Projects (%1)").arg(0));
+        m_treeViewTitle->setText(Tr::tr("Projects (%1)").arg(0));
         return;
     }
 
     if (user.id != -1) {
         if (user.bot) {
-            m_mainLabel->setText(tr("Using project access token."));
+            m_mainLabel->setText(Tr::tr("Using project access token."));
             m_detailsLabel->setText({});
         } else {
-            m_mainLabel->setText(tr("Logged in as %1").arg(user.name));
-            m_detailsLabel->setText(tr("Id: %1 (%2)").arg(user.id).arg(user.email));
+            m_mainLabel->setText(Tr::tr("Logged in as %1").arg(user.name));
+            m_detailsLabel->setText(Tr::tr("Id: %1 (%2)").arg(user.id).arg(user.email));
         }
         m_detailsLabel->setToolTip({});
     } else {
-        m_mainLabel->setText(tr("Not logged in."));
+        m_mainLabel->setText(Tr::tr("Not logged in."));
         m_detailsLabel->setText({});
         m_detailsLabel->setToolTip({});
     }
@@ -344,7 +345,7 @@ void GitLabDialog::handleProjects(const Projects &projects)
     });
     resetTreeView(m_treeView, listModel);
     int count = projects.error.message.isEmpty() ? projects.pageInfo.total : 0;
-    m_treeViewTitle->setText(tr("Projects (%1)").arg(count));
+    m_treeViewTitle->setText(Tr::tr("Projects (%1)").arg(count));
 
     m_lastPageInformation = projects.pageInfo;
     updatePageButtons();

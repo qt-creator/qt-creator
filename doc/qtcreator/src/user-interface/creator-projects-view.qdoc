@@ -18,6 +18,10 @@
     the build system structure of the project and lists all files that
     are part of the project.
 
+    \note Usually, \l{Searching with the Locator}{searching with the locator}
+    is the fastest way to find a particular project, file, class, or function,
+    or almost anything else in your project.
+
     \if defined(qtdesignstudio)
     The following image displays the \uicontrol Projects view in the
     \uicontrol Design mode:

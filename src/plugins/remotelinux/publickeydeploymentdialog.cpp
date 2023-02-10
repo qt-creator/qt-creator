@@ -11,6 +11,7 @@
 
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 using namespace ProjectExplorer;
@@ -59,14 +60,11 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
         const bool succeeded = d->m_process.result() == ProcessResult::FinishedWithSuccess;
         QString finalMessage;
         if (!succeeded) {
-            QString errorMessage = d->m_process.errorString();
-            if (errorMessage.isEmpty())
-                errorMessage = d->m_process.cleanedStdErr();
-            if (errorMessage.endsWith('\n'))
-                errorMessage.chop(1);
-            finalMessage = Tr::tr("Key deployment failed.");
-            if (!errorMessage.isEmpty())
-                finalMessage += '\n' + errorMessage;
+            const QString errorString = d->m_process.errorString();
+            const QString errorMessage = errorString.isEmpty() ? d->m_process.cleanedStdErr()
+                                                               : errorString;
+            finalMessage = Utils::joinStrings({Tr::tr("Key deployment failed."),
+                                               Utils::trimBack(errorMessage, '\n')}, '\n');
         }
         handleDeploymentDone(succeeded, finalMessage);
     });

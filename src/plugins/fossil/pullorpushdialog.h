@@ -5,10 +5,16 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLineEdit;
+class QRadioButton;
+QT_END_NAMESPACE
+
+namespace Utils { class PathChooser; }
+
 namespace Fossil {
 namespace Internal {
-
-namespace Ui { class PullOrPushDialog; }
 
 class PullOrPushDialog : public QDialog
 {
@@ -21,7 +27,6 @@ public:
     };
 
     explicit PullOrPushDialog(Mode mode, QWidget *parent = nullptr);
-    ~PullOrPushDialog() final;
 
     // Common parameters and options
     QString remoteLocation() const;
@@ -32,12 +37,14 @@ public:
     // Pull-specific options
     // Push-specific options
 
-protected:
-    void changeEvent(QEvent *e) final;
-
 private:
-    Mode m_mode;
-    Ui::PullOrPushDialog *m_ui;
+    QRadioButton *m_defaultButton;
+    QRadioButton *m_localButton;
+    Utils::PathChooser *m_localPathChooser;
+    QRadioButton *m_urlButton;
+    QLineEdit *m_urlLineEdit;
+    QCheckBox *m_rememberCheckBox;
+    QCheckBox *m_privateCheckBox;
 };
 
 } // namespace Internal

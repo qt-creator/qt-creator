@@ -10,6 +10,7 @@
 #include "pathchooser.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
+#include "utilstr.h"
 #include "variablechooser.h"
 
 #include <QAction>
@@ -2009,14 +2010,14 @@ void DoubleAspect::setSingleStep(double step)
     Its visual representation is a QComboBox with three items.
 */
 
-TriStateAspect::TriStateAspect(const QString onString, const QString &offString,
+TriStateAspect::TriStateAspect(const QString &onString, const QString &offString,
                                const QString &defaultString)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
     setDefaultValue(TriState::Default);
-    addOption(onString);
-    addOption(offString);
-    addOption(defaultString);
+    addOption(onString.isEmpty() ? Tr::tr("Enable") : onString);
+    addOption(offString.isEmpty() ? Tr::tr("Disable") : offString);
+    addOption(defaultString.isEmpty() ? Tr::tr("Leave at Default") : defaultString);
 }
 
 TriState TriStateAspect::value() const

@@ -41,7 +41,7 @@ AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
                                           UseLanguageDefines::No,
                                           UseBuildSystemWarnings::No,
                                           actualClangIncludeDir);
-    file = fileInfo.file.toString();
+    file = fileInfo.file;
     arguments = extraClangToolsPrependOptions();
     arguments.append(optionsBuilder.build(fileInfo.kind, CppEditor::getPchUsage()));
     arguments.append(extraClangToolsAppendOptions());
@@ -85,9 +85,9 @@ static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
     return arguments;
 }
 
-static QString createOutputFilePath(const FilePath &dirPath, const QString &fileToAnalyze)
+static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fileToAnalyze)
 {
-    const QString fileName = QFileInfo(fileToAnalyze).fileName();
+    const QString fileName = fileToAnalyze.fileName();
     const FilePath fileTemplate = dirPath.pathAppended("report-" + fileName + "-XXXXXX");
 
     TemporaryFile temporaryFile("clangtools");
@@ -95,7 +95,7 @@ static QString createOutputFilePath(const FilePath &dirPath, const QString &file
     temporaryFile.setFileTemplate(fileTemplate.path());
     if (temporaryFile.open()) {
         temporaryFile.close();
-        return temporaryFile.fileName();
+        return FilePath::fromString(temporaryFile.fileName());
     }
     return {};
 }
@@ -106,18 +106,18 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
 {
     struct ClangToolStorage {
         QString name;
-        Utils::FilePath executable;
-        QString outputFilePath;
+        FilePath executable;
+        FilePath outputFilePath;
     };
     const TreeStorage<ClangToolStorage> storage;
 
     const auto mainToolArguments = [=](const ClangToolStorage *data)
     {
         QStringList result;
-        result << "-export-fixes=" + data->outputFilePath;
+        result << "-export-fixes=" + data->outputFilePath.nativePath();
         if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data->executable))
             result << "--vfsoverlay=" + input.overlayFilePath;
-        result << QDir::toNativeSeparators(input.unit.file);
+        result << input.unit.file.nativePath();
         return result;
     };
 
@@ -134,8 +134,8 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         }
 
         QTC_CHECK(!input.unit.arguments.contains(QLatin1String("-o")));
-        QTC_CHECK(!input.unit.arguments.contains(input.unit.file));
-        QTC_ASSERT(FilePath::fromString(input.unit.file).exists(), return TaskAction::StopWithError);
+        QTC_CHECK(!input.unit.arguments.contains(input.unit.file.nativePath()));
+        QTC_ASSERT(input.unit.file.exists(), return TaskAction::StopWithError);
         data->outputFilePath = createOutputFilePath(input.outputDirPath, input.unit.file);
         QTC_ASSERT(!data->outputFilePath.isEmpty(), return TaskAction::StopWithError);
 

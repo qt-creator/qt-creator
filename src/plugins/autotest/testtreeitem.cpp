@@ -271,6 +271,48 @@ TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const Fi
     });
 }
 
+static TestTreeItem *findMatchingTestAt(TestTreeItem *parent, const QStringList &testName,
+                                        const FilePath &filePath)
+{
+    const QString &first = testName.first();
+    const QString &last = testName.last();
+    for (int i = 0, iEnd = parent->childCount(); i < iEnd; ++i) {
+        auto it = parent->childItem(i);
+        if (it->name() != first)
+            continue;
+
+        for (int j = 0, jEnd = it->childCount(); j < jEnd; ++j) {
+            auto grandchild = it->childItem(j);
+            if (grandchild->name() != last)
+                continue;
+
+            if (it->filePath() == filePath || grandchild->filePath() == filePath)
+                return grandchild;
+        }
+    }
+    return nullptr;
+}
+
+TestTreeItem *TestTreeItem::findTestByNameAndFile(const QStringList &testName,
+                                                  const FilePath &filePath)
+{
+    QTC_ASSERT(type() == Root, return nullptr);
+    QTC_ASSERT(testName.size() == 2, return nullptr);
+
+    if (!childCount())
+        return nullptr;
+
+    if (childAt(0)->type() != GroupNode) // process root's children directly
+        return findMatchingTestAt(this, testName, filePath);
+
+    // process children of groups instead of root
+    for (int i = 0, end = childCount(); i < end; ++i) {
+        if (TestTreeItem *found = findMatchingTestAt(childItem(i), testName, filePath))
+            return found;
+    }
+    return nullptr;
+}
+
 ITestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
 {
     switch (mode) {

@@ -6,17 +6,15 @@ add_qtc_plugin(Fossil
     annotationhighlighter.cpp annotationhighlighter.h
     branchinfo.h
     commiteditor.cpp commiteditor.h
-    configuredialog.cpp configuredialog.h configuredialog.ui
+    configuredialog.cpp configuredialog.h
     constants.h
     fossil.qrc
     fossilclient.cpp fossilclient.h
-    fossilcommitpanel.ui
     fossilcommitwidget.cpp fossilcommitwidget.h
     fossileditor.cpp fossileditor.h
     fossilplugin.cpp fossilplugin.h
     fossilsettings.cpp fossilsettings.h
-    pullorpushdialog.cpp pullorpushdialog.h pullorpushdialog.ui
-    revertdialog.ui
+    pullorpushdialog.cpp pullorpushdialog.h
     revisioninfo.h
     wizard/fossiljsextension.cpp wizard/fossiljsextension.h
 )

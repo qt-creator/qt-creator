@@ -290,7 +290,7 @@
             maximum time to wait after the main AUT has exited. This is useful
             for AUTs invoked through launcher applications, such as shell scripts
             or batch files.
-        \li Select the \uicontrol {Animate mouse cursor} check box to to animate
+        \li Select the \uicontrol {Animate mouse cursor} check box to animate
             the mouse cursor when playing back a test.
     \endlist
 

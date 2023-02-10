@@ -21,6 +21,7 @@ QtcPlugin {
         "autotoolsbuildsystem.cpp",
         "autotoolsbuildsystem.h",
         "autotoolsprojectconstants.h",
+        "autotoolsprojectmanagertr.h",
         "autotoolsprojectplugin.cpp",
         "autotoolsprojectplugin.h",
         "configurestep.cpp",

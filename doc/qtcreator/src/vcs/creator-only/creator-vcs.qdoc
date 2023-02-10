@@ -124,7 +124,7 @@
 
     \section2 Viewing Diff Output
 
-    All version control systems provide menu options to \e{diff} the current
+    All version control systems have menu options to \e{diff} the current
     file or project: to compare it with the latest version stored in the
     repository and to display the differences. In \QC, a diff is displayed in a
     read-only editor. If the file is accessible, you can double-click on a

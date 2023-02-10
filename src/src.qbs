@@ -30,6 +30,7 @@ Project {
             qbsBaseDir + "/src/lib/libs.qbs",
             qbsBaseDir + "/src/libexec/libexec.qbs",
             qbsBaseDir + "/src/plugins/plugins.qbs",
+            qbsBaseDir + "/src/shared/quickjs/quickjs.qbs",
             qbsBaseDir + "/share/share.qbs",
             qbsBaseDir + "/src/app/apps.qbs",
             qbsBaseDir + "/src/shared/bundledqt/bundledqt.qbs",

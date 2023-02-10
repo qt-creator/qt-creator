@@ -10,12 +10,12 @@ bool Command::isValid() const
     return !m_executable.isEmpty();
 }
 
-QString Command::executable() const
+Utils::FilePath Command::executable() const
 {
     return m_executable;
 }
 
-void Command::setExecutable(const QString &executable)
+void Command::setExecutable(const Utils::FilePath &executable)
 {
     m_executable = executable;
 }

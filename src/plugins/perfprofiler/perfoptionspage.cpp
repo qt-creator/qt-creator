@@ -16,7 +16,7 @@ PerfOptionsPage::PerfOptionsPage(PerfSettings *settings)
     setId(Constants::PerfSettingsId);
     setDisplayName(Tr::tr("CPU Usage"));
     setCategory("T.Analyzer");
-    setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+    setDisplayCategory(QCoreApplication::translate("::Debugger", "Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     setWidgetCreator([settings] { return new PerfConfigWidget(settings); });
 }

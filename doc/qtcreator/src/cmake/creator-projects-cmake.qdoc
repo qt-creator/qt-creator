@@ -94,7 +94,7 @@
             executable.
 
         \li The \uicontrol {Help file} field displays the path to the
-            CMake help file (.qch) provided by and installed with CMake.
+            CMake help file (.qch) that comes with CMake.
 
         \li Deselect the \uicontrol {Autorun CMake} check box if you do not want
             to automatically run CMake every time when you save changes to

@@ -7,6 +7,8 @@
 #include "gtesttreeitem.h"
 #include "gtestparser.h"
 
+#include <QRegularExpression>
+
 namespace Autotest {
 namespace Internal {
 
@@ -57,6 +59,16 @@ QString GTestFramework::groupingToolTip() const
 GTest::Constants::GroupMode GTestFramework::groupMode()
 {
     return GTest::Constants::GroupMode(g_settings->groupMode.itemValue().toInt());
+}
+
+QStringList GTestFramework::testNameForSymbolName(const QString &symbolName) const
+{
+    static const QRegularExpression r("^(.+::)?((DISABLED_)?.+?)_((DISABLED_)?.+)_Test::TestBody$");
+    const QRegularExpressionMatch match = r.match(symbolName);
+    if (!match.hasMatch())
+        return {};
+
+    return { match.captured(2), match.captured(4) };
 }
 
 } // namespace Internal

@@ -6920,9 +6920,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation type="unfinished"></translation>
@@ -6963,14 +6960,11 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Clang-Format Style</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangFormat::ClangFormatGlobalConfigWidget</name>
     <message>
         <source>ClangFormat global setting:</source>
         <translation type="unfinished"></translation>
@@ -7011,9 +7005,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Override Clang Format configuration file with the chosen configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangFormat::ClangFormatPlugin</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation type="unfinished"></translation>
@@ -7022,9 +7013,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>The ClangFormat plugin has been built against an unmodified Clang. You might experience formatting glitches in certain circumstances. See https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md for more information.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangFormatStyleFactory</name>
     <message>
         <source>ClangFormat</source>
         <translation type="unfinished"></translation>
@@ -7607,7 +7595,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClangUtils</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation type="unfinished"></translation>
@@ -7616,9 +7604,6 @@ Set a valid executable first.</source>
         <source>Could not create &quot;%1&quot;: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Error</source>
         <translation type="unfinished"></translation>
@@ -8119,7 +8104,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>Coco::CocoPlugin</name>
+    <name>::Coco</name>
     <message>
         <source>Select a Squish Coco CoverageBrowser Executable</source>
         <translation type="unfinished"></translation>
@@ -8402,7 +8387,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>打开链接</translation>
@@ -17851,7 +17836,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>DevelopmentTeam</name>
+    <name>::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation type="unfinished"></translation>
@@ -18351,7 +18336,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation type="unfinished"></translation>
@@ -19188,13 +19173,6 @@ will also disable the following plugins:
     <message>
         <source>Unused variable</source>
         <translation type="unfinished">未使用的变量</translation>
-    </message>
-</context>
-<context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
     </message>
 </context>
 <context>
@@ -21457,7 +21435,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>GitLab::GitLabCloneDialog</name>
+    <name>::GitLab</name>
     <message>
         <source>Clone Repository</source>
         <translation type="unfinished"></translation>
@@ -21518,9 +21496,6 @@ Remote: %4</source>
         <source>Cloning failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabDialog</name>
     <message>
         <source>GitLab</source>
         <translation type="unfinished"></translation>
@@ -21587,9 +21562,6 @@ Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabOptionsPage</name>
     <message>
         <source>Host:</source>
         <translation type="unfinished">主机:</translation>
@@ -21610,13 +21582,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <source>HTTPS:</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>GitLab</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GitLab::GitLabOptionsWidget</name>
     <message>
         <source>Default:</source>
         <translation type="unfinished">默认:</translation>
@@ -21665,13 +21630,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <source>Add</source>
         <translation type="unfinished">添加</translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabPlugin</name>
-    <message>
-        <source>GitLab</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>GitLab...</source>
         <translation type="unfinished"></translation>
@@ -21683,13 +21641,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <message>
         <source>Invalid GitLab configuration. For a fully functional configuration, you need to set up host name or address and an access token. Providing the path to curl is mandatory.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GitLab::GitLabProjectSettingsWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation type="unfinished">主机:</translation>
     </message>
     <message>
         <source>Linked GitLab Configuration:</source>
@@ -21716,10 +21667,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Check settings for misconfiguration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Accessible (%1).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -21737,7 +21684,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -21942,14 +21889,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <message>
         <source>No documentation available.</source>
         <translation>没有可用文档。</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>打开链接</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新页面打开连接</translation>
     </message>
     <message>
         <source>Copy Link</source>
@@ -22290,7 +22229,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>HeobData</name>
+    <name>::Valgrind</name>
     <message>
         <source>Process %1</source>
         <translation type="unfinished">进程%1</translation>
@@ -22351,9 +22290,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <source>Heob: Failure in process attach handshake (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>HeobDialog</name>
     <message>
         <source>New</source>
         <translation type="unfinished">新建</translation>
@@ -24115,7 +24051,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>Marketplace::Internal::QtMarketplaceWelcomePage</name>
+    <name>::Marketplace</name>
     <message>
         <source>Marketplace</source>
         <translation type="unfinished"></translation>
@@ -26654,7 +26590,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ProMessageHandler</name>
+    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
@@ -35822,11 +35758,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation type="unfinished">%1的JS源码</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation type="unfinished">匿名函数</translation>
@@ -36750,7 +36682,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;当前文件&gt;</translation>
@@ -39757,9 +39689,6 @@ Control process failed to start.</source>
         <source>Sort Alphabetically</source>
         <translation type="unfinished">按字母排序</translation>
     </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation type="unfinished"></translation>
@@ -39770,13 +39699,6 @@ Control process failed to start.</source>
     <message>
         <source>Activate Rotate Tool</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation type="unfinished">忽略部署直接运行</translation>
     </message>
 </context>
 <context>
@@ -44915,7 +44837,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>为&lt;b&gt;%1&lt;/b&gt;选择一个标题:</translation>
@@ -46816,10 +46738,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     <message>
         <source>Valgrind Analyze Memory with GDB uses the Memcheck tool to find memory leaks.
 When a problem is detected, the application is interrupted and can be debugged.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Heob</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

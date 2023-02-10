@@ -19,6 +19,8 @@
 #include <QOperatingSystemVersion>
 #include <QRegularExpression>
 #include <QStorageInfo>
+#include <QTemporaryFile>
+#include <QRandomGenerator>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -29,6 +31,9 @@
 #else
 #include <qplatformdefs.h>
 #endif
+
+#include <algorithm>
+#include <array>
 
 namespace Utils {
 
@@ -397,6 +402,15 @@ void DeviceFileAccess::asyncCopyFile(const FilePath &filePath,
     cont(copyFile(filePath, target));
 }
 
+expected_str<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return make_unexpected(Tr::tr("createTempFile is not implemented for \"%1\"")
+                               .arg(filePath.toUserOutput()));
+}
+
+
 // DesktopDeviceFileAccess
 
 DesktopDeviceFileAccess::~DesktopDeviceFileAccess() = default;
@@ -690,6 +704,16 @@ expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &
     return res;
 }
 
+expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePath)
+{
+    QTemporaryFile file(filePath.path());
+    file.setAutoRemove(false);
+    if (!file.open())
+        return make_unexpected(Tr::tr("Could not create temporary file in \"%1\" (%2)").arg(filePath.toUserOutput()).arg(file.errorString()));
+    return FilePath::fromString(file.fileName()).onDevice(filePath);
+}
+
+
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const
 {
     return QFileInfo(filePath.path()).lastModified();
@@ -930,21 +954,27 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
                                                             qint64 limit,
                                                             qint64 offset) const
 {
-    QStringList args = {"if=" + filePath.path(), "status=none"};
+    QStringList args = {"if=" + filePath.path()};
     if (limit > 0 || offset > 0) {
         const qint64 gcd = std::gcd(limit, offset);
         args += QString("bs=%1").arg(gcd);
         args += QString("count=%1").arg(limit / gcd);
         args += QString("seek=%1").arg(offset / gcd);
     }
+#ifndef UTILS_STATIC_LIBRARY
+    const FilePath dd = filePath.withNewPath("dd");
 
-    const RunResult r = runInShell({"dd", args, OsType::OsTypeLinux});
-
-    if (r.exitCode != 0)
+    QtcProcess p;
+    p.setCommand({dd, args, OsType::OsTypeLinux});
+    p.runBlocking();
+    if (p.exitCode() != 0) {
         return make_unexpected(Tr::tr("Failed reading file \"%1\": %2")
-                                   .arg(filePath.toUserOutput(), QString::fromUtf8(r.stdErr)));
-
-    return r.stdOut;
+                                   .arg(filePath.toUserOutput(), p.readAllStandardError()));
+    }
+    return p.readAllRawStandardOutput();
+#else
+    return make_unexpected(QString("Not implemented"));
+#endif
 }
 
 expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
@@ -963,6 +993,65 @@ expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &fil
                                    .arg(filePath.toUserOutput(), QString::fromUtf8(result.stdErr)));
     }
     return data.size();
+}
+
+expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
+{
+    if (!m_hasMkTemp.has_value())
+        m_hasMkTemp = runInShellSuccess({"which", {"mktemp"}, OsType::OsTypeLinux});
+
+    QString tmplate = filePath.path();
+    // Some mktemp implementations require a suffix of XXXXXX.
+    // They will only accept the template if at least the last 6 characters are X.
+    if (!tmplate.endsWith("XXXXXX"))
+        tmplate += ".XXXXXX";
+
+    if (m_hasMkTemp) {
+        const RunResult result = runInShell({"mktemp", {tmplate}, OsType::OsTypeLinux});
+
+        if (result.exitCode != 0) {
+            return make_unexpected(
+                Tr::tr("Failed creating temporary file \"%1\": %2")
+                    .arg(filePath.toUserOutput(), QString::fromUtf8(result.stdErr)));
+        }
+
+        return FilePath::fromString(QString::fromUtf8(result.stdOut.trimmed())).onDevice(filePath);
+    }
+
+    // Manually create a temporary/unique file.
+    std::reverse_iterator<QChar *> firstX = std::find_if_not(std::rbegin(tmplate),
+                                                             std::rend(tmplate),
+                                                             [](QChar ch) { return ch == 'X'; });
+
+    static constexpr std::array<QChar, 62> chars = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
+                                                    '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+                                                    'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+                                                    'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                                                    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+                                                    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+                                                    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+
+    std::uniform_int_distribution<> dist(0, int(chars.size() - 1));
+
+    int maxTries = 10;
+    FilePath newPath;
+    do {
+        for (QChar *it = firstX.base(); it != std::end(tmplate); ++it) {
+            *it = chars[dist(*QRandomGenerator::global())];
+        }
+        newPath = FilePath::fromString(tmplate).onDevice(filePath);
+        if (--maxTries == 0) {
+            return make_unexpected(Tr::tr("Failed creating temporary file \"%1\" (too many tries)")
+                                       .arg(filePath.toUserOutput()));
+        }
+    } while (newPath.exists());
+
+    const expected_str<qint64> createResult = newPath.writeFileContents({});
+
+    if (!createResult)
+        return make_unexpected(createResult.error());
+
+    return newPath;
 }
 
 OsType UnixDeviceFileAccess::osType(const FilePath &filePath) const

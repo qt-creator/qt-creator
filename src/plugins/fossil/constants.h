@@ -31,20 +31,20 @@ const char DIFFFILE_ID_EXACT[] = "[+]{3} (.*)\\s*";  // match and capture
 
 //BaseEditorParameters
 const char FILELOG_ID[] = "Fossil File Log Editor";
-const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Fossil File Log Editor");
+const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Fossil File Log Editor");
 const char LOGAPP[] = "text/vnd.qtcreator.fossil.log";
 
 const char ANNOTATELOG_ID[] = "Fossil Annotation Editor";
-const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Fossil Annotation Editor");
+const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Fossil Annotation Editor");
 const char ANNOTATEAPP[] = "text/vnd.qtcreator.fossil.annotation";
 
 const char DIFFLOG_ID[] = "Fossil Diff Editor";
-const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Fossil Diff Editor");
+const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Fossil Diff Editor");
 const char DIFFAPP[] = "text/x-patch";
 
 //SubmitEditorParameters
 const char COMMIT_ID[] = "Fossil Commit Log Editor";
-const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Fossil Commit Log Editor");
+const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Fossil Commit Log Editor");
 const char COMMITMIMETYPE[] = "text/vnd.qtcreator.fossil.commit";
 
 //menu items

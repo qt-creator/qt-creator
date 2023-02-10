@@ -32,7 +32,7 @@ class QTCREATOR_UTILS_EXPORT QtcProcess final : public QObject
     Q_OBJECT
 
 public:
-    QtcProcess(QObject *parent = nullptr);
+    explicit QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 
     // ProcessInterface related

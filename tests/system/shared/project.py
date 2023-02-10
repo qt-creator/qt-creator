@@ -125,8 +125,8 @@ def __handleBuildSystem__(buildSystem):
     return buildSystem
 
 def __createProjectHandleQtQuickSelection__(minimumQtVersion):
-    comboBox = waitForObject("{leftWidget=':Minimal required Qt version:_QLabel' name='QtVersion' "
-                             "type='QComboBox' visible='1'}")
+    comboBox = waitForObject("{name='MinimumSupportedQtVersion' type='QComboBox' "
+                             "visible='1' window=':New_ProjectExplorer::JsonWizard'}")
     try:
         selectFromCombo(comboBox, "Qt %s" % minimumQtVersion)
     except:
@@ -272,7 +272,7 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
 
 
 def createNewQtQuickApplication(workingDir, projectName=None,
-                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.12",
+                                targets=Targets.desktopTargetClasses(), minimumQtVersion="6.2",
                                 template="Qt Quick Application", fromWelcome=False,
                                 buildSystem=None):
     available = __createProjectOrFileSelectType__("  Application (Qt)", template, fromWelcome)

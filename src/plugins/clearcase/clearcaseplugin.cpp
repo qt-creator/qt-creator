@@ -1583,7 +1583,7 @@ CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDi
     process.setWorkingDirectory(workingDir);
     process.setTimeoutS(m_settings.timeOutS);
     process.runBlocking();
-    return CommandResult(&process);
+    return CommandResult(process);
 }
 
 CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,

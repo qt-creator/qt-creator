@@ -299,21 +299,8 @@ QList<ITestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 
 void TestTreeModel::synchronizeTestFrameworks()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    TestFrameworks sorted;
-    if (!project || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
-        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
-                                 &ITestFramework::active);
-        qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
-    } else { // we've got custom project settings
-        const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
-        const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
-        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
-                                 [active](ITestFramework *framework) {
-            return active.value(framework, false);
-        });
-    }
-
+    const TestFrameworks sorted = AutotestPlugin::activeTestFrameworks();
+    qCDebug(LOG) << "Active frameworks sorted by priority" << sorted;
     const auto sortedParsers = Utils::transform(sorted, &ITestFramework::testParser);
     // pre-check to avoid further processing when frameworks are unchanged
     TreeItem *invisibleRoot = rootItem();

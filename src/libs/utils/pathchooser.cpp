@@ -261,13 +261,13 @@ PathChooser::PathChooser(QWidget *parent) :
     d->m_hLayout->addWidget(d->m_lineEdit);
     d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
+    d->m_browseButton = new OptionPushButton;
+    d->m_browseButton->setText(browseButtonLabel());
+    connect(d->m_browseButton, &OptionPushButton::clicked, this, [this] { slotBrowse(false); });
+
     d->m_contextMenu = new QMenu(d->m_browseButton);
     d->m_contextMenu->addAction(Tr::tr("Local"), this, [this] { slotBrowse(false); });
     d->m_contextMenu->addAction(Tr::tr("Remote"), this, [this] { slotBrowse(true); });
-
-    d->m_browseButton = new OptionPushButton();
-    d->m_browseButton->setText(browseButtonLabel());
-    connect(d->m_browseButton, &OptionPushButton::clicked, this, [this] { slotBrowse(false); });
 
     insertButton(d->m_buttons.count(), d->m_browseButton);
 

@@ -3,6 +3,8 @@
 
 #include "profilereader.h"
 
+#include "qtsupporttr.h"
+
 #include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>
 
@@ -26,7 +28,7 @@ ProMessageHandler::ProMessageHandler(bool verbose, bool exact)
     : m_verbose(verbose)
     , m_exact(exact)
     //: Prefix used for output from the cumulative evaluation of project files.
-    , m_prefix(QCoreApplication::translate("ProMessageHandler", "[Inexact] "))
+    , m_prefix(Tr::tr("[Inexact] "))
 {
 }
 

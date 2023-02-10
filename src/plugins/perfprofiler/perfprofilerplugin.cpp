@@ -12,24 +12,6 @@
 #  include "tests/perfresourcecounter_test.h"
 #endif // WITH_TESTS
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-#include <debugger/analyzer/analyzermanager.h>
-#include <extensionsystem/pluginmanager.h>
-
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
-
-#include <QAction>
-#include <QDebug>
-#include <QMenu>
 
 using namespace ProjectExplorer;
 
@@ -58,21 +40,16 @@ PerfProfilerPlugin::~PerfProfilerPlugin()
 void PerfProfilerPlugin::initialize()
 {
     d = new PerfProfilerPluginPrivate;
+
+#if WITH_TESTS
+//   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten
+    addTest<PerfResourceCounterTest>();
+#endif // WITH_TESTS
 }
 
 PerfSettings *PerfProfilerPlugin::globalSettings()
 {
     return perfGlobalSettings();
-}
-
-QVector<QObject *> PerfProfilerPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
-#if WITH_TESTS
-//    tests << new PerfProfilerTraceFileTest;  // FIXME these tests have to get rewritten
-    tests << new PerfResourceCounterTest;
-#endif // WITH_TESTS
-    return tests;
 }
 
 } // PerfProfiler::Internal

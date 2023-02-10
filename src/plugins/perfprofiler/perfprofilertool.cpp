@@ -1,10 +1,12 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "perfprofilertool.h"
+
 #include "perfconfigwidget.h"
 #include "perfloaddialog.h"
 #include "perfprofilerplugin.h"
-#include "perfprofilertool.h"
+#include "perfprofilertr.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"
 

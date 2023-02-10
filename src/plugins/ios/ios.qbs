@@ -49,6 +49,7 @@ QtcPlugin {
         "iossimulator.h",
         "iostoolhandler.cpp",
         "iostoolhandler.h",
+        "iostr.h",
         "simulatorcontrol.cpp",
         "simulatorcontrol.h",
         "simulatorinfomodel.cpp",

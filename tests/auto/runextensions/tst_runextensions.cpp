@@ -20,8 +20,6 @@ private slots:
     void moveOnlyType();
 #endif
     void threadPriority();
-    void threadSize();
-    void threadSizeAndPriority();
     void runAsyncNoFutureInterface();
     void crefFunction();
     void onResultReady();
@@ -376,19 +374,6 @@ void tst_RunExtensions::threadPriority()
 
     // without pool
     QCOMPARE(Utils::runAsync(QThread::LowestPriority, report3).results(),
-             QList<int>({0, 2, 1}));
-}
-
-void tst_RunExtensions::threadSize()
-{
-    QCOMPARE(Utils::runAsync(Utils::StackSizeInBytes(1024 * 1024), report3).results(),
-             QList<int>({0, 2, 1}));
-}
-
-void tst_RunExtensions::threadSizeAndPriority()
-{
-    QCOMPARE(Utils::runAsync(Utils::StackSizeInBytes(1024 * 1024), QThread::LowestPriority, report3)
-                 .results(),
              QList<int>({0, 2, 1}));
 }
 

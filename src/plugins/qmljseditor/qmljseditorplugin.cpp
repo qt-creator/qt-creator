@@ -244,7 +244,7 @@ void QmlJSEditorPluginPrivate::reformatFile()
                 QmlJsEditingSettings::get().formatCommandOptions());
             const CommandLine commandLine(exe, args, CommandLine::Raw);
             TextEditor::Command command;
-            command.setExecutable(commandLine.executable().toString());
+            command.setExecutable(commandLine.executable());
             command.setProcessing(TextEditor::Command::FileProcessing);
             command.addOptions(commandLine.splitArguments());
             command.addOption("--inplace");

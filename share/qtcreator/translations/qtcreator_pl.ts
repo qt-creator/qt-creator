@@ -313,7 +313,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -1349,7 +1349,7 @@
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Wybierz temat</translation>
@@ -1376,7 +1376,7 @@
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -2725,7 +2725,7 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -3494,9 +3494,6 @@ Kontynuować?</translation>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
         <translation>Program przerwie działanie w pułapce tylko we wskazanych wątkach.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -3542,9 +3539,6 @@ Kontynuować?</translation>
         <source>Use Python dumper</source>
         <translation>Używaj Python dumpera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>Dodaj serwer z symbolami...</translation>
@@ -3569,9 +3563,6 @@ Kontynuować?</translation>
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Use Alternating Row Colors</source>
         <translation>Używaj naprzemiennych kolorów wierszy</translation>
@@ -3789,9 +3780,6 @@ Kontynuować?</translation>
         <source>Show Address Data in Stack View when Debugging</source>
         <translation>Pokazuj adresy w widoku stosu podczas debugowania</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
@@ -3801,9 +3789,6 @@ Kontynuować?</translation>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Błąd kodowania&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>Załaduj plik zrzutu</translation>
@@ -3836,9 +3821,6 @@ Kontynuować?</translation>
         <source>Select Startup Script</source>
         <translation>Wybierz startowy skrypt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Wybierz adres startowy</translation>
@@ -3847,9 +3829,6 @@ Kontynuować?</translation>
         <source>Enter an address:</source>
         <translation>Podaj adres:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Wczytywanie %1...</translation>
@@ -4138,9 +4117,6 @@ Spróbuj: %2</translation>
         <source>Adapter crashed</source>
         <translation>Adapter przerwał pracę</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
@@ -4304,9 +4280,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>GDB</source>
         <translation>GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Nie można utworzyć tymczasowego pliku: %1</translation>
@@ -4319,9 +4292,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Nie można otworzyć FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>Zawartość jako znaki ASCII</translation>
@@ -4394,9 +4364,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>Edit bits %1...%2 of register %3</source>
         <translation>Edytuj bity %1...%2 rejestru %3</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -4533,9 +4500,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>Note that most distributions ship debug information in separate packages.</source>
         <translation>Zwróć uwagę, że niektóre dystrybucje dostarczają źródła debugowe w oddzielnych pakietach.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Identyfikator&amp;nbsp;wątku:</translation>
@@ -8430,10 +8394,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <translation>Usuń przedrostek...</translation>
     </message>
     <message>
-        <source>Remove Missing Files</source>
-        <translation>Usuń brakujące pliki</translation>
-    </message>
-    <message>
         <source>Rename...</source>
         <translation>Zmień nazwę...</translation>
     </message>
@@ -8481,9 +8441,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Rename Prefix</source>
         <translation>Zmień nazwę przedrostka</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation>Otwórz przy pomocy</translation>
@@ -9512,17 +9469,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     <message>
         <source>Bookmark</source>
         <translation>Zakładka</translation>
-    </message>
-</context>
-<context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otwórz odsyłacz</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otwórz odsyłacz na nowej stronie</translation>
     </message>
 </context>
 <context>
@@ -11411,16 +11357,10 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <comment>QMLRunConfiguration display name.</comment>
         <translation>QML Viewer</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Bieżący plik&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <translation>QML Viewer</translation>
@@ -12639,9 +12579,6 @@ you will need to build a separate CDB extension with the same bitness as the CDB
         <source>&quot;Select Widget to Watch&quot;: Please stop the application first.</source>
         <translation>&quot;Wybierz widżet do obserwowania&quot;: Najpierw zatrzymaj aplikację.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Wybierz katalog z lokalnym cache&apos;em</translation>
@@ -12662,9 +12599,6 @@ you will need to build a separate CDB extension with the same bitness as the CDB
         <source>Cannot Create</source>
         <translation>Nie można utworzyć</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Wyczyść zawartość</translation>
@@ -12677,16 +12611,10 @@ you will need to build a separate CDB extension with the same bitness as the CDB
         <source>Reload Debugging Helpers</source>
         <translation>Przeładuj programy pomocnicze debuggera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Naciśnij Ctrl-&lt;Return&gt; aby wykonać linię.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger &amp;Log</source>
         <translation>&amp;Log debuggera</translation>
@@ -12713,9 +12641,6 @@ Możesz zostać poproszony o podzielenie się zawartością tego loga podczas tw
         <source>Log File</source>
         <translation>Plik logu</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>Wewnętrzna nazwa</translation>
@@ -13851,9 +13776,6 @@ Local pulls are not applied to the master branch.</source>
         <source>%1 in function %2</source>
         <translation>%1 w funkcji %2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Położenie:</translation>
@@ -13862,9 +13784,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Instruction pointer:</source>
         <translation>Wskaźnik do instrukcji:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Błąd parsowania liczby szesnastkowej z &quot;%1&quot; (%2)</translation>
@@ -13917,9 +13836,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Unexpected exception caught during parsing.</source>
         <translation>Złapano nieoczekiwany wyjątek podczas parsowania.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -14407,9 +14323,6 @@ do systemu kontroli wersji (%2)
         <source>&amp;Connection:</source>
         <translation>&amp;Połączenie:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>Nie wybrano żadnej funkcji.</translation>
@@ -14819,9 +14732,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>Threads:</source>
         <translation>Wątki:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;nowe źródło&gt;</translation>
@@ -14878,9 +14788,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>Qt Sources</source>
         <translation>Źródła Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>Pamięć pod rejestrem &quot;%1&quot; (0x%2)</translation>
@@ -14893,9 +14800,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>Memory at 0x%1</source>
         <translation>Pamięć w 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ debugger activated</source>
         <translation>Uaktywniono debugger C++</translation>
@@ -14904,9 +14808,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>QML debugger activated</source>
         <translation>Uaktywniono debugger QML</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Nie otrzymano o czasie żadnego wyjściowego komunikatu aplikacji</translation>
@@ -14983,13 +14884,6 @@ Ponowić próbę?</translation>
     <message>
         <source>Omit Date</source>
         <translation>Pomiń datę</translation>
-    </message>
-</context>
-<context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
     </message>
 </context>
 <context>
@@ -15657,9 +15551,6 @@ if (a &amp;&amp;
         <source>Edit</source>
         <translation>Modyfikuj</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Remove</source>
         <translation>Usuń</translation>
@@ -15691,9 +15582,6 @@ if (a &amp;&amp;
         <source>Save Suppression</source>
         <translation>Zachowaj tłumienie</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Ustawienia ogólne</translation>
@@ -16292,9 +16180,6 @@ With cache simulation, further event counters are enabled:
         <source>Calls</source>
         <translation>Wywołania</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Poprzednia komenda jeszcze się nie zakończyła.</translation>
@@ -16327,9 +16212,6 @@ With cache simulation, further event counters are enabled:
         <source>Callgrind unpaused.</source>
         <translation>Callgrind wznowił pracę.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcja:</translation>
@@ -16398,9 +16280,6 @@ With cache simulation, further event counters are enabled:
         <source>Incl. Cost: %1</source>
         <translation>Łączny koszt: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 w %2</translation>
@@ -16409,9 +16288,6 @@ With cache simulation, further event counters are enabled:
         <source>%1:%2 in %3</source>
         <translation>%1: %2 w %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Ostatni poziom</translation>
@@ -16783,7 +16659,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Typ urządzenia nie jest obsługiwany przez wersję Qt.</translation>
@@ -16848,9 +16724,6 @@ Do you want to save the data first?</source>
         <source>This Qt Version does not contain Qt Quick Compiler.</source>
         <translation>Ta wersja Qt nie zawiera kompilatora Qt Quick.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;Podaj nazwę&gt;</translation>
@@ -16966,9 +16839,6 @@ Do you want to save the data first?</source>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Wszystkie funkcje ze współczynnikiem łącznego kosztu wyższym niż %1 (ilość ukrytych: %2)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -16977,16 +16847,10 @@ Do you want to save the data first?</source>
         <source>in %1</source>
         <translation>w %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Wytłum błąd</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Błędy zewnętrzne</translation>
@@ -17231,9 +17095,6 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Nowa konfiguracja ogólnego urządzenia linuksowego</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Połączenie</translation>
@@ -17242,9 +17103,6 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
         <source>Choose a Private Key File</source>
         <translation>Wybierz plik z kluczem prywatnym</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Podsumowanie</translation>
@@ -17255,9 +17113,6 @@ In addition, device connectivity will be tested.</source>
         <translation>Zostanie teraz utworzona nowa konfiguracja urządzenia.
 Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Wybierz plik z kluczem publicznym</translation>
@@ -17278,9 +17133,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Close</source>
         <translation>Zamknij</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>Plik wykonywalny na hoście:</translation>
@@ -17317,9 +17169,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Remote path not set</source>
         <translation>Nie ustawiono zdalnej ścieżki</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Package modified files only</source>
         <translation>Upakuj tylko zmodyfikowane pliki</translation>
@@ -17332,9 +17181,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Create tarball:</source>
         <translation>Utwórz tarball:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(na zdalnym hoście linuksowym)</translation>
@@ -17651,9 +17497,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Connection error: %1</source>
         <translation>Błąd połączenia: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Nie można zainstalować: %1</translation>
@@ -17670,9 +17513,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Deploy step finished.</source>
         <translation>Zakończono krok instalacji.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Przesłano poprawnie plik pakietu.</translation>
@@ -17685,9 +17525,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Package installed.</source>
         <translation>Zainstalowano pakiet.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Błąd inicjalizacji SFTP: %1</translation>
@@ -17724,9 +17561,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>All files successfully deployed.</source>
         <translation>Wszystkie pliki poprawnie zainstalowane.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Instalacja przyrostowa</translation>
@@ -17739,23 +17573,14 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Command line:</source>
         <translation>Linia komend:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Prześlij pliki przez SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux Device</source>
         <translation>Ogólne urządzenie linuksowe</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Łączenie z hostem...</translation>
@@ -17792,9 +17617,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Checking if specified ports are available...</source>
         <translation>Sprawdzanie czy podane porty są dostępne...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Przygotowywanie połączenia SFTP...</translation>
@@ -17815,16 +17637,10 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Failed to upload package: %2</source>
         <translation>Nie można przesłać pakietu: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Uruchom własną zdalną komendę</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Nie podano linii komendy.</translation>
@@ -17849,16 +17665,10 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Remote command finished successfully.</source>
         <translation>Zdalna komenda poprawnie zakończona.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>Zainstaluj na zdalnym hoście linuksowym</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Błąd: brak urządzenia</translation>
@@ -17879,9 +17689,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Remote stderr was: &quot;%1&quot;</source>
         <translation>Zawartość zdalnego stderr: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Błąd połączenia: %1</translation>
@@ -17890,9 +17697,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Installing package failed.</source>
         <translation>Błąd instalowania pakietu.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Błąd klucza publicznego: %1</translation>
@@ -17905,9 +17709,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Key deployment failed: %1.</source>
         <translation>Błąd instalacji klucza: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Pakowanie poprawnie zakończone.</translation>
@@ -17956,16 +17757,10 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Create tarball</source>
         <translation>Utwórz tarball</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (domyślnie)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Brak kroku tworzenia tarballa.</translation>
@@ -18984,9 +18779,6 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
         <source>Key via ssh-agent</source>
         <translation>Poprzez ssh-agenta</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>StronaKreatora</translation>
@@ -20391,9 +20183,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Misc Types</source>
         <translation>Inne typy</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attaching to process %1.</source>
         <translation>Dołączanie do procesu %1.</translation>
@@ -20450,9 +20239,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Continuing nevertheless.</source>
         <translation>Mimo to praca jest kontynuowana.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Nie można rozpocząć procesu przesyłania. Brak powłoki?</translation>
@@ -20513,9 +20299,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Interrupting not possible</source>
         <translation>Przerwanie nie jest możliwe</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>Zdalny błąd</translation>
@@ -20592,9 +20375,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>End Address</source>
         <translation>Adres końcowy</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>Zakończono poprawnie:</translation>
@@ -20615,16 +20395,10 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Remove Snapshot</source>
         <translation>Usuń zrzut</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Stack</source>
         <translation>Stos</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Locals and Expressions</source>
         <translation>Zmienne lokalne i wyrażenia</translation>
@@ -21328,9 +21102,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Tags:</source>
         <translation>Tagi:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Wersje Qt</translation>
@@ -21350,9 +21121,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Deploy Public Key...</source>
         <translation>Zainstaluj klucz publiczny...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Zdalny proces przerwał pracę.</translation>
@@ -21381,23 +21149,14 @@ poinstruuje Qt Creatora o URI.</translation>
             <numerusform>Zdalny system plików ma %n megabajtów wolnego miejsca, wznowiono pracę.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MB</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Sprawdź ilość wolnego miejsca na dysku</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>Nie można debugować: brak ustawionego lokalnego pliku wykonywalnego.</translation>
@@ -21453,9 +21212,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Could not copy the file to %1.</source>
         <translation>Nie można skopiować pliku do %1.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otwórz plik</translation>
@@ -22178,9 +21934,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Debugger:</source>
         <translation>Debugger:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Brak ustawionego debuggera.</translation>
@@ -22453,9 +22206,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>%1 (invalid)</source>
         <translation>%1 (niepoprawna)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Wersja Qt</translation>
@@ -23929,7 +23679,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Edycja</translation>
@@ -23949,23 +23699,14 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Source Paths</source>
         <translation>Ścieżki ze źródłami</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>Ścieżki CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Ustawienia debuggera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>Rozszerzony GDB</translation>
@@ -24980,9 +24721,6 @@ Zdalny: %4</translation>
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>Pełna ścieżka docelowego podkatalogu &quot;bin&quot; w katalogu instalacji bieżącej wersji Qt. Prawdopodobnie powinno być: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Brak fabryki dla qmake: &quot;%1&quot;</translation>
@@ -24998,9 +24736,6 @@ Zdalny: %4</translation>
         <source>System Environment</source>
         <translation>Środowisko systemowe</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Pobierz środowisko urządzenia</translation>
@@ -26004,9 +25739,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Podaj ścieżkę do &lt;a href=&quot;%1&quot;&gt;pliku wykonywalnego Windows Console Debugger&lt;/a&gt; (%2).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:</source>
         <translation>Nie można uruchomić programu:</translation>
@@ -26651,9 +26383,6 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Ustawienia Valgrinda</translation>
@@ -28957,7 +28686,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dołącz adnotację do wersji &quot;%1&quot;</translation>
@@ -28997,9 +28726,6 @@ Do you want to check them out now?</source>
         <source>Display string length:</source>
         <translation>Wyświetlaj długości ciągów tekstowych:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Debug</translation>
@@ -29131,9 +28857,6 @@ Dotyczy to następujących pułapek: %1</translation>
         <source>Tries to install missing debug information.</source>
         <translation>Próbuje zainstalować brakujące informacje debugowe.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (poprzedni)</translation>
@@ -30165,7 +29888,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Usuń znak</translation>
@@ -30571,7 +30294,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -31382,14 +31105,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
 </context>
 <context>
     <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Przedrostek:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Język:</translation>
-    </message>
 </context>
 <context>
     <name>::Subversion</name>
@@ -32135,9 +31850,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Attempting to interrupt.</source>
         <translation>Próba przerwania.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No Memory Viewer Available</source>
         <translation>Brak dostępnej przeglądarki pamięci</translation>
@@ -32298,9 +32010,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Jump to Line %1</source>
         <translation>Skocz do linii %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clone</source>
         <translation>Sklonuj</translation>
@@ -32325,9 +32034,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Debuggers</source>
         <translation>Debuggery</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Ustawienia debuggera</translation>
@@ -32352,9 +32058,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Odblokuj debugowanie podprocesów</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Terminal: Nie można otworzyć /dev/ptmx: %1</translation>
@@ -32607,7 +32310,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceTopLevelNode</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Przedrostek: %2</translation>
@@ -33186,11 +32889,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>Źródło JS dla %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonimowa funkcja</translation>
@@ -34801,9 +34500,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Alt+Shift+T,Alt+S</source>
         <translation>Alt+Shift+T,Alt+S</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation>Ostrzeżenie wtyczki AutoTest: Brak plików po przeskanowaniu przefiltrowanych katalogów z testami. Sprawdź ustawienia filtra testów.</translation>
@@ -34812,9 +34508,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Scanning for Tests</source>
         <translation>Odświeżanie zbioru testów</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Testy</translation>
@@ -34871,9 +34564,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Show Data Functions</source>
         <translation>Pokaż funkcje z danymi</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 na iterację (w sumie: %3, ilość iteracji: %4)</translation>
@@ -34918,9 +34608,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Test execution took %1 ms.</source>
         <translation>Wykonanie testu zajęło %1 ms.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>(iteration %1)</source>
         <translation>(iteracja %1)</translation>
@@ -35070,9 +34757,6 @@ Te pliki są zabezpieczone.</numerusform>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Wykonywanie testów anulowane przez użytkownika.</translation>
@@ -35622,16 +35306,10 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Use Global Settings</source>
         <translation>Użyj globalnych ustawień</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Skopiuj</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Rozpocznij zdalną analizę</translation>
@@ -35652,9 +35330,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Working directory:</source>
         <translation>Katalog roboczy:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Pokazuj komunikaty debugowe, log i informacje.</translation>
@@ -35675,9 +35350,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Debugger Console</source>
         <translation>Konsola debuggera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>S&amp;kopiuj</translation>
@@ -35775,9 +35447,6 @@ Would you like to overwrite it?</source>
         <translation>%1 już istnieje.
 Czy nadpisać go?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Wyeksportuj %1</translation>
@@ -36388,14 +36057,11 @@ po naciśnięciu klawisza backspace</translation>
     </message>
 </context>
 <context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Test</source>
         <translation>Google Test</translation>
     </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>parameterized</source>
         <translation>sparametryzowany</translation>
@@ -36404,23 +36070,14 @@ po naciśnięciu klawisza backspace</translation>
         <source>typed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QtTestFramework</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt Test</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestFramework</name>
     <message>
         <source>Quick Tests</source>
         <translation>Testy Quick</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;nienazwany&gt;</translation>
@@ -36429,16 +36086,10 @@ po naciśnięciu klawisza backspace</translation>
         <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Nadanie nazw wszystkim wariantom testu zapewnia poprawne zachowanie podczas wykonywania wariantów testu i daje możliwość wyboru poszczególnych z nich.&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Brak aktywnych frameworków testowych.</translation>
@@ -36463,9 +36114,6 @@ po naciśnięciu klawisza backspace</translation>
         <source>&lt;p&gt;Specify a filter expression that will replace &quot;%1&quot;.&lt;br/&gt;Wildcards are not supported.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Podaj wyrażenie określające filtr, który zastąpi &quot;%1&quot;.&lt;br/&gt;Brak obsługi symboli wieloznacznych.&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TestTreeItem</name>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (brak)</translation>
@@ -37080,9 +36728,6 @@ w ścieżce.</translation>
         <source>Shuffles tests automatically on every iteration by the given seed.</source>
         <translation>Automatycznie miesza testy przy każdej iteracji na podstawie podanego ziarna.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -37454,7 +37099,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Test Settings</source>
         <translation>Ustawienia testu</translation>
@@ -37594,11 +37239,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>Debuggger::Internal::ModulesHandler</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Nieznany</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>No</source>
         <translation>Nie</translation>
@@ -37606,10 +37247,6 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     <message>
         <source>Yes</source>
         <translation>Tak</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Brak</translation>
     </message>
     <message>
         <source>Plain</source>
@@ -39015,7 +38652,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtTestTreeItem</name>
+    <name>::Autotest</name>
     <message>
         <source>inherited</source>
         <translation>dziedziczony</translation>
@@ -39105,15 +38742,11 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>CMakeBuildConfigurationFactory</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
         <translation>Domyślna</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Wersja</translation>
     </message>
     <message>
         <source>Debug</source>
@@ -39131,23 +38764,14 @@ Błąd: %2</translation>
         <source>Release with Debug Information</source>
         <translation>Wersja z informacją debugową</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Błąd otwierania %1 do odczytu.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeFilesProjectNode</name>
     <message>
         <source>CMake Modules</source>
         <translation>Moduły CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Typ docelowy: </translation>
@@ -39160,9 +38784,6 @@ Błąd: %2</translation>
         <source>Build artifacts:&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
@@ -39371,7 +38992,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>
@@ -39403,9 +39024,6 @@ Błąd: %2</translation>
         <source>Manual</source>
         <translation>Ustawione ręcznie</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Auto-detected CDB at %1</source>
         <translation>Automatycznie wykryty CDB w %1</translation>
@@ -39428,7 +39046,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>DevelopmentTeam</name>
+    <name>::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation type="unfinished"></translation>
@@ -40001,14 +39619,11 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoint</source>
         <translation>Pułapka</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No executable specified.</source>
         <translation>Nie podano pliku wykonywalnego.</translation>
@@ -40041,9 +39656,6 @@ Błąd: %5</translation>
         <source>Debugged executable</source>
         <translation>Debugowany program</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Checking available ports...</source>
         <translation>Sprawdzanie dostępnych portów...</translation>
@@ -40200,7 +39812,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSHoverHandler</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Library at %1</source>
         <translation>Biblioteka w %1</translation>
@@ -40224,9 +39836,6 @@ Błąd: %5</translation>
         <source>Created fifo: %1</source>
         <translation>Utworzono fifo: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>FIFO for profiling data could not be created.</source>
         <translation>Nie można utworzyć FIFO dla danych profilowania.</translation>
@@ -40249,16 +39858,10 @@ Błąd: %5</translation>
         <source>Profiling %1</source>
         <translation>Profilowanie %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiza pamięci</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Opcje valgrinda: %1</translation>
@@ -40287,9 +39890,6 @@ Błąd: %5</translation>
         <source>Process terminated.</source>
         <translation>Zakończono proces.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer na %1:</translation>

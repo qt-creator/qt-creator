@@ -37,33 +37,28 @@
     </message>
 </context>
 <context>
-    <name>AttachCoreDialog</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Zaženi razhroščevalnik</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Executable:</source>
         <translation>&amp;Izvršljiva datoteka:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Core file:</source>
         <translation>Datoteka &amp;posnetka:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Tool chain:</source>
         <translation>&amp;Zaporedje orodij:</translation>
     </message>
     <message>
-        <location/>
         <source>Sysroot</source>
         <translation>Vrhnja mapa sistema</translation>
     </message>
     <message>
-        <location/>
         <source>Override &amp;Start script:</source>
         <translation>Povozi &amp;zagonski skript:</translation>
     </message>
@@ -83,12 +78,10 @@
         <translation>Zaženi razhroščevalnik</translation>
     </message>
     <message>
-        <location/>
         <source>Attach to &amp;process ID:</source>
         <translation>Priklopi se na &amp;proces z ID-jem:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Tool chain:</source>
         <translation>&amp;Zaporedje orodij:</translation>
     </message>
@@ -115,17 +108,14 @@
         <translation>Dodaj zaznamek</translation>
     </message>
     <message>
-        <location/>
         <source>Bookmark:</source>
         <translation>Zaznamek:</translation>
     </message>
     <message>
-        <location/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location/>
         <source>New Folder</source>
         <translation>Nova mapa</translation>
     </message>
@@ -456,12 +446,10 @@
         <translation>Izberi</translation>
     </message>
     <message>
-        <location/>
         <source>Change:</source>
         <translation>Spremeni:</translation>
     </message>
     <message>
-        <location/>
         <source>Repository location:</source>
         <translation>Mesto skladišča:</translation>
     </message>
@@ -501,7 +489,6 @@
         <translation>Prilepi:</translation>
     </message>
     <message>
-        <location/>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
     </message>
@@ -530,12 +517,10 @@
         <translation>Po objavi prikaži podokno z izhodom</translation>
     </message>
     <message>
-        <location/>
         <source>Copy-paste URL to clipboard</source>
         <translation>Skopiraj URL na odložišče</translation>
     </message>
     <message>
-        <location/>
         <source>Default protocol:</source>
         <translation>Privzeti protokol:</translation>
     </message>
@@ -547,72 +532,58 @@
         <translation>Samodejno zapolni prikaz datoteke z izvorno kodo</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;unlimited&gt;</source>
         <translation>&lt;neomejena&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Use alternating row colors in debug views</source>
         <translation>V prikazih razhroščevalnika uporabi izmenjujoči se barvi vrstic</translation>
     </message>
     <message>
-        <location/>
         <source>Use tooltips in main editor while debugging</source>
         <translation>Med razhroščevanjem v glavnem oknu uporabljaj namige</translation>
     </message>
     <message>
-        <location/>
         <source>Register Qt Creator for debugging crashed applications.</source>
         <translation>Registriraj Qt Creator za razhroščevanje sesutih programov.</translation>
     </message>
     <message>
-        <location/>
         <source>Use Qt Creator for post-mortem debugging</source>
         <translation>Uporabi Qt Creator za razhroščevanje po sesutju</translation>
     </message>
     <message>
-        <location/>
         <source>Behavior</source>
         <translation>Obnašanje</translation>
     </message>
     <message>
-        <location/>
         <source>Change the font size in the debugger views when the font size in the main editor changes.</source>
         <translation>Spremeni velikost pisave v razhroščevalnih prikazih, ko se spremeni velikost pisave v glavnem urejevalniku.</translation>
     </message>
     <message>
-        <location/>
         <source>Debugger font size follows main editor</source>
         <translation>Velikost pisave razhroščevalnika sledi glavnemu urejevalniku</translation>
     </message>
     <message>
-        <location/>
         <source>Populate the source file view automatically. This might slow down debugger startup considerably.</source>
         <translation>Samodejno zapolni prikaz datoteke z izvorno kodo. To lahko občutno upočasni zagon razhroščevalnika.</translation>
     </message>
     <message>
-        <location/>
         <source>Close temporary buffers on debugger exit.</source>
         <translation>Ob izhodu iz razhroščevalnika zapri začasne medpomnilnike.</translation>
     </message>
     <message>
-        <location/>
         <source>Close temporary buffers on debugger exit</source>
         <translation>Ob izhodu iz razhroščevalnika zapri začasne medpomnilnike</translation>
     </message>
     <message>
-        <location/>
         <source>Switch to previous mode on debugger exit.</source>
         <translation>Ob izhodu iz razhroščevalnika preklopi v predhodni način.</translation>
     </message>
     <message>
-        <location/>
         <source>Switch to previous mode on debugger exit</source>
         <translation>Ob izhodu iz razhroščevalnika preklopi v predhodni način</translation>
     </message>
     <message>
-        <location/>
         <source>Maximum stack depth:</source>
         <translation>Največja globina sklada:</translation>
     </message>
@@ -642,73 +613,56 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Insert the common prefix of available completion items.</source>
         <translation>Vstavi skupni začetek razpoložljivih možnosti za dokončanje.</translation>
     </message>
     <message>
-        <location/>
         <source>Autocomplete common &amp;prefix</source>
         <translation>Samodejno dokončaj skupni &amp;začetek</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Automatically insert brackets</source>
         <translation>&amp;Samodejno vstavi oklepaje</translation>
     </message>
     <message>
-        <location/>
-        <source>Behavior</source>
-        <translation>Obnašanje</translation>
-    </message>
-    <message>
-        <location/>
         <source>&amp;Case-sensitivity:</source>
         <translation>&amp;Razločevanje velikosti črk</translation>
     </message>
     <message>
-        <location/>
         <source>Full</source>
         <translation>Polno</translation>
     </message>
     <message>
-        <location/>
         <source>None</source>
         <translation>Brez</translation>
     </message>
     <message>
-        <location/>
         <source>First Letter</source>
         <translation>Prva črka</translation>
     </message>
     <message>
-        <location/>
         <source>Insert &amp;space after function name</source>
         <translation>Za imenom funkcije vstavi &amp;presledek</translation>
     </message>
     <message>
-        <location/>
         <source>Activate completion:</source>
         <translation>Dokončevanje vklopi:</translation>
     </message>
     <message>
-        <location/>
         <source>Manually</source>
         <translation>Ročno</translation>
     </message>
     <message>
-        <location/>
         <source>When Triggered</source>
         <translation>Ko je sproženo</translation>
     </message>
     <message>
-        <location/>
         <source>Always</source>
         <translation>Vedno</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically insert brackets and semicolons when appropriate.</source>
         <translation>Samodejno vstavi oklepaje in podpičja, ko je to primerno.</translation>
     </message>
@@ -718,7 +672,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Odpri povezavo</translation>
@@ -933,14 +887,6 @@ Ali jih želite nadomestiti?</translation>
         <translation>Predhodni odprti dokument v zgodovini</translation>
     </message>
     <message>
-        <source>Go Back</source>
-        <translation>Pojdi nazaj</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Pojdi naprej</translation>
-    </message>
-    <message>
         <source>Meta+E</source>
         <translation>Meta+E</translation>
     </message>
@@ -1081,103 +1027,81 @@ Ali jih želite nadomestiti?</translation>
         <translation>Konzola:</translation>
     </message>
     <message>
-        <location/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location/>
         <source>When files are externally modified:</source>
         <translation>Ko so datoteke spremenjene od zunaj:</translation>
     </message>
     <message>
-        <location/>
         <source>User Interface</source>
         <translation>Uporabniški vmesnik</translation>
     </message>
     <message>
-        <location/>
         <source>Color:</source>
         <translation>Barva:</translation>
     </message>
     <message>
-        <location/>
         <source>Language:</source>
         <translation>Jezik:</translation>
     </message>
     <message>
-        <location/>
         <source>System</source>
         <translation>Sistem</translation>
     </message>
     <message>
-        <location/>
         <source>External file browser:</source>
         <translation>Zunanji brskalnik po datotekah:</translation>
     </message>
     <message>
-        <location/>
         <source>Always Ask</source>
         <translation>Vedno vprašaj</translation>
     </message>
     <message>
-        <location/>
         <source>Reload All Unchanged Editors</source>
         <translation>Znova naloži vse nespremenjene urejevalnike</translation>
     </message>
     <message>
-        <location/>
         <source>Ignore Modifications</source>
         <translation>Prezri spremembe</translation>
     </message>
     <message>
-        <location/>
         <source>Reset to default.</source>
         <comment>Color</comment>
         <translation>Ponastavi na privzeto.</translation>
     </message>
     <message>
-        <location/>
         <source>Reset</source>
         <translation>Ponastavi</translation>
     </message>
     <message>
-        <location/>
         <source>Reset to default.</source>
         <comment>Terminal</comment>
         <translation>Ponastavi na privzeto.</translation>
     </message>
     <message>
-        <location/>
         <source>Reset to default.</source>
         <comment>File Browser</comment>
         <translation>Ponastavi na privzeto.</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically create temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</source>
         <translation>Samodejno ustvari začasne kopije spremenjenih datotek. Ko Qt Creator po sesutju ali po izpadu električnega omrežja zaženete znova, vas bo vprašal, ali naj obnovi samodejno shranjeno vsebino.</translation>
     </message>
     <message>
-        <location/>
         <source>Auto-save modified files</source>
         <translation>Samodejno shranjuj spremenjene datoteke</translation>
     </message>
     <message>
-        <location/>
         <source>Interval:</source>
         <translation>Razmik:</translation>
     </message>
     <message>
-        <location/>
         <source>min</source>
         <extracomment>unit for minutes
 </extracomment>
         <translation> min</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Ponastavi na privzeto</translation>
     </message>
     <message>
         <source>R</source>
@@ -1345,7 +1269,6 @@ Ali jih želite nadomestiti?</translation>
         <translation>Nov projekt</translation>
     </message>
     <message>
-        <location/>
         <source>Choose a template:</source>
         <translation>Izberite predlogo:</translation>
     </message>
@@ -1621,17 +1544,14 @@ Ali jih želite nadomestiti?</translation>
         <translation>Končnica glave:</translation>
     </message>
     <message>
-        <location/>
         <source>Source suffix:</source>
         <translation>Končnica izvorne kode:</translation>
     </message>
     <message>
-        <location/>
         <source>Lower case file names</source>
         <translation>Imena datotek z malimi črkami</translation>
     </message>
     <message>
-        <location/>
         <source>License template:</source>
         <translation>Predloga za licenco:</translation>
     </message>
@@ -1775,9 +1695,6 @@ Qt Creator cannot attach to it.</source>
         <translation>Proces %1 je že pod nadzorom razhroščevalnika.
 Qt Creator se nanj ne more priklopiti.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Izberite začetni naslov</translation>
@@ -1790,9 +1707,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Select start address</source>
         <translation type="obsolete">Izberite začetni naslov</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Datoteka oznake:</translation>
@@ -2019,9 +1933,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Thread Specification:</source>
         <translation>Določitev niti:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Prekinitvene točke</translation>
@@ -2114,9 +2025,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Conditions on Breakpoint %1</source>
         <translation type="obsolete">Pogoji pri prekinitveni točki %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder
@@ -2124,37 +2032,30 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <translation>Zagon</translation>
     </message>
     <message>
-        <location/>
         <source>Additional &amp;arguments:</source>
         <translation>Dodatni &amp;argumenti:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use CDB&apos;s native console instead of Qt Creator&apos;s console for console applications. The native console does not prompt on application exit. It is suitable for diagnosing cases in which the application does not start up properly in Qt Creator&apos;s console and the subsequent attach fails.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Za besedilne programe namesto Qt Creator-jeve konzole uporabi CDB-jevo lastno konzolo. CDB-jeva konzola ob izhodu iz programa ne prikaže poziva. Uporabna je za ugotavljanje vzrokov za nepravilen zagon programa v Qt Creator-jevi konzoli in kasnejše neuspešne priklope.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Use CDB &amp;console</source>
         <translation>Uporabi CDB-jevo &amp;konzolo</translation>
     </message>
     <message>
-        <location/>
         <source>Debugger Paths</source>
         <translation>Poti za razhroščevalnik</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Symbol paths:</source>
         <translation>Poti za &amp;simbole:</translation>
     </message>
     <message>
-        <location/>
         <source>S&amp;ource paths:</source>
         <translation>Poti za &amp;izvorno kodo:</translation>
     </message>
     <message>
-        <location/>
         <source>Break on:</source>
         <translation>Prekini pri:</translation>
     </message>
@@ -2190,9 +2091,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Autodetection</source>
         <translation type="obsolete">Samodejna zaznava</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Strežnik za simbole …</translation>
@@ -2217,9 +2115,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Pick a local cache directory</source>
         <translation type="obsolete">Izberite mapo s krajevnim medpomnilnikom</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>To preklopi razhroščevalnik v način delovanja po ukazih. V tem načinu korakanje deluje po posameznih ukazih, prikaz mesta v izvorni kodi pa prikazuje ukaze v zbirniku.</translation>
@@ -2428,9 +2323,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Changes the debugger language according to the currently opened file.</source>
         <translation type="obsolete">Spremeni jezik razhroščevalnika glede na trenutno odprto datoteko.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Branje %1 …</translation>
@@ -2840,9 +2732,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation>Izberite mesto datoteke zagonskega skripta</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>yes</source>
         <translation>da</translation>
@@ -2894,9 +2783,6 @@ To lahko privede do napačnih rezultatov.</translation>
 </extracomment>
         <translation>&lt;neznan&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -2949,9 +2835,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Prikaži odvisnosti za »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Ni moč ustvariti začasne datoteke: %1</translation>
@@ -2964,9 +2847,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Ni moč odpreti FIFO %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -2975,9 +2855,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Value (base %1)</source>
         <translation>Vrednost (osnova %1)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Registri</translation>
@@ -3022,9 +2899,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Odpri datoteko »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>…</translation>
@@ -3121,9 +2995,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Open Disassembler</source>
         <translation>Odpri razstavljalnik</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Izberite izvršljivo datoteko</translation>
@@ -3131,10 +3002,6 @@ To lahko privede do napačnih rezultatov.</translation>
     <message>
         <source>Select Working Directory</source>
         <translation>Izberite delovno mapo</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Izvršljiva datoteka:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -3160,16 +3027,10 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Select Start Script</source>
         <translation type="obsolete">Izberite zagonski skript</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread</source>
         <translation>Nit</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).
@@ -3580,28 +3441,23 @@ To lahko privede do napačnih rezultatov.</translation>
         <translation>Uporabi Qt Creatorjev model kode, da ugotovi, ali je ob prekinitvi razhroščevalnika spremenljivki že bila prirejena vrednost.</translation>
     </message>
     <message>
-        <location/>
         <source>Use code model</source>
         <translation>Uporabi model kode</translation>
     </message>
     <message>
-        <location/>
         <source>Use Debugging Helper</source>
         <translation>Uporabi razhroščevalnega pomočnika</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Razhroščevalni pomočnik se uporablja le za lepo oblikovan prikaz objektov določenih vrst, na primer QString in std::map, v prikazu »Krajevno in izrazi«. Ni obvezen za razhroščevanje s Qt Creatorjem.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Displays names of QThread based threads.</source>
         <translation>Prikazuje imena niti, ki temeljijo na QThread.</translation>
     </message>
     <message>
-        <location/>
         <source>Display thread names</source>
         <translation>Prikaži imena niti</translation>
     </message>
@@ -3702,7 +3558,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation>Razred</translation>
     </message>
     <message>
-        <location/>
         <source>Choose a Class Name</source>
         <translation>Izberite ime razreda</translation>
     </message>
@@ -3874,23 +3729,20 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Registered Documentation</source>
         <translation>Registrirana dokumentacija</translation>
     </message>
     <message>
-        <location/>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Dodajanje in odstranjevanje stisnjenih datotek s pomočjo, *.qch.</translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
@@ -3906,52 +3758,42 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation>Ime:</translation>
     </message>
     <message>
-        <location/>
         <source>Version:</source>
         <translation>Različica:</translation>
     </message>
     <message>
-        <location/>
         <source>Vendor:</source>
         <translation>Proizvajalec:</translation>
     </message>
     <message>
-        <location/>
         <source>Location:</source>
         <translation>Mesto:</translation>
     </message>
     <message>
-        <location/>
         <source>Description:</source>
         <translation>Opis:</translation>
     </message>
     <message>
-        <location/>
         <source>Copyright:</source>
         <translation>Avtorske pravice:</translation>
     </message>
     <message>
-        <location/>
         <source>License:</source>
         <translation>Licenca:</translation>
     </message>
     <message>
-        <location/>
         <source>Dependencies:</source>
         <translation>Odvisnosti:</translation>
     </message>
     <message>
-        <location/>
         <source>Group:</source>
         <translation>Skupina:</translation>
     </message>
     <message>
-        <location/>
         <source>Compatibility version:</source>
         <translation>Združljiva različica:</translation>
     </message>
     <message>
-        <location/>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
@@ -3968,7 +3810,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation>Stanje:</translation>
     </message>
     <message>
-        <location/>
         <source>Error message:</source>
         <translation>Sporočilo napake:</translation>
     </message>
@@ -3997,17 +3838,14 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation>Ime</translation>
     </message>
     <message>
-        <location/>
         <source>Version</source>
         <translation>Različica</translation>
     </message>
     <message>
-        <location/>
         <source>Vendor</source>
         <translation>Proizvajalec</translation>
     </message>
     <message>
-        <location/>
         <source>Load</source>
         <translation>Naloži</translation>
     </message>
@@ -4244,102 +4082,82 @@ Razlog: %3</translation>
         <translation>Uporabi FakeVim</translation>
     </message>
     <message>
-        <location/>
         <source>Shift width:</source>
         <translation>Širina zamika:</translation>
     </message>
     <message>
-        <location/>
         <source>Tabulator size:</source>
         <translation>Velikost tabulatorja:</translation>
     </message>
     <message>
-        <location/>
         <source>Backspace:</source>
         <translation>Vračalka:</translation>
     </message>
     <message>
-        <location/>
         <source>Vim Behavior</source>
         <translation>Obnašanje Vim</translation>
     </message>
     <message>
-        <location/>
         <source>Automatic indentation</source>
         <translation>Samodejno zamikanje</translation>
     </message>
     <message>
-        <location/>
         <source>Start of line</source>
         <translation>Začetek vrstice</translation>
     </message>
     <message>
-        <location/>
         <source>Smart indentation</source>
         <translation>Pametno zamikanje</translation>
     </message>
     <message>
-        <location/>
         <source>Use search dialog</source>
         <translation>Uporabi pogovorno okno za iskanje</translation>
     </message>
     <message>
-        <location/>
         <source>Expand tabulators</source>
         <translation>Razširi tabulatorje</translation>
     </message>
     <message>
-        <location/>
         <source>Show position of text marks</source>
         <translation>Prikaži položaje besedilnih oznak</translation>
     </message>
     <message>
-        <location/>
         <source>Smart tabulators</source>
         <translation>Pametni tabulatorji</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight search results</source>
         <translation>Poudari rezultate iskanja</translation>
     </message>
     <message>
-        <location/>
         <source>Incremental search</source>
         <translation>Postopno iskanje</translation>
     </message>
     <message>
-        <location/>
         <source>Keyword characters:</source>
         <translation>Znaki ključnih besed:</translation>
     </message>
     <message>
-        <location/>
         <source>Copy Text Editor Settings</source>
         <translation>Skopiraj nastavitve urejevalnika besedil</translation>
     </message>
     <message>
-        <location/>
         <source>Set Qt Style</source>
         <translation>Nastavi slog Qt</translation>
     </message>
     <message>
-        <location/>
         <source>Set Plain Style</source>
         <translation>Nastavi navaden slog</translation>
     </message>
     <message>
-        <location/>
         <source>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</source>
         <translation>Kombinacije tipk, kot je Ctrl+S, posreduj jedru Qt Creatorja in jih ne tolmači v FakeVim. To olajša dostop do osrednjih funkcij Qt Creatorja, ob tem pa se izgubi nekaj zmožnosti FakeVim.</translation>
     </message>
     <message>
-        <location/>
         <source>Pass control key</source>
         <translation>Posreduj kombinacije s tipko Ctrl</translation>
     </message>
     <message>
-        <location/>
         <source>Vim tabstop option</source>
         <translation>Vim-ova možnost »tabstop«</translation>
     </message>
@@ -4355,7 +4173,6 @@ Razlog: %3</translation>
         <translation>Dodaj ime filtra</translation>
     </message>
     <message>
-        <location/>
         <source>Filter Name:</source>
         <translation>Ime filtra:</translation>
     </message>
@@ -4367,27 +4184,22 @@ Razlog: %3</translation>
         <translation>1</translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Filters</source>
         <translation>Filtri</translation>
     </message>
     <message>
-        <location/>
         <source>Attributes</source>
         <translation>Lastnosti</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
 Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode.  The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
@@ -4395,65 +4207,44 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Dodajte, spreminjajte in odstranite filtre za dokumente, ki določajo nabor dokumentacije, ki je prikazana v načinu pomoči. Lastnosti so določene v dokumentih. Izberite jih, tako da bo prikazana ustrezna dokumentacija. Vedite, da so nekatere lastnosti določene v več dokumentih.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>No user defined filters available or no filter selected.</source>
         <translation>Na voljo ni nobenega uporabniškega filtra ali pa noben ni izbran.</translation>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Poišči …</translation>
     </message>
     <message>
-        <location/>
         <source>Sc&amp;ope:</source>
         <translation>D&amp;oseg:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Search</source>
         <translation>&amp;Išči</translation>
     </message>
     <message>
-        <location/>
         <source>Search &amp;for:</source>
         <translation>Poi&amp;šči:</translation>
     </message>
     <message>
-        <location/>
-        <source>Close</source>
-        <translation>Zapri</translation>
-    </message>
-    <message>
-        <location/>
         <source>&amp;Case sensitive</source>
         <translation>O&amp;bčutljivo na velikost črk</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Whole words only</source>
         <translation>Samo &amp;cele besede</translation>
     </message>
     <message>
-        <location/>
         <source>Search &amp;&amp; Replace</source>
         <translation>Iskanje in zamenjevanje</translation>
     </message>
     <message>
-        <location/>
         <source>Use regular e&amp;xpressions</source>
         <translation>Uporabi r&amp;egularne izraze</translation>
     </message>
-    <message>
-        <location/>
-        <source>Cancel</source>
-        <translation>Prekliči</translation>
-    </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Find/Replace</source>
         <translation>Najdi in zamenjaj</translation>
@@ -4461,10 +4252,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Enter Find String</source>
         <translation>Vnesite iskani niz</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
     </message>
     <message>
         <source>Find Next</source>
@@ -4479,20 +4266,12 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Zamenjaj</translation>
     </message>
     <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Zamenjaj in najdi</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
         <translation>Zamenjaj in najdi prejšnje</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Zamenjaj vse</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
@@ -4510,55 +4289,30 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Replace &amp;&amp; Find Next</source>
         <translation type="obsolete">Zamenjaj in najdi naslednje</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Najdi</translation>
     </message>
     <message>
-        <location/>
         <source>Find:</source>
         <translation>Najdi:</translation>
     </message>
     <message>
-        <location/>
-        <source>Replace with:</source>
-        <translation>Zamenjaj z:</translation>
-    </message>
-    <message>
-        <location/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location/>
-        <source>Replace</source>
-        <translation>Zamenjaj</translation>
-    </message>
-    <message>
-        <location/>
         <source>Replace &amp;&amp; Find</source>
         <translation>Zamenjaj in najdi</translation>
     </message>
     <message>
-        <location/>
         <source>Replace All</source>
         <translation>Zamenjaj vse</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Advanced...</source>
-        <translation>Napredno ...</translation>
     </message>
     <message>
         <source>All</source>
         <translation type="obsolete">Vse</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>Search Results</source>
         <translation>Rezultati iskanja</translation>
@@ -4580,10 +4334,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Zamenjaj vse pojavitve</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Zamenjaj</translation>
-    </message>
-    <message>
         <source>This change cannot be undone.</source>
         <translation>Te spremembe ni moč razveljaviti.</translation>
     </message>
@@ -4597,63 +4347,48 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>::Debugger</name>
     <message>
         <source>This is the slowest but safest option.</source>
         <translation>To je najpočasnejša in najvarnejša možnost.</translation>
     </message>
     <message>
-        <location/>
         <source>Try to set breakpoints in selected plugins</source>
         <translation>Poskusi nastaviti prekinitvene točke v izbranih vstavkih</translation>
     </message>
     <message>
-        <location/>
         <source>Matching regular expression: </source>
         <translation>Ujemajoče z regularnim izrazom: </translation>
     </message>
     <message>
-        <location/>
         <source>Never set breakpoints in plugins automatically</source>
         <translation>Nikoli samodejno ne nastavljaj prekinitvenih točk v vstavkih</translation>
     </message>
     <message>
-        <location/>
         <source>Enable reverse debugging</source>
         <translation>Omogoči obratno razhroščevanje</translation>
     </message>
     <message>
-        <location/>
         <source>Skip known frames when stepping</source>
         <translation>Med stopanjem preskoči znane okvirje</translation>
     </message>
     <message>
-        <location/>
         <source>Show a message box when receiving a signal</source>
         <translation>Ob prejemu signala prikaži okno s sporočilom</translation>
     </message>
     <message>
-        <location/>
         <source>Behavior of Breakpoint Setting in Plugins</source>
         <translation>Obnašanje nastavljanja prekinitvenih točk v vstavkih</translation>
     </message>
     <message>
-        <location/>
-        <source>GDB</source>
-        <translation>GDB</translation>
-    </message>
-    <message>
-        <location/>
         <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
         <translation>To je bodisi prazno bodisi kaže na datoteko, ki vsebuje ukaze za GDB, ki bodo izvršeni takoj po zagonu GDB-ja.</translation>
     </message>
     <message>
-        <location/>
         <source>GDB startup script:</source>
         <translation>Zagonski skript za GDB:</translation>
     </message>
     <message>
-        <location/>
         <source>This is the number of seconds Qt Creator will wait before
 it terminates a non-responsive GDB process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
@@ -4666,64 +4401,52 @@ nalaganje velikih knjižnic ali izpisovanje izvorne kode traja precej dlje.
 V tem primeru zvišajte vrednost.</translation>
     </message>
     <message>
-        <location/>
         <source>GDB timeout:</source>
         <translation>Razpoložljivi čas za GDB:</translation>
     </message>
     <message>
-        <location/>
         <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
  counting code is skipped, and a single &apos;Step Into&apos; for a signal emission ends up directly in the slot connected to it.</source>
         <translation>Omogoči ukazu »Vstopi«, da več korakov združi v enega in tako zmanjša »zgovornost« razhroščevanja. Preskoči se na primer koda za
 atomarno štetje sklicev, en »Vstop« v oddajo signala pa prav tako privede neposredno do reže, ki je povezana s signalom.</translation>
     </message>
     <message>
-        <location/>
         <source>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</source>
         <translation>Takoj ko program med razhroščevanjem prejme signal kot je SIGSEGV, bo prikazano pogovorno okno s sporočilom.</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB omogoča nastavljanje prekinitvenih točk v vrsticah izvorne kode, za katere strojna koda ni bila ustvarjena. V takih primerih se prekinitvene točke premakne v prvo naslednjo vrstico izvorne kode, za katero je bila strojna koda dejansko ustvarjena. Ta možnost tako začasno spremembo upodobi s premikom oznak prekinitvenih točk v urejevalniku izvorne kode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Adjust breakpoint locations</source>
         <translation>Prilagodi mesta prekinitvenih točk</translation>
     </message>
     <message>
-        <location/>
         <source>This allows or inhibits reading the user&apos;s default .gdbinit file on debugger startup.</source>
         <translation>To ob zagonu razhroščevalnika omogoči ali onemogoči branje uporabnikove privzete datoteke .gdbinit.</translation>
     </message>
     <message>
-        <location/>
         <source>Load .gdbinit file on startup</source>
         <translation>Ob zagonu naloži datoteko .gdbinit</translation>
     </message>
     <message>
-        <location/>
         <source>Use asynchronous mode to control the inferior</source>
         <translation>Za nadzor podprocesa uporabi asinhroni način</translation>
     </message>
     <message>
-        <location/>
         <source>Stop when a qWarning is issued</source>
         <translation>Ob klicu funkcije qWarning se ustavi</translation>
     </message>
     <message>
-        <location/>
         <source>Stop when a qFatal is issued</source>
         <translation>Ob klicu funkcije qFatal se ustavi</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To omogoči obratno razhroščevanje.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Opomba:&lt;/b&gt; Ta zmožnost je zelo počasna in nestabilna. Ob vračanju prek sistemskih klicev se obnaša nepredvidljivo in lahko uniči razhroščevalno sejo.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Always try to set breakpoints in plugins automatically</source>
         <translation>Prekinitvene točke v vstavkih vedno poskušaj nastaviti samodejno</translation>
     </message>
@@ -4778,18 +4501,16 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>Povozi %1:</translation>
     </message>
     <message>
-        <location/>
         <source>Make arguments:</source>
         <translation>Argumenti za Make:</translation>
     </message>
     <message>
-        <location/>
         <source>Targets:</source>
         <translation>Cilji:</translation>
     </message>
@@ -4905,32 +4626,26 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Veje</translation>
     </message>
     <message>
-        <location/>
         <source>Re&amp;fresh</source>
         <translation>Os&amp;veži</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Add...</source>
         <translation>&amp;Dodaj ...</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Remove</source>
         <translation>&amp;Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Diff</source>
         <translation>&amp;Razlike</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Log</source>
         <translation>D&amp;nevnik</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Checkout</source>
         <translation>&amp;Prevzemi</translation>
     </message>
@@ -5821,32 +5536,26 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Splošni podatki</translation>
     </message>
     <message>
-        <location/>
         <source>Repository:</source>
         <translation>Skladišče:</translation>
     </message>
     <message>
-        <location/>
         <source>repository</source>
         <translation>skladišče</translation>
     </message>
     <message>
-        <location/>
         <source>branch</source>
         <translation>veja</translation>
     </message>
     <message>
-        <location/>
         <source>Commit Information</source>
         <translation>Podatki o zapisu</translation>
     </message>
     <message>
-        <location/>
         <source>Author:</source>
         <translation>Avtor:</translation>
     </message>
     <message>
-        <location/>
         <source>Email:</source>
         <translation>E-pošta:</translation>
     </message>
@@ -5863,72 +5572,58 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>PATH:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Opomba:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Git needs to find Perl in the environment as well.</source>
         <translation>Git mora v okolju najti tudi Perl.</translation>
     </message>
     <message>
-        <location/>
         <source>Log commit display count:</source>
         <translation>Število prikazanih dnevniških zapisov:</translation>
     </message>
     <message>
-        <location/>
         <source>Note that huge amount of commits might take some time.</source>
         <translation>Vedite, da je za veliko število zapisov morda potrebno veliko časa.</translation>
     </message>
     <message>
-        <location/>
         <source>Environment Variables</source>
         <translation>Okoljske spremenljivke</translation>
     </message>
     <message>
-        <location/>
         <source>From System</source>
         <translation>Od sistema</translation>
     </message>
     <message>
-        <location/>
         <source>Miscellaneous</source>
         <translation>Razno</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout:</source>
         <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
-        <location/>
         <source>s</source>
         <translation>s</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt on submit</source>
         <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
-        <location/>
         <source>Pull with rebase</source>
         <translation>Potegni s ponastavitvijo izhodišča</translation>
     </message>
     <message>
-        <location/>
         <source>Set &quot;HOME&quot; environment variable</source>
         <translation>Nastavi okoljsko spremenljivko »HOME«</translation>
     </message>
     <message>
-        <location/>
         <source>Gitk</source>
         <translation>Gitk</translation>
     </message>
     <message>
-        <location/>
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
     </message>
@@ -6160,14 +5855,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Indeksiranje dokumentacije …</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>Odpri povezavo</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Odpri povezavo kot novo stran</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Skopiraj povezavo</translation>
     </message>
@@ -6191,20 +5878,9 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
         <translation type="obsolete">&lt;title&gt;Napaka 404&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;Strani ni bilo moč najti&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;»%1«&lt;/h3&gt;&lt;/div&gt;</translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Išči:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Odpri povezavo</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Odpri povezavo kot novo stran</translation>
     </message>
 </context>
 <context>
@@ -6219,16 +5895,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Povozi %1:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Make arguments:</source>
-        <translation>Argumenti za Make:</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -6249,13 +5916,12 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
+    <name>::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Odpri datoteko v …</translation>
     </message>
     <message>
-        <location/>
         <source>Open file extension with:</source>
         <translation>Odpri končnico datoteke v:</translation>
     </message>
@@ -6267,7 +5933,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Številka spremembe</translation>
     </message>
     <message>
-        <location/>
         <source>Change Number:</source>
         <translation>Številka spremembe:</translation>
     </message>
@@ -6276,7 +5941,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Čakajoče spremembe P4</translation>
     </message>
     <message>
-        <location/>
         <source>Cancel</source>
         <translation>Prekliči</translation>
     </message>
@@ -6623,7 +6287,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Poziv Perforce</translation>
     </message>
     <message>
-        <location/>
         <source>OK</source>
         <translation>V redu</translation>
     </message>
@@ -6636,62 +6299,50 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Preizkus</translation>
     </message>
     <message>
-        <location/>
         <source>Configuration</source>
         <translation>Nastavitve</translation>
     </message>
     <message>
-        <location/>
         <source>P4 command:</source>
         <translation>Ukaz P4:</translation>
     </message>
     <message>
-        <location/>
         <source>Environment Variables</source>
         <translation>Okoljske spremenljivke</translation>
     </message>
     <message>
-        <location/>
         <source>P4 client:</source>
         <translation>Odjemalec P4:</translation>
     </message>
     <message>
-        <location/>
         <source>P4 user:</source>
         <translation>Uporabnik P4:</translation>
     </message>
     <message>
-        <location/>
         <source>P4 port:</source>
         <translation>Vrata P4:</translation>
     </message>
     <message>
-        <location/>
         <source>Miscellaneous</source>
         <translation>Razno</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout:</source>
         <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
-        <location/>
         <source>s</source>
         <translation>s</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt on submit</source>
         <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
-        <location/>
         <source>Log count:</source>
         <translation>Dolžina dnevnika:</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically open files when editing</source>
         <translation>Med urejanjem samodejno odpiraj datoteke</translation>
     </message>
@@ -6712,42 +6363,16 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Pošiljanje</translation>
     </message>
     <message>
-        <location/>
         <source>Change:</source>
         <translation>Sprememba:</translation>
     </message>
     <message>
-        <location/>
         <source>Client:</source>
         <translation>Odjemalec:</translation>
     </message>
     <message>
-        <location/>
         <source>User:</source>
         <translation>Uporabnik:</translation>
-    </message>
-</context>
-<context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Podrobnosti napake</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Nameščeni vstavki</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Podrobnosti vstavka %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Napake vstavka %1</translation>
     </message>
 </context>
 <context>
@@ -7099,17 +6724,14 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Nastavitve urejevalnika:</translation>
     </message>
     <message>
-        <location/>
         <source>Global</source>
         <translation>Globalne</translation>
     </message>
     <message>
-        <location/>
         <source>Custom</source>
         <translation>Po meri</translation>
     </message>
     <message>
-        <location/>
         <source>Restore Global</source>
         <translation>Obnovi globalne</translation>
     </message>
@@ -7136,32 +6758,26 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Upravljalnik sej</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;New</source>
         <translation>&amp;Nova</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Rename</source>
         <translation>Pre&amp;imenuj</translation>
     </message>
     <message>
-        <location/>
         <source>C&amp;lone</source>
         <translation>&amp;Podvoji</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Delete</source>
         <translation>&amp;Izbriši</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Open</source>
         <translation>&amp;Odpri</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Kaj je seja?&lt;/a&gt;</translation>
     </message>
@@ -7178,7 +6794,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Ob zagonu Qt Creator-ja samodejno obnovi zadnjo sejo.</translation>
     </message>
     <message>
-        <location/>
         <source>Restore last session on startup</source>
         <translation>Ob zagonu obnovi zadnjo sejo</translation>
     </message>
@@ -7205,17 +6820,14 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Ukaz:</translation>
     </message>
     <message>
-        <location/>
         <source>Enable custom process step</source>
         <translation>Omogoči korak postopka po meri</translation>
     </message>
     <message>
-        <location/>
         <source>Working directory:</source>
         <translation>Delovna mapa:</translation>
     </message>
     <message>
-        <location/>
         <source>Command arguments:</source>
         <translation>Argumenti za ukaz:</translation>
     </message>
@@ -7313,17 +6925,14 @@ v projekt »%2« ni uspelo.</translation>
         <translation>Odstrani datoteko</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Delete file permanently</source>
         <translation>&amp;Dokončno izbriši datoteko</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Remove from Version Control</source>
         <translation>&amp;Odstrani iz sistema za nadzor različic</translation>
     </message>
     <message>
-        <location/>
         <source>File to remove:</source>
         <translation>Datoteka za odstraniti:</translation>
     </message>
@@ -7356,22 +6965,14 @@ v projekt »%2« ni uspelo.</translation>
         <translation>Nastavitev za zagon:</translation>
     </message>
     <message>
-        <location/>
         <source>Deployment:</source>
         <translation>Razmestitev:</translation>
     </message>
     <message>
-        <location/>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Rename</source>
         <translation>Preimenuj ...</translation>
     </message>
@@ -7392,22 +6993,18 @@ v projekt »%2« ni uspelo.</translation>
 </translation>
     </message>
     <message>
-        <location/>
         <source>Add to &amp;project:</source>
         <translation>Dodaj v &amp;projekt:</translation>
     </message>
     <message>
-        <location/>
         <source>Add to &amp;version control:</source>
         <translation>Dodaj &amp;v sistem za nadzor različic:</translation>
     </message>
     <message>
-        <location/>
         <source>Project Management</source>
         <translation>Upravljanje projektov</translation>
     </message>
     <message>
-        <location/>
         <source>Manage</source>
         <translation>Upravljanje ...</translation>
     </message>
@@ -7850,59 +7447,49 @@ v sistem za nadzor različic (%2)?</translation>
         <translation>Dodatni argumenti:</translation>
     </message>
     <message>
-        <location/>
         <source>Effective qmake call:</source>
         <translation>Dejanski klic qmake:</translation>
     </message>
     <message>
-        <location/>
         <source>qmake build configuration:</source>
         <translation>Nastavitev gradnje s QMake:</translation>
     </message>
     <message>
-        <location/>
         <source>Debug</source>
         <translation>Razhroščevanje</translation>
     </message>
     <message>
-        <location/>
         <source>Release</source>
         <translation>Izdaja</translation>
     </message>
     <message>
-        <location/>
         <source>Link QML debugging library:</source>
         <translation>Poveži razhroščevalno knjižnico QML:</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Properties</source>
         <translation>Lastnosti</translation>
     </message>
     <message>
-        <location/>
         <source>Prefix:</source>
         <translation>Predpona:</translation>
     </message>
     <message>
-        <location/>
         <source>Language:</source>
         <translation>Jezik:</translation>
     </message>
     <message>
-        <location/>
         <source>Alias:</source>
         <translation>Drugo ime:</translation>
     </message>
@@ -8156,27 +7743,22 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Upravljanje</translation>
     </message>
     <message>
-        <location/>
         <source>Qt version:</source>
         <translation>Različica Qt:</translation>
     </message>
     <message>
-        <location/>
         <source>Tool chain:</source>
         <translation>Zaporedje orodij:</translation>
     </message>
     <message>
-        <location/>
         <source>Shadow build:</source>
         <translation>Gradnja v ločeni mapi:</translation>
     </message>
     <message>
-        <location/>
         <source>Build directory:</source>
         <translation>Mapa za gradnjo:</translation>
     </message>
     <message>
-        <location/>
         <source>problemLabel</source>
         <translation>oznakaTežave</translation>
     </message>
@@ -8447,33 +8029,28 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project.</source>
         <translation type="obsolete">Ustvari datoteko z viri za Qt (*.qrc), katero lahko dodate v projekt Qt C++.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>neimenovana</translation>
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Shrani spremembe</translation>
     </message>
     <message>
-        <location/>
         <source>The following files have unsaved changes:</source>
         <translation>Naslednje datoteke vsebujejo neshranjene spremembe:</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically save all files before building</source>
         <translation>Pred gradnjo samodejno shrani vse datoteke</translation>
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Dodaj datoteke</translation>
@@ -8534,9 +8111,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Copying failed</source>
         <translation type="obsolete">Kopiranje ni uspelo</translation>
     </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation>Dodaj datoteke …</translation>
@@ -8582,16 +8156,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Spremeni jezik</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation>Jezik:</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation>Spremeni drugo ime datoteke</translation>
-    </message>
-    <message>
-        <source>Alias:</source>
-        <translation>Drugo ime:</translation>
     </message>
     <message>
         <source>Open file</source>
@@ -8610,102 +8176,60 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>StartExternalDialog</name>
+    <name>::Debugger</name>
     <message>
-        <source>Start Debugger</source>
-        <translation>Zaženi razhroščevalnik</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&amp;Executable:</source>
-        <translation>&amp;Izvršljiva datoteka:</translation>
-    </message>
-    <message>
-        <location/>
         <source>&amp;Arguments:</source>
         <translation>&amp;Argumenti:</translation>
     </message>
     <message>
-        <location/>
         <source>Run in &amp;terminal:</source>
         <translation>Zaženi v &amp;terminalu:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Working directory:</source>
         <translation>&amp;Delovna mapa:</translation>
     </message>
     <message>
-        <location/>
-        <source>&amp;Tool chain:</source>
-        <translation>&amp;Zaporedje orodij:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Break at &apos;&amp;main&apos;:</source>
         <translation>Prekini pri »&amp;main()«:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Izvršljiva datoteka:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenti:</translation>
     </message>
     <message>
         <source>Break at &apos;main&apos;:</source>
         <translation type="obsolete">Prekini pri »main()«:</translation>
     </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
     <message>
-        <source>Start Debugger</source>
-        <translation>Zaženi razhroščevalnik</translation>
-    </message>
-    <message>
-        <location/>
         <source>&amp;Debugger:</source>
         <translation>&amp;Razhroščevalnik:</translation>
     </message>
     <message>
-        <location/>
         <source>Local &amp;executable:</source>
         <translation>Krajevni &amp;program:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Host and port:</source>
         <translation>&amp;Gostitelj in vrata:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Architecture:</source>
         <translation>&amp;Arhitektura:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;GNU target:</source>
         <translation>&amp;Cilj GNU:</translation>
     </message>
     <message>
-        <location/>
         <source>Sys&amp;root:</source>
         <translation>&amp;Vrhnja mapa sistema:</translation>
     </message>
     <message>
-        <location/>
         <source>Override s&amp;tart script:</source>
         <translation>Povozi &amp;zagonski skript:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Use server start script:</source>
         <translation>&amp;Uporabi skript za zagon strežnika:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Server start script:</source>
         <translation>&amp;Skript za zagon strežnika:</translation>
     </message>
@@ -8745,7 +8269,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Overjanje</translation>
     </message>
     <message>
-        <location/>
         <source>Password:</source>
         <translation>Geslo:</translation>
     </message>
@@ -8758,42 +8281,34 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Nastavitve</translation>
     </message>
     <message>
-        <location/>
         <source>Subversion command:</source>
         <translation>Ukaz Subversion:</translation>
     </message>
     <message>
-        <location/>
         <source>Username:</source>
         <translation>Uporabniško ime:</translation>
     </message>
     <message>
-        <location/>
         <source>Miscellaneous</source>
         <translation>Razno</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout:</source>
         <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
-        <location/>
         <source>s</source>
         <translation>s</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt on submit</source>
         <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
-        <location/>
         <source>Ignore whitespace changes in annotation</source>
         <translation>Prezri spremembe presledkov v opombi</translation>
     </message>
     <message>
-        <location/>
         <source>Log count:</source>
         <translation>Dolžina dnevnika:</translation>
     </message>
@@ -9098,67 +8613,54 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Prikaz</translation>
     </message>
     <message>
-        <location/>
         <source>Display line &amp;numbers</source>
         <translation>Prikaži &amp;številke vrstic</translation>
     </message>
     <message>
-        <location/>
         <source>Display &amp;folding markers</source>
         <translation>Prikaži &amp;oznake za zvijanje</translation>
     </message>
     <message>
-        <location/>
         <source>Show tabs and spaces.</source>
         <translation>Prikaži tabulatorje in presledke.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Visualize whitespace</source>
         <translation>&amp;Poudari presledke</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight current &amp;line</source>
         <translation>Poudari &amp;trenutno vrstico</translation>
     </message>
     <message>
-        <location/>
         <source>Text Wrapping</source>
         <translation>Prelamljanje besedila</translation>
     </message>
     <message>
-        <location/>
         <source>Enable text &amp;wrapping</source>
         <translation>Omogoči pre&amp;lamljanje vrstic</translation>
     </message>
     <message>
-        <location/>
         <source>Display right &amp;margin at column:</source>
         <translation>Prikaži desni &amp;rob pri stolpcu:</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight &amp;blocks</source>
         <translation>Poudari &amp;bloke</translation>
     </message>
     <message>
-        <location/>
         <source>Mark &amp;text changes</source>
         <translation>Označi &amp;spremembe besedila</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Animate matching parentheses</source>
         <translation>Animiraj &amp;ujemanje oklepajev</translation>
     </message>
     <message>
-        <location/>
         <source>Auto-fold first &amp;comment</source>
         <translation>Samodejno zvij prvi &amp;komentar</translation>
     </message>
     <message>
-        <location/>
         <source>Center &amp;cursor on scroll</source>
         <translation>Ob premiku &amp;usredišči kazalec</translation>
     </message>
@@ -9245,42 +8747,34 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <translation>Pisava</translation>
     </message>
     <message>
-        <location/>
         <source>Family:</source>
         <translation>Družina:</translation>
     </message>
     <message>
-        <location/>
         <source>Size:</source>
         <translation>Velikost:</translation>
     </message>
     <message>
-        <location/>
         <source>Color Scheme</source>
         <translation>Barvna shema</translation>
     </message>
     <message>
-        <location/>
         <source>Antialias</source>
         <translation>Glajenje robov</translation>
     </message>
     <message>
-        <location/>
         <source>Copy...</source>
         <translation>Skopiraj …</translation>
     </message>
     <message>
-        <location/>
         <source>Delete</source>
         <translation>Izbriši</translation>
     </message>
     <message>
-        <location/>
         <source>%</source>
         <translation> %</translation>
     </message>
     <message>
-        <location/>
         <source>Zoom:</source>
         <translation>Povečava:</translation>
     </message>
@@ -9826,7 +9320,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -9840,17 +9334,14 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <translation>Izberite temo</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Topics</source>
         <translation>&amp;Teme</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Display</source>
         <translation>&amp;Prikaz</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Close</source>
         <translation>&amp;Zapri</translation>
     </message>
@@ -9965,42 +9456,34 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <translation>Pošlji na CodePaster</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Username:</source>
         <translation>&amp;Uporabniško ime:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;Username&gt;</source>
         <translation>&lt;uporabniško ime&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Description:</source>
         <translation>&amp;Opis:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;Description&gt;</source>
         <translation>&lt;opis&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Patch 1</source>
         <translation>Popravek 1</translation>
     </message>
     <message>
-        <location/>
         <source>Patch 2</source>
         <translation>Popravek 2</translation>
     </message>
     <message>
-        <location/>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -10013,7 +9496,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Komentar&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Parts to Send to Server</source>
         <translation>Deli, ki bodo poslani na strežnik</translation>
     </message>
@@ -10037,7 +9519,6 @@ p, li { white-space: pre-wrap; }
         <translation>Ime:</translation>
     </message>
     <message>
-        <location/>
         <source>Choose the Location</source>
         <translation>Izberite mesto</translation>
     </message>
@@ -10066,62 +9547,50 @@ p, li { white-space: pre-wrap; }
         <translation>Ime &amp;razreda:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Base class:</source>
         <translation>&amp;Osnovni razred:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Type information:</source>
         <translation>Podatki o &amp;vrsti:</translation>
     </message>
     <message>
-        <location/>
         <source>None</source>
         <translation>Brez</translation>
     </message>
     <message>
-        <location/>
         <source>Inherits QWidget</source>
         <translation>Podeduje od QWidget</translation>
     </message>
     <message>
-        <location/>
         <source>Based on QSharedData</source>
         <translation>Temelji na QSharedData</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Header file:</source>
         <translation>Datoteka z &amp;glavo:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Source file:</source>
         <translation>Datoteka z &amp;izvorno kodo:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Generate form:</source>
         <translation>&amp;Ustvari obrazec:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Form file:</source>
         <translation>Datoteka z &amp;obrazcem:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Path:</source>
         <translation>&amp;Pot:</translation>
     </message>
     <message>
-        <location/>
         <source>Inherits QDeclarativeItem</source>
         <translation>Podeduje od QDeclarativeItem</translation>
     </message>
     <message>
-        <location/>
         <source>Create in:</source>
         <translation>Ustvari v:</translation>
     </message>
@@ -10142,7 +9611,6 @@ p, li { white-space: pre-wrap; }
         <translation>Uporabi kot privzeto mesto projekta</translation>
     </message>
     <message>
-        <location/>
         <source>Introduction and Project Location</source>
         <translation>Uvod in mesto projekta</translation>
     </message>
@@ -10155,17 +9623,14 @@ p, li { white-space: pre-wrap; }
         <translation>Pošiljanje Subversion</translation>
     </message>
     <message>
-        <location/>
         <source>F&amp;iles</source>
         <translation>&amp;Datoteke</translation>
     </message>
     <message>
-        <location/>
         <source>Descriptio&amp;n</source>
         <translation>&amp;Opis</translation>
     </message>
     <message>
-        <location/>
         <source>Check &amp;all</source>
         <translation>Označi &amp;vse</translation>
     </message>
@@ -10200,23 +9665,20 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
+    <name>::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Server prefix:</source>
         <translation>Predpona strežnika:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; omogoča pošiljanje na poddomene po meri (npr. kde.pastebin.com). Vnesite želeno predpono.</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Opomba: vstavek jo bo uporabil za pošiljanje in pridobivanje.&lt;/i&gt;</translation>
     </message>
@@ -10230,7 +9692,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -10240,47 +9702,38 @@ p, li { white-space: pre-wrap; }
         <translation>Nastavitve</translation>
     </message>
     <message>
-        <location/>
         <source>CVS command:</source>
         <translation>Ukaz CVS:</translation>
     </message>
     <message>
-        <location/>
         <source>CVS root:</source>
         <translation>Vrhnja mapa CVS:</translation>
     </message>
     <message>
-        <location/>
         <source>Miscellaneous</source>
         <translation>Razno</translation>
     </message>
     <message>
-        <location/>
         <source>Diff options:</source>
         <translation>Možnosti za razlike:</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt on submit</source>
         <translation>Vprašaj ob pošiljanju</translation>
     </message>
     <message>
-        <location/>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
         <translation>Ko je omogočeno, bodo ob kliku na številko revizije v prikazu opomb prikazane vse datoteke, ki so del zapisa. V nasprotnem bo prikazana le ustrezna datoteka.</translation>
     </message>
     <message>
-        <location/>
         <source>Describe all files matching commit id</source>
         <translation>Opiši vse datoteke, ki se ujemajo v ID-ju zapisa</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout:</source>
         <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
-        <location/>
         <source>s</source>
         <translation>s</translation>
     </message>
@@ -10292,37 +9745,30 @@ p, li { white-space: pre-wrap; }
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Embedding of the UI Class</source>
         <translation>Vgrajevanje razreda uporabniškega vmesnika</translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation as a pointer member</source>
         <translation>Združevanje s kazalcem kot članom</translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation</source>
         <translation>Združevanje</translation>
     </message>
     <message>
-        <location/>
         <source>Code Generation</source>
         <translation>Ustvarjanje kode</translation>
     </message>
     <message>
-        <location/>
         <source>Support for changing languages at runtime</source>
         <translation>Podpora za preklapljanje jezikov med tekom</translation>
     </message>
     <message>
-        <location/>
         <source>Use Qt module name in #include-directive</source>
         <translation>V navodilu #include uporabi ime modula Qt</translation>
     </message>
     <message>
-        <location/>
         <source>Multiple inheritance</source>
         <translation>Dedovanje od mnogih</translation>
     </message>
@@ -10357,12 +9803,10 @@ p, li { white-space: pre-wrap; }
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation>…</translation>
     </message>
     <message>
-        <location/>
         <source>Keep updating</source>
         <translation>Redno posodabljaj</translation>
     </message>
@@ -10423,133 +9867,108 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Font</source>
         <translation>Pisava</translation>
     </message>
     <message>
-        <location/>
         <source>Family:</source>
         <translation>Družina:</translation>
     </message>
     <message>
-        <location/>
         <source>Style:</source>
         <translation>Slog:</translation>
     </message>
     <message>
-        <location/>
         <source>Size:</source>
         <translation>Velikost:</translation>
     </message>
     <message>
-        <location/>
         <source>Startup</source>
         <translation>Zagon</translation>
     </message>
     <message>
-        <location/>
         <source>On context help:</source>
         <translation>Kontekstna pomoč:</translation>
     </message>
     <message>
-        <location/>
         <source>On help start:</source>
         <translation>Ob zagonu pomoči:</translation>
     </message>
     <message>
-        <location/>
         <source>Use &amp;Current Page</source>
         <translation>Uporabi &amp;trenutno stran</translation>
     </message>
     <message>
-        <location/>
         <source>Use &amp;Blank Page</source>
         <translation>Uporabi &amp;prazno stran</translation>
     </message>
     <message>
-        <location/>
         <source>Help Bookmarks</source>
         <translation>Zaznamki pomoči</translation>
     </message>
     <message>
-        <location/>
         <source>Import...</source>
         <translation>Uvozi …</translation>
     </message>
     <message>
-        <location/>
         <source>Export...</source>
         <translation>Izvozi …</translation>
     </message>
     <message>
-        <location/>
         <source>Show Side-by-Side if Possible</source>
         <translation>Prikaži ob strani, če je možno</translation>
     </message>
     <message>
-        <location/>
         <source>Always Show Side-by-Side</source>
         <translation>Vedno prikaži ob strani</translation>
     </message>
     <message>
-        <location/>
         <source>Always Start Full Help</source>
         <translation>Vedno zaženi polno pomoč</translation>
     </message>
     <message>
-        <location/>
         <source>Show My Home Page</source>
         <translation>Prikaži mojo domačo stran</translation>
     </message>
     <message>
-        <location/>
         <source>Show a Blank Page</source>
         <translation>Prikaži prazno stran</translation>
     </message>
     <message>
-        <location/>
         <source>Show My Tabs from Last Session</source>
         <translation>Prikaži moje zavihke iz zadnje seje</translation>
     </message>
     <message>
-        <location/>
         <source>Home page:</source>
         <translation>Domača stran:</translation>
     </message>
     <message>
-        <location/>
         <source>Always Show Help in External Window</source>
         <translation>Pomoč vedno prikaži v zunanjem oknu</translation>
     </message>
     <message>
-        <location/>
         <source>Reset to default</source>
         <translation>Ponastavi na privzeto</translation>
     </message>
     <message>
-        <location/>
         <source>Reset</source>
         <translation>Ponastavi</translation>
     </message>
     <message>
-        <location/>
         <source>Behaviour</source>
         <translation>Obnašanje</translation>
     </message>
     <message>
-        <location/>
         <source>Switch to editor context after last help page is closed.</source>
         <translation>Po zaprtju zadnje strani s pomočjo preklopi v urejevalnik.</translation>
     </message>
     <message>
-        <location/>
         <source>Return to editor on closing the last page</source>
         <translation>Po zaprtju zadnje strani se vrni v urejevalnik</translation>
     </message>
@@ -10565,34 +9984,28 @@ p, li { white-space: pre-wrap; }
         <translation>Ime:</translation>
     </message>
     <message>
-        <location/>
         <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
         <translation>Določite filtre imen datotek, ločenih z vejico. Filtri lahko vsebujejo nadomestitelje.</translation>
     </message>
     <message>
-        <location/>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Določite kratko besedo ali okrajšavo, ki se lahko uporabi za omejitev dokončevanja za datoteke iz tega drevesa map.
 Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskano besedo.</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Directories:</source>
         <translation>Mape:</translation>
     </message>
     <message>
-        <location/>
         <source>File types:</source>
         <translation>Vrste datotek:</translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
@@ -10609,12 +10022,10 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Nastavitev filtra</translation>
     </message>
     <message>
-        <location/>
         <source>Include hidden files</source>
         <translation>Vključi skrite datoteke</translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation>Filter:</translation>
     </message>
@@ -10623,17 +10034,14 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Nastavitev filtrov</translation>
     </message>
     <message>
-        <location/>
         <source>Edit</source>
         <translation>Urejanje</translation>
     </message>
     <message>
-        <location/>
         <source> min</source>
         <translation> min</translation>
     </message>
     <message>
-        <location/>
         <source>Refresh interval:</source>
         <translation>Interval osveževanja:</translation>
     </message>
@@ -10645,92 +10053,74 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Gradnja in zagon</translation>
     </message>
     <message>
-        <location/>
         <source>Use jom instead of nmake</source>
         <translation>Namesto nmake uporabi jom</translation>
     </message>
     <message>
-        <location/>
         <source>Projects Directory</source>
         <translation>Projektna mapa</translation>
     </message>
     <message>
-        <location/>
         <source>Current directory</source>
         <translation>Trenutna mapa</translation>
     </message>
     <message>
-        <location/>
         <source>Directory</source>
         <translation>Mapa</translation>
     </message>
     <message>
-        <location/>
         <source>Save all files before build</source>
         <translation>Pred gradnjo shrani vse datoteke</translation>
     </message>
     <message>
-        <location/>
         <source>Clear old application output on a new run</source>
         <translation>Ob novem zagonu počisti stari izhod programa</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation>&lt;i&gt;jom&lt;/i&gt; je nadomestek za &lt;i&gt;nmake&lt;/i&gt;, ki prevajanje porazdeli med več jeder CPE-ja. Najnovejša različica je na voljo na strani &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp.qt.nokia.com/jom&lt;/a&gt;. Onemogočite ga, če se med gradnjami pojavljajo težave.</translation>
     </message>
     <message>
-        <location/>
         <source>Always build project before deploying it</source>
         <translation>Pred razmeščanjem vedno zgradi projekt</translation>
     </message>
     <message>
-        <location/>
         <source>Always deploy project before running it</source>
         <translation>Pred zagonom vedno razmesti projekt</translation>
     </message>
     <message>
-        <location/>
         <source>Open compiler output pane when building</source>
         <translation>Med gradnjo odpri podokno izhoda prevajalnika</translation>
     </message>
     <message>
-        <location/>
         <source>Open application output pane when running</source>
         <translation>Med zaganjanjem odpri podokno izhoda programa</translation>
     </message>
     <message>
-        <location/>
         <source>Enabling this option ensures that the order of interleaved messages from stdout and stderr is preserved, at the cost of disabling highlighting of stderr.</source>
         <translation>Če omogočite to možnost, bo zagotovljen prvotni vrstni red izmenjujočih se sporočil na izhoda stdout in stderr. Cena za to je izklop poudarjanja izhoda stderr.</translation>
     </message>
     <message>
-        <location/>
         <source>Merge stderr and stdout</source>
         <translation>Združi stderr in stdout</translation>
     </message>
     <message>
-        <location/>
         <source>Word-wrap application output</source>
         <translation>Prelomi vrstice izhoda programa</translation>
     </message>
     <message>
-        <location/>
         <source>Limit application output to </source>
         <translation>Izhod programa omeji na </translation>
     </message>
     <message>
-        <location/>
         <source>lines</source>
         <translation>vrstic</translation>
     </message>
     <message>
-        <location/>
         <source>Ask before terminating the running application in response to clicking the stop button in Application Output.</source>
         <translation>Vprašaj pred končanjem tekočega programa s klikom na gumb »Ustavi« v izhodu programa.</translation>
     </message>
     <message>
-        <location/>
         <source>Always ask before stopping applications</source>
         <translation>Pred končanjem programov vedno vprašaj</translation>
     </message>
@@ -10754,117 +10144,94 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>The header file</source>
         <translation>Datoteka z glavo</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Sources</source>
         <translation>&amp;Izvorna koda</translation>
     </message>
     <message>
-        <location/>
         <source>Widget librar&amp;y:</source>
         <translation>&amp;Knjižnica gradnika:</translation>
     </message>
     <message>
-        <location/>
         <source>Widget project &amp;file:</source>
         <translation>&amp;Projektna datoteka gradnika:</translation>
     </message>
     <message>
-        <location/>
         <source>Widget h&amp;eader file:</source>
         <translation>Datoteka z &amp;glavo gradnika:</translation>
     </message>
     <message>
-        <location/>
         <source>The header file has to be specified in source code.</source>
         <translation>Datoteka z glavo mora biti določena v izvorni kodi.</translation>
     </message>
     <message>
-        <location/>
         <source>Widge&amp;t source file:</source>
         <translation>Datoteka z i&amp;zvorno kodo gradnika:</translation>
     </message>
     <message>
-        <location/>
         <source>Widget &amp;base class:</source>
         <translation>&amp;Osnovni razred gradnika:</translation>
     </message>
     <message>
-        <location/>
         <source>QWidget</source>
         <translation>QWidget</translation>
     </message>
     <message>
-        <location/>
         <source>Plugin class &amp;name:</source>
         <translation>I&amp;me razreda vstavka:</translation>
     </message>
     <message>
-        <location/>
         <source>Plugin &amp;header file:</source>
         <translation>D&amp;atoteka z glavo vstavka:</translation>
     </message>
     <message>
-        <location/>
         <source>Plugin sou&amp;rce file:</source>
         <translation>Datoteka z iz&amp;vorno kodo vstavka:</translation>
     </message>
     <message>
-        <location/>
         <source>Icon file:</source>
         <translation>Datoteka z ikono:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Link library</source>
         <translation>Pov&amp;eži knjižnico</translation>
     </message>
     <message>
-        <location/>
         <source>Create s&amp;keleton</source>
         <translation>&amp;Ustvari ogrodje</translation>
     </message>
     <message>
-        <location/>
         <source>Include pro&amp;ject</source>
         <translation>Vstavi pro&amp;jekt</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Description</source>
         <translation>&amp;Opis</translation>
     </message>
     <message>
-        <location/>
         <source>G&amp;roup:</source>
         <translation>&amp;Skupina:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Tooltip:</source>
         <translation>&amp;Namig:</translation>
     </message>
     <message>
-        <location/>
         <source>W&amp;hat&apos;s this:</source>
         <translation>&amp;Kaj je to:</translation>
     </message>
     <message>
-        <location/>
         <source>The widget is a &amp;container</source>
         <translation>&amp;Gradnik je vsebnik</translation>
     </message>
     <message>
-        <location/>
         <source>Property defa&amp;ults</source>
         <translation>Privzeto &amp;za lastnosti</translation>
     </message>
     <message>
-        <location/>
         <source>dom&amp;XML:</source>
         <translation>dom&amp;XML:</translation>
     </message>
@@ -10881,42 +10248,34 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Plugin and Collection Class Information</source>
         <translation>Podatki o vstavku in razredu zbirke</translation>
     </message>
     <message>
-        <location/>
         <source>Specify the properties of the plugin library and the collection class.</source>
         <translation>Določite lastnosti knjižnice vstavka in razreda zbirke.</translation>
     </message>
     <message>
-        <location/>
         <source>Collection class:</source>
         <translation>Razred zbirke:</translation>
     </message>
     <message>
-        <location/>
         <source>Collection header file:</source>
         <translation>Datoteka z glavo zbirke:</translation>
     </message>
     <message>
-        <location/>
         <source>Collection source file:</source>
         <translation>Datoteka z izvirno kodo zbirke:</translation>
     </message>
     <message>
-        <location/>
         <source>Plugin name:</source>
         <translation>Ime vstavka:</translation>
     </message>
     <message>
-        <location/>
         <source>Resource file:</source>
         <translation>Datoteka z viri:</translation>
     </message>
     <message>
-        <location/>
         <source>icons.qrc</source>
         <translation>icons.qrc</translation>
     </message>
@@ -10925,22 +10284,18 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Čarovnik za gradnike Qt po meri</translation>
     </message>
     <message>
-        <location/>
         <source>Custom Widget List</source>
         <translation>Seznam gradnikov po meri</translation>
     </message>
     <message>
-        <location/>
         <source>Widget &amp;Classes:</source>
         <translation>&amp;Razredi gradnikov:</translation>
     </message>
     <message>
-        <location/>
         <source>Specify the list of custom widgets and their properties.</source>
         <translation>Določite seznam gradnikov po meri in njihovih lastnosti.</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation>…</translation>
     </message>
@@ -10952,32 +10307,26 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Polkrepko</translation>
     </message>
     <message>
-        <location/>
         <source>Italic</source>
         <translation>Ležeče</translation>
     </message>
     <message>
-        <location/>
         <source>Background:</source>
         <translation>Ozadje:</translation>
     </message>
     <message>
-        <location/>
         <source>Foreground:</source>
         <translation>Ospredje:</translation>
     </message>
     <message>
-        <location/>
         <source>Erase background</source>
         <translation>Počisti ozadje</translation>
     </message>
     <message>
-        <location/>
         <source>x</source>
         <translation>x</translation>
     </message>
     <message>
-        <location/>
         <source>Erase foreground</source>
         <translation>Izbriši ospredje</translation>
     </message>
@@ -10989,57 +10338,46 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Repository</source>
         <translation>Skladišče</translation>
     </message>
     <message>
-        <location/>
         <source>The remote repository to check out.</source>
         <translation>Oddaljeno skladišče za prevzem.</translation>
     </message>
     <message>
-        <location/>
         <source>Branch:</source>
         <translation>Veja:</translation>
     </message>
     <message>
-        <location/>
         <source>The development branch in the remote repository to check out.</source>
         <translation>Razvojna veja za prevzem iz oddaljenega skladišča.</translation>
     </message>
     <message>
-        <location/>
         <source>Retrieve list of branches in repository.</source>
         <translation>Pridobi seznam vej v skladišču.</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location/>
         <source>Working Copy</source>
         <translation>Delovna kopija</translation>
     </message>
     <message>
-        <location/>
         <source>The path in which the directory containing the checkout will be created.</source>
         <translation>Mapa, v kateri bo ustvarjena mapa s prevzeto izvorno kodo.</translation>
     </message>
     <message>
-        <location/>
         <source>Checkout path:</source>
         <translation>Pot za prevzem:</translation>
     </message>
     <message>
-        <location/>
         <source>The local directory that will contain the code after the checkout.</source>
         <translation>Krajevna mapa, ki bo po prevzemu vsebovala izvorno kodo.</translation>
     </message>
     <message>
-        <location/>
         <source>Checkout directory:</source>
         <translation>Mapa za prevzem:</translation>
     </message>
@@ -11518,7 +10856,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>Prevzame skladišče CVS in poskusi naložiti vsebovani projekt.</translation>
@@ -12347,9 +11685,6 @@ Razlog: %2</translation>
         <source>The .pro file could not be parsed.</source>
         <translation>Datoteke *.pro ni bilo moč razčleniti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
@@ -12376,9 +11711,6 @@ Razlog: %2</translation>
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 je končal s kodo %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run in Emulator</source>
         <translation>Zaženi v posnemovalniku</translation>
@@ -12603,63 +11935,40 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Preslikava ukazov</translation>
     </message>
     <message>
-        <location/>
-        <source>Command</source>
-        <translation>Ukaz</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Label</source>
-        <translation>Oznaka</translation>
-    </message>
-    <message>
-        <location/>
         <source>Target</source>
         <translation>Cilj</translation>
     </message>
     <message>
-        <location/>
         <source>Import...</source>
         <translation>Uvozi …</translation>
     </message>
     <message>
-        <location/>
         <source>Export...</source>
         <translation>Izvozi …</translation>
     </message>
     <message>
-        <location/>
         <source>Target Identifier</source>
         <translation>Identifikator cilja</translation>
     </message>
     <message>
-        <location/>
         <source>Target:</source>
         <translation>Cilj:</translation>
     </message>
     <message>
-        <location/>
-        <source>Reset</source>
-        <translation>Ponastavi</translation>
-    </message>
-    <message>
-        <location/>
         <source>Reset all to default</source>
         <translation>Vse ponastavi na privzeto</translation>
     </message>
     <message>
-        <location/>
         <source>Reset All</source>
         <translation>Ponastavi vse</translation>
     </message>
     <message>
-        <location/>
         <source>Reset to default</source>
         <translation>Ponastavi na privzeto</translation>
     </message>
@@ -12671,26 +11980,18 @@ Razlog: %2</translation>
 <context>
     <name>::CodePaster</name>
     <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
-    <message>
-        <location/>
         <source>&amp;Path:</source>
         <translation>&amp;Pot:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Display:</source>
         <translation>P&amp;rikaz:</translation>
     </message>
     <message>
-        <location/>
         <source>entries</source>
         <translation>vnosov</translation>
     </message>
     <message>
-        <location/>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Protokol za prilepljanje, ki temelji na Fileshare, omogoča souporabo izrezkov kode z uporabo preprostih datotek na deljenem omrežnem pogonu. Datoteke niso nikoli izbrisane.</translation>
     </message>
@@ -12824,37 +12125,30 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Splošni podatki</translation>
     </message>
     <message>
-        <location/>
         <source>Repository:</source>
         <translation>Skladišče:</translation>
     </message>
     <message>
-        <location/>
         <source>repository</source>
         <translation>skladišče</translation>
     </message>
     <message>
-        <location/>
         <source>Branch:</source>
         <translation>Veja:</translation>
     </message>
     <message>
-        <location/>
         <source>branch</source>
         <translation>veja</translation>
     </message>
     <message>
-        <location/>
         <source>Commit Information</source>
         <translation>Podatki o zapisu</translation>
     </message>
     <message>
-        <location/>
         <source>Author:</source>
         <translation>Avtor:</translation>
     </message>
     <message>
-        <location/>
         <source>Email:</source>
         <translation>E-pošta:</translation>
     </message>
@@ -12863,67 +12157,54 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Configuration</source>
         <translation>Nastavitve</translation>
     </message>
     <message>
-        <location/>
         <source>Command:</source>
         <translation>Ukaz</translation>
     </message>
     <message>
-        <location/>
         <source>User</source>
         <translation>Uporabnik</translation>
     </message>
     <message>
-        <location/>
         <source>Username to use by default on commit.</source>
         <translation>Privzeto uporabljeno uporabniško ime za zapis.</translation>
     </message>
     <message>
-        <location/>
         <source>Default username:</source>
         <translation>Privzeto uporabniško ime:</translation>
     </message>
     <message>
-        <location/>
         <source>Email to use by default on commit.</source>
         <translation>Privzeto uporabljena e-pošta za zapis.</translation>
     </message>
     <message>
-        <location/>
         <source>Default email:</source>
         <translation>Privzeta e-pošta:</translation>
     </message>
     <message>
-        <location/>
         <source>Miscellaneous</source>
         <translation>Razno</translation>
     </message>
     <message>
-        <location/>
         <source>Log count:</source>
         <translation>Dolžina dnevnika:</translation>
     </message>
     <message>
-        <location/>
         <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
         <translation>Število prikazanih najnovejših zapisov, za vse zapise vnesite 0.</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout:</source>
         <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
-        <location/>
         <source>s</source>
         <translation>s</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt on submit</source>
         <translation>Vprašaj ob pošiljanju</translation>
     </message>
@@ -12936,12 +12217,10 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Povrni</translation>
     </message>
     <message>
-        <location/>
         <source>Specify a revision other than the default?</source>
         <translation>Določitev revizije, različne od privzete?</translation>
     </message>
     <message>
-        <location/>
         <source>Revision:</source>
         <translation>Revizija:</translation>
     </message>
@@ -12950,22 +12229,18 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Default Location</source>
         <translation>Privzeto mesto</translation>
     </message>
     <message>
-        <location/>
         <source>Local filesystem:</source>
         <translation>Krajevni datotečni sistem:</translation>
     </message>
     <message>
-        <location/>
         <source>e.g. https://[user[:pass]@]host[:port]/[path]</source>
         <translation>npr. https://[uporabnik[:geslo]@]gostitelj[:vrata]/[pot]</translation>
     </message>
     <message>
-        <location/>
         <source>Specify Url:</source>
         <translation>URL:</translation>
     </message>
@@ -12988,67 +12263,54 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Type:</source>
         <translation>Vrsta:</translation>
     </message>
     <message>
-        <location/>
         <source>Animation</source>
         <translation>Animacija</translation>
     </message>
     <message>
-        <location/>
         <source>SpringFollow</source>
         <translation>Vzmet</translation>
     </message>
     <message>
-        <location/>
         <source>Settings</source>
         <translation>Nastavitve</translation>
     </message>
     <message>
-        <location/>
         <source>Duration:</source>
         <translation>Trajanje:</translation>
     </message>
     <message>
-        <location/>
         <source>Curve:</source>
         <translation>Krivulja:</translation>
     </message>
     <message>
-        <location/>
         <source>easeNone</source>
         <translation>Brez</translation>
     </message>
     <message>
-        <location/>
         <source>Source:</source>
         <translation>Vir:</translation>
     </message>
     <message>
-        <location/>
         <source>Velocity:</source>
         <translation>Hitrost:</translation>
     </message>
     <message>
-        <location/>
         <source>Spring:</source>
         <translation>Vzmet:</translation>
     </message>
     <message>
-        <location/>
         <source>Damping:</source>
         <translation>Dušenje:</translation>
     </message>
     <message>
-        <location/>
         <source>ID:</source>
         <translation>ID:</translation>
     </message>
     <message>
-        <location/>
         <source>Property name:</source>
         <translation>Ime lastnosti:</translation>
     </message>
@@ -13068,12 +12330,10 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Besedilo</translation>
     </message>
     <message>
-        <location/>
         <source>Style</source>
         <translation>Slog</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation>…</translation>
     </message>
@@ -13101,7 +12361,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Snapping</source>
         <translation>Pripenjanje</translation>
     </message>
@@ -13114,22 +12373,18 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Odmik za pripenjanje:</translation>
     </message>
     <message>
-        <location/>
         <source>Item spacing:</source>
         <translation>Razmik predmetov:</translation>
     </message>
     <message>
-        <location/>
         <source>Canvas</source>
         <translation>Platno</translation>
     </message>
     <message>
-        <location/>
         <source>Width</source>
         <translation>Širina</translation>
     </message>
     <message>
-        <location/>
         <source>Height</source>
         <translation>Višina</translation>
     </message>
@@ -13156,57 +12411,46 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Velika:</translation>
     </message>
     <message>
-        <location/>
         <source>Minor:</source>
         <translation>Mala:</translation>
     </message>
     <message>
-        <location/>
         <source>Patch:</source>
         <translation>Popravek:</translation>
     </message>
     <message>
-        <location/>
         <source>Package name:</source>
         <translation>Ime paketa:</translation>
     </message>
     <message>
-        <location/>
         <source>Package version:</source>
         <translation>Različica paketa:</translation>
     </message>
     <message>
-        <location/>
         <source>Short package description:</source>
         <translation>Kratek opis paketa:</translation>
     </message>
     <message>
-        <location/>
         <source>Name to be displayed in Package Manager:</source>
         <translation>Ime za prikaz v upravljalniku paketov:</translation>
     </message>
     <message>
-        <location/>
         <source>Icon to be displayed in Package Manager:</source>
         <translation>Ikona za prikaz v upravljalniku paketov:</translation>
     </message>
     <message>
-        <location/>
         <source>Size is 48x48 pixels</source>
         <translation>Velikost je 48 ⨯ 48 pik</translation>
     </message>
     <message>
-        <location/>
         <source>Adapt Debian file:</source>
         <translation>Prilagodi datoteko za Debian-a:</translation>
     </message>
     <message>
-        <location/>
         <source>Edit</source>
         <translation>Uredi ...</translation>
     </message>
     <message>
-        <location/>
         <source>Edit spec file</source>
         <translation>Uredi datoteko z določili</translation>
     </message>
@@ -13242,52 +12486,42 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Nastavitev ključa SSH</translation>
     </message>
     <message>
-        <location/>
         <source>Options</source>
         <translation>Možnosti</translation>
     </message>
     <message>
-        <location/>
         <source>Key algorithm:</source>
         <translation>Algoritem za ključ:</translation>
     </message>
     <message>
-        <location/>
         <source>Key</source>
         <translation>Ključ</translation>
     </message>
     <message>
-        <location/>
         <source>Key &amp;size:</source>
         <translation>&amp;Velikost ključa:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;RSA</source>
         <translation>&amp;RSA</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;DSA</source>
         <translation>&amp;DSA</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Generate SSH Key</source>
         <translation>&amp;Ustvari ključ SSH</translation>
     </message>
     <message>
-        <location/>
         <source>Save P&amp;ublic Key...</source>
         <translation>Shrani &amp;javni ključ ...</translation>
     </message>
     <message>
-        <location/>
         <source>Save Pr&amp;ivate Key...</source>
         <translation>Shrani z&amp;asebni ključ ...</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Close</source>
         <translation>&amp;Zapri</translation>
     </message>
@@ -13320,42 +12554,34 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Samo-podpisano potrdilo</translation>
     </message>
     <message>
-        <location/>
         <source>Custom certificate:</source>
         <translation>Potrdilo po meri:</translation>
     </message>
     <message>
-        <location/>
         <source>Key file:</source>
         <translation>Datoteka s ključem:</translation>
     </message>
     <message>
-        <location/>
         <source>Not signed</source>
         <translation>Ni podpisano</translation>
     </message>
     <message>
-        <location/>
         <source>Choose certificate file</source>
         <translation>Izberite datoteko s potrdilom</translation>
     </message>
     <message>
-        <location/>
         <source>Create Smart Installer package</source>
         <translation>Ustvari namestitveni paket Smart Installer</translation>
     </message>
     <message>
-        <location/>
         <source>Resets saved passphrases for all used keys</source>
         <translation>Ponastavi shranjene šifrirne fraze vseh uporabljenih ključev</translation>
     </message>
     <message>
-        <location/>
         <source>Reset Passphrases</source>
         <translation>Ponastavi šifrirne fraze</translation>
     </message>
     <message>
-        <location/>
         <source>Certificate&apos;s details</source>
         <translation>Podrobnosti potrdila</translation>
     </message>
@@ -13375,12 +12601,10 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation>Nastavite cilje za svoj projekt</translation>
     </message>
     <message>
-        <location/>
         <source>Qt Creator can set up the following targets:</source>
         <translation>Qt Creator lahko nastavi naslednje cilje:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;No valid Qt versions found.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Please add a Qt version in &lt;i&gt;Tools/Options&lt;/i&gt; or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;Najdene ni bilo nobene veljavne različice Qt.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Različico Qt lahko dodate z uporabo menija &lt;i&gt;Orodja → Možnosti&lt;/i&gt; ali z orodjem za vzdrževanje paketa programov za razvoj programske opreme.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -13424,52 +12648,42 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation type="obsolete">V mapi »%2« ni bilo najdene nobene gradnje za projektno datoteko »%1«.</translation>
     </message>
     <message>
-        <location/>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
         <translation>Podajte osnovne podatke o razredu, za katerega želite ustvariti datoteko z ogrodjem izvorne kode.</translation>
     </message>
     <message>
-        <location/>
         <source>Class name:</source>
         <translation>Ime razreda:</translation>
     </message>
     <message>
-        <location/>
         <source>Type:</source>
         <translation>Vrsta:</translation>
     </message>
     <message>
-        <location/>
         <source>Test</source>
         <translation>Preizkus</translation>
     </message>
     <message>
-        <location/>
         <source>Benchmark</source>
         <translation>Meritev hitrosti</translation>
     </message>
     <message>
-        <location/>
         <source>File:</source>
         <translation>Datoteka:</translation>
     </message>
     <message>
-        <location/>
         <source>Generate initialization and cleanup code</source>
         <translation>Ustvari kodo za inicializacijo in čiščenje</translation>
     </message>
     <message>
-        <location/>
         <source>Test slot:</source>
         <translation>Preizkusno mesto:</translation>
     </message>
     <message>
-        <location/>
         <source>Requires QApplication</source>
         <translation>Potrebuje QApplication</translation>
     </message>
     <message>
-        <location/>
         <source>Use a test data set</source>
         <translation>Uporabi nabor podatkov za preizkus</translation>
     </message>
@@ -13525,57 +12739,45 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <source>Cleaning %1</source>
         <translation>Čiščenje %1</translation>
     </message>
-</context>
-<context>
-    <name>CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Sporočilo pošiljanja prelomi pri:</translation>
     </message>
     <message>
-        <location/>
         <source> characters</source>
         <translation> znaku</translation>
     </message>
     <message>
-        <location/>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
         <translation>Program, ki naj se kliče s sporočilom pošiljanja v začasni datoteki kot njegovim prvim argumentom. Vrne naj se s z izhodno kodo različno od 0 in sporočilom na izhodu za napake.</translation>
     </message>
     <message>
-        <location/>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
         <translation>Datoteka s seznamom imen in e-poštnih naslovov v formatu mailmap s 4 stolpci:
 ime &lt;e-pošta&gt; drugo_ime &lt;druga_e-pošta&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
         <translation>Preprosta datoteka, ki vsebuje vrstice z imeni polj, kot je »Pregledal«, ki bodo dodani na konec urejevalnika pošiljanja.</translation>
     </message>
     <message>
-        <location/>
         <source>Submit message &amp;check script:</source>
         <translation>Skript za &amp;preverjanje sporočila pošiljanja:</translation>
     </message>
     <message>
-        <location/>
         <source>User/&amp;alias configuration file:</source>
         <translation>N&amp;astavitvena datoteka z uporabniki/aliasi:</translation>
     </message>
     <message>
-        <location/>
         <source>User &amp;fields configuration file:</source>
         <translation>Nas&amp;tavitvena datoteka s polji po meri:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Patch command:</source>
         <translation>Ukaz &amp;patch:</translation>
     </message>
     <message>
-        <location/>
         <source>Specifies a command that is executed to graphically prompt for a password, 
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
         <translation>Določa ukaz, ki se izvede za grafični prikaz poziva za geslo, če skladišče
@@ -13583,7 +12785,6 @@ potrebuje overjanje s pomočjo SSH. Oglejte si dokumentacijo za SSH in
 okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;SSH prompt command:</source>
         <translation>Ukaz za &amp;SSH-jev poziv:</translation>
     </message>
@@ -14893,7 +14094,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dodaj opombo za revizijo »%1«</translation>
@@ -14909,9 +14110,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Cdb</source>
         <translation type="obsolete">CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation>Ni moč zagnati PDB-ja »%1«: %2</translation>
@@ -14952,9 +14150,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>An unknown error in the Pdb process occurred. </source>
         <translation>Prišlo je do neznane napake v procesu PDB. </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>Posnetki</translation>
@@ -15011,7 +14206,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Najdi in zamenjaj</translation>
@@ -15693,30 +14888,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Clone of %1</source>
         <translation>Klon od %1</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation>Cilji:</translation>
     </message>
-</context>
-<context>
-    <name>RunSettingsPanelFactory</name>
     <message>
         <source>Run Settings</source>
         <translation>Nastavitve za zagon</translation>
     </message>
-</context>
-<context>
-    <name>RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>Nastavitve za zagon</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Vnesite ime seje:</translation>
@@ -15951,7 +15130,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>Odpri datoteko</translation>
@@ -16386,16 +15565,10 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <source>Debugging Port:</source>
         <translation type="obsolete">Vrata za razhroščevanje:</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;trenutna datoteka&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation>Zaženi skript QML</translation>
@@ -16976,77 +16149,62 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
         <translation>Raztegni navpično. Sliko prilagodi razpoložljivemu področju.</translation>
     </message>
     <message>
-        <location/>
         <source>Repeat vertically. Tiles the image until there is no more space. May crop the last image.</source>
         <translation>Ponavljaj navpično. Sliko tlakuje dokler ne zmanjka prostora. Zadnjo sliko po potrebi obreže.</translation>
     </message>
     <message>
-        <location/>
         <source>Round. Like Repeat, but scales the images down to ensure that the last image is not cropped.</source>
         <translation>Zaokroži. Podobno ponavljanju, le da slike zmanjša in tako zagotovi, da zadnja slika ni obrezana.</translation>
     </message>
     <message>
-        <location/>
         <source>Repeat horizontally. Tiles the image until there is no more space. May crop the last image.</source>
         <translation>Ponavljaj vodoravno. Sliko tlakuje dokler ne zmanjka prostora. Zadnjo sliko po potrebi obreže.</translation>
     </message>
     <message>
-        <location/>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Raztegni vodoravno. Sliko prilagodi razpoložljivemu področju.</translation>
     </message>
     <message>
-        <location/>
         <source>10 x 10</source>
         <translation>10 ⨯ 10</translation>
     </message>
     <message>
-        <location/>
         <source>The image is scaled to fit</source>
         <translation>Sliko je povsem prilagojena</translation>
     </message>
     <message>
-        <location/>
         <source>The image is stretched horizontally and tiled vertically</source>
         <translation>Slika je raztegnjena vodoravno in tlakovana navpično</translation>
     </message>
     <message>
-        <location/>
         <source>The image is stretched vertically and tiled horizontally</source>
         <translation>Slika je raztegnjena navpično in tlakovana vodoravno</translation>
     </message>
     <message>
-        <location/>
         <source>The image is duplicated horizontally and vertically</source>
         <translation>Slika je podvojena vodoravno in navpično</translation>
     </message>
     <message>
-        <location/>
         <source>The image is scaled uniformly to fit without cropping</source>
         <translation>Slika je enakomerno prilagojena brez obreza</translation>
     </message>
     <message>
-        <location/>
         <source>The image is scaled uniformly to fill, cropping if necessary</source>
         <translation>Slika je enakomerno prilagojena z obrezom po potrebi</translation>
     </message>
     <message>
-        <location/>
         <source>Gradient</source>
         <translation>Preliv</translation>
     </message>
     <message>
-        <location/>
         <source>Color</source>
         <translation>Barva</translation>
     </message>
     <message>
-        <location/>
         <source>Border</source>
         <translation>Rob</translation>
     </message>
@@ -17055,77 +16213,62 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Play simulation</source>
         <translation>Predvajaj simulacijo</translation>
     </message>
     <message>
-        <location/>
         <source>Easing</source>
         <translation>Prehod</translation>
     </message>
     <message>
-        <location/>
         <source>Type of easing curve</source>
         <translation>Vrsta prehodne krivulje</translation>
     </message>
     <message>
-        <location/>
         <source>Subtype</source>
         <translation>Podvrsta</translation>
     </message>
     <message>
-        <location/>
         <source>Acceleration or deceleration of easing curve</source>
         <translation>Pospešek ali pojemek prehodne krivulje</translation>
     </message>
     <message>
-        <location/>
         <source>Duration</source>
         <translation>Trajanje</translation>
     </message>
     <message>
-        <location/>
         <source>Duration of animation</source>
         <translation>Trajanje animacije</translation>
     </message>
     <message>
-        <location/>
         <source>INVALID</source>
         <translation>NEVELJAVNO</translation>
     </message>
     <message>
-        <location/>
         <source> ms</source>
         <translation> ms</translation>
     </message>
     <message>
-        <location/>
         <source>Amplitude</source>
         <translation>Amplituda</translation>
     </message>
     <message>
-        <location/>
         <source>Amplitude of elastic and bounce easing curves</source>
         <translation>Amplituda elastičnih in odbojnih prehodnih krivulj</translation>
     </message>
     <message>
-        <location/>
         <source>Period</source>
         <translation>Perioda</translation>
     </message>
     <message>
-        <location/>
         <source>Easing period of an elastic curve</source>
         <translation>Prehodna perioda elastične krivulje</translation>
     </message>
     <message>
-        <location/>
         <source>Overshoot</source>
         <translation>Prekoračitev</translation>
     </message>
     <message>
-        <location/>
         <source>Easing overshoot for a back curve</source>
         <translation>Prekoračitev prehoda za povratno krivuljo</translation>
     </message>
@@ -17137,57 +16280,46 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Zaženi razhroščevalnik</translation>
     </message>
     <message>
-        <location/>
         <source>Remote</source>
         <translation>Oddaljen</translation>
     </message>
     <message>
-        <location/>
         <source>Host:</source>
         <translation>Gostitelj:</translation>
     </message>
     <message>
-        <location/>
         <source>User:</source>
         <translation>Uporabnik:</translation>
     </message>
     <message>
-        <location/>
         <source>You need to pass either a password or an SSH key.</source>
         <translation>Podati morate geslo ali ključ SSH.</translation>
     </message>
     <message>
-        <location/>
         <source>Password:</source>
         <translation>Geslo:</translation>
     </message>
     <message>
-        <location/>
         <source>Port:</source>
         <translation>Vrata:</translation>
     </message>
     <message>
-        <location/>
         <source>Private key:</source>
         <translation>Zasebni ključ:</translation>
     </message>
     <message>
-        <location/>
         <source>Target</source>
         <translation>Cilj</translation>
     </message>
     <message>
-        <location/>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
     </message>
     <message>
-        <location/>
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
     </message>
     <message>
-        <location/>
         <source>Working directory:</source>
         <translation>Delovna mapa:</translation>
     </message>
@@ -17199,39 +16331,32 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Splošni podatki</translation>
     </message>
     <message>
-        <location/>
         <source>Branch:</source>
         <translation>Veja:</translation>
     </message>
     <message>
-        <location/>
         <source>Perform a local commit in a bound branch.
 Local commits are not pushed to the master branch until a normal commit is performed.</source>
         <translation>Izvedi krajevni zapis v povezano vejo.
 Krajevnih zapisov se v vejo »master« ne potisne dokler ni izvršen običajen zapis.</translation>
     </message>
     <message>
-        <location/>
         <source>Local commit</source>
         <translation>Krajevni zapis</translation>
     </message>
     <message>
-        <location/>
         <source>Commit Information</source>
         <translation>Podatki o zapisu</translation>
     </message>
     <message>
-        <location/>
         <source>Author:</source>
         <translation>Avtor:</translation>
     </message>
     <message>
-        <location/>
         <source>Email:</source>
         <translation>E-pošta:</translation>
     </message>
     <message>
-        <location/>
         <source>Fixed bugs:</source>
         <translation>Odpravljene napake:</translation>
     </message>
@@ -17239,66 +16364,54 @@ Krajevnih zapisov se v vejo »master« ne potisne dokler ni izvršen običajen z
 <context>
     <name>::Bazaar</name>
     <message>
-        <location/>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed.</source>
         <translation>Če ciljna mapa obstaja in ne vsebuje nadzorne mape, ustvarjanje veje privzeto ne bo uspelo.
 Ta možnost omogoči, da se ustvarjanje veje nadaljuje.</translation>
     </message>
     <message>
-        <location/>
         <source>Create a stacked branch referring to the source branch.
 The new branch will depend on the availability of the source branch for all operations.</source>
         <translation>Ustvari naloženo vajo, ki se nanaša na izvorno vejo.
 Nova veja bo za vsa dejanja odvisna od razpoložljivosti izvorne veje.</translation>
     </message>
     <message>
-        <location/>
         <source>Stacked</source>
         <translation>Naložena</translation>
     </message>
     <message>
-        <location/>
         <source>Do not use a shared repository, even if available.</source>
         <translation>Ne uporabljaj deljenega skladišča, četudi je na voljo.</translation>
     </message>
     <message>
-        <location/>
         <source>Standalone</source>
         <translation>Samostojno</translation>
     </message>
     <message>
-        <location/>
         <source>Bind new branch to source location</source>
         <translation>Novo vejo poveži z izvornim mestom</translation>
     </message>
     <message>
-        <location/>
         <source>Switch the checkout in the current directory to the new branch.</source>
         <translation>Prevzeto v trenutni mapi preklopi na novo vejo.</translation>
     </message>
     <message>
-        <location/>
         <source>Switch checkout</source>
         <translation>Preklopi prevzeto</translation>
     </message>
     <message>
-        <location/>
         <source>Hard-link working tree files where possible.</source>
         <translation>Če je možno, datoteke v delovnem drevesu poveži trdo.</translation>
     </message>
     <message>
-        <location/>
         <source>Hardlink</source>
         <translation>Poveži trdo</translation>
     </message>
     <message>
-        <location/>
         <source>Create a branch without a working-tree.</source>
         <translation>Ustvari vejo brez delovnega drevesa.</translation>
     </message>
     <message>
-        <location/>
         <source>No working-tree</source>
         <translation>Brez delovnega drevesa</translation>
     </message>
@@ -17307,67 +16420,54 @@ Nova veja bo za vsa dejanja odvisna od razpoložljivosti izvorne veje.</translat
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Configuration</source>
         <translation>Nastavitve</translation>
     </message>
     <message>
-        <location/>
         <source>Command:</source>
         <translation>Ukaz:</translation>
     </message>
     <message>
-        <location/>
         <source>User</source>
         <translation>Uporabnik</translation>
     </message>
     <message>
-        <location/>
         <source>Username to use by default on commit.</source>
         <translation>Privzeto uporabljeno uporabniško ime za zapis.</translation>
     </message>
     <message>
-        <location/>
         <source>Default username:</source>
         <translation>Privzeto uporabniško ime:</translation>
     </message>
     <message>
-        <location/>
         <source>Email to use by default on commit.</source>
         <translation>Privzeto uporabljena e-pošta za zapis.</translation>
     </message>
     <message>
-        <location/>
         <source>Default email:</source>
         <translation>Privzeta e-pošta:</translation>
     </message>
     <message>
-        <location/>
         <source>Miscellaneous</source>
         <translation>Razno</translation>
     </message>
     <message>
-        <location/>
         <source>Log count:</source>
         <translation>Dolžina dnevnika:</translation>
     </message>
     <message>
-        <location/>
         <source>The number of recent commit logs to show. Choose 0 to see all entries.</source>
         <translation>Število prikazanih najnovejših zapisov. Za prikaz vseh zapisov vnesite 0.</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout:</source>
         <translation>Razpoložljivi čas:</translation>
     </message>
     <message>
-        <location/>
         <source>s</source>
         <translation> s</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt on submit</source>
         <translation>Vprašaj ob pošiljanju</translation>
     </message>
@@ -17376,87 +16476,71 @@ Nova veja bo za vsa dejanja odvisna od razpoložljivosti izvorne veje.</translat
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Branch Location</source>
         <translation>Mesto veje</translation>
     </message>
     <message>
-        <location/>
         <source>Default location</source>
         <translation>Privzeto mesto</translation>
     </message>
     <message>
-        <location/>
         <source>Local filesystem:</source>
         <translation>Krajevni datotečni sistem:</translation>
     </message>
     <message>
-        <location/>
         <source>For example: https://[user[:pass]@]host[:port]/[path]</source>
         <translation>Na primer: https://[uporabnik[:geslo]@]gostitelj[:vrata]/[pot]</translation>
     </message>
     <message>
-        <location/>
         <source>Specify URL:</source>
         <translation>URL:</translation>
     </message>
     <message>
-        <location/>
         <source>Options</source>
         <translation>Možnosti</translation>
     </message>
     <message>
-        <location/>
         <source>Remember specified location as default</source>
         <translation>Navedeno mesto si zapomni kot privzeto</translation>
     </message>
     <message>
-        <location/>
         <source>Ignore differences between branches and overwrite
 unconditionally.</source>
         <translation>Prezri razlike med vejami in brezpogojno nadomesti.</translation>
     </message>
     <message>
-        <location/>
         <source>Overwrite</source>
         <translation>Nadomesti</translation>
     </message>
     <message>
-        <location/>
         <source>By default, push will fail if the target directory exists, but does not already have a control directory.
 This flag will allow push to proceed.</source>
         <translation>Če ciljna mapa obstaja in ne vsebuje nadzorne mape, potiskanje privzeto ne bo uspelo.
 Ta možnost omogoči, da se potiskanje nadaljuje.</translation>
     </message>
     <message>
-        <location/>
         <source>Use existing directory</source>
         <translation>Uporabi obstoječo mapo</translation>
     </message>
     <message>
-        <location/>
         <source>Create the path leading up to the branch if it does not already exist.</source>
         <translation>Ustvari pot, ki vodi do veje, če pot ne obstaja.</translation>
     </message>
     <message>
-        <location/>
         <source>Create prefix</source>
         <translation>Ustvari predpono</translation>
     </message>
     <message>
-        <location/>
         <source>Revision:</source>
         <translation>Različica:</translation>
     </message>
     <message>
-        <location/>
         <source>Perform a local pull in a bound branch.
 Local pulls are not applied to the master branch.</source>
         <translation>Izvedi krajevni poteg v povezano vejo.
 Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
     <message>
-        <location/>
         <source>Local</source>
         <translation>Krajevno</translation>
     </message>
@@ -17476,7 +16560,6 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <translation>Povrnitev</translation>
     </message>
     <message>
-        <location/>
         <source>Specify a revision other than the default?</source>
         <translation>Ali ste poskusili navesti različico, ki je različna od privzete?</translation>
     </message>
@@ -17499,42 +16582,34 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Add tool</source>
         <translation>Dodaj orodje</translation>
     </message>
     <message>
-        <location/>
         <source>Remove tool</source>
         <translation>Odstrani orodje</translation>
     </message>
     <message>
-        <location/>
         <source>Revert tool to default</source>
         <translation>Povrni orodje na privzeto</translation>
     </message>
     <message>
-        <location/>
         <source>Description:</source>
         <translation>Opis:</translation>
     </message>
     <message>
-        <location/>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
     </message>
     <message>
-        <location/>
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
     </message>
     <message>
-        <location/>
         <source>Working directory:</source>
         <translation>Delovna mapa:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;What to do with the executable&apos;s standard output.
 &lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it&lt;/li&gt;&lt;li&gt;Show in pane: Show it in the general output pane&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
@@ -17548,27 +16623,22 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
 </translation>
     </message>
     <message>
-        <location/>
         <source>Output:</source>
         <translation>Izhod:</translation>
     </message>
     <message>
-        <location/>
         <source>Ignore</source>
         <translation>Prezri</translation>
     </message>
     <message>
-        <location/>
         <source>Show in Pane</source>
         <translation>Prikaži v podoknu</translation>
     </message>
     <message>
-        <location/>
         <source>Replace Selection</source>
         <translation>Zamenjaj izbor</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head&gt;&lt;body&gt;
 &lt;p &gt;What to do with the executable&apos;s standard error output.&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it&lt;/li&gt;
@@ -17584,27 +16654,22 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
 </translation>
     </message>
     <message>
-        <location/>
         <source>Error output:</source>
         <translation>Izhod za napake:</translation>
     </message>
     <message>
-        <location/>
         <source>Text to pass to the executable via standard input. Leave empty if the executable should not receive any input.</source>
         <translation>Besedilo, ki bo izvršljivi datoteki podano prek standardnega vhoda. Če izvršljiva datoteka ne potrebuje nobenega vhoda, pustite prazno.</translation>
     </message>
     <message>
-        <location/>
         <source>Input:</source>
         <translation>Vhod:</translation>
     </message>
     <message>
-        <location/>
         <source>If the tool modifies the current document, set this flag to ensure that the document is saved before running the tool and is reloaded after the tool finished.</source>
         <translation>Če orodje spremeni trenutni dokument, izberite to možnost in tako zagotovite, da se dokument pred zagonom orodja shrani in po koncu znova naloži.</translation>
     </message>
     <message>
-        <location/>
         <source>Modifies current document</source>
         <translation>Spremeni trenutni dokument</translation>
     </message>
@@ -17616,130 +16681,67 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <source>Add Category</source>
         <translation>Dodaj kategorijo</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeMagicDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Value:</source>
         <translation>Vrednost:</translation>
     </message>
     <message>
-        <location/>
         <source>Type</source>
         <translation>Vrsta</translation>
     </message>
     <message>
-        <location/>
         <source>String</source>
         <translation>Niz</translation>
     </message>
     <message>
-        <location/>
         <source>Byte</source>
         <translation>Bajt</translation>
     </message>
     <message>
-        <location/>
         <source>Use Recommended</source>
         <translation>Uporabi priporočeno</translation>
     </message>
     <message>
-        <location/>
         <source>Start range:</source>
         <translation>Začetek obsega:</translation>
     </message>
     <message>
-        <location/>
         <source>End range:</source>
         <translation>Konec obsega:</translation>
     </message>
     <message>
-        <location/>
         <source>Priority:</source>
         <translation>Prednost:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Opomba: dolgi obsegi lahko pri odpiranju datotek vplivajo na hitrost delovanja Qt Creator-ja.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeSettingsPage</name>
     <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
-    <message>
-        <location/>
         <source>Registered MIME Types</source>
         <translation>Registrirane vrste MIME</translation>
     </message>
     <message>
-        <location/>
         <source>Reset all to default.</source>
         <translation>Vse ponastavi na privzeto.</translation>
     </message>
     <message>
-        <location/>
-        <source>Reset All</source>
-        <translation>Ponastavi vse</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
-        <location/>
         <source>Patterns:</source>
         <translation>Vzorci:</translation>
     </message>
     <message>
-        <location/>
-        <source>Magic Header</source>
-        <translation>Rokovalnik z značilkami</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
-        <location/>
         <source>Range</source>
         <translation>Obseg</translation>
     </message>
     <message>
-        <location/>
         <source>Priority</source>
         <translation>Prednost</translation>
     </message>
     <message>
-        <location/>
-        <source>Add</source>
-        <translation>Dodaj ...</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Edit</source>
-        <translation>Uredi ...</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
-    <message>
-        <location/>
         <source>Select a variable to insert.</source>
         <translation>Izberite spremenljivko za vstaviti.</translation>
     </message>
@@ -17755,134 +16757,110 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>General</source>
         <translation>Splošno</translation>
     </message>
     <message>
-        <location/>
         <source>Content</source>
         <translation>Vsebina</translation>
     </message>
     <message>
-        <location/>
         <source>Indent</source>
         <translation>Zamakni</translation>
     </message>
     <message>
-        <location/>
         <source>&quot;public&quot;, &quot;protected&quot; and
 &quot;private&quot; within class body</source>
         <translation>»public«, »protected» in
 »private« v telesu razreda</translation>
     </message>
     <message>
-        <location/>
         <source>Declarations relative to &quot;public&quot;,
 &quot;protected&quot; and &quot;private&quot;</source>
         <translation>Deklaracije glede na »public«,
 »protected« in »private«</translation>
     </message>
     <message>
-        <location/>
         <source>Statements within method body</source>
         <translation>Stavke v telesu metode</translation>
     </message>
     <message>
-        <location/>
         <source>Statements within blocks</source>
         <translation>Stavke v blokih</translation>
     </message>
     <message>
-        <location/>
         <source>Declarations within
 &quot;namespace&quot; definition</source>
         <translation>Deklaracije v
 definicijah »namespace«</translation>
     </message>
     <message>
-        <location/>
         <source>Braces</source>
         <translation>Oklepaji</translation>
     </message>
     <message>
-        <location/>
         <source>Indent Braces</source>
         <translation>Zamakni oklepaje</translation>
     </message>
     <message>
-        <location/>
         <source>Class declarations</source>
         <translation>Deklaracij razredov</translation>
     </message>
     <message>
-        <location/>
         <source>Namespace declarations</source>
         <translation>Deklaracij imenskih prostorov</translation>
     </message>
     <message>
-        <location/>
         <source>Enum declarations</source>
         <translation>Deklaracij oštevilčenj</translation>
     </message>
     <message>
-        <location/>
         <source>Method declarations</source>
         <translation>Deklaracij metod</translation>
     </message>
     <message>
-        <location/>
         <source>Blocks</source>
         <translation>Blokov</translation>
     </message>
     <message>
-        <location/>
         <source>&quot;switch&quot;</source>
         <translation>»switch«</translation>
     </message>
     <message>
-        <location/>
         <source>Indent within &quot;switch&quot;</source>
         <translation>v »switch« zamakni</translation>
     </message>
     <message>
-        <location/>
         <source>&quot;case&quot; or &quot;default&quot;</source>
         <translation>»case« in »default«</translation>
     </message>
     <message>
-        <location/>
         <source>Statements relative to
 &quot;case&quot; or &quot;default&quot;</source>
         <translation>Stavke glede na
 »case« in »default«</translation>
     </message>
     <message>
-        <location/>
         <source>Blocks relative to
 &quot;case&quot; or &quot;default&quot;</source>
         <translation>Bloke glede na
 »case« in »default«</translation>
     </message>
     <message>
-        <location/>
         <source>&quot;break&quot; statement relative to
 &quot;case&quot; or &quot;default&quot;</source>
         <translation>Stavek »break« glede na
 »case« in »default«</translation>
     </message>
     <message>
-        <location/>
         <source>Alignment</source>
         <translation>Poravnava</translation>
     </message>
     <message>
-        <location/>
         <source>Align</source>
         <translation>Poravnaj</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 Enables alignment to tokens after =, += etc. When the option is disabled, regular continuation line indentation will be used.&lt;br&gt;
 &lt;br&gt;
@@ -17913,12 +16891,10 @@ a = a +
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Align after assignments</source>
         <translation>Poravnaj po prireditvah</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 The extra padding usually only affects if statement conditions. Without extra padding:
 &lt;pre&gt;
@@ -17949,7 +16925,6 @@ if (a &amp;&amp;
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Add extra padding to conditions
 if they would align to the next line</source>
         <translation>Pogojem dodaj praznino, če bi
@@ -17967,102 +16942,82 @@ se poravnali z naslednjo vrstico</translation>
         <translation>Urejanje lastnosti prekinitvene točke</translation>
     </message>
     <message>
-        <location/>
         <source>Basic</source>
         <translation>Osnovno</translation>
     </message>
     <message>
-        <location/>
         <source>Breakpoint &amp;type:</source>
         <translation>&amp;Vrsta prekinitvene točke:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;File name:</source>
         <translation>Ime &amp;datoteke:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Line number:</source>
         <translation>&amp;Številka vrstice</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Enabled:</source>
         <translation>&amp;Omogočena</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Address:</source>
         <translation>&amp;Naslov</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Expression:</source>
         <translation>&amp;Izraz:</translation>
     </message>
     <message>
-        <location/>
         <source>Fun&amp;ction:</source>
         <translation>&amp;Funkcija:</translation>
     </message>
     <message>
-        <location/>
         <source>Advanced</source>
         <translation>Napredno</translation>
     </message>
     <message>
-        <location/>
         <source>T&amp;racepoint only:</source>
         <translation>&amp;Samo sledilna točka:</translation>
     </message>
     <message>
-        <location/>
         <source>Pat&amp;h:</source>
         <translation>&amp;Pot:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Module:</source>
         <translation>&amp;Modul:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Command:</source>
         <translation>&amp;Ukaz:</translation>
     </message>
     <message>
-        <location/>
         <source>Use Engine Default</source>
         <translation>Uporabi privzeto za pogon</translation>
     </message>
     <message>
-        <location/>
         <source>Use Full Path</source>
         <translation>Uporabi celotno pot</translation>
     </message>
     <message>
-        <location/>
         <source>Use File Name</source>
         <translation>Uporabi ime datoteke</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Message:</source>
         <translation>Spo&amp;ročilo:</translation>
     </message>
     <message>
-        <location/>
         <source>C&amp;ondition:</source>
         <translation>P&amp;ogoj:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Ignore count:</source>
         <translation>&amp;Število prezrtij:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Thread specification:</source>
         <translation>&amp;Določitev niti:</translation>
     </message>
@@ -18136,39 +17091,33 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Omogoči LLDB</translation>
     </message>
     <message>
-        <location/>
         <source>Use GDB Python dumpers</source>
         <translation>Uporabi GDB-jeve Python odlagalnike</translation>
     </message>
 </context>
 <context>
-    <name>StartRemoteEngineDialog</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Zaženi oddaljen pogon</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Host:</source>
         <translation>&amp;Gostitelj:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Username:</source>
         <translation>&amp;Uporabniško ime:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Password:</source>
         <translation>G&amp;eslo:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Engine path:</source>
         <translation>&amp;Pot do pogona:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Inferior path:</source>
         <translation>P&amp;ot do podprocesa:</translation>
     </message>
@@ -18180,12 +17129,10 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Branch Name:</source>
         <translation>Ime veje:</translation>
     </message>
     <message>
-        <location/>
         <source>CheckBox</source>
         <translation>PotrditvenoPolje</translation>
     </message>
@@ -18202,12 +17149,10 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Dodajanje oddaljene</translation>
     </message>
     <message>
-        <location/>
         <source>Name:</source>
         <translation>Ime:</translation>
     </message>
     <message>
-        <location/>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
@@ -18216,7 +17161,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Oddaljene</translation>
     </message>
     <message>
-        <location/>
         <source>F&amp;etch</source>
         <translation>&amp;Pridobi</translation>
     </message>
@@ -18236,24 +17180,12 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Nastavitev filtra</translation>
     </message>
     <message>
-        <location/>
         <source>Prefix:</source>
         <translation>Predpona:</translation>
     </message>
     <message>
-        <location/>
         <source>Limit to prefix</source>
         <translation>Omeji na predpono</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
@@ -18271,27 +17203,22 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Prikaži ozadje </translation>
     </message>
     <message>
-        <location/>
         <source>Show outline</source>
         <translation>Prikaži obris</translation>
     </message>
     <message>
-        <location/>
         <source>Fit image in the screen</source>
         <translation>Prilagodi sliko zaslonu</translation>
     </message>
     <message>
-        <location/>
         <source>Original size</source>
         <translation>Izvirna velikost</translation>
     </message>
     <message>
-        <location/>
         <source>Zoom In</source>
         <translation>Približaj</translation>
     </message>
     <message>
-        <location/>
         <source>Zoom Out</source>
         <translation>Oddalji</translation>
     </message>
@@ -18303,37 +17230,30 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Preferences</source>
         <translation>Lastnosti</translation>
     </message>
     <message>
-        <location/>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
-        <location/>
         <source>Description</source>
         <translation>Opis</translation>
     </message>
     <message>
-        <location/>
         <source>Shortcut</source>
         <translation>Bližnjica</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Macro</source>
         <translation>Makro</translation>
     </message>
     <message>
-        <location/>
         <source>Description:</source>
         <translation>Opis:</translation>
     </message>
@@ -18342,7 +17262,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Shrani makro</translation>
     </message>
     <message>
-        <location/>
         <source>Name:</source>
         <translation>Ime:</translation>
     </message>
@@ -18350,7 +17269,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
 <context>
     <name>::ProjectExplorer</name>
     <message>
-        <location/>
         <source>Language:</source>
         <translation>Jezik:</translation>
     </message>
@@ -18359,7 +17277,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Izbor čarovnika za objavo</translation>
     </message>
     <message>
-        <location/>
         <source>Available Wizards:</source>
         <translation>Razpoložljivi čarovniki:</translation>
     </message>
@@ -18371,22 +17288,13 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
         <translation>Objavljanje za projekt »%1« trenutno ni možno.</translation>
     </message>
-</context>
-<context>
-    <name>ToolChainOptionsPage</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
     <message>
-        <location/>
         <source>Clone</source>
         <translation>Podvoji</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
     </message>
 </context>
 <context>
@@ -18411,50 +17319,40 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>ComponentNameDialog</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Component name:</source>
         <translation>Ime komponente:</translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
         <translation>Pot:</translation>
     </message>
     <message>
-        <location/>
         <source>Choose...</source>
         <translation>Izbor ...</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Qt Quick Toolbars</source>
         <translation>Orodjarne Qt Quick</translation>
     </message>
     <message>
-        <location/>
         <source>If enabled, the toolbar will remain pinned to an absolute position.</source>
         <translation>Če je omogočeno, bo orodjarna ostala pripeta na absolutni položaj.</translation>
     </message>
     <message>
-        <location/>
         <source>Pin Qt Quick Toolbar</source>
         <translation>Pripni orodjarno Qt Quick</translation>
     </message>
     <message>
-        <location/>
         <source>Always show Qt Quick Toolbar</source>
         <translation>Vedno prikaži orodjarno Qt Quick</translation>
     </message>
@@ -18464,7 +17362,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>StatusDisplay</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>No QML events recorded</source>
         <translation>Zabeleženega ni nobenega dogodka QML</translation>
@@ -18492,17 +17390,14 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Address:</source>
         <translation>Naslov</translation>
     </message>
     <message>
-        <location/>
         <source>127.0.0.1</source>
         <translation>127.0.0.1</translation>
     </message>
     <message>
-        <location/>
         <source>Port:</source>
         <translation>Vrata:</translation>
     </message>
@@ -18514,112 +17409,90 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <translation>Knjižnica:</translation>
     </message>
     <message>
-        <location/>
         <source>Library file:</source>
         <translation>Datoteka knjižnice:</translation>
     </message>
     <message>
-        <location/>
         <source>Include path:</source>
         <translation>Pot do vključitev:</translation>
     </message>
     <message>
-        <location/>
         <source>Package:</source>
         <translation>Paket:</translation>
     </message>
     <message>
-        <location/>
         <source>Platform</source>
         <translation>Platforma</translation>
     </message>
     <message>
-        <location/>
         <source>Linux</source>
         <translation>GNU/Linux</translation>
     </message>
     <message>
-        <location/>
         <source>Mac</source>
         <translation>Mac</translation>
     </message>
     <message>
-        <location/>
         <source>Windows</source>
         <translation>Windows</translation>
     </message>
     <message>
-        <location/>
         <source>Symbian</source>
         <translation>Symbian</translation>
     </message>
     <message>
-        <location/>
         <source>Linkage:</source>
         <translation>Povezovanje:</translation>
     </message>
     <message>
-        <location/>
         <source>Dynamic</source>
         <translation>Dinamično</translation>
     </message>
     <message>
-        <location/>
         <source>Static</source>
         <translation>Statično</translation>
     </message>
     <message>
-        <location/>
         <source>Library</source>
         <translation>Knjižnica</translation>
     </message>
     <message>
-        <location/>
         <source>Framework</source>
         <translation>Ogrodje</translation>
     </message>
     <message>
-        <location/>
         <source>Windows:</source>
         <translation>Windows:</translation>
     </message>
     <message>
-        <location/>
         <source>Library inside &quot;debug&quot; or &quot;release&quot; subfolder</source>
         <translation>Knjižnica znotraj podmape »debug« ali »release«</translation>
     </message>
     <message>
-        <location/>
         <source>Add &quot;d&quot; suffix for debug version</source>
         <translation>Razhroščevalni inačici dodaj pripono »d«</translation>
     </message>
     <message>
-        <location/>
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Različici za izdajo odstrani pripono »d«</translation>
     </message>
     <message>
-        <location/>
         <source>ARM &amp;version:</source>
         <translation>&amp;Različica ARM:</translation>
     </message>
     <message>
-        <location/>
         <source>Version 5</source>
         <translation>Različica 5</translation>
     </message>
     <message>
-        <location/>
         <source>Version 6</source>
         <translation>Različica 6</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Pot do prevajalnika:</translation>
     </message>
     <message>
-        <location/>
         <source>Environment Variables</source>
         <translation>Okoljske spremenljivke</translation>
     </message>
@@ -18630,81 +17503,61 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>Details of Certificate</source>
         <translation>Podrobnosti potrdila</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
-        <location/>
         <source>Choose a build configuration:</source>
         <translation>Izberite nastavitev gradnje:</translation>
     </message>
     <message>
-        <location/>
         <source>Choose a tool chain:</source>
         <translation>Izberite zaporedje orodij:</translation>
     </message>
     <message>
-        <location/>
         <source>Only Qt versions above 4.6.3 are made available in this wizard.
 Previous Qt versions have limitations in building suitable SIS files.</source>
         <translation>V tem čarovniku so na voljo samo različice Qt, ki so novejše kot 4.6.3.
 Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
-        <location/>
         <source>Localised Vendor Names</source>
         <translation>Lokalizirana imena proizvajalca</translation>
     </message>
     <message>
-        <location/>
         <source>Current Global Vendor Name</source>
         <translation>Trenutno globalno ime proizvajalca</translation>
     </message>
     <message>
-        <location/>
         <source>Display name:</source>
         <translation>Ime za prikaz:</translation>
     </message>
     <message>
-        <location/>
         <source>Localised vendor names:</source>
         <translation>Lokalizirana imena proizvajalca:</translation>
     </message>
     <message>
-        <location/>
         <source>Capabilities:</source>
         <translation>Zmožnosti:</translation>
     </message>
     <message>
-        <location/>
         <source>Current UID3</source>
         <translation>Trenutni UID3</translation>
     </message>
     <message>
-        <location/>
         <source>Application UID:</source>
         <translation>UID programa:</translation>
     </message>
     <message>
-        <location/>
         <source>Current Qt Version</source>
         <translation>Trenutna različica Qt</translation>
     </message>
     <message>
-        <location/>
         <source>Qt version used in builds:</source>
         <translation>Različica Qt uporabljena pri gradnji:</translation>
     </message>
     <message>
-        <location/>
         <source>Current set of capabilities</source>
         <translation>Trenutni nabor zmožnosti</translation>
     </message>
     <message>
-        <location/>
         <source>Global vendor name:</source>
         <translation>Globalno ime proizvajalca:</translation>
     </message>
@@ -18716,17 +17569,14 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Compiler path:</source>
         <translation>Pot do prevajalnika:</translation>
     </message>
     <message>
-        <location/>
         <source>System include path:</source>
         <translation>Pot do sistemskih vključitev:</translation>
     </message>
     <message>
-        <location/>
         <source>System library path:</source>
         <translation>Pot do sistemskih knjižnic:</translation>
     </message>
@@ -18738,47 +17588,38 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Main HTML File</source>
         <translation>Glavna datoteka HTML</translation>
     </message>
     <message>
-        <location/>
         <source>Generate an index.html file</source>
         <translation>Ustvari datoteko index.html</translation>
     </message>
     <message>
-        <location/>
         <source>Import an existing .html file</source>
         <translation>Uvozi obstoječo datoteko *.html</translation>
     </message>
     <message>
-        <location/>
         <source>Load a URL</source>
         <translation>Naloži URL</translation>
     </message>
     <message>
-        <location/>
         <source>http://</source>
         <translation>http://</translation>
     </message>
     <message>
-        <location/>
         <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main HTML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Opomba: Če ne izberete nalaganja URL-ja, bodo razmeščene vse datoteke in mape, ki se nahajajo v isti mapi kot glavna datoteka HTML. Vsebino mape lahko spremenite kadarkoli pred razmeščanjem </translation>
     </message>
     <message>
-        <location/>
         <source>Touch optimized navigation</source>
         <translation>Krmarjenje prilagojeno za dotik</translation>
     </message>
     <message>
-        <location/>
         <source>Enable touch optimized navigation</source>
         <translation>Omogoči krmarjenje prilagojeno za dotik</translation>
     </message>
     <message>
-        <location/>
         <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
         <translation>Če je krmarjenje prilagojeno za dotik, potem bo stran HTML možno krcniti, na dotik občutljivi elementi pa bodo imeli večjo površino. V primeru uporabe ogrodja JavaScript, ki je prilagojeno interakciji z dotikom, pustite možnost onemogočeno.</translation>
     </message>
@@ -18790,7 +17631,6 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Orientation behavior:</source>
         <translation>Obnašanje usmerjenosti:</translation>
     </message>
@@ -18802,7 +17642,6 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Application icon (%%w%%x%%h%%):</source>
         <translation>Ikona programa (%%w%%⨯%%h%%):</translation>
     </message>
@@ -18814,17 +17653,14 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Application icon (.svg):</source>
         <translation>Ikona programa (*.svg)</translation>
     </message>
     <message>
-        <location/>
         <source>Target UID3:</source>
         <translation>Ciljni UID3:</translation>
     </message>
     <message>
-        <location/>
         <source>Enable network access</source>
         <translation>Omogoči omrežni dostop</translation>
     </message>
@@ -18836,17 +17672,14 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Target UID3:</source>
         <translation>Ciljni UID3:</translation>
     </message>
     <message>
-        <location/>
         <source>Plugin&apos;s directory name:</source>
         <translation>Ime mape vstavka:</translation>
     </message>
     <message>
-        <location/>
         <source>Enable network access</source>
         <translation>Omogoči omrežni dostop</translation>
     </message>
@@ -18858,27 +17691,22 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
         <translation>Vrsta programa Qt Quick</translation>
     </message>
     <message>
-        <location/>
         <source>Built-in elements only (for all platforms)</source>
         <translation>Samo vgrajeni elementi (za vse platforme)</translation>
     </message>
     <message>
-        <location/>
         <source>Qt Quick Components for Symbian</source>
         <translation>Komponente Qt Quick za Symbian</translation>
     </message>
     <message>
-        <location/>
         <source>Qt Quick Components for Meego/Harmattan</source>
         <translation>Komponente Qt Quick za MeeGo/Harmattan</translation>
     </message>
     <message>
-        <location/>
         <source>Use an existing .qml file</source>
         <translation>Uporabi obstoječo datoteko *.qml</translation>
     </message>
     <message>
-        <location/>
         <source>The built-in elements in the QtQuick namespace allow you to write cross-platform applications with a custom look and feel.
 
 Requires Qt 4.7.1 or newer.</source>
@@ -18887,7 +17715,6 @@ Requires Qt 4.7.1 or newer.</source>
 Potreben je Qt 4.7.1 ali novejši.</translation>
     </message>
     <message>
-        <location/>
         <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
 
 Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.</source>
@@ -18896,7 +17723,6 @@ Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.
 Potreben je Qt 4.7.3 ali novejši in nabor komponent za vašo različico Qt.</translation>
     </message>
     <message>
-        <location/>
         <source>The Qt Quick Components for Meego/Harmattan are a set of ready-made components that are designed with specific native appearance for the Meego/Harmattan platform.
 
 Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
@@ -18905,7 +17731,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
 Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</translation>
     </message>
     <message>
-        <location/>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Razmeščene bodo vse datoteke in mape, ki se nahajajo v isti mapi kot glavna datoteka QML. Vsebino mape lahko spremenite kadarkoli pred razmeščanjem.</translation>
     </message>
@@ -18917,148 +17742,113 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Uporabljeno za ugotovitev podatkov o vrsti QML iz vstavkov na osnovi knjižnic.</translation>
     </message>
     <message>
-        <location/>
         <source>QML Dump:</source>
         <translation>QML Dump:</translation>
     </message>
     <message>
-        <location/>
         <source>A modified version of qmlviewer with support for QML/JS debugging.</source>
         <translation>Prilagojena različica programa qmlviewer s podporo za razhroščevanje QML/JS.</translation>
     </message>
     <message>
-        <location/>
         <source>QML Observer:</source>
         <translation>QML Observer:</translation>
     </message>
     <message>
-        <location/>
         <source>Build</source>
         <translation>Zgradi</translation>
     </message>
     <message>
-        <location/>
         <source>QML Debugging Library:</source>
         <translation>Razhroščevalna knjižnica QML:</translation>
     </message>
     <message>
-        <location/>
         <source>Helps showing content of Qt types. Only used in older versions of GDB.</source>
         <translation>Pomaga pri prikazu vsebine tipov Qt. Uporabljeno le za starejše različice GDB.</translation>
     </message>
     <message>
-        <location/>
         <source>GDB Helper:</source>
         <translation>Pomočnik GDB:</translation>
     </message>
     <message>
-        <location/>
         <source>Show compiler output of last build.</source>
         <translation>Prikaži izhod prevajalnika za zadnjo gradnjo.</translation>
     </message>
     <message>
-        <location/>
         <source>Show Log</source>
         <translation>Prikaži dnevnik</translation>
     </message>
     <message>
-        <location/>
         <source>Compile debugging helpers that are checked.</source>
         <translation>Zgradi izbrane razhroščevalne pomočnike.</translation>
     </message>
     <message>
-        <location/>
         <source>Build All</source>
         <translation>Zgradi vse</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Ime različice:</translation>
     </message>
     <message>
-        <location/>
         <source>qmake location:</source>
         <translation>Mesto qmake:</translation>
     </message>
     <message>
-        <location/>
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
     </message>
     <message>
-        <location/>
         <source>qmake Location</source>
         <translation>Mesto qmake</translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Dodaj ...</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Clean up</source>
         <translation>Počisti</translation>
     </message>
 </context>
 <context>
-    <name>GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>The name to identify this configuration:</source>
         <translation>Ime za identifikacijo te nastavitve:</translation>
     </message>
     <message>
-        <location/>
         <source>The device&apos;s host name or IP address:</source>
         <translation>Gostiteljsko ime ali naslov IP naprave:</translation>
     </message>
     <message>
-        <location/>
         <source>The user name to log into the device:</source>
         <translation>Uporabniško ime za prijavo v napravo:</translation>
     </message>
     <message>
-        <location/>
         <source>The authentication type:</source>
         <translation>Vrsta overjanja:</translation>
     </message>
     <message>
-        <location/>
         <source>Password</source>
         <translation>Geslo</translation>
     </message>
     <message>
-        <location/>
-        <source>Key</source>
-        <translation>Ključ</translation>
-    </message>
-    <message>
-        <location/>
         <source>The user&apos;s password:</source>
         <translation>Geslo uporabnika:</translation>
     </message>
     <message>
-        <location/>
         <source>The file containing the user&apos;s private key:</source>
         <translation>Datoteka z uporabnikovim zasebnim ključem:</translation>
     </message>
@@ -19070,7 +17860,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Izbor čarovnika za nastavitev naprave</translation>
     </message>
     <message>
-        <location/>
         <source>Available device types:</source>
         <translation>Razpoložljive vrste naprav:</translation>
     </message>
@@ -19082,37 +17871,30 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Device configuration:</source>
         <translation>Nastavitev naprave:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;irrelevant&quot;&gt;Upravljanje nastavitev naprave&lt;/a&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>These show the INSTALLS settings from the project file(s).</source>
         <translation>Te prikazujejo nastavitve INSTALLS iz projektnih datotek.</translation>
     </message>
     <message>
-        <location/>
         <source>Files to install for subproject:</source>
         <translation>Datoteke za namestiti za podprojekt:</translation>
     </message>
     <message>
-        <location/>
         <source>Edit the project file to add or remove entries.</source>
         <translation>Za dodajanje in odstranjevanje postavk uredite projektno datoteko.</translation>
     </message>
     <message>
-        <location/>
         <source>Add Desktop File</source>
         <translation>Dodaj datoteko za namizje</translation>
     </message>
     <message>
-        <location/>
         <source>Add Launcher Icon...</source>
         <translation>Dodaj ikono za zaganjalnik ...</translation>
     </message>
@@ -19124,127 +17906,102 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Nastavitve naprave Maemo</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Configuration:</source>
         <translation>&amp;Nastavitev:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Name:</source>
         <translation>&amp;Ime:</translation>
     </message>
     <message>
-        <location/>
         <source>Device type:</source>
         <translation>Vrsta naprave:</translation>
     </message>
     <message>
-        <location/>
         <source>Authentication type:</source>
         <translation>Vrsta overjanja:</translation>
     </message>
     <message>
-        <location/>
         <source>Password</source>
         <translation>Geslo</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Key</source>
         <translation>&amp;Ključ</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Host name:</source>
         <translation>Ime &amp;gostitelja:</translation>
     </message>
     <message>
-        <location/>
         <source>IP or host name of the device</source>
         <translation>IP ali ime gostitelja naprave</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;SSH port:</source>
         <translation>Vrata &amp;SSH:</translation>
     </message>
     <message>
-        <location/>
         <source>Free ports:</source>
         <translation>Prosta vrata:</translation>
     </message>
     <message>
-        <location/>
         <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
         <translation>Vnesete lahko sezname in obsege, npr tako: 1024,1026-1028,1030</translation>
     </message>
     <message>
-        <location/>
         <source>TextLabel</source>
         <translation>BesedilnaOznaka</translation>
     </message>
     <message>
-        <location/>
         <source>Connection time&amp;out:</source>
         <translation>Razpoložljivi &amp;čas za povezavo:</translation>
     </message>
     <message>
-        <location/>
         <source>s</source>
         <translation> s</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Username:</source>
         <translation>&amp;Uporabniško ime:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Password:</source>
         <translation>&amp;Geslo:</translation>
     </message>
     <message>
-        <location/>
         <source>Show password</source>
         <translation>Prikaži geslo</translation>
     </message>
     <message>
-        <location/>
         <source>Private key file:</source>
         <translation>Datoteka z zasebnim ključem:</translation>
     </message>
     <message>
-        <location/>
         <source>Set as Default</source>
         <translation>Nastavi kot privzeto</translation>
     </message>
     <message>
-        <location/>
         <source>OS type:</source>
         <translation>Vrsta OS-a:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Add</source>
         <translation>&amp;Dodaj</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Remove</source>
         <translation>&amp;Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Set As Default</source>
         <translation>Nastavi kot privzeto</translation>
     </message>
     <message>
-        <location/>
         <source>Click here if you do not have an SSH key yet.</source>
         <translation>Kliknite, če še nimate ključa SSH.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Generate SSH Key...</source>
         <translation>&amp;Ustvari ključ SSH …</translation>
     </message>
@@ -19256,17 +18013,14 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
         <translation>Qt Creator bo sedaj ustvaril nov par ključev. Vnesite mapo, v katero bosta shranjena ključa, in kliknite »Ustvari ključa«.</translation>
     </message>
     <message>
-        <location/>
         <source>Directory:</source>
         <translation>Mapa:</translation>
     </message>
     <message>
-        <location/>
         <source>Create Keys</source>
         <translation>Ustvari ključa</translation>
     </message>
@@ -19278,7 +18032,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>To deploy the public key to your device, please execute the following steps:
 &lt;ul&gt;
 &lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
@@ -19297,17 +18050,14 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
 </translation>
     </message>
     <message>
-        <location/>
         <source>Device address:</source>
         <translation>Naslov naprave:</translation>
     </message>
     <message>
-        <location/>
         <source>Password:</source>
         <translation>Geslo:</translation>
     </message>
     <message>
-        <location/>
         <source>Deploy Key</source>
         <translation>Razmesti ključ</translation>
     </message>
@@ -19319,17 +18069,14 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Has a passwordless (key-based) login already been set up for this device?</source>
         <translation>Ali je prijava brez gesla (s pomočjo ključa) na tej napravi že bila nastavljena?</translation>
     </message>
     <message>
-        <location/>
         <source>Yes, and the private key is located at</source>
         <translation>Da, zasebni ključ se nahaja v</translation>
     </message>
     <message>
-        <location/>
         <source>No</source>
         <translation>Ne</translation>
     </message>
@@ -19341,27 +18088,22 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Do wou want to re-use an existing pair of keys or should a new one be created?</source>
         <translation>Ali želite uporabiti obstoječ par ključev ali naj bo ustvarjen nov par?</translation>
     </message>
     <message>
-        <location/>
         <source>Re-use existing keys</source>
         <translation>Uporabi obstoječa ključa</translation>
     </message>
     <message>
-        <location/>
         <source>File containing the public key:</source>
         <translation>Datoteka, ki vsebuje javni ključ:</translation>
     </message>
     <message>
-        <location/>
         <source>File containing the private key:</source>
         <translation>Datoteka, ki vsebuje zasebni ključ:</translation>
     </message>
     <message>
-        <location/>
         <source>Create new keys</source>
         <translation>Ustvari nova ključa</translation>
     </message>
@@ -19373,37 +18115,30 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>The name to identify this configuration:</source>
         <translation>Ime za identifikacijo te nastavitve:</translation>
     </message>
     <message>
-        <location/>
         <source>The system running on the device:</source>
         <translation>Sistem, ki teče na tej napravi:</translation>
     </message>
     <message>
-        <location/>
         <source>The kind of device:</source>
         <translation>Vrsta naprave:</translation>
     </message>
     <message>
-        <location/>
         <source>Emulator</source>
         <translation>Posnemovalnik</translation>
     </message>
     <message>
-        <location/>
         <source>Hardware Device</source>
         <translation>Strojna naprava</translation>
     </message>
     <message>
-        <location/>
         <source>The device&apos;s host name or IP address:</source>
         <translation>Gostiteljsko ime ali naslov IP naprave:</translation>
     </message>
     <message>
-        <location/>
         <source>The SSH server port:</source>
         <translation>Vrata strežnika SSH:</translation>
     </message>
@@ -19415,17 +18150,14 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Težava razmeščanja na Maemo</translation>
     </message>
     <message>
-        <location/>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
         <translation>Spodaj naštete projektne datoteke ne vsebujejo podatkov za razmestitev na Maemo. To pomeni, da ustreznih ciljev na napravo ni moč razmestit ali jih na napravi ni moč poganjati.Če spodaj izberete ustrezne postavke, bo Qt Creator v te datoteke dodal manjkajoče podatke.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Check all</source>
         <translation>Izberi &amp;vse</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Uncheck All</source>
         <translation>&amp;Odizberi vse</translation>
     </message>
@@ -19437,12 +18169,10 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Choose build configuration:</source>
         <translation>Izberite nastavitev za gradnjo:</translation>
     </message>
     <message>
-        <location/>
         <source>Only create source package, do not upload</source>
         <translation>Samo ustvari izvorni paket, ne pošiljaj</translation>
     </message>
@@ -19454,7 +18184,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Izberite vsebino paketa</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;b&gt;Please select the files you want to be included in the source tarball.&lt;/b&gt;
 </source>
         <translation>&lt;b&gt;Izberite datoteke, ki jih želite vključiti v izvorni arhiv.&lt;/b&gt;
@@ -19468,7 +18197,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Progress</source>
         <translation>Napredek</translation>
     </message>
@@ -19480,37 +18208,30 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>StranČarovnika</translation>
     </message>
     <message>
-        <location/>
         <source>Upload Settings</source>
         <translation>Nastavitve pošiljanja</translation>
     </message>
     <message>
-        <location/>
         <source>Garage account name:</source>
         <translation>Ime računa Garage:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Dobi račun&lt;/a&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Zaprosi za pravico pošiljanja&lt;/a&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Private key file:</source>
         <translation>Datoteka z zasebnim ključem:</translation>
     </message>
     <message>
-        <location/>
         <source>Server address:</source>
         <translation>Naslov strežnika:</translation>
     </message>
     <message>
-        <location/>
         <source>Target directory on server:</source>
         <translation>Ciljna mapa na strežniku:</translation>
     </message>
@@ -19522,22 +18243,18 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>OpenGL Mode</source>
         <translation>Način OpenGL</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Hardware acceleration</source>
         <translation>&amp;Strojno pospeševanje</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Software rendering</source>
         <translation>&amp;Programsko izrisovanje</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Auto-detect</source>
         <translation>Samodejno &amp;zaznaj</translation>
     </message>
@@ -19549,17 +18266,14 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Seznam oddaljenih procesov</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Filter by process name:</source>
         <translation>&amp;Filtriraj po imenu procesa:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Update List</source>
         <translation>&amp;Posodobi seznam</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Kill Selected Process</source>
         <translation>&amp;Ubij izbrani proces</translation>
     </message>
@@ -19578,62 +18292,50 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Dejanja čiščenja, ki se samodejno izvedejo tik pred shranjevanjem datoteke na disk.</translation>
     </message>
     <message>
-        <location/>
         <source>Cleanups Upon Saving</source>
         <translation>Čiščenje pred shranjevanjem</translation>
     </message>
     <message>
-        <location/>
         <source>Removes trailing whitespace upon saving.</source>
         <translation>Pred shranjevanjem odstrani presledke na koncu vrstic.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Clean whitespace</source>
         <translation>&amp;Počisti presledke</translation>
     </message>
     <message>
-        <location/>
         <source>Clean whitespace in entire document instead of only for changed parts.</source>
         <translation>Počisti presledke v celotnem dokumentu in ne samo v spremenjenih vrsticah.</translation>
     </message>
     <message>
-        <location/>
         <source>In entire &amp;document</source>
         <translation>V celotnem &amp;dokumentu</translation>
     </message>
     <message>
-        <location/>
         <source>Correct leading whitespace according to tab settings.</source>
         <translation>Popravi presledke na začetku vrstic v skladu z nastavitvami tabulatorja.</translation>
     </message>
     <message>
-        <location/>
         <source>Clean indentation</source>
         <translation>Počisti zamikanje</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Ensure newline at end of file</source>
         <translation>&amp;Zagotovi novo vrstico na koncu datoteke</translation>
     </message>
     <message>
-        <location/>
         <source>File Encodings</source>
         <translation>Kodiranja datotek</translation>
     </message>
     <message>
-        <location/>
         <source>Default encoding:</source>
         <translation>Privzeto kodiranje: </translation>
     </message>
     <message>
-        <location/>
         <source>UTF-8 BOM:</source>
         <translation>UTF-8 BOM:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;How text editors should deal with UTF-8 Byte Order Marks. The options are:&lt;/p&gt;
 &lt;ul &gt;&lt;li&gt;&lt;i&gt;Add If Encoding Is UTF-8:&lt;/i&gt; always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is &lt;i&gt;System&lt;/i&gt;, as Qt Creator does not know what it actually is.&lt;/li&gt;
@@ -19650,32 +18352,26 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
 &lt;p&gt;Ta nastavitev &lt;b&gt;ne vpliva&lt;/b&gt; na oznake za kodiranji UTF-16 in UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Add If Encoding Is UTF-8</source>
         <translation>Dodaj, če je kodiranje UTF-8</translation>
     </message>
     <message>
-        <location/>
         <source>Keep If Already Present</source>
         <translation>Obdrži, če je že prisoten</translation>
     </message>
     <message>
-        <location/>
         <source>Always Delete</source>
         <translation>Vedno odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Mouse</source>
         <translation>Miška</translation>
     </message>
     <message>
-        <location/>
         <source>Enable &amp;mouse navigation</source>
         <translation>Omogoči krmarjenje z &amp;miško</translation>
     </message>
     <message>
-        <location/>
         <source>Enable scroll &amp;wheel zooming</source>
         <translation>Omogoči po&amp;večevanje/zmanjševanje s koleščkom</translation>
     </message>
@@ -19687,39 +18383,32 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Določila za poudarjanje so na voljo zahvaljujoč KDE-jevemu &lt;a href=&quot;http://kate-editor.org/&quot;&gt;urejevalniku besedil Kate&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Syntax Highlight Definition Files</source>
         <translation>Datoteke z določili za poudarjanje skladnje</translation>
     </message>
     <message>
-        <location/>
         <source>Location:</source>
         <translation>Mesto:</translation>
     </message>
     <message>
-        <location/>
         <source>Use fallback location</source>
         <translation>Uporabi dodatno mesto:</translation>
     </message>
     <message>
-        <location/>
         <source>Behavior</source>
         <translation>Obnašanje</translation>
     </message>
     <message>
-        <location/>
         <source>Alert when a highlight definition is not found</source>
         <translation>Opozori, ko določila za poudarjanje ni moč najti</translation>
     </message>
     <message>
-        <location/>
         <source>Ignored file patterns:</source>
         <translation>Prezri vzorce datotek:</translation>
     </message>
@@ -19731,27 +18420,22 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Definitions</source>
         <translation>Določila</translation>
     </message>
     <message>
-        <location/>
         <source>Select All</source>
         <translation>Izberi vse</translation>
     </message>
     <message>
-        <location/>
         <source>Clear Selection</source>
         <translation>Počisti izbor</translation>
     </message>
     <message>
-        <location/>
         <source>Invert Selection</source>
         <translation>Obrni izbor</translation>
     </message>
     <message>
-        <location/>
         <source>Download Selected Definitions</source>
         <translation>Prenesi izbrana določila</translation>
     </message>
@@ -19763,32 +18447,26 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Obrazec</translation>
     </message>
     <message>
-        <location/>
         <source>Group: </source>
         <translation>Skupina: </translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Dodaj</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Revert Built-in</source>
         <translation>Povrni vgrajene</translation>
     </message>
     <message>
-        <location/>
         <source>Restore Removed Built-ins</source>
         <translation>Obnovi odstranjene vgrajene</translation>
     </message>
     <message>
-        <location/>
         <source>Reset All</source>
         <translation>Ponastavi vse</translation>
     </message>
@@ -19797,57 +18475,46 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <translation>Nastavitve tabulatorja:</translation>
     </message>
     <message>
-        <location/>
         <source>Tabs And Indentation</source>
         <translation>Tabulator in zamikanje</translation>
     </message>
     <message>
-        <location/>
         <source>Insert &amp;spaces instead of tabs</source>
         <translation>Vstavi &amp;presledke in ne tabulatorjev</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
         <translation>Ugotovi samodejno glede na najbližjo zamaknjeno vrstico (predhodna vrstica ima prednost pred naslednjo)</translation>
     </message>
     <message>
-        <location/>
         <source>Based on the surrounding lines</source>
         <translation>Temelječe na okoliških vrsticah</translation>
     </message>
     <message>
-        <location/>
         <source>Ta&amp;b size:</source>
         <translation>Velikost &amp;tabulatorja:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Indent size:</source>
         <translation>Velikost &amp;zamika:</translation>
     </message>
     <message>
-        <location/>
         <source>Enable automatic &amp;indentation</source>
         <translation>Omogoči &amp;samodejno zamikanje</translation>
     </message>
     <message>
-        <location/>
         <source>Backspace will go back one indentation level instead of one space.</source>
         <translation>Vračalka gre nazaj za en zamik in ne za en presledek.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Backspace follows indentation</source>
         <translation>&amp;Vračalka sledi zamikom</translation>
     </message>
     <message>
-        <location/>
         <source>Align continuation lines:</source>
         <translation>Poravnava nadaljevalnih vrstic:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 Influences the indentation of continuation lines.
 
@@ -19901,37 +18568,26 @@ Vpliva na zamik nadaljevalnih vrstic.
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Not At All</source>
         <translation>Brez</translation>
     </message>
     <message>
-        <location/>
         <source>With Spaces</source>
         <translation>S presledki</translation>
     </message>
     <message>
-        <location/>
         <source>With Regular Indent</source>
         <translation>Z običajnim zamikanjem</translation>
     </message>
     <message>
-        <location/>
         <source>Tab key performs auto-indent:</source>
         <translation>Tabulator izvede samodejni zamik:</translation>
     </message>
     <message>
-        <location/>
         <source>Never</source>
         <translation>Nikoli</translation>
     </message>
     <message>
-        <location/>
-        <source>Always</source>
-        <translation>Vedno</translation>
-    </message>
-    <message>
-        <location/>
         <source>In Leading White Space</source>
         <translation>V praznini na začetku</translation>
     </message>
@@ -19943,12 +18599,10 @@ Vpliva na zamik nadaljevalnih vrstic.
         <translation>Pogovorno okno</translation>
     </message>
     <message>
-        <location/>
         <source>Suppression File:</source>
         <translation>Datoteka za onemogočanje:</translation>
     </message>
     <message>
-        <location/>
         <source>Suppression:</source>
         <translation>Onemogočanje:</translation>
     </message>
@@ -19960,75 +18614,59 @@ Vpliva na zamik nadaljevalnih vrstic.
         <source>Save Suppression</source>
         <translation>Shrani onemogočanje</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Splošne nastavitve</translation>
     </message>
     <message>
-        <location/>
         <source>Valgrind executable:</source>
         <translation>Izvršljiva datoteka Valgrind:</translation>
     </message>
     <message>
-        <location/>
         <source>Memory Analysis Options</source>
         <translation>Možnosti za preučevanje pomnilnika</translation>
     </message>
     <message>
-        <location/>
         <source>Backtrace frame count:</source>
         <translation>Število okvirjev v povratni sledi:</translation>
     </message>
     <message>
-        <location/>
         <source>Suppression files:</source>
         <translation>Datoteke za onemogočanje:</translation>
     </message>
     <message>
-        <location/>
         <source>Add...</source>
         <translation>Dodaj ...</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location/>
         <source>Track origins of uninitialized memory</source>
         <translation>Spremljaj izvore neinicializiranega pomnilnika</translation>
     </message>
     <message>
-        <location/>
         <source>Profiling Options</source>
         <translation>Možnosti profiliranja</translation>
     </message>
     <message>
-        <location/>
         <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
         <translation>Omeji količino rezultatov, ki jih vrne profilirnik. Nižja omejitev bo verjetno prinesla pohitritev.</translation>
     </message>
     <message>
-        <location/>
         <source>Result view: Minimum event cost:</source>
         <translation>Prikaz rezultatov: najmanjša cena dogodka:</translation>
     </message>
     <message>
-        <location/>
         <source>%</source>
         <translation> %</translation>
     </message>
     <message>
-        <location/>
         <source>Show additional information for events in tooltips</source>
         <translation>Dodatne podatke o dogodkih prikaži v namigih</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Does full cache simulation.&lt;/p&gt;
 &lt;p&gt;By default, only instruction read accesses will be counted (&quot;Ir&quot;).&lt;/p&gt;
@@ -20053,12 +18691,10 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Enable cache simulation</source>
         <translation>Omogoči simulacijo predpomnilnika</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Do branch prediction simulation.&lt;/p&gt;
 &lt;p&gt;Further event counters are enabled: &lt;/p&gt;
@@ -20075,32 +18711,26 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
 (»Bi«/»Bim«)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Enable branch prediction simulation</source>
         <translation>Omogoči simulacijo napovedovanja skokov</translation>
     </message>
     <message>
-        <location/>
         <source>Collect information for system call times.</source>
         <translation>Zbiraj podatke o časih sistemskih klicev</translation>
     </message>
     <message>
-        <location/>
         <source>Collect system call time</source>
         <translation>Zbiraj čase sistemskih klicev</translation>
     </message>
     <message>
-        <location/>
         <source>Collect the number of global bus events that are executed. The event type &quot;Ge&quot; is used for these events.</source>
         <translation>Zbiraj število globalnih izvršenih dogodkov na vodilu. Za te dogodke se uporablja tip dogodkov »Ge«.</translation>
     </message>
     <message>
-        <location/>
         <source>Collect global bus events</source>
         <translation>Zbiraj globalne dogodke na vodilu</translation>
     </message>
     <message>
-        <location/>
         <source>Visualisation: Minimum event cost:</source>
         <translation>Upodobitev: najmanjša cena dogodka:</translation>
     </message>
@@ -20605,7 +19235,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Manage Sessions...</source>
         <translation>Upravljanje s sejami ...</translation>
@@ -20635,7 +19265,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>ExampleDelegate</name>
+    <name>::Core</name>
     <message>
         <source>Tags:</source>
         <translation>Oznake:</translation>
@@ -20675,14 +19305,11 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>RecentProjects</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Recently Edited Projects</source>
         <translation>Nazadnje urejeni projekti</translation>
     </message>
-</context>
-<context>
-    <name>RecentSessions</name>
     <message>
         <source>Recently Used Sessions</source>
         <translation>Nazadnje uporabljene seje</translation>
@@ -20732,10 +19359,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     <message>
         <source>double click for preview</source>
         <translation>Dvokliknite za ogled</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation>Odpri datoteko</translation>
     </message>
 </context>
 <context>
@@ -21535,9 +20158,6 @@ Would you like to overwrite them?</source>
 %1.
 Ali jih želite nadomestiti?</translation>
     </message>
-</context>
-<context>
-    <name>EditorManager</name>
     <message>
         <source>Go Back</source>
         <translation>Vrni se</translation>
@@ -21546,21 +20166,6 @@ Ali jih želite nadomestiti?</translation>
         <source>Go Forward</source>
         <translation>Nadaljuj</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Zapri</translation>
-    </message>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation>Naslednji odprti dokument v zgodovini</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>Predhodni odprti dokument v zgodovini</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -21699,14 +20304,11 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Expected a namespace-name</source>
         <translation>Pričakovano ime imenskega prostora</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Razvrsti po abecedi</translation>
@@ -21786,7 +20388,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -21874,9 +20476,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation>»Izberite gradnik za opazovanje«: v stanju »%1« ni podprto.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Izjema C++</translation>
@@ -21905,9 +20504,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>Console</source>
         <translation>Konzola</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Oddaljeni CDB mora naložiti ustrezno razširitev CDB za Qt Creator (&lt;code&gt;%1&lt;/code&gt; ali &lt;code&gt;%2&lt;/code&gt;).&lt;/p&gt;&lt;p&gt;Skopirajte jo na oddaljeni računalnik in okoljsko spremenljivko &lt;code&gt;%3&lt;/code&gt; nastavite tako, da kaže na njeno mapo.&lt;/p&gt;&lt;p&gt;Oddaljeni CDB zaženite kot &lt;code&gt;%4 &amp;lt;program&amp;gt;&lt;/code&gt;, da bo za komunikacijo uporabljal protokol TCP/IP.&lt;/p&gt;&lt;p&gt;Za komunikacijske parametre vnesite:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -21920,9 +20516,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>&amp;Connection:</source>
         <translation>&amp;Povezava:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Launching</source>
         <translation>Zaganjanje</translation>
@@ -22037,9 +20630,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>Jump to Line %1</source>
         <translation>Skoči v vrstico %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory...</source>
         <translation>Pomnilnik ...</translation>
@@ -22092,9 +20682,6 @@ Details: %3</source>
 Zasilno bo uporabljen razhroščevalni pogon »%2«.
 Podrobnosti: %3</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.
@@ -22423,9 +21010,6 @@ Podrobnosti: %3</translation>
         <source>Close Debugging Session</source>
         <translation>Zapri razhroščevalno sejo</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Razhrošči</translation>
@@ -22438,9 +21022,6 @@ Podrobnosti: %3</translation>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation>Ni moč ustvariti razhroščevalnega pogona vrste »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;nov izvor&gt;</translation>
@@ -22501,9 +21082,6 @@ Podrobnosti: %3</translation>
         <source>Qt Sources</source>
         <translation>Izvorna koda Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
@@ -22512,39 +21090,24 @@ Podrobnosti: %3</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Razhroščevalnik:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Previous</source>
         <translation>Predhodno</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Razhroščevanje kompleksnih ukaznih vrstic trenutno v Windows ni podprto.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:
 </source>
         <translation>Zaganjanje izvršljive datoteke ni uspelo:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>Priklopljen na proces %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The name of the binary file cannot be extracted from this core file.</source>
         <translation>Imena izvršljive datoteke iz tega posnetka ni moč izvleči.</translation>
@@ -22587,9 +21150,6 @@ Podrobnosti: %3</translation>
         <translation>Priklop na posnetek »%1« ni uspel:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Ni moč vzpostaviti komunikacije s podprocesom: %1</translation>
@@ -22600,9 +21160,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>To najverjetneje ni gradnja za razhroščevanje.
 Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne bo uspelo.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connection failure: %1.</source>
         <translation>Napaka glede povezave: %1.</translation>
@@ -22623,9 +21180,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Remote GDB crashed.</source>
         <translation>Oddaljeni GDB se je sesul.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Proces pošiljanja se ni uspel zagnati. Morda manjka lupina?</translation>
@@ -22664,16 +21218,10 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <translation>Branje razhroščevalnih podatkov ni uspelo:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>Usodna zaustavitev pogona. Nezdružljiv program ali napaka pri medprocesni komunikaciji.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>Zagon qtcreator-lldb ni uspel: %1</translation>
@@ -22686,16 +21234,10 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>SSH connection error: %1</source>
         <translation>Napaka glede povezave SSH: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Počisti vsebino</translation>
@@ -22704,16 +21246,10 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Save Contents</source>
         <translation>Shrani vsebino</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Da izvršite vrstico, pritisnite Ctrl+Vnašalka</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>Dnevnik razhroščevalnika</translation>
@@ -22722,9 +21258,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Log File</source>
         <translation>Dnevniška datoteka</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Pomnilnik na 0x%1</translation>
@@ -22737,9 +21270,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Vsebine pomnilnika ni moč prikazati, saj ni bil naložen noben vstavek za dvojiške podatke.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>Pomnilnik na naslovu registra »%1« (0x%2)</translation>
@@ -22748,9 +21278,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Register &apos;%1&apos;</source>
         <translation>Register »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server on %1</source>
         <translation>Povezovanje z razhroščevalnim strežnikom na %1</translation>
@@ -22802,9 +21329,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Not connected to debug service &apos;%1&apos;.</source>
         <translation>Brez povezave z razhroščevalno storitvijo »%1«.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Podrejenega razhroščevalnega pogona, ki je potreben za razhroščevanje kombinacije QML in C++, ni bilo moč ustvariti: %1</translation>
@@ -22823,9 +21347,6 @@ Suggestions: Move the breakpoint after QmlViewer initialization or switch to C++
         <translation>Izvajanja pred zagonom pogona QML ni moč ustaviti. Preskakujem prekinitveno točko.
 Predlogi: prestavite prelomno točko za inicializacijo QmlViewerja ali pa preklopite na razhroščevanje samo za C++.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation>Razhroščevalnik QML je povezan.</translation>
@@ -22892,9 +21413,6 @@ Ali želite poskusiti znova?</translation>
         <source>QML Debugger disconnected.</source>
         <translation>Razhroščevalnik QML je prekinil povezavo.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;Type expression to evaluate&gt;</source>
         <translation>&lt;vnesite izraz za ovrednotiti&gt;</translation>
@@ -22909,9 +21427,6 @@ Ali želite poskusiti znova?</translation>
         <translation>Skriptna konzola
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Izberite mapo krajevnega predpomnilnika</translation>
@@ -23083,14 +21598,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu
@@ -23129,9 +21637,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation>Senčilnik za oglišča (Desktop OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nov %1</translation>
@@ -23814,16 +22319,6 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
         <source>Rename id &apos;%1&apos;...</source>
         <translation>Preimenuj ID »%1« ...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJsEditor</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Searching</source>
         <translation>Iskanje</translation>
@@ -24665,9 +23160,6 @@ Veljavno od: %2.</translation>
             <numerusform>Podpira %n naprav: </numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -24682,9 +23174,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
         <translation>Paketa Smart Installer ni moč ustvariti, ker manjka osnovna datoteka namestilnika Smart Installer. Prepričajte se, da se nahaja v SDK-ju.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation>Razmesti %1 na napravo Symbian</translation>
@@ -24693,9 +23182,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>Deploy to Symbian device</source>
         <translation>Razmesti na napravo Symbian</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device:</source>
         <translation>Naprava:</translation>
@@ -24816,9 +23302,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>Screen size:</source>
         <translation>Velikost zaslona:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation>Obstoječe datoteke »%1« ni moč odstraniti: %2</translation>
@@ -24941,9 +23424,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>A timeout while deploying has occurred. CODA might not be responding. Try reconnecting the device.</source>
         <translation>Med razmeščanjem je potekel čas. CODA se morda ne odziva. Poskusite znova povezati napravo.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean</source>
         <translation>Čiščenje</translation>
@@ -24994,18 +23474,12 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <translation>Ustvaril %1.
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step
 </extracomment>
         <translation>Zaganjanje %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation>Zaznane ni bilo nobene veljavne različice Qt.&lt;br&gt; Različico Qt lahko določite v Orodja → Možnosti → Qt 4.</translation>
@@ -25014,9 +23488,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
         <translation>Zaznanega ni bilo nobenega veljavnega zaporedja orodij.&lt;br&gt;Zaporedje orodij lahko določite v Orodja → Možnosti → Zaporedja orodij.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Open Containing Folder</source>
         <translation>Odpri vsebujočo mapo</translation>
@@ -25372,7 +23843,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
@@ -25405,9 +23876,6 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
         <source>Version:</source>
         <translation>Različica:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>Ali želite skopirati projekt na zapisljivo mesto?</translation>
@@ -25610,9 +24078,6 @@ Razlog: %2</translation>
         <source>SBS v2 directory:</source>
         <translation>Mapa za SBS 2:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation>MinGW iz %1</translation>
@@ -25659,9 +24124,6 @@ Razlog: %2</translation>
         <source>Deployment finished.</source>
         <translation>Razmestitev je zaključena.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation>&lt;ciljna pot ni nastavljena&gt;</translation>
@@ -25674,9 +24136,6 @@ Razlog: %2</translation>
         <source>Remote Directory</source>
         <translation>Oddaljena mapa</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux Device</source>
         <translation>Naprava z običajnim Linux-om</translation>
@@ -25697,23 +24156,14 @@ Razlog: %2</translation>
         <source>Deploy Public Key</source>
         <translation>Razmesti javni ključ ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Nastavitev nove naprave z običajnim Linux-om</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Podatki o povezavi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavitev zaključena</translation>
@@ -25724,23 +24174,14 @@ In addition, device connectivity will be tested.</source>
         <translation>Sedaj bo ustvarjena nova nastavitev naprave.
 Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation>(privzeto za %1)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation>Zaženi čarovnika</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation>Naprava s podporo za MADDE (Fremantle, Harmattan, MeeGo)</translation>
@@ -25757,9 +24198,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Other MeeGo OS</source>
         <translation>Drug MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation>Preizkušanje nastavitve. To lahko traja dalj časa.</translation>
@@ -25834,16 +24272,10 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>List of installed Qt packages:</source>
         <translation>Seznam nameščenih paketov Qt:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installing package to device...</source>
         <translation>Nameščanje paketa na napravo ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation>Najdenega ni bilo nobenega ustreznega koraka za pakiranje.</translation>
@@ -25856,9 +24288,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Deploy package via UTFS mount</source>
         <translation>Razmesti paket prek priklopa UTFS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation>Vse datoteke so bile skopirane.</translation>
@@ -25867,9 +24296,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Deploy files via UTFS mount</source>
         <translation>Razmesti datoteke prek priklopa UTFS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation>Izberite ikono (po potrebi bo velikost prilagojena na %1 ⨯ %1 pik)</translation>
@@ -25890,9 +24316,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Could not save icon to &apos;%1&apos;.</source>
         <translation>Ikone ni bilo moč shraniti v »%1«.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Ni moč razmestiti: %1</translation>
@@ -25901,9 +24324,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation>&lt;b&gt;%1 uporablja napravo&lt;/b&gt;: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Physical Device</source>
         <translation>Fizična naprava</translation>
@@ -25916,30 +24336,18 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>You will need at least one port.</source>
         <translation>Potrebovali boste vsaj ena vrata.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Status Check</source>
         <translation>Preverjanje stanja naprave</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation>Preverjanje obstoječih ključev</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation>Ustvarjanje ključev</translation>
@@ -25992,16 +24400,10 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Done.</source>
         <translation>Opravljeno.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation>Sedaj bo ustvarjena nova nastavitev naprave.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation>Nova nastavitev naprave </translation>
@@ -26038,9 +24440,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Upload files via SFTP</source>
         <translation>Pošlji datoteke prek SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not connect to host: %1</source>
         <translation>Ni se bilo moč povezati z gostiteljem: %1</translation>
@@ -26073,16 +24472,10 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
         <source>Unknown OS</source>
         <translation>Neznan OS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation>Ni moč razmestiti v vrhnjo mapo sistema: najdenega ni nobenega koraka pakiranja.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč nameščati v vrhnjo mapo sistema.</translation>
@@ -26103,23 +24496,14 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
         <source>Installation to sysroot failed, continuing anyway.</source>
         <translation>Namestitev v vrhnjo mapo sistema ni uspela, kljub temu nadaljujem.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation>Paket Debian namesti v vrhnjo mapo sistema</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation>Paket RPM namesti v vrhnjo mapo sistema</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč kopirati v vrhnjo mapo sistema.</translation>
@@ -26234,9 +24618,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation>Napaka: datoteke »%1« ni bilo moč ustvariti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not move package file from %1 to %2.</source>
         <translation>Datoteke paketa ni bilo moč premakniti iz %1 v %2.</translation>
@@ -26245,9 +24626,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Create tarball:</source>
         <translation>Ustvari arhiv tar:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create tarball</source>
         <translation>Ustvari arhiv tar</translation>
@@ -26272,9 +24650,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Error writing tar file &apos;%1&apos;: %2</source>
         <translation>Napaka pri zapisovanju datoteke tar »%1«: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No Version Available.</source>
         <translation>Na voljo ni nobene različice.</translation>
@@ -26319,23 +24694,14 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Could Not Set Version Number</source>
         <translation>Številke različice ni bilo moč nastaviti</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installing package failed.</source>
         <translation>Nameščanje paketa ni uspelo.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
         <translation>Nameščanje ni uspelo: paket ste poskušali nadomestiti s starejšo različico, kar ni dovoljeno.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Pripravljanje povezave SFTP ...</translation>
@@ -26352,23 +24718,14 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Failed to upload package: %2</source>
         <translation>Paketa ni bilo moč poslati: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation>(privzeto)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>Posodobljive datoteke projekta</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Include in package</source>
         <translation>Vključi v paket</translation>
@@ -26381,9 +24738,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Do not include</source>
         <translation>Ne vključi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation>Preklicano.</translation>
@@ -26522,9 +24876,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
         <translation>Ikone za upravljalnika paketov še niste izbrali. Ikono lahko nastavite v Projekti → Zagon → Ustvarjanje paketa → Podrobnosti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel/free«</translation>
@@ -26537,9 +24888,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Choose a private key file</source>
         <translation>Izberite datoteko z zasebnim ključem</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation>Objavi v skladišče »Fremantle Extras-devel free«</translation>
@@ -26548,9 +24896,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
         <translation>Ta čarovnik bo ustvaril izvorni arhiv in ga po želji poslal na strežnik za gradnjo, kjer bo projekt preveden in zapakiran ter nato premaknjen v skladišče »Extras-devel free«. Iz tega skladišča ga uporabniki lahko namestijo na svoje naprave Nokia N900. Za pošiljanje je potreben račun pri garage.maemo.org.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel free«</translation>
@@ -26567,9 +24912,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Result</source>
         <translation>Rezultat</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start MeeGo Emulator</source>
         <translation>Zaženi posnemovalnika za MeeGo</translation>
@@ -26658,9 +25000,6 @@ Standardni izhod za napake je bil: %1</translation>
         <source>Timeout waiting for UTFS servers to connect.</source>
         <translation>Med čakanjem na povezavo s strežniki UTFS je potekel čas.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation>Krajevna mapa</translation>
@@ -26669,16 +25008,10 @@ Standardni izhod za napake je bil: %1</translation>
         <source>Remote mount point</source>
         <translation>Oddaljena priklopna točka</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote Error</source>
         <translation>Oddaljena napaka</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Napaka povezave: %1</translation>
@@ -26705,16 +25038,10 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Command Line</source>
         <translation>Ukazna vrstica</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation>Na napravi ni dovolj prostih vrat.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation>Izberite mapo za priklop.</translation>
@@ -26756,16 +25083,10 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
             <numerusform>OPOZORILO: Priklopiti želite %1 map, a v razhroščevalnem načinu bo na napravi na voljo le %n vrat.&lt;br&gt;S to nastavitvijo ne boste mogli razhroščevati programa.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation>Zaženi na napravi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation>Napaka Qemu</translation>
@@ -26786,23 +25107,14 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
         <translation>Qemu je nastavljen na samodejno zaznavo načina OpenGL, ki v določenih primerih ne deluje. Poskusite lahko uporabiti programsko izrisovanje.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation>Nastavitve naprav</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation>Nastavitve Qemu za MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation>Shrani datoteko z javnim ključem</translation>
@@ -26811,9 +25123,6 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Save Private Key File</source>
         <translation>Shrani datoteko z zasebnim ključem</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation>Qemu ni tekel. Bil je zagnan, a bo potrebno nekaj časa, da bo pripravljen. Poskusite znova malce kasneje.</translation>
@@ -26834,9 +25143,6 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Unmounting host directories...</source>
         <translation>Odklapljanje map gostitelja ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation>Maemo GCC</translation>
@@ -26849,16 +25155,10 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>%1 GCC (%2)</source>
         <translation>%1 GCC (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Pot do MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Pot do cilja MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Razhroščevalnik:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Datoteka paketa je bila uspešno poslana.</translation>
@@ -26913,9 +25213,6 @@ Oddaljeni izhod za napake je bil: %1</translation>
         <source>Deployment finished successfully.</source>
         <translation>Razmestitev se je uspešno zaključila.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation>Skopiraj datoteke na napravo z Maemo-m 5</translation>
@@ -26936,9 +25233,6 @@ Oddaljeni izhod za napake je bil: %1</translation>
         <source>Build Tarball and Install to Linux Host</source>
         <translation>Zgradi arhiv in ga namesti na gostitelja z Linux-om</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation>Ni moč odpreti datoteke »%1«: %2</translation>
@@ -26971,9 +25265,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Error creating MeeGo templates</source>
         <translation>Napaka pri ustvarjanju predlog za MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation>Datoteka »%1« z dnevnikom sprememb za Debian ima nepričakovan format.</translation>
@@ -27030,9 +25321,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Error running remote process: %1</source>
         <translation>Napaka pri zagonu oddaljenega procesa: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing remote side ...
 </source>
@@ -27055,9 +25343,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Na napravi ni dovolj prostih vrat za razhroščevanje.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The .pro file is being parsed.</source>
         <translation>Datoteko *.pro se razčlenjuje.</translation>
@@ -27148,9 +25433,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Fetching environment failed: %1</source>
         <translation>Pridobivanje okolja ni uspelo: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -27167,9 +25449,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Remote Execution Failure</source>
         <translation>Napaka pri oddaljeni izvedbi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>Zaženi na oddaljeni napravi z Linux-om</translation>
@@ -27405,9 +25684,6 @@ Preverite pravice za dostop do mape.</translation>
         <translation>Profiliranje %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrindov profilirnik funkcij</translation>
@@ -27420,9 +25696,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Profile Costs of this Function and its Callees</source>
         <translation>Profiliraj stroške te funkcije in njenih klicanih</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>Klicatelji</translation>
@@ -27535,16 +25808,10 @@ Preverite pravice za dostop do mape.</translation>
         <source>Populating...</source>
         <translation>Napolnjevanje ...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Vse funkcije, ki imajo razmerje skupnega stroška višje kot %1 (%2 je skritih)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiziranje pomnilnika</translation>
@@ -27555,16 +25822,10 @@ Preverite pravice za dostop do mape.</translation>
         <translation>Analiziranje pomnilnika od %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>v %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>Skopiraj izbor</translation>
@@ -27573,9 +25834,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Suppress Error</source>
         <translation>Onemogoči napako</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Zunanje napake</translation>
@@ -27640,9 +25898,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>Med razčlenjevanjem izhoda Valgrinda je prišlo do napake: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Klicani</translation>
@@ -27659,9 +25914,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Calls</source>
         <translation>Klici</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Predhodni ukaz še ni zaključil.</translation>
@@ -27694,9 +25946,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Downloading remote profile data...</source>
         <translation>Prejemanje oddaljenih podatkov profiliranja ...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -27766,9 +26015,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Incl. Cost: %1</source>
         <translation>Skupni strošek: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 v %2</translation>
@@ -27777,9 +26023,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>%1:%2 in %3</source>
         <translation>%1:%2 v %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Zadnja-stopnja</translation>
@@ -27836,16 +26079,10 @@ Preverite pravice za dostop do mape.</translation>
         <source>Position:</source>
         <translation>Položaj:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>Razčlenjevanje podatkov profiliranja ...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Za oddaljeno analiziranje ni bil najden noben omrežni vmesnik.</translation>
@@ -27858,16 +26095,10 @@ Preverite pravice za dostop do mape.</translation>
         <source>More than one network interface was found on your machine. Please select which one you want to use for remote analysis.</source>
         <translation>Na vašem računalniku je bilo najdenih več omrežnih vmesnikov. Izberite, katerega bi radi uporabljali za oddaljeno analiziranje.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Oddaljenega PID-a ni bilo moč ugotoviti.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>What</source>
         <translation>Kaj</translation>
@@ -27896,9 +26127,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Helgrind Thread ID</source>
         <translation>Helgrindova identifikacija niti</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcija:</translation>
@@ -27915,9 +26143,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Object:</source>
         <translation>Objekt:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Šestnajstiškega števila iz »%1« (%2) ni bilo moč razčleniti</translation>
@@ -27970,9 +26195,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Unexpected exception caught during parsing.</source>
         <translation>Med razčlenjevanjem je bila ujeta nepričakovana izjema.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -27997,9 +26219,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Line</source>
         <translation>Vrstica</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Možnosti za Valgrind: %1</translation>
@@ -28040,16 +26259,10 @@ Preverite pravice za dostop do mape.</translation>
         <source>Application Output</source>
         <translation>Izhod programa</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
@@ -28342,9 +26555,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Breakpoint: %1</source>
         <translation type="obsolete">Prekinitvena točka: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation type="obsolete">vstavek</translation>
@@ -28456,13 +26666,6 @@ Preverite pravice za dostop do mape.</translation>
     <message>
         <source>Hello, world!</source>
         <translation type="obsolete">Pozdravljen, Svet!</translation>
-    </message>
-</context>
-<context>
-    <name>InputPane</name>
-    <message>
-        <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="obsolete">Da izvršite vrstico, vtipkajte Ctrl+Vnašalka</translation>
     </message>
 </context>
 <context>
@@ -29005,18 +27208,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <translation type="obsolete">Obrazec</translation>
     </message>
     <message>
-        <source>Manage Sessions...</source>
-        <translation type="obsolete">Upravljanje s sejami …</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (zadnja seja)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (trenutna seja)</translation>
-    </message>
-    <message>
         <source>New Project</source>
         <translation type="obsolete">Nov projekt</translation>
     </message>
@@ -29491,9 +27682,6 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
         <source>Could not install from package %1 on device: %2</source>
         <translation type="obsolete">Ni bilo moč namestiti iz paketa %1 na napravi: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Finished.</source>
         <translation type="obsolete">Zaključeno.</translation>
@@ -29510,9 +27698,6 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
         <source>Could not start application: %1</source>
         <translation type="obsolete">Ni bilo moč zagnati programa: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">ID:</translation>
@@ -31291,16 +29476,10 @@ Preverite nastavitve projekta.</translation>
         <source>Choose Qt folder</source>
         <translation type="obsolete">Izberite mapo s Qt</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Nameščen ni noben Qt</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Korak 1 od 2: izberite mapo z GnuPoc</translation>

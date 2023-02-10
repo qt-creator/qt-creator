@@ -1130,9 +1130,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Postavi GTest filtar koji će se koristiti za grupiranje.
 Dodatne dokumente o GTest filtrima potraži u Google Test dokumentaciji.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Omogućuje prekid testova kod potvrda.</translation>
@@ -1209,9 +1206,6 @@ Upozorenje: Običan tekst propušta neke informacije, kao što je trajanje.</tra
         <source>Perf</source>
         <translation>Perf</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -1701,7 +1695,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Format instead of indenting</source>
         <translation>Formatiraj umjesto uvlačenja</translation>
@@ -3304,7 +3298,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -7362,9 +7356,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Add Qt version #ifdef for module names</source>
         <translation>Dodaj Qt verziju #ifdef za nazive modula</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Naziv verzije:</translation>
@@ -7377,9 +7368,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Dodaj …</translation>
@@ -7392,9 +7380,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Clean Up</source>
         <translation>Izbriši</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Zapis gradnje pomoćnika za uklanjanje grešaka</translation>
@@ -7482,9 +7467,6 @@ Sigurno želiš nastaviti?</translation>
         <source>You will need at least one port.</source>
         <translation>Trebat ćeš barem jedan prikljjučak.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>Stranica čarobnjaka</translation>
@@ -7514,7 +7496,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -8869,7 +8851,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Odaberi temu</translation>
@@ -10722,9 +10704,6 @@ will also disable the following plugins:
         <source>Expected type %1 but value contained %2</source>
         <translation>Očekivana vrsta %1, ali vrijednost je sadržavala %2</translation>
     </message>
-</context>
-<context>
-    <name>JsonRpcMessageHandler</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation>Nije moguće obraditi JSON poruku &quot;%1&quot;.</translation>
@@ -10733,9 +10712,6 @@ will also disable the following plugins:
         <source>Expected a JSON object, but got a JSON &quot;%1&quot;.</source>
         <translation>Očekivan JSON objekt, ali je dobiven JSON &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>Nema parametara u &quot;%1&quot;.</translation>
@@ -14021,14 +13997,11 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Testiranje</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation type="unfinished"></translation>
@@ -14105,9 +14078,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Selected test was not found (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GTestFramework</name>
     <message>
         <source>Google Test</source>
         <translation>Google test</translation>
@@ -14117,9 +14087,6 @@ The files in the Android package source directory are copied to the build direct
 See also Google Test settings.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -14146,9 +14113,6 @@ Executable: %2</source>
         <source>Repeating test case %1 (iteration %2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation type="unfinished"></translation>
@@ -14169,16 +14133,10 @@ Executable: %2</source>
         <source>typed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt test</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation type="unfinished"></translation>
@@ -14227,23 +14185,14 @@ Executable: %2</source>
         <source>Test finished.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>inherited</source>
         <translation>naslijeđeno</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation type="unfinished"></translation>
@@ -14252,9 +14201,6 @@ Executable: %2</source>
         <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation type="unfinished"></translation>
@@ -14263,9 +14209,6 @@ Executable: %2</source>
         <source>Scanning for Tests</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select All</source>
         <translation>Odaberi sve</translation>
@@ -14372,16 +14315,10 @@ Executable: %2</source>
 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation type="unfinished"></translation>
@@ -14486,9 +14423,6 @@ Check the test environment.</source>
         <source>Build failed. Canceling test run.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation type="unfinished"></translation>
@@ -14517,9 +14451,6 @@ Check the test environment.</source>
         <source>Working Directory:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation type="unfinished"></translation>
@@ -14552,9 +14483,6 @@ Check the test environment.</source>
         <source>Specify a filter expression that will replace &quot;%1&quot;.&lt;br/&gt;Wildcards are not supported.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TestTreeItem</name>
     <message>
         <source>%1 (none)</source>
         <translation type="unfinished"></translation>
@@ -15701,9 +15629,6 @@ Check the test environment.</source>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Odaberi simbol&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Projekt: %1 (osnovan na %2)</translation>
@@ -15712,9 +15637,6 @@ Check the test environment.</source>
         <source>Changes applied in Projects Mode &gt; Clang Code Model</source>
         <translation type="unfinished">Primijenjene promjene u Projects Mode &gt; Clang Code Model</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Code Model upozorenje</translation>
@@ -15733,7 +15655,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatPlugin</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>Otvori korištenu konfiguracijsku datoteku .clang-formata</translation>
@@ -16804,14 +16726,11 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeFilesProjectNode</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>CMake moduli</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Vrsta odredišta:</translation>
@@ -16824,9 +16743,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Build artifacts:</source>
         <translation>Artefakti gradnje:</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
@@ -19940,7 +19856,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation type="unfinished"></translation>
@@ -20316,9 +20232,6 @@ Oznake: %3</translation>
         <source>Property</source>
         <translation type="unfinished">Svojstvo</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Output:</source>
         <translation>Izrada:</translation>
@@ -20469,9 +20382,6 @@ Oznake: %3</translation>
         <source>Extracted from Kit %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Location</source>
         <translation>Mjesto</translation>
@@ -20516,9 +20426,6 @@ Oznake: %3</translation>
         <source>Debuggers</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>Program za uklanjanje grešaka korišten za ovaj komplet.</translation>
@@ -22190,7 +22097,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Ukloni znak</translation>
@@ -24102,14 +24009,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -24396,9 +24296,6 @@ Would you like to overwrite it?</source>
         <translation>%1: već postoji.
 Želiš li je prepisati?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Exported &quot;%1&quot;, %2x%3, %4 bytes</source>
         <translation>Izvezeno &quot;%1&quot;, %2x%3, %4 bajta</translation>
@@ -24423,9 +24320,6 @@ Would you like to overwrite it?</source>
         <source>Play Animation</source>
         <translation>Pokreni animaciju</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Slikovni format nije podržan.</translation>
@@ -24530,9 +24424,6 @@ Would you like to overwrite them?</source>
         <source>%1 Simulator</source>
         <translation>%1 simulator</translation>
     </message>
-</context>
-<context>
-    <name>DevelopmentTeam</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation type="unfinished"></translation>
@@ -31106,9 +30997,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Searching for Usages</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation type="unfinished"></translation>
@@ -31121,9 +31009,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Read typeinfo files successfully.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Show All Bindings</source>
         <translation type="unfinished"></translation>
@@ -31140,16 +31025,10 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Split Initializer</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AddAnalysisMessageSuppressionComment</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Dodaj komentar kako se ova poruka ne bi prikazivala</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation type="unfinished"></translation>
@@ -31925,16 +31804,10 @@ Saving failed.</source>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Trenutačna datoteka&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Main QML file:</source>
         <translation type="unfinished"></translation>
@@ -32045,9 +31918,6 @@ Saving failed.</source>
         <comment>Qt Version is used for embedded Linux development</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BaseQtVersion</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Vrsta uređaja nije podržana Qt verzijom.</translation>
@@ -32112,9 +31982,6 @@ Saving failed.</source>
         <source>This Qt Version does not contain Qt Quick Compiler.</source>
         <translation>Ova Qt verzija ne sadrži Qt Quick Compiler.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>unknown</source>
         <translation>nepoznato</translation>
@@ -32166,9 +32033,6 @@ Saving failed.</source>
         <source>Close</source>
         <translation>Zatvori</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation>Udaljeni proces neuspjeo: %1</translation>
@@ -32244,9 +32108,6 @@ Saving failed.</source>
         <source>Could not copy the file to %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished"></translation>
@@ -32259,9 +32120,6 @@ Saving failed.</source>
         <source>The &lt;RCC&gt; root element is missing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otvori datoteku</translation>
@@ -32270,20 +32128,6 @@ Saving failed.</source>
         <source>All files (*)</source>
         <translation>Sve datoteke (*)</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Prefiks:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Jezik:</translation>
-    </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -32306,10 +32150,6 @@ Saving failed.</source>
     </message>
     <message>
         <source>Remove Prefix...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32364,9 +32204,6 @@ Saving failed.</source>
         <source>Rename Prefix</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation type="unfinished"></translation>
@@ -32379,9 +32216,6 @@ Saving failed.</source>
         <source>Copy Resource Path to Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation type="unfinished"></translation>
@@ -34992,9 +34826,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Calls</source>
         <translation>Pozivi</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Prethodna naredba još nije gotova.</translation>
@@ -35027,9 +34858,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Callgrind unpaused.</source>
         <translation>Callgrind je ponovo pokrenut.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -35090,9 +34918,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Incl. Cost: %1</source>
         <translation>Uklj. trošak: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 u %2</translation>
@@ -35101,9 +34926,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>%1:%2 in %3</source>
         <translation>%1:%2 u %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Zadnja-razina</translation>
@@ -35160,9 +34982,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Position:</source>
         <translation>Položaj:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiliranje</translation>
@@ -35171,9 +34990,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Profiling %1</source>
         <translation>Profiliranje %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callgrind</source>
         <translation>Callgrind</translation>
@@ -35342,30 +35158,18 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Parsing Profile Data...</source>
         <translation>Obrada podataka profila …</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Sve funkcije s uključenim omjerom troškova većim od %1 (%2 su skrivene)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Potisni grešku</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiziranje memorije</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Memcheck</source>
         <translation type="unfinished"></translation>
@@ -35523,9 +35327,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
             <numerusform>Datoteka dnevnika je obrađena. Nađeno je %1 problema.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>HeobDialog</name>
     <message>
         <source>XML output file:</source>
         <translation>Izlazna XML datoteka:</translation>
@@ -35635,13 +35436,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <translation>U redu</translation>
     </message>
     <message>
-        <source>Heob</source>
-        <translation>Heob</translation>
-    </message>
-</context>
-<context>
-    <name>HeobData</name>
-    <message>
         <source>Process %1</source>
         <translation>Proces %1</translation>
     </message>
@@ -35701,9 +35495,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Heob: Failure in process attach handshake (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>Spremi potiskivanje</translation>
@@ -35720,9 +35511,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Select Suppression File</source>
         <translation>Odaberi datoteku potiskivanja</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind opcije: %1</translation>
@@ -35757,23 +35545,14 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <translation>Proces je izašao s povratnom vrijednošću %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind postavke</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlPoslužitelj na %1:</translation>
@@ -35782,9 +35561,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>LogServer on %1:</source>
         <translation>LogPoslužitelj na %1:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Problem</translation>
@@ -35797,9 +35573,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>%1 in function %2</source>
         <translation>%1 u funkciji %2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -35808,9 +35581,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>in %1</source>
         <translation>u %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcija:</translation>
@@ -35827,9 +35597,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Object:</source>
         <translation>Objekt:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation type="unfinished"></translation>
@@ -35882,9 +35649,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Unexpected exception caught during parsing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -36611,17 +36375,6 @@ What do you want to do?</source>
     <message>
         <source>Rename Bookmark</source>
         <translation>Preimenuj knjižnu oznaku</translation>
-    </message>
-</context>
-<context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otvori poveznicu</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otvori poveznicu kao novu stranicu</translation>
     </message>
 </context>
 <context>

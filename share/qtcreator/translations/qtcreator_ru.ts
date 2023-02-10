@@ -191,7 +191,7 @@
     </message>
 </context>
 <context>
-    <name>AddAnalysisMessageSuppressionComment</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Добавьте комментарий для подавления этого сообщения</translation>
@@ -2381,14 +2381,11 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Тестирование</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Run Test Under Cursor</source>
         <translation>&amp;Запустить тест под курсором</translation>
@@ -2396,13 +2393,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     <message>
         <source>&amp;Debug Test Under Cursor</source>
         <translation>&amp;Отладить тест под курсором</translation>
-    </message>
-</context>
-<context>
-    <name>::Autotest</name>
-    <message>
-        <source>Testing</source>
-        <translation>Тестирование</translation>
     </message>
     <message>
         <source>&amp;Tests</source>
@@ -2472,9 +2462,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>Selected test was not found (%1).</source>
         <translation>Не удалось найти выбранный тест (%1).</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test suite execution took %1</source>
         <translation>Выполнение набора тестов заняло %1</translation>
@@ -2519,9 +2506,6 @@ Executable: %2</source>
         <source>Running tests without output.</source>
         <translation>Тестирование выполнялось без вывода.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
         <translation>Выполнение %1 «%2»</translation>
@@ -2542,9 +2526,6 @@ Executable: %2</source>
         <source>Finished executing %1 &quot;%2&quot;</source>
         <translation>Завершено выполнение %1 «%2»</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -2577,9 +2558,6 @@ Executable: %2</source>
         <source>Execution took %1.</source>
         <translation>Выполнение заняло %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Break on failure while debugging</source>
         <translation>Останавливаться при ошибках</translation>
@@ -2658,9 +2636,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Задайте фильтр GTest для группировки.
 Информацию о GTest фильтрах смотрите в документации Google Test.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Global</source>
         <translation>Общие</translation>
@@ -2689,9 +2664,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <source>Selected</source>
         <translation>Выбранных</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 за итерацию (всего: %3, итераций: %4)</translation>
@@ -2740,9 +2712,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <source>Test execution took %1 ms.</source>
         <translation>Выполнение теста заняло %1 мс.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Включение прерывания тестов на утверждениях.</translation>
@@ -2819,9 +2788,6 @@ Warning: Plain text misses some information, such as duration.</source>
 
 Предупреждение: простой текст не содержит некоторую информацию, например, длительность.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>Выбор конфигурации запуска</translation>
@@ -2850,16 +2816,10 @@ Warning: Plain text misses some information, such as duration.</source>
         <source>Working Directory:</source>
         <translation>Рабочий каталог:</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>Поиск тестов</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Run Without Deployment</source>
         <translation>Запустить без развёртывания</translation>
@@ -2904,16 +2864,10 @@ Warning: Plain text misses some information, such as duration.</source>
         <source>Show Data Functions</source>
         <translation>Показывать функции Data</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Тесты</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Expand All</source>
         <translation>Развернуть всё</translation>
@@ -3046,16 +3000,10 @@ Warning: Plain text misses some information, such as duration.</source>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>Отладка автотеста</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Тест прерван пользователем.</translation>
@@ -3162,9 +3110,6 @@ This might cause trouble during execution.
         <source>Build failed. Canceling test run.</source>
         <translation>Сборка не удалась. Выполнение теста отменяется.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -3291,9 +3236,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Runs chosen tests automatically if a build succeeded.</source>
         <translation>Автоматически запускать выбранные тесты после успешной сборки.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Нет активных сред тестирования.</translation>
@@ -3310,9 +3252,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Enable or disable grouping of test cases by folder.</source>
         <translation>Включение/отключение объединения тестов по каталогам.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>Сбой программы тестирования.</translation>
@@ -4070,7 +4009,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Name:</source>
         <translation>Название:</translation>
@@ -5173,14 +5112,11 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BoostTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Boost Test</source>
         <translation>Тест Boost</translation>
     </message>
-</context>
-<context>
-    <name>BoostTestTreeItem</name>
     <message>
         <source>parameterized</source>
         <translation>параметрический</translation>
@@ -5273,7 +5209,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoint</source>
         <translation>Точка останова</translation>
@@ -5381,14 +5317,11 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CMakeFilesProjectNode</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>Модули CMake</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>Current CMake: %1</source>
         <translation>Текущий CMake: %1</translation>
@@ -6094,9 +6027,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>&lt;Headers&gt;</source>
         <translation>&lt;Заголовки&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Тип цели: </translation>
@@ -6137,14 +6067,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CatchFramework</name>
-    <message>
-        <source>Catch Test</source>
-        <translation>Тест Catch</translation>
-    </message>
-</context>
-<context>
-    <name>CatchTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Catch Test</source>
         <translation>Тест Catch</translation>
@@ -6251,15 +6174,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CatchTreeItem</name>
-    <message>
-        <source>parameterized</source>
-        <translation>параметрический</translation>
-    </message>
-    <message>
-        <source>fixture</source>
-        <translation>фиксированный</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::Tracing</name>
@@ -6408,9 +6323,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Проект: %1 (на основе %2)</translation>
@@ -6455,7 +6367,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Apply</source>
         <translation>Применить</translation>
@@ -6492,9 +6404,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Fallback configuration</source>
         <translation>Запасная конфигурация</translation>
     </message>
-</context>
-<context>
-    <name>ClangFormat::ClangFormatPlugin</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>Открыть использованный файл настроек .clang-format</translation>
@@ -7116,7 +7025,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClangUtils</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation>Не удалось получить каталог сборки.</translation>
@@ -8023,7 +7932,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Открыть ссылку</translation>
@@ -12333,7 +12242,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Аннотация ревизии «%1»</translation>
@@ -12710,10 +12619,6 @@ Do you want to display them anyway?</source>
         <translation>Не удалось определить тип отладчика</translation>
     </message>
     <message>
-        <source>Unknown</source>
-        <translation>Неизвестный</translation>
-    </message>
-    <message>
         <source>Name:</source>
         <translation>Название:</translation>
     </message>
@@ -12759,9 +12664,6 @@ Do you want to display them anyway?</source>
         <source>Auto-detected uVision at %1</source>
         <translation>Обнаруженный uVision в %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type of Debugger Backend</source>
         <translation>Тип отладчика</translation>
@@ -12830,9 +12732,6 @@ Do you want to display them anyway?</source>
         <source>%1 using &quot;%2&quot;</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clone</source>
         <translation>Копировать</translation>
@@ -12869,9 +12768,6 @@ Do you want to display them anyway?</source>
         <source>Debuggers</source>
         <translation>Отладчики</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Настройки отладчика</translation>
@@ -12896,9 +12792,6 @@ Do you want to display them anyway?</source>
         <source>Additional startup commands:</source>
         <translation>Дополнительные команды запуска:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unpacking core file to %1</source>
         <translation>Распаковка файла дампа в %1</translation>
@@ -12947,16 +12840,10 @@ Do you want to display them anyway?</source>
         <source>Debugged executable</source>
         <translation>Отлаживаемая программа</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Выбор начального адреса</translation>
@@ -13013,9 +12900,6 @@ Do you want to display them anyway?</source>
         <source>&amp;Port:</source>
         <translation>&amp;Порт:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Отмеченный файл:</translation>
@@ -13281,10 +13165,6 @@ Do you want to display them anyway?</source>
         <translation>Тип точки останова:</translation>
     </message>
     <message>
-        <source>Breakpoint</source>
-        <translation>Точка останова</translation>
-    </message>
-    <message>
         <source>Internal ID:</source>
         <translation>Внутренний ID:</translation>
     </message>
@@ -13420,9 +13300,6 @@ Do you want to display them anyway?</source>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
         <translation>Точка останова сработает только в указанных потоках.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debuggee</source>
         <translation>Отлаживаемая программа</translation>
@@ -13479,9 +13356,6 @@ Do you want to display them anyway?</source>
         <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
         <translation>Удалить все точки останова из всех файлов текущей сессии?</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Выбор каталога локального кэша</translation>
@@ -13502,9 +13376,6 @@ Do you want to display them anyway?</source>
         <source>Cannot Create</source>
         <translation>Невозможно создать</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Исключение C++</translation>
@@ -13529,9 +13400,6 @@ Do you want to display them anyway?</source>
         <source>Output:</source>
         <translation>Вывод:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Failed to Start the Debugger</source>
         <translation>Не удалось запустить отладчик</translation>
@@ -13584,9 +13452,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <source>Value 0 obtained from evaluating the condition of breakpoint %1, continuing.</source>
         <translation>При вычисление условия точки останова %1 получено значение 0, продолжаем.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Break on:</source>
         <translation>Остановка на:</translation>
@@ -13648,9 +13513,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <source>Second chance exceptions</source>
         <translation>Неперехваченные исключения</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Пути к символам</translation>
@@ -13663,9 +13525,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <source>CDB Paths</source>
         <translation>Пути CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>Вставить сервер символов...</translation>
@@ -13690,9 +13549,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation>Настройка путей, используемых для поиска файлов отладочных символов.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Поведение</translation>
@@ -13793,9 +13649,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <source>Always adds a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation>Всегда устанавливать точку останова на функцию &lt;i&gt;%1()&lt;/i&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Показывать сообщения уровней: отладка, журнал и информация.</translation>
@@ -13816,9 +13669,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <source>QML Debugger Console</source>
         <translation>Консоль отладчика QML</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Копировать</translation>
@@ -13831,9 +13681,6 @@ If you build %2 from sources and want to use a CDB executable with another bitne
         <source>C&amp;lear</source>
         <translation>&amp;Очистить</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Loading finished.</source>
         <translation>Загрузка завершена.</translation>
@@ -14059,9 +13906,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Jump to Line %1</source>
         <translation>Перейти к строке %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Continue %1</source>
         <translation>Продолжить %1</translation>
@@ -14154,9 +13998,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.</source>
         <translation>Эта возможность очень медленная и нестабильная на стороне GDB. Приводит к непредсказуемым результатам при обратном переходе через системный вызов и может разрушить сессию отладки.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Очистить содержимое</translation>
@@ -14169,9 +14010,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Reload Debugging Helpers</source>
         <translation>Перезагрузить помощники отладчика</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show %1 Column</source>
         <translation>Показать столбец %1</translation>
@@ -14264,9 +14102,6 @@ Affected are breakpoints %1</source>
         <source>Not enough free ports for QML debugging.</source>
         <translation>Недостаточно свободных портов для отладки QML.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Continue</source>
         <translation>Продолжить</translation>
@@ -14627,9 +14462,6 @@ Affected are breakpoints %1</source>
         <source>Show Application on Top</source>
         <translation>Показывать приложение поверх всех</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Use Alternating Row Colors</source>
         <translation>Использовать чередующиеся цвета строк</translation>
@@ -14826,9 +14658,6 @@ Affected are breakpoints %1</source>
         <source>Use Tooltips in Breakpoints View when Debugging</source>
         <translation>Подсказки в обзоре точек останова при отладке</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;новый путь к исходникам&gt;</translation>
@@ -14889,9 +14718,6 @@ Affected are breakpoints %1</source>
         <source>Qt Sources</source>
         <translation>Исходники Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (предыдущее)</translation>
@@ -14933,9 +14759,6 @@ Affected are breakpoints %1</source>
         <source>Abort Debugger</source>
         <translation>Прервать отладку</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Чтение %1...</translation>
@@ -15286,9 +15109,6 @@ You can choose between waiting longer or aborting debugging.</source>
         <source>Setting breakpoints...</source>
         <translation>Установка точек останова...</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -15456,23 +15276,14 @@ In this case, the value should be increased.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Keeps debugging all children after a fork.&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Продолжать отладку всех потомков после выполнения fork.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Global Debugger &amp;Log</source>
         <translation>Общий &amp;журнал отладки</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Нажмите Ctrl-&lt;Ввод&gt; для выполнения строки.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Adapter start failed.</source>
         <translation>Не удалось запустить адаптер.</translation>
@@ -15513,9 +15324,6 @@ In this case, the value should be increased.</source>
         <source>An error occurred when attempting to read from the Lldb process. For example, the process may not be running.</source>
         <translation>Ошибка при получении данных от процесса Lldb. Например, процесс уже перестал работать.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Upload failed: %1</source>
         <translation>Не удалось выгрузить: %1</translation>
@@ -15548,9 +15356,6 @@ In this case, the value should be increased.</source>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Use Debugging Helper</source>
         <translation>Использовать помощник отладчика</translation>
@@ -15587,9 +15392,6 @@ In this case, the value should be increased.</source>
         <source>Display string length:</source>
         <translation>Длина отображаемых строк:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger &amp;Log</source>
         <translation>&amp;Журнал отладки</translation>
@@ -15616,9 +15418,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Log File</source>
         <translation>Файл журнала</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>Память по регистру «%1» (0x%2)</translation>
@@ -15631,9 +15430,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Memory at 0x%1</source>
         <translation>Память с 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Название модуля</translation>
@@ -15658,9 +15454,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>End Address</source>
         <translation>Конечный адрес</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Не удалось создать временный файл: %1</translation>
@@ -15673,9 +15466,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Cannot open FiFo %1: %2</source>
         <translation>Не удалось открыть FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Running requested...</source>
         <translation>Потребовано выполнение...</translation>
@@ -15716,9 +15506,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>An unknown error in the Pdb process occurred.</source>
         <translation>У процесса Pdb возникла неопознанная ошибка.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>RO</source>
         <translation>RO</translation>
@@ -15751,9 +15538,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Format</source>
         <translation>Формат</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Вывод приложения не получен вовремя</translation>
@@ -15804,9 +15588,6 @@ Do you want to retry?</source>
         <source>QML Debugger: Connection failed.</source>
         <translation>QML Debugger: сбой соединения.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>Успешно:</translation>
@@ -15819,9 +15600,6 @@ Do you want to retry?</source>
         <source>Properties</source>
         <translation>Свойства</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>В виде ASCII символов</translation>
@@ -15886,16 +15664,10 @@ Do you want to retry?</source>
         <source>Edit bits %1...%2 of register %3</source>
         <translation>Изменение битов %1...%2 регистра %3</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Загрузка внешнего файла успешно завершена.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>Внутреннее имя</translation>
@@ -15916,9 +15688,6 @@ Do you want to retry?</source>
         <source>Open File &quot;%1&quot;</source>
         <translation>Открыть файл «%1»</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -16043,9 +15812,6 @@ Do you want to retry?</source>
         <source>Note that most distributions ship debug information in separate packages.</source>
         <translation>Большинство дистрибутивов поставляют отладочную информацию в отдельных пакетах.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Запуск отладчика</translation>
@@ -16161,9 +15927,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Recent:</source>
         <translation>&amp;Недавние:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching %1 CDB extension (&lt;code&gt;%2&lt;/code&gt; or &lt;code&gt;%3&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%4&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%5 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Удалённый CDB должен загрузить подходящее %1 расширение (&lt;code&gt;%2&lt;/code&gt; или &lt;code&gt;%3&lt;/code&gt;, соответственно).&lt;/p&gt;&lt;p&gt;Скопируйте его на удалённую машину и задайте переменной среды &lt;code&gt;%4&lt;/code&gt; путь к каталогу с расширением.&lt;/p&gt;&lt;p&gt;Запустите удалённых CDB так: &lt;code&gt;%5 &amp;lt;программа&amp;gt;&lt;/code&gt; при использовании протокола TCP/IP.&lt;/p&gt;&lt;p&gt;Введите следующие параметры соединения:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -16176,9 +15939,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Connection:</source>
         <translation>&amp;Подключение:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Запустить внешний отладчик</translation>
@@ -16203,9 +15963,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Inferior path:</source>
         <translation>Путь к п&amp;рограмме:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Use Local Symbol Cache</source>
         <translation>Использовать локальный кэш символов</translation>
@@ -16222,9 +15979,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Set up Symbol Paths</source>
         <translation>Задание путей к символам</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Терминал: не удалось открыть /dev/ptmx: %1</translation>
@@ -16253,9 +16007,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Terminal: Read failed: %1</source>
         <translation>Терминал: ошибка чтения: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Id&amp;nbsp;потока:</translation>
@@ -16328,9 +16079,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Misc Types</source>
         <translation>Другие типы</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>Подключение процессу ещё не началось</translation>
@@ -16387,9 +16135,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Attach</source>
         <translation>Подключить</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1.%2</source>
         <translation>%1,%2</translation>
@@ -16402,9 +16147,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Connection is not open.</source>
         <translation>Подключение не открыто.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal error: Invalid TCP/IP port specified %1.</source>
         <translation>Внутренняя ошибка: указан недопустимый порт TCP/IP %1.</translation>
@@ -16537,9 +16279,6 @@ You can choose another communication channel here, such as a serial line or cust
         <translation>Не удалось остановить отлаживаемый процесс:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Expression</source>
         <translation>Выражение</translation>
@@ -17048,9 +16787,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Locals and Expressions</source>
         <translation>Переменные и выражения</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Запуск удалённой отладки</translation>
@@ -17071,9 +16807,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Working directory:</source>
         <translation>Рабочий каталог:</translation>
     </message>
-</context>
-<context>
-    <name>Debuggger::Internal::ModulesHandler</name>
     <message>
         <source>Unknown</source>
         <translation>Неизвестная</translation>
@@ -17085,10 +16818,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>Yes</source>
         <translation>Да</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Отсутствует</translation>
     </message>
     <message>
         <source>Plain</source>
@@ -17393,7 +17122,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>DevelopmentTeam</name>
+    <name>::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation>%1 - Свободная провизионная команда: %2</translation>
@@ -17733,7 +17462,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Удалить символ</translation>
@@ -19016,14 +18745,7 @@ when they are not required, which will improve performance in most cases.</sourc
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Test</source>
         <translation>Google Test</translation>
@@ -19034,9 +18756,6 @@ See also Google Test settings.</source>
         <translation>Включение или выключение группировки тестов по каталогу или фильтру GTest.
 Смотрите также настройки Google Test.</translation>
     </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation>&lt;совпадает&gt;</translation>
@@ -19048,10 +18767,6 @@ See also Google Test settings.</source>
     <message>
         <source>Change GTest filter in use inside the settings.</source>
         <translation>Изменить используемый в настройках фильтр GTest.</translation>
-    </message>
-    <message>
-        <source>parameterized</source>
-        <translation>параметрический</translation>
     </message>
     <message>
         <source>typed</source>
@@ -21418,7 +21133,7 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -22093,14 +21808,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>&amp;Искать:</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>Открыть ссылку</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Открыть ссылку в новой странице</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Скопировать ссылку</translation>
     </message>
@@ -22162,7 +21869,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>HeobData</name>
+    <name>::Valgrind</name>
     <message>
         <source>Process %1</source>
         <translation>Процесс %1</translation>
@@ -22223,9 +21930,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Heob: Failure in process attach handshake (%1).</source>
         <translation>Heob: не удалось выполнить рукопожатие при подключении к процессу (%1).</translation>
     </message>
-</context>
-<context>
-    <name>HeobDialog</name>
     <message>
         <source>New</source>
         <translation>Создать</translation>
@@ -22490,9 +22194,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Open Image Viewer</source>
         <translation>Открыть просмотр изображений</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Файл:</translation>
@@ -22512,9 +22213,6 @@ Would you like to overwrite it?</source>
         <translation>%1 уже существует.
 Перезаписать его?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Экспорт %1</translation>
@@ -22535,9 +22233,6 @@ Would you like to overwrite it?</source>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>Не удалось записать файл «%1».</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Play Animation</source>
         <translation>Воспроизвести анимацию</translation>
@@ -22546,9 +22241,6 @@ Would you like to overwrite it?</source>
         <source>Pause Animation</source>
         <translation>Приостановить анимацию</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Формат изображения не поддерживается.</translation>
@@ -23579,7 +23271,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>JsonRpcMessageHandler</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation>Не удалось разобрать сообщение JSON «%1».</translation>
@@ -24544,7 +24236,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>Marketplace::Internal::QtMarketplaceWelcomePage</name>
+    <name>::Marketplace</name>
     <message>
         <source>Marketplace</source>
         <translation>Магазин</translation>
@@ -27323,7 +27015,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ProMessageHandler</name>
+    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
@@ -37380,11 +37072,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>Исходник JS для %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Анонимная функция</translation>
@@ -38220,9 +37908,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Split Initializer</source>
         <translation>Разделить инициализатор</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>Библиотека в %1</translation>
@@ -38289,7 +37974,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Текущий файл&gt;</translation>
@@ -39507,7 +39192,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
@@ -39612,9 +39297,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Qt Class Generation</source>
         <translation>Создание класса Qt</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Устройства этого типа не поддерживается профилем Qt.</translation>
@@ -39631,9 +39313,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>The kit has a Qt version, but no C++ compiler.</source>
         <translation>У комплекта задан профиль Qt, но нет компилятора C++.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Встраивание класса UI</translation>
@@ -39666,9 +39345,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Add Qt version #ifdef for module names</source>
         <translation>Добавлять #ifdef по версии Qt для имён модулей</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Примеры</translation>
@@ -39717,9 +39393,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Search in Tutorials...</source>
         <translation>Поиск по учебникам...</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>%1 (invalid)</source>
         <translation>%1 (неверный)</translation>
@@ -39860,9 +39533,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Incompatible Qt Versions</source>
         <translation>Несовместимые профили Qt</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Options &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
         <translation>Связать с Qt для автоматической регистрации профилей Qt и комплектов? Это можно сделать позже в меню Параметры &gt; Комплекты &gt; Профили Qt &gt; Связать с Qt.</translation>
@@ -39875,9 +39545,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>Полный путь каталогу bin профиля Qt, используемого в текущем проекте.&lt;br&gt;Возможно, нужен %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Название профиля:</translation>
@@ -39890,9 +39557,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Edit</source>
         <translation>Изменить</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
@@ -39909,16 +39573,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Register documentation:</source>
         <translation>Регистрация документации:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Журнал сборки помощника отладчика</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>If you plan to provide translations for your project&apos;s user interface via the Qt Linguist tool, please select a language here. A corresponding translation (.ts) file will be generated for you.</source>
         <translation>Укажите здесь язык, если планируете обеспечить проект переводами интерфейса утилитой Qt Linguist. Будет создан соответствующий файл перевода (.ts).</translation>
@@ -39935,9 +39593,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Translation file:</source>
         <translation>Файл перевода:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>QML debugging and profiling:</source>
         <translation>Отладка и профилирование QML:</translation>
@@ -39946,9 +39601,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Might make your application vulnerable.&lt;br/&gt;Only use in a safe environment.</source>
         <translation>Может сделать приложение уязвимым.&lt;br/&gt;Используйте только в безопасной среде.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Профиль Qt</translation>
@@ -40049,9 +39701,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Path to the qmake executable</source>
         <translation>Путь к программе qmake</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt Quick Compiler:</source>
         <translation>Компилятор Qt Quick:</translation>
@@ -40060,9 +39709,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>Отключает отладку QML. Профилирование QML продолжит работать.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt Version</source>
         <translation>Профиль Qt</translation>
@@ -40071,23 +39717,17 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Location of qmake</source>
         <translation>Размещение qmake</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Не удалось найти фабрику для qmake: «%1»</translation>
     </message>
 </context>
 <context>
-    <name>QtTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt Test</translation>
     </message>
-</context>
-<context>
-    <name>QtTestTreeItem</name>
     <message>
         <source>inherited</source>
         <translation>наследовано</translation>
@@ -40199,14 +39839,11 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QuickTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation>Тест Quick</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;безымянный&gt;</translation>
@@ -40290,9 +39927,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Deploy to Remote Linux Host</source>
         <translation>Развернуть на удалённую машину с Linux</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Нет необходимости в развёртывании. Пропущено.</translation>
@@ -40321,9 +39955,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Connection error: %1</source>
         <translation>Ошибка подключения: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Невозможно развернуть: %1</translation>
@@ -40340,9 +39971,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Deploy step finished.</source>
         <translation>Этап развёртывания завершён.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Ошибка подключения: %1</translation>
@@ -40351,9 +39979,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Installing package failed.</source>
         <translation>Не удалось установить пакет.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Успешно отправлен файл пакета.</translation>
@@ -40366,9 +39991,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Package installed.</source>
         <translation>Пакет установлен.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Failed to retrieve remote timestamp for file &quot;%1&quot;. Incremental deployment will not work. Error message was: %2</source>
         <translation>Не удалось получить временную метку внешнего файла «%1». Инкрементальное развёртывание не будет работать. Ошибка: %2</translation>
@@ -40401,9 +40023,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Remote chmod failed for file &quot;%1&quot;: %2</source>
         <translation>Не удалось выполнить внешний chmod для файла «%1»: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Инкрементальное развёртывание</translation>
@@ -40412,9 +40031,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Upload files via SFTP</source>
         <translation>Отправить файлы через SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Тип авторизации:</translation>
@@ -40491,16 +40107,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Specific &amp;key</source>
         <translation>&amp;Особый ключ</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Настройка новой конфигурации устройства на базе Linux</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Итог</translation>
@@ -40511,9 +40121,6 @@ In addition, device connectivity will be tested.</source>
         <translation>Будет создана новая конфигурация устройства.
 А заодно произведена проверка качества соединения устройства.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation>Установка ключа</translation>
@@ -40544,16 +40151,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Private key file:</source>
         <translation>Файл секретного ключа:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Подключение</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Подключение к узлу...</translation>
@@ -40642,9 +40243,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Checking if specified ports are available...</source>
         <translation>Проверка на доступность указанных портов...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation></translation>
@@ -40661,9 +40259,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>The username to log into the device:</source>
         <translation>Имя пользователя для входа в устройство:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Обычный Linux</translation>
@@ -40688,9 +40283,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Error starting remote shell.</source>
         <translation>Ошибка запуска удалённой оболочки.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Подготовка подключения SFTP...</translation>
@@ -40707,9 +40299,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Failed to upload package: %2</source>
         <translation>Не удалось отправить пакет: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote executable:</source>
         <translation>Внешняя программа:</translation>
@@ -40731,9 +40320,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Run &quot;%1&quot;</source>
         <translation>Запустить «%1»</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Ошибка: Нет устройства</translation>
@@ -40754,9 +40340,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Remote stderr was: &quot;%1&quot;</source>
         <translation>Содержимое внешнего stderr: «%1»</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on device:</source>
         <translation>Программа на устройстве:</translation>
@@ -40769,9 +40352,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Executable on host:</source>
         <translation>Программа на машине:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Failed to create remote directories: %1</source>
         <translation>Не удалось создать внешние каталоги: %1</translation>
@@ -40788,16 +40368,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>rsync failed with exit code %1.</source>
         <translation>rsync завершился с кодом %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (по умолчанию)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Command:</source>
         <translation>Команда:</translation>
@@ -40846,9 +40420,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>You need to add an install statement to your CMakeLists.txt file for deployment to work.</source>
         <translation>Для работы развёртывания необходимо добавить оператор установки в файл CMakeLists.txt.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Выбор файла открытого ключа</translation>
@@ -40869,9 +40440,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Unexpected output from remote process: &quot;%1&quot;</source>
         <translation>Неожиданный вывод удалённого процесса: «%1»</translation>
@@ -40896,9 +40464,6 @@ If you do not have a private key yet, you can also create one here.</source>
             <numerusform>Внешняя файловая система имеет %n мегабайтов свободного пространства.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote path to check for free space:</source>
         <translation>Внешний путь для проверки свободного места:</translation>
@@ -40915,9 +40480,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Check for free disk space</source>
         <translation>Проверить место на диске</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Командная строка не задана.</translation>
@@ -40938,9 +40500,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Remote command finished successfully.</source>
         <translation>Внешняя команда успешно завершилась.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Command line:</source>
         <translation>Командная строка:</translation>
@@ -40949,9 +40508,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Run custom remote command</source>
         <translation>Выполнить особую внешнюю команду</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Чистая среда</translation>
@@ -40960,9 +40516,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>System Environment</source>
         <translation>Системная среда</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Загрузить среду устройства</translation>
@@ -40987,9 +40540,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Fetching environment failed: %1</source>
         <translation>Не удалось загрузить окружение: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>Попытка уничтожить «%1» на внешнем устройстве...</translation>
@@ -41006,16 +40556,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Kill current application instance</source>
         <translation>Уничтожение текущего экземпляра приложения</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Код завершения %1. stderr:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Flags:</source>
         <translation>Флаги:</translation>
@@ -41024,9 +40568,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Deploy files via rsync</source>
         <translation>Установка файлов через rsync</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Ошибка открытого ключа: %1</translation>
@@ -41035,9 +40576,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Key deployment failed: %1.</source>
         <translation>Не удалось установить ключ: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Пакет успешно создан.</translation>
@@ -41102,9 +40640,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Create tarball</source>
         <translation>Создание тарбола</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Не найден этап сборки тарбола.</translation>
@@ -41113,9 +40648,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Deploy tarball via SFTP upload</source>
         <translation>Установить тарбол через загрузку по SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>X11 Forwarding</source>
         <translation>Проброска портов X11</translation>
@@ -41130,17 +40662,6 @@ If you do not have a private key yet, you can also create one here.</source>
     <message>
         <source>Reset View</source>
         <translation>Сбросить вид</translation>
-    </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Префикс:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Язык:</translation>
     </message>
 </context>
 <context>
@@ -41185,9 +40706,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Could not copy the file to %1.</source>
         <translation>Не удалось скопировать файл в %1.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>От&amp;менить</translation>
@@ -41211,10 +40729,6 @@ If you do not have a private key yet, you can also create one here.</source>
     <message>
         <source>Recheck Existence of Referenced Files</source>
         <translation>Перепроверить наличие необходимых файлов</translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
-        <translation>Удалить отсутствующие файлы</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -41249,10 +40763,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <translation>Скопировать URL «%1»</translation>
     </message>
     <message>
-        <source>Add Prefix</source>
-        <translation>Добавление префикса</translation>
-    </message>
-    <message>
         <source>Remove Prefix</source>
         <translation>Удаление префикса</translation>
     </message>
@@ -41272,9 +40782,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Rename Prefix</source>
         <translation>Переименование префикса</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Rename File...</source>
         <translation>Переименовать файл...</translation>
@@ -41287,9 +40794,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Sort Alphabetically</source>
         <translation>Сортировать по алфавиту</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Открытие файла</translation>
@@ -41298,9 +40802,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>All files (*)</source>
         <translation>Все файлы (*)</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Пустое имя файла.</translation>
@@ -41317,9 +40818,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Cannot save file.</source>
         <translation>Не удалось сохранить файл.</translation>
     </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>Префикс %1: %2</translation>
@@ -41355,11 +40853,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation>Запустить без развёртывания</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::ScxmlEditor</name>
@@ -42983,7 +42477,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>TestTreeItem</name>
+    <name>::Autotest</name>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (нет)</translation>
@@ -45824,7 +45318,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Filter</source>
         <translation>Фильтр</translation>
@@ -46903,9 +46397,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Calls</source>
         <translation>Вызовы</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Предыдущая команда ещё не завершена.</translation>
@@ -46938,9 +46429,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Callgrind unpaused.</source>
         <translation>Callgrind продолжает работу.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Функция:</translation>
@@ -47013,9 +46501,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Incl. Cost: %1</source>
         <translation>Полная цена: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 в %2</translation>
@@ -47024,9 +46509,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>%1:%2 in %3</source>
         <translation>%1: %2 в %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Последний уровень</translation>
@@ -47083,9 +46565,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Position:</source>
         <translation>Положение:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -47094,9 +46573,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>in %1</source>
         <translation>в %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Профайлер функций Valgrind использует утилиту Callgrind для записи вызовов функций при работе программы.</translation>
@@ -47265,9 +46741,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Parsing Profile Data...</source>
         <translation>Обработка данных профилирования...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Профилирование</translation>
@@ -47276,16 +46749,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Profiling %1</source>
         <translation>Профилирование %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Игнорировать ошибку</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Внешние ошибки</translation>
@@ -47339,10 +46806,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
 When a problem is detected, the application is interrupted and can be debugged.</source>
         <translation>Анализатор памяти Valgrind с GDB использует утилиту Memcheck для поиска утечек памяти.
 При обнаружении проблем программа останавливается для отладки.</translation>
-    </message>
-    <message>
-        <source>Heob</source>
-        <translation>Heob</translation>
     </message>
     <message>
         <source>Ctrl+Alt+H</source>
@@ -47448,9 +46911,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>XML Files (*.xml);;All Files (*)</source>
         <translation>Файлы XML (*.xml);;Все файлы (*)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation>Список исключений:</translation>
@@ -47467,9 +46927,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Save Suppression</source>
         <translation>Сохранить исключения</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Общие настройки</translation>
@@ -47647,16 +47104,10 @@ With cache simulation, further event counters are enabled:
         <source>KCachegrind executable:</source>
         <translation>Программа KCachegrind:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Настройки Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Параметры Valgrind: %1</translation>
@@ -47691,16 +47142,10 @@ With cache simulation, further event counters are enabled:
         <translation>Процесс завершился с кодом %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Все функции с полной ценой более %1 (%2 скрыто)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer на %1:</translation>
@@ -47709,9 +47154,6 @@ With cache simulation, further event counters are enabled:
         <source>LogServer on %1:</source>
         <translation>LogServer на %1:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Размещение:</translation>
@@ -47720,9 +47162,6 @@ With cache simulation, further event counters are enabled:
         <source>Instruction pointer:</source>
         <translation>Указатель инструкций:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Проблема</translation>
@@ -47731,9 +47170,6 @@ With cache simulation, further event counters are enabled:
         <source>%1 in function %2</source>
         <translation>%1 в функции %2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Не удалось разобрать шестнадцатеричное число из «%1» (%2)</translation>
@@ -47786,9 +47222,6 @@ With cache simulation, further event counters are enabled:
         <source>Unexpected exception caught during parsing.</source>
         <translation>Возникло неожиданное исключение при разборе.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Описание</translation>

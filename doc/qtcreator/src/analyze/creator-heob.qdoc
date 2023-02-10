@@ -44,7 +44,7 @@
 
     \image qtcreator-heob.png
 
-    Heob raises an access violation on buffer overruns and provides stack traces
+    Heob raises an access violation on buffer overruns and records stack traces
     of the offending instruction and buffer allocation. The results are
     displayed when Heob exits normally.
 

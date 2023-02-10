@@ -66,8 +66,8 @@
     \l{Searching with the Locator}{locator}. Enter the line number and column
     number in the locator, separated by a colon (:).
 
-    \note Other convenient ways of navigating in \QC are provided
-    by the \l{Browsing Project Contents}{sidebars}.
+    \note You can also use the \l{Browsing Project Contents}{sidebars} to
+    move around in \QC.
 
     \if defined(qtcreator)
     \section2 Selecting Parse Context

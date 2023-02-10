@@ -238,7 +238,7 @@
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation type="vanished">Компілятор &apos;%1&apos; (%2) не може генерувати код для Qt версії &apos;%3&apos; (%4).</translation>
@@ -1486,7 +1486,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Відкрити посилання</translation>
@@ -3834,9 +3834,6 @@ Flags: %3</source>
         <source>Close Debugging Session</source>
         <translation>Закрити сеанс зневадження</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Виберіть початкову адресу</translation>
@@ -3849,9 +3846,6 @@ Flags: %3</source>
         <source>Enter an address: </source>
         <translation type="vanished">Введіть адресу:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>Завантажити файл Core</translation>
@@ -3896,9 +3890,6 @@ Flags: %3</source>
         <source>Override &amp;start script:</source>
         <translation>Інший скрипт &amp;запуску:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Позначений файл:</translation>
@@ -4152,9 +4143,6 @@ Flags: %3</source>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
         <translation>Точка перепину спрацює лише у вказаних нитках.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>File name and line number</source>
         <translation>Файл та номер рядка</translation>
@@ -4325,9 +4313,6 @@ This feature is only available for GDB.</source>
         <source>&amp;Message:</source>
         <translation>&amp;Повідомлення:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Вибір теки для локального кешу</translation>
@@ -4360,9 +4345,6 @@ This feature is only available for GDB.</source>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation type="vanished">Не вдалось створити теку &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Виключна ситуація C++</translation>
@@ -4387,9 +4369,6 @@ This feature is only available for GDB.</source>
         <source>Output:</source>
         <translation>Виведення:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
         <translation type="vanished">Не вдалось запустити консольний процес &apos;%1&apos;.</translation>
@@ -4482,16 +4461,10 @@ This feature is only available for GDB.</source>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation type="vanished">&quot;Оберіть віджет для нагляду&quot;: Стан  &apos;%1&apos; не підтримується.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -4541,9 +4514,6 @@ This feature is only available for GDB.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempts to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Намагатись підправляти розташування точки перепину, що основана на файлі та номері рядка, який є коментарем або для якого код не генерується. Виправлення основане на моделі коду.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation type="vanished">Сервер символів...</translation>
@@ -4584,9 +4554,6 @@ This feature is only available for GDB.</source>
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation>Налаштування шляхів символів, які використовуються для знаходження файлів із символами зневадження.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Очистити зміст</translation>
@@ -4599,9 +4566,6 @@ This feature is only available for GDB.</source>
         <source>Reload Debugging Helpers</source>
         <translation>Перезавантажити помічники зневадження</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>Функцію не обрано.</translation>
@@ -5046,9 +5010,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <source>Symbols in &quot;%1&quot;</source>
         <translation type="vanished">Символи в &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Properties...</source>
         <translation type="vanished">Властивості зневаджувача...</translation>
@@ -5349,9 +5310,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <source>Create Full Backtrace</source>
         <translation>Створити повний стек викликів</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;новий шлях джерела&gt;</translation>
@@ -5424,16 +5382,10 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <source>Qt Sources</source>
         <translation>Код Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Previous</source>
         <translation type="vanished">Назад</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message numerus="yes">
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation type="vanished">
@@ -5868,9 +5820,6 @@ You can choose between waiting longer or aborting debugging.</source>
         <translation>Збій підключення до віддаленого сервера:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Загальне</translation>
@@ -6084,23 +6033,14 @@ markers in the source code editor.</source>
         <source>GDB</source>
         <translation>GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation type="vanished">Фатальне завершення рушія. Несумісний виконуваний модуль або помилка IPC.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Натисніть Ctrl-&lt;Return&gt;, щоб виконати рядок.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation type="vanished">збій запуску qtcreator-lldb: %1</translation>
@@ -6133,9 +6073,6 @@ markers in the source code editor.</source>
         <source>Log File</source>
         <translation>Файл журналу</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Неможливо відобразити зміст пам&apos;яті, оскільки не встановлено додатку для перегляду двійкових даних.</translation>
@@ -6148,9 +6085,6 @@ markers in the source code editor.</source>
         <source>No Memory Viewer Available</source>
         <translation>Переглядач пам&apos;яті не доступний</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Умова:</translation>
@@ -6167,9 +6101,6 @@ markers in the source code editor.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Неможливо відкрити FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation type="vanished">Неможливо запустити pdb &apos;%1&apos;: %2</translation>
@@ -6234,9 +6165,6 @@ markers in the source code editor.</source>
         <source>An unknown error in the Pdb process occurred. </source>
         <translation type="vanished">З процесом Pdb сталась невідома помилка. </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation type="vanished">&lt;p&gt;Сталася не оброблена виключна ситуація:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -6257,9 +6185,6 @@ markers in the source code editor.</source>
         <source>Uncaught Exception</source>
         <translation type="vanished">Необроблена виключна ситуація</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Не вдалось створити підлеглий рушій зневадження, що необхідний для комбінованого зневадження QML/C++: %1</translation>
@@ -6272,9 +6197,6 @@ markers in the source code editor.</source>
         <source>QML debugger activated</source>
         <translation>Зневаджувач QML активовано</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Не отримано вчасно жодного виведення з програми</translation>
@@ -6343,9 +6265,6 @@ Do you want to retry?</source>
         <source>QML Debugger disconnected.</source>
         <translation>Зневаджувач QML відключено.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>Зміст як символи ASCII</translation>
@@ -6390,9 +6309,6 @@ Do you want to retry?</source>
         <source>Value (Base %1)</source>
         <translation type="vanished">Значення (основа %1)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation type="vanished">Пам&apos;ять з регістру &apos;%1&apos; (0x%2)</translation>
@@ -6481,9 +6397,6 @@ Do you want to retry?</source>
         <source>Note that most distributions ship debug information in separate packages.</source>
         <translation>Майте на увазі, що більшість дистрибутивів постачають зневаджувальну інформацію в окремих пакунках.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Віддалений CDB має завантажити відповідне розширення Qt Creator для CDB (&lt;code&gt;%1&lt;/code&gt; або &lt;code&gt;%2&lt;/code&gt;, відповідно).&lt;/p&gt;&lt;p&gt;Скопіюйте його на віддалену машину та встановіть в змінній середовища &lt;code&gt;%3&lt;/code&gt; шлях до теки з ним.&lt;/p&gt;&lt;p&gt;Запустіть віддалений CDB так: &lt;code&gt;%4 &amp;lt;виконуваний модуль&amp;gt;&lt;/code&gt;, щоб використати TCP/IP в якості комунікаційного протоколу.&lt;/p&gt;&lt;p&gt;Введіть параметри підключення так:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -6496,9 +6409,6 @@ Do you want to retry?</source>
         <source>&amp;Connection:</source>
         <translation>&amp;Підключення:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Id&amp;nbsp;нитки:</translation>
@@ -6547,9 +6457,6 @@ Do you want to retry?</source>
         <source>Details</source>
         <translation>Деталі</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -6847,9 +6754,6 @@ Do you want to retry?</source>
         <source>%1 Object at Unknown Address</source>
         <translation>Об&apos;єкт %1 за невідомою адресою</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Зневадження складних командних рядків під Windows наразі не підтримується.</translation>
@@ -7116,41 +7020,6 @@ Rebuilding the project might help.</source>
     <message>
         <source>Easing overshoot for a back curve.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>EditorManager</name>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation type="vanished">Наступний відкритий документ в історії</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation type="vanished">Попередній відкритий документ в історії</translation>
-    </message>
-    <message>
-        <source>Go Back</source>
-        <translation type="vanished">Йти назад</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation type="vanished">Йти вперед</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation type="vanished">Розбити</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation type="vanished">Розбити вертикально</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation type="vanished">Відкрити в новому вікні</translation>
-    </message>
-    <message>
-        <source>Close Document</source>
-        <translation type="vanished">Закрити документ</translation>
     </message>
 </context>
 <context>
@@ -7701,13 +7570,6 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
-    <message>
-        <source>Open File</source>
-        <translation type="vanished">Відкрити файл</translation>
-    </message>
-</context>
-<context>
     <name>FilterNameDialogClass</name>
     <message>
         <source>Add Filter Name</source>
@@ -7756,25 +7618,10 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
+    <name>::GlslEditor</name>
     <message>
         <source>New %1</source>
         <translation type="vanished">Новий %1</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
-    <message>
-        <source>GLSL</source>
-        <extracomment>GLSL sub-menu in the Tools menu</extracomment>
-        <translation type="vanished">GLSL</translation>
     </message>
     <message>
         <source>Creates a fragment shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
@@ -10072,14 +9919,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Індексування документації</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>Відкрити посилання</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Відкрити посилання в новій сторінці</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Копіювати посилання</translation>
     </message>
@@ -10161,9 +10000,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Pause Animation</source>
         <translation>Призупинити анімацію</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Show Background</source>
         <translation>Показувати тло</translation>
@@ -10175,21 +10011,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Export as Image</source>
         <translation>Експортувати як зображення</translation>
-    </message>
-</context>
-<context>
-    <name>IndexWindow</name>
-    <message>
-        <source>&amp;Look for:</source>
-        <translation type="vanished">&amp;Шукати:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation type="vanished">Відкрити посилання</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation type="vanished">Відкрити посилання в новій сторінці</translation>
     </message>
 </context>
 <context>
@@ -11963,27 +11784,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Деталі</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Деталі помилки</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Встановлені додатки</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Деталі додатку %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Помилки додатку %1</translation>
-    </message>
+    <name>::Core</name>
 </context>
 <context>
     <name>::ExtensionSystem</name>
@@ -13692,10 +13493,6 @@ to project &quot;%2&quot;.</source>
         <translation>Нещодавні п&amp;роекти</translation>
     </message>
     <message>
-        <source>Sessions</source>
-        <translation type="vanished">Сесії</translation>
-    </message>
-    <message>
         <source>Close Project</source>
         <translation>Закрити проект</translation>
     </message>
@@ -14255,10 +14052,6 @@ Do you want to ignore them?</source>
     <message>
         <source>Delete %1 from file system?</source>
         <translation>Видалити %1 з файлової системи?</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="vanished">Новий проект</translation>
     </message>
     <message>
         <source>New Subproject</source>
@@ -15338,7 +15131,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Поточний файл&gt;</translation>
@@ -15587,7 +15380,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Додати</translation>
@@ -16773,7 +16566,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QtSuppport</name>
+    <name>::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -17019,16 +16812,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Compiler:</source>
         <translation type="vanished">Компілятор:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation type="vanished">Починаючи роботу</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;вкажіть назву&gt;</translation>
@@ -17052,10 +16839,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Наступні ABI наразі не підтримуються:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation type="vanished">Збірка помічників</translation>
     </message>
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
@@ -17142,9 +16925,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>&lt;i&gt;Cannot be compiled.&lt;/i&gt;</source>
         <translation type="vanished">&lt;i&gt;Неможливо скомпілювати.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Назва версії:</translation>
@@ -17157,9 +16937,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Edit</source>
         <translation>Редагувати</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation type="vanished">Назва</translation>
@@ -17184,9 +16961,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Clean Up</source>
         <translation>Підчистити</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;невідома&gt;</translation>
@@ -17374,9 +17148,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Deploy to Remote Linux Host</source>
         <translation>Розгорнути на віддалений вузол Linux</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Жодної дії для розгортання не потрібно. Пропускаємо.</translation>
@@ -17417,9 +17188,6 @@ Is the device connected and set up for network access?</source>
         <source>Connection error: %1</source>
         <translation>Помилка з&apos;єднання: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Неможливо розгорнути: %1</translation>
@@ -17436,9 +17204,6 @@ Is the device connected and set up for network access?</source>
         <source>Deploy step finished.</source>
         <translation>Крок розгортання завершено.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Збій з&apos;єднання: %1</translation>
@@ -17447,9 +17212,6 @@ Is the device connected and set up for network access?</source>
         <source>Installing package failed.</source>
         <translation>Збій встановлення пакунка.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Успішно завантажено файл пакунка.</translation>
@@ -17462,9 +17224,6 @@ Is the device connected and set up for network access?</source>
         <source>Package installed.</source>
         <translation>Пакунок встановлено.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Ігнорувати відсутні файли</translation>
@@ -17477,9 +17236,6 @@ Is the device connected and set up for network access?</source>
         <source>Create tarball:</source>
         <translation>Створити архів tar:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Збій ініціалізації SFTP: %1</translation>
@@ -17540,23 +17296,14 @@ Is the device connected and set up for network access?</source>
         <source>Uploading file &apos;%1&apos;...</source>
         <translation type="vanished">Завантаження файлу &apos;%1&apos;...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Завантажити файли через SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Налаштування нової конфігурації звичайного Linux-пристрою</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation type="vanished">Налаштування завершено</translation>
@@ -17571,9 +17318,6 @@ In addition, device connectivity will be tested.</source>
         <translation>Зараз буде створено нова конфігурація пристрою.
 Окрім того буде перевірено зв&apos;язок з пристроєм.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation type="vanished">Дані підключення</translation>
@@ -17590,9 +17334,6 @@ In addition, device connectivity will be tested.</source>
         <source>Generic Linux Device</source>
         <translation>Звичайний Linux-пристрій</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Підключення до вузла...</translation>
@@ -17663,16 +17404,10 @@ In addition, device connectivity will be tested.</source>
 </source>
         <translation type="vanished">Наступні вказані порти вже використовуються: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Виконати віддалену користувацьку команду</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Інкрементальне розгортання</translation>
@@ -17681,9 +17416,6 @@ In addition, device connectivity will be tested.</source>
         <source>Command line:</source>
         <translation>Рядок команди:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Підготовка підключення SFTP...</translation>
@@ -17708,9 +17440,6 @@ In addition, device connectivity will be tested.</source>
         <source>Failed to upload package: %2</source>
         <translation>Збій завантаження пакунка %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation type="vanished">Помилка запуску віддаленого процесу: %1</translation>
@@ -17741,9 +17470,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation type="vanished">
 Віддалений stderr: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(на віддаленому звичайному вузлі Linux)</translation>
@@ -17764,9 +17490,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>No analyzer tool selected.</source>
         <translation type="vanished">Інструмент для аналізу не обрано.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device test finished successfully.</source>
         <translation type="vanished">Тест пристрою завершено вдало.</translation>
@@ -17795,9 +17518,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Командний рядок не задано.</translation>
@@ -17826,9 +17546,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Remote command finished successfully.</source>
         <translation>Віддалена команда завершилась успішно.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Don&apos;t know what to run.</source>
         <translation type="vanished">Не знаю, що запускати.</translation>
@@ -17842,9 +17559,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation>Запустити на віддаленому пристрої</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>Виконуваний модуль на вузлі:</translation>
@@ -17881,9 +17595,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Remote path not set</source>
         <translation>Віддалений шлях не задано</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Помилка публічного ключа: %1</translation>
@@ -17892,9 +17603,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Key deployment failed: %1.</source>
         <translation>Збій розгортання ключа: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Створення пакунка завершено вдало.</translation>
@@ -17967,9 +17675,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Create tarball</source>
         <translation>Створити архів tar</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Відсутній крок для створення архіву tar.</translation>
@@ -18012,10 +17717,6 @@ Remote stderr was: &apos;%1&apos;</source>
     <message>
         <source>Remove Prefix...</source>
         <translation>Видалити префікс...</translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
-        <translation>Видалити відсутні файли</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -18069,9 +17770,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Recheck existence of referenced files</source>
         <translation type="vanished">Повторно перевірити існування файлів, на які посилаємось</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Rename File...</source>
         <translation>Перейменувати файл...</translation>
@@ -18478,13 +18176,6 @@ with a password, which you can enter below.</source>
     <message>
         <source>Advanced</source>
         <translation type="vanished">Додатково</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Збірка та запуск</translation>
     </message>
 </context>
 <context>
@@ -19602,7 +19293,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Оберіть тему</translation>
@@ -20492,9 +20183,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Calls</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Попередня команда ще не завершилась.</translation>
@@ -20531,16 +20219,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Downloading remote profile data...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>Розбір даних профілювання...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Файл:</translation>
@@ -20605,9 +20287,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Incl. Cost: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 в %2</translation>
@@ -20616,9 +20295,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>%1:%2 in %3</source>
         <translation>%1:%2 в %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation type="unfinished"></translation>
@@ -20631,23 +20307,14 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Cache</source>
         <translation>Кеш</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>в %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Filter...</source>
         <translation type="vanished">Фільтр...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation type="vanished">Копіювати обране</translation>
@@ -20656,9 +20323,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Suppress Error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation type="unfinished"></translation>
@@ -20780,9 +20444,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>XML Files (*.xml);;All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation type="unfinished"></translation>
@@ -20951,16 +20612,10 @@ With cache simulation, further event counters are enabled:
         <source>Collects information for system call times.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Instruction pointer:</source>
         <translation type="unfinished"></translation>
@@ -20969,9 +20624,6 @@ With cache simulation, further event counters are enabled:
         <source>Object:</source>
         <translation>Об&apos;єкт:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation type="unfinished"></translation>
@@ -20984,9 +20636,6 @@ With cache simulation, further event counters are enabled:
         <source>Thread ID</source>
         <translation type="vanished">ID нитки</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation type="unfinished"></translation>
@@ -21039,9 +20688,6 @@ With cache simulation, further event counters are enabled:
         <source>Unexpected exception caught during parsing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Опис</translation>
@@ -21406,7 +21052,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -21470,9 +21116,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation type="vanished">Завжди додавати точку перепину на функції &lt;i&gt;%1()&lt;/i&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Запустити віддалений рушій</translation>
@@ -21739,9 +21382,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>&amp;Check host key</source>
         <translation>П&amp;еревірити ключ вузла</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The name to identify this configuration:</source>
         <translation>Назва для цієї конфігурації:</translation>
@@ -21778,16 +21418,10 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>The username to log into the device:</source>
         <translation>Ім&apos;я користувача для входу на пристрій:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation type="vanished">Тест пристрою</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation type="vanished">Форма</translation>
@@ -22418,7 +22052,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Develop</source>
         <translation type="vanished">Розробка</translation>
@@ -22445,11 +22079,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>examples</name>
-    <message>
-        <source>Examples</source>
-        <translation type="vanished">Приклади</translation>
-    </message>
+    <name>::QtSupport</name>
     <message>
         <source>Search in Examples...</source>
         <translation>Шукати в прикладах...</translation>
@@ -22507,11 +22137,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>tutorials</name>
-    <message>
-        <source>Tutorials</source>
-        <translation type="vanished">Посібники</translation>
-    </message>
+    <name>::QtSupport</name>
     <message>
         <source>Search in Tutorials...</source>
         <translation>Шукати в посібниках...</translation>
@@ -22540,11 +22166,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
-    <message>
-        <source>Clone</source>
-        <translation>Клонувати</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Rename</source>
         <translation>Перейменувати</translation>
@@ -22553,9 +22175,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Delete</source>
         <translation>Видалити</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (остання сесія)</translation>
@@ -22908,7 +22527,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -23262,13 +22881,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
-    <message>
-        <source>Anonymous Function</source>
-        <translation type="vanished">Анонімна функція</translation>
-    </message>
-</context>
-<context>
     <name>::Git</name>
     <message>
         <source>untracked</source>
@@ -23499,9 +23111,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Failed to Open Project</source>
         <translation type="vanished">Збій відкриття проекту</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MeeGo/Harmattan</source>
         <translation type="vanished">MeeGo/Harmattan</translation>
@@ -26044,9 +25653,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Add Breakpoint</source>
         <translation>Додати точку перепину</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Запустити зневаджувач</translation>
@@ -26115,9 +25721,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>&amp;Recent:</source>
         <translation>&amp;Нещодавні:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Manage...</source>
         <translation type="vanished">Управління...</translation>
@@ -26142,9 +25745,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Debugger for &quot;%1&quot;</source>
         <translation type="vanished">Зневаджувач для &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation type="vanished">&amp;Рушій:</translation>
@@ -26153,9 +25753,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>&amp;Binary:</source>
         <translation type="vanished">&amp;Виконуваний модуль:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Зневаджувач не задано.</translation>
@@ -26244,18 +25841,12 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>No kit found.</source>
         <translation type="vanished">Комплект не знайдено.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:
 </source>
         <translation type="vanished">Збій запуску виконуваного модуля:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>Під&apos;єднано до процесу %1.</translation>
@@ -26268,9 +25859,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Failed to attach to application: %1</source>
         <translation>Збій підключення до програми: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Open Qt Options</source>
         <translation type="vanished">Відкрити опції Qt</translation>
@@ -26295,9 +25883,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation type="vanished">Помічник зневадження застосовується для зручного форматування деяких типів даних Qt та стандартної бібліотеки. Він має бути скомпільований окремо для кожної версії Qt. На сторінці налаштувань &quot;Збірка та запуск&quot;, оберіть версію Qt, розгорніть розділ &quot;Детально&quot; та клацніть &quot;Зібрати все&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Error Loading Core File</source>
         <translation>Помилка завантаження файлу Core</translation>
@@ -26394,9 +25979,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Interrupting not possible</source>
         <translation>Переривання не можливе</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>Віддалена помилка</translation>
@@ -26539,9 +26121,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>&lt;unknown&gt;</source>
         <translation type="vanished">&lt;невідомий&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation>Оновити список модулів</translation>
@@ -26598,9 +26177,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Показати залежності &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation type="vanished">Підключення до сервера зневадження на %1: %2</translation>
@@ -26648,9 +26224,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Error: (%1) %2</source>
         <translation type="vanished">Помилка: (%1) %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success: </source>
         <translation type="vanished">Успішно:</translation>
@@ -26663,9 +26236,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Properties</source>
         <translation>Властивості</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation type="vanished">Неможливо змінити атрибут %1 в рядку %2, стовпець %3 без перезавантаження програми QML. </translation>
@@ -26690,9 +26260,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Reload QML</source>
         <translation type="vanished">Перезавантажити QML</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>Перезавантажити список регістрів</translation>
@@ -26713,9 +26280,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Open Disassembler</source>
         <translation>Відкрити дизасемблер</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Create Snapshot</source>
         <translation>Створити знімок</translation>
@@ -26724,9 +26288,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Remove Snapshot</source>
         <translation>Видалити знімок</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Data</source>
         <translation>Перезавантажити дані</translation>
@@ -26739,9 +26300,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Відкрити файл &quot;%1&quot;&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Function:</source>
         <translation>Функція:</translation>
@@ -26794,9 +26352,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Frame #%1 (%2)</source>
         <translation>Кадр #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -27388,9 +26943,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation type="vanished">Неможливо пересунути нову теку debian до &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation type="vanished">Перевірка чи потрібно запустити Qemu...</translation>
@@ -27411,16 +26963,10 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
         <translation type="vanished">Неможливо розгорнути: Ви бажаєте розгорнути до Qemu, але він не увімкнений для цієї версії Qt.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Qemu, if necessary</source>
         <translation type="vanished">Запуск Qemu, якщо необхідно</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Add Packaging Files to Project</source>
         <translation type="vanished">Додати файли пакування до проекту</translation>
@@ -28165,16 +27711,10 @@ cannot be found in the path.</source>
         <source>Run %1</source>
         <translation>Запустити %1</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Custom Executable</source>
         <translation>Користувацький виконуваний модуль</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>Бібліотека Qt, що буде вживатись усіма проектами, що використовують цей комплект.&lt;br&gt;Версія Qt необхідна для проектів на базі qmake та опціональна для інших систем збірки.</translation>
@@ -28191,9 +27731,6 @@ cannot be found in the path.</source>
         <source>%1 (invalid)</source>
         <translation>%1 (неправильний)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The version string of the current Qt version.</source>
         <translation>Рядок версії поточної Qt.</translation>
@@ -28293,9 +27830,6 @@ cannot be found in the path.</source>
         <source>Deploy Public Key...</source>
         <translation>Розгорнути файл публічного ключа...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Віддалений процес завершився аварійно.</translation>
@@ -28332,16 +27866,10 @@ cannot be found in the path.</source>
         <source>Cannot check for free disk space: &apos;%1&apos; is not an absolute path.</source>
         <translation type="vanished">Неможливо перевірити вільний дисковий простір: &apos;%1&apos; не є абсолютним шляхом.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>Мб</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Перевірити вільний простір на диску</translation>
@@ -28356,9 +27884,6 @@ cannot be found in the path.</source>
         <source>Initial setup failed: %1</source>
         <translation>Збій початкового налаштування: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (типово)</translation>
@@ -28414,9 +27939,6 @@ cannot be found in the path.</source>
         <source>Could not copy the file to %1.</source>
         <translation>Не вдалось скопіювати файл до %1.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Порожнє ім&apos;я файлу.</translation>
@@ -28433,9 +27955,6 @@ cannot be found in the path.</source>
         <source>Cannot write file. Disk full?</source>
         <translation type="vanished">Неможливо записати файл. Диск заповнено?</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Відкрити файл</translation>
@@ -30711,9 +30230,6 @@ Remote: %4</source>
         <source>Full path to the target bin directory of the current project&apos;s Qt version. You probably want %1 instead.</source>
         <translation type="vanished">Повний шлях до target-теки bin версії Qt поточного проекту. Мабуть вам потрібен %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation type="vanished">Не знайдено фабрику для qmake: &apos;%1&apos;</translation>
@@ -31029,7 +30545,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>CppQmlTypesLoader</name>
+    <name>::QmlJS</name>
     <message>
         <source>%1 seems not to be encoded in UTF8 or has a BOM.</source>
         <translation type="vanished">Схоже, що %1 не в кодуванні UTF8 або має BOM.</translation>
@@ -31473,7 +30989,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Редагувати</translation>
@@ -31493,30 +31009,18 @@ Partial names can be used if they are unambiguous.</source>
         <source>Source Paths</source>
         <translation>Шляхи джерела</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>Шляхи CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Налаштування зневаджувача</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>Розширені опції GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to start lldb &apos;%1&apos;: %2</source>
         <translation type="vanished">Неможливо запустити lldb &apos;%1&apos;: %2</translation>
@@ -31819,9 +31323,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <source>Not enough free ports on device for debugging.</source>
         <translation>Недостатньо вільних портів для зневадження в пристрої.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -31836,13 +31337,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <translation>Збій запуску віддаленого процесу.</translation>
     </message>
     <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Збій початкового налаштування: %1</translation>
-    </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
-    <message>
         <source>Clean Environment</source>
         <translation>Чисте середовище</translation>
     </message>
@@ -31850,9 +31344,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <source>System Environment</source>
         <translation>Системне середовище</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Отримати середовище пристрою</translation>
@@ -34000,13 +33491,6 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="vanished">Версії Qt</translation>
-    </message>
-</context>
-<context>
     <name>::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
@@ -34030,9 +33514,6 @@ Please close all running instances of your application before starting a build.<
         <source>Profiling %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer на %1:</translation>
@@ -34041,9 +33522,6 @@ Please close all running instances of your application before starting a build.<
         <source>LogServer on %1:</source>
         <translation>LogServer на %1:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Аналіз пам&apos;яті</translation>
@@ -34054,7 +33532,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>AnalyzerManager</name>
+    <name>::Debugger</name>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished, %n issues were found.</source>
         <translation type="vanished">
@@ -34080,20 +33558,8 @@ Please close all running instances of your application before starting a build.<
         <translation type="vanished">Файл журналу оброблено, проблем не знайдено.</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <translation type="vanished">Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="vanished">Release</translation>
-    </message>
-    <message>
         <source>Tool</source>
         <translation type="vanished">Інструмент</translation>
-    </message>
-    <message>
-        <source>Run %1 in %2 Mode?</source>
-        <translation type="vanished">Запусти %1 в режимі %2?</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Debug and Release mode run-time characteristics differ significantly, analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -34106,16 +33572,10 @@ Please close all running instances of your application before starting a build.<
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Не вдалось визначити віддалений PID.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Налаштування Valgrind</translation>
@@ -35539,24 +34999,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>PrefixLangDialog</name>
-    <message>
-        <source>Prefix:</source>
-        <translation type="vanished">Префікс:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation type="vanished">Мова:</translation>
-    </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
-    <message>
-        <source>%1 Prefix: %2</source>
-        <translation type="vanished">%1 Префікс: %2</translation>
-    </message>
-</context>
-<context>
     <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
@@ -36304,9 +35746,6 @@ Install an SDK of at least API version %1.</source>
         <source>Display string length:</source>
         <translation>Довжина рядка, що показується:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (попереднє)</translation>
@@ -36340,7 +35779,7 @@ Install an SDK of at least API version %1.</source>
     <name>::DiffEditor</name>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Видалити символ</translation>
@@ -37878,7 +37317,7 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -39123,7 +38562,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -39687,14 +39126,6 @@ The files in the Android package source directory are copied to the build direct
 </context>
 <context>
     <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Префікс:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Мова:</translation>
-    </message>
 </context>
 <context>
     <name>::Subversion</name>
@@ -39860,9 +39291,6 @@ Affected are breakpoints %1</source>
         <source>Tries to install missing debug information.</source>
         <translation>Спробувати встановити відсутню зневаджувальну інформацію.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Restored</source>
         <translation type="vanished">Відновлено</translation>
@@ -40294,7 +39722,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>QuickFixFactory</name>
+    <name>::CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation type="vanished">Створити функції-члени для отримання та встановлення значення</translation>
@@ -40319,9 +39747,6 @@ Affected are breakpoints %1</source>
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation type="vanished">Згенерувати відсутні члени Q_PROPERTY...</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Сортувати за абеткою</translation>
@@ -40341,9 +39766,6 @@ Affected are breakpoints %1</source>
         <source>Attempting to interrupt.</source>
         <translation>Намагаємось перервати.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Launching Debugger</source>
         <translation>Запуск зневаджувача</translation>
@@ -40488,9 +39910,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Jump to Line %1</source>
         <translation>Перейти до рядка %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>Не розпізнано</translation>
@@ -40570,13 +39989,6 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
-    <message>
-        <source>&amp;Attach to Process</source>
-        <translation type="vanished">&amp;Під&apos;єднатись до процесу</translation>
-    </message>
-</context>
-<context>
     <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
@@ -40602,9 +40014,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Увімкнути зневадження підпроцесів</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Термінал: неможливо відкрити /dev/ptmx: %1</translation>
@@ -40845,7 +40254,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>ResourceTopLevelNode</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Префікс: %2</translation>
@@ -41560,11 +40969,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>Код JS для %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Анонімна функція</translation>
@@ -43521,11 +42926,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>SessionActionLabel</name>
-    <message>
-        <source>Clone</source>
-        <translation>Клонувати</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>qmt::ClassItem</name>
@@ -43648,9 +43049,6 @@ the program.</source>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;без назви&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation>&amp;Тести</translation>
@@ -43679,16 +43077,10 @@ the program.</source>
         <source>Alt+Shift+T,Alt+S</source>
         <translation>Alt+Shift+T,Alt+S</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>Пошук тестів</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Тести</translation>
@@ -43733,9 +43125,6 @@ the program.</source>
         <source>Show Data Functions</source>
         <translation>Показувати функції Data</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Entering test function %1::%2</source>
         <translation>Входження до тестової функції %1::%2</translation>
@@ -43764,9 +43153,6 @@ the program.</source>
         <source>Test execution took %1 ms.</source>
         <translation>Виконання тесту тривало %1 мс.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message numerus="yes">
         <source>You have %n disabled test(s).</source>
         <translation>
@@ -43795,9 +43181,6 @@ the program.</source>
         <source>Execution took %1.</source>
         <translation>Виконання тривало %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Run All Tests</source>
         <translation>Виконати усі тести</translation>
@@ -43914,9 +43297,6 @@ the program.</source>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Project&apos;s run configuration was guessed for &quot;%1&quot;.
 This might cause trouble during execution.</source>
@@ -43945,9 +43325,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Build failed. Canceling test run.</source>
         <translation>Збірка не вдалась. Запуск тестів скасовано.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Auto Tests</source>
         <translation>Автотести</translation>
@@ -44354,16 +43731,10 @@ Please set a real Clang executable.</source>
         <source>Use Global Settings</source>
         <translation>Вживати глобальні налаштування</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Копіювати</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Почати віддалений аналіз</translation>
@@ -44380,9 +43751,6 @@ Please set a real Clang executable.</source>
         <source>Working directory:</source>
         <translation>Робоча тека:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Показувати зневаджувальні, журналу та інформаційні повідомлення.</translation>
@@ -44403,9 +43771,6 @@ Please set a real Clang executable.</source>
         <source>Debugger Console</source>
         <translation>Консоль зневаджувача</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Копіювати</translation>
@@ -44484,9 +43849,6 @@ Please set a real Clang executable.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ви намагаєтесь запустити інструмент &quot;%1&quot; для програми в режимі %2. Цей інструмент призначено для використання %3.&lt;/p&gt;&lt;p&gt;Характеристики часу виконання між оптимізованими та неоптимізованими двійковими модулями суттєво відрізняються. Аналітичні дані для одного режиму можуть бути не відповідними для іншого.&lt;/p&gt;&lt;p&gt;Запуск інструментів, що потребують символів зневадження на двійковий модулях, що їх не мають, може призвести до відсутніх назв функцій або іншого неповного результату.&lt;/p&gt;&lt;p&gt;Бажаєте продовжити і запустити інструмент в режимі %2?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 &lt;shadowed %2&gt;</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
@@ -44547,9 +43909,6 @@ Would you like to overwrite it?</source>
         <translation>%1 вже існує
 Бажаєте перезаписати його?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Експортувати %1</translation>
@@ -44566,9 +43925,6 @@ Would you like to overwrite it?</source>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>Не вдалось записати файл &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>Збільшити</translation>

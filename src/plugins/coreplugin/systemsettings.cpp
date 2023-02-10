@@ -197,7 +197,7 @@ public:
             const QVector<TerminalCommand> availableTerminals
                 = TerminalCommand::availableTerminalEmulators();
             for (const TerminalCommand &term : availableTerminals)
-                m_terminalComboBox->addItem(term.command, QVariant::fromValue(term));
+                m_terminalComboBox->addItem(term.command.toUserOutput(), QVariant::fromValue(term));
             updateTerminalUi(TerminalCommand::terminalEmulator());
             connect(m_terminalComboBox, &QComboBox::currentIndexChanged, this, [this](int index) {
                 updateTerminalUi(m_terminalComboBox->itemData(index).value<TerminalCommand>());
@@ -373,9 +373,11 @@ void SystemSettingsWidget::apply()
     QtcSettings *settings = ICore::settings();
     EditorManager::setReloadSetting(IDocument::ReloadSetting(m_reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
-        TerminalCommand::setTerminalEmulator({m_terminalComboBox->lineEdit()->text(),
-                                              m_terminalOpenArgs->text(),
-                                              m_terminalExecuteArgs->text()});
+        TerminalCommand::setTerminalEmulator({
+            FilePath::fromUserInput(m_terminalComboBox->lineEdit()->text()),
+            m_terminalOpenArgs->text(),
+            m_terminalExecuteArgs->text()
+        });
         if (!HostOsInfo::isMacHost()) {
             UnixUtils::setFileBrowser(settings, m_externalFileBrowserEdit->text());
         }
@@ -423,7 +425,7 @@ void SystemSettingsWidget::resetTerminal()
 
 void SystemSettingsWidget::updateTerminalUi(const TerminalCommand &term)
 {
-    m_terminalComboBox->lineEdit()->setText(term.command);
+    m_terminalComboBox->lineEdit()->setText(term.command.toUserOutput());
     m_terminalOpenArgs->setText(term.openArgs);
     m_terminalExecuteArgs->setText(term.executeArgs);
 }

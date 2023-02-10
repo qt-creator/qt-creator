@@ -43,7 +43,7 @@ static FormatTask format(FormatTask task)
     task.error.clear();
     task.formattedData.clear();
 
-    const QString executable = task.command.executable();
+    const FilePath executable = task.command.executable();
     if (executable.isEmpty())
         return task;
 
@@ -66,7 +66,7 @@ static FormatTask format(FormatTask task)
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
         QtcProcess process;
         process.setTimeoutS(5);
-        process.setCommand({FilePath::fromString(executable), options});
+        process.setCommand({executable, options});
         process.runBlocking();
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             task.error = Tr::tr("TextEditor", "Failed to format: %1.")
@@ -75,7 +75,7 @@ static FormatTask format(FormatTask task)
         }
         const QString output = process.cleanedStdErr();
         if (!output.isEmpty())
-            task.error = executable + QLatin1String(": ") + output;
+            task.error = executable.toUserOutput() + ": " + output;
 
         // Read text back
         Utils::FileReader reader;
@@ -93,18 +93,18 @@ static FormatTask format(FormatTask task)
         QStringList options = task.command.options();
         options.replaceInStrings("%filename", task.filePath.fileName());
         options.replaceInStrings("%file", task.filePath.toString());
-        process.setCommand({FilePath::fromString(executable), options});
+        process.setCommand({executable, options});
         process.setWriteData(task.sourceData.toUtf8());
         process.start();
         if (!process.waitForFinished(5000)) {
             task.error = Tr::tr("Cannot call %1 or some other error occurred. Timeout "
                                                    "reached while formatting file %2.")
-                    .arg(executable, task.filePath.displayName());
+                    .arg(executable.toUserOutput(), task.filePath.displayName());
             return task;
         }
         const QString errorText = process.readAllStandardError();
         if (!errorText.isEmpty()) {
-            task.error = QString::fromLatin1("%1: %2").arg(executable, errorText);
+            task.error = QString("%1: %2").arg(executable.toUserOutput(), errorText);
             return task;
         }
 

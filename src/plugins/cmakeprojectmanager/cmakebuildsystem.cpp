@@ -467,7 +467,8 @@ void CMakeBuildSystem::clearCMakeCache()
         m_parameters.buildDirectory / "CMakeCache.txt.prev",
         m_parameters.buildDirectory / "CMakeFiles",
         m_parameters.buildDirectory / ".cmake/api/v1/reply",
-        m_parameters.buildDirectory / ".cmake/api/v1/reply.prev"
+        m_parameters.buildDirectory / ".cmake/api/v1/reply.prev",
+        m_parameters.buildDirectory / Constants::PACKAGE_MANAGER_DIR
     };
 
     for (const FilePath &path : pathsToDelete)
@@ -624,15 +625,11 @@ void CMakeBuildSystem::updateProjectData()
         for (const RawProjectPart &rpp : std::as_const(rpps)) {
             FilePath moduleMapFile = buildConfiguration()->buildDirectory()
                     .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
-            if (moduleMapFile.exists()) {
-                QFile mmf(moduleMapFile.toString());
-                if (mmf.open(QFile::ReadOnly)) {
-                    QByteArray content = mmf.readAll();
-                    auto lines = content.split('\n');
-                    for (const auto &line : lines) {
-                        if (!line.isEmpty())
-                            moduleMappings.append(line.simplified());
-                    }
+            if (expected_str<QByteArray> content = moduleMapFile.fileContents()) {
+                auto lines = content->split('\n');
+                for (const QByteArray &line : lines) {
+                    if (!line.isEmpty())
+                        moduleMappings.append(line.simplified());
                 }
             }
 
@@ -1086,8 +1083,7 @@ DeploymentData CMakeBuildSystem::deploymentData() const
     if (!hasDeploymentFile)
         return result;
 
-    deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath.toString(),
-                                                         sourceDir.toString());
+    deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath, sourceDir);
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
             if (!ct.executable.isEmpty()

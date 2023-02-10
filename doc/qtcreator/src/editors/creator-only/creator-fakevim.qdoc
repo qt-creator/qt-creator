@@ -70,7 +70,7 @@
 
     \list
         \li \c :map, \c :unmap, \c :inoremap, and so on
-        \li \c :source provides very basic line-by-line sourcing of vimrc files
+        \li \c :source sources vimrc files line-by-line
         \li \c :substitute substitutes an expression in a range
         \li \c :'<,'>!cmd filters through an external command (for example,
             sorts the lines in a file with \c :%!sort)

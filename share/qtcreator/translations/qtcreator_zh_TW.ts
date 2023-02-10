@@ -389,7 +389,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>開啟連結</translation>
@@ -560,14 +560,6 @@
         <translation>&lt;b&gt;警告：&lt;/b&gt; 您正在變更一個唯讀檔。</translation>
     </message>
     <message>
-        <source>Next Open Document in History</source>
-        <translation>歷史紀錄中下一個開啟文件</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>歷史紀錄中前一個開啟文件</translation>
-    </message>
-    <message>
         <source>Go Back</source>
         <translation>返回</translation>
     </message>
@@ -578,10 +570,6 @@
     <message>
         <source>Meta+E</source>
         <translation type="obsolete">Meta+E</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="obsolete">Ctrl+E</translation>
     </message>
     <message>
         <source>%1,2</source>
@@ -1107,14 +1095,6 @@
     <message>
         <source>Installed Plugins</source>
         <translation>已安裝的外掛程式</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>%1 的外掛程式詳情</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>%1 的外掛程式錯誤</translation>
     </message>
     <message>
         <source>Processes</source>
@@ -1930,9 +1910,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Override &amp;start script:</source>
         <translation>覆寫啟動腳本(&amp;S)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Process ID</source>
         <translation type="obsolete">行程代碼</translation>
@@ -1941,9 +1918,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Refresh</source>
         <translation type="obsolete">刷新</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>選擇開始位址</translation>
@@ -1952,9 +1926,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Enter an address: </source>
         <translation>輸入位址：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>標記檔案：</translation>
@@ -2233,9 +2204,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>This is useful to catch runtime error messages, for example caused by assert().</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>符號伺服器...</translation>
@@ -2260,9 +2228,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Do not ask again</source>
         <translation>不要再問我</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>將除錯工具切換至 「聰明指令操作」（instruction wise operation）模式。它會在單步執行時在源碼檢視中同時顯示反組譯指令。</translation>
@@ -2459,9 +2424,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Checking this will show a column with address information in the stack view during debugging.</source>
         <translation>勾選此選項會在除錯時於堆疊檢視中顯示一個位址資訊的欄位。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -2504,9 +2466,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Show Qt&apos;s namespace for types</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>An exception was triggered.</source>
         <translation>觸發了一個例外情形。</translation>
@@ -2948,9 +2907,6 @@ This might yield incorrect results.</source>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;沒有資訊&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -3128,9 +3084,6 @@ at debugger startup.</source>
         <source>GDB</source>
         <translation>GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>yes</source>
         <translation type="obsolete">是</translation>
@@ -3175,9 +3128,6 @@ at debugger startup.</source>
         <source>fast</source>
         <translation type="obsolete">快速</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>模組</translation>
@@ -3194,9 +3144,6 @@ at debugger startup.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>無法開啟 Fifo %1：%2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -3205,16 +3152,10 @@ at debugger startup.</source>
         <source>Value (Base %1)</source>
         <translation>值 (%1進位)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>暫存器</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Error:</source>
         <translation>錯誤：</translation>
@@ -3243,9 +3184,6 @@ at debugger startup.</source>
         <source>Stopped.</source>
         <translation>已停止。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>源碼檔</translation>
@@ -3310,9 +3248,6 @@ at debugger startup.</source>
         <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in separate packages.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>執行緒&amp;nbsp;代碼：</translation>
@@ -3369,9 +3304,6 @@ at debugger startup.</source>
         <source>Break at &apos;&amp;main&apos;:</source>
         <translation type="obsolete">在 main 函式處中斷(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select GDB Start Script</source>
         <translation type="obsolete">選擇 GDB 啟動腳本</translation>
@@ -4388,7 +4320,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>搜尋(&amp;S)</translation>
@@ -4417,9 +4349,6 @@ Reason: %3</source>
         <source>Search &amp;&amp; &amp;Replace</source>
         <translation>搜尋並取代(&amp;R)</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Find/Replace</source>
         <translation>搜尋/取代</translation>
@@ -4496,9 +4425,6 @@ Reason: %3</source>
         <source>Use Regular Expressions</source>
         <translation>使用正規表示式</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>尋找</translation>
@@ -4516,24 +4442,9 @@ Reason: %3</source>
         <translation>...</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>取代</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>取代並搜尋</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>全部取代</translation>
-    </message>
-    <message>
         <source>Advanced...</source>
         <translation>進階...</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>Search Results</source>
         <translation>搜尋結果</translation>
@@ -5686,14 +5597,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>正在建立文件索引中...</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>開啟連結</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新頁面開啟連結</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>複製連結</translation>
     </message>
@@ -5737,20 +5640,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>&lt;li&gt;If your computer or network is protected by a firewall or proxy, make sure the application is permitted to access the network.&lt;/li&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>尋找(&amp;L)：</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>開啟連結</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新頁面開啟連結</translation>
     </message>
 </context>
 <context>
@@ -6223,19 +6115,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>詳情</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>錯誤詳情</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>已安裝的外掛程式</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Plugin Details of %1</source>
         <translation>外掛程式 %1 的詳情</translation>
@@ -7353,7 +7233,7 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>新增</translation>
@@ -8090,9 +7970,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Recheck existence of referenced files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation type="unfinished">開啟檔案</translation>
@@ -8112,68 +7989,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::QrcEditor</name>
-    <message>
-        <source>Add Files</source>
-        <translation type="obsolete">新增檔案</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation type="obsolete">新增前置字串</translation>
-    </message>
-    <message>
-        <source>Choose Copy Location</source>
-        <translation type="obsolete">選擇複製位置</translation>
-    </message>
-    <message>
-        <source>Overwriting Failed</source>
-        <translation type="obsolete">覆寫失敗</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">複製失敗</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="obsolete">複製</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="obsolete">跳過</translation>
-    </message>
-    <message>
-        <source>Abort</source>
-        <translation type="obsolete">終止</translation>
-    </message>
-    <message>
-        <source>Invalid file location</source>
-        <translation type="obsolete">無效的檔案位置</translation>
-    </message>
-    <message>
-        <source>The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.</source>
-        <translation type="obsolete">檔案 %1 沒有在資源檔所在的子目錄中。您可以選擇複製此檔案到一個有效的位置。</translation>
-    </message>
-    <message>
-        <source>Could not overwrite file %1.</source>
-        <translation type="obsolete">無法覆寫檔案 %1。</translation>
-    </message>
-    <message>
-        <source>Could not copy the file to %1.</source>
-        <translation type="obsolete">無法複製檔案到 %1。</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">開啟檔案</translation>
-    </message>
-    <message>
-        <source>All files (*)</source>
-        <translation type="obsolete">所有檔案 (*)</translation>
     </message>
 </context>
 <context>
@@ -9443,7 +9258,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Filter</source>
         <translation>過濾器</translation>
@@ -9560,7 +9375,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -10147,7 +9962,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>從 CVS 主目錄中取出，並試著載入裡面包含的專案。</translation>
@@ -12415,7 +12230,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
@@ -12456,7 +12271,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>搜尋/取代(&amp;F)</translation>
@@ -12468,10 +12283,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Open Advanced Find...</source>
         <translation>開啟進階搜尋...</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>進階...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F</source>
@@ -12850,20 +12661,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
         <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;專案 &lt;b&gt;%1&lt;/b&gt; 尚未設置。&lt;br/&gt;&lt;br/&gt;您可以在&lt;a href=&quot;projectmode&quot;&gt;專案模式&lt;/a&gt;中設置。&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation type="obsolete">目標</translation>
     </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation type="unfinished">建置並執行</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">沒有定義目標。</translation>
@@ -13091,7 +12892,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>開啟檔案</translation>
@@ -13419,16 +13220,10 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <comment>QMLRunConfiguration display name.</comment>
         <translation>QML 檢視器</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;目前檔案&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">執行 QML 腳本</translation>
@@ -13513,16 +13308,10 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
 </source>
         <translation type="obsolete">正在啟動：&quot;%1&quot; %2 於 %3</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create SIS Package</source>
         <translation type="obsolete">建立 SIS 套件</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>self-signed</source>
         <translation type="obsolete">自行簽署</translation>
@@ -15006,10 +14795,6 @@ Ids must begin with a lowercase letter.</source>
         <source>double click for preview</source>
         <translation>雙擊以預覽</translation>
     </message>
-    <message>
-        <source>Open File</source>
-        <translation>開啟檔案</translation>
-    </message>
 </context>
 <context>
     <name>::QmlJS</name>
@@ -15169,14 +14954,11 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Expected a namespace-name</source>
         <translation>預期應為命名空間名稱</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>新增 %1 宣告</translation>
@@ -15430,9 +15212,6 @@ This feature is only available for GDB.</source>
         <source>&amp;Message:</source>
         <translation>訊息(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
         <translation type="obsolete">執行檔格式 &apos;%1&apos; 沒有可用的 CDB 執行檔</translation>
@@ -15513,9 +15292,6 @@ This feature is only available for GDB.</source>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation>「選擇要監看的元件」：在狀態 &apos;%1&apos; 時不支援。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>選擇本地快取資料夾</translation>
@@ -15540,9 +15316,6 @@ This feature is only available for GDB.</source>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation>資料夾 &apos;%1&apos; 無法被建立。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>嘗試中斷中。</translation>
@@ -15555,9 +15328,6 @@ This feature is only available for GDB.</source>
         <source>Debugger Test</source>
         <translation>除錯工具測試</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Launching</source>
         <translation>正在啟動</translation>
@@ -15688,9 +15458,6 @@ This feature is only available for GDB.</source>
         <source>Jump to Line %1</source>
         <translation>跳到行 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>除錯</translation>
@@ -15747,9 +15514,6 @@ Details: %3</source>
         <source>Tries to install missing debug information.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger</source>
         <translation>除錯工具</translation>
@@ -15786,18 +15550,12 @@ Details: %3</source>
         <source>Close Debugging Session</source>
         <translation>關閉除錯工作階段</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
         <translation type="obsolete">這似乎不是個 &quot;Debug&quot; 的建置。
 依檔名與行號來設定中斷點可能會失敗。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connection failure: %1.</source>
         <translation>連線失敗：%1。</translation>
@@ -15818,9 +15576,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Remote GDB crashed.</source>
         <translation>遠端 gdb 已崩潰。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>清除內容</translation>
@@ -15829,16 +15584,10 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Save Contents</source>
         <translation>儲存內容</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>按下 Ctrl-&lt;Return&gt; 執行一行。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>除錯工具紀錄</translation>
@@ -15885,9 +15634,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
         <translation type="obsolete">&apos;%1&apos; 的狀態變更為「未連線」。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">內部名稱</translation>
@@ -15942,7 +15688,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>EditorManager</name>
+    <name>::Core</name>
     <message>
         <source>Next Open Document in History</source>
         <translation>歷史紀錄中下一個開啟的檔案</translation>
@@ -15950,22 +15696,6 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>Previous Open Document in History</source>
         <translation>歷史紀錄中前一個開啟的檔案</translation>
-    </message>
-    <message>
-        <source>Go Back</source>
-        <translation>返回</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>前進</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>左右分割</translation>
     </message>
     <message>
         <source>Close Document</source>
@@ -16618,9 +16348,6 @@ Reason: %2</source>
         <source>Queries the device for information</source>
         <translation type="obsolete">查詢裝置資訊</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation type="obsolete">現有檔案 &apos;%1&apos; 無法被移除：%2</translation>
@@ -17701,9 +17428,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Helgrind Thread ID</source>
         <translation>Helgrind 執行緒代碼</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>位置：</translation>
@@ -17712,9 +17436,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Instruction pointer:</source>
         <translation>指令指標：</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>無法剖析從&quot;%1&quot; (%2) 來的十六進位數</translation>
@@ -17767,9 +17488,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Unexpected exception caught during parsing.</source>
         <translation>剖析時抓取到未預期的例外狀況。</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>描述</translation>
@@ -18404,9 +18122,6 @@ to version control (%2)
         <source>&amp;Connection:</source>
         <translation>連線(&amp;C)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory...</source>
         <translation>記憶體...</translation>
@@ -18415,9 +18130,6 @@ to version control (%2)
         <source>Debugger Toolbar</source>
         <translation>除錯器工具列</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>沒有選擇函式。</translation>
@@ -18869,9 +18581,6 @@ Qt Creator cannot attach to it.</source>
         <source>Qt Sources</source>
         <translation>Qt 源碼</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation type="obsolete">%1 (%2)</translation>
@@ -18880,16 +18589,10 @@ Qt Creator cannot attach to it.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI：&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;除錯工具：&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>目前不支援在 Windows 中對複雜的命令列除錯。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
         <translation type="obsolete">行程已啟動，行程代碼：0x%1，執行緒代碼：0x%2，代碼段：0x%3，資料段：0x%4。</translation>
@@ -18904,16 +18607,10 @@ Qt Creator cannot attach to it.</source>
         <source>Could not obtain device.</source>
         <translation type="obsolete">無法獲得裝置。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>嚴重的引擎錯誤關閉。不相容的二進位檔或 IPC 錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>qtcreator-lldb 無法啟動：%1</translation>
@@ -18926,16 +18623,10 @@ Qt Creator cannot attach to it.</source>
         <source>SSH connection error: %1</source>
         <translation>SSH 連線錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>記憶體在 0x%1</translation>
@@ -18948,9 +18639,6 @@ Qt Creator cannot attach to it.</source>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>因為沒有載入二進制資料檢視器外掛程式，因此無法顯示記憶體內容。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation type="unfinished">從屬除錯引擎需要整合QML/C++-除錯無法被建立: %1</translation>
@@ -18963,9 +18651,6 @@ Qt Creator cannot attach to it.</source>
         <source>QML debugger activated</source>
         <translation>已啟用 QML 除錯工具</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -19106,14 +18791,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -19151,9 +18829,6 @@ Do you want to retry?</source>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation type="unfinished">頂點著色器 (Desktop OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>新增 %1 </translation>
@@ -19674,9 +19349,6 @@ Valid from: %2.</source>
             <numerusform>支援 %n 個裝置：</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -19690,9 +19362,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
         <translation type="obsolete">無法建立自動安裝包因為自動安裝器檔案丟失。請檢查檔案存在於SDK下。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean</source>
         <translation type="obsolete">清除</translation>
@@ -19743,9 +19412,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <translation type="obsolete">已建立 %1。
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Open Containing Folder</source>
         <translation type="obsolete">開啟包含的資料夾</translation>
@@ -19830,9 +19496,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <source>Global vendor name:</source>
         <translation type="obsolete">全域供應商名稱：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publish Qt Symbian Applications to Nokia Store</source>
         <translation type="obsolete">發佈 Qt Symbian 應用程式到 Nokia Store</translation>
@@ -19859,9 +19522,6 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
 
 你的應用程式同樣會因為你採用了未發佈的 Qt 版本而被 Nokia Store 駁回。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Nokia Store</source>
         <translation type="obsolete">發佈到 Nokia Store</translation>
@@ -20683,9 +20343,6 @@ if (a &amp;&amp;
         <source>Compiler:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>版本名稱：</translation>
@@ -20698,9 +20355,6 @@ if (a &amp;&amp;
         <source>Edit</source>
         <translation>編輯</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -20740,9 +20394,6 @@ if (a &amp;&amp;
         <source>Save Suppression</source>
         <translation type="unfinished">儲存Suppression</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>一般設定</translation>
@@ -21061,7 +20712,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -21077,9 +20728,6 @@ Would you like to overwrite them?</source>
         <source>Previous</source>
         <translation>前一個</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>在暫存器 &apos;%1&apos; 的記憶體 (0x%2)</translation>
@@ -21771,9 +21419,6 @@ Do you want to retry?</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
         <translation type="obsolete">正在執行 %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">沒有偵測到有效的 Qt 版本。&lt;br&gt;請在「選項」─「Qt4」中定義一個有效的 Qt 版本</translation>
@@ -21859,7 +21504,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation type="unfinished"></translation>
@@ -21896,16 +21541,10 @@ Do you want to retry?</source>
         <source>Version:</source>
         <translation>版本：</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>入門</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;指定一個名稱&gt;</translation>
@@ -22019,9 +21658,6 @@ Do you want to retry?</source>
         <source>SBS v2 directory:</source>
         <translation type="obsolete">SBS v2 目錄：</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW 從 %1</translation>
@@ -22041,16 +21677,10 @@ Do you want to retry?</source>
         <source>Remote Directory</source>
         <translation>遠端目錄</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>新的通用型 Linux 裝置設定</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>連線資料</translation>
@@ -22059,9 +21689,6 @@ Do you want to retry?</source>
         <source>Generic Linux Device</source>
         <translation>通用 Linux 裝置</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>設定完成</translation>
@@ -22072,9 +21699,6 @@ In addition, device connectivity will be tested.</source>
         <translation>將建立新的裝置設置。
 此外，也會測試裝置的連線。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">啟動精靈</translation>
@@ -22087,9 +21711,6 @@ In addition, device connectivity will be tested.</source>
         <source>Available device types:</source>
         <translation type="obsolete">可用的裝置型態：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SDK Connectivity</source>
         <translation>SDK 連接性</translation>
@@ -22098,9 +21719,6 @@ In addition, device connectivity will be tested.</source>
         <source>Mad Developer</source>
         <translation>Mad 開發者</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation>建立 Debian 套件</translation>
@@ -22109,9 +21727,6 @@ In addition, device connectivity will be tested.</source>
         <source>Create RPM Package</source>
         <translation type="obsolete">建立 RPM 套件</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>選擇公開金鑰檔</translation>
@@ -22128,9 +21743,6 @@ In addition, device connectivity will be tested.</source>
         <source>Deployment finished successfully.</source>
         <translation>佈署成功完成。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing remote side...
 </source>
@@ -22153,9 +21765,6 @@ In addition, device connectivity will be tested.</source>
         <source>Not enough free ports on device for debugging.</source>
         <translation type="obsolete">裝置上可用於除錯的連接埠不夠。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The .pro file is being parsed.</source>
         <translation type="obsolete">正在剖析 .pro 檔案。</translation>
@@ -22199,16 +21808,10 @@ In addition, device connectivity will be tested.</source>
         <source>System Environment</source>
         <translation>系統環境變數</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation> (在遠端通用Linux主機)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>抓取裝置環境</translation>
@@ -22265,9 +21868,6 @@ In addition, device connectivity will be tested.</source>
         <source>Fetching environment failed: %1</source>
         <translation>抓取環境失敗：%1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Starting remote process...
 </source>
@@ -22280,9 +21880,6 @@ In addition, device connectivity will be tested.</source>
         <translation type="obsolete">遠端行程執行結束。返回值為 %1。
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>在遠端 Linux 裝置上執行</translation>
@@ -22318,9 +21915,6 @@ In addition, device connectivity will be tested.</source>
         <translation>分析 %1 的效能中
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrind 函式效能分析器</translation>
@@ -22333,9 +21927,6 @@ In addition, device connectivity will be tested.</source>
         <source>Profile Costs of this Function and its Callees</source>
         <translation type="unfinished">分析此項功能和被調用者的花銷</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>呼叫者</translation>
@@ -22452,16 +22043,10 @@ In addition, device connectivity will be tested.</source>
         <source>Populating...</source>
         <translation type="unfinished">填充...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation type="unfinished">所有功能包含一個成本比%1高的 (%2 被隱藏)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>記憶體分析中</translation>
@@ -22472,16 +22057,10 @@ In addition, device connectivity will be tested.</source>
         <translation>%1 的記憶體分析中
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>於 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>複製選擇</translation>
@@ -22490,9 +22069,6 @@ In addition, device connectivity will be tested.</source>
         <source>Suppress Error</source>
         <translation type="unfinished">防止錯誤</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部錯誤</translation>
@@ -22557,9 +22133,6 @@ In addition, device connectivity will be tested.</source>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>剖析 valgrind 輸出時發生錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>被呼叫者</translation>
@@ -22576,9 +22149,6 @@ In addition, device connectivity will be tested.</source>
         <source>Calls</source>
         <translation>呼叫</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation type="unfinished">之前的命令還沒有完成.</translation>
@@ -22611,9 +22181,6 @@ In addition, device connectivity will be tested.</source>
         <source>Downloading remote profile data...</source>
         <translation type="unfinished">下載遠端設置數據...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>函式：</translation>
@@ -22688,9 +22255,6 @@ In addition, device connectivity will be tested.</source>
         <source>Incl. Cost: %1</source>
         <translation type="unfinished">其中花費: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>於 %2 中的 %1</translation>
@@ -22699,9 +22263,6 @@ In addition, device connectivity will be tested.</source>
         <source>%1:%2 in %3</source>
         <translation>於 %3 中的 %1:%2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最後等級</translation>
@@ -22758,16 +22319,10 @@ In addition, device connectivity will be tested.</source>
         <source>Position:</source>
         <translation>位置：</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>正在剖析效能分析資料...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation type="obsolete">找不到用於遠端分析的網路介面。</translation>
@@ -22784,16 +22339,10 @@ In addition, device connectivity will be tested.</source>
         <source>No Network Interface was chosen for remote analysis</source>
         <translation type="obsolete">尚未選擇遠端分析使用的網路介面</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>無法決定遠端的行程代碼。</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind 選項：%1</translation>
@@ -22939,25 +22488,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     <message>
         <source>text</source>
         <translation>文字</translation>
-    </message>
-</context>
-<context>
-    <name>StatusDisplay</name>
-    <message>
-        <source>No QML events recorded</source>
-        <translation type="obsolete">沒有錄製 QML 事件</translation>
-    </message>
-    <message>
-        <source>Profiling application</source>
-        <translation type="obsolete">效能分析應用程式</translation>
-    </message>
-    <message>
-        <source>Loading data</source>
-        <translation type="obsolete">載入資料中</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation type="obsolete">載入所有資料前應用程式已停止</translation>
     </message>
 </context>
 <context>
@@ -23681,9 +23211,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Output:</source>
         <translation>輸出：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation>&lt;p&gt;發生了一個未被捕捉到的例外狀況：&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -23702,7 +23229,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Find::IFindFilter</name>
+    <name>::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>區分大小寫</translation>
@@ -23727,16 +23254,9 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters</source>
@@ -23747,16 +23267,8 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>再次搜尋</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation>取代為：</translation>
-    </message>
-    <message>
         <source>Replace all occurrences</source>
         <translation>取代所有出現位置</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>取代</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
@@ -24056,9 +23568,6 @@ Is the device connected and set up for network access?</source>
         <source>Connection error: %1</source>
         <translation>連線錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>無法佈署：%1</translation>
@@ -24075,9 +23584,6 @@ Is the device connected and set up for network access?</source>
         <source>Deploy step finished.</source>
         <translation>佈署步驟完成。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>上傳套件檔成功。</translation>
@@ -24090,9 +23596,6 @@ Is the device connected and set up for network access?</source>
         <source>Package installed.</source>
         <translation>套件已安裝。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP 初始化失敗：%1</translation>
@@ -24129,9 +23632,6 @@ Is the device connected and set up for network access?</source>
         <source>Uploading file &apos;%1&apos;...</source>
         <translation>上傳檔案 &apos;%1&apos; 中...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>遞增佈署</translation>
@@ -24140,16 +23640,10 @@ Is the device connected and set up for network access?</source>
         <source>Command line:</source>
         <translation>命令列：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>通過 SFTP 上傳檔案</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation type="obsolete">通用 Linux</translation>
@@ -24166,16 +23660,10 @@ Is the device connected and set up for network access?</source>
         <source>Deploy Public Key...</source>
         <translation type="obsolete">佈署公開金鑰...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(%1 的預設)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation type="obsolete">Linux 裝置設置</translation>
@@ -24224,9 +23712,6 @@ Is the device connected and set up for network access?</source>
         <source>&amp;Generate SSH Key...</source>
         <translation type="obsolete">產生 SSH 金鑰(&amp;G)...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Close</source>
         <translation>關閉</translation>
@@ -24239,9 +23724,6 @@ Is the device connected and set up for network access?</source>
         <source>Device test failed.</source>
         <translation>裝置測試失敗。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>連線到主機...</translation>
@@ -24278,9 +23760,6 @@ Is the device connected and set up for network access?</source>
         <translation>以下指定連接埠現正使用中：%1
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>準備建立 SFTP 連線...</translation>
@@ -24297,9 +23776,6 @@ Is the device connected and set up for network access?</source>
         <source>Failed to upload package: %2</source>
         <translation>上傳套件失敗：%2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>可更新的專案檔</translation>
@@ -24320,16 +23796,10 @@ Is the device connected and set up for network access?</source>
         <source>&amp;Uncheck All</source>
         <translation>全部取消勾選(&amp;U)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>執行自訂的遠端指令</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>沒有指定命令列。</translation>
@@ -24354,9 +23824,6 @@ Is the device connected and set up for network access?</source>
         <source>Remote command finished successfully.</source>
         <translation>遠端指令成功完成。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>佈署到遠端 Linux 主機</translation>
@@ -24373,9 +23840,6 @@ Is the device connected and set up for network access?</source>
         <source>(No device)</source>
         <translation type="obsolete">(沒有裝置)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>執行遠端行程時發生錯誤：%1</translation>
@@ -24386,9 +23850,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>連線失敗：%1</translation>
@@ -24397,9 +23858,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Installing package failed.</source>
         <translation>安裝套件失敗。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>PID</source>
         <translation type="obsolete">行程代碼</translation>
@@ -24426,16 +23884,10 @@ Remote stderr was: %1</source>
         <translation type="obsolete">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">裝置設置</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">無法啟動遠端行程：%1</translation>
@@ -24454,9 +23906,6 @@ Remote error output was: %1</source>
         <translation type="obsolete">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation type="obsolete">SSH 金鑰設置</translation>
@@ -24505,9 +23954,6 @@ Remote error output was: %1</source>
         <source>Failed to create directory: &apos;%1&apos;.</source>
         <translation type="obsolete">建立目錄失敗：&apos;%1&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>公開金鑰錯誤：%1</translation>
@@ -24520,9 +23966,6 @@ Remote error output was: %1</source>
         <source>Key deployment failed: %1.</source>
         <translation>佈署金鑰失敗：%1。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">選擇 Sysroot</translation>
@@ -24567,9 +24010,6 @@ Remote error output was: %1</source>
         <source>Running command: %1</source>
         <translation type="obsolete">執行指令：%1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>打包已順利完成。</translation>
@@ -24618,9 +24058,6 @@ Remote error output was: %1</source>
         <source>Create tarball</source>
         <translation>建立 tarball 歸檔</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(預設)</translation>
@@ -24629,9 +24066,6 @@ Remote error output was: %1</source>
         <source>%1 (default)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>找不到 tarball 建立步驟。</translation>
@@ -25129,9 +24563,6 @@ p, li { white-space: pre-wrap; }
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Enable LLDB</source>
         <translation>開啟 LLDB</translation>
@@ -25140,9 +24571,6 @@ p, li { white-space: pre-wrap; }
         <source>Use GDB Python dumpers</source>
         <translation>使用 GDB python dumpers</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>啟動遠端引擎</translation>
@@ -25458,9 +24886,6 @@ p, li { white-space: pre-wrap; }
         <source>Machine type:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>精靈頁面</translation>
@@ -25493,16 +24918,10 @@ p, li { white-space: pre-wrap; }
         <source>The file containing the user&apos;s private key:</source>
         <translation>包含使用者私密金鑰的檔案：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>裝置測試</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -25523,9 +24942,6 @@ p, li { white-space: pre-wrap; }
         <source>Files to install for subproject:</source>
         <translation>為子專案安裝的檔案：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>List of Remote Processes</source>
         <translation type="obsolete">遠端行程列表</translation>
@@ -26097,15 +25513,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>develop</name>
-    <message>
-        <source>Develop</source>
-        <translation>開發</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>工作階段</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Recent Projects</source>
         <translation>最近使用的專案</translation>
@@ -26120,7 +25528,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>範例</translation>
@@ -26194,7 +25602,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>教學</translation>
@@ -26227,7 +25635,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -26240,9 +25648,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Delete</source>
         <translation>刪除</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (上次的工作階段)</translation>
@@ -26253,7 +25658,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>StaticAnalysisMessages</name>
+    <name>::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation>不要用 &apos;%1&apos; 做為建構子</translation>
@@ -26895,9 +26300,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Misc Types</source>
         <translation>其他型態</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>除錯工具設定</translation>
@@ -26922,9 +26324,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Enable Debugging of Subprocesses</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation type="unfinished"></translation>
@@ -27274,14 +26673,6 @@ references to elements in other files, loops, etc.)</source>
 <context>
     <name>::QtSupport</name>
     <message>
-        <source>Examples</source>
-        <translation>範例</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation>教學</translation>
-    </message>
-    <message>
         <source>Copy Project to writable Location?</source>
         <translation>是否要複製專案到可寫入的位置？</translation>
     </message>
@@ -27321,9 +26712,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Failed to open project</source>
         <translation type="obsolete">開啟專案失敗</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MeeGo/Harmattan</source>
         <translation>MeeGo/Harmattan</translation>
@@ -29475,9 +28863,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Add Breakpoint</source>
         <translation>新增中斷點</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Server port:</source>
         <translation type="unfinished"></translation>
@@ -29558,9 +28943,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Debugger for &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation type="unfinished"></translation>
@@ -29582,9 +28964,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation type="unfinished">&lt;html&gt;&lt;body&gt;&lt;p&gt;請在此指定 &lt;a href=&quot;%1&quot;&gt;Windows 主控台除錯器執行檔&lt;/a&gt; (%2) 的路徑。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation type="unfinished"></translation>
@@ -29627,7 +29006,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation type="unfinished"></translation>
@@ -29673,9 +29052,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Error Loading Core File</source>
         <translation type="unfinished"></translation>
@@ -29717,9 +29093,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 </source>
         <translation type="unfinished">附加到 core 檔 &quot;%1&quot; 失敗：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>無法與子行程建立通訊：%1</translation>
@@ -29757,9 +29130,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Interrupting not possible</source>
         <translation>無法中斷</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation type="unfinished">遠端錯誤</translation>
@@ -29808,16 +29178,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Process gdbserver finished. Status: %1</source>
         <translation type="unfinished">gdbserver 行程已完成。狀態：%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module Name</source>
         <translation type="unfinished"></translation>
@@ -29899,9 +29263,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;未知&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation type="unfinished">更新模組列表</translation>
@@ -29950,9 +29311,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation type="unfinished">顯示 &quot;%1&quot; 的相依性</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>正在連線到除錯伺服器 %1:%2</translation>
@@ -29986,9 +29344,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Closing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success: </source>
         <translation type="unfinished"></translation>
@@ -29997,9 +29352,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Properties</source>
         <translation type="unfinished">屬性</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation type="unfinished">第 %2 行第 %3 欄的 %1 屬性必須要重新載入 QML 應用程式才能更改。</translation>
@@ -30024,9 +29376,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Reload QML</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>重新載入暫存器列表</translation>
@@ -30075,9 +29424,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Binary</source>
         <translation>二進位</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>快照</translation>
@@ -30126,9 +29472,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Frame #%1 (%2)</source>
         <translation type="unfinished">框架 #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -30415,9 +29758,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation type="unfinished">無法將新的 debian 目錄移動到&apos;%1&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation type="unfinished"></translation>
@@ -30438,9 +29778,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Add Packaging Files to Project</source>
         <translation type="unfinished">新增打包檔到專案中</translation>
@@ -30732,10 +30069,6 @@ Remote stderr was: %1</source>
         <translation type="unfinished">新增</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation type="unfinished">複製</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation type="unfinished">移除</translation>
     </message>
@@ -31017,9 +30350,6 @@ Qt Creator 知道一個相似的URI.</translation>
         <source>Could not copy the file to %1.</source>
         <translation type="unfinished">無法複製檔案到 %1。</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished">檔名為空。</translation>
@@ -31036,9 +30366,6 @@ Qt Creator 知道一個相似的URI.</translation>
         <source>Cannot write file. Disk full?</source>
         <translation type="unfinished">無法寫入檔案。磁碟空間是否已滿？</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation type="unfinished">所有檔案 (*)</translation>

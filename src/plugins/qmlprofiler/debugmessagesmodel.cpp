@@ -27,11 +27,11 @@ QRgb DebugMessagesModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "Debug Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Warning Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Critical Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Fatal Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Info Message"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Debug Message"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Warning Message"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Critical Message"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Fatal Message"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Info Message"),
 };
 
 QString DebugMessagesModel::messageType(uint i)

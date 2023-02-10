@@ -186,8 +186,7 @@
             verbose logging.
 
         \li Select the \uicontrol {Extended mode} check box to continue
-            listening for connection requests after after the connection
-            is closed.
+            listening for connection requests after the connection is closed.
 
         \li Select the \uicontrol {Reset on connection} check box to
             reset the board when the connection is created.

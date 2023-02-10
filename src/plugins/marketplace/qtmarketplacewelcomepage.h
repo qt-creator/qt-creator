@@ -12,7 +12,6 @@ namespace Internal {
 
 class QtMarketplaceWelcomePage : public Core::IWelcomePage
 {
-    Q_DECLARE_TR_FUNCTIONS(Marketplace::Internal::QtMarketplaceWelcomePage)
 public:
     QtMarketplaceWelcomePage() = default;
 

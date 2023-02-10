@@ -115,6 +115,9 @@ private slots:
     void hostSpecialChars_data();
     void hostSpecialChars();
 
+    void tmp_data();
+    void tmp();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1323,6 +1326,36 @@ void tst_fileutils::hostSpecialChars()
     FilePath toFromActual = FilePath::fromString(fp.toString());
     QCOMPARE(toFromActual, fp);
     QCOMPARE(toFromExpected, expected);
+}
+
+void tst_fileutils::tmp_data()
+{
+    QTest::addColumn<QString>("templatepath");
+    QTest::addColumn<bool>("expected");
+
+    QTest::addRow("empty") << "" << true;
+    QTest::addRow("no-template") << "foo" << true;
+    QTest::addRow("realtive-template") << "my-file-XXXXXXXX" << true;
+    QTest::addRow("absolute-template") << QDir::tempPath() + "/my-file-XXXXXXXX" << true;
+    QTest::addRow("non-existing-dir") << "/this/path/does/not/exist/my-file-XXXXXXXX" << false;
+
+    QTest::addRow("on-device") << "device://test/./my-file-XXXXXXXX" << true;
+}
+
+void tst_fileutils::tmp()
+{
+    QFETCH(QString, templatepath);
+    QFETCH(bool, expected);
+
+    FilePath fp = FilePath::fromString(templatepath);
+
+    const auto result = fp.createTempFile();
+    QCOMPARE(result.has_value(), expected);
+
+    if (result.has_value()) {
+        QVERIFY(result->exists());
+        QVERIFY(result->removeFile());
+    }
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)

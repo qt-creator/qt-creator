@@ -7,6 +7,8 @@
 
 #include <QObject>
 
+#include <functional>
+
 namespace ExtensionSystem {
 
 namespace Internal {
@@ -43,6 +45,11 @@ public:
 
 protected:
     virtual void initialize() {}
+
+    using TestCreator = std::function<QObject *()>;
+    template <typename Test, typename ...Args>
+    void addTest(Args && ...args) { addTestCreator([args...] { return new Test(args...); }); }
+    void addTestCreator(const TestCreator &creator);
 
 signals:
     void asynchronousShutdownFinished();

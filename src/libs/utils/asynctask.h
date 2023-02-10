@@ -44,13 +44,11 @@ public:
     void setAsyncCallData(const Function &function, const Args &...args)
     {
         m_startHandler = [=] {
-            return Internal::runAsync_internal(m_threadPool, m_stackSize, m_priority,
-                                               function, args...);
+            return Utils::runAsync(m_threadPool, m_priority, function, args...);
         };
     }
     void setFutureSynchronizer(FutureSynchronizer *synchorizer) { m_synchronizer = synchorizer; }
     void setThreadPool(QThreadPool *pool) { m_threadPool = pool; }
-    void setStackSizeInBytes(const StackSizeInBytes &size) { m_stackSize = size; }
     void setPriority(QThread::Priority priority) { m_priority = priority; }
 
     void start()
@@ -75,7 +73,6 @@ private:
     FutureSynchronizer *m_synchronizer = nullptr;
     QThreadPool *m_threadPool = nullptr;
     QThread::Priority m_priority = QThread::InheritPriority;
-    StackSizeInBytes m_stackSize = {};
     QFutureWatcher<ResultType> m_watcher;
 };
 

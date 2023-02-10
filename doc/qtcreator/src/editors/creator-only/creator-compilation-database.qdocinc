@@ -23,7 +23,7 @@
 
     You can use the experimental Compilation Database Project Manager to open
     the files in a compilation database with access to all the editing features
-    provided by the Clang code model.
+    of the Clang code model.
 
     To switch between header and source files, select \uicontrol Tools >
     \uicontrol C++ > \uicontrol {Switch Header/Source}.

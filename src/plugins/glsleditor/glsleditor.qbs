@@ -23,6 +23,7 @@ QtcPlugin {
         "glsleditorconstants.h",
         "glsleditorplugin.cpp",
         "glsleditorplugin.h",
+        "glsleditortr.h",
         "glslhighlighter.cpp",
         "glslhighlighter.h",
         "glslindenter.cpp",

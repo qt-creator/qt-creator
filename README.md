@@ -148,7 +148,12 @@ optimizations but debug information with `-DCMAKE_BUILD_TYPE=RelWithDebInfo`.
 You can find more options in the generated CMakeCache.txt file. For instance,
 building of Qbs together with Qt Creator can be enabled with `-DBUILD_QBS=ON`.
 
-Installation is not needed. It is however possible, using
+Installation is not needed. You can run Qt Creator directly from the build
+directory. On Windows, make sure that your `PATH` environment variable points to
+all required DLLs, like Qt and LLVM. On Linux and macOS, the build already
+contains the necessary `RPATH`s for the dependencies.
+
+If you want to install Qt Creator anyway, that is however possible using
 
     cmake --install . --prefix /path/to/qtcreator_install
 
@@ -156,6 +161,16 @@ To create a self-contained Qt Creator installation, including all dependencies
 like Qt and LLVM, additionally run
 
     cmake --install . --prefix /path/to/qtcreator_install --component Dependencies
+
+To install development files like headers, CMake files, and `.lib` files on
+Windows, run
+
+    cmake --install . --prefix /path/to/qtcreator_install --component Devel
+
+If you used the `RelWithDebInfo` configuration and want debug information to be
+available to the installed Qt Creator, run
+
+    cmake --install . --prefix /path/to/qtcreator_install --component DebugInfo
 
 ### Perf Profiler Support
 

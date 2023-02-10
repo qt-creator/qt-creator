@@ -30,27 +30,27 @@ QRgb Quick3DModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Frame"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Synchronize Frame"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Prepare Frame"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Load"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Custom Mesh Load"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Load"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Generate Shader"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Load Shader"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Particle Update"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Call"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Pass"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Event Data"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Render Frame"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Synchronize Frame"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Prepare Frame"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Mesh Load"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Custom Mesh Load"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Texture Load"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Generate Shader"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Load Shader"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Particle Update"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Render Call"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Render Pass"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Event Data"),
 
-    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Memory consumption"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Memory consumption"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Mesh Memory consumption"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Texture Memory consumption"),
 };
 
 static const char *unloadMessageTypes[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Unload"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Custom Mesh Unload"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Unload"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Mesh Unload"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Custom Mesh Unload"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Texture Unload"),
 };
 
 QString Quick3DModel::messageType(uint i)

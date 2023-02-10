@@ -8,6 +8,8 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 
+namespace Utils { class MacroExpander; }
+
 namespace CMakeProjectManager::Internal {
 
 class CMakeBuildSystem;
@@ -34,6 +36,8 @@ public:
     QStringList initialCMakeArguments;
     QStringList configurationChangesArguments;
     QStringList additionalCMakeArguments;
+
+    Utils::MacroExpander* expander = nullptr;
 };
 
 } // CMakeProjectManager::Internal

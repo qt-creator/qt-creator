@@ -599,8 +599,7 @@ void GenericBuildSystem::updateDeploymentData()
     }
     if (hasDeploymentData) {
         DeploymentData deploymentData;
-        deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
-                                                  projectDirectory().toString());
+        deploymentData.addFilesFromDeploymentFile(deploymentFilePath, projectDirectory());
         setDeploymentData(deploymentData);
         if (m_deployFileWatcher.filePaths() != FilePaths{deploymentFilePath}) {
             m_deployFileWatcher.clear();

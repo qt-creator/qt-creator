@@ -154,15 +154,14 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
                                                   FilePath clangIncludeDir)
 {
     QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
-        QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
+        Tr::tr("Could not retrieve build directory.")));
     QTC_ASSERT(!projectInfoList.isEmpty(),
                return GenerateCompilationDbResult(QString(), "Could not retrieve project info."));
     QTC_CHECK(baseDir.ensureWritableDir());
     QFile compileCommandsFile(baseDir.pathAppended("compile_commands.json").toFSPathString());
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
     if (!fileOpened) {
-        return GenerateCompilationDbResult(QString(),
-                QCoreApplication::translate("ClangUtils", "Could not create \"%1\": %2")
+        return GenerateCompilationDbResult(QString(), Tr::tr("Could not create \"%1\": %2")
                     .arg(compileCommandsFile.fileName(), compileCommandsFile.errorString()));
     }
     compileCommandsFile.write("[");

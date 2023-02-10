@@ -47,6 +47,7 @@ Project {
                 "helpplugin.cpp", "helpplugin.h",
                 "helpviewer.cpp", "helpviewer.h",
                 "helpwidget.cpp", "helpwidget.h",
+                "helptr.h",
                 "localhelpmanager.cpp", "localhelpmanager.h",
                 "openpagesmanager.cpp", "openpagesmanager.h",
                 "openpagesswitcher.cpp", "openpagesswitcher.h",

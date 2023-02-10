@@ -392,7 +392,7 @@ void TerminalImpl::start()
         allArgs = QStringList { ProcessArgs::joinArgs(allArgs) };
 
     d->m_process.setEnvironment(m_setup.m_environment);
-    d->m_process.setCommand({FilePath::fromString(terminal.command), allArgs});
+    d->m_process.setCommand({terminal.command, allArgs});
     d->m_process.setProcessImpl(m_setup.m_processImpl);
     d->m_process.setReaperTimeout(m_setup.m_reaperTimeout);
 
@@ -400,7 +400,7 @@ void TerminalImpl::start()
     if (!d->m_process.waitForStarted()) {
         const QString msg = Tr::tr("Cannot start the terminal emulator \"%1\", change the "
                                            "setting in the Environment preferences. (%2)")
-                                .arg(terminal.command, d->m_process.errorString());
+                                .arg(terminal.command.toUserOutput(), d->m_process.errorString());
         cleanupAfterStartFailure(msg);
         return;
     }

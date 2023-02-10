@@ -18,10 +18,11 @@ QtcPlugin {
         "ctfstatisticsview.cpp", "ctfstatisticsview.h",
         "ctftimelinemodel.cpp", "ctftimelinemodel.h",
         "ctftracemanager.cpp", "ctftracemanager.h",
+        "ctfvisualizerconstants.h",
         "ctfvisualizerplugin.cpp", "ctfvisualizerplugin.h",
         "ctfvisualizertool.cpp", "ctfvisualizertool.h",
         "ctfvisualizertraceview.cpp", "ctfvisualizertraceview.h",
-        "ctfvisualizerconstants.h",
+        "ctfvisualizertr.h",
         "../../libs/3rdparty/json/json.hpp",
     ]
 }

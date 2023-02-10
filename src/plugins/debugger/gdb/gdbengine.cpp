@@ -4439,12 +4439,11 @@ void GdbEngine::setupInferior()
         }
 
         // Do that first, otherwise no symbols are loaded.
-        QFileInfo fi = executable.toFileInfo();
-        QString path = fi.absoluteFilePath();
+        const QString localExecutablePath = executable.absoluteFilePath().path();
         // This is *not* equivalent to -file-exec-and-symbols. If the file is not executable
         // (contains only debugging symbols), this should still work.
-        runCommand({"-file-exec-file \"" + path + '"'});
-        runCommand({"-file-symbol-file \"" + path + '"',
+        runCommand({"-file-exec-file \"" + localExecutablePath + '"'});
+        runCommand({"-file-symbol-file \"" + localExecutablePath + '"',
                     CB(handleFileExecAndSymbols)});
 
     } else if (isTermEngine()) {
@@ -5078,7 +5077,7 @@ void GdbEngine::handleFetchVariables(const DebuggerResponse &response)
 QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
 {
     if (sm == StartInternal) {
-        return QCoreApplication::translate("QtDumperHelper",
+        return Tr::tr(
             "ptrace: Operation not permitted.\n\n"
             "Could not attach to the process. "
             "Make sure no other debugger traces this process.\n"
@@ -5086,7 +5085,7 @@ QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
             "/proc/sys/kernel/yama/ptrace_scope\n"
             "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
     }
-    return QCoreApplication::translate("QtDumperHelper",
+    return Tr::tr(
         "ptrace: Operation not permitted.\n\n"
         "Could not attach to the process. "
         "Make sure no other debugger traces this process.\n"

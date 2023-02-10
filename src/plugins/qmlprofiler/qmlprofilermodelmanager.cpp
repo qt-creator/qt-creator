@@ -22,19 +22,19 @@
 namespace QmlProfiler {
 
 static const char *ProfileFeatureNames[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "JavaScript"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Memory Usage"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Pixmap Cache"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Scene Graph"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Animations"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Painting"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Compiling"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Creating"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Binding"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Handling Signal"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Input Events"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Debug Messages"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Quick3D")
+    QT_TRANSLATE_NOOP("::QmlProfiler", "JavaScript"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Memory Usage"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Pixmap Cache"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Scene Graph"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Animations"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Painting"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Compiling"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Creating"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Binding"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Handling Signal"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Input Events"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Debug Messages"),
+    QT_TRANSLATE_NOOP("::QmlProfiler", "Quick3D")
 };
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
@@ -54,7 +54,6 @@ private:
 
 class QmlProfilerEventStorage : public Timeline::TraceEventStorage
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlProfilerEventStorage)
 public:
     using ErrorHandler = std::function<void(const QString &)>;
 

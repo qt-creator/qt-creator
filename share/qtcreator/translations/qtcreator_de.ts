@@ -1284,11 +1284,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Adresse öffnen</translation>
-    </message>
+    <name>::Help</name>
     <message>
         <source>Open Link as New Page</source>
         <translation>Verweis in neuer Seite öffnen</translation>
@@ -9216,10 +9212,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Verweis öffnen</translation>
     </message>
     <message>
-        <source>Open Link as New Page</source>
-        <translation>Verweis in neuer Seite öffnen</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Verweis kopieren</translation>
     </message>
@@ -12094,7 +12086,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Wählen Sie ein Thema für &lt;b&gt;%1&lt;/b&gt;:</translation>
@@ -14946,7 +14938,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Aktuelle Datei&gt;</translation>
@@ -16297,13 +16289,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     <message>
         <source>Collapse All</source>
         <translation>Alle einklappen</translation>
-    </message>
-</context>
-<context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
     </message>
 </context>
 <context>
@@ -30875,7 +30860,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Zeichen entfernen</translation>
@@ -33670,7 +33655,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -34545,11 +34530,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>JS-Quelle für %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonyme Funktion</translation>
@@ -35195,7 +35176,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>ResourceTopLevelNode</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Präfix: %2</translation>
@@ -39505,7 +39486,7 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>DevelopmentTeam</name>
+    <name>::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation>%1 - Free Provisioning-Team : %2</translation>
@@ -41511,7 +41492,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>HeobDialog</name>
+    <name>::Valgrind</name>
     <message>
         <source>New</source>
         <translation>Neu</translation>
@@ -41633,10 +41614,6 @@ Was soll %1 tun?</translation>
         <translation>Vorgabe</translation>
     </message>
     <message>
-        <source>Heob</source>
-        <translation>Heob</translation>
-    </message>
-    <message>
         <source>New Heob Profile</source>
         <translation>Neues Heob-Profil</translation>
     </message>
@@ -41656,9 +41633,6 @@ Was soll %1 tun?</translation>
         <source>Are you sure you want to delete this profile permanently?</source>
         <translation>Möchten Sie dieses Profil endgültig löschen?</translation>
     </message>
-</context>
-<context>
-    <name>HeobData</name>
     <message>
         <source>Process %1</source>
         <translation>Prozess %1</translation>
@@ -41721,7 +41695,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Clang-Format Style</source>
         <translation>Clang-Format-Stil</translation>
@@ -41735,7 +41709,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatPlugin</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>Verwendete .clang-format-Konfigurationsdatei öffnen</translation>
@@ -42882,7 +42856,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfig</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Projekt: %1 (basierend auf %2)</translation>
@@ -44739,7 +44713,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Marketplace::Internal::QtMarketplaceWelcomePage</name>
+    <name>::Marketplace</name>
     <message>
         <source>Marketplace</source>
         <translation>Marketplace</translation>
@@ -45004,11 +44978,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation>Ausführung ohne Deployment</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::ProjectExplorer</name>
@@ -45553,7 +45523,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProMessageHandler</name>
+    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
@@ -50576,9 +50546,6 @@ in &quot;%2&quot; aus.
         <source>Disable Diagnostic in Current Project</source>
         <translation>Meldung für aktuelles Projekt deaktivieren</translation>
     </message>
-</context>
-<context>
-    <name>ClangUtils</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation>Build-Verzeichnis konnte nicht abgefragt werden.</translation>
@@ -50589,7 +50556,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatGlobalConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Formatting mode:</source>
         <translation>Formatierungsart:</translation>
@@ -50630,9 +50597,6 @@ in &quot;%2&quot; aus.
         <source>Override Clang Format configuration file with the chosen configuration.</source>
         <translation>Die Clang-Format-Konfigurationsdatei mit der gewählten Konfiguration überschreiben.</translation>
     </message>
-</context>
-<context>
-    <name>ClangFormatStyleFactory</name>
     <message>
         <source>ClangFormat</source>
         <translation>ClangFormat</translation>
@@ -50764,7 +50728,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Coco::CocoPlugin</name>
+    <name>::Coco</name>
     <message>
         <source>Select a Squish Coco CoverageBrowser Executable</source>
         <translation type="unfinished"></translation>
@@ -52307,7 +52271,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>GitLab::GitLabCloneDialog</name>
+    <name>::GitLab</name>
     <message>
         <source>Clone Repository</source>
         <translation type="unfinished"></translation>
@@ -52368,9 +52332,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Cloning failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabDialog</name>
     <message>
         <source>GitLab</source>
         <translation type="unfinished"></translation>
@@ -52439,9 +52400,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabOptionsPage</name>
     <message>
         <source>Host:</source>
         <translation type="unfinished">Host:</translation>
@@ -52462,13 +52420,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>HTTPS:</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>GitLab</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GitLab::GitLabOptionsWidget</name>
     <message>
         <source>Default:</source>
         <translation type="unfinished">Vorgabe:</translation>
@@ -52517,13 +52468,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Add</source>
         <translation type="unfinished">Hinzufügen</translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabPlugin</name>
-    <message>
-        <source>GitLab</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>GitLab...</source>
         <translation type="unfinished"></translation>
@@ -52535,13 +52479,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <message>
         <source>Invalid GitLab configuration. For a fully functional configuration, you need to set up host name or address and an access token. Providing the path to curl is mandatory.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GitLab::GitLabProjectSettingsWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation type="unfinished">Host:</translation>
     </message>
     <message>
         <source>Linked GitLab Configuration:</source>
@@ -52565,10 +52502,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Remote host does not match chosen GitLab configuration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Check settings for misconfiguration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

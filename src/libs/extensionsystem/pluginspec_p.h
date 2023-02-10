@@ -79,6 +79,8 @@ public:
     PluginSpec::PluginArgumentDescriptions argumentDescriptions;
     IPlugin *plugin = nullptr;
 
+    QList<std::function<QObject *()>> registeredPluginTests;
+
     PluginSpec::State state = PluginSpec::Invalid;
     bool hasError = false;
     QString errorString;

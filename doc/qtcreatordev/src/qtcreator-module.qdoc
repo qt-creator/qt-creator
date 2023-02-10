@@ -34,11 +34,10 @@
                 for plugins and basic mechanisms for plugin interaction like an
                 object pool.
 
-    \omit
         \row
             \li \l{Utils}
-            \li General utility library.
-
+            \li Useful classes that are reused in a lot of places in Qt Creator code.
+    \omit
         \row
             \li \l{QmlJS}
             \li QML and JavaScript language support library.

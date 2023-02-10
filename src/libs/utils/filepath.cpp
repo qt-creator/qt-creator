@@ -20,6 +20,7 @@
 #include <QStringView>
 #include <QUrl>
 #include <QtGlobal>
+#include <QTemporaryFile>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -488,6 +489,40 @@ bool FilePath::isExecutableFile() const
 std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) const
 {
     return fileAccess()->refersToExecutableFile(*this,  matchScope);
+}
+
+expected_str<FilePath> FilePath::tmpDir() const
+{
+    if (needsDevice()) {
+        const Environment env = deviceEnvironment();
+        if (env.hasKey("TMPDIR"))
+            return FilePath::fromUserInput(env.value("TMPDIR")).onDevice(*this);
+        if (env.hasKey("TEMP"))
+            return FilePath::fromUserInput(env.value("TEMP")).onDevice(*this);
+        if (env.hasKey("TMP"))
+            return FilePath::fromUserInput(env.value("TMP")).onDevice(*this);
+
+        if (osType() != OsTypeWindows)
+            return FilePath("/tmp").onDevice(*this);
+        return make_unexpected(QString("Could not find temporary directory on device %1")
+                               .arg(displayName()));
+    }
+
+    return FilePath::fromUserInput(QDir::tempPath());
+}
+
+expected_str<FilePath> FilePath::createTempFile() const
+{
+    if (!needsDevice()) {
+        QTemporaryFile file(toFSPathString());
+        file.setAutoRemove(false);
+        if (file.open())
+            return FilePath::fromString(file.fileName());
+
+        return make_unexpected(QString("Could not create temporary file: %1").arg(file.errorString()));
+    }
+
+    return fileAccess()->createTempFile(*this);
 }
 
 bool FilePath::isReadableFile() const
@@ -1270,14 +1305,16 @@ FilePath FilePath::withNewPath(const QString &newPath) const
         assert(fullPath == FilePath::fromUrl("docker://123/usr/bin/make"))
     \endcode
 */
-FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
+FilePath FilePath::searchInDirectories(const FilePaths &dirs, const PathFilter &filter) const
 {
     if (isAbsolutePath())
         return *this;
-    return deviceEnvironment().searchInDirectories(path(), dirs);
+    return deviceEnvironment().searchInDirectories(path(), dirs, filter);
 }
 
-FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending amending) const
+FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
+                                PathAmending amending,
+                                const PathFilter &filter) const
 {
     if (isAbsolutePath())
         return *this;
@@ -1293,7 +1330,7 @@ FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending am
         else
             directories = additionalDirs + directories;
     }
-    return searchInDirectories(directories);
+    return searchInDirectories(directories, filter);
 }
 
 Environment FilePath::deviceEnvironment() const
@@ -1406,7 +1443,7 @@ expected_str<void> FilePath::copyRecursively(const FilePath &target) const
 
 expected_str<void> FilePath::copyFile(const FilePath &target) const
 {
-    if (host() != target.host()) {
+    if (!isSameDevice(target)) {
         // FIXME: This does not scale.
         const expected_str<QByteArray> contents = fileContents();
         if (!contents) {

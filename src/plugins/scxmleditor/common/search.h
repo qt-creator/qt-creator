@@ -4,10 +4,10 @@
 #pragma once
 
 #include "outputpane.h"
-#include "scxmleditortr.h"
 
 #include <utils/utilsicons.h>
 
+#include <QCoreApplication>
 #include <QFrame>
 #include <QPointer>
 
@@ -40,7 +40,7 @@ public:
 
     QString title() const override
     {
-        return Tr::tr("Search");
+        return QCoreApplication::translate("::ScxmlEditor", "Search");
     }
 
     QIcon icon() const override

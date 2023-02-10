@@ -1521,31 +1521,26 @@ void DebuggerPluginPrivate::attachCore()
     if (!lastExternalKit.isEmpty())
         dlg.setKitId(Id::fromString(lastExternalKit));
     dlg.setSymbolFile(FilePath::fromSettings(configValue("LastExternalExecutableFile")));
-    dlg.setLocalCoreFile(FilePath::fromSettings(configValue("LastLocalCoreFile")));
-    dlg.setRemoteCoreFile(FilePath::fromSettings(configValue("LastRemoteCoreFile")));
+    dlg.setCoreFile(FilePath::fromSettings(configValue("LastLocalCoreFile")));
     dlg.setOverrideStartScript(FilePath::fromSettings(configValue("LastExternalStartScript")));
     dlg.setSysRoot(FilePath::fromSettings(configValue("LastSysRoot")));
-    dlg.setForceLocalCoreFile(configValue("LastForceLocalCoreFile").toBool());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
     setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toSettings());
-    setConfigValue("LastLocalCoreFile", dlg.localCoreFile().toSettings());
-    setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile().toSettings());
+    setConfigValue("LastLocalCoreFile", dlg.coreFile().toSettings());
     setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
     setConfigValue("LastExternalStartScript", dlg.overrideStartScript().toSettings());
     setConfigValue("LastSysRoot", dlg.sysRoot().toSettings());
-    setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(dlg.kit());
-    runControl->setDisplayName(Tr::tr("Core file \"%1\"")
-        .arg(dlg.useLocalCoreFile() ? dlg.localCoreFile().toUserOutput()
-                                    : dlg.remoteCoreFile().toUserOutput()));
+    runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
     auto debugger = new DebuggerRunTool(runControl);
-    debugger->setInferiorExecutable(dlg.symbolFile());
-    debugger->setCoreFilePath(dlg.localCoreFile());
+
+    debugger->setInferiorExecutable(dlg.symbolFileCopy());
+    debugger->setCoreFilePath(dlg.coreFileCopy());
     debugger->setStartMode(AttachToCore);
     debugger->setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());

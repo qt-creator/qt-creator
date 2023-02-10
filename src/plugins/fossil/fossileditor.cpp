@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fossileditor.h"
+
 #include "annotationhighlighter.h"
 #include "constants.h"
-#include "fossilplugin.h"
 #include "fossilclient.h"
+#include "fossilplugin.h"
+#include "fossiltr.h"
 
 #include <utils/qtcassert.h>
 
@@ -31,8 +33,8 @@ public:
 FossilEditorWidget::FossilEditorWidget() :
     d(new FossilEditorWidgetPrivate)
 {
-    setAnnotateRevisionTextFormat(tr("&Annotate %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Annotate &Parent Revision %1"));
+    setAnnotateRevisionTextFormat(Tr::tr("&Annotate %1"));
+    setAnnotatePreviousRevisionTextFormat(Tr::tr("Annotate &Parent Revision %1"));
     setDiffFilePattern(Constants::DIFFFILE_ID_EXACT);
     setLogEntryPattern("^.*\\[([0-9a-f]{5,40})\\]");
     setAnnotationEntryPattern(QString("^") + Constants::CHANGESET_ID + " ");

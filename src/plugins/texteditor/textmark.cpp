@@ -63,8 +63,8 @@ private:
 
 TextMarkRegistry *m_instance = nullptr;
 
-TextMark::TextMark(const FilePath &fileName, int lineNumber, TextMarkCategory category)
-    : m_fileName(fileName)
+TextMark::TextMark(const FilePath &filePath, int lineNumber, TextMarkCategory category)
+    : m_fileName(filePath)
     , m_lineNumber(lineNumber)
     , m_visible(true)
     , m_category(category)
@@ -82,18 +82,18 @@ TextMark::~TextMark()
     m_baseTextDocument = nullptr;
 }
 
-FilePath TextMark::fileName() const
+FilePath TextMark::filePath() const
 {
     return m_fileName;
 }
 
-void TextMark::updateFileName(const FilePath &fileName)
+void TextMark::updateFilePath(const FilePath &filePath)
 {
-    if (fileName == m_fileName)
+    if (filePath == m_fileName)
         return;
     if (!m_fileName.isEmpty())
         TextMarkRegistry::remove(this);
-    m_fileName = fileName;
+    m_fileName = filePath;
     if (!m_fileName.isEmpty())
         TextMarkRegistry::add(this);
 }
@@ -451,14 +451,14 @@ TextMarkRegistry::TextMarkRegistry(QObject *parent)
 
 void TextMarkRegistry::add(TextMark *mark)
 {
-    instance()->m_marks[mark->fileName()].insert(mark);
-    if (TextDocument *document = TextDocument::textDocumentForFilePath(mark->fileName()))
+    instance()->m_marks[mark->filePath()].insert(mark);
+    if (TextDocument *document = TextDocument::textDocumentForFilePath(mark->filePath()))
         document->addMark(mark);
 }
 
 bool TextMarkRegistry::remove(TextMark *mark)
 {
-    return instance()->m_marks[mark->fileName()].remove(mark);
+    return instance()->m_marks[mark->filePath()].remove(mark);
 }
 
 TextMarkRegistry *TextMarkRegistry::instance()
@@ -500,7 +500,7 @@ void TextMarkRegistry::documentRenamed(IDocument *document,
     m_marks[newPath].unite(toBeMoved);
 
     for (TextMark *mark : std::as_const(toBeMoved))
-        mark->updateFileName(newPath);
+        mark->updateFilePath(newPath);
 }
 
 void TextMarkRegistry::allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath)
@@ -514,7 +514,7 @@ void TextMarkRegistry::allDocumentsRenamed(const FilePath &oldPath, const FilePa
     m_marks[oldPath].clear();
 
     for (TextMark *mark : oldFileNameMarks)
-        mark->updateFileName(newPath);
+        mark->updateFilePath(newPath);
 }
 
 QHash<AnnotationColors::SourceColors, AnnotationColors> AnnotationColors::m_colorCache;

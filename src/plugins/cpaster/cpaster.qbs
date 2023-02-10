@@ -19,6 +19,7 @@ QtcPlugin {
         "cpaster.qrc",
         "cpasterplugin.cpp",
         "cpasterplugin.h",
+        "cpastertr.h",
         "dpastedotcomprotocol.cpp",
         "dpastedotcomprotocol.h",
         "fileshareprotocol.cpp",

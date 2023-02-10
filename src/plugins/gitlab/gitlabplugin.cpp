@@ -7,6 +7,7 @@
 #include "gitlaboptionspage.h"
 #include "gitlabparameters.h"
 #include "gitlabprojectsettings.h"
+#include "gitlabtr.h"
 #include "queryrunner.h"
 #include "resultparser.h"
 
@@ -73,12 +74,12 @@ void GitLabPlugin::initialize()
     dd->parameters.fromSettings(Core::ICore::settings());
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(999);
-    panelFactory->setDisplayName(tr("GitLab"));
+    panelFactory->setDisplayName(Tr::tr("GitLab"));
     panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
         return new GitLabProjectSettingsWidget(project);
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
-    QAction *openViewAction = new QAction(tr("GitLab..."), this);
+    QAction *openViewAction = new QAction(Tr::tr("GitLab..."), this);
     auto gitlabCommand = Core::ActionManager::registerAction(openViewAction,
                                                              Constants::GITLAB_OPEN_VIEW);
     connect(openViewAction, &QAction::triggered, this, &GitLabPlugin::openView);
@@ -97,8 +98,8 @@ void GitLabPlugin::openView()
 {
     if (dd->dialog.isNull()) {
         while (!dd->parameters.isValid()) {
-            QMessageBox::warning(Core::ICore::dialogParent(), tr("Error"),
-                                 tr("Invalid GitLab configuration. For a fully functional "
+            QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"),
+                                 Tr::tr("Invalid GitLab configuration. For a fully functional "
                                     "configuration, you need to set up host name or address and "
                                     "an access token. Providing the path to curl is mandatory."));
             if (!Core::ICore::showOptionsDialog("GitLab"))
@@ -290,10 +291,8 @@ bool GitLabPlugin::handleCertificateIssue(const Utils::Id &serverId)
 
     GitLabServer server = dd->parameters.serverForId(serverId);
     if (QMessageBox::question(Core::ICore::dialogParent(),
-                              QCoreApplication::translate(
-                                  "GitLab::GitLabDialog", "Certificate Error"),
-                              QCoreApplication::translate(
-                                  "GitLab::GitLabDialog",
+                              Tr::tr("Certificate Error"),
+                              Tr::tr(
                                   "Server certificate for %1 cannot be authenticated.\n"
                                   "Do you want to disable SSL verification for this server?\n"
                                   "Note: This can expose you to man-in-the-middle attack.")

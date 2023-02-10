@@ -106,7 +106,7 @@
     \printuntil border.color
 
     We anchor the rectangles to their parent to position them in its
-    top-left and and bottom-left corners, as well as the vertical center
+    top-left and bottom-left corners, as well as the vertical center
     of its right edge. The following code snippet anchors a rectangle to
     the top-left corner of its parent:
 

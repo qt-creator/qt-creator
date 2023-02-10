@@ -48,5 +48,6 @@ QtcPlugin {
         "todoplugin.cpp",
         "todoplugin.h",
         "todoplugin.qrc",
+        "todotr.h",
     ]
 }

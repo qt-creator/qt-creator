@@ -65,7 +65,7 @@ public:
                    const RunSettings &runSettings,
                    const CppEditor::ClangDiagnosticConfig &diagnosticConfig);
 
-    Diagnostics read(const QString &logFilePath,
+    Diagnostics read(const Utils::FilePath &logFilePath,
                      const QSet<Utils::FilePath> &projectFiles,
                      QString *errorMessage) const;
 

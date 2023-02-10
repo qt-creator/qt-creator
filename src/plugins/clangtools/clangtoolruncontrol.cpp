@@ -189,7 +189,7 @@ void ClangToolRunWorker::start()
         const AnalyzeInputData input{tool, m_diagnosticConfig, m_temporaryDir.path(),
                                      m_environment, unit};
         const auto setupHandler = [this, unit, tool] {
-            const QString filePath = FilePath::fromString(unit.file).toUserOutput();
+            const QString filePath = unit.file.toUserOutput();
             appendMessage(Tr::tr("Analyzing \"%1\" [%2].").arg(filePath, clangToolName(tool)),
                           Utils::StdOutFormat);
             return true;
@@ -231,7 +231,7 @@ void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
         m_filesNotAnalyzed.insert(output.fileToAnalyze);
 
         const QString message = Tr::tr("Failed to analyze \"%1\": %2")
-                                    .arg(output.fileToAnalyze, output.errorMessage);
+                                    .arg(output.fileToAnalyze.toUserOutput(), output.errorMessage);
         appendMessage(message, Utils::StdErrFormat);
         appendMessage(output.errorDetails, Utils::StdErrFormat);
         return;
@@ -247,7 +247,8 @@ void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
         m_filesAnalyzed.remove(output.fileToAnalyze);
         m_filesNotAnalyzed.insert(output.fileToAnalyze);
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
-        appendMessage(Tr::tr("Failed to analyze \"%1\": %2").arg(output.fileToAnalyze, errorMessage),
+        appendMessage(Tr::tr("Failed to analyze \"%1\": %2")
+                        .arg(output.fileToAnalyze.toUserOutput(), errorMessage),
                       Utils::StdErrFormat);
     } else {
         if (!m_filesNotAnalyzed.contains(output.fileToAnalyze))

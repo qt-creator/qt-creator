@@ -81,6 +81,8 @@ protected:
     virtual void asyncCopyFile(const FilePath &filePath,
                                const Continuation<expected_str<void>> &cont,
                                const FilePath &target) const;
+
+    virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -135,6 +137,9 @@ protected:
     expected_str<qint64> writeFileContents(const FilePath &filePath,
                                            const QByteArray &data,
                                            qint64 offset) const override;
+
+    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess
@@ -186,6 +191,9 @@ protected:
                                            const QByteArray &data,
                                            qint64 offset) const override;
 
+    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+
+
 private:
     bool iterateWithFind(
             const FilePath &filePath,
@@ -197,6 +205,7 @@ private:
             QStringList *found) const;
 
     mutable bool m_tryUseFind = true;
+    mutable std::optional<bool> m_hasMkTemp;
 };
 
 } // Utils

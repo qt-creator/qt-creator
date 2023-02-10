@@ -23,6 +23,8 @@ const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";
 const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
 const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
 
+const char PACKAGE_MANAGER_DIR[] = ".qtc/package-manager";
+
 // Project
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 

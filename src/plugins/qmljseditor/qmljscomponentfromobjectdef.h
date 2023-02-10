@@ -8,8 +8,8 @@
 
 namespace QmlJSEditor {
 
-QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix
-    (const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
+QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix(
+    const Internal::QmlJSQuickFixAssistInterface *interface, QuickFixOperations &result);
 
 QMLJSEDITOR_EXPORT void performComponentFromObjectDef
     (const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef);

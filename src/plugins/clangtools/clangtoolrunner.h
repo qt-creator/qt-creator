@@ -14,12 +14,13 @@ namespace Utils::Tasking { class TaskItem; }
 namespace ClangTools {
 namespace Internal {
 
-struct AnalyzeUnit {
+struct AnalyzeUnit
+{
     AnalyzeUnit(const FileInfo &fileInfo,
                 const Utils::FilePath &clangResourceDir,
                 const QString &clangVersion);
 
-    QString file;
+    Utils::FilePath file;
     QStringList arguments; // without file itself and "-o somePath"
 };
 using AnalyzeUnits = QList<AnalyzeUnit>;
@@ -37,8 +38,8 @@ struct AnalyzeInputData
 struct AnalyzeOutputData
 {
     bool success = true;
-    QString fileToAnalyze;
-    QString outputFilePath;
+    Utils::FilePath fileToAnalyze;
+    Utils::FilePath outputFilePath;
     CppEditor::ClangToolType toolType;
     QString errorMessage = {};
     QString errorDetails = {};

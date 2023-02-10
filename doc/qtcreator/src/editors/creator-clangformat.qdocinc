@@ -15,7 +15,7 @@
     \uicontrol {Restart Now} to restart \QC and load the plugin.
 
     \note If you enable Clang Format, do not use the \l{Beautifying Source Code}
-    {Beautifier} because combining them can provide unexpected results.
+    {Beautifier} because combining them can lead to unexpected results.
 
     You can use Clang Format to enforce a coding style for a project or the
     whole organization. Create a \c {.clang-format} file that has the

@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::GLSLEditor)
+    Q_DECLARE_TR_FUNCTIONS(::GlslEditor)
 };
 
 } // namespace GLSLEditor

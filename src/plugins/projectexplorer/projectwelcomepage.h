@@ -5,13 +5,12 @@
 
 #include "projectexplorer.h"
 
-#include "projectexplorertr.h"
-
 #include <coreplugin/iwelcomepage.h>
 
 #include <utils/filepath.h>
 
 #include <QAbstractListModel>
+#include <QCoreApplication>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -44,7 +43,7 @@ class ProjectWelcomePage : public Core::IWelcomePage
 public:
     ProjectWelcomePage();
 
-    QString title() const override { return Tr::tr("Projects"); }
+    QString title() const override { return QCoreApplication::translate("::ProjectExplorer", "Projects"); }
     int priority() const override { return 20; }
     Utils::Id id() const override;
     QWidget *createWidget() const override;

@@ -57,6 +57,7 @@ Project {
             "remotelinuxrunconfiguration.h",
             "remotelinuxsignaloperation.cpp",
             "remotelinuxsignaloperation.h",
+            "remotelinuxtr.h",
             "rsyncdeploystep.cpp",
             "rsyncdeploystep.h",
             "sshkeycreationdialog.cpp",

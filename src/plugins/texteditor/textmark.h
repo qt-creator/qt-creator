@@ -38,10 +38,8 @@ public:
 class TEXTEDITOR_EXPORT TextMark
 {
 public:
-    TextMark(const Utils::FilePath &fileName,
-             int lineNumber,
-             TextMarkCategory category);
     TextMark() = delete;
+    TextMark(const Utils::FilePath &filePath, int lineNumber, TextMarkCategory category);
     virtual ~TextMark();
 
     // determine order on markers on the same line.
@@ -52,7 +50,7 @@ public:
         HighPriority // shown on top.
     };
 
-    Utils::FilePath fileName() const;
+    Utils::FilePath filePath() const;
     int lineNumber() const;
 
     virtual void paintIcon(QPainter *painter, const QRect &rect) const;
@@ -74,7 +72,7 @@ public:
     AnnotationRects annotationRects(const QRectF &boundingRect, const QFontMetrics &fm,
                                     const qreal fadeInOffset, const qreal fadeOutOffset) const;
     /// called if the filename of the document changed
-    virtual void updateFileName(const Utils::FilePath &fileName);
+    virtual void updateFilePath(const Utils::FilePath &filePath);
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void move(int line);

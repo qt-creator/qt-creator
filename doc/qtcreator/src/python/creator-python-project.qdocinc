@@ -13,7 +13,7 @@
 
     If you have not installed PySide6, \QC prompts you to install it after
     you create the project. Further, it prompts you to install the
-    \l {Python Language Server}{Python language server} that provides services
+    \l {Python Language Server}{Python language server} that offers services
     such as code completion and annotations. Select \uicontrol Install to install
     PySide6 and the language server.
 
@@ -39,12 +39,12 @@
 
     The \uicontrol {Window UI} wizard enables you to
     create a Python project that has the source file for a class. Specify
-    the PySide version, class name, base class, and and source file for the
+    the PySide version, class name, base class, and source file for the
     class.
 
     \image qtcreator-python-wizard-app-window.png "Qt for Python wizard for creating a widget-based UI"
 
-    The wizard adds the imports to the source file to provide
+    The wizard adds the imports to the source file for
     access to the QApplication, the base class you selected in the Qt
     Widgets module, and Qt UI tools:
 
@@ -117,7 +117,7 @@
     Python application. Select \uicontrol REPL on the toolbar to start the
     \l{https://pythonprogramminglanguage.com/repl/}{Python interactive shell}.
     To start the shell and import the current file as a module, select
-    select \uicontrol {REPL Import File}. To also import all functions from
+    \uicontrol {REPL Import File}. To also import all functions from
     the file, select \uicontrol {REPL Import *}.
 
     Always regenerate the Python code after modifying a UI file.
@@ -152,7 +152,7 @@
 
     \image qtcreator-python-wizard-qml.png "Qt for Python wizard for creating an empty Qt Quick application"
 
-    The wizard adds the following imports to the source file to provide access
+    The wizard adds the following imports to the source file for access
     to QGuiApplication and QQmlApplicationEngine:
 
     \badcode

@@ -46,7 +46,7 @@ bool FormPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+        *errorMessage = QCoreApplication::translate("::ProjectExplorer",
                                                     "\"data\" for a \"Form\" page needs to be unset or an empty object.");
         return false;
     }

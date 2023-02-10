@@ -69,8 +69,8 @@ private:
 
     std::unique_ptr<Utils::TaskTree> m_taskTree;
     QSet<Utils::FilePath> m_projectFiles;
-    QSet<QString> m_filesAnalyzed;
-    QSet<QString> m_filesNotAnalyzed;
+    QSet<Utils::FilePath> m_filesAnalyzed;
+    QSet<Utils::FilePath> m_filesNotAnalyzed;
 
     QElapsedTimer m_elapsed;
 };

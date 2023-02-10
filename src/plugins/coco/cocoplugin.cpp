@@ -4,6 +4,7 @@
 #include "cocoplugin.h"
 
 #include "cocolanguageclient.h"
+#include "cocotr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -46,18 +47,17 @@ void CocoPluginPrivate::startCoco()
     if (!candidates.isEmpty())
         cocoChooser.setFilePath(candidates.first());
     cocoChooser.setExpectedKind(PathChooser::Command);
-    cocoChooser.setPromptDialogTitle(CocoPlugin::tr(
-                                             "Select a Squish Coco CoverageBrowser Executable"));
+    cocoChooser.setPromptDialogTitle(Tr::tr("Select a Squish Coco CoverageBrowser Executable"));
 
     cocoChooser.setHistoryCompleter("Coco.CoverageBrowser.history", true);
-    layout->addRow(CocoPlugin::tr("CoverageBrowser:"), &cocoChooser);
+    layout->addRow(Tr::tr("CoverageBrowser:"), &cocoChooser);
     PathChooser csmesChoser;
     csmesChoser.setHistoryCompleter("Coco.CSMes.history", true);
     csmesChoser.setExpectedKind(PathChooser::File);
     csmesChoser.setInitialBrowsePathBackup(FileUtils::homePath());
-    csmesChoser.setPromptDialogFilter(CocoPlugin::tr("Coco instrumentation files (*.csmes)"));
-    csmesChoser.setPromptDialogTitle(CocoPlugin::tr("Select a Squish Coco Instrumentation File"));
-    layout->addRow(CocoPlugin::tr("CSMes:"), &csmesChoser);
+    csmesChoser.setPromptDialogFilter(Tr::tr("Coco instrumentation files (*.csmes)"));
+    csmesChoser.setPromptDialogTitle(Tr::tr("Select a Squish Coco Instrumentation File"));
+    layout->addRow(Tr::tr("CSMes:"), &csmesChoser);
     QDialogButtonBox buttons(QDialogButtonBox::Cancel | QDialogButtonBox::Open);
     layout->addItem(new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
     layout->addWidget(&buttons);

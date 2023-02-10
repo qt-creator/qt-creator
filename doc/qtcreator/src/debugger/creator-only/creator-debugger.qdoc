@@ -14,10 +14,31 @@
 
     \title Debugging
 
-    \QC provides a debugger plugin that acts as an interface between the \QC
-    core and external native debuggers such as the GNU Symbolic Debugger (GDB),
-    the Microsoft Console Debugger (CDB), a QML/JavaScript debugger, and the
-    debugger of the low level virtual machine (LLVM) project, LLDB.
+    A debugger lets you see what happens \e inside an application while it runs
+    or when it crashes. A debugger can do the following to help you find errors
+    in the application:
+
+    \list
+        \li Start the application with parameters that specify its behavior.
+        \li Stop the application when conditions are met.
+        \li Examine what happens when the application stops.
+        \li Make changes in the application when you fix an error and continue
+            to find the next one.
+    \endlist
+
+    The \QC debugger plugin acts as an interface between the \QC
+    core and external native debuggers that you can use to:
+
+    \list
+        \li Debug executable binary files - GNU Symbolic Debugger (GDB),
+            the Microsoft Console Debugger (CDB), and the debugger of the
+            low level virtual machine (LLVM) project, LLDB.
+        \li Debug QML and Java code and Qt Quick applications -
+            QML/JavaScript debugger.
+        \li Debug Python source code - \c pdb.
+    \endlist
+
+    For more information, see:
 
     \list
 
@@ -325,8 +346,7 @@
 
     \section1 Remote Debugging
 
-    \QC provides very easy access to remote debugging.
-
+    \QC makes remote debugging easy.
     In general, the remote debugging setup consist of a probe running on the
     remote machine and a counterpart running on the host side. The probe is
     either integrated into the running process (e.g. for QML debugging) or runs
@@ -533,11 +553,11 @@
 
     \endlist
 
-    \QC displays the raw information provided by the native debuggers in a clear
+    \QC displays the raw information from the native debuggers in a clear
     and concise manner with the goal to simplify the debugging process as much
     as possible without losing the power of the native debuggers.
 
-    In addition to the generic IDE functionality provided by stack view, views
+    In addition to the generic IDE functionality offered by stack view, views
     for locals and expressions, registers, and so on, \QC includes features to
     make debugging Qt-based applications easy. The debugger plugin understands
     the internal layout of several Qt classes, for example, QString, the Qt
@@ -627,7 +647,7 @@
     into one step for less noisy debugging. For more information, see
     \l{Specifying GDB Settings}.
 
-    The extended GDB settings provide the option to step backwards in code,
+    The extended GDB settings have the option to step backwards in code,
     but this option should be used with care, as it is slow and unstable on the
     GDB side. For more information, see \l{Specifying GDB Settings}.
 
@@ -665,8 +685,8 @@
     the bottom of the view. Output is displayed in the right pane of the
     \uicontrol {Debugger Log} view.
 
-    \note Usually, you do not need this feature because \QC provides you
-    with better ways to handle the task. For example, instead of using the GDB
+    \note Usually, you do not need this feature because \QC offers better ways to
+    handle the task. For example, instead of using the GDB
     \c print command from the command line, you can evaluate an expression in
     the \uicontrol {Expressions} view.
 
@@ -1093,9 +1113,9 @@
 
     As the format is not guaranteed to be stable, it is strongly recommended
     not to generate the wire format directly, but to use the abstraction
-    layer provided by the Python Dumper classes, specifically the \c{Dumper}
+    layer of the Python Dumper classes, specifically the \c{Dumper}
     class itself, and the \c{Dumper:Value} and \c{Dumper:Type} abstractions.
-    These provide a complete framework to take care of the \c iname and \c addr
+    These offer a complete framework to take care of the \c iname and \c addr
     fields, to handle children of simple types, references, pointers, enums, and
     known and unknown structs, as well as some convenience functions to handle
     common situations.
@@ -1287,7 +1307,7 @@
     built into or shipped alongside the debugged binary, or created on-the-fly
     by the debugging helper.
 
-    \QC uses the possibility to provide type information on-the-fly for most Qt
+    \QC offers type information on-the-fly for most Qt
     classes, obliterating the need to use \e Debug builds of Qt for the purpose
     of object introspection.
 

@@ -39,10 +39,12 @@ static void runProcess(QFutureInterface<void> &future,
     QString buffer;
     while (process.waitForReadyRead() && !future.isCanceled()) {
         buffer += QString::fromLocal8Bit(process.readAllRawStandardOutput());
-        while (const int index = buffer.indexOf('\n') != -1) {
+        int index = buffer.indexOf('\n');
+        while (index != -1) {
             const QString line = buffer.left(index + 1);
             processLine(line, ++processed);
             buffer = buffer.mid(index + 1);
+            index = buffer.indexOf('\n');
         }
     }
     if (!buffer.isEmpty())

@@ -1126,13 +1126,11 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
         cmd.addArg("-DCMAKE_BUILD_TYPE:STRING=" + buildType);
 
-    auto settings = Internal::CMakeSpecificSettings::instance();
-
-    // Package manager auto setup. The file auto-setup.cmake resides on the host,
-    // so it's not accessible for remotely running cmakes. We need to exclude that case.
-    if (!cmd.executable().needsDevice() && settings->packageManagerAutoSetup.value()) {
-        cmd.addArg("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
-                   "%{IDE:ResourcePath}/package-manager/auto-setup.cmake");
+    // Package manager auto setup
+    if (Internal::CMakeSpecificSettings::instance()->packageManagerAutoSetup.value()) {
+        cmd.addArg(QString("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
+                           "%{buildDir}/%1/auto-setup.cmake")
+                       .arg(Constants::PACKAGE_MANAGER_DIR));
     }
 
     // Cross-compilation settings:

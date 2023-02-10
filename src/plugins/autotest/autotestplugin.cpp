@@ -387,9 +387,44 @@ static QList<ITestConfiguration *> testItemsToTestConfigurations(const QList<ITe
 void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
 {
     TextEditor::BaseTextEditor *currentEditor = TextEditor::BaseTextEditor::currentTextEditor();
+    QTC_ASSERT(currentEditor && currentEditor->textDocument(), return);
+    const int line = currentEditor->currentLine();
+    const FilePath filePath = currentEditor->textDocument()->filePath();
+
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const CPlusPlus::Document::Ptr doc = snapshot.document(filePath);
+    if (doc.isNull()) // not part of C++ snapshot
+        return;
+
+    CPlusPlus::Scope *scope = doc->scopeAt(line, currentEditor->currentColumn());
     QTextCursor cursor = currentEditor->editorWidget()->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
     const QString text = cursor.selectedText();
+
+    while (scope && scope->asBlock())
+        scope = scope->enclosingScope();
+    if (scope && scope->asFunction()) { // class, namespace for further stuff?
+        const QList<const CPlusPlus::Name *> fullName
+                = CPlusPlus::LookupContext::fullyQualifiedName(scope);
+        const QString funcName = CPlusPlus::Overview().prettyName(fullName);
+        const TestFrameworks active = AutotestPlugin::activeTestFrameworks();
+        for (auto framework : active) {
+            const QStringList testName = framework->testNameForSymbolName(funcName);
+            if (!testName.size())
+                continue;
+            TestTreeItem *it = framework->rootNode()->findTestByNameAndFile(testName, filePath);
+            if (it) {
+                const QList<ITestConfiguration *> testsToRun
+                        = testItemsToTestConfigurations({ it }, mode);
+                if (!testsToRun.isEmpty()) {
+                    m_testRunner.runTests(mode, testsToRun);
+                    return;
+                }
+            }
+        }
+    }
+
+    // general approach
     if (text.isEmpty())
         return; // Do not trigger when no name under cursor
 
@@ -398,28 +433,22 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         return; // Wrong location triggered
 
     // check whether we have been triggered on a test function definition
-    const int line = currentEditor->currentLine();
-    const FilePath &filePath = currentEditor->textDocument()->filePath();
     QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
         return it->line() == line && it->filePath() == filePath;
     });
 
     if (filteredItems.size() == 0 && testsItems.size() > 1) {
-        const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
-        const CPlusPlus::Document::Ptr doc = snapshot.document(filePath);
-        if (!doc.isNull()) {
-            CPlusPlus::Scope *scope = doc->scopeAt(line, currentEditor->currentColumn());
-            if (scope->asClass()) {
-                const QList<const CPlusPlus::Name *> fullName
-                        = CPlusPlus::LookupContext::fullyQualifiedName(scope);
-                const QString className = CPlusPlus::Overview().prettyName(fullName);
+        CPlusPlus::Scope *scope = doc->scopeAt(line, currentEditor->currentColumn());
+        if (scope->asClass()) {
+            const QList<const CPlusPlus::Name *> fullName
+                    = CPlusPlus::LookupContext::fullyQualifiedName(scope);
+            const QString className = CPlusPlus::Overview().prettyName(fullName);
 
-                filteredItems = Utils::filtered(testsItems,
-                                                [&text, &className](ITestTreeItem *it){
-                    return it->name() == text
-                            && static_cast<ITestTreeItem *>(it->parent())->name() == className;
-                });
-            }
+            filteredItems = Utils::filtered(testsItems,
+                                            [&text, &className](ITestTreeItem *it){
+                return it->name() == text
+                        && static_cast<ITestTreeItem *>(it->parent())->name() == className;
+            });
         }
     }
     if ((filteredItems.size() != 1 && testsItems.size() > 1)
@@ -436,6 +465,24 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
     }
 
     m_testRunner.runTests(mode, testsToRun);
+}
+
+TestFrameworks AutotestPlugin::activeTestFrameworks()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    TestFrameworks sorted;
+    if (!project || projectSettings(project)->useGlobalSettings()) {
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 &ITestFramework::active);
+    } else { // we've got custom project settings
+        const TestProjectSettings *settings = projectSettings(project);
+        const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 [active](ITestFramework *framework) {
+            return active.value(framework, false);
+        });
+    }
+    return sorted;
 }
 
 void AutotestPlugin::updateMenuItemsEnabledState()

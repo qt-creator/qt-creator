@@ -48,7 +48,7 @@ CMakeSpecificSettings::CMakeSpecificSettings()
 
     registerAspect(&packageManagerAutoSetup);
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
-    packageManagerAutoSetup.setDefaultValue(false);
+    packageManagerAutoSetup.setDefaultValue(true);
     packageManagerAutoSetup.setLabelText(::CMakeProjectManager::Tr::tr("Package manager auto setup"));
     packageManagerAutoSetup.setToolTip(::CMakeProjectManager::Tr::tr("Add the CMAKE_PROJECT_INCLUDE_BEFORE variable "
         "pointing to a CMake script that will install dependencies from the conanfile.txt, "

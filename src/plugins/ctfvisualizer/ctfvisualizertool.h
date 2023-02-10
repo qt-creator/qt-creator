@@ -4,12 +4,12 @@
 #pragma once
 
 #include "ctfvisualizerconstants.h"
-#include "ctfvisualizertr.h"
 
 #include <debugger/debuggermainwindow.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
 
+#include <QCoreApplication>
 #include <QScopedPointer>
 
 namespace CtfVisualizer {
@@ -46,7 +46,8 @@ private:
     void toggleThreadRestriction(QAction *action);
 
     Utils::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
-                                     ::CtfVisualizer::Tr::tr("Chrome Trace Format Visualizer")};
+                                     QCoreApplication::translate("::CtfVisualizer",
+                                                                 "Chrome Trace Format Visualizer")};
 
     bool m_isLoading;
     QScopedPointer<QAction> m_loadJson;

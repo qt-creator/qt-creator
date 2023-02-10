@@ -63,6 +63,11 @@ ITestParser *ITestFramework::testParser()
     return m_testParser;
 }
 
+QStringList ITestFramework::testNameForSymbolName(const QString &) const
+{
+    return {};
+}
+
 ITestTool::ITestTool(bool activeByDefault)
     : ITestBase(activeByDefault, ITestBase::Tool)
 {}
