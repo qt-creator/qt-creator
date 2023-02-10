@@ -621,7 +621,8 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
 
     // check out the created repository file into the working directory
-    result = vcsSynchronousExec(workingDirectory, {"open", repoFilePath.toUserOutput()});
+    // --force as it may be not empty e.g. when creating a project from wizard
+    result = vcsSynchronousExec(workingDirectory, {"open", "--force", repoFilePath.toUserOutput()});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
     outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
