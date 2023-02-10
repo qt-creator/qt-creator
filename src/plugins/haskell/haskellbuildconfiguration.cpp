@@ -4,6 +4,7 @@
 #include "haskellbuildconfiguration.h"
 
 #include "haskellconstants.h"
+#include "haskelltr.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
@@ -35,7 +36,7 @@ HaskellBuildConfigurationFactory::HaskellBuildConfigurationFactory()
 
     setBuildGenerator([](const Kit *k, const Utils::FilePath &projectPath, bool forSetup)  {
         BuildInfo info;
-        info.typeName = HaskellBuildConfiguration::tr("Release");
+        info.typeName = Tr::tr("Release");
         if (forSetup) {
             info.displayName = info.typeName;
             info.buildDirectory = projectPath.parentDir().pathAppended(".stack-work");
@@ -73,7 +74,7 @@ void HaskellBuildConfiguration::setBuildType(BuildConfiguration::BuildType type)
 }
 
 HaskellBuildConfigurationWidget::HaskellBuildConfigurationWidget(HaskellBuildConfiguration *bc)
-    : NamedWidget(tr("General"))
+    : NamedWidget(Tr::tr("General"))
     , m_buildConfiguration(bc)
 {
     setLayout(new QVBoxLayout);
@@ -85,7 +86,7 @@ HaskellBuildConfigurationWidget::HaskellBuildConfigurationWidget(HaskellBuildCon
     box->setWidget(details);
     details->setLayout(new QHBoxLayout);
     details->layout()->setContentsMargins(0, 0, 0, 0);
-    details->layout()->addWidget(new QLabel(tr("Build directory:")));
+    details->layout()->addWidget(new QLabel(Tr::tr("Build directory:")));
 
     auto buildDirectoryInput = new Utils::PathChooser;
     buildDirectoryInput->setExpectedKind(Utils::PathChooser::Directory);

@@ -5,6 +5,7 @@
 
 #include "haskellconstants.h"
 #include "haskellmanager.h"
+#include "haskelltr.h"
 
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -18,9 +19,9 @@ namespace Internal {
 OptionsPage::OptionsPage()
 {
     setId(Constants::OPTIONS_GENERAL);
-    setDisplayName(tr("General"));
+    setDisplayName(Tr::tr("General"));
     setCategory("J.Z.Haskell");
-    setDisplayCategory(tr("Haskell"));
+    setDisplayCategory(Tr::tr("Haskell"));
     setCategoryIcon(Utils::Icon(":/haskell/images/category_haskell.png"));
 }
 
@@ -31,15 +32,15 @@ QWidget *OptionsPage::widget()
         m_widget = new QWidget;
         auto topLayout = new QVBoxLayout;
         m_widget->setLayout(topLayout);
-        auto generalBox = new QGroupBox(tr("General"));
+        auto generalBox = new QGroupBox(Tr::tr("General"));
         topLayout->addWidget(generalBox);
         topLayout->addStretch(10);
         auto boxLayout = new QHBoxLayout;
         generalBox->setLayout(boxLayout);
-        boxLayout->addWidget(new QLabel(tr("Stack executable:")));
+        boxLayout->addWidget(new QLabel(Tr::tr("Stack executable:")));
         m_stackPath = new PathChooser();
         m_stackPath->setExpectedKind(PathChooser::ExistingCommand);
-        m_stackPath->setPromptDialogTitle(tr("Choose Stack Executable"));
+        m_stackPath->setPromptDialogTitle(Tr::tr("Choose Stack Executable"));
         m_stackPath->setFilePath(HaskellManager::stackExecutable());
         m_stackPath->setCommandVersionArguments({"--version"});
         boxLayout->addWidget(m_stackPath);

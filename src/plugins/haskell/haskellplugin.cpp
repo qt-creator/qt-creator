@@ -9,6 +9,7 @@
 #include "haskellmanager.h"
 #include "haskellproject.h"
 #include "haskellrunconfiguration.h"
+#include "haskelltr.h"
 #include "optionspage.h"
 #include "stackbuildstep.h"
 
@@ -42,7 +43,7 @@ HaskellPlugin::~HaskellPlugin()
 
 static void registerGhciAction()
 {
-    QAction *action = new QAction(HaskellManager::tr("Run GHCi"), HaskellManager::instance());
+    QAction *action = new QAction(Tr::tr("Run GHCi"), HaskellManager::instance());
     Core::ActionManager::registerAction(action, Constants::A_RUN_GHCI);
     QObject::connect(action, &QAction::triggered, HaskellManager::instance(), [] {
         if (Core::IDocument *doc = Core::EditorManager::currentDocument())
@@ -60,7 +61,7 @@ bool HaskellPlugin::initialize(const QStringList &arguments, QString *errorStrin
     ProjectExplorer::ProjectManager::registerProjectType<HaskellProject>(
         Constants::C_HASKELL_PROJECT_MIMETYPE);
     TextEditor::SnippetProvider::registerGroup(Constants::C_HASKELLSNIPPETSGROUP_ID,
-                                               tr("Haskell", "SnippetProvider"));
+                                               Tr::tr("Haskell", "SnippetProvider"));
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, [] {
         HaskellManager::writeSettings(Core::ICore::settings());

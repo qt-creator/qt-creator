@@ -6,6 +6,7 @@
 #include "haskellconstants.h"
 #include "haskellhighlighter.h"
 #include "haskellmanager.h"
+#include "haskelltr.h"
 
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <texteditor/textdocument.h>
@@ -21,7 +22,7 @@ static QWidget *createEditorWidget()
 {
     auto widget = new TextEditor::TextEditorWidget;
     auto ghciButton = new Core::CommandButton(Constants::A_RUN_GHCI, widget);
-    ghciButton->setText(HaskellManager::tr("GHCi"));
+    ghciButton->setText(Tr::tr("GHCi"));
     QObject::connect(ghciButton, &QToolButton::clicked, HaskellManager::instance(), [widget] {
         HaskellManager::openGhci(widget->textDocument()->filePath());
     });
