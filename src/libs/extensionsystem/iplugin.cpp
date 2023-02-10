@@ -164,7 +164,7 @@ namespace Internal {
 class IPluginPrivate
 {
 public:
-    QList<std::function<QObject *()>> testCreators;
+    QList<TestCreator> testCreators;
 };
 
 } // Internal
