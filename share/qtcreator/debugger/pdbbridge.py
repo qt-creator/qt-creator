@@ -584,7 +584,7 @@ class QtcInternalDumper():
         if pyLocals is None:
             pyLocals = pyGlobals
         self.reset()
-        if isinstance(cmd, str):
+        if isinstance(cmd, __builtins__.str):
             cmd = compile(cmd, '<string>', 'exec')
         sys.settrace(self.trace_dispatch)
         try:
