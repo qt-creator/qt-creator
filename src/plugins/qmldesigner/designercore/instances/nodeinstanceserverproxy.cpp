@@ -46,12 +46,13 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <nanotrace/nanotrace.h>
 #include <projectexplorer/kit.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <nanotrace/nanotrace.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -132,6 +133,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     } else if (command.userType() == SyncNanotraceCommandType) {
         // ignore.
     } else {
+        QTC_ASSERT(false, );
         Q_ASSERT(false);
     }
 
