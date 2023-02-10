@@ -26,6 +26,8 @@
 #   include "androidplugin.h"
 #endif // WITH_TESTS
 
+using namespace Utils;
+
 namespace {
 static Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 }
@@ -41,13 +43,16 @@ const char commonArgsKey[] = "Common Arguments:";
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
 
-Q_GLOBAL_STATIC_WITH_ARGS(QRegularExpression, assertionReg,
-                          ("(\\(\\s*y\\s*[\\/\\\\]\\s*n\\s*\\)\\s*)(?<mark>[\\:\\?])",
-                           QRegularExpression::CaseInsensitiveOption
-                           | QRegularExpression::MultilineOption))
-
-using namespace Utils;
 using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutput>;
+
+static const QRegularExpression &assertionRegExp()
+{
+    static const QRegularExpression theRegExp
+        (R"((\(\s*y\s*[\/\\]\s*n\s*\)\s*)(?<mark>[\:\?]))", // (y/N)?
+        QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption);
+
+    return theRegExp;
+}
 
 /*!
     Parses the \a line for a [spaces]key[spaces]value[spaces] pattern and returns
@@ -79,7 +84,7 @@ int parseProgress(const QString &out, bool &foundAssertion)
                 progress = -1;
         }
         if (!foundAssertion)
-            foundAssertion = assertionReg->match(line).hasMatch();
+            foundAssertion = assertionRegExp().match(line).hasMatch();
     }
     return progress;
 }
@@ -1094,7 +1099,7 @@ bool AndroidSdkManagerPrivate::onLicenseStdOut(const QString &output, bool notif
                                                SdkCmdFutureInterface &fi)
 {
     m_licenseTextCache.append(output);
-    QRegularExpressionMatch assertionMatch = assertionReg->match(m_licenseTextCache);
+    const QRegularExpressionMatch assertionMatch = assertionRegExp().match(m_licenseTextCache);
     if (assertionMatch.hasMatch()) {
         if (notify) {
             result.stdOutput = m_licenseTextCache;
