@@ -45,7 +45,6 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/taskhub.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>

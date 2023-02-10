@@ -5,8 +5,6 @@
 
 #include "ioutputparser.h"
 
-#include <projectexplorer/task.h>
-
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT OsParser : public ProjectExplorer::OutputTaskParser

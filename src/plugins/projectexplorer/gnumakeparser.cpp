@@ -3,7 +3,6 @@
 
 #include "gnumakeparser.h"
 
-#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include <utils/qtcassert.h>
@@ -136,7 +135,6 @@ bool GnuMakeParser::hasFatalErrors() const
 
 #   include "outputparser_test.h"
 #   include "projectexplorer.h"
-#   include "projectexplorerconstants.h"
 
 namespace ProjectExplorer {
 

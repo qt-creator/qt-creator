@@ -7,7 +7,6 @@
 #include "compilationdatabaseprojectmanagertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <projectexplorer/task.h>
 #include <projectexplorer/treescanner.h>
 #include <utils/mimeutils.h>
 #include <utils/runextensions.h>

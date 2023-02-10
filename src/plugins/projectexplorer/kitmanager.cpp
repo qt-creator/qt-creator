@@ -8,11 +8,8 @@
 #include "kit.h"
 #include "kitfeatureprovider.h"
 #include "kitinformation.h"
-#include "kitmanagerconfigwidget.h"
-#include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
-#include "task.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>

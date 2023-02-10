@@ -3,8 +3,6 @@
 
 #include "../mesonoutputparser.h"
 
-#include <projectexplorer/taskhub.h>
-
 #include <utils/fileinprojectfinder.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>

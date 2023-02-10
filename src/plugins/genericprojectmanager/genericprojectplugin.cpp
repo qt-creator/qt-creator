@@ -21,7 +21,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/selectablefilesmodel.h>
-#include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>

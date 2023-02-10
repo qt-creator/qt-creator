@@ -10,7 +10,6 @@
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/task.h>
 
 #include <utils/environment.h>
 #include <utils/id.h>

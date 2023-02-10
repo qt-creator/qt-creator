@@ -3,7 +3,6 @@
 
 #include "xcodebuildparser.h"
 
-#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "task.h"
 

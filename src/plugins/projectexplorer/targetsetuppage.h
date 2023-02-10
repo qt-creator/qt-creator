@@ -5,10 +5,8 @@
 
 #include "projectexplorer_export.h"
 
-#include "kitinformation.h"
-#include "kitmanager.h"
+#include "kit.h"
 #include "projectimporter.h"
-#include "task.h"
 
 #include <utils/wizardpage.h>
 
