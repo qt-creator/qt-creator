@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru">
 <context>
-    <name>ADS::DockAreaTitleBar</name>
+    <name>QtC::ADS</name>
     <message>
         <source>Detach Area</source>
         <translation>Отцепить область</translation>
@@ -15,9 +15,6 @@
         <source>Close Other Areas</source>
         <translation>Закрыть другие области</translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockManager</name>
     <message>
         <source>Cannot Save Workspace</source>
         <translation>Не удалось сохранить сессию</translation>
@@ -52,9 +49,6 @@
         <source>Could not restore workspace %1</source>
         <translation>Не удалось восстановить сессию %1</translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockWidgetTab</name>
     <message>
         <source>Detach</source>
         <translation>Отцепить</translation>
@@ -67,9 +61,6 @@
         <source>Close Others</source>
         <translation>Закрыть другие</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceDialog</name>
     <message>
         <source>Workspace Manager</source>
         <translation>Управление сессиями</translation>
@@ -114,9 +105,6 @@
         <source>Export</source>
         <translation>Экспортировать</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceModel</name>
     <message>
         <source>Workspace</source>
         <translation>Сессия</translation>
@@ -150,23 +138,13 @@
         <translation>Переименование сессии</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Переименовать</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation>П&amp;ереименовать и открыть</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceNameInputDialog</name>
     <message>
         <source>Enter the name of the workspace:</source>
         <translation>Введите название сессии:</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceView</name>
     <message>
         <source>Import Workspace</source>
         <translation>Импорт сессии</translation>

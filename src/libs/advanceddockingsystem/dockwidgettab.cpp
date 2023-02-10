@@ -4,6 +4,7 @@
 #include "dockwidgettab.h"
 
 #include "ads_globals.h"
+#include "advanceddockingsystemtr.h"
 #include "dockareawidget.h"
 #include "dockmanager.h"
 #include "dockoverlay.h"
@@ -158,7 +159,7 @@ namespace ADS
         m_closeButton->setIconSize(QSize(11, 11));
         m_closeButton->setFixedSize(QSize(17, 17));
         q->onDockWidgetFeaturesChanged();
-        internal::setToolTip(m_closeButton, QObject::tr("Close Tab"));
+        internal::setToolTip(m_closeButton, Tr::tr("Close Tab"));
         QObject::connect(m_closeButton,
                          &QAbstractButton::clicked,
                          q,
@@ -410,12 +411,12 @@ namespace ADS
         const bool isNotOnlyTabInContainer =  !d->m_dockArea->dockContainer()->hasTopLevelDockWidget();
         const bool isDetachable = isFloatable && isNotOnlyTabInContainer;
 
-        auto action = menu.addAction(tr("Detach"), this, &DockWidgetTab::detachDockWidget);
+        auto action = menu.addAction(Tr::tr("Detach"), this, &DockWidgetTab::detachDockWidget);
         action->setEnabled(isDetachable);
         menu.addSeparator();
-        action = menu.addAction(tr("Close"), this, &DockWidgetTab::closeRequested);
+        action = menu.addAction(Tr::tr("Close"), this, &DockWidgetTab::closeRequested);
         action->setEnabled(isClosable());
-        menu.addAction(tr("Close Others"), this, &DockWidgetTab::closeOtherTabsRequested);
+        menu.addAction(Tr::tr("Close Others"), this, &DockWidgetTab::closeOtherTabsRequested);
         menu.exec(event->globalPos());
     }
 

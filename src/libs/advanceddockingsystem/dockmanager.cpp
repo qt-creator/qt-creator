@@ -576,8 +576,8 @@ namespace ADS
             d->m_workspaceDateTimes.insert(activeWorkspace(), QDateTime::currentDateTime());
         else
             QMessageBox::warning(parentWidget(),
-                                 tr("Cannot Save Workspace"),
-                                 tr("Could not save workspace to file %1")
+                                 Tr::tr("Cannot Save Workspace"),
+                                 Tr::tr("Could not save workspace to file %1")
                                      .arg(workspaceNameToFilePath(d->m_workspaceName)
                                               .toUserOutput()));
 
@@ -684,8 +684,8 @@ namespace ADS
             emit workspaceListChanged();
         } else {
             QMessageBox::warning(parentWidget(),
-                                 tr("Cannot Save Workspace"),
-                                 tr("Could not save workspace to file %1")
+                                 Tr::tr("Cannot Save Workspace"),
+                                 Tr::tr("Could not save workspace to file %1")
                                      .arg(workspaceNameToFilePath(d->m_workspaceName)
                                               .toUserOutput()));
         }
@@ -752,11 +752,11 @@ namespace ADS
      */
     bool DockManager::confirmWorkspaceDelete(const QStringList &workspace)
     {
-        const QString title = workspace.size() == 1 ? tr("Delete Workspace")
-                                                    : tr("Delete Workspaces");
+        const QString title = workspace.size() == 1 ? Tr::tr("Delete Workspace")
+                                                    : Tr::tr("Delete Workspaces");
         const QString question = workspace.size() == 1
-                                     ? tr("Delete workspace %1?").arg(workspace.first())
-                                     : tr("Delete these workspaces?\n    %1")
+                                     ? Tr::tr("Delete workspace %1?").arg(workspace.first())
+                                     : Tr::tr("Delete these workspaces?\n    %1")
                                            .arg(workspace.join("\n    "));
         return QMessageBox::question(parentWidget(),
                                      title,
@@ -964,8 +964,8 @@ namespace ADS
 
             if (!data) {
                 QMessageBox::warning(parentWidget(),
-                                     tr("Cannot Restore Workspace"),
-                                     tr("Could not restore workspace %1")
+                                     Tr::tr("Cannot Restore Workspace"),
+                                     Tr::tr("Could not restore workspace %1")
                                          .arg(fileName.toUserOutput()));
 
                 qCWarning(adsLog) << QString("Could not restore workspace %1: %2")

@@ -41859,7 +41859,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ADS::WorkspaceDialog</name>
+    <name>QtC::ADS</name>
     <message>
         <source>&amp;New</source>
         <translation>新規作成(&amp;N)</translation>
@@ -42538,7 +42538,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ADS::DockAreaTitleBar</name>
+    <name>QtC::ADS</name>
     <message>
         <source>Detach Area</source>
         <translation>エリアを切り離す</translation>
@@ -42551,9 +42551,6 @@ Output:
         <source>Close Other Areas</source>
         <translation>その他のエリアを閉じる</translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockManager</name>
     <message>
         <source>Cannot Save Workspace</source>
         <translation>ワークスペースを保存できません</translation>
@@ -42593,7 +42590,7 @@ Output:
     <name>QtC::Utils</name>
 </context>
 <context>
-    <name>ADS::DockWidgetTab</name>
+    <name>QtC::ADS</name>
     <message>
         <source>Detach</source>
         <translation>切り離す</translation>
@@ -42606,16 +42603,10 @@ Output:
         <source>Close Others</source>
         <translation>他を閉じる</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceNameInputDialog</name>
     <message>
         <source>Enter the name of the workspace:</source>
         <translation>ワークスペースの名前を入力してください:</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceModel</name>
     <message>
         <source>Workspace</source>
         <translation>ワークスペース</translation>
@@ -42649,16 +42640,9 @@ Output:
         <translation>ワークスペースの名前変更</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>名前を変更(&amp;R)</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation>名前変更して開く(&amp;O)</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceView</name>
     <message>
         <source>Import Workspace</source>
         <translation>ワークスペースをインポートする</translation>

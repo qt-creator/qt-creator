@@ -43117,7 +43117,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ADS::WorkspaceDialog</name>
+    <name>QtC::ADS</name>
     <message>
         <source>&amp;New</source>
         <translation>&amp;Neu</translation>
@@ -43744,7 +43744,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>ADS::DockWidgetTab</name>
+    <name>QtC::ADS</name>
     <message>
         <source>Detach</source>
         <translation>Ablösen</translation>
@@ -43757,9 +43757,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Close Others</source>
         <translation>Andere schließen</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceModel</name>
     <message>
         <source>Workspace</source>
         <translation type="unfinished"></translation>
@@ -43791,10 +43788,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Rename Workspace</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Umbenennen</translation>
     </message>
     <message>
         <source>Rename and &amp;Open</source>
@@ -49952,7 +49945,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>ADS::DockAreaTitleBar</name>
+    <name>QtC::ADS</name>
     <message>
         <source>Detach Area</source>
         <translation type="unfinished"></translation>
@@ -49965,9 +49958,6 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <source>Close Other Areas</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockManager</name>
     <message>
         <source>Cannot Save Workspace</source>
         <translation type="unfinished"></translation>
@@ -50001,16 +49991,10 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <source>Could not restore workspace %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceNameInputDialog</name>
     <message>
         <source>Enter the name of the workspace:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceView</name>
     <message>
         <source>Import Workspace</source>
         <translation type="unfinished"></translation>

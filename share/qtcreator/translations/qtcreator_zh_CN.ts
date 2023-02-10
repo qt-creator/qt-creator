@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
-    <name>ADS::DockAreaTitleBar</name>
+    <name>QtC::ADS</name>
     <message>
         <source>Detach Area</source>
         <translation>分离区域</translation>
@@ -15,9 +15,6 @@
         <source>Close Other Areas</source>
         <translation>关闭其它区域</translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockManager</name>
     <message>
         <source>Cannot Save Workspace</source>
         <translation>无法保存工作区</translation>
@@ -52,9 +49,6 @@
         <source>Could not restore workspace %1</source>
         <translation>无法恢复 %1 工作区</translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockWidgetTab</name>
     <message>
         <source>Detach</source>
         <translation>分离</translation>
@@ -67,9 +61,6 @@
         <source>Close Others</source>
         <translation>关闭其它</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceDialog</name>
     <message>
         <source>Workspace Manager</source>
         <translation>工作区管理器</translation>
@@ -114,9 +105,6 @@
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;What is a Workspace?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;什么是工作区？&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceModel</name>
     <message>
         <source>Workspace</source>
         <translation>工作区</translation>
@@ -150,23 +138,13 @@
         <translation>重命名工作区</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>重命名(&amp;R)</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation>重命名并打开(&amp;O)</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceNameInputDialog</name>
     <message>
         <source>Enter the name of the workspace:</source>
         <translation>输入工作区名称：</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceView</name>
     <message>
         <source>Import Workspace</source>
         <translation>导入工作区</translation>
