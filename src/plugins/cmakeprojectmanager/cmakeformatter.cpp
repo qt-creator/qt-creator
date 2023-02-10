@@ -3,8 +3,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeformatter.h"
+
 #include "cmakeformattersettings.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -57,7 +59,7 @@ bool CMakeFormatter::isApplicable(const Core::IDocument *document) const
 
 void CMakeFormatter::initialize()
 {
-    m_formatFile = new QAction(tr("Format &Current File"), this);
+    m_formatFile = new QAction(Tr::tr("Format &Current File"), this);
     Core::Command *cmd = Core::ActionManager::registerAction(m_formatFile, Constants::CMAKEFORMATTER_ACTION_ID);
     connect(m_formatFile, &QAction::triggered, this, &CMakeFormatter::formatFile);
 

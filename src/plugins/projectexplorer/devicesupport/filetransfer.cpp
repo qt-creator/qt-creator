@@ -214,9 +214,9 @@ ProcessResultData FileTransfer::resultData() const
 QString FileTransfer::transferMethodName(FileTransferMethod method)
 {
     switch (method) {
-    case FileTransferMethod::Sftp:  return FileTransfer::tr("sftp");
-    case FileTransferMethod::Rsync: return FileTransfer::tr("rsync");
-    case FileTransferMethod::GenericCopy: return FileTransfer::tr("generic file copy");
+    case FileTransferMethod::Sftp:  return Tr::tr("sftp");
+    case FileTransferMethod::Rsync: return Tr::tr("rsync");
+    case FileTransferMethod::GenericCopy: return Tr::tr("generic file copy");
     }
     QTC_CHECK(false);
     return {};

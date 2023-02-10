@@ -7,6 +7,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
+#include <utils/utilstr.h>
 
 #include <QDir>
 
@@ -156,7 +157,7 @@ static QString invalidCommandMessage(const QString &displayName)
 {
     return QString("<b>%1:</b> <font color='%3'>%2</font>")
                     .arg(displayName,
-                         QtcProcess::tr("Invalid command"),
+                         ::Utils::Tr::tr("Invalid command"),
                          creatorTheme()->color(Theme::TextColorError).name());
 }
 

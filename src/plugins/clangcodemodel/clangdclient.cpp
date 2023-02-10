@@ -417,9 +417,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
-    progressManager()->setTitleForToken(indexingToken(),
-                             project ? tr("Indexing %1 with clangd").arg(project->displayName())
-                                     : tr("Indexing session with clangd"));
+    progressManager()->setTitleForToken(
+        indexingToken(), project ? Tr::tr("Indexing %1 with clangd").arg(project->displayName())
+                                 : Tr::tr("Indexing session with clangd"));
     progressManager()->setCancelHandlerForToken(indexingToken(), [this, project]() {
         CppEditor::ClangdProjectSettings projectSettings(project);
         projectSettings.blockIndexing();

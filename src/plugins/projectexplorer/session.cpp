@@ -599,7 +599,7 @@ QString SessionManagerPrivate::sessionTitle(const FilePath &filePath)
     } else {
         QString sessionName = d->m_sessionName;
         if (sessionName.isEmpty())
-            sessionName = SessionManager::tr("Untitled");
+            sessionName = Tr::tr("Untitled");
         return sessionName;
     }
     return QString();
@@ -935,11 +935,11 @@ void SessionManagerPrivate::askUserAboutFailedProjects()
     if (!failedProjects.isEmpty()) {
         QString fileList = FilePath::formatFilePaths(failedProjects, "<br>");
         QMessageBox box(QMessageBox::Warning,
-                                   SessionManager::tr("Failed to restore project files"),
-                                   SessionManager::tr("Could not restore the following project files:<br><b>%1</b>").
+                                   Tr::tr("Failed to restore project files"),
+                                   Tr::tr("Could not restore the following project files:<br><b>%1</b>").
                                    arg(fileList));
-        auto keepButton = new QPushButton(SessionManager::tr("Keep projects in Session"), &box);
-        auto removeButton = new QPushButton(SessionManager::tr("Remove projects from Session"), &box);
+        auto keepButton = new QPushButton(Tr::tr("Keep projects in Session"), &box);
+        auto removeButton = new QPushButton(Tr::tr("Remove projects from Session"), &box);
         box.addButton(keepButton, QMessageBox::AcceptRole);
         box.addButton(removeButton, QMessageBox::DestructiveRole);
 

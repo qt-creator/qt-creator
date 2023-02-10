@@ -166,8 +166,8 @@ QVariantMap Quick3DModel::details(int index) const
     if ((detailType == RenderPass || detailType == PrepareFrame) && m_data[index].data) {
         quint32 width = m_data[index].data & 0xffffffff;
         quint32 height = m_data[index].data >> 32;
-        result.insert(tr("Width"), width);
-        result.insert(tr("Height"), height);
+        result.insert(Tr::tr("Width"), width);
+        result.insert(Tr::tr("Height"), height);
     }
     if ((detailType >= MeshLoad && detailType <= TextureLoad)
             || (detailType >= MeshMemoryConsumption && detailType <= TextureMemoryConsumption)) {
@@ -176,9 +176,9 @@ QVariantMap Quick3DModel::details(int index) const
     if (detailType == RenderCall) {
         quint32 primitives = m_data[index].data & 0xffffffff;
         quint32 instances = m_data[index].data >> 32;
-        result.insert(tr("Primitives"), primitives);
+        result.insert(Tr::tr("Primitives"), primitives);
         if (instances > 1)
-            result.insert(tr("Instances"), instances);
+            result.insert(Tr::tr("Instances"), instances);
     }
     if (!m_data[index].eventData.isEmpty()) {
         for (int i = 0; i < m_data[index].eventData.size(); i++) {

@@ -113,19 +113,20 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QStr
     , m_remoteComboBox(new GerritRemoteChooser)
     , m_targetBranchComboBox(new QComboBox)
     , m_commitView(new LogChangeWidget)
-    , m_infoLabel(new QLabel(tr("Number of commits")))
+    , m_infoLabel(new QLabel(::Git::Tr::tr("Number of commits")))
     , m_topicLineEdit(new QLineEdit)
-    , m_draftCheckBox(new QCheckBox(tr("&Draft/private")))
-    , m_wipCheckBox(new QCheckBox(tr("&Work-in-progress")))
+    , m_draftCheckBox(new QCheckBox(::Git::Tr::tr("&Draft/private")))
+    , m_wipCheckBox(new QCheckBox(::Git::Tr::tr("&Work-in-progress")))
     , m_reviewersLineEdit(new QLineEdit)
     , m_buttonBox(new QDialogButtonBox)
     , m_workingDir(workingDir)
 {
-    m_draftCheckBox->setToolTip(tr("Checked - Mark change as private.\n"
-                                   "Unchecked - Remove mark.\n"
-                                   "Partially checked - Do not change current state."));
-    m_commitView->setToolTip(tr("Pushes the selected commit and all dependent commits."));
-    m_reviewersLineEdit->setToolTip(tr("Comma-separated list of reviewers.\n"
+    m_draftCheckBox->setToolTip(::Git::Tr::tr("Checked - Mark change as private.\n"
+                                              "Unchecked - Remove mark.\n"
+                                              "Partially checked - Do not change current state."));
+    m_commitView->setToolTip(::Git::Tr::tr(
+            "Pushes the selected commit and all dependent commits."));
+    m_reviewersLineEdit->setToolTip(::Git::Tr::tr("Comma-separated list of reviewers.\n"
             "\n"
             "Reviewers can be specified by nickname or email address. Spaces not allowed.\n"
             "\n"
@@ -138,14 +139,14 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QStr
     using namespace Utils::Layouting;
 
     Grid {
-        tr("Push:"), workingDir.toUserOutput(), m_localBranchComboBox, br,
-        tr("To:"), m_remoteComboBox, m_targetBranchComboBox, br,
-        tr("Commits:"), br,
+        ::Git::Tr::tr("Push:"), workingDir.toUserOutput(), m_localBranchComboBox, br,
+        ::Git::Tr::tr("To:"), m_remoteComboBox, m_targetBranchComboBox, br,
+        ::Git::Tr::tr("Commits:"), br,
         Span(3, m_commitView), br,
         Span(3, m_infoLabel), br,
         Span(3, Form {
-            tr("&Topic:"), Row { m_topicLineEdit, m_draftCheckBox, m_wipCheckBox }, br,
-            tr("&Reviewers:"), m_reviewersLineEdit, br
+            ::Git::Tr::tr("&Topic:"), Row { m_topicLineEdit, m_draftCheckBox, m_wipCheckBox }, br,
+            ::Git::Tr::tr("&Reviewers:"), m_reviewersLineEdit, br
         }), br,
         Span(3, m_buttonBox)
     }.attachTo(this);
@@ -220,7 +221,8 @@ void GerritPushDialog::setChangeRange()
     }
     m_infoLabel->show();
     const QString remote = selectedRemoteName() + '/' + remoteBranchName;
-    QString labelText = Git::Tr::tr("Number of commits between %1 and %2: %3").arg(branch, remote, range);
+    QString labelText =
+        Git::Tr::tr("Number of commits between %1 and %2: %3").arg(branch, remote, range);
     const int currentRange = range.toInt();
     QPalette palette = QApplication::palette();
     if (currentRange > ReasonableDistance) {

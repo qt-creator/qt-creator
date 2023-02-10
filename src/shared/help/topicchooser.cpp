@@ -3,8 +3,11 @@
 
 #include "topicchooser.h"
 
-#include <utils/layoutbuilder.h>
+#include "helptr.h"
+
 #include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
+#include <utils/utilstr.h>
 
 #include <QMap>
 #include <QUrl>
@@ -21,7 +24,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     , m_filterModel(new QSortFilterProxyModel(this))
 {
     resize(400, 220);
-    setWindowTitle(tr("Choose Topic"));
+    setWindowTitle(::Help::Tr::tr("Choose Topic"));
 
     QStandardItemModel *model = new QStandardItemModel(this);
     m_filterModel->setSourceModel(model);
@@ -51,7 +54,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
 
     using namespace Utils::Layouting;
     Column {
-        tr("Choose a topic for <b>%1</b>:").arg(keyword),
+        ::Help::Tr::tr("Choose a topic for <b>%1</b>:").arg(keyword),
         m_lineEdit,
         m_listWidget,
         buttonBox,

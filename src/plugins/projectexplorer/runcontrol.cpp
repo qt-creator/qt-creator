@@ -1568,7 +1568,7 @@ void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
             killStartWatchdog();
             startWatchdogCallback();
         } else {
-            q->reportFailure(RunWorker::tr("Worker start timed out."));
+            q->reportFailure(Tr::tr("Worker start timed out."));
         }
         return;
     }
@@ -1577,7 +1577,7 @@ void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
             killStopWatchdog();
             stopWatchdogCallback();
         } else {
-            q->reportFailure(RunWorker::tr("Worker stop timed out."));
+            q->reportFailure(Tr::tr("Worker stop timed out."));
         }
         return;
     }

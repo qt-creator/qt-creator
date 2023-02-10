@@ -43,7 +43,7 @@ const char splashscreenFileName[] = "logo";
 const char splashscreenPortraitFileName[] = "logo_port";
 const char splashscreenLandscapeFileName[] = "logo_land";
 const char imageSuffix[] = ".png";
-const QString fileDialogImageFiles = QString(QWidget::tr("Images (*.png *.jpg *.jpeg)")); // TODO: Implement a centralized images filter string
+const QString fileDialogImageFiles = Tr::tr("Images (*.png *.jpg *.jpeg)"); // TODO: Implement a centralized images filter string
 const QSize lowDpiImageSize{200, 320};
 const QSize mediumDpiImageSize{320, 480};
 const QSize highDpiImageSize{480, 800};

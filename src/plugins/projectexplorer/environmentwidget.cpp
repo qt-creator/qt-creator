@@ -20,6 +20,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/utilstr.h>
 
 #include <QDialogButtonBox>
 #include <QDir>
@@ -375,7 +376,7 @@ void EnvironmentWidget::updateSummaryText()
 
     QString text;
     for (const Utils::EnvironmentItem &item : std::as_const(list)) {
-        if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
+        if (item.name != ::Utils::Tr::tr("<VARIABLE>")) {
             if (!d->m_baseEnvironmentText.isEmpty() || !text.isEmpty())
                 text.append(QLatin1String("<br>"));
             switch (item.operation) {
