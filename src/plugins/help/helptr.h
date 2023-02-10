@@ -9,7 +9,7 @@ namespace Help {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Help)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Help)
 };
 
 } // namespace Help

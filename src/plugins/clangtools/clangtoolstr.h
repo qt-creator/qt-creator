@@ -9,7 +9,7 @@ namespace ClangTools {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::ClangTools)
+    Q_DECLARE_TR_FUNCTIONS(QtC::ClangTools)
 };
 
 } // namespace ClangTools

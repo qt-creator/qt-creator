@@ -31,8 +31,8 @@ public:
             switch (role) {
             case Qt::DisplayRole:
                 if (parent()->childCount() > 1)
-                    return QString(QT_TRANSLATE_NOOP("::CppEditor", "<Select Symbol>"));
-                return QString(QT_TRANSLATE_NOOP("::CppEditor", "<No Symbols>"));
+                    return QString(QT_TRANSLATE_NOOP("QtC::CppEditor", "<Select Symbol>"));
+                return QString(QT_TRANSLATE_NOOP("QtC::CppEditor", "<No Symbols>"));
             default:
                 return QVariant();
             }

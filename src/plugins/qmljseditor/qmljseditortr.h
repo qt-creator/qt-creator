@@ -9,7 +9,7 @@ namespace QmlJSEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::QmlJSEditor)
+    Q_DECLARE_TR_FUNCTIONS(QtC::QmlJSEditor)
 };
 
 } // namespace QmlJSEditor

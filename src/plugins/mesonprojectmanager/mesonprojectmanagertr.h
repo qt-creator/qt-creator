@@ -9,7 +9,7 @@ namespace MesonProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::MesonProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(QtC::MesonProjectManager)
 };
 
 } // namespace MesonProjectManager

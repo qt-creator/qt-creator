@@ -9,7 +9,7 @@ namespace QmlProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::QmlProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(QtC::QmlProjectManager)
 };
 
 } // namespace QmlProjectManager

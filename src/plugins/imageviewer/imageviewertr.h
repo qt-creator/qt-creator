@@ -9,7 +9,7 @@ namespace ImageViewer {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::ImageViewer)
+    Q_DECLARE_TR_FUNCTIONS(QtC::ImageViewer)
 };
 
 } // namespace ImageViewer

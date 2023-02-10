@@ -9,7 +9,7 @@ namespace Timeline {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Tracing)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Tracing)
 };
 
 } // Tracing

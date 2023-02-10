@@ -64,16 +64,16 @@ const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.p4.submit";
 
 const char PERFORCE_CONTEXT[] = "Perforce Context";
 const char PERFORCE_SUBMIT_EDITOR_ID[] = "Perforce.SubmitEditor";
-const char PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Perforce.SubmitEditor");
+const char PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce.SubmitEditor");
 
 const char PERFORCE_LOG_EDITOR_ID[] = "Perforce.LogEditor";
-const char PERFORCE_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Perforce Log Editor");
+const char PERFORCE_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce Log Editor");
 
 const char PERFORCE_DIFF_EDITOR_ID[] = "Perforce.DiffEditor";
-const char PERFORCE_DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Perforce Diff Editor");
+const char PERFORCE_DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce Diff Editor");
 
 const char PERFORCE_ANNOTATION_EDITOR_ID[] = "Perforce.AnnotationEditor";
-const char PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Perforce Annotation Editor");
+const char PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Perforce Annotation Editor");
 
 // Ensure adding "..." to relative paths which is p4's convention
 // for the current directory

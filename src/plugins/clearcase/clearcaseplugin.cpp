@@ -105,21 +105,21 @@ const char CMD_ID_STATUS[]             = "ClearCase.Status";
 const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     "ClearCase File Log Editor",   // id
-    QT_TRANSLATE_NOOP("::VcsBase", "ClearCase File Log Editor"),   // display_name
+    QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase File Log Editor"),   // display_name
     "text/vnd.qtcreator.clearcase.log"
 };
 
 const VcsBaseEditorParameters annotateEditorParameters {
     AnnotateOutput,
     "ClearCase Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("::VcsBase", "ClearCase Annotation Editor"),   // display_name
+    QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase Annotation Editor"),   // display_name
     "text/vnd.qtcreator.clearcase.annotation"
 };
 
 const VcsBaseEditorParameters diffEditorParameters {
     DiffOutput,
     "ClearCase Diff Editor",  // id
-    QT_TRANSLATE_NOOP("::VcsBase", "ClearCase Diff Editor"),   // display_name
+    QT_TRANSLATE_NOOP("QtC::VcsBase", "ClearCase Diff Editor"),   // display_name
     "text/x-patch"
 };
 

@@ -7,6 +7,6 @@
 
 namespace Beautifier::Constants {
 
-const char ARTISTICSTYLE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::Beautifier", "Artistic Style");
+const char ARTISTICSTYLE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Beautifier", "Artistic Style");
 
 } // Beautifier::Constants

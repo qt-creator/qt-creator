@@ -40,7 +40,7 @@ public:
 
     QString title() const override
     {
-        return QCoreApplication::translate("::ScxmlEditor", "Search");
+        return QCoreApplication::translate("QtC::ScxmlEditor", "Search");
     }
 
     QIcon icon() const override

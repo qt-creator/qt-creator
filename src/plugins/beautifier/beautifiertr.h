@@ -9,7 +9,7 @@ namespace Beautifier {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Beautifier)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Beautifier)
 };
 
 } // namespace Beautifier

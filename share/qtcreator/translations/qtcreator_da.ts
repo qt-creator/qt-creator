@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="da">
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Widget</source>
         <translation>Widget</translation>
@@ -83,7 +83,7 @@
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analysator</translation>
@@ -152,7 +152,7 @@
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -1434,7 +1434,7 @@ Installer en SDK af mindst API version %1.</translation>
     </message>
 </context>
 <context>
-    <name>::Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Tester</translation>
@@ -2180,7 +2180,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -2292,7 +2292,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>::BareMetal</name>
+    <name>QtC::BareMetal</name>
     <message>
         <source>Enter GDB commands to reset the board and to write the nonvolatile memory.</source>
         <translation>Indtast GDB-kommandoer for at nulstille brættet og skrive den ikke-flygtige hukommelse.</translation>
@@ -2523,14 +2523,14 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Kunne ikke oprette mappen %1.</translation>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Enhedstypen understøttes ikke af Qt versionen.</translation>
@@ -2597,7 +2597,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Generel information</translation>
@@ -2866,14 +2866,14 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit-redigering</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -2928,14 +2928,14 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar-kommando</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -3058,7 +3058,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::Beautifier</name>
+    <name>QtC::Beautifier</name>
     <message>
         <source>Beautifier</source>
         <translation>Beautifier</translation>
@@ -3328,7 +3328,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binær-redigeringen kan ikke åbne tomme filer.</translation>
@@ -3447,14 +3447,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zoom: %1%</translation>
     </message>
 </context>
 <context>
-    <name>::Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Tilføj bogmærke</translation>
@@ -3652,7 +3652,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Breakpoint</source>
         <translation>Brudpunkt</translation>
@@ -3737,7 +3737,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Hop to forrige event.</translation>
@@ -3760,7 +3760,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>CMake-moduler</translation>
@@ -4469,7 +4469,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Kun virtuelle funktioner kan mærkes &apos;final&apos;</translation>
@@ -4488,7 +4488,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Collapse category</source>
         <translation>Sammenfold kategori</translation>
@@ -4541,7 +4541,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>::ClangCodeModel</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Kodemodel advarsel</translation>
@@ -4600,7 +4600,7 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Clang-only checks for questionable constructs</source>
         <translation>Clang-kun tjek for tvivlsomme constructs</translation>
@@ -4646,7 +4646,7 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>::ClassView</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>Vis underprojekter</translation>
@@ -4657,7 +4657,7 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>::ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Vælg &amp;aktivitet:</translation>
@@ -5152,7 +5152,7 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>Kodeindsætning</translation>
@@ -5387,7 +5387,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Code Style</source>
         <translation>Kodestil</translation>
@@ -5442,7 +5442,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Åbn link</translation>
@@ -5453,7 +5453,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -5528,7 +5528,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Show Left Sidebar</source>
         <translation>Vis venstre sidebjælke</translation>
@@ -8005,7 +8005,7 @@ til versionsstyring (%2)
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Too few arguments</source>
         <translation>For få argumenter</translation>
@@ -9055,7 +9055,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
@@ -9078,7 +9078,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Rediger</translation>
@@ -9429,7 +9429,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Debug Message</source>
         <translation>Fejlretmeddelelse</translation>
@@ -9452,7 +9452,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
@@ -13526,7 +13526,7 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>Kunne ikke tilføje afhængighed</translation>
@@ -13541,7 +13541,7 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The generated header of the form &quot;%1&quot; could not be found.
 Rebuilding the project might help.</source>
@@ -13628,7 +13628,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>::Ios</name>
+    <name>QtC::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation>%1 - Ledig provisioneringsteam : %2</translation>
@@ -13654,7 +13654,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Slet</translation>
@@ -13669,7 +13669,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>::DiffEditor</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Diff-redigering</translation>
@@ -13878,7 +13878,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -13945,14 +13945,14 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Editor</source>
         <translation>Redigering</translation>
     </message>
 </context>
 <context>
-    <name>::EmacsKeys</name>
+    <name>QtC::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Slet tegn</translation>
@@ -14069,7 +14069,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>Beskrivelse:</translation>
@@ -14368,7 +14368,7 @@ vil også deaktiverer følgende plugins:
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>Brug Vim-stil-redigering</translation>
@@ -14913,14 +14913,14 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Ubrugt variabel</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Widget box</source>
         <translation>Widget-boks</translation>
@@ -15027,7 +15027,7 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
     </message>
 </context>
 <context>
-    <name>::Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Google Test</source>
         <translation>Google-test</translation>
@@ -15091,7 +15091,7 @@ Se også Google-test-indstillinger.</translation>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -15180,7 +15180,7 @@ Se også Google-test-indstillinger.</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Authentication</source>
         <translation>Autentifikation</translation>
@@ -17154,7 +17154,7 @@ Lad være tom for at gennemsøge filsystemet.</translation>
     </message>
 </context>
 <context>
-    <name>::GlslEditor</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -17315,7 +17315,7 @@ Lad være tom for at gennemsøge filsystemet.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Help</source>
         <translation>Hjælp</translation>
@@ -17811,7 +17811,7 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>Billedfremviser</translation>
@@ -17987,7 +17987,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
 </context>
 <context>
-    <name>::Ios</name>
+    <name>QtC::Ios</name>
     <message>
         <source>Create Simulator</source>
         <translation>Opret simulator</translation>
@@ -18771,14 +18771,14 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Locator</source>
         <translation>Lokatør</translation>
     </message>
 </context>
 <context>
-    <name>::Macros</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makroer</translation>
@@ -18881,7 +18881,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>JavaScript</source>
         <translation>JavaScript</translation>
@@ -19161,7 +19161,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -19535,7 +19535,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::ModelEditor</name>
+    <name>QtC::ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zoom: %1%</translation>
@@ -19788,7 +19788,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::ModelEditor</name>
+    <name>QtC::ModelEditor</name>
     <message>
         <source>Modeling</source>
         <translation>Modelering</translation>
@@ -19836,7 +19836,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::Nim</name>
+    <name>QtC::Nim</name>
     <message>
         <source>Build</source>
         <translation>Byg</translation>
@@ -20156,7 +20156,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Skift nummer</translation>
@@ -20674,7 +20674,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>Pluginet &quot;%1&quot; er angivet to gange for testing.</translation>
@@ -20824,7 +20824,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Name of current build</source>
         <translation>Navn på aktuelt byg</translation>
@@ -22023,7 +22023,7 @@ Ekskludering: %2
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation>Filen &quot;%1&quot; blev omdøbt til &quot;%2&quot;, men følgende projekter kunne ikke ændres automatisk: %3</translation>
@@ -22102,7 +22102,7 @@ Ekskludering: %2
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Platform codegen flags:</source>
         <translation>Platform codegen-flag:</translation>
@@ -25213,7 +25213,7 @@ Udløbsdato: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Python</name>
+    <name>QtC::Python</name>
     <message>
         <source>Interpreter:</source>
         <translation>Fortolker:</translation>
@@ -25625,7 +25625,7 @@ Udløbsdato: %3</translation>
     </message>
 </context>
 <context>
-    <name>::QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Qbs Install</source>
         <translation>Qbs install</translation>
@@ -25968,7 +25968,7 @@ Udløbsdato: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Android-pakke kildemappe:</translation>
@@ -26083,7 +26083,7 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Failed</source>
         <translation>Mislykkedes</translation>
@@ -26995,7 +26995,7 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -27008,14 +27008,14 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Bygmappen skal være på samme niveau som kildemappen.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlDebug</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation>Socket-tilstand ændret til %1</translation>
@@ -27036,7 +27036,7 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>::QmlDesigner</name>
+    <name>QtC::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation>Fejl</translation>
@@ -28398,7 +28398,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skjuler denne værktøjslinje.</translation>
@@ -28429,14 +28429,14 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonym funktion</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>forventede to numre adskilt af et punktum</translation>
@@ -28565,7 +28565,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>XML-fejl på linje %1, kolonne %2: %3</translation>
@@ -28576,7 +28576,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Kan ikke finde filen %1.</translation>
@@ -29067,7 +29067,7 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
@@ -29289,7 +29289,7 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
     </message>
 </context>
 <context>
-    <name>::QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>Kodestil</translation>
@@ -29341,7 +29341,7 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;aktuel fil&gt;</translation>
@@ -29439,7 +29439,7 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>Ukendt meddelelse %1</translation>
@@ -29970,7 +29970,7 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenter:</translation>
@@ -30047,14 +30047,14 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Remote QNX process %1</source>
         <translation>Fjern-QNX-proces %1</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>Følgende fejl opstod ved aktivering af QNX-konfigurationen:</translation>
@@ -30085,7 +30085,7 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>Projekt kildemappe:</translation>
@@ -30096,7 +30096,7 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Qt library to deploy:</source>
         <translation>Qt-bibliotek som skal udsendes:</translation>
@@ -30147,7 +30147,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QNX</source>
         <translation>QNX</translation>
@@ -30158,14 +30158,14 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>QNX-enhed</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 found.</source>
         <translation>%1 fundet.</translation>
@@ -30188,28 +30188,28 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Ny QNX-enhed konfigurationsopsætning</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>Tilkobl til fjern-QNX-program...</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>Forbereder fjern-side...</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -30221,14 +30221,14 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Path to Qt libraries on device</source>
         <translation>Sti til Qt-biblioteker på enhed</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Generer kits</translation>
@@ -30285,7 +30285,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Kompilersti:</translation>
@@ -30301,14 +30301,14 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
         <translation>Advarsel: &quot;slog2info&quot; findes ikke på enheden, fejlret-output ikke tilgængeligt.</translation>
@@ -30319,7 +30319,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
@@ -30357,7 +30357,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>ptrace: Operation not permitted.
 
@@ -30504,7 +30504,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Qt versioner</translation>
@@ -30831,7 +30831,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt-test</translation>
@@ -30842,7 +30842,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;ukendt&gt;</translation>
@@ -30923,7 +30923,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Udtræk funktion</translation>
@@ -30942,7 +30942,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation>Quick-test</translation>
@@ -31007,14 +31007,14 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Genfaktoring kan ikke anvendes.</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>Udsend til fjern-Linux-vært</translation>
@@ -31612,7 +31612,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Tilføj filer</translation>
@@ -31771,7 +31771,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[ukendt]</translation>
@@ -31793,7 +31793,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>::ScxmlEditor</name>
+    <name>QtC::ScxmlEditor</name>
     <message>
         <source>Unknown</source>
         <translation>Ukendt</translation>
@@ -32500,7 +32500,7 @@ Række: %4, Kolonne: %5
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Markering</translation>
@@ -32729,7 +32729,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -33062,7 +33062,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>No kit defined in this project.</source>
         <translation>Intet kit defineret i dette projekt.</translation>
@@ -33146,7 +33146,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>::Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (ingen)</translation>
@@ -33243,7 +33243,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>Tekstredigering</translation>
@@ -35587,7 +35587,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keyword</source>
         <translation>Nøgleord</translation>
@@ -35614,7 +35614,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keywords</source>
         <translation>Nøgleord</translation>
@@ -35645,7 +35645,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Description</source>
         <translation>Beskrivelse</translation>
@@ -35660,7 +35660,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>To-do-poster</translation>
@@ -35695,7 +35695,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Excluded Files</source>
         <translation>Ekskluderet filer</translation>
@@ -35722,7 +35722,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Vælg emne</translation>
@@ -35749,7 +35749,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::UpdateInfo</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Update</source>
         <translation>Opdater</translation>
@@ -35832,7 +35832,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>Spørg ikke igen</translation>
@@ -36620,7 +36620,7 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Bazaar Commit Log Editor</source>
         <translation>Bazaar commit-log-redigering</translation>
@@ -36743,7 +36743,7 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Modtager</translation>
@@ -37603,7 +37603,7 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Versionsstyring</translation>
@@ -38028,14 +38028,14 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation>...søger blandt tilsidesætninger</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>New to Qt?</source>
         <translation>Ny til Qt?</translation>
@@ -38301,7 +38301,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::qmt</name>
+    <name>QtC::qmt</name>
     <message>
         <source>Show Definition</source>
         <translation>Vis definition</translation>
@@ -38870,7 +38870,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>others</source>
         <translation>andre</translation>
@@ -38889,7 +38889,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Remove File</source>
         <translation>Fjern fil</translation>
@@ -38908,7 +38908,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::ClangTools</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>Analyzer Configuration</source>
         <translation>Analysator-konfiguration</translation>
@@ -38963,7 +38963,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Beslutter om filstier kopieres til udklipsholderen til indsættelse i CMakeLists.txt-filen, når du tilføjer nye filer til CMake-projekter.</translation>
@@ -38986,7 +38986,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Properties</source>
         <translation>Filegenskaber</translation>
@@ -39041,7 +39041,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
         <translation>For passende valgmuligheder, konsulter GCC- eller Clang-manualsiderne eller &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online dokumentationen&lt;/a&gt;.</translation>
@@ -39119,7 +39119,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::QmlDebug</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>Fejlret-forbindelse åbnet.</translation>
@@ -39134,7 +39134,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Kunne ikke åbne %1 til skrivning.</translation>
@@ -39151,7 +39151,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Settings File for &quot;%1&quot; from a Different Environment?</source>
         <translation>Indstillingsfil for &quot;%1&quot; fra et andet miljø?</translation>
@@ -39162,7 +39162,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>AVD Start Error</source>
         <translation>Fejl ved start af AVD</translation>
@@ -39225,14 +39225,14 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>::Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>Test-eksekverbar holdt op med at virke.</translation>
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Fortryd</translation>
@@ -39243,7 +39243,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>::ClangCodeModel</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clazy-problemstilling</translation>
@@ -39261,7 +39261,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>::ClangCodeModel</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;ingen symboler&gt;</translation>
@@ -39272,7 +39272,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>::ClangTools</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>Clang-Tidy and Clazy</source>
         <translation>Clang-Tidy og Clazy</translation>
@@ -39513,10 +39513,10 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Update Documentation</source>
         <translation>Opdater dokumentation</translation>
@@ -39566,7 +39566,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Opret henter- og sætter-medlemsfunktioner</translation>
@@ -39613,14 +39613,14 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Edit Files...</source>
         <translation>Rediger filer...</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Checkout</source>
         <translation>Checkout</translation>
@@ -39667,7 +39667,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Enter a file name containing place holders %1 which will be replaced by the width and height of the image, respectively.</source>
         <translation>Indtast et filnavn som indeholder pladsholderne %1 som erstattes af henholdsvis bredden og højden på billedet.</translation>
@@ -39718,14 +39718,14 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>::Nim</name>
+    <name>QtC::Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>Aktuelle byggemål</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
@@ -39812,7 +39812,7 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Tilføj en kommentar for at undertrykke denne meddelelse</translation>
@@ -39827,7 +39827,7 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
         <translation>QML-profileringen kan bruges til at finde ydelsesflaskehalse i programmer som bruger QML.</translation>
@@ -39916,14 +39916,14 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Udsend til QNX-enhed</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>Prøver at dræbe &quot;%1&quot; på fjern-enhed...</translation>
@@ -39942,7 +39942,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>::SerialTerminal</name>
+    <name>QtC::SerialTerminal</name>
     <message>
         <source>Unable to open port %1.</source>
         <translation>Kan ikke åbne porten %1.</translation>
@@ -40013,7 +40013,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source></source>
         <comment>Snippets are text fragments that can be inserted into an editor via the usual completion mechanics using a trigger text. The translated text (trigger variant) is used to disambiguate between snippets with the same trigger.</comment>
@@ -40091,7 +40091,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>XML output file:</source>
         <translation>XML-output-fil:</translation>

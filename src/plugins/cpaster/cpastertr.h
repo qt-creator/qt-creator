@@ -9,7 +9,7 @@ namespace CodePaster {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::CodePaster)
+    Q_DECLARE_TR_FUNCTIONS(QtC::CodePaster)
 };
 
 } // namespace CodePaster

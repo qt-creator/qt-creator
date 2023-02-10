@@ -87,7 +87,7 @@ Item {
             implicitHeight: typeTitle.height
             visible: !rangeDetails.noteReadonly
             onClicked: noteEdit.focus = true
-            ToolTip.text: qsTranslate("::Tracing", "Edit note")
+            ToolTip.text: qsTranslate("QtC::Tracing", "Edit note")
         }
 
         ImageToolButton {
@@ -97,7 +97,7 @@ Item {
             anchors.right: closeIcon.left
             implicitHeight: typeTitle.height
             onClicked: rangeDetails.locked = !rangeDetails.locked
-            ToolTip.text: qsTranslate("::Tracing", "View event information on mouseover.")
+            ToolTip.text: qsTranslate("QtC::Tracing", "View event information on mouseover.")
         }
 
         ImageToolButton {
@@ -107,8 +107,8 @@ Item {
             implicitHeight: typeTitle.height
             imageSource: "image://icons/arrow" + (col.visible ? "up" : "down")
             onClicked: col.visible = !col.visible
-            ToolTip.text: col.visible ? qsTranslate("::Tracing", "Collapse")
-                                      : qsTranslate("::Tracing", "Expand")
+            ToolTip.text: col.visible ? qsTranslate("QtC::Tracing", "Collapse")
+                                      : qsTranslate("QtC::Tracing", "Expand")
         }
     }
 

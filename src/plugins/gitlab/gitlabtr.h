@@ -9,7 +9,7 @@ namespace GitLab {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::GitLab)
+    Q_DECLARE_TR_FUNCTIONS(QtC::GitLab)
 };
 
 } // namespace GitLab

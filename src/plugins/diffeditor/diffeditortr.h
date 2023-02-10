@@ -9,7 +9,7 @@ namespace DiffEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::DiffEditor)
+    Q_DECLARE_TR_FUNCTIONS(QtC::DiffEditor)
 };
 
 } // namespace DiffEditor

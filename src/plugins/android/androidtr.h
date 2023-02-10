@@ -9,7 +9,7 @@ namespace Android {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Android)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Android)
 };
 
 } // namespace Android

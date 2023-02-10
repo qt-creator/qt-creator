@@ -9,7 +9,7 @@ namespace UpdateInfo {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::UpdateInfo)
+    Q_DECLARE_TR_FUNCTIONS(QtC::UpdateInfo)
 };
 
 } // namespace UpdateInfo

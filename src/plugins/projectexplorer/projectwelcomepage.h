@@ -43,7 +43,7 @@ class ProjectWelcomePage : public Core::IWelcomePage
 public:
     ProjectWelcomePage();
 
-    QString title() const override { return QCoreApplication::translate("::ProjectExplorer", "Projects"); }
+    QString title() const override { return QCoreApplication::translate("QtC::ProjectExplorer", "Projects"); }
     int priority() const override { return 20; }
     Utils::Id id() const override;
     QWidget *createWidget() const override;

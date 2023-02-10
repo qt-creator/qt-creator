@@ -54,7 +54,7 @@ Item {
     //title
     TimelineText {
         id: typeTitle
-        text: "  "+qsTranslate("::Tracing", "Selection")
+        text: "  "+qsTranslate("QtC::Tracing", "Selection")
         font.bold: true
         height: 20
         verticalAlignment: Text.AlignVCenter
@@ -78,13 +78,13 @@ Item {
             Repeater {
                 id: details
                 property var contents: [
-                    qsTranslate("::Tracing", "Start") + ":",
+                    qsTranslate("QtC::Tracing", "Start") + ":",
                     TimeFormatter.format(selectionRangeDetails.startTime,
                                          selectionRangeDetails.referenceDuration),
-                    (qsTranslate("::Tracing", "End") + ":"),
+                    (qsTranslate("QtC::Tracing", "End") + ":"),
                     TimeFormatter.format(selectionRangeDetails.endTime,
                                          selectionRangeDetails.referenceDuration),
-                    (qsTranslate("::Tracing", "Duration") + ":"),
+                    (qsTranslate("QtC::Tracing", "Duration") + ":"),
                     TimeFormatter.format(selectionRangeDetails.duration,
                                          selectionRangeDetails.referenceDuration)
                 ]
@@ -115,6 +115,6 @@ Item {
         anchors.top: selectionRangeDetails.top
         implicitHeight: typeTitle.height
         onClicked: selectionRangeDetails.close()
-        ToolTip.text: qsTranslate("::Tracing", "Close")
+        ToolTip.text: qsTranslate("QtC::Tracing", "Close")
     }
 }

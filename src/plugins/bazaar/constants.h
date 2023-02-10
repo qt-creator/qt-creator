@@ -23,15 +23,15 @@ const char ANNOTATE_CHANGESET_ID[] = "([.0-9]+)";
 
 // Base editor parameters
 const char FILELOG_ID[] = "Bazaar File Log Editor";
-const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Bazaar File Log Editor");
+const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar File Log Editor");
 const char LOGAPP[] = "text/vnd.qtcreator.bazaar.log";
 
 const char ANNOTATELOG_ID[] = "Bazaar Annotation Editor";
-const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Bazaar Annotation Editor");
+const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Annotation Editor");
 const char ANNOTATEAPP[] = "text/vnd.qtcreator.bazaar.annotation";
 
 const char DIFFLOG_ID[] = "Bazaar Diff Editor";
-const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Bazaar Diff Editor");
+const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Diff Editor");
 const char DIFFAPP[] = "text/x-patch";
 
 // File status hint

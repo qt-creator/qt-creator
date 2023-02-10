@@ -7,6 +7,6 @@
 
 namespace Beautifier::Constants {
 
-const char UNCRUSTIFY_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::Beautifier", "Uncrustify");
+const char UNCRUSTIFY_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Beautifier", "Uncrustify");
 
 } // Beautifier::Constants

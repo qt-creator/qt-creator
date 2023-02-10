@@ -9,7 +9,7 @@ namespace qmt {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::qmt)
+    Q_DECLARE_TR_FUNCTIONS(QtC::qmt)
 };
 
 } // qmt

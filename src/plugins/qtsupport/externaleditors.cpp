@@ -36,7 +36,7 @@ enum { debug = 0 };
 namespace QtSupport::Internal {
 
 struct Tr {
-    Q_DECLARE_TR_FUNCTIONS(::QmakeProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(QtC::QmakeProjectManager)
 };
 
 // Locate a binary in a directory, applying all kinds of

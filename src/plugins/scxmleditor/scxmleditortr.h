@@ -9,7 +9,7 @@ namespace ScxmlEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::ScxmlEditor)
+    Q_DECLARE_TR_FUNCTIONS(QtC::ScxmlEditor)
 };
 
 } // namespace ScxmlEditor

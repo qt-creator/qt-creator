@@ -162,7 +162,7 @@ public:
         if (auto parameter = params())
             return parameter->isValid();
         if (errorMessage)
-            *errorMessage = QCoreApplication::translate("::LanguageServerProtocol",
+            *errorMessage = QCoreApplication::translate("QtC::LanguageServerProtocol",
                                                         "No parameters in \"%1\".").arg(method());
         return false;
     }
@@ -253,7 +253,7 @@ public:
         CASE_ERRORCODES(ServerNotInitialized);
         CASE_ERRORCODES(RequestCancelled);
         default:
-            return QCoreApplication::translate("::LanguageClient", "Error %1").arg(code);
+            return QCoreApplication::translate("QtC::LanguageClient", "Error %1").arg(code);
         }
     }
 #undef CASE_ERRORCODES
@@ -375,7 +375,7 @@ public:
         if (id().isValid())
             return true;
         if (errorMessage)
-            *errorMessage = QCoreApplication::translate("::LanguageServerProtocol",
+            *errorMessage = QCoreApplication::translate("QtC::LanguageServerProtocol",
                                                         "No ID set in \"%1\".").arg(this->method());
         return false;
     }
