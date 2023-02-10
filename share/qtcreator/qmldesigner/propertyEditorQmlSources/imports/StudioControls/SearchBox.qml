@@ -12,6 +12,7 @@ Item {
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
     property alias text: searchFilterText.text
+    property alias hasActiveFocus: searchFilterText.activeFocus
 
     signal searchChanged(string searchText)
 

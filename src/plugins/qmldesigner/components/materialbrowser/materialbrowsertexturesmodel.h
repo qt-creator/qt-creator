@@ -61,6 +61,7 @@ public:
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void updateModelSelectionState();
     Q_INVOKABLE void applyAsLightProbe(qint64 internalId);
+    Q_INVOKABLE bool isVisible(int idx) const;
 
 signals:
     void isEmptyChanged();
@@ -76,7 +77,6 @@ signals:
     void applyAsLightProbeRequested(const QmlDesigner::ModelNode &texture);
 
 private:
-    bool isTextureVisible(int idx) const;
     bool isValidIndex(int idx) const;
 
     QString m_searchText;

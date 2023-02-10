@@ -38,68 +38,166 @@ Item {
         searchBox.clear();
     }
 
-    Keys.enabled: true
-    Keys.onDownPressed: {
-        if (rootView.materialSectionFocused) {
-            if (!materialBrowserTexturesModel.isEmpty
-                && materialBrowserModel.selectedIndex >= materialBrowserModel.rowCount() - gridMaterials.columns) {
-                rootView.materialSectionFocused = false
-                materialBrowserTexturesModel.selectTexture(materialBrowserModel.selectedIndex % gridMaterials.columns)
-            } else {
-                let targetIdx = materialBrowserModel.selectedIndex + gridMaterials.columns
-                if (targetIdx < materialBrowserModel.rowCount())
-                    materialBrowserModel.selectMaterial(targetIdx)
-            }
-        } else {
-            let targetIdx = materialBrowserTexturesModel.selectedIndex + gridTextures.columns
-            if (targetIdx < materialBrowserTexturesModel.rowCount())
-                materialBrowserTexturesModel.selectTexture(targetIdx)
+    function nextVisibleItem(idx, count, itemModel)
+    {
+        if (count === 0)
+            return idx
+
+        let pos = 0
+        let newIdx = idx
+        let direction = 1
+        if (count < 0)
+            direction = -1
+
+        while (pos !== count) {
+            newIdx += direction
+            if (newIdx < 0 || newIdx >= itemModel.rowCount())
+                return -1
+            if (itemModel.isVisible(newIdx))
+                pos += direction
         }
+
+        return newIdx
     }
 
-    Keys.onUpPressed: {
-        if (rootView.materialSectionFocused) {
-            let targetIdx = materialBrowserModel.selectedIndex - gridMaterials.columns
-            if (targetIdx >= 0)
-                materialBrowserModel.selectMaterial(targetIdx)
-        } else {
-            if (!materialBrowserModel.isEmpty && materialBrowserTexturesModel.selectedIndex < gridTextures.columns) {
-                rootView.materialSectionFocused = true
-                materialBrowserModel.selectMaterial(materialBrowserTexturesModel.selectedIndex % gridTextures.columns)
-            } else {
-                let targetIdx = materialBrowserTexturesModel.selectedIndex - gridTextures.columns
+    function visibleItemCount(itemModel)
+    {
+        let curIdx = 0
+        let count = 0
+
+        for (; curIdx < itemModel.rowCount(); ++curIdx) {
+            if (itemModel.isVisible(curIdx))
+                ++count
+        }
+
+        return count
+    }
+
+    function rowIndexOfItem(idx, rowSize, itemModel)
+    {
+        if (rowSize === 1)
+            return 1
+
+        let curIdx = 0
+        let count = -1
+
+        while (curIdx <= idx) {
+            if (curIdx >= itemModel.rowCount())
+                break
+            if (itemModel.isVisible(curIdx))
+                ++count
+            ++curIdx
+        }
+
+        return count % rowSize
+    }
+
+    function selectNextVisibleItem(delta)
+    {
+        if (searchBox.hasActiveFocus)
+            return;
+
+        let targetIdx = -1
+        let newTargetIdx = -1
+        let origRowIdx = -1
+        let rowIdx = -1
+        let matSecFocused = rootView.materialSectionFocused && materialsSection.expanded
+        let texSecFocused = !rootView.materialSectionFocused && texturesSection.expanded
+
+        if (delta < 0) {
+            if (matSecFocused) {
+                targetIdx = nextVisibleItem(materialBrowserModel.selectedIndex,
+                                            delta, materialBrowserModel)
+                if (targetIdx >= 0)
+                    materialBrowserModel.selectMaterial(targetIdx)
+            } else if (texSecFocused) {
+                targetIdx = nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
+                                            delta, materialBrowserTexturesModel)
+                if (targetIdx >= 0) {
+                    materialBrowserTexturesModel.selectTexture(targetIdx)
+                } else if (!materialBrowserModel.isEmpty && materialsSection.expanded) {
+                    targetIdx = nextVisibleItem(materialBrowserModel.rowCount(), -1, materialBrowserModel)
+                    if (targetIdx >= 0) {
+                        if (delta !== -1) {
+                            // Try to match column when switching between materials/textures
+                            origRowIdx  = rowIndexOfItem(materialBrowserTexturesModel.selectedIndex,
+                                                         -delta, materialBrowserTexturesModel)
+                            if (visibleItemCount(materialBrowserModel) > origRowIdx) {
+                                rowIdx = rowIndexOfItem(targetIdx, -delta, materialBrowserModel)
+                                if (rowIdx >= origRowIdx) {
+                                    newTargetIdx = nextVisibleItem(targetIdx,
+                                                                   -(rowIdx - origRowIdx),
+                                                                   materialBrowserModel)
+                                } else {
+                                    newTargetIdx = nextVisibleItem(targetIdx,
+                                                                   -(-delta - origRowIdx + rowIdx),
+                                                                   materialBrowserModel)
+                                }
+                            } else {
+                                newTargetIdx = nextVisibleItem(materialBrowserModel.rowCount(),
+                                                               -1, materialBrowserModel)
+                            }
+                            if (newTargetIdx >= 0)
+                                targetIdx = newTargetIdx
+                        }
+                        rootView.materialSectionFocused = true
+                        materialBrowserModel.selectMaterial(targetIdx)
+                    }
+                }
+            }
+        } else if (delta > 0) {
+            if (matSecFocused) {
+                targetIdx = nextVisibleItem(materialBrowserModel.selectedIndex,
+                                            delta, materialBrowserModel)
+                if (targetIdx >= 0) {
+                    materialBrowserModel.selectMaterial(targetIdx)
+                } else if (!materialBrowserTexturesModel.isEmpty && texturesSection.expanded) {
+                    targetIdx = nextVisibleItem(-1, 1, materialBrowserTexturesModel)
+                    if (targetIdx >= 0) {
+                        if (delta !== 1) {
+                            // Try to match column when switching between materials/textures
+                            origRowIdx  = rowIndexOfItem(materialBrowserModel.selectedIndex,
+                                                         delta, materialBrowserModel)
+                            if (visibleItemCount(materialBrowserTexturesModel) > origRowIdx) {
+                                if (origRowIdx > 0) {
+                                    newTargetIdx = nextVisibleItem(targetIdx, origRowIdx,
+                                                                   materialBrowserTexturesModel)
+                                }
+                            } else {
+                                newTargetIdx = nextVisibleItem(materialBrowserTexturesModel.rowCount(),
+                                                            -1, materialBrowserTexturesModel)
+                            }
+                            if (newTargetIdx >= 0)
+                                targetIdx = newTargetIdx
+                        }
+                        rootView.materialSectionFocused = false
+                        materialBrowserTexturesModel.selectTexture(targetIdx)
+                    }
+                }
+            } else if (texSecFocused) {
+                targetIdx = nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
+                                            delta, materialBrowserTexturesModel)
                 if (targetIdx >= 0)
                     materialBrowserTexturesModel.selectTexture(targetIdx)
             }
         }
     }
 
+    Keys.enabled: true
+    Keys.onDownPressed: {
+        selectNextVisibleItem(gridMaterials.columns)
+    }
+
+    Keys.onUpPressed: {
+        selectNextVisibleItem(-gridMaterials.columns)
+    }
+
     Keys.onLeftPressed: {
-        if (rootView.materialSectionFocused) {
-            if (materialBrowserModel.selectedIndex > 0)
-                materialBrowserModel.selectMaterial(materialBrowserModel.selectedIndex - 1)
-        } else {
-            if (materialBrowserTexturesModel.selectedIndex > 0) {
-                materialBrowserTexturesModel.selectTexture(materialBrowserTexturesModel.selectedIndex - 1)
-            } else if (materialBrowserModel.rowCount() > 0) {
-                rootView.materialSectionFocused = true
-                materialBrowserModel.selectMaterial(materialBrowserModel.rowCount() - 1)
-            }
-        }
+        selectNextVisibleItem(-1)
     }
 
     Keys.onRightPressed: {
-        if (rootView.materialSectionFocused) {
-            if (materialBrowserModel.selectedIndex < materialBrowserModel.rowCount() - 1) {
-                materialBrowserModel.selectMaterial(materialBrowserModel.selectedIndex + 1)
-            } else if (materialBrowserTexturesModel.rowCount() > 0) {
-                rootView.materialSectionFocused = false
-                materialBrowserTexturesModel.selectMaterial(0)
-            }
-        } else {
-            if (materialBrowserTexturesModel.selectedIndex < materialBrowserTexturesModel.rowCount() - 1)
-                materialBrowserTexturesModel.selectTexture(materialBrowserTexturesModel.selectedIndex + 1)
-        }
+        selectNextVisibleItem(1)
     }
 
     MouseArea {

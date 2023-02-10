@@ -43,7 +43,7 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
     }
 
     if (role == RoleTexVisible)
-        return isTextureVisible(index.row());
+        return isVisible(index.row());
 
     if (role == RoleTexHasDynamicProps)
         return !m_textureList.at(index.row()).dynamicProperties().isEmpty();
@@ -69,7 +69,7 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
     return {};
 }
 
-bool MaterialBrowserTexturesModel::isTextureVisible(int idx) const
+bool MaterialBrowserTexturesModel::isVisible(int idx) const
 {
     if (!isValidIndex(idx))
         return false;
@@ -117,14 +117,14 @@ void MaterialBrowserTexturesModel::refreshSearch()
     bool isEmpty = false;
 
     // if selected texture goes invisible, select nearest one
-    if (!isTextureVisible(m_selectedIndex)) {
+    if (!isVisible(m_selectedIndex)) {
         int inc = 1;
         int incCap = m_textureList.count();
         while (!isEmpty && inc < incCap) {
-            if (isTextureVisible(m_selectedIndex - inc)) {
+            if (isVisible(m_selectedIndex - inc)) {
                 selectTexture(m_selectedIndex - inc);
                 break;
-            } else if (isTextureVisible(m_selectedIndex + inc)) {
+            } else if (isVisible(m_selectedIndex + inc)) {
                 selectTexture(m_selectedIndex + inc);
                 break;
             }
@@ -132,7 +132,7 @@ void MaterialBrowserTexturesModel::refreshSearch()
             isEmpty = !isValidIndex(m_selectedIndex + inc)
                    && !isValidIndex(m_selectedIndex - inc);
         }
-        if (!isTextureVisible(m_selectedIndex)) // handles the case of a single item
+        if (!isVisible(m_selectedIndex)) // handles the case of a single item
             isEmpty = true;
     }
 
