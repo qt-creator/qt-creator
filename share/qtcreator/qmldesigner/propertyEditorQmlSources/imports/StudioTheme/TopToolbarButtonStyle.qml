@@ -14,7 +14,7 @@ ControlStyle {
         idle: Values.themeTextColor
         hover: Values.themeTextColor
         interaction: Values.themeTextSelectedTextColor
-        disabled: "#636363"
+        disabled: Values.themeIconColorDisabled
     }
 
     background: ControlStyle.BackgroundColors {
