@@ -8,14 +8,8 @@
 #include "diffeditorplugin.h"
 #include "diffeditortr.h"
 
-#include <QMenu>
-#include <QPainter>
-#include <QScrollBar>
-#include <QTextBlock>
-#include <QVBoxLayout>
-
-#include <coreplugin/icore.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -28,6 +22,11 @@
 #include <utils/asynctask.h>
 #include <utils/mathutils.h>
 #include <utils/tooltip/tooltip.h>
+
+#include <QMenu>
+#include <QPainter>
+#include <QScrollBar>
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace TextEditor;
@@ -245,7 +244,7 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
     return TextDocument::convertToPlainText(text);
 }
 
-SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int progressMin,
+SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterfaceBase &fi, int progressMin,
                                               int progressMax, const DiffEditorInput &input)
 {
     SideBySideDiffOutput output;
@@ -914,19 +913,15 @@ void SideBySideDiffEditorWidget::showDiff()
 
     const DiffEditorInput input(&m_controller);
 
-    auto getDocument = [input](QFutureInterface<ShowResults> &futureInterface) {
-        auto cleanup = qScopeGuard([&futureInterface] {
-            if (futureInterface.isCanceled())
-                futureInterface.reportCanceled();
-        });
+    auto getDocument = [input](QPromise<ShowResults> &promise) {
         const int firstPartMax = 20; // diffOutput is about 4 times quicker than filling document
         const int leftPartMax = 60;
         const int rightPartMax = 100;
-        futureInterface.setProgressRange(0, rightPartMax);
-        futureInterface.setProgressValue(0);
-        QFutureInterface<void> fi = futureInterface;
+        promise.setProgressRange(0, rightPartMax);
+        promise.setProgressValue(0);
+        QFutureInterfaceBase fi = QFutureInterfaceBase::get(promise.future());
         const SideBySideDiffOutput output = SideDiffData::diffOutput(fi, 0, firstPartMax, input);
-        if (futureInterface.isCanceled())
+        if (promise.isCanceled())
             return;
 
         const ShowResult leftResult{TextDocumentPtr(new TextDocument("DiffEditor.SideDiffEditor")),
@@ -935,7 +930,7 @@ void SideBySideDiffEditorWidget::showDiff()
                     output.side[RightSide].diffData, output.side[RightSide].selections};
         const ShowResults result{leftResult, rightResult};
 
-        auto propagateDocument = [&output, &fi](DiffSide side, const ShowResult &result,
+        auto propagateDocument = [&output, &promise](DiffSide side, const ShowResult &result,
                                                 int progressMin, int progressMax) {
             // No need to store the change history
             result.textDocument->document()->setUndoRedoEnabled(false);
@@ -952,8 +947,9 @@ void SideBySideDiffEditorWidget::showDiff()
                 const QString package = output.side[side].diffText.mid(currentPos, packageSize);
                 cursor.insertText(package);
                 currentPos += package.size();
-                fi.setProgressValue(MathUtils::interpolateLinear(currentPos, 0, diffSize, progressMin, progressMax));
-                if (fi.isCanceled())
+                promise.setProgressValue(MathUtils::interpolateLinear(currentPos, 0, diffSize,
+                                                                      progressMin, progressMax));
+                if (promise.isCanceled())
                     return;
             }
 
@@ -968,16 +964,16 @@ void SideBySideDiffEditorWidget::showDiff()
         };
 
         propagateDocument(LeftSide, leftResult, firstPartMax, leftPartMax);
-        if (fi.isCanceled())
+        if (promise.isCanceled())
             return;
         propagateDocument(RightSide, rightResult, leftPartMax, rightPartMax);
-        if (fi.isCanceled())
+        if (promise.isCanceled())
             return;
 
-        futureInterface.reportResult(result);
+        promise.addResult(result);
     };
 
-    m_asyncTask->setAsyncCallData(getDocument);
+    m_asyncTask->setConcurrentCallData(getDocument);
     m_asyncTask->start();
     ProgressManager::addTask(m_asyncTask->future(), Tr::tr("Rendering diff"), "DiffEditor");
 }

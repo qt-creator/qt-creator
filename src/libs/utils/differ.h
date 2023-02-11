@@ -5,12 +5,12 @@
 
 #include "utils_global.h"
 
+#include <QFuture>
 #include <QString>
 
 QT_BEGIN_NAMESPACE
 template <class K, class T>
 class QMap;
-class QFutureInterfaceBase;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -42,7 +42,7 @@ public:
         WordMode,
         LineMode
     };
-    Differ(QFutureInterfaceBase *jobController = nullptr);
+    Differ(const QFuture<void> &future = {});
     QList<Diff> diff(const QString &text1, const QString &text2);
     QList<Diff> unifiedDiff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
@@ -90,7 +90,7 @@ private:
                        int subTextStart);
     DiffMode m_diffMode = Differ::LineMode;
     DiffMode m_currentDiffMode = Differ::LineMode;
-    QFutureInterfaceBase *m_jobController = nullptr;
+    QFuture<void> m_future;
 };
 
 } // namespace Utils
