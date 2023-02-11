@@ -20,6 +20,7 @@ QT_END_NAMESPACE;
 namespace Utils {
 class ElidingLabel;
 class NavigationTreeView;
+class TaskTree;
 } // Utils
 
 namespace Git::Internal {
@@ -54,7 +55,7 @@ private:
     bool remove();
     bool rename();
     bool reset(const QByteArray &resetType);
-    bool isFastForwardMerge();
+    Utils::TaskTree *onFastForwardMerge(const std::function<void()> &callback);
     bool merge(bool allowFastForward);
     void rebase();
     bool cherryPick();

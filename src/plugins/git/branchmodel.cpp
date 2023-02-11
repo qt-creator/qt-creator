@@ -229,6 +229,7 @@ public:
     QString currentSha;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
+    std::unique_ptr<TaskTree> refreshTask;
     bool oldBranchesIncluded = false;
 
     struct OldEntry
@@ -399,50 +400,83 @@ void BranchModel::clear()
     d->obsoleteLocalBranches.clear();
 }
 
-bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessage)
+void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
 {
+    if (d->refreshTask) {
+        endResetModel(); // for the running task tree.
+        d->refreshTask.reset(); // old running tree is reset, no handlers are being called
+    }
     beginResetModel();
     clear();
     if (workingDirectory.isEmpty()) {
         endResetModel();
-        return true;
+        return;
     }
 
-    d->currentSha = d->client->synchronousTopRevision(workingDirectory, &d->currentDateTime);
-    QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
-                        "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)",
-                        "refs/heads/**",
-                        "refs/remotes/**"};
-    if (d->client->settings().showTags.value())
-        args << "refs/tags/**";
-    QString output;
-    if (!d->client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage)) {
+    using namespace Tasking;
+    const Process topRevisionProc =
+        d->client->topRevision(workingDirectory,
+                               [=](const QString &ref, const QDateTime &dateTime) {
+                                   d->currentSha = ref;
+                                   d->currentDateTime = dateTime;
+                               });
+
+    const auto setupForEachRef = [=](QtcProcess &process) {
+        d->workingDirectory = workingDirectory;
+        QStringList args = {"for-each-ref",
+                            "--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
+                            "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)",
+                            "refs/heads/**",
+                            "refs/remotes/**"};
+        if (d->client->settings().showTags.value())
+            args << "refs/tags/**";
+        d->client->setupCommand(process, workingDirectory, args);
+    };
+
+    const auto forEachRefDone = [=](const QtcProcess &process) {
+        const QString output = process.stdOut();
+        const QStringList lines = output.split('\n');
+        for (const QString &l : lines)
+            d->parseOutputLine(l);
+        d->flushOldEntries();
+
+        d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
+        if (d->currentBranch) {
+            if (d->currentBranch->isLocal())
+                d->currentBranch = nullptr;
+            setCurrentBranch();
+        }
+        if (!d->currentBranch) {
+            BranchNode *local = d->rootNode->children.at(LocalBranches);
+            d->currentBranch = d->headNode = new BranchNode(
+                Tr::tr("Detached HEAD"), "HEAD", {}, d->currentDateTime);
+            local->prepend(d->headNode);
+        }
+    };
+
+    const auto forEachRefError = [=](const QtcProcess &process) {
+        if (showError == ShowError::No)
+            return;
+        const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")
+                                    .arg("git for-each-ref")
+                                    .arg(workingDirectory.toUserOutput())
+                                    .arg(process.cleanedStdErr());
+        VcsBase::VcsOutputWindow::appendError(message);
+    };
+
+    const auto finalize = [this] {
         endResetModel();
-        return false;
-    }
+        d->refreshTask.release()->deleteLater();
+    };
 
-    d->workingDirectory = workingDirectory;
-    const QStringList lines = output.split('\n');
-    for (const QString &l : lines)
-        d->parseOutputLine(l);
-    d->flushOldEntries();
-
-    d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
-    if (d->currentBranch) {
-        if (d->currentBranch->isLocal())
-            d->currentBranch = nullptr;
-        setCurrentBranch();
-    }
-    if (!d->currentBranch) {
-        BranchNode *local = d->rootNode->children.at(LocalBranches);
-        d->currentBranch = d->headNode = new BranchNode(Tr::tr("Detached HEAD"), "HEAD", QString(),
-                                                        d->currentDateTime);
-        local->prepend(d->headNode);
-    }
-
-    endResetModel();
-
-    return true;
+    const Group root {
+        topRevisionProc,
+        Process(setupForEachRef, forEachRefDone, forEachRefError),
+        OnGroupDone(finalize),
+        OnGroupError(finalize)
+    };
+    d->refreshTask.reset(new TaskTree(root));
+    d->refreshTask->start();
 }
 
 void BranchModel::setCurrentBranch()
@@ -469,7 +503,7 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
                                         &output, &errorMessage))
         VcsOutputWindow::appendError(errorMessage);
     else
-        refresh(d->workingDirectory, &errorMessage);
+        refresh(d->workingDirectory);
 }
 
 void BranchModel::renameTag(const QString &oldName, const QString &newName)
@@ -482,7 +516,7 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
                                             &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
     } else {
-        refresh(d->workingDirectory, &errorMessage);
+        refresh(d->workingDirectory);
     }
 }
 

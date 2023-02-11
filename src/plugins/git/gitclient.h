@@ -13,6 +13,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QString>
@@ -241,9 +242,10 @@ public:
     QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    QString synchronousTopRevision(const Utils::FilePath &workingDirectory, QDateTime *dateTime = nullptr);
+    Utils::Tasking::Process topRevision(
+        const Utils::FilePath &workingDirectory,
+        const std::function<void(const QString &, const QDateTime &)> &callback);
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
-    bool isFastForwardMerge(const Utils::FilePath &workingDirectory, const QString &branch);
 
     void fetch(const Utils::FilePath &workingDirectory, const QString &remote);
     void pull(const Utils::FilePath &workingDirectory, bool rebase);

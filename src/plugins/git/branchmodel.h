@@ -34,7 +34,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void clear();
-    bool refresh(const Utils::FilePath &workingDirectory, QString *errorMessage);
+    enum class ShowError { No, Yes };
+    void refresh(const Utils::FilePath &workingDirectory, ShowError showError = ShowError::No);
 
     void renameBranch(const QString &oldName, const QString &newName);
     void renameTag(const QString &oldName, const QString &newName);

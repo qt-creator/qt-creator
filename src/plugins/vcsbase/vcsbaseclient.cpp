@@ -22,6 +22,7 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QStringList>
@@ -87,6 +88,16 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
         });
     }
     return cmd;
+}
+
+void VcsBaseClientImpl::setupCommand(Utils::QtcProcess &process,
+                                     const FilePath &workingDirectory,
+                                     const QStringList &args) const
+{
+    process.setEnvironment(processEnvironment());
+    process.setWorkingDirectory(workingDirectory);
+    process.setCommand({vcsBinary(), args});
+    process.setUseCtrlCStub(true);
 }
 
 void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,

@@ -1730,19 +1730,28 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
 }
 
 // Retrieve head revision
-QString GitClient::synchronousTopRevision(const FilePath &workingDirectory, QDateTime *dateTime)
+Utils::Tasking::Process GitClient::topRevision(
+    const FilePath &workingDirectory,
+    const std::function<void(const QString &, const QDateTime &)> &callback)
 {
-    const QStringList arguments = {"show", "-s", "--pretty=format:%H:%ct", HEAD};
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
-    if (result.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
-    const QStringList output = result.cleanedStdOut().trimmed().split(':');
-    if (dateTime && output.size() > 1) {
-        bool ok = false;
-        const qint64 timeT = output.at(1).toLongLong(&ok);
-        *dateTime = ok ? QDateTime::fromSecsSinceEpoch(timeT) : QDateTime();
-    }
-    return output.first();
+    using namespace Tasking;
+
+    const auto setupProcess = [=](QtcProcess &process) {
+        setupCommand(process, workingDirectory, {"show", "-s", "--pretty=format:%H:%ct", HEAD});
+    };
+    const auto onProcessDone = [=](const QtcProcess &process) {
+        const QStringList output = process.cleanedStdOut().trimmed().split(':');
+        QDateTime dateTime;
+        if (output.size() > 1) {
+            bool ok = false;
+            const qint64 timeT = output.at(1).toLongLong(&ok);
+            if (ok)
+                dateTime = QDateTime::fromSecsSinceEpoch(timeT);
+        }
+        callback(output.first(), dateTime);
+    };
+
+    return Process(setupProcess, onProcessDone);
 }
 
 bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &commit)
@@ -1750,13 +1759,6 @@ bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &
     const CommandResult result = vcsSynchronousExec(workingDirectory,
                                  {"branch", "-r", "--contains", commit}, RunFlags::NoOutput);
     return !result.rawStdOut().isEmpty();
-}
-
-bool GitClient::isFastForwardMerge(const FilePath &workingDirectory, const QString &branch)
-{
-    const CommandResult result = vcsSynchronousExec(workingDirectory,
-                                 {"merge-base", HEAD, branch}, RunFlags::NoOutput);
-    return result.cleanedStdOut().trimmed() == synchronousTopRevision(workingDirectory);
 }
 
 // Format an entry in a one-liner for selection list using git log.

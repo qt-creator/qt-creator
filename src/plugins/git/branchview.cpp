@@ -160,9 +160,7 @@ void BranchView::refresh(const FilePath &repository, bool force)
     if (!isVisible())
         return;
 
-    QString errorMessage;
-    if (!m_model->refresh(m_repository, &errorMessage))
-        VcsBase::VcsOutputWindow::appendError(errorMessage);
+    m_model->refresh(m_repository, BranchModel::ShowError::Yes);
 }
 
 void BranchView::refreshCurrentBranch()
@@ -225,6 +223,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const bool isTag = m_model->isTag(index);
     const bool hasActions = m_model->isLeaf(index);
     const bool currentLocal = m_model->isLocal(currentBranch);
+    std::unique_ptr<TaskTree> taskTree;
 
     QMenu contextMenu;
     contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
@@ -268,19 +267,19 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             resetMenu->addAction(Tr::tr("&Mixed"), this, [this] { reset("mixed"); });
             resetMenu->addAction(Tr::tr("&Soft"), this, [this] { reset("soft"); });
             contextMenu.addMenu(resetMenu);
-            QString mergeTitle;
-            if (isFastForwardMerge()) {
-                contextMenu.addAction(Tr::tr("&Merge \"%1\" into \"%2\" (Fast-Forward)")
-                                      .arg(indexName, currentName),
-                                      this, [this] { merge(true); });
-                mergeTitle = Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
-                        .arg(indexName, currentName);
-            } else {
-                mergeTitle = Tr::tr("&Merge \"%1\" into \"%2\"")
-                        .arg(indexName, currentName);
-            }
+            QAction *mergeAction = contextMenu.addAction(Tr::tr("&Merge \"%1\" into \"%2\"")
+                                                             .arg(indexName, currentName),
+                                                         this,
+                                                         [this] { merge(false); });
+            taskTree.reset(onFastForwardMerge([&] {
+                auto ffMerge = new QAction(
+                    Tr::tr("&Merge \"%1\" into \"%2\" (Fast-Forward)").arg(indexName, currentName));
+                connect(ffMerge, &QAction::triggered, this, [this] { merge(true); });
+                contextMenu.insertAction(mergeAction, ffMerge);
+                mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
+                                         .arg(indexName, currentName));
+            }));
 
-            contextMenu.addAction(mergeTitle, this, [this] { merge(false); });
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
                                   .arg(currentName, indexName),
                                   this, &BranchView::rebase);
@@ -523,13 +522,50 @@ bool BranchView::reset(const QByteArray &resetType)
     return false;
 }
 
-bool BranchView::isFastForwardMerge()
+TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
 {
+    using namespace Tasking;
+
     const QModelIndex selected = selectedIndex();
     QTC_CHECK(selected != m_model->currentBranch());
 
     const QString branch = m_model->fullName(selected, true);
-    return GitClient::instance()->isFastForwardMerge(m_repository, branch);
+
+    struct FastForwardStorage
+    {
+        QString mergeBase;
+        QString topRevision;
+    };
+
+    const TreeStorage<FastForwardStorage> storage;
+
+    GitClient *client = GitClient::instance();
+    const auto setupMergeBase = [=](QtcProcess &process) {
+        client->setupCommand(process, m_repository, {"merge-base", "HEAD", branch});
+    };
+    const auto onMergeBaseDone = [storage](const QtcProcess &process) {
+        storage->mergeBase = process.cleanedStdOut().trimmed();
+    };
+
+    const Process topRevisionProc = client->topRevision(
+        m_repository,
+        [storage](const QString &revision, const QDateTime &) {
+            storage->topRevision = revision;
+        });
+
+    const Group root {
+        Storage(storage),
+        parallel,
+        Process(setupMergeBase, onMergeBaseDone),
+        topRevisionProc,
+        OnGroupDone([storage, callback] {
+            if (storage->mergeBase == storage->topRevision)
+                callback();
+        })
+    };
+    auto taskTree = new TaskTree(root);
+    taskTree->start();
+    return taskTree;
 }
 
 bool BranchView::merge(bool allowFastForward)
