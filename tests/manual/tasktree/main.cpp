@@ -18,11 +18,11 @@
 using namespace Utils;
 
 // TODO: make tasks cancellable
-static void sleepInThread(QFutureInterface<void> &fi, int seconds, bool reportSuccess)
+static void sleepInThread(QPromise<void> &promise, int seconds, bool reportSuccess)
 {
     QThread::sleep(seconds);
     if (!reportSuccess)
-        fi.reportCanceled();
+        promise.future().cancel();
 }
 
 int main(int argc, char *argv[])
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 
         auto taskItem = [sync = &synchronizer, synchronizerCheckBox](TaskWidget *widget) {
             const auto setupHandler = [=](AsyncTask<void> &task) {
-                task.setAsyncCallData(sleepInThread, widget->busyTime(), widget->isSuccess());
+                task.setConcurrentCallData(sleepInThread, widget->busyTime(), widget->isSuccess());
                 if (synchronizerCheckBox->isChecked())
                     task.setFutureSynchronizer(sync);
                 widget->setState(State::Running);
