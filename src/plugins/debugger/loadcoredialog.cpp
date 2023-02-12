@@ -243,18 +243,18 @@ void AttachCoreDialog::accepted()
 
     using ResultType = expected_str<FilePath>;
 
-    const auto copyFileAsync = [=](QFutureInterface<ResultType> &fi, const FilePath &srcPath) {
-        fi.reportResult(copyFile(srcPath));
+    const auto copyFileAsync = [=](QPromise<ResultType> &promise, const FilePath &srcPath) {
+        promise.addResult(copyFile(srcPath));
     };
 
     const Group root = {
         parallel,
         Async<ResultType>{[=](auto &task) {
-                              task.setAsyncCallData(copyFileAsync, this->coreFile());
+                              task.setConcurrentCallData(copyFileAsync, this->coreFile());
                           },
                           [=](const auto &task) { d->coreFileResult = task.result(); }},
         Async<ResultType>{[=](auto &task) {
-                              task.setAsyncCallData(copyFileAsync, this->symbolFile());
+                              task.setConcurrentCallData(copyFileAsync, this->symbolFile());
                           },
                           [=](const auto &task) { d->symbolFileResult = task.result(); }},
     };
