@@ -49,12 +49,12 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     using namespace ProjectExplorer;
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    const auto infoGenerator = [=](QFutureInterface<ProjectInfo::ConstPtr> &futureInterface) {
+    const auto infoGenerator = [=](QPromise<ProjectInfo::ConstPtr> &promise) {
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();
-        Internal::ProjectInfoGenerator generator(futureInterface, fullProjectUpdateInfo);
-        futureInterface.reportResult(generator.generate());
+        Internal::ProjectInfoGenerator generator(fullProjectUpdateInfo);
+        promise.addResult(generator.generate(promise));
     };
 
     using namespace Tasking;
@@ -63,7 +63,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     };
     const TreeStorage<UpdateStorage> storage;
     const auto setupInfoGenerator = [=](AsyncTask<ProjectInfo::ConstPtr> &async) {
-        async.setAsyncCallData(infoGenerator);
+        async.setConcurrentCallData(infoGenerator);
         async.setFutureSynchronizer(&m_futureSynchronizer);
     };
     const auto onInfoGeneratorDone = [=](const AsyncTask<ProjectInfo::ConstPtr> &async) {
