@@ -382,28 +382,26 @@ void DirectoryFilter::setExclusionFilters(const QStringList &exclusionFilters)
     m_exclusionFilters = exclusionFilters;
 }
 
-static void refresh(QFutureInterface<FilePaths> &future, const FilePaths &directories,
+static void refresh(QPromise<FilePaths> &promise, const FilePaths &directories,
                     const QStringList &filters, const QStringList &exclusionFilters,
                     const QString &displayName)
 {
     SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
-    future.setProgressRange(0, subDirIterator.maxProgress());
+    promise.setProgressRange(0, subDirIterator.maxProgress());
     FilePaths files;
     const auto end = subDirIterator.end();
     for (auto it = subDirIterator.begin(); it != end; ++it) {
-        if (future.isCanceled()) {
-            future.setProgressValueAndText(subDirIterator.currentProgress(),
+        if (promise.isCanceled()) {
+            promise.setProgressValueAndText(subDirIterator.currentProgress(),
                                            Tr::tr("%1 filter update: canceled").arg(displayName));
             return;
         }
         files << (*it).filePath;
-        if (future.isProgressUpdateNeeded() || future.progressValue() == 0) {
-            future.setProgressValueAndText(subDirIterator.currentProgress(),
-                   Tr::tr("%1 filter update: %n files", nullptr, files.size()).arg(displayName));
-        }
+        promise.setProgressValueAndText(subDirIterator.currentProgress(),
+                Tr::tr("%1 filter update: %n files", nullptr, files.size()).arg(displayName));
     }
-    future.setProgressValue(subDirIterator.maxProgress());
-    future.reportResult(files);
+    promise.setProgressValue(subDirIterator.maxProgress());
+    promise.addResult(files);
 }
 
 using namespace Utils::Tasking;
@@ -418,8 +416,8 @@ std::optional<TaskItem> DirectoryFilter::refreshRecipe()
         return TaskAction::StopWithDone; // Group stops, skips async task
     };
     const auto asyncSetup = [this](AsyncTask<FilePaths> &async) {
-        async.setAsyncCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
-                               displayName());
+        async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
+                                    displayName());
     };
     const auto asyncDone = [this](const AsyncTask<FilePaths> &async) {
         m_files = async.isResultAvailable() ? async.result() : FilePaths();
