@@ -292,7 +292,7 @@ static bool isQObject(const CPlusPlus::Document::Ptr &declaringDoc)
             || file.endsWith("QtCore/qobject.h")  || file.endsWith("kernel/qobject.h");
 }
 
-bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                    const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
@@ -325,7 +325,7 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureI
             data.multipleTestCases = testCase.multipleTestCases;
             QtTestParseResult *parseResult
                     = createParseResult(testCase.name, data, projectParts.first()->projectFile);
-            futureInterface.reportResult(TestParseResultPtr(parseResult));
+            promise.addResult(TestParseResultPtr(parseResult));
             reported = true;
         }
     }

@@ -196,7 +196,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
     return foundDocs;
 }
 
-static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> &futureInterface,
+static bool checkQmlDocumentForQuickTestCode(QPromise<TestParseResultPtr> &promise,
                                              const Document::Ptr &qmlJSDoc,
                                              ITestFramework *framework,
                                              const FilePath &proFile = {},
@@ -240,12 +240,12 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
             parseResult->children.append(funcResult);
         }
 
-        futureInterface.reportResult(TestParseResultPtr(parseResult));
+        promise.addResult(TestParseResultPtr(parseResult));
     }
     return true;
 }
 
-bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> &futureInterface,
+bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
                                         CPlusPlus::Document::Ptr document,
                                         ITestFramework *framework)
 {
@@ -263,17 +263,14 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> &fu
     if (srcDir.isEmpty())
         return false;
 
-    if (futureInterface.isCanceled())
+    if (promise.isCanceled())
         return false;
     const QList<Document::Ptr> qmlDocs = scanDirectoryForQuickTestQmlFiles(srcDir);
     bool result = false;
     for (const Document::Ptr &qmlJSDoc : qmlDocs) {
-        if (futureInterface.isCanceled())
+        if (promise.isCanceled())
             break;
-        result |= checkQmlDocumentForQuickTestCode(futureInterface,
-                                                   qmlJSDoc,
-                                                   framework,
-                                                   proFile,
+        result |= checkQmlDocumentForQuickTestCode(promise, qmlJSDoc, framework, proFile,
                                                    m_checkForDerivedTests);
     }
     return result;
@@ -370,7 +367,7 @@ void QuickTestParser::release()
     CppParser::release();
 }
 
-bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+bool QuickTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                       const FilePath &fileName)
 {
     if (fileName.endsWith(".qml")) {
@@ -378,7 +375,7 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
         if (proFile.isEmpty())
             return false;
         Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
-        return checkQmlDocumentForQuickTestCode(futureInterface,
+        return checkQmlDocumentForQuickTestCode(promise,
                                                 qmlJSDoc,
                                                 framework(),
                                                 proFile,
@@ -389,7 +386,7 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
    if (cppdoc.isNull() || !includesQtQuickTest(cppdoc, m_cppSnapshot))
        return false;
 
-   return handleQtQuickTest(futureInterface, cppdoc, framework());
+   return handleQtQuickTest(promise, cppdoc, framework());
 }
 
 FilePath QuickTestParser::projectFileForMainCppFile(const FilePath &fileName) const

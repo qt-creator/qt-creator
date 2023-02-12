@@ -36,7 +36,7 @@ public:
 
     void init(const Utils::FilePaths &filesToParse, bool fullParse) override;
     void release() override;
-    bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+    bool processDocument(QPromise<TestParseResultPtr> &promise,
                          const Utils::FilePath &fileName) override;
 
 private:

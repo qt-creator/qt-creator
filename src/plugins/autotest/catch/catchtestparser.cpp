@@ -91,7 +91,7 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
-bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                       const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
@@ -144,7 +144,7 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
         parseResult->children.append(testCase);
     }
 
-    futureInterface.reportResult(TestParseResultPtr(parseResult));
+    promise.addResult(TestParseResultPtr(parseResult));
 
     return !foundTests.isEmpty();
 }

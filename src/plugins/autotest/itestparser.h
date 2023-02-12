@@ -9,9 +9,9 @@
 #include <cppeditor/cppworkingcopy.h>
 #include <qmljs/qmljsdocument.h>
 
-#include <QFutureInterface>
-
 QT_BEGIN_NAMESPACE
+template <class T>
+class QPromise;
 class QRegularExpression;
 QT_END_NAMESPACE
 
@@ -46,7 +46,7 @@ public:
     explicit ITestParser(ITestFramework *framework) : m_framework(framework) {}
     virtual ~ITestParser() { }
     virtual void init(const Utils::FilePaths &filesToParse, bool fullParse) = 0;
-    virtual bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+    virtual bool processDocument(QPromise<TestParseResultPtr> &futureInterface,
                                  const Utils::FilePath &fileName) = 0;
 
     virtual QStringList supportedExtensions() const { return {}; }

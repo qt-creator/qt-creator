@@ -254,13 +254,13 @@ bool TestCodeParser::postponed(const FilePaths &fileList)
     QTC_ASSERT(false, return false); // should not happen at all
 }
 
-static void parseFileForTests(QFutureInterface<TestParseResultPtr> &futureInterface,
+static void parseFileForTests(QPromise<TestParseResultPtr> &promise,
                               const QList<ITestParser *> &parsers, const FilePath &fileName)
 {
     for (ITestParser *parser : parsers) {
-        if (futureInterface.isCanceled())
+        if (promise.isCanceled())
             return;
-        if (parser->processDocument(futureInterface, fileName))
+        if (parser->processDocument(promise, fileName))
             break;
     }
 }
@@ -359,7 +359,7 @@ void TestCodeParser::scanForTests(const FilePaths &fileList, const QList<ITestPa
     QList<TaskItem> tasks{parallel}; // TODO: use ParallelLimit(N) and add to settings?
     for (const FilePath &file : filteredList) {
         const auto setup = [this, codeParsers, file](AsyncTask<TestParseResultPtr> &async) {
-            async.setAsyncCallData(parseFileForTests, codeParsers, file);
+            async.setConcurrentCallData(parseFileForTests, codeParsers, file);
             async.setThreadPool(m_threadPool);
             async.setPriority(QThread::LowestPriority);
             async.setFutureSynchronizer(&m_futureSynchronizer);

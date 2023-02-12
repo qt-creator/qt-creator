@@ -22,7 +22,7 @@ class GTestParser : public CppParser
 {
 public:
     explicit GTestParser(ITestFramework *framework) : CppParser(framework) {}
-    bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
+    bool processDocument(QPromise<TestParseResultPtr> &futureInterface,
                          const Utils::FilePath &fileName) override;
 };
 
