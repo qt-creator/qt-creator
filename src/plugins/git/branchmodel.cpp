@@ -409,8 +409,12 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
     }
 
     d->currentSha = d->client->synchronousTopRevision(workingDirectory, &d->currentDateTime);
-    const QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
-                              "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)"};
+    QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
+                        "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)",
+                        "refs/heads/**",
+                        "refs/remotes/**"};
+    if (d->client->settings().showTags.value())
+        args << "refs/tags/**";
     QString output;
     if (!d->client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage)) {
         endResetModel();
