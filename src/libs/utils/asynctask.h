@@ -7,7 +7,6 @@
 
 #include "futuresynchronizer.h"
 #include "qtcassert.h"
-#include "runextensions.h"
 #include "tasktree.h"
 
 #include <QFutureWatcher>
@@ -81,13 +80,6 @@ public:
         return wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
     }
 
-    template <typename Function, typename ...Args>
-    void setAsyncCallData(const Function &function, const Args &...args)
-    {
-        m_startHandler = [=] {
-            return Utils::runAsync(m_threadPool, m_priority, function, args...);
-        };
-    }
     void setFutureSynchronizer(FutureSynchronizer *synchorizer) { m_synchronizer = synchorizer; }
     void setThreadPool(QThreadPool *pool) { m_threadPool = pool; }
     void setPriority(QThread::Priority priority) { m_priority = priority; }
