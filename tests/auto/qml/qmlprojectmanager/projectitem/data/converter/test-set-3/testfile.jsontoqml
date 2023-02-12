@@ -1,0 +1,93 @@
+\\ prop: json-converted
+\\ prop: auto-generated
+
+import QmlProject
+
+Project {
+    mainFile: "content/App.qml"
+    mainUiFile: "content/MainScreen.ui.qml"
+    targetDirectory: "/opt/RobotArm"
+    widgetApp: true
+    importPaths: [ "imports","asset_imports","backend_mock" ]
+
+    qdsVersion: "3.0"
+    quickVersion: ""
+    qt6Project: false
+    qtForMCUs: true
+
+    multilanguageSupport: true
+    primaryLanguage: "en"
+    supportedLanguages: [ "en" ]
+
+    Environment {
+        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+        QT_ENABLE_HIGHDPI_SCALING: "0"
+        QT_LOGGING_RULES: "qt.qml.connections=false"
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+    }
+
+    ShaderTool {
+        args: ""
+        files: [  ]
+    }
+
+    QmlFiles {
+        directory: "content"
+    }
+
+    QmlFiles {
+        directory: "imports"
+    }
+
+    QmlFiles {
+        directory: "backend_mock"
+    }
+
+    JavaScriptFiles {
+        directory: "content"
+    }
+
+    JavaScriptFiles {
+        directory: "imports"
+    }
+
+    ImageFiles {
+        directory: "content"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.conf"
+        files: [ "qtquickcontrols2.conf" ]
+    }
+
+    Files {
+        directory: "."
+        filters: "*.ttf;*.otf"
+    }
+
+    Files {
+        directory: "content"
+        filters: "*.mesh"
+    }
+
+    Files {
+        directory: "."
+        filters: "qmldir"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.mp3;*.wav"
+    }
+
+    Files {
+        directory: "."
+        filters: "*.mp4"
+    }
+}

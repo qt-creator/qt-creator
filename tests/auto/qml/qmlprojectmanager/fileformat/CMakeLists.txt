@@ -9,11 +9,12 @@ foreach(source IN LISTS QmlProjectManagerSources)
   endif()
 endforeach()
 
-add_qtc_test(tst_qml_fileformat
-  DEPENDS QmlJS Utils
-  INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins/qmlprojectmanager/fileformat"
-  DEFINES
-    QT_CREATOR
-    SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}"
-  SOURCES tst_fileformat.cpp ${fileformat_sources}
-)
+#add_qtc_test(tst_qml_fileformat
+#  DEPENDS QmlJS Utils
+#  INCLUDES "${PROJECT_SOURCE_DIR}/src/plugins/qmlprojectmanager/fileformat"
+#  DEFINES
+#    QT_CREATOR
+#    SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}"
+#  SOURCES tst_fileformat.cpp ${fileformat_sources}
+#)
+

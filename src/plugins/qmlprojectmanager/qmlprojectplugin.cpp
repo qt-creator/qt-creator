@@ -10,7 +10,6 @@
 #include "projectfilecontenttools.h"
 #include "cmakegen/cmakeprojectconverter.h"
 #include "cmakegen/generatecmakelists.h"
-#include "qmlprojectgen/qmlprojectgenerator.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
