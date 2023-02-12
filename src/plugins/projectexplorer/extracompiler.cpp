@@ -17,11 +17,11 @@
 #include <utils/qtcprocess.h>
 
 #include <QDateTime>
-#include <QFutureInterface>
 #include <QLoggingCategory>
 #include <QThreadPool>
 #include <QTimer>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -37,10 +37,10 @@ public:
     FilePath source;
     FileNameToContentsHash contents;
     QDateTime compileTime;
-    Core::IEditor *lastEditor = nullptr;
+    IEditor *lastEditor = nullptr;
     QMetaObject::Connection activeBuildConfigConnection;
     QMetaObject::Connection activeEnvironmentConnection;
-    Utils::Guard lock;
+    Guard lock;
     bool dirty = false;
 
     QTimer timer;
@@ -69,10 +69,10 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
             deleteLater();
     });
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, &Core::EditorManager::currentEditorChanged,
+    EditorManager *editorManager = EditorManager::instance();
+    connect(editorManager, &EditorManager::currentEditorChanged,
             this, &ExtraCompiler::onEditorChanged);
-    connect(editorManager, &Core::EditorManager::editorAboutToClose,
+    connect(editorManager, &EditorManager::editorAboutToClose,
             this, &ExtraCompiler::onEditorAboutToClose);
 
     // Use existing target files, where possible. Otherwise run the compiler.
@@ -228,12 +228,12 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
     });
 }
 
-void ExtraCompiler::onEditorChanged(Core::IEditor *editor)
+void ExtraCompiler::onEditorChanged(IEditor *editor)
 {
     // Handle old editor
     if (d->lastEditor) {
-        Core::IDocument *doc = d->lastEditor->document();
-        disconnect(doc, &Core::IDocument::contentsChanged,
+        IDocument *doc = d->lastEditor->document();
+        disconnect(doc, &IDocument::contentsChanged,
                    this, &ExtraCompiler::setDirty);
 
         if (d->dirty) {
@@ -246,7 +246,7 @@ void ExtraCompiler::onEditorChanged(Core::IEditor *editor)
         d->lastEditor = editor;
 
         // Handle new editor
-        connect(d->lastEditor->document(), &Core::IDocument::contentsChanged,
+        connect(d->lastEditor->document(), &IDocument::contentsChanged,
                 this, &ExtraCompiler::setDirty);
     } else {
         d->lastEditor = nullptr;
@@ -259,15 +259,15 @@ void ExtraCompiler::setDirty()
     d->timer.start(1000);
 }
 
-void ExtraCompiler::onEditorAboutToClose(Core::IEditor *editor)
+void ExtraCompiler::onEditorAboutToClose(IEditor *editor)
 {
     if (d->lastEditor != editor)
         return;
 
     // Oh no our editor is going to be closed
     // get the content first
-    Core::IDocument *doc = d->lastEditor->document();
-    disconnect(doc, &Core::IDocument::contentsChanged,
+    IDocument *doc = d->lastEditor->document();
+    disconnect(doc, &IDocument::contentsChanged,
                this, &ExtraCompiler::setDirty);
     if (d->dirty) {
         d->dirty = false;
@@ -278,22 +278,20 @@ void ExtraCompiler::onEditorAboutToClose(Core::IEditor *editor)
 
 Environment ExtraCompiler::buildEnvironment() const
 {
-    if (Target *target = project()->activeTarget()) {
-        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            return bc->environment();
-        } else {
-            EnvironmentItems changes =
-                    EnvironmentKitAspect::environmentChanges(target->kit());
-            Environment env = Environment::systemEnvironment();
-            env.modify(changes);
-            return env;
-        }
-    }
+    Target *target = project()->activeTarget();
+    if (!target)
+        return Environment::systemEnvironment();
 
-    return Environment::systemEnvironment();
+    if (BuildConfiguration *bc = target->activeBuildConfiguration())
+        return bc->environment();
+
+    const EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(target->kit());
+    Environment env = Environment::systemEnvironment();
+    env.modify(changes);
+    return env;
 }
 
-Utils::FutureSynchronizer *ExtraCompiler::futureSynchronizer() const
+FutureSynchronizer *ExtraCompiler::futureSynchronizer() const
 {
     return &d->m_futureSynchronizer;
 }
@@ -335,8 +333,8 @@ Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &prov
 {
     const auto setupTask = [=](AsyncTask<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
-        async.setAsyncCallData(&ProcessExtraCompiler::runInThread, this, command(),
-                               workingDirectory(), arguments(), provider, buildEnvironment());
+        async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
+                                    workingDirectory(), arguments(), provider, buildEnvironment());
         async.setFutureSynchronizer(futureSynchronizer());
     };
     const auto taskDone = [=](const AsyncTask<FileNameToContentsHash> &async) {
@@ -374,7 +372,7 @@ Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
     return {};
 }
 
-void ProcessExtraCompiler::runInThread(QFutureInterface<FileNameToContentsHash> &futureInterface,
+void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise,
                                        const FilePath &cmd, const FilePath &workDir,
                                        const QStringList &args, const ContentProvider &provider,
                                        const Environment &env)
@@ -397,15 +395,15 @@ void ProcessExtraCompiler::runInThread(QFutureInterface<FileNameToContentsHash> 
     if (!process.waitForStarted())
         return;
 
-    while (!futureInterface.isCanceled()) {
+    while (!promise.isCanceled()) {
         if (process.waitForFinished(200))
             break;
     }
 
-    if (futureInterface.isCanceled())
+    if (promise.isCanceled())
         return;
 
-    futureInterface.reportResult(handleProcessFinished(&process));
+    promise.addResult(handleProcessFinished(&process));
 }
 
 } // namespace ProjectExplorer

@@ -21,7 +21,7 @@
 
 QT_BEGIN_NAMESPACE
 template <typename T>
-class QFutureInterface;
+class QPromise;
 class QThreadPool;
 QT_END_NAMESPACE
 
@@ -106,7 +106,7 @@ protected:
 
 private:
     Utils::Tasking::TaskItem taskItemImpl(const ContentProvider &provider) final;
-    void runInThread(QFutureInterface<FileNameToContentsHash> &futureInterface,
+    void runInThread(QPromise<FileNameToContentsHash> &promise,
                      const Utils::FilePath &cmd, const Utils::FilePath &workDir,
                      const QStringList &args, const ContentProvider &provider,
                      const Utils::Environment &env);
