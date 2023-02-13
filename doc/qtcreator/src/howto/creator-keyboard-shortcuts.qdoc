@@ -437,7 +437,9 @@
             \li  Follow symbol under cursor
 
                Works with namespaces, classes, functions, variables, include
-               statements and macros
+               statements, and macros. Also, opens URLs in the default browser
+               and Qt resource files (.qrc) in the \l{Creating Resource Files}
+               {resource editor}
             \li  F2
         \row
             \li  Rename symbol under cursor
