@@ -218,6 +218,7 @@ public:
     bool hasTags() const { return rootNode->children.count() > Tags; }
     void parseOutputLine(const QString &line, bool force = false);
     void flushOldEntries();
+    void updateAllUpstreamStatus(BranchNode *node);
 
     BranchModel *q;
     GitClient *client;
@@ -422,6 +423,7 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
         d->parseOutputLine(l);
     d->flushOldEntries();
 
+    d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
     if (d->currentBranch) {
         if (d->currentBranch->isLocal())
             d->currentBranch = nullptr;
@@ -827,7 +829,6 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     root->insert(nameParts, newNode);
     if (current)
         currentBranch = newNode;
-    q->updateUpstreamStatus(newNode);
 }
 
 void BranchModel::Private::flushOldEntries()
@@ -900,6 +901,18 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
         emit dataChanged(idx, idx);
     });
     process->start();
+}
+
+void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
+{
+    if (!node)
+        return;
+    if (node->isLeaf()) {
+        q->updateUpstreamStatus(node);
+        return;
+    }
+    for (BranchNode *child : node->children)
+        updateAllUpstreamStatus(child);
 }
 
 QString BranchModel::toolTip(const QString &sha) const
