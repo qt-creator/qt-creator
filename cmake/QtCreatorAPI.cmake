@@ -812,7 +812,7 @@ endfunction()
 
 function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK" "TIMEOUT"
-      "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION" ${ARGN})
+      "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION;PROPERTIES" ${ARGN})
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
@@ -869,6 +869,7 @@ function(add_qtc_test name)
     VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH};${CMAKE_BUILD_RPATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RPATH};${CMAKE_INSTALL_RPATH}"
+    ${_arg_PROPERTIES}
   )
   if (NOT _arg_SKIP_PCH)
     enable_pch(${name})
