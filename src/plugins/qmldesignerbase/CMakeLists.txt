@@ -1,4 +1,5 @@
 add_qtc_plugin(QmlDesignerBase
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   DEPENDS Qt::Core Qt::QuickWidgets
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES

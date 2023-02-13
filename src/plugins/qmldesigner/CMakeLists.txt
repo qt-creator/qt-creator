@@ -11,6 +11,7 @@ option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
 add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 
 add_qtc_library(QmlDesignerUtils STATIC
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate
   DEFINES QMLDESIGNERUTILS_LIBRARY
@@ -405,6 +406,7 @@ set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
 add_qtc_plugin(QmlDesigner
   CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt::QuickWidgets Qt::CorePrivate Sqlite Qt::Xml Qt::Svg

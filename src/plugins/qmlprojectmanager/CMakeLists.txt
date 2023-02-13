@@ -1,5 +1,6 @@
 add_qtc_plugin(QmlProjectManager
   CONDITION TARGET Qt5::QuickWidgets
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
   PLUGIN_CLASS QmlProjectPlugin
   DEPENDS QmlJS Qt5::QuickWidgets
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesignerBase
