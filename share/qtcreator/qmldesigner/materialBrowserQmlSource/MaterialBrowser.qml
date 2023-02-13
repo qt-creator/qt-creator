@@ -257,19 +257,68 @@ Item {
 
     function ensureVisible(yPos, itemHeight)
     {
-        if (yPos < 0) {
-            let adjustedY = scrollView.contentY + yPos
-            if (adjustedY < itemHeight)
+        let currentY = contentYBehavior.targetValue && scrollViewAnim.running
+            ? contentYBehavior.targetValue : scrollView.contentY
+
+        if (currentY > yPos) {
+            if (yPos < itemHeight)
                 scrollView.contentY = 0
             else
-                scrollView.contentY = adjustedY
-        } else if (yPos + itemHeight > scrollView.height) {
-            let adjustedY = scrollView.contentY + yPos + itemHeight - scrollView.height + 8
-            if (scrollView.contentHeight - adjustedY - scrollView.height < itemHeight)
-                scrollView.contentY = scrollView.contentHeight - scrollView.height
-            else
-                scrollView.contentY = adjustedY
+                scrollView.contentY = yPos
+            return true
+        } else {
+            let adjustedY = yPos + itemHeight - scrollView.height + 8
+            if (currentY < adjustedY) {
+                if (scrollView.contentHeight - scrollView.height < adjustedY )
+                    scrollView.contentY = scrollView.contentHeight - scrollView.height
+                else
+                    scrollView.contentY = adjustedY
+                return true
+            }
         }
+
+        return false
+    }
+
+    function ensureSelectedVisible()
+    {
+        if (rootView.materialSectionFocused && materialsSection.expanded && root.currMaterialItem
+                && materialBrowserModel.isVisible(materialBrowserModel.selectedIndex)) {
+            return ensureVisible(root.currMaterialItem.mapToItem(scrollView.contentItem, 0, 0).y,
+                                 root.currMaterialItem.height)
+        } else if (!rootView.materialSectionFocused && texturesSection.expanded) {
+            let currItem = texturesRepeater.itemAt(materialBrowserTexturesModel.selectedIndex)
+            if (currItem && materialBrowserTexturesModel.isVisible(materialBrowserTexturesModel.selectedIndex))
+                return ensureVisible(currItem.mapToItem(scrollView.contentItem, 0, 0).y, currItem.height)
+        } else {
+            return ensureVisible(0, 90)
+        }
+    }
+
+    Timer {
+        id: ensureTimer
+        interval: 20
+        repeat: true
+        triggeredOnStart: true
+
+        onTriggered: {
+            // Redo until ensuring didn't change things
+            if (!root.ensureSelectedVisible()) {
+                stop()
+                interval = 20
+                triggeredOnStart = true
+            }
+        }
+    }
+
+    function startDelayedEnsureTimer(delay)
+    {
+        // Ensuring visibility immediately in some cases like before new search results are rendered
+        // causes mapToItem return incorrect values, leading to undesirable flicker,
+        // so delay ensuring visibility a bit.
+        ensureTimer.interval = delay
+        ensureTimer.triggeredOnStart = false
+        ensureTimer.restart()
     }
 
     Connections {
@@ -283,10 +332,12 @@ Item {
 
             root.currMaterialItem = materialRepeater.itemAt(materialBrowserModel.selectedIndex);
 
-            if (materialsSection.expanded) {
-                ensureVisible(root.currMaterialItem.mapToItem(scrollView, 0, 0).y,
-                              root.currMaterialItem.height)
-            }
+            ensureTimer.start()
+        }
+
+        function onIsEmptyChanged()
+        {
+            ensureTimer.start()
         }
     }
 
@@ -295,10 +346,12 @@ Item {
 
         function onSelectedIndexChanged()
         {
-            if (texturesSection.expanded) {
-                let currItem = texturesRepeater.itemAt(materialBrowserTexturesModel.selectedIndex)
-                ensureVisible(currItem.mapToItem(scrollView, 0, 0).y, currItem.height)
-            }
+            ensureTimer.start()
+        }
+
+        function onIsEmptyChanged()
+        {
+            ensureTimer.start()
         }
     }
 
@@ -307,13 +360,7 @@ Item {
 
         function onMaterialSectionFocusedChanged()
         {
-            if (rootView.materialSectionFocused && materialsSection.expanded) {
-                ensureVisible(root.currMaterialItem.mapToItem(scrollView, 0, 0).y,
-                              root.currMaterialItem.height)
-            } else if (!rootView.materialSectionFocused && texturesSection.expanded) {
-                let currItem = texturesRepeater.itemAt(materialBrowserTexturesModel.selectedIndex)
-                ensureVisible(currItem.mapToItem(scrollView, 0, 0).y, currItem.height)
-            }
+            ensureTimer.start()
         }
     }
 
@@ -348,7 +395,26 @@ Item {
                     width: parent.width
                     style: StudioTheme.Values.searchControlStyle
 
+                    property string previousSearchText: ""
+                    property bool materialsExpanded: true
+                    property bool texturesExpanded: true
+
                     onSearchChanged: (searchText) => {
+                        if (searchText !== "") {
+                            if (previousSearchText === "") {
+                                materialsExpanded = materialsSection.expanded
+                                texturesExpanded = texturesSection.expanded
+                            }
+                            materialsSection.expanded = true
+                            texturesSection.expanded = true
+                        } else if (previousSearchText !== "") {
+                            materialsSection.expanded = materialsExpanded
+                            texturesSection.expanded = texturesExpanded
+                        }
+                        previousSearchText = searchText
+
+                        root.startDelayedEnsureTimer(50)
+
                         rootView.handleSearchFilterChanged(searchText)
                     }
                 }
@@ -409,7 +475,11 @@ Item {
             interactive: !ctxMenu.opened && !ctxMenuTextures.opened && !rootView.isDragging
 
             Behavior on contentY {
-                PropertyAnimation { easing.type: Easing.InOutQuad }
+                id: contentYBehavior
+                PropertyAnimation {
+                    id: scrollViewAnim
+                    easing.type: Easing.InOutQuad
+                }
             }
 
             Column {
@@ -436,6 +506,13 @@ Item {
                         onDrop: {
                             materialsSection.highlight = false
                             rootView.acceptBundleMaterialDrop()
+                        }
+
+                        onExpandedChanged: {
+                            if (!expanded) {
+                                root.startDelayedEnsureTimer(300) // wait for section collapse animation
+                                rootView.focusMaterialSection(false)
+                            }
                         }
 
                         Grid {
@@ -513,6 +590,13 @@ Item {
                         onDrop: {
                             highlight = false
                             rootView.acceptBundleTextureDrop()
+                        }
+
+                        onExpandedChanged: {
+                            if (!expanded) {
+                                root.startDelayedEnsureTimer(300) // wait for section collapse animation
+                                rootView.focusMaterialSection(true)
+                            }
                         }
 
                         Grid {
