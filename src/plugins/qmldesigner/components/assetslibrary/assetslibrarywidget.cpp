@@ -320,7 +320,7 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
 
     QSet<QString> suffixes;
     for (const AddResourceHandler &handler : handlers) {
-        if (Asset(handler.filter).isSupported() != complex)
+        if (Asset::isSupported(handler.filter) != complex)
             suffixes.insert(handler.filter);
     }
 

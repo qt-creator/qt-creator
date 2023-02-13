@@ -3,12 +3,23 @@
 
 #pragma once
 
+#include <QString>
+
 namespace QmlDesigner {
 
 class Asset
 {
 public:
-    enum Type { Unknown, Image, MissingImage, FragmentShader, Font, Audio, Video, Texture3D, Effect, Shader };
+    enum Type { Unknown,
+                Image,
+                MissingImage,
+                FragmentShader,
+                Font,
+                Audio,
+                Video,
+                Texture3D,
+                Effect,
+                Shader };
 
     Asset(const QString &filePath);
 
@@ -21,6 +32,7 @@ public:
     static const QStringList &supportedTexture3DSuffixes();
     static const QStringList &supportedEffectMakerSuffixes();
     static const QSet<QString> &supportedSuffixes();
+    static bool isSupported(const QString &path);
 
     const QString suffix() const;
     const QString id() const;
@@ -40,8 +52,11 @@ public:
     bool isSupported() const;
 
 private:
+    void resolveType();
+
     QString m_filePath;
     QString m_suffix;
+    Type m_type = Unknown;
 };
 
 } // namespace QmlDesigner

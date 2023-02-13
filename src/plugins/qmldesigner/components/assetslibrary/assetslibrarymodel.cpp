@@ -160,10 +160,11 @@ bool AssetsLibraryModel::deleteFolderRecursively(const QModelIndex &folderIndex)
     return ok;
 }
 
-bool AssetsLibraryModel::allFilePathsAreImages(const QStringList &filePaths) const
+bool AssetsLibraryModel::allFilePathsAreTextures(const QStringList &filePaths) const
 {
     return Utils::allOf(filePaths, [](const QString &path) {
-        return Asset(path).isImage();
+        Asset asset(path);
+        return asset.isImage() || asset.isTexture3D();
     });
 }
 

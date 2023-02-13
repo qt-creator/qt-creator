@@ -46,7 +46,7 @@ public:
     Q_INVOKABLE bool renameFolder(const QString &folderPath, const QString &newName);
     Q_INVOKABLE bool addNewFolder(const QString &folderPath);
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
-    Q_INVOKABLE bool allFilePathsAreImages(const QStringList &filePaths) const;
+    Q_INVOKABLE bool allFilePathsAreTextures(const QStringList &filePaths) const;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
