@@ -62,8 +62,8 @@ Rectangle {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            rootView.focusMaterialSection(true)
             materialBrowserModel.selectMaterial(index)
+            rootView.focusMaterialSection(true)
 
             if (mouse.button === Qt.LeftButton)
                 rootView.startDragMaterial(index, mapToGlobal(mouse.x, mouse.y))
@@ -130,8 +130,8 @@ Rectangle {
                 anchors.fill: parent
 
                 onClicked: {
-                    rootView.focusMaterialSection(true)
                     materialBrowserModel.selectMaterial(index)
+                    rootView.focusMaterialSection(true)
                 }
                 onDoubleClicked: root.startRename()
             }

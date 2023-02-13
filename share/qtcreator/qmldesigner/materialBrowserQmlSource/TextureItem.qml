@@ -30,8 +30,8 @@ Rectangle {
         hoverEnabled: true
 
         onPressed: (mouse) => {
-            rootView.focusMaterialSection(false)
             materialBrowserTexturesModel.selectTexture(index)
+            rootView.focusMaterialSection(false)
 
             if (mouse.button === Qt.LeftButton)
                 rootView.startDragTexture(index, mapToGlobal(mouse.x, mouse.y))
