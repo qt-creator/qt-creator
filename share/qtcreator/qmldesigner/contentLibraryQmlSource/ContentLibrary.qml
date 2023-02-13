@@ -37,12 +37,15 @@ Item {
 
             Column {
                 anchors.fill: parent
-                padding: 6
+                anchors.topMargin: 6
+                anchors.bottomMargin: 6
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
                 spacing: 12
 
                 StudioControls.SearchBox {
                     id: searchBox
-                    width: parent.width - (parent.padding * 2)
+                    width: parent.width
                     style: StudioTheme.Values.searchControlStyle
                     enabled: {
                         if (tabBar.currIndex === 0) { // Materials tab
@@ -66,7 +69,7 @@ Item {
 
                 ContentLibraryTabBar {
                     id: tabBar
-                    width: parent.width - (parent.padding * 2)
+                    width: parent.width
                     height: StudioTheme.Values.toolbarHeight
                     tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium},
                                 {name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium},

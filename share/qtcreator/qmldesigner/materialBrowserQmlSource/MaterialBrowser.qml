@@ -94,8 +94,8 @@ Item {
 
     function selectNextVisibleItem(delta)
     {
-        if (searchBox.hasActiveFocus)
-            return;
+        if (searchBox.activeFocus)
+            return
 
         let targetIdx = -1
         let newTargetIdx = -1
@@ -202,8 +202,8 @@ Item {
 
     function handleEnterPress()
     {
-        if (searchBox.hasActiveFocus)
-            return;
+        if (searchBox.activeFocus)
+            return
 
         if (!materialBrowserModel.isEmpty && rootView.materialSectionFocused && materialsSection.expanded)
             materialBrowserModel.openMaterialEditor()
@@ -282,12 +282,15 @@ Item {
 
             Column {
                 anchors.fill: parent
-                padding: 6
+                anchors.topMargin: 6
+                anchors.bottomMargin: 6
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
                 spacing: 12
 
                 StudioControls.SearchBox {
                     id: searchBox
-                    width: parent.width - (parent.padding * 2)
+                    width: parent.width
                     style: StudioTheme.Values.searchControlStyle
 
                     onSearchChanged: (searchText) => {
@@ -296,10 +299,8 @@ Item {
                 }
 
                 Row {
-                    width: parent.width - (parent.padding * 2)
+                    width: parent.width
                     height: StudioTheme.Values.toolbarHeight
-                    leftPadding: 6
-                    rightPadding: 6
                     spacing: 6
 
                     HelperWidgets.AbstractButton {

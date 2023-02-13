@@ -2,145 +2,181 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Controls as QC
+import QtQuick.Templates as T
 import QtQuickDesignerTheme 1.0
 import StudioTheme 1.0 as StudioTheme
 
-Item {
+T.TextField {
     id: control
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property alias text: searchFilterText.text
-    property alias hasActiveFocus: searchFilterText.activeFocus
-
     signal searchChanged(string searchText)
 
-    function clear() {
-        searchFilterText.text = ""
-    }
-
     function isEmpty() {
-        return searchFilterText.text === ""
+        return control.text === ""
     }
 
-    implicitWidth: searchFilterText.width
-    implicitHeight: searchFilterText.height
+    width: control.style.controlSize.width
+    height: control.style.controlSize.height
 
-    QC.TextField {
-        id: searchFilterText
-        placeholderText: qsTr("Search")
-        placeholderTextColor: control.style.text.placeholder
-        color: control.style.text.idle
-        selectionColor: control.style.text.selection
-        selectedTextColor: control.style.text.selectedText
-        background: Rectangle {
-            id: textFieldBackground
-            color: control.style.background.idle
-            border.color: control.style.border.idle
-            border.width: control.style.borderWidth
-            radius: control.style.radius
+    horizontalAlignment: Qt.AlignLeft
+    verticalAlignment: Qt.AlignVCenter
 
-            // lets do this when the widget controls are removed so they remain consistent
-//            Behavior on color {
-//                ColorAnimation {
-//                    duration: StudioTheme.Values.hoverDuration
-//                    easing.type: StudioTheme.Values.hoverEasing
-//                }
-//           }
+    leftPadding: 32
+    rightPadding: 30
+
+    font.pixelSize: control.style.baseFontSize
+
+    color: control.style.text.idle
+    selectionColor: control.style.text.selection
+    selectedTextColor: control.style.text.selectedText
+    placeholderTextColor: control.style.text.placeholder
+
+    placeholderText: qsTr("Search")
+
+    selectByMouse: true
+    readOnly: false
+    hoverEnabled: true
+    clip: true
+
+    Text {
+        id: placeholder
+        x: control.leftPadding
+        y: control.topPadding
+        width: control.width - (control.leftPadding + control.rightPadding)
+        height: control.height - (control.topPadding + control.bottomPadding)
+
+        text: control.placeholderText
+        font: control.font
+        color: control.placeholderTextColor
+        verticalAlignment: control.verticalAlignment
+        visible: !control.length && !control.preeditText
+                 && (!control.activeFocus || control.horizontalAlignment !== Qt.AlignHCenter)
+        elide: Text.ElideRight
+        renderType: control.renderType
+    }
+
+    background: Rectangle {
+        id: textFieldBackground
+        color: control.style.background.idle
+        border.color: control.style.border.idle
+        border.width: control.style.borderWidth
+        radius: control.style.radius
+
+        /* TODO: Lets do this when the widget controls are removed so they remain consistent
+        Behavior on color {
+            ColorAnimation {
+                duration: StudioTheme.Values.hoverDuration
+                easing.type: StudioTheme.Values.hoverEasing
+            }
         }
+        */
+    }
 
-        height: control.style.controlSize.height
-        leftPadding: 32
-        rightPadding: 30
-        topPadding: 6
+    onTextChanged: control.searchChanged(text)
+
+    T.Label {
+        id: searchIcon
+        text: StudioTheme.Constants.search_small
+        font.family: StudioTheme.Constants.iconFont.family
+        font.pixelSize: control.style.baseIconFontSize
         anchors.left: parent.left
+        anchors.leftMargin: 10
+        anchors.verticalCenter: parent.verticalCenter
+        color: control.style.icon.idle
+    }
+
+    Rectangle { // x button
+        width: 16
+        height: 15
         anchors.right: parent.right
-        anchors.leftMargin: 5
         anchors.rightMargin: 5
-        selectByMouse: true
-        hoverEnabled: true
+        anchors.verticalCenter: parent.verticalCenter
+        visible: control.text !== ""
+        color: xMouseArea.containsMouse ? control.style.panel.background : "transparent"
 
-        onTextChanged: control.searchChanged(text)
-
-        QC.Label {
-            text: StudioTheme.Constants.search_small
+        T.Label {
+            text: StudioTheme.Constants.close_small
             font.family: StudioTheme.Constants.iconFont.family
             font.pixelSize: control.style.baseIconFontSize
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.verticalCenter: parent.verticalCenter
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            anchors.centerIn: parent
             color: control.style.icon.idle
         }
 
-        Rectangle { // x button
-            width: 16
-            height: 15
-            anchors.right: parent.right
-            anchors.rightMargin: 5
-            anchors.verticalCenter: parent.verticalCenter
-            visible: searchFilterText.text !== ""
-            color: xMouseArea.containsMouse ? control.style.panel.background : "transparent"
+        MouseArea {
+            id: xMouseArea
+            hoverEnabled: true
+            anchors.fill: parent
+            onClicked: control.text = ""
+        }
+    }
 
-            QC.Label {
-                text: StudioTheme.Constants.close_small
-                font.family: StudioTheme.Constants.iconFont.family
-                font.pixelSize: control.style.baseIconFontSize
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                anchors.centerIn: parent
+    states: [
+        State {
+            name: "default"
+            when: control.enabled && !control.hovered && !control.activeFocus
+            PropertyChanges {
+                target: textFieldBackground
+                color: control.style.background.idle
+                border.color: control.style.border.idle
+            }
+            PropertyChanges {
+                target: control
+                placeholderTextColor: control.style.text.placeholder
+            }
+            PropertyChanges {
+                target: searchIcon
                 color: control.style.icon.idle
             }
-
-            MouseArea {
-                id: xMouseArea
-                hoverEnabled: true
-                anchors.fill: parent
-                onClicked: searchFilterText.text = ""
+        },
+        State {
+            name: "hover"
+            when: control.enabled && control.hovered && !control.activeFocus
+            PropertyChanges {
+                target: textFieldBackground
+                color: control.style.background.hover
+                border.color: control.style.border.hover
+            }
+            PropertyChanges {
+                target: control
+                placeholderTextColor: control.style.text.placeholderHover
+            }
+            PropertyChanges {
+                target: searchIcon
+                color: control.style.icon.idle
+            }
+        },
+        State {
+            name: "edit"
+            when: control.enabled && control.activeFocus
+            PropertyChanges {
+                target: textFieldBackground
+                color: control.style.background.interaction
+                border.color: control.style.border.interaction
+            }
+            PropertyChanges {
+                target: control
+                placeholderTextColor: control.style.text.placeholderInteraction
+            }
+            PropertyChanges {
+                target: searchIcon
+                color: control.style.icon.idle
+            }
+        },
+        State {
+            name: "disabled"
+            when: !control.enabled
+            PropertyChanges {
+                target: control
+                placeholderTextColor: control.style.text.disabled
+            }
+            PropertyChanges {
+                target: searchIcon
+                color: control.style.icon.disabled
             }
         }
-
-        states: [
-            State {
-                name: "default"
-                when: !searchFilterText.hovered && !searchFilterText.activeFocus
-                PropertyChanges {
-                    target: textFieldBackground
-                    color: control.style.background.idle
-                    border.color: control.style.border.idle
-                }
-                PropertyChanges {
-                    target: searchFilterText
-                    placeholderTextColor: control.style.text.placeholder
-                }
-            },
-            State {
-                name: "hover"
-                when: control.enabled && searchFilterText.hovered && !searchFilterText.activeFocus
-                PropertyChanges {
-                    target: textFieldBackground
-                    color: control.style.background.hover
-                    border.color: control.style.border.hover
-                }
-
-                PropertyChanges {
-                    target: searchFilterText
-                    placeholderTextColor: control.style.text.placeholderHover
-                }
-            },
-            State {
-                name: "edit"
-                when: searchFilterText.activeFocus
-                PropertyChanges {
-                    target: textFieldBackground
-                    color: control.style.background.interaction
-                    border.color: control.style.border.interaction
-                }
-                PropertyChanges {
-                    target: searchFilterText
-                    placeholderTextColor: control.style.text.placeholderInteraction
-                }
-            }
-        ]
-    }
+    ]
 }

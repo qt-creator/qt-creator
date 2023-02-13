@@ -20,7 +20,7 @@ ControlStyle {
         idle: Values.themeTextColor
         interaction: Values.themeTextSelectedTextColor
         hover: Values.themeTextColor
-        disabled: Values.themeTextColorDisabled
+        disabled: Values.themeToolbarIcon_blocked
         selection: Values.themeTextSelectionColor
         selectedText: Values.themeTextSelectedTextColor
         //placeholder: Values.themeTextColorDisabled
@@ -32,5 +32,13 @@ ControlStyle {
         idle: Values.controlOutline_toolbarIdle
         hover: Values.controlOutline_toolbarHover
         interaction: Values.themeInteraction
+    }
+
+    icon: ControlStyle.IconColors {
+        idle: Values.themeIconColor
+        interaction: Values.themeIconColorInteraction
+        selected: Values.themeIconColorSelected
+        hover: Values.themeIconColorHover
+        disabled: Values.themeToolbarIcon_blocked
     }
 }

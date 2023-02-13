@@ -135,12 +135,15 @@ Item {
             Column {
                 id: toolbarColumn
                 anchors.fill: parent
-                padding: 6
+                anchors.topMargin: 6
+                anchors.bottomMargin: 6
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
                 spacing: 12
 
                 StudioControls.SearchBox {
                     id: searchBox
-                    width: parent.width - (parent.padding * 2)
+                    width: parent.width
                     style: StudioTheme.Values.searchControlStyle
                     onSearchChanged: (searchText) => {
                         updateSearchFilterTimer.restart()
@@ -149,10 +152,8 @@ Item {
 
                 Row {
                     id: buttonRow
-                    width: parent.width - (parent.padding * 2)
+                    width: parent.width
                     height: StudioTheme.Values.toolbarHeight
-                    leftPadding: 6
-                    rightPadding: 6
                     spacing: 6
 
                     HelperWidgets.AbstractButton {

@@ -6,26 +6,24 @@ import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
-Item {
+Row {
     id: root
+
     property int currIndex: 0
     property alias tabsModel: repeater.model
 
-    Row {
-        leftPadding: 6
-        rightPadding: 6
-        spacing: 6
-        Repeater {
-            id: repeater
+    spacing: 6
 
-            ContentLibraryTabButton {
-                required property int index
-                required property var modelData
-                name: modelData.name
-                icon: modelData.icon
-                selected: root.currIndex === index
-                onClicked: root.currIndex = index
-            }
+    Repeater {
+        id: repeater
+
+        ContentLibraryTabButton {
+            required property int index
+            required property var modelData
+            name: modelData.name
+            icon: modelData.icon
+            selected: root.currIndex === index
+            onClicked: root.currIndex = index
         }
     }
 }

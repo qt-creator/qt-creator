@@ -163,6 +163,7 @@ Item {
         width: parent.width
         height: parent.height
         spacing: 5
+
         Rectangle {
             width: parent.width
             height: StudioTheme.Values.doubleToolbarHeight
@@ -170,21 +171,23 @@ Item {
 
             Column {
                 anchors.fill: parent
-                padding: 6
+                anchors.topMargin: 6
+                anchors.bottomMargin: 6
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
                 spacing: 12
 
-                    StudioControls.SearchBox {
-                        id: searchBox
-                        width: parent.width - (parent.padding * 2)
-                        style: StudioTheme.Values.searchControlStyle
-                    }
+                StudioControls.SearchBox {
+                    id: searchBox
+                    width: parent.width
+                    style: StudioTheme.Values.searchControlStyle
+                }
 
                 Row {
-                    width: parent.width - (parent.padding * 2)
+                    width: parent.width
                     height: StudioTheme.Values.toolbarHeight
-                    leftPadding: 6
-                    rightPadding: 6
                     spacing: 6
+
                     HelperWidgets.AbstractButton {
                         id: addModuleButton
                         style: StudioTheme.Values.viewBarButtonStyle
@@ -195,6 +198,7 @@ Item {
                 }
             }
         }
+
         Loader {
             id: loader
             width: col.width
