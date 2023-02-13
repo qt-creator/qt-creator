@@ -120,7 +120,7 @@ StudioControls.Menu {
         id: addTexturesItem
         text: qsTr("Add Texture")
         enabled: rootView.hasMaterialLibrary
-        visible: root.__fileIndex && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
+        visible: root.__fileIndex && assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: addTexturesItem.visible ? addTexturesItem.implicitHeight : 0
         onTriggered: rootView.addTextures(root.__selectedAssetPathsList)
     }
@@ -130,7 +130,7 @@ StudioControls.Menu {
         text: qsTr("Add Light Probe")
         enabled: rootView.hasMaterialLibrary
         visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
-                 && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
+                 && assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: addLightProbes.visible ? addLightProbes.implicitHeight : 0
         onTriggered: rootView.addLightProbe(root.__selectedAssetPathsList[0])
     }

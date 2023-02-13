@@ -18,12 +18,10 @@ namespace QmlDesigner {
 QQuickImageResponse *AssetImageProvider::requestImageResponse(const QString &id,
                                                               const QSize &requestedSize)
 {
-    Asset asset(id);
-
-    if (asset.suffix() == "*.mesh")
+    if (id.endsWith(".mesh"))
         return m_imageCacheProvider.requestImageResponse(id, {});
 
-    if (asset.suffix() == "*.builtin")
+    if (id.endsWith(".builtin"))
         return m_imageCacheProvider.requestImageResponse("#" + id.split('.').first(), {});
 
     return m_imageCacheProvider.requestImageResponse(id, requestedSize);
