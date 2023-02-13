@@ -116,6 +116,9 @@ GitSettings::GitSettings()
     refLogShowDate.setSettingsKey("RefLogShowDate");
 
     timeout.setDefaultValue(Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
+
+    connect(&binaryPath, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
+    connect(&path, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
 }
 
 FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
@@ -126,18 +129,21 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
     if (errorMessage)
         errorMessage->clear();
 
-    FilePath binPath = binaryPath.filePath();
-    if (!binPath.isAbsolutePath())
-        binPath = binPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
+    if (tryResolve) {
+        resolvedBinPath = binaryPath.filePath();
+        if (!resolvedBinPath.isAbsolutePath())
+            resolvedBinPath = resolvedBinPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
+        tryResolve = false;
+    }
 
-    if (binPath.isEmpty()) {
+    if (resolvedBinPath.isEmpty()) {
         if (ok)
             *ok = false;
         if (errorMessage)
             *errorMessage = Tr::tr("The binary \"%1\" could not be located in the path \"%2\"")
                 .arg(binaryPath.value(), path.value());
     }
-    return binPath;
+    return resolvedBinPath;
 }
 
 // GitSettingsPage

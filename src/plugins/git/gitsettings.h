@@ -40,6 +40,9 @@ public:
     Utils::BoolAspect refLogShowDate;
     Utils::BoolAspect instantBlame;
 
+    mutable Utils::FilePath resolvedBinPath;
+    mutable bool tryResolve = true;
+
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 };
 
