@@ -455,6 +455,9 @@ int ToolBarBackend::currentKit() const
 
 bool ToolBarBackend::isQt6() const
 {
+    if (!ProjectExplorer::SessionManager::startupTarget())
+        return false;
+
     const QmlProjectManager::QmlBuildSystem *buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
         ProjectExplorer::SessionManager::startupTarget()->buildSystem());
     QTC_ASSERT(buildSystem, return false);
