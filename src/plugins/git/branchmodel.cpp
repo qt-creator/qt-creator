@@ -885,7 +885,6 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
     process->setCommand({d->client->vcsBinary(), {"rev-list", "--no-color", "--left-right",
                          "--count", node->fullRef() + "..." + node->tracking}});
     process->setWorkingDirectory(d->workingDirectory);
-    process->setUseCtrlCStub(true);
     connect(process, &QtcProcess::done, this, [this, process, node] {
         process->deleteLater();
         if (process->result() != ProcessResult::FinishedWithSuccess)
