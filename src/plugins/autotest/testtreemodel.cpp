@@ -38,7 +38,7 @@ TestTreeModel::TestTreeModel(TestCodeParser *parser) :
     connect(m_parser, &TestCodeParser::aboutToPerformFullParse, this,
             &TestTreeModel::removeAllTestItems, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::testParseResultReady,
-            this, &TestTreeModel::onParseResultReady, Qt::QueuedConnection);
+            this, &TestTreeModel::onParseResultReady);
     connect(m_parser, &TestCodeParser::parsingFinished,
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::parsingFailed,
