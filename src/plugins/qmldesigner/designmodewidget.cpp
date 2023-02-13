@@ -330,8 +330,19 @@ void DesignModeWidget::setup()
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);
 
-        connect(outputPanePlaceholder, &Core::OutputPanePlaceHolder::visibilityChangeRequested,
-                m_outputPaneDockWidget, &ADS::DockWidget::toggleView);
+        connect(command->action(), &QAction::triggered, this, [command]() {
+            if (!command->action()->isChecked())
+                return;
+
+            auto cmd = Core::ActionManager::command("QtCreator.Pane.ApplicationOutput");
+            QTC_ASSERT(cmd, return);
+            cmd->action()->trigger();
+        });
+
+        connect(outputPanePlaceholder,
+                &Core::OutputPanePlaceHolder::visibilityChangeRequested,
+                m_outputPaneDockWidget,
+                &ADS::DockWidget::toggleView);
     }
 
     std::sort(viewCommands.begin(), viewCommands.end(), [](Core::Command *first, Core::Command *second){
