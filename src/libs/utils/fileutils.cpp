@@ -586,8 +586,36 @@ FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
 
 #endif // QT_WIDGETS_LIB
 
+// Converts a hex string of the st_mode field of a stat structure to FileFlags.
 FilePathInfo::FileFlags fileInfoFlagsfromStatRawModeHex(const QString &hexString)
 {
+    // Copied from stat.h
+    enum st_mode {
+        IFMT = 00170000,
+        IFSOCK = 0140000,
+        IFLNK = 0120000,
+        IFREG = 0100000,
+        IFBLK = 0060000,
+        IFDIR = 0040000,
+        IFCHR = 0020000,
+        IFIFO = 0010000,
+        ISUID = 0004000,
+        ISGID = 0002000,
+        ISVTX = 0001000,
+        IRWXU = 00700,
+        IRUSR = 00400,
+        IWUSR = 00200,
+        IXUSR = 00100,
+        IRWXG = 00070,
+        IRGRP = 00040,
+        IWGRP = 00020,
+        IXGRP = 00010,
+        IRWXO = 00007,
+        IROTH = 00004,
+        IWOTH = 00002,
+        IXOTH = 00001,
+    };
+
     bool ok = false;
     uint mode = hexString.toUInt(&ok, 16);
 
@@ -595,31 +623,32 @@ FilePathInfo::FileFlags fileInfoFlagsfromStatRawModeHex(const QString &hexString
 
     FilePathInfo::FileFlags result;
 
-    if (mode & 0x100) // S_IRUSR
+    if (mode & IRUSR)
         result |= FilePathInfo::ReadOwnerPerm;
-    if (mode & 0x80) // S_IWUSR
+    if (mode & IWUSR)
         result |= FilePathInfo::WriteOwnerPerm;
-    if (mode & 0x40) // S_IXUSR
+    if (mode & IXUSR)
         result |= FilePathInfo::ExeOwnerPerm;
-    if (mode & 0x20) // S_IRGRP
+    if (mode & IRGRP)
         result |= FilePathInfo::ReadGroupPerm;
-    if (mode & 0x10) // S_IWGRP
+    if (mode & IWGRP)
         result |= FilePathInfo::WriteGroupPerm;
-    if (mode & 0x8) // S_IXGRP
+    if (mode & IXGRP)
         result |= FilePathInfo::ExeGroupPerm;
-    if (mode & 0x4) // S_IROTH
+    if (mode & IROTH)
         result |= FilePathInfo::ReadOtherPerm;
-    if (mode & 0x2) // S_IWOTH
+    if (mode & IWOTH)
         result |= FilePathInfo::WriteOtherPerm;
-    if (mode & 0x1) // S_IXOTH
+    if (mode & IXOTH)
         result |= FilePathInfo::ExeOtherPerm;
-    if (mode & 0xa000) // S_IFLNK
+
+    if ((mode & IFMT) == IFLNK)
         result |= FilePathInfo::LinkType;
-    if (mode & 0x8000) // S_IFREG
+    if ((mode & IFMT) == IFREG)
         result |= FilePathInfo::FileType;
-    if (mode & 0x4000) // S_IFDIR
+    if ((mode & IFMT) == IFDIR)
         result |= FilePathInfo::DirectoryType;
-    if (mode & 0x6000) // S_IFBLK
+    if ((mode & IFMT) == IFBLK)
         result |= FilePathInfo::LocalDiskFlag;
 
     if (result != 0) // There is no Exist flag, but if anything was set before, it must exist.
