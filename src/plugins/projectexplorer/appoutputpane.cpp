@@ -188,7 +188,7 @@ AppOutputPane::AppOutputPane() :
     connect(this, &IOutputPane::zoomOutRequested, this, &AppOutputPane::zoomOut);
     connect(this, &IOutputPane::resetZoomRequested, this, &AppOutputPane::resetZoom);
 
-    m_settingsButton->setToolTip(Tr::tr("Open Settings Page"));
+    m_settingsButton->setToolTip(Core::ICore::msgShowOptionsDialog());
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
     connect(m_settingsButton, &QToolButton::clicked, this, [] {
         Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);

@@ -64,7 +64,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
             Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction,
                                                     Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     m_cancelBuildButton->setDefaultAction(cancelBuildProxyButton);
-    m_settingsButton->setToolTip(Tr::tr("Open Settings Page"));
+    m_settingsButton->setToolTip(Core::ICore::msgShowOptionsDialog());
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
 
     auto updateFontSettings = [this] {
