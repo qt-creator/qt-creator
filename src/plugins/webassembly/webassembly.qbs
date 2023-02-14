@@ -32,4 +32,13 @@ QtcPlugin {
         "webassemblytoolchain.cpp",
         "webassemblytoolchain.h",
     ]
+
+    Group {
+        name: "Unit tests"
+        condition: qtc.testsEnabled
+        files: [
+            "webassembly_test.cpp",
+            "webassembly_test.h",
+        ]
+    }
 }

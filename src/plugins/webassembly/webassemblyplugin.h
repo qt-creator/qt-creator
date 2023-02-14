@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "webassembly_global.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace WebAssembly::Internal {
@@ -21,14 +19,6 @@ public:
     void initialize() override;
     void extensionsInitialized() override;
     static void askUserAboutEmSdkSetup();
-
-#ifdef WITH_TESTS
-private slots:
-    void testEmSdkEnvParsing();
-    void testEmSdkEnvParsing_data();
-    void testEmrunBrowserListParsing();
-    void testEmrunBrowserListParsing_data();
-#endif // WITH_TESTS
 };
 
 } // WebAssembly::Internal

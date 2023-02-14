@@ -27,6 +27,8 @@ public:
 
     QString currentBrowser() const;
 
+    static WebBrowserEntries parseEmrunOutput(const QByteArray &output);
+
     struct Data : BaseAspect::Data
     {
         QString currentBrowser;
