@@ -5,8 +5,6 @@
 #include "ldparser.h"
 #include "lldparser.h"
 #include "task.h"
-#include "projectexplorerconstants.h"
-#include "buildmanager.h"
 
 #include <utils/qtcassert.h>
 

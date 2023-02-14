@@ -3,6 +3,8 @@
 
 #include "exceptions.h"
 
+#include "../../modelinglibtr.h"
+
 namespace qmt {
 
 Exception::Exception(const QString &errorMessage)
@@ -11,7 +13,7 @@ Exception::Exception(const QString &errorMessage)
 }
 
 NullPointerException::NullPointerException()
-    : Exception(Exception::tr("Unacceptable null object."))
+    : Exception(Tr::tr("Unacceptable null object."))
 {
 }
 

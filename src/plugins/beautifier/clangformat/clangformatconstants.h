@@ -7,6 +7,6 @@
 
 namespace Beautifier::Constants {
 
-const char CLANGFORMAT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::Beautifier", "ClangFormat");
+const char CLANGFORMAT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Beautifier", "ClangFormat");
 
 } // Beautifier::Constants

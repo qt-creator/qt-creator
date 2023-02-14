@@ -101,7 +101,7 @@ Rectangle {
                     Text {
                         id: qdsText
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: qsTranslate("::QmlProjectManager", "Qt Design Studio")
+                        text: qsTranslate("QtC::QmlProjectManager", "Qt Design Studio")
                         font.pixelSize: Theme.Values.fontSizeTitle
                         font.family: Theme.Values.baseFont
                         color: Theme.Colors.text
@@ -150,13 +150,13 @@ Rectangle {
                         id: openQdsText
                         width: buttonBoxGrid.tmpWidth
                         padding: Theme.Values.spacing
-                        text: qsTranslate("::QmlProjectManager", "Open with Qt Design Studio")
+                        text: qsTranslate("QtC::QmlProjectManager", "Open with Qt Design Studio")
                         wrapMode: Text.NoWrap
                     }
 
                     PushButton {
                         id: openQds
-                        text: qsTranslate("::QmlProjectManager", "Open")
+                        text: qsTranslate("QtC::QmlProjectManager", "Open")
                         enabled: LandingPageApi.qdsInstalled
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
@@ -170,20 +170,20 @@ Rectangle {
                         id: openQtcText
                         width: buttonBoxGrid.tmpWidth
                         padding: Theme.Values.spacing
-                        text: qsTranslate("::QmlProjectManager", "Open with Qt Creator - Text Mode")
+                        text: qsTranslate("QtC::QmlProjectManager", "Open with Qt Creator - Text Mode")
                         wrapMode: Text.NoWrap
                     }
 
                     PushButton {
                         id: openQtc
-                        text: qsTranslate("::QmlProjectManager", "Open")
+                        text: qsTranslate("QtC::QmlProjectManager", "Open")
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
 
                 CustomCheckBox {
                     id: rememberCheckbox
-                    text: qsTranslate("::QmlProjectManager", "Remember my choice")
+                    text: qsTranslate("QtC::QmlProjectManager", "Remember my choice")
                     font.family: Theme.Values.baseFont
                     Layout.columnSpan: buttonBoxGrid.columns
                     Layout.alignment: Qt.AlignHCenter

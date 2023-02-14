@@ -9,7 +9,7 @@ namespace Conan {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Conan)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Conan)
 };
 
 } // Conan

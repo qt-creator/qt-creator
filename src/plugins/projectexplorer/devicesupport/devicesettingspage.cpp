@@ -15,7 +15,7 @@ namespace Internal {
 DeviceSettingsPage::DeviceSettingsPage()
 {
     setId(Constants::DEVICE_SETTINGS_PAGE_ID);
-    setDisplayName(DeviceSettingsWidget::tr("Devices"));
+    setDisplayName(Tr::tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
     setDisplayCategory(Tr::tr("Devices"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");

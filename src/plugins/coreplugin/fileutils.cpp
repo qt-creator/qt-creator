@@ -78,7 +78,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
                     UnixUtils::substituteFileBrowserParameters(app, folder));
         QString error;
         if (browserArgs.isEmpty()) {
-            error = QApplication::translate("::Core", "The command for file browser is not set.");
+            error = Tr::tr("The command for file browser is not set.");
         } else {
             QProcess browserProc;
             browserProc.setProgram(browserArgs.takeFirst());
@@ -86,7 +86,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
             const bool success = browserProc.startDetached();
             error = QString::fromLocal8Bit(browserProc.readAllStandardError());
             if (!success && error.isEmpty())
-                error = QApplication::translate("::Core", "Error while starting file browser.");
+                error = Tr::tr("Error while starting file browser.");
         }
         if (!error.isEmpty())
             showGraphicalShellError(parent, app, error);

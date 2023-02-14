@@ -7,6 +7,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <help/helptr.h>
+
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/styledbar.h>
@@ -45,7 +47,7 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
 {
     installEventFilter(this);
     resize(450, 0);
-    setWindowTitle(tr("Add Bookmark"));
+    setWindowTitle(::Help::Tr::tr("Add Bookmark"));
 
     proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setFilterKeyColumn(0);
@@ -70,14 +72,14 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
     treeViewSP.setVerticalStretch(1);
     m_treeView->setSizePolicy(treeViewSP);
 
-    m_newFolderButton = new QPushButton(tr("New Folder"));
+    m_newFolderButton = new QPushButton(::Help::Tr::tr("New Folder"));
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
     using namespace Utils::Layouting;
     Column {
         Form {
-            tr("Bookmark:"), m_bookmarkEdit, br,
-            tr("Add in folder:"), m_bookmarkFolders, br,
+            ::Help::Tr::tr("Bookmark:"), m_bookmarkEdit, br,
+            ::Help::Tr::tr("Add in folder:"), m_bookmarkFolders, br,
         },
         Row { m_toolButton, hr },
         m_treeView,
@@ -172,7 +174,7 @@ void BookmarkDialog::itemChanged(QStandardItem *item)
         m_bookmarkFolders->clear();
         m_bookmarkFolders->addItems(bookmarkManager->bookmarkFolders());
 
-        QString name = tr("Bookmarks");
+        QString name = ::Help::Tr::tr("Bookmarks");
         const QModelIndex& index = m_treeView->currentIndex();
         if (index.isValid())
             name = index.data().toString();
@@ -188,7 +190,7 @@ void BookmarkDialog::textChanged(const QString& string)
 void BookmarkDialog::selectBookmarkFolder(int index)
 {
     const QString folderName = m_bookmarkFolders->itemText(index);
-    if (folderName == tr("Bookmarks")) {
+    if (folderName == ::Help::Tr::tr("Bookmarks")) {
         m_treeView->clearSelection();
         return;
     }
@@ -214,8 +216,8 @@ void BookmarkDialog::showContextMenu(const QPoint &point)
 
     QMenu menu(this);
 
-    QAction *removeItem = menu.addAction(tr("Delete Folder"));
-    QAction *renameItem = menu.addAction(tr("Rename Folder"));
+    QAction *removeItem = menu.addAction(::Help::Tr::tr("Delete Folder"));
+    QAction *renameItem = menu.addAction(::Help::Tr::tr("Rename Folder"));
 
     QAction *picked = menu.exec(m_treeView->mapToGlobal(point));
     if (!picked)
@@ -227,7 +229,7 @@ void BookmarkDialog::showContextMenu(const QPoint &point)
         m_bookmarkFolders->clear();
         m_bookmarkFolders->addItems(bookmarkManager->bookmarkFolders());
 
-        QString name = tr("Bookmarks");
+        QString name = ::Help::Tr::tr("Bookmarks");
         index = m_treeView->currentIndex();
         if (index.isValid())
             name = index.data().toString();
@@ -244,7 +246,7 @@ void BookmarkDialog::showContextMenu(const QPoint &point)
 
 void BookmarkDialog::currentChanged(const QModelIndex &current)
 {
-    QString text = tr("Bookmarks");
+    QString text = ::Help::Tr::tr("Bookmarks");
     if (current.isValid())
         text = current.data().toString();
     m_bookmarkFolders->setCurrentIndex(m_bookmarkFolders->findText(text));
@@ -275,7 +277,7 @@ bool BookmarkDialog::eventFilter(QObject *object, QEvent *e)
                 m_bookmarkFolders->clear();
                 m_bookmarkFolders->addItems(bookmarkManager->bookmarkFolders());
 
-                QString name = tr("Bookmarks");
+                QString name = ::Help::Tr::tr("Bookmarks");
                 index = m_treeView->currentIndex();
                 if (index.isValid())
                     name = index.data().toString();
@@ -365,16 +367,16 @@ void BookmarkWidget::showContextMenu(const QPoint &point)
     QMenu menu(this);
     QString data = index.data(Qt::UserRole + 10).toString();
     if (data == QLatin1String("Folder")) {
-        removeItem = menu.addAction(tr("Delete Folder"));
-        renameItem = menu.addAction(tr("Rename Folder"));
+        removeItem = menu.addAction(::Help::Tr::tr("Delete Folder"));
+        renameItem = menu.addAction(::Help::Tr::tr("Rename Folder"));
     } else {
-        showItem = menu.addAction(tr("Show Bookmark"));
+        showItem = menu.addAction(::Help::Tr::tr("Show Bookmark"));
         if (m_isOpenInNewPageActionVisible)
-            showItemNewTab = menu.addAction(tr("Show Bookmark as New Page"));
+            showItemNewTab = menu.addAction(::Help::Tr::tr("Show Bookmark as New Page"));
         if (searchField->text().isEmpty()) {
             menu.addSeparator();
-            removeItem = menu.addAction(tr("Delete Bookmark"));
-            renameItem = menu.addAction(tr("Rename Bookmark"));
+            removeItem = menu.addAction(::Help::Tr::tr("Delete Bookmark"));
+            renameItem = menu.addAction(::Help::Tr::tr("Rename Bookmark"));
         }
     }
 
@@ -603,7 +605,7 @@ void BookmarkManager::saveBookmarks()
 
 QStringList BookmarkManager::bookmarkFolders() const
 {
-    QStringList folders(tr("Bookmarks"));
+    QStringList folders(::Help::Tr::tr("Bookmarks"));
 
     const QList<QStandardItem *> list = treeModel->findItems(QLatin1String("*"),
                                                              Qt::MatchWildcard | Qt::MatchRecursive,
@@ -641,9 +643,9 @@ void BookmarkManager::removeBookmarkItem(QTreeView *treeView,
     if (item) {
         QString data = index.data(Qt::UserRole + 10).toString();
         if (data == QLatin1String("Folder") && item->rowCount() > 0) {
-            int value = QMessageBox::question(treeView, tr("Remove"),
-                tr("Deleting a folder also removes its content.<br>"
-                "Do you want to continue?"),
+            int value = QMessageBox::question(treeView, ::Help::Tr::tr("Remove"),
+                ::Help::Tr::tr("Deleting a folder also removes its content.<br>"
+                               "Do you want to continue?"),
                 QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
             if (value == QMessageBox::Cancel)
@@ -755,7 +757,7 @@ void BookmarkManager::setupBookmarkModels()
 
 QString BookmarkManager::uniqueFolderName() const
 {
-    QString folderName = tr("New Folder");
+    QString folderName = ::Help::Tr::tr("New Folder");
     const QList<QStandardItem *> list = treeModel->findItems(folderName,
                                                              Qt::MatchContains | Qt::MatchRecursive,
                                                              0);
@@ -764,7 +766,7 @@ QString BookmarkManager::uniqueFolderName() const
         for (const QStandardItem *item : list)
             names << item->text();
 
-        QString folderNameBase = tr("New Folder") + QLatin1String(" %1");
+        QString folderNameBase = ::Help::Tr::tr("New Folder") + QLatin1String(" %1");
         for (int i = 1; i <= names.count(); ++i) {
             folderName = folderNameBase.arg(i);
             if (!names.contains(folderName))

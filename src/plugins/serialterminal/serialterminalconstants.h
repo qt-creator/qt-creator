@@ -8,7 +8,7 @@
 namespace SerialTerminal {
 namespace Constants {
 
-const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("::SerialTerminal", "Serial Terminal");
+const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("QtC::SerialTerminal", "Serial Terminal");
 
 const char LOGGING_CATEGORY[] = "qtc.serialterminal.outputpane";
 

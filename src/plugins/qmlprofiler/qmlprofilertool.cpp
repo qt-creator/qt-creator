@@ -41,7 +41,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/taskhub.h>
 
 #include <qtsupport/qtkitinformation.h>
 

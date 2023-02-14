@@ -1730,6 +1730,10 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
     // Attach a dynamic property with info about blocking type
     d->storeEventLoopDebugInfo(int(eventLoopMode));
 
+    QDateTime startTime;
+    static const int blockingThresholdMs = qtcEnvironmentVariableIntValue("QTC_PROCESS_THRESHOLD");
+    if (blockingThresholdMs > 0 && isMainThread())
+        startTime = QDateTime::currentDateTime();
     QtcProcess::start();
 
     // Remove the dynamic property so that it's not reused in subseqent start()
@@ -1771,6 +1775,13 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
                 kill();
                 waitForFinished(1000);
             }
+        }
+    }
+    if (blockingThresholdMs > 0) {
+        const int timeDiff = startTime.msecsTo(QDateTime::currentDateTime());
+        if (timeDiff > blockingThresholdMs && isMainThread()) {
+            qWarning() << "Blocking process " << d->m_setup.m_commandLine << "took" << timeDiff
+                       << "ms, longer than threshold" << blockingThresholdMs;
         }
     }
 }

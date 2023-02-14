@@ -52,7 +52,7 @@ const char C_NIMCODESTYLESETTINGSPAGE_CATEGORY[] = "Z.Nim";
 const char C_NIMTOOLSSETTINGSPAGE_ID[] = "Nim.NimToolsSettings";
 const char C_NIMTOOLSSETTINGSPAGE_CATEGORY[] = "Z.Nim";
 
-const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("::Nim", "Nim");
+const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("QtC::Nim", "Nim");
 const char C_NIMGLOBALCODESTYLE_ID[] = "NimGlobal";
 const QString C_NIMSNIPPETSGROUP_ID = QStringLiteral("Nim.NimSnippetsGroup");
 

@@ -4,7 +4,6 @@
 #pragma once
 
 #include "gccparser.h"
-#include "task.h"
 
 #include <QRegularExpression>
 

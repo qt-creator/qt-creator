@@ -9,7 +9,7 @@ namespace CMakeProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::CMakeProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(QtC::CMakeProjectManager)
 };
 
 } // namespace CMakeProjectManager

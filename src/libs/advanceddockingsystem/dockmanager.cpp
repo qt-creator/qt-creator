@@ -17,6 +17,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/utilstr.h>
 
 #include <algorithm>
 #include <iostream>
@@ -951,9 +952,7 @@ namespace ADS
         QString errorString;
         const bool success = write(workspace, data, &errorString);
         if (!success)
-            QMessageBox::critical(parent,
-                                  QCoreApplication::translate("::Utils", "File Error"),
-                                  errorString);
+            QMessageBox::critical(parent, ::Utils::Tr::tr("File Error"), errorString);
         return success;
     }
 

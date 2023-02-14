@@ -24,10 +24,6 @@ public:
 
     void askUserAboutMcuSupportKitsSetup();
     static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler);
+};
 
-private:
-    QVector<QObject *> createTestObjects() const final;
-
-}; // class McuSupportPlugin
-
-} // namespace McuSupport::Internal
+} // McuSupport::Internal

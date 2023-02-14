@@ -1063,19 +1063,19 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     debugMenu->addSeparator();
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("::Debugger", "Move to Calling Frame"));
+    act->setText(Tr::tr("Move to Calling Frame"));
     act->setEnabled(false);
     act->setVisible(false);
     ActionManager::registerAction(act, Constants::FRAME_UP);
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("::Debugger", "Move to Called Frame"));
+    act->setText(Tr::tr("Move to Called Frame"));
     act->setEnabled(false);
     act->setVisible(false);
     ActionManager::registerAction(act, Constants::FRAME_DOWN);
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("::Debugger", "Operate by Instruction"));
+    act->setText(Tr::tr("Operate by Instruction"));
     act->setEnabled(false);
     act->setVisible(false);
     act->setCheckable(true);
@@ -1613,7 +1613,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     kitChooser->setShowIcons(true);
 
     auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
-    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
+    dlg->addAcceptButton(Tr::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
         delete dlg;
@@ -2125,17 +2125,6 @@ DebuggerPlugin::~DebuggerPlugin()
     m_instance = nullptr;
 }
 
-bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage)
-
-    // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
-    ExtensionSystem::PluginManager::addObject(this);
-
-    dd = new DebuggerPluginPrivate(arguments);
-    return true;
-}
-
 IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(this);
@@ -2261,7 +2250,7 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
 
 QAction *createStartAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Start"), m_instance);
+    auto action = new QAction(Tr::tr("Start"), m_instance);
     action->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
@@ -2269,7 +2258,7 @@ QAction *createStartAction()
 
 QAction *createStopAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Stop"), m_instance);
+    auto action = new QAction(Tr::tr("Stop"), m_instance);
     action->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
@@ -2489,19 +2478,23 @@ void DebuggerUnitTests::testDebuggerMatching()
     QCOMPARE(expectedLevel, level);
 }
 
-QVector<QObject *> DebuggerPlugin::createTestObjects() const
+#endif // ifdef  WITH_TESTS
+
+bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    return {new DebuggerUnitTests};
+    Q_UNUSED(errorMessage)
+
+    // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
+    ExtensionSystem::PluginManager::addObject(this);
+
+    dd = new DebuggerPluginPrivate(arguments);
+
+#ifdef WITH_TESTS
+    addTest<DebuggerUnitTests>();
+#endif
+
+    return true;
 }
-
-#else // ^-- if WITH_TESTS else --v
-
-QVector<QObject *> DebuggerPlugin::createTestObjects() const
-{
-    return {};
-}
-
-#endif // if  WITH_TESTS
 
 } // Internal
 } // Debugger

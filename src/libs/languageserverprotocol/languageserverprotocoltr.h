@@ -9,7 +9,7 @@ namespace LanguageServerProtocol {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::LanguageServerProtocol)
+    Q_DECLARE_TR_FUNCTIONS(QtC::LanguageServerProtocol)
 };
 
 } // LanguageServerProtocol

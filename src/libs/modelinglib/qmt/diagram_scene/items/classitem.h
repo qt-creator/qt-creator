@@ -24,8 +24,6 @@ class Style;
 
 class ClassItem : public ObjectItem
 {
-    Q_DECLARE_TR_FUNCTIONS(qmt::ClassItem)
-
 public:
     ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~ClassItem() override;

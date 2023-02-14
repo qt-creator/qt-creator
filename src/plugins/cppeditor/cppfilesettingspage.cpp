@@ -39,7 +39,7 @@ const char sourceSearchPathsKeyC[] = "SourceSearchPaths";
 const char headerPragmaOnceC[] = "HeaderPragmaOnce";
 const char licenseTemplatePathKeyC[] = "LicenseTemplate";
 
-const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("::CppEditor",
+const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("QtC::CppEditor",
 "/**************************************************************************\n"
 "** %1 license header template\n"
 "**   Special keywords: %USER% %DATE% %YEAR%\n"

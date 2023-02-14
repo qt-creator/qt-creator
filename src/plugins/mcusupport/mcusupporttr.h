@@ -9,7 +9,7 @@ namespace McuSupport {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::McuSupport)
+    Q_DECLARE_TR_FUNCTIONS(QtC::McuSupport)
 };
 
 } // namespace McuSupport

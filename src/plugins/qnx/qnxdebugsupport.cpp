@@ -12,6 +12,7 @@
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggertr.h>
 
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
@@ -212,7 +213,7 @@ void showAttachToProcessDialog()
     });
 
     QnxAttachDebugDialog dlg(kitChooser);
-    dlg.addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
+    dlg.addAcceptButton(::Debugger::Tr::tr("&Attach to Process"));
     dlg.showAllDevices();
     if (dlg.exec() == QDialog::Rejected)
         return;

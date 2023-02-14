@@ -92,9 +92,9 @@ public:
     {
         if (pattern.pattern().isEmpty() || !pattern.isValid())
             return;
-        m_expander.setDisplayName(JsonFieldPage::tr("Line Edit Validator Expander"));
+        m_expander.setDisplayName(Tr::tr("Line Edit Validator Expander"));
         m_expander.setAccumulating(true);
-        m_expander.registerVariable("INPUT", JsonFieldPage::tr("The text edit input to fix up."),
+        m_expander.registerVariable("INPUT", Tr::tr("The text edit input to fix up."),
                                     [this] { return m_currentInput; });
         m_expander.registerSubProvider([expander]() -> MacroExpander * { return expander; });
         setValidationFunction([this, pattern](FancyLineEdit *, QString *) {

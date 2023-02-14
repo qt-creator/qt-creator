@@ -7,6 +7,8 @@
 #include <localhelpmanager.h>
 #include <openpagesmanager.h>
 
+#include <help/helptr.h>
+
 #include <utils/navigationtreeview.h>
 
 #include <QFocusEvent>
@@ -106,10 +108,10 @@ void ContentWindow::showContextMenu(const QPoint &pos)
         contentModel->contentItemAt(m_contentWidget->currentIndex());
 
     QMenu menu;
-    QAction *curTab = menu.addAction(tr("Open Link"));
+    QAction *curTab = menu.addAction(::Help::Tr::tr("Open Link"));
     QAction *newTab = 0;
     if (m_isOpenInNewPageActionVisible)
-        newTab = menu.addAction(tr("Open Link as New Page"));
+        newTab = menu.addAction(::Help::Tr::tr("Open Link as New Page"));
 
     QAction *action = menu.exec(m_contentWidget->mapToGlobal(pos));
     if (curTab == action)

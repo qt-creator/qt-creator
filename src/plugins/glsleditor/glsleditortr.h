@@ -9,7 +9,7 @@ namespace GlslEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::GlslEditor)
+    Q_DECLARE_TR_FUNCTIONS(QtC::GlslEditor)
 };
 
 } // namespace GLSLEditor

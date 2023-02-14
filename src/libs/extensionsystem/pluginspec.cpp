@@ -5,7 +5,6 @@
 
 #include "extensionsystemtr.h"
 #include "iplugin.h"
-#include "iplugin_p.h"
 #include "pluginmanager.h"
 #include "pluginspec_p.h"
 
@@ -1090,7 +1089,6 @@ bool PluginSpecPrivate::loadLibrary()
     }
     state = PluginSpec::Loaded;
     plugin = pluginObject;
-    plugin->d->pluginSpec = q;
     return true;
 }
 

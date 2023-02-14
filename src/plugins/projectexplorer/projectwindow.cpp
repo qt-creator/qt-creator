@@ -22,6 +22,7 @@
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/find/optionspopup.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icontext.h>
@@ -619,10 +620,8 @@ public:
         m_toggleRightSidebarAction.setCheckable(true);
         m_toggleRightSidebarAction.setChecked(true);
         const auto toolTipText = [](bool checked) {
-            return checked ? QCoreApplication::translate("::Core",
-                                                         Core::Constants::TR_HIDE_RIGHT_SIDEBAR)
-                           : QCoreApplication::translate("::Core",
-                                                         Core::Constants::TR_SHOW_RIGHT_SIDEBAR);
+            return checked ? ::Core::Tr::tr(Core::Constants::TR_HIDE_RIGHT_SIDEBAR)
+                           : ::Core::Tr::tr(Core::Constants::TR_SHOW_RIGHT_SIDEBAR);
         };
         m_toggleRightSidebarAction.setText(toolTipText(false)); // always "Show Right Sidebar"
         m_toggleRightSidebarAction.setToolTip(toolTipText(m_toggleRightSidebarAction.isChecked()));

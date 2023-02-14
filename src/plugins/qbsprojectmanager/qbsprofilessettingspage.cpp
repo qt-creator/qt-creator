@@ -6,14 +6,12 @@
 #include "qbsprofilemanager.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
-#include "qbssettings.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/taskhub.h>
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>

@@ -9,7 +9,7 @@ namespace ClangFormat {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::ClangFormat)
+    Q_DECLARE_TR_FUNCTIONS(QtC::ClangFormat)
 };
 
 } // namespace ClangFormat

@@ -9,7 +9,7 @@ namespace QmlEditorWidgets {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::QmlEditorWidgets)
+    Q_DECLARE_TR_FUNCTIONS(QtC::QmlEditorWidgets)
 };
 
 } // QmlEditorWidgets

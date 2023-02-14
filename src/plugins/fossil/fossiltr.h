@@ -9,7 +9,7 @@ namespace Fossil {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Fossil)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Fossil)
 };
 
 } // namespace Fossil

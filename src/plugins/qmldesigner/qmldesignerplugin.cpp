@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmldesignerplugin.h"
+#include "qmldesignertr.h"
 #include "coreplugin/iwizardfactory.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
@@ -63,7 +64,6 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QProcessEnvironment>
 #include <QScreen>
@@ -254,8 +254,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
                                           .toBool());
 
     Exception::setShowExceptionCallback([&](QStringView title, QStringView description) {
-        QString composedTitle = title.isEmpty() ? QCoreApplication::translate("::QmlDesigner", "Error")
-                                                : title.toString();
+        const QString composedTitle = title.isEmpty() ? Tr::tr("Error") : title.toString();
         Core::AsynchronousMessageBox::warning(composedTitle, description.toString());
     });
 

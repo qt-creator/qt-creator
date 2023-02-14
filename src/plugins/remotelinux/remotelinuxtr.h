@@ -9,7 +9,7 @@ namespace RemoteLinux {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::RemoteLinux)
+    Q_DECLARE_TR_FUNCTIONS(QtC::RemoteLinux)
 };
 
 } // namespace RemoteLinux

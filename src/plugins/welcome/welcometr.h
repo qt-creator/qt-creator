@@ -9,7 +9,7 @@ namespace Welcome {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Welcome)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Welcome)
 };
 
 } // namespace Welcome

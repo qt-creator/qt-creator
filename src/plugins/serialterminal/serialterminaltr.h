@@ -9,7 +9,7 @@ namespace SerialTerminal {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::SerialTerminal)
+    Q_DECLARE_TR_FUNCTIONS(QtC::SerialTerminal)
 };
 
 } // namespace SerialTerminal

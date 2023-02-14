@@ -18,6 +18,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -65,8 +66,7 @@ void FormEditorPlugin::initialize()
     IWizardFactory::registerFactoryCreator([]() -> IWizardFactory * {
         IWizardFactory *wizard = new FormClassWizard;
         wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
-        wizard->setDisplayCategory(
-            QCoreApplication::translate("::Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+        wizard->setDisplayCategory(::Core::Tr::tr(Core::Constants::WIZARD_TR_CATEGORY_QT));
         wizard->setDisplayName(Tr::tr("Qt Designer Form Class"));
         wizard->setIcon({}, "ui/h");
         wizard->setId("C.FormClass");

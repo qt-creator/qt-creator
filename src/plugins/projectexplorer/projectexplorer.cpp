@@ -90,6 +90,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -2500,7 +2501,8 @@ void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
 void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
 {
     // Process command line arguments first:
-    const bool lastSessionArg = m_instance->pluginSpec()->arguments().contains("-lastsession");
+    const bool lastSessionArg =
+        ExtensionSystem::PluginManager::specForPlugin(m_instance)->arguments().contains("-lastsession");
     m_sessionToRestoreAtStartup = lastSessionArg ? SessionManager::startupSession() : QString();
     const QStringList arguments = ExtensionSystem::PluginManager::arguments();
     if (!lastSessionArg) {
@@ -3357,8 +3359,7 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
     // add the Clear Menu item
     if (hasRecentProjects) {
         menu->addSeparator();
-        QAction *action = menu->addAction(QCoreApplication::translate(
-                                          "::Core", Core::Constants::TR_CLEAR_MENU));
+        QAction *action = menu->addAction(::Core::Tr::tr(Core::Constants::TR_CLEAR_MENU));
         connect(action, &QAction::triggered,
                 this, &ProjectExplorerPluginPrivate::clearRecentProjects);
     }

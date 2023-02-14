@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlpreviewplugin.h"
+
 #include "qmlpreviewruncontrol.h"
+#include "qmlpreviewtr.h"
 
 #ifdef WITH_TESTS
 #include "tests/qmlpreviewclient_test.h"
@@ -146,8 +148,8 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
-    QAction *action = new QAction(QmlPreviewPlugin::tr("QML Preview"), this);
-    action->setToolTip(QLatin1String("Preview changes to QML code live in your application."));
+    QAction *action = new QAction(Tr::tr("QML Preview"), this);
+    action->setToolTip(Tr::tr("Preview changes to QML code live in your application."));
     action->setEnabled(SessionManager::startupProject() != nullptr);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged, action,
             &QAction::setEnabled);
@@ -166,7 +168,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         Constants::G_BUILD_RUN);
 
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
-    action = new QAction(QmlPreviewPlugin::tr("Preview File"), this);
+    action = new QAction(Tr::tr("Preview File"), this);
     action->setEnabled(false);
     connect(q, &QmlPreviewPlugin::runningPreviewsChanged,
             action, [action](const QmlPreviewRunControlList &previews) {

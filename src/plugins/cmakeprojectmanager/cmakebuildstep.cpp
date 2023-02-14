@@ -22,6 +22,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/xcodebuildparser.h>
@@ -246,7 +247,7 @@ bool CMakeBuildStep::init()
         RunConfiguration *rc = target()->activeRunConfiguration();
         if (!rc || rc->buildKey().isEmpty()) {
             emit addTask(BuildSystemTask(Task::Error,
-                                         QCoreApplication::translate("::ProjectExplorer",
+                                         ::ProjectExplorer::Tr::tr(
                                     "You asked to build the current Run Configuration's build target only, "
                                     "but it is not associated with a build target. "
                                     "Update the Make Step in your build settings.")));

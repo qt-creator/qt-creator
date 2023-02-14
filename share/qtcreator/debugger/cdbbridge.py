@@ -182,7 +182,9 @@ class Dumper(DumperBase):
     def listFields(self, nativeType, value):
         if value.address() is None or value.address() == 0:
             raise Exception("")
-        nativeValue = cdbext.createValue(value.address(), nativeType)
+        nativeValue = value.nativeValue
+        if nativeValue is None:
+            nativeValue = cdbext.createValue(value.address(), nativeType)
         index = 0
         nativeMember = nativeValue.childFromIndex(index)
         while nativeMember is not None:
@@ -484,6 +486,7 @@ class Dumper(DumperBase):
             val = self.Value(self)
             val.laddress = value.pointer()
             val._type = value.type.dereference()
+            val.nativeValue = value.nativeValue
 
         return val
 
@@ -491,7 +494,7 @@ class Dumper(DumperBase):
         raise Exception("cdb does not support calling functions")
 
     def nameForCoreId(self, id):
-        for dll in ['Utilsd4', 'Utils4']:
+        for dll in ['Utilsd', 'Utils']:
             idName = cdbext.call('%s!Utils::nameForId(%d)' % (dll, id))
             if idName is not None:
                 break

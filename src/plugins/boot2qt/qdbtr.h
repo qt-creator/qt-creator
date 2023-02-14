@@ -9,7 +9,7 @@ namespace Qdb {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Qdb)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Qdb)
 };
 
 } // namespace Qdb

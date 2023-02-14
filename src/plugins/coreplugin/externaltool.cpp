@@ -308,9 +308,7 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
         }
     } else {
         if (*currentLocale < 0 && currentText->isEmpty()) {
-            *currentText = QCoreApplication::translate("::Core",
-                                                       reader->readElementText().toUtf8().constData(),
-                                                       "");
+            *currentText = Tr::tr(reader->readElementText().toUtf8().constData(), "");
         } else {
             reader->skipCurrentElement();
         }

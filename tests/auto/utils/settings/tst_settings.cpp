@@ -89,8 +89,7 @@ protected:
     std::optional<Issue> writeFile(const Utils::FilePath &path, const QVariantMap &data) const override
     {
         if (data.isEmpty()) {
-            return Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Write File"),
-                         QCoreApplication::translate("Utils::SettingsAccessor", "There was nothing to write."),
+            return Issue("Failed to Write File", "There was nothing to write.",
                          Issue::Type::WARNING);
         }
 

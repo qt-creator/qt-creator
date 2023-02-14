@@ -34,7 +34,7 @@ const char PREFERRED_PARSE_CONTEXT[] = "CppEditor.PreferredParseContext-";
 
 const char QUICK_FIX_PROJECT_PANEL_ID[] = "CppEditor.QuickFix";
 const char QUICK_FIX_SETTINGS_ID[] = "CppEditor.QuickFix";
-const char QUICK_FIX_SETTINGS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::CppEditor", "Quick Fixes");
+const char QUICK_FIX_SETTINGS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "Quick Fixes");
 const char QUICK_FIX_SETTING_GETTER_OUTSIDE_CLASS_FROM[] = "GettersOutsideClassFrom";
 const char QUICK_FIX_SETTING_GETTER_IN_CPP_FILE_FROM[] = "GettersInCppFileFrom";
 const char QUICK_FIX_SETTING_SETTER_OUTSIDE_CLASS_FROM[] = "SettersOutsideClassFrom";
@@ -105,28 +105,28 @@ const char CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID[] = "ClangFixItAvailableMarker";
 const char CPP_FUNCTION_DECL_DEF_LINK_MARKER_ID[] = "FunctionDeclDefLinkMarker";
 
 const char CPP_SETTINGS_ID[] = "Cpp";
-const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("::CppEditor", "C++");
+const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++");
 
 const char CURRENT_DOCUMENT_FILTER_ID[] = "Methods in current Document";
 const char CURRENT_DOCUMENT_FILTER_DISPLAY_NAME[]
-    = QT_TRANSLATE_NOOP("::CppEditor", "C++ Symbols in Current Document");
+    = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Symbols in Current Document");
 
 const char CLASSES_FILTER_ID[] = "Classes";
-const char CLASSES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::CppEditor", "C++ Classes");
+const char CLASSES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Classes");
 
 const char FUNCTIONS_FILTER_ID[] = "Methods";
-const char FUNCTIONS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::CppEditor", "C++ Functions");
+const char FUNCTIONS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Functions");
 
 const char INCLUDES_FILTER_ID[] = "All Included C/C++ Files";
-const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::CppEditor",
+const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor",
                                                               "All Included C/C++ Files");
 
 const char LOCATOR_FILTER_ID[] = "Classes and Methods";
 const char LOCATOR_FILTER_DISPLAY_NAME[]
-    = QT_TRANSLATE_NOOP("::CppEditor", "C++ Classes, Enums, Functions and Type Aliases");
+    = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Classes, Enums, Functions and Type Aliases");
 
 const char SYMBOLS_FIND_FILTER_ID[] = "Symbols";
-const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::CppEditor", "C++ Symbols");
+const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEditor", "C++ Symbols");
 
 constexpr const char CLANG_STATIC_ANALYZER_DOCUMENTATION_URL[]
     = "https://clang-analyzer.llvm.org/available_checks.html";

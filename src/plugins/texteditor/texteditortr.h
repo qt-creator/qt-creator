@@ -9,7 +9,7 @@ namespace TextEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::TextEditor)
+    Q_DECLARE_TR_FUNCTIONS(QtC::TextEditor)
 };
 
 } // namespace TextEditor

@@ -24,6 +24,8 @@
 #include "qmt/model/mdiagram.h"
 #include "qmt/model/mrelation.h"
 
+#include "../../modelinglibtr.h"
+
 #include <QDebug>
 
 namespace qmt {
@@ -71,7 +73,7 @@ class DiagramController::UpdateElementCommand : public DiagramUndoCommand
 public:
     UpdateElementCommand(DiagramController *diagramController, const Uid &diagramKey, DElement *element,
                          DiagramController::UpdateAction updateAction)
-        : DiagramUndoCommand(diagramController, diagramKey, tr("Change")),
+        : DiagramUndoCommand(diagramController, diagramKey, Tr::tr("Change")),
           m_updateAction(updateAction)
     {
         DCloneVisitor visitor;
@@ -372,7 +374,7 @@ void DiagramController::addElement(DElement *element, MDiagram *diagram)
     emit beginInsertElement(row, diagram);
     updateElementFromModel(element, diagram, false);
     if (m_undoController) {
-        auto undoCommand = new AddElementsCommand(this, diagram->uid(), tr("Add Object"));
+        auto undoCommand = new AddElementsCommand(this, diagram->uid(), Tr::tr("Add Object"));
         m_undoController->push(undoCommand);
         undoCommand->add(element->uid());
     }
@@ -388,7 +390,7 @@ void DiagramController::removeElement(DElement *element, MDiagram *diagram)
     int row = diagram->diagramElements().indexOf(element);
     emit beginRemoveElement(row, diagram);
     if (m_undoController) {
-        auto undoCommand = new RemoveElementsCommand(this, diagram->uid(), tr("Remove Object"));
+        auto undoCommand = new RemoveElementsCommand(this, diagram->uid(), Tr::tr("Remove Object"));
         m_undoController->push(undoCommand);
         undoCommand->add(element);
     }
@@ -440,7 +442,7 @@ void DiagramController::breakUndoChain()
 DContainer DiagramController::cutElements(const DSelection &diagramSelection, MDiagram *diagram)
 {
     DContainer copiedElements = copyElements(diagramSelection, diagram);
-    deleteElements(diagramSelection, diagram, tr("Cut"));
+    deleteElements(diagramSelection, diagram, Tr::tr("Cut"));
     return copiedElements;
 }
 
@@ -484,7 +486,7 @@ void DiagramController::pasteElements(const DReferences &diagramContainer, MDiag
             updateRelationKeys(relation, renewedKeys);
     }
     if (m_undoController)
-        m_undoController->beginMergeSequence(tr("Paste"));
+        m_undoController->beginMergeSequence(Tr::tr("Paste"));
     // insert all elements
     bool added = false;
     for (DElement *clonedElement : std::as_const(clonedElements)) {
@@ -492,7 +494,7 @@ void DiagramController::pasteElements(const DReferences &diagramContainer, MDiag
             int row = diagram->diagramElements().size();
             emit beginInsertElement(row, diagram);
             if (m_undoController) {
-                auto undoCommand = new AddElementsCommand(this, diagram->uid(), tr("Paste"));
+                auto undoCommand = new AddElementsCommand(this, diagram->uid(), Tr::tr("Paste"));
                 m_undoController->push(undoCommand);
                 undoCommand->add(clonedElement->uid());
             }
@@ -507,7 +509,7 @@ void DiagramController::pasteElements(const DReferences &diagramContainer, MDiag
             int row = diagram->diagramElements().size();
             emit beginInsertElement(row, diagram);
             if (m_undoController) {
-                auto undoCommand = new AddElementsCommand(this, diagram->uid(), tr("Paste"));
+                auto undoCommand = new AddElementsCommand(this, diagram->uid(), Tr::tr("Paste"));
                 m_undoController->push(undoCommand);
                 undoCommand->add(clonedElement->uid());
             }
@@ -525,7 +527,7 @@ void DiagramController::pasteElements(const DReferences &diagramContainer, MDiag
 
 void DiagramController::deleteElements(const DSelection &diagramSelection, MDiagram *diagram)
 {
-    deleteElements(diagramSelection, diagram, tr("Delete"));
+    deleteElements(diagramSelection, diagram, Tr::tr("Delete"));
 }
 
 void DiagramController::onBeginResetModel()

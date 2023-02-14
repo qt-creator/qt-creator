@@ -9,7 +9,7 @@ namespace HelloWorld {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::HelloWorld)
+    Q_DECLARE_TR_FUNCTIONS(QtC::HelloWorld)
 };
 
 } // namespace HelloWorld

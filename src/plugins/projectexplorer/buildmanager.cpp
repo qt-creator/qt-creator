@@ -53,7 +53,7 @@ using namespace Internal;
 
 static QString msgProgress(int progress, int total)
 {
-    return BuildManager::tr("Finished %1 of %n steps", nullptr, total).arg(progress);
+    return Tr::tr("Finished %1 of %n steps", nullptr, total).arg(progress);
 }
 
 static const QList<Target *> targetsForSelection(const Project *project,
@@ -129,8 +129,8 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
             if (settings.prompToStopRunControl) {
                 QStringList names = Utils::transform(toStop, &RunControl::displayName);
                 if (QMessageBox::question(ICore::dialogParent(),
-                        BuildManager::tr("Stop Applications"),
-                        BuildManager::tr("Stop these applications before building?")
+                        Tr::tr("Stop Applications"),
+                        Tr::tr("Stop these applications before building?")
                         + "\n\n" + names.join('\n'))
                         == QMessageBox::No) {
                     stopThem = false;
@@ -156,7 +156,7 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
     for (const Project *pro : projects) {
         if (pro && pro->needsConfiguration()) {
             preambleMessage.append(
-                        BuildManager::tr("The project %1 is not configured, skipping it.")
+                        Tr::tr("The project %1 is not configured, skipping it.")
                         .arg(pro->displayName()) + QLatin1Char('\n'));
         }
     }
@@ -168,8 +168,7 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
 
                 if (device && !device->prepareForBuild(t)) {
                     preambleMessage.append(
-                        BuildManager::tr("The build device failed to prepare for the build of %1 "
-                                         "(%2).")
+                        Tr::tr("The build device failed to prepare for the build of %1 (%2).")
                             .arg(pro->displayName())
                             .arg(t->displayName())
                         + QLatin1Char('\n'));

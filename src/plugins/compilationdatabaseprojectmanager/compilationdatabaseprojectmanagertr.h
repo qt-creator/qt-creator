@@ -9,7 +9,7 @@ namespace CompilationDatabaseProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::CompilationDatabaseProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(QtC::CompilationDatabaseProjectManager)
 };
 
 } // namespace CompilationDatabaseProjectManager

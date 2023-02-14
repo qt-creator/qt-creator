@@ -13,6 +13,7 @@
 #include <texteditor/outlinefactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditortr.h>
 #include <utils/dropsupport.h>
 #include <utils/itemviews.h>
 #include <utils/navigationtreeview.h>
@@ -326,8 +327,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     setMaxVisibleItems(40);
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
-    const QString sortActionText
-        = QCoreApplication::translate("::TextEditor", "Sort Alphabetically");
+    const QString sortActionText = ::TextEditor::Tr::tr("Sort Alphabetically");
     auto sortAction = new QAction(sortActionText, this);
     sortAction->setCheckable(true);
     sortAction->setChecked(sorted);

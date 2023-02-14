@@ -203,7 +203,7 @@ struct Value
     inline bool is_zero () const
     { return l == 0; }
 
-    template<typename T> static bool cmpImpl(T v1, T v2)
+    template<typename T> static int cmpImpl(T v1, T v2)
     {
         if (v1 < v2)
             return -1;

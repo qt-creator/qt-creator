@@ -64,7 +64,7 @@ namespace Bazaar::Internal {
 
 // Submit editor parameters
 const char COMMIT_ID[] = "Bazaar Commit Log Editor";
-const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::VcsBase", "Bazaar Commit Log Editor");
+const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Commit Log Editor");
 const char COMMITMIMETYPE[] = "text/vnd.qtcreator.bazaar.commit";
 
 // Menu items

@@ -83,7 +83,7 @@ private:
     void finalize();
 
     Utils::Perspective m_perspective{Constants::PerfProfilerPerspectiveId,
-                                     QCoreApplication::translate("::PerfProfiler",
+                                     QCoreApplication::translate("QtC::PerfProfiler",
                                                                  "Performance Analyzer")};
 
     QAction *m_startAction = nullptr;

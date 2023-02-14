@@ -52,8 +52,6 @@ class ObjectItem :
         public IAlignable,
         public IEditable
 {
-    Q_DECLARE_TR_FUNCTIONS(qmt::ObjectItem)
-
 protected:
     enum ResizeFlags {
         ResizeUnlocked,

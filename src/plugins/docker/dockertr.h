@@ -9,7 +9,7 @@ namespace Docker {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Docker)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Docker)
 };
 
 } // namespace Docker

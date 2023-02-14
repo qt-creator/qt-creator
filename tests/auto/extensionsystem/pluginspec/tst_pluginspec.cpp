@@ -279,7 +279,7 @@ void tst_PluginSpec::loadLibrary()
     QVERIFY(QLatin1String(spec->plugin->metaObject()->className()) == QLatin1String("MyPlugin::MyPluginImpl"));
     QCOMPARE(spec->state, PluginSpec::Loaded);
     QVERIFY(!spec->hasError);
-    QCOMPARE(spec->plugin->pluginSpec(), ps);
+    QCOMPARE(spec->plugin, ps->plugin());
     delete ps;
 }
 

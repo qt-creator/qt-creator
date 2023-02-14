@@ -29,6 +29,8 @@
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/tasks/ielementtasks.h"
 
+#include "../../modelinglibtr.h"
+
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
@@ -734,7 +736,7 @@ void ObjectItem::addRelationStarterTool(const QString &id)
     if (id == DEPENDENCY)
         m_relationStarter->addArrow(DEPENDENCY, ArrowItem::ShaftDashed,
                                     ArrowItem::HeadNone, ArrowItem::HeadOpen,
-                                    tr("Dependency"));
+                                    Tr::tr("Dependency"));
 }
 
 void ObjectItem::addRelationStarterTool(const CustomRelation &customRelation)
@@ -979,10 +981,10 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     bool addSeparator = false;
     if (element_tasks->hasDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(tr("Open Diagram"), "openDiagram", &menu));
+        menu.addAction(new ContextMenuAction(Tr::tr("Open Diagram"), "openDiagram", &menu));
         addSeparator = true;
     } else if (element_tasks->mayCreateDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(tr("Create Diagram"), "createDiagram", &menu));
+        menu.addAction(new ContextMenuAction(Tr::tr("Create Diagram"), "createDiagram", &menu));
         addSeparator = true;
     }
     if (extendContextMenu(&menu))
@@ -991,37 +993,37 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         addSeparator = true;
     if (addSeparator)
         menu.addSeparator();
-    menu.addAction(new ContextMenuAction(tr("Remove"), "remove",
+    menu.addAction(new ContextMenuAction(Tr::tr("Remove"), "remove",
                                          QKeySequence(QKeySequence::Delete), &menu));
     menu.addAction(
-        new ContextMenuAction(tr("Delete"), "delete", QKeySequence(Qt::CTRL | Qt::Key_D), &menu));
-    //menu.addAction(new ContextMenuAction(tr("Select in Model Tree"), "selectInModelTree", &menu));
+        new ContextMenuAction(Tr::tr("Delete"), "delete", QKeySequence(Qt::CTRL | Qt::Key_D), &menu));
+    //menu.addAction(new ContextMenuAction(Tr::tr("Select in Model Tree"), "selectInModelTree", &menu));
     QMenu alignMenu;
-    alignMenu.setTitle(tr("Align Objects"));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Left"), "alignLeft", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Center Vertically"), "centerVertically",
+    alignMenu.setTitle(Tr::tr("Align Objects"));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Left"), "alignLeft", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Vertically"), "centerVertically",
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Right"), "alignRight", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Right"), "alignRight", &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(tr("Align Top"), "alignTop", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Center Horizontally"), "centerHorizontally",
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Top"), "alignTop", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Horizontally"), "centerHorizontally",
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Bottom"), "alignBottom", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Bottom"), "alignBottom", &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(tr("Same Width"), "sameWidth", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Same Height"), "sameHeight", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Same Size"), "sameSize", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Same Width"), "sameWidth", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Same Height"), "sameHeight", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Same Size"), "sameSize", &alignMenu));
     alignMenu.setEnabled(m_diagramSceneModel->hasMultiObjectsSelection());
     menu.addMenu(&alignMenu);
     QMenu layoutMenu;
-    layoutMenu.setTitle(tr("Layout Objects"));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Horizontal Distance"), "sameHCenterDistance", &alignMenu));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Vertical Distance"), "sameVCenterDistance", &alignMenu));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Horizontal Space"), "sameHBorderDistance", &alignMenu));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Vertical Space"), "sameVBorderDistance", &alignMenu));
+    layoutMenu.setTitle(Tr::tr("Layout Objects"));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Horizontal Distance"), "sameHCenterDistance", &alignMenu));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Vertical Distance"), "sameVCenterDistance", &alignMenu));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Horizontal Space"), "sameHBorderDistance", &alignMenu));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Vertical Space"), "sameVBorderDistance", &alignMenu));
     layoutMenu.setEnabled(m_diagramSceneModel->hasMultiObjectsSelection());
     menu.addMenu(&layoutMenu);
-    menu.addAction(new ContextMenuAction(tr("Add Related Elements"), "addRelatedElements", &menu));
+    menu.addAction(new ContextMenuAction(Tr::tr("Add Related Elements"), "addRelatedElements", &menu));
 
     QAction *selectedAction = menu.exec(event->screenPos());
     if (selectedAction) {

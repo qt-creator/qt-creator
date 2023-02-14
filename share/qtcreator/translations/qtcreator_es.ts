@@ -26,7 +26,7 @@
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Iniciar depurador</translation>
@@ -74,7 +74,7 @@
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Deshacer</translation>
@@ -85,7 +85,7 @@
     </message>
 </context>
 <context>
-    <name>::Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Agregar marcador</translation>
@@ -233,7 +233,7 @@
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished"></translation>
@@ -413,7 +413,7 @@
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Seleccione símbolo&gt;</translation>
@@ -496,7 +496,7 @@
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation></translation>
@@ -639,7 +639,7 @@
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation>Completado de código</translation>
@@ -670,7 +670,7 @@
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Abrir vínculo</translation>
@@ -681,7 +681,7 @@
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Falla generando archivo</translation>
@@ -1416,7 +1416,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Projects</source>
         <translation type="obsolete">Proyectos</translation>
@@ -1617,7 +1617,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation>Alternar al modo %1</translation>
@@ -1639,7 +1639,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>El nombre de clase no debe contener delimitadores de namespaces.</translation>
@@ -1895,7 +1895,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation>Ordenar alfabeticamente</translation>
@@ -2086,7 +2086,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Common</source>
         <translation>Común</translation>
@@ -2099,9 +2099,6 @@ Would you like to overwrite them?</source>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Error de codificación&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
         <translation type="unfinished"></translation>
@@ -2124,9 +2121,6 @@ Would you like to overwrite them?</source>
             <numerusform>%n tipos conocidos, versión de Qt: %1, namespace Qt: %2</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Core File</source>
         <translation>Seleccione archivo principal</translation>
@@ -3462,7 +3456,7 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>Archivos de fuente</translation>
@@ -3726,7 +3720,7 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation>No fue posible agregar la dependencia</translation>
@@ -3757,7 +3751,7 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation>El nombre de archivo está vacío.</translation>
@@ -4026,7 +4020,7 @@ Reconstruir el proyecto puede ayudar.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Registered Documentation</source>
         <translation>Documentación registrada</translation>
@@ -4086,7 +4080,7 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
@@ -4263,7 +4257,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation>Activar/desactivar edición al estilo Vim</translation>
@@ -4490,7 +4484,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Buscar...</translation>
@@ -4629,7 +4623,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation>Interacción con Gdb</translation>
@@ -4680,7 +4674,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>Redefinir %1:</translation>
@@ -4695,7 +4689,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;nuevo&gt;</translation>
@@ -4770,7 +4764,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Checkout</source>
         <translation>Recuperar (Checkout)</translation>
@@ -5347,7 +5341,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Add new page</source>
         <translation>Agregar nueva página</translation>
@@ -5565,21 +5559,21 @@ Skipping file.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Buscar:</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Teclee Ctrl-&lt;Intro&gt; para ejecutar una línea.</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filters</source>
         <translation>Filtros</translation>
@@ -5705,7 +5699,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -5730,7 +5724,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Abrir archivo con...</translation>
@@ -5741,7 +5735,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>No se especificó ejecutable</translation>
@@ -6154,14 +6148,14 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Error Details</source>
         <translation>Detalles de errores</translation>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>El plugin &apos;%1&apos; no existe.</translation>
@@ -6246,7 +6240,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -6590,7 +6584,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>Sistema de archivos</translation>
@@ -6601,7 +6595,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>New session name</source>
         <translation>Nuevo nombre de sesión</translation>
@@ -7257,7 +7251,7 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>Ajustes de construcción QMake:</translation>
@@ -7353,7 +7347,7 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation>Aplicación QML</translation>
@@ -7424,7 +7418,7 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulario</translation>
@@ -7455,7 +7449,7 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation>Aplicación Qt4 de consola</translation>
@@ -8359,7 +8353,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Filtro de configuración</translation>
@@ -8606,7 +8600,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Create a Qt Resource file (.qrc).</source>
         <translation type="obsolete">Crear un archivo de recursos Qt (.qrc).</translation>
@@ -8637,7 +8631,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Guardar cambios</translation>
@@ -8663,7 +8657,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Agregar archivos</translation>
@@ -8762,7 +8756,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Atajos de teclado</translation>
@@ -8813,22 +8807,14 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Snippets</source>
         <translation>Fragmentos</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Ejecutable:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumentos:</translation>
-    </message>
+    <name>QtC::Debugger</name>
     <message>
         <source>Break at &apos;main&apos;:</source>
         <translation>Interrumpir en &apos;main&apos;:</translation>
@@ -8851,7 +8837,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Subversion Command:</source>
         <translation>Comando Subversion:</translation>
@@ -9079,7 +9065,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 encontrado</translation>
@@ -9744,7 +9730,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Elija un tópico para &lt;b&gt;%1&lt;/b&gt;:</translation>
@@ -9767,7 +9753,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Control de versiones</translation>
@@ -9985,7 +9971,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
@@ -10000,7 +9986,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -10020,7 +10006,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
@@ -10051,7 +10037,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -10090,7 +10076,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -10226,7 +10212,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -10313,7 +10299,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation type="unfinished">Construir y ejecutar</translation>
@@ -10368,14 +10354,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -10534,7 +10520,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Examples not installed</source>
         <translation type="unfinished">Ejemplos no instalados</translation>
@@ -10662,7 +10648,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Installed S60 SDKs:</source>
         <translation type="unfinished"></translation>
@@ -10685,7 +10671,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation type="unfinished">Negritas</translation>
@@ -10712,7 +10698,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished"></translation>
@@ -10727,7 +10713,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="unfinished">Novedades desde los laboratorios de Qt</translation>
@@ -10789,7 +10775,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Show Details</source>
         <translation type="unfinished"></translation>
@@ -10815,7 +10801,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
@@ -10826,7 +10812,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>No such paste</source>
         <translation type="unfinished"></translation>
@@ -10865,7 +10851,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -10898,7 +10884,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="unfinished"></translation>
@@ -11153,7 +11139,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Memory $</source>
         <translation type="unfinished"></translation>
@@ -11360,14 +11346,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>untitled</source>
         <translation type="unfinished">sin título</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="unfinished"></translation>
@@ -11426,7 +11412,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>General settings</source>
         <translation type="unfinished">Ajustes generales</translation>
@@ -11461,7 +11447,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation type="unfinished">Fallo intentando iniciar el programa. ¿Ruta o permisos incorrectos?</translation>
@@ -11639,14 +11625,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation type="unfinished"></translation>
@@ -11685,14 +11671,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="unfinished">Comenzar con Qt</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>%1 on Device</source>
         <translation type="unfinished"></translation>
@@ -11893,7 +11879,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation type="unfinished"></translation>
@@ -11912,7 +11898,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation type="unfinished"></translation>
@@ -11923,7 +11909,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation type="unfinished"></translation>
@@ -11986,7 +11972,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Community</source>
         <translation type="unfinished">Comunidad</translation>

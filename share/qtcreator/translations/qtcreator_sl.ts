@@ -37,7 +37,7 @@
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Zaženi razhroščevalnik</translation>
@@ -91,7 +91,7 @@
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Razveljavi</translation>
@@ -102,7 +102,7 @@
     </message>
 </context>
 <context>
-    <name>::Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zaznamek</translation>
@@ -237,7 +237,7 @@
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <translation>Zgradi</translation>
@@ -429,7 +429,7 @@
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;izberite simbol&gt;</translation>
@@ -455,7 +455,7 @@
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Lepljenje kode</translation>
@@ -613,7 +613,7 @@
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Insert the common prefix of available completion items.</source>
         <translation>Vstavi skupni začetek razpoložljivih možnosti za dokončanje.</translation>
@@ -672,7 +672,7 @@
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Odpri povezavo</translation>
@@ -683,7 +683,7 @@
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Napaka ustvarjanja datoteke</translation>
@@ -1458,7 +1458,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Enter Class Name</source>
         <translation>Vnesite ime razreda</translation>
@@ -1605,7 +1605,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>General</source>
         <translation>Splošno</translation>
@@ -1646,9 +1646,6 @@ Ali jih želite nadomestiti?</translation>
         <translation type="obsolete">Zaganjanje oddaljene izvršljive datoteke ni uspelo:
 </translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>Najdena je bila zastarela različica knjižnice pomočnika za razhroščevanje (%1). Potrebna je različica %2.</translation>
@@ -1666,9 +1663,6 @@ Ali jih želite nadomestiti?</translation>
         <source>&lt;none&gt;</source>
         <translation>&lt;brez&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Core File</source>
         <translation>Izberite datoteko posnetka</translation>
@@ -3481,7 +3475,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>Ni moč dodati odvisnosti</translation>
@@ -3496,7 +3490,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Ime datoteke je prazno.</translation>
@@ -3729,7 +3723,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Remove</source>
         <translation>Odstrani</translation>
@@ -3752,7 +3746,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
@@ -3937,7 +3931,7 @@ Razlog: %3</translation>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>Uporabi urejanje v slogu Vim-a</translation>
@@ -4212,7 +4206,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Poišči …</translation>
@@ -4347,7 +4341,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>This is the slowest but safest option.</source>
         <translation>To je najpočasnejša in najvarnejša možnost.</translation>
@@ -4501,7 +4495,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>Povozi %1:</translation>
@@ -4516,7 +4510,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Build</source>
         <translation>Zgradi</translation>
@@ -4608,7 +4602,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &apos;%1&apos;?</source>
         <translation>Ali želite izbrisati &lt;b&gt;nezdruženo&lt;/b&gt; vejo »%1«?</translation>
@@ -5657,7 +5651,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Print Document</source>
         <translation>Natisni dokument</translation>
@@ -5884,7 +5878,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filters</source>
         <translation>Filtri</translation>
@@ -5895,7 +5889,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -5916,7 +5910,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Odpri datoteko v …</translation>
@@ -5927,7 +5921,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Številka spremembe</translation>
@@ -6376,7 +6370,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>Vstavek »%1« ne obstaja.</translation>
@@ -6455,7 +6449,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Zaganjanje: »%1« %2</translation>
@@ -6741,7 +6735,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>Datotečni sistem</translation>
@@ -6752,7 +6746,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Session Manager</source>
         <translation>Upravljalnik sej</translation>
@@ -7441,7 +7435,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Dodatni argumenti:</translation>
@@ -7468,7 +7462,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -7495,7 +7489,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt Console Application</source>
         <translation>Konzolni program Qt</translation>
@@ -8008,7 +8002,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Qt Resource file</source>
         <translation>Datoteka z viri za Qt</translation>
@@ -8035,7 +8029,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Shrani spremembe</translation>
@@ -8050,7 +8044,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Dodaj datoteke</translation>
@@ -8176,7 +8170,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>&amp;Arguments:</source>
         <translation>&amp;Argumenti:</translation>
@@ -8263,7 +8257,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Authentication</source>
         <translation>Overjanje</translation>
@@ -8566,7 +8560,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>najdenih: %1</translation>
@@ -9320,7 +9314,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -9347,7 +9341,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Nadzor različic</translation>
@@ -9501,7 +9495,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -9665,7 +9659,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -9692,7 +9686,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -9739,7 +9733,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -9867,7 +9861,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -9978,7 +9972,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
@@ -10047,7 +10041,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>Gradnja in zagon</translation>
@@ -10138,7 +10132,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -10301,7 +10295,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>Polkrepko</translation>
@@ -10332,7 +10326,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>StranČarovnika</translation>
@@ -10391,7 +10385,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy commercial Qt support&lt;/font&gt;</source>
         <translation>&lt;b&gt;Podpora za Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Kupite komercialno podporo za Qt&lt;/font&gt;</translation>
@@ -10448,7 +10442,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Ime razreda ne sme vsebovati ločil imenskega prostora.</translation>
@@ -10666,7 +10660,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Select Working Directory</source>
         <translation>Izberite delovno mapo</translation>
@@ -10760,7 +10754,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation>Nastavitve</translation>
@@ -10771,7 +10765,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>V nastavitvah za CodePaster ni določenega nobenega strežnika.</translation>
@@ -10802,7 +10796,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Methods in Current Document</source>
         <translation>Metode v trenutnem dokumentu</translation>
@@ -10856,7 +10850,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>Prevzame skladišče CVS in poskusi naložiti vsebovani projekt.</translation>
@@ -11183,7 +11177,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>The gdb process could not be stopped:
 %1</source>
@@ -11222,14 +11216,14 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>untitled</source>
         <translation>brez naslova</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
         <translation>Sklonira skladišče Git in poskusi naložiti vsebovani projekt.</translation>
@@ -11308,7 +11302,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>General Settings</source>
         <translation>Splošne nastavitve</translation>
@@ -11347,7 +11341,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Splošen filter map</translation>
@@ -11427,7 +11421,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Zagon programa ni uspel. Morda je napačna pot ali pa dovoljenja.</translation>
@@ -11573,7 +11567,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;nov razred&gt;</translation>
@@ -11636,7 +11630,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.
 </source>
@@ -11792,7 +11786,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
         <translation>Prevzame skladišče Subversion in poskusi naložiti vsebovani projekt.</translation>
@@ -11815,7 +11809,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Ni datoteka z barvno shemo.</translation>
@@ -11830,7 +11824,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Ni moč odpreti projekta</translation>
@@ -11913,14 +11907,14 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>Novice in podpora</translation>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation>Zaženi cilj CMake</translation>
@@ -11935,7 +11929,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Preslikava ukazov</translation>
@@ -11978,7 +11972,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;Path:</source>
         <translation>&amp;Pot:</translation>
@@ -11997,7 +11991,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Stashes</source>
         <translation>Zapisi na strani</translation>
@@ -12119,7 +12113,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
@@ -12246,7 +12240,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>DoubleTabWidget</translation>
@@ -12324,7 +12318,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Besedilo</translation>
@@ -12480,7 +12474,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation>Nastavitev ključa SSH</translation>
@@ -12595,7 +12589,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Setup targets for your project</source>
         <translation>Nastavite cilje za svoj projekt</translation>
@@ -12693,7 +12687,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Clean Repository</source>
         <translation>Počisti skladišče</translation>
@@ -13381,7 +13375,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Brez</translation>
@@ -13396,7 +13390,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation>neznana vrednost za oštevilčenje</translation>
@@ -13579,7 +13573,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Locked</source>
         <translation>Zaklenjeno</translation>
@@ -13634,7 +13628,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Pomnilnik na 0x%1</translation>
@@ -13743,7 +13737,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -13767,7 +13761,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command</source>
         <translation>Ukaz</translation>
@@ -13833,7 +13827,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>Prilepljanje kode</translation>
@@ -13888,7 +13882,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Preoblikuj z uporabo »%1«</translation>
@@ -13967,7 +13961,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Urejevalnik zapisov za CVS</translation>
@@ -14094,14 +14088,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dodaj opombo za revizijo »%1«</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
@@ -14164,7 +14158,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Datoteko je moč urejati le v načinu &lt;b&gt;Oblikovanje&lt;/b&gt;.</translation>
@@ -14179,7 +14173,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source> [New] </source>
         <translation> [novo] </translation>
@@ -14206,7 +14200,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Najdi in zamenjaj</translation>
@@ -14229,7 +14223,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -14240,7 +14234,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation>Napaka: po %1 s je Git-u potekel čas.</translation>
@@ -14255,7 +14249,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>(Untitled)</source>
         <translation>(neimenovano)</translation>
@@ -14270,7 +14264,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation>Sklonira skladišče Mercurial in poskusi naložiti vsebovani projekt.</translation>
@@ -14533,7 +14527,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Določen ni noben program.</translation>
@@ -14574,7 +14568,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -14611,7 +14605,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -14718,7 +14712,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Odvisnosti</translation>
@@ -14736,7 +14730,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Open</source>
         <translation>Odpri</translation>
@@ -14843,7 +14837,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Select active build configuration</source>
         <translation>Izberite aktivne nastavitve gradnje</translation>
@@ -14920,7 +14914,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -14928,7 +14922,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -14961,7 +14955,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -15130,7 +15124,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>Odpri datoteko</translation>
@@ -15363,7 +15357,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
         <translation>Ali želite omogočiti preizkusni Qt Quick Designer?</translation>
@@ -15454,7 +15448,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Napaka pri nalaganju projektne datoteke %1.</translation>
@@ -15575,7 +15569,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Could not find make command &apos;%1&apos; in the build environment</source>
         <translation>V okolju za gradnjo ni bilo moč najti ukaza make »%1«</translation>
@@ -15668,7 +15662,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>Vrednotenje</translation>
@@ -15695,7 +15689,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid
@@ -15710,7 +15704,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>QMake ne podpira map za gradnjo v mapi z izvorno kodo.</translation>
@@ -15721,7 +15715,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Nastavljene ni nobene poti do qmake</translation>
@@ -15831,7 +15825,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -15854,21 +15848,21 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dodaj opombo za revizijo »%1«</translation>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>Urejevalnik besedil</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>Datoteke »%1« ni bilo moč izbrisati.</translation>
@@ -16130,7 +16124,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>Prikaz datoteke Qt Quick ni uspel</translation>
@@ -16143,7 +16137,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -16325,7 +16319,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
@@ -16362,7 +16356,7 @@ Krajevnih zapisov se v vejo »master« ne potisne dokler ni izvršen običajen z
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed.</source>
@@ -16554,7 +16548,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Povrnitev</translation>
@@ -16565,7 +16559,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>::ClassView</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -16576,7 +16570,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -16751,7 +16745,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -16932,7 +16926,7 @@ se poravnali z naslednjo vrstico</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Pogoj:</translation>
@@ -17096,7 +17090,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Zaženi oddaljen pogon</translation>
@@ -17123,7 +17117,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -17174,7 +17168,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter configuration</source>
         <translation>Nastavitev filtra</translation>
@@ -17193,7 +17187,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>Pregledovalniku slik</translation>
@@ -17224,7 +17218,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::Macros</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -17267,7 +17261,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Language:</source>
         <translation>Jezik:</translation>
@@ -17319,7 +17313,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -17362,7 +17356,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>No QML events recorded</source>
         <translation>Zabeleženega ni nobenega dogodka QML</translation>
@@ -17384,7 +17378,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -17403,7 +17397,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Knjižnica:</translation>
@@ -17498,7 +17492,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Details of Certificate</source>
         <translation>Podrobnosti potrdila</translation>
@@ -17563,7 +17557,7 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -17736,7 +17730,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Uporabljeno za ugotovitev podatkov o vrsti QML iz vstavkov na osnovi knjižnic.</translation>
@@ -17819,7 +17813,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>StranČarovnika</translation>
@@ -18286,7 +18280,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Cleanup actions which are automatically performed right before the file is saved to disk.</source>
         <translation>Dejanja čiščenja, ki se samodejno izvedejo tik pred shranjevanjem datoteke na disk.</translation>
@@ -18441,7 +18435,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -18593,7 +18587,7 @@ Vpliva na zamik nadaljevalnih vrstic.
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -18744,7 +18738,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Configure</source>
         <translation>Nastavi ...</translation>
@@ -19235,7 +19229,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Manage Sessions...</source>
         <translation>Upravljanje s sejami ...</translation>
@@ -19265,7 +19259,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Tags:</source>
         <translation>Oznake:</translation>
@@ -19305,7 +19299,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Recently Edited Projects</source>
         <translation>Nazadnje urejeni projekti</translation>
@@ -19335,7 +19329,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skrij to orodjarno.</translation>
@@ -19362,7 +19356,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>pričakovani sta bili dve števili ločeni s piko</translation>
@@ -19389,7 +19383,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Procesa ni moč zagnati: %1</translation>
@@ -19432,7 +19426,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
@@ -19636,7 +19630,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation>Neveljavna identifikacija kanala: %1</translation>
@@ -19727,7 +19721,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>
@@ -19865,7 +19859,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -20048,7 +20042,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Sklonira vejo Bazaar in poskusi naložiti vsebovani projekt.</translation>
@@ -20059,7 +20053,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -20074,21 +20068,21 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Urejevalnik zapisov</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Ukaz Bazaar</translation>
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Ni moč odpreti %1: %2</translation>
@@ -20099,14 +20093,14 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>::ClassView</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>Prikaz razredov</translation>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Spremembe datotek *.cmake so v drevesu projektov vidne po gradnji.</translation>
@@ -20117,7 +20111,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>Brez kategorije</translation>
@@ -20287,7 +20281,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.
@@ -20304,7 +20298,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Expected a namespace-name</source>
         <translation>Pričakovano ime imenskega prostora</translation>
@@ -20388,7 +20382,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -20399,7 +20393,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
         <translation>Za programe formata »%1« ni na voljo nobenega programa CDB</translation>
@@ -21457,7 +21451,7 @@ Ali želite poskusiti znova?</translation>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>Dejanje</translation>
@@ -21476,7 +21470,7 @@ Ali želite poskusiti znova?</translation>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>Skrij datoteke, ki se ujemajo z:</translation>
@@ -21517,7 +21511,7 @@ Datoteke se ohrani.</numerusform>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Krajevne veje</translation>
@@ -21598,7 +21592,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::GlslEditor</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu
@@ -21643,7 +21637,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Show Sidebar</source>
         <translation>Prikaži stranski pas</translation>
@@ -21662,7 +21656,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Cannot open image file %1</source>
         <translation>Slikovne datoteke %1 ni moč odpreti</translation>
@@ -21709,7 +21703,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::Macros</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makroji</translation>
@@ -21768,7 +21762,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -21779,14 +21773,14 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;po meri&gt;</translation>
@@ -21866,7 +21860,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>error: </source>
         <extracomment>Task is of type: error
@@ -21962,7 +21956,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (zadnja seja)</translation>
@@ -21977,7 +21971,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -22270,7 +22264,7 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>Nov %1</translation>
@@ -22471,7 +22465,7 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>::QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Methods and functions</source>
         <translation>Metode in funkcije</translation>
@@ -22549,7 +22543,7 @@ S strani z možnostmi za različice Qt zgradite razhroščevalne pomočnike.</tr
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML Profiler</translation>
@@ -22732,7 +22726,7 @@ Raje uporabite gumb za ustavitev.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Manage Qt versions</source>
         <translation>Upravljanje različic Qt ...</translation>
@@ -22803,7 +22797,7 @@ Raje uporabite gumb za ustavitev.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Dodajanje knjižnice</translation>
@@ -23102,7 +23096,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -23526,7 +23520,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>SBSv2 build log</source>
         <translation>Dnevnik gradnje SBS 2</translation>
@@ -23614,7 +23608,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation>Dodaj gradnjo it:</translation>
@@ -23730,7 +23724,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Samodejno spreminjaj usmeritev</translation>
@@ -23843,7 +23837,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
@@ -23914,7 +23908,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Na voljo samo za Qt 4.7.1 ali novejši.</translation>
@@ -23947,7 +23941,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -23967,7 +23961,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Na voljo samo za Qt za namizje in Qt za Qt Simulator.</translation>
@@ -23978,7 +23972,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -23991,7 +23985,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;vnesite ime&gt;</translation>
@@ -24091,7 +24085,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
         <translation>Uporabnik je preklical postopek, čiščenje ...</translation>
@@ -25455,14 +25449,14 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Stop monitoring</source>
         <translation>Ustavi nadziranje</translation>
@@ -25491,7 +25485,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -25673,7 +25667,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiliranje</translation>
@@ -26269,7 +26263,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>Ukaz za povračanje delčkov razlik</translation>
@@ -26324,7 +26318,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Dobrodošli</translation>
@@ -26429,7 +26423,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>This change cannot be undone.</source>
         <translation type="obsolete">Te spremembe ni moč razveljaviti.</translation>
@@ -26444,7 +26438,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>The function &quot;%1()&quot; failed: %2</source>
         <extracomment>Function call failed
@@ -26601,7 +26595,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Error saving %1</source>
         <translation type="obsolete">Napaka shranjevanja %1</translation>
@@ -26616,7 +26610,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Git Commit</source>
         <translation type="obsolete">Git – zapis</translation>
@@ -26813,7 +26807,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="obsolete">&lt;ni nastavljeno&gt;</translation>
@@ -26915,10 +26909,10 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation type="obsolete">&lt;vnesite ime&gt;</translation>
@@ -27170,7 +27164,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
@@ -27202,7 +27196,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Obrazec</translation>
@@ -27229,7 +27223,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Tutorials</source>
         <translation type="obsolete">Vodniki</translation>
@@ -27407,7 +27401,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Port specification missing.</source>
         <translation type="obsolete">Manjka določitev vrat.</translation>
@@ -27618,14 +27612,14 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Začnite tu</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Executable file: %1</source>
         <translation type="obsolete">Izvršljiva datoteka: %1</translation>
@@ -27790,7 +27784,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">Notranje ime</translation>
@@ -27801,7 +27795,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Add target</source>
         <translation type="obsolete">Dodaj cilj</translation>
@@ -28492,7 +28486,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Datoteka ni datoteka modula.</translation>
@@ -28515,7 +28509,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Image Viewer</source>
         <translation type="obsolete">Pregledovalnik slik</translation>
@@ -28533,7 +28527,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Error sending input</source>
         <translation type="obsolete">Napaka pri pošiljanju vhoda</translation>
@@ -28591,7 +28585,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation type="obsolete">Ni moč naložiti knjižnice razhroščevalnega pogona »%1«: %2</translation>
@@ -28617,7 +28611,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Select binary and toolchains</source>
         <translation type="obsolete">Izberite program in verige orodij</translation>
@@ -28632,7 +28626,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(brez vej)</translation>
@@ -28652,7 +28646,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -28669,7 +28663,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation type="obsolete">Spremeni nastavitve za gradnjo in nadaljuj</translation>
@@ -29168,7 +29162,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;izberite simbol&gt;</translation>
@@ -29179,7 +29173,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Import Existing QML Directory</source>
         <translation type="obsolete">Uvoz obstoječe mape s QML</translation>
@@ -29218,7 +29212,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Testing configuration...</source>
         <translation type="obsolete">Preizkušanje nastavitve …</translation>
@@ -29459,7 +29453,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Default</source>
         <translation type="obsolete">Privzeto</translation>
@@ -29498,7 +29492,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>New configuration</source>
         <translation type="obsolete">Nova nastavitev</translation>

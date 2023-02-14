@@ -207,7 +207,7 @@
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Member Function Implementations</source>
         <translation>成员函数实现</translation>
@@ -272,14 +272,14 @@
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>分析器</translation>
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>创建新AVD</translation>
@@ -2293,7 +2293,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>::Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>测试</translation>
@@ -3548,7 +3548,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>::AutotoolsProjectManager</name>
+    <name>QtC::AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
         <translation>参数:</translation>
@@ -3601,7 +3601,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>::BareMetal</name>
+    <name>QtC::BareMetal</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation type="unfinished"></translation>
@@ -4314,14 +4314,14 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>无法创建目录 %1。</translation>
     </message>
 </context>
 <context>
-    <name>::LanguageServerProtocol</name>
+    <name>QtC::LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
@@ -4332,7 +4332,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -4757,7 +4757,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Beautifier</name>
+    <name>QtC::Beautifier</name>
     <message>
         <source>Bea&amp;utifier</source>
         <translation type="unfinished"></translation>
@@ -4998,7 +4998,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished">无法打开%1 : %2</translation>
@@ -5133,7 +5133,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="unfinished">撤销(&amp;U)</translation>
@@ -5217,7 +5217,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>书签</translation>
@@ -5336,14 +5336,14 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Qdb</name>
+    <name>QtC::Qdb</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::BuildConfiguration</name>
+    <name>QtC::BuildConfiguration</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -5439,7 +5439,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished">清除系统环境变量</translation>
@@ -6423,7 +6423,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation type="unfinished"></translation>
@@ -6442,7 +6442,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished">注释修订版本 &quot;%1&quot;</translation>
@@ -6806,14 +6806,14 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>::ClangTools</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>Custom Configuration</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::ClangCodeModel</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Component</source>
         <translation type="unfinished"></translation>
@@ -6930,7 +6930,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Default Clang-Tidy and Clazy checks</source>
         <translation type="unfinished"></translation>
@@ -6945,7 +6945,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>::ClangCodeModel</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>[Source: %1]</source>
         <translation type="unfinished"></translation>
@@ -6960,7 +6960,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>::ClangFormat</name>
+    <name>QtC::ClangFormat</name>
     <message>
         <source>Clang-Format Style</source>
         <translation type="unfinished"></translation>
@@ -7019,7 +7019,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>::ClangTools</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>Category:</source>
         <translation type="unfinished"></translation>
@@ -7595,7 +7595,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::ClangCodeModel</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation type="unfinished"></translation>
@@ -7623,7 +7623,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::ClassView</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>显示子项目</translation>
@@ -7634,7 +7634,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Check Out</translation>
@@ -8104,7 +8104,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::Coco</name>
+    <name>QtC::Coco</name>
     <message>
         <source>Select a Squish Coco CoverageBrowser Executable</source>
         <translation type="unfinished"></translation>
@@ -8127,7 +8127,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>粘贴代码(&amp;C)</translation>
@@ -8310,7 +8310,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Code Style</source>
         <translation>代码风格</translation>
@@ -8339,14 +8339,11 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDatabaseProjectManagerPlugin</name>
+    <name>QtC::CompilationDatabaseProjectManager</name>
     <message>
         <source>Change Root Directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDbParser</name>
     <message>
         <source>Scan &quot;%1&quot; project tree</source>
         <translation type="unfinished"></translation>
@@ -8364,7 +8361,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::Conan</name>
+    <name>QtC::Conan</name>
     <message>
         <source>Conan install</source>
         <translation type="unfinished"></translation>
@@ -8387,7 +8384,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>打开链接</translation>
@@ -8398,7 +8395,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>文本</translation>
@@ -8473,7 +8470,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -11261,7 +11258,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Too few arguments</source>
         <translation type="unfinished"></translation>
@@ -12820,7 +12817,7 @@ e.g. name = &quot;m_test_foo_&quot;:
     </message>
 </context>
 <context>
-    <name>::Cppcheck</name>
+    <name>QtC::Cppcheck</name>
     <message>
         <source>Cppcheck</source>
         <translation type="unfinished"></translation>
@@ -13040,7 +13037,7 @@ Collecting backtrace aborted by user.</source>
     </message>
 </context>
 <context>
-    <name>::CtfVisualizer</name>
+    <name>QtC::CtfVisualizer</name>
     <message>
         <source>Title</source>
         <translation type="unfinished">标题</translation>
@@ -13196,7 +13193,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Custom</source>
         <translation type="unfinished"></translation>
@@ -13219,7 +13216,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>General</source>
         <translation>概要</translation>
@@ -17579,7 +17576,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>无法添加依赖关系</translation>
@@ -17594,7 +17591,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Designer</source>
         <translation>设计师</translation>
@@ -17836,7 +17833,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::Ios</name>
+    <name>QtC::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation type="unfinished"></translation>
@@ -17851,7 +17848,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Delete</source>
         <translation type="unfinished">删除</translation>
@@ -17866,7 +17863,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::DiffEditor</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation type="unfinished"></translation>
@@ -18047,7 +18044,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::Docker</name>
+    <name>QtC::Docker</name>
     <message>
         <source>Checking docker daemon</source>
         <translation type="unfinished"></translation>
@@ -18255,7 +18252,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -18329,14 +18326,14 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Editor</source>
         <translation>编辑器</translation>
     </message>
 </context>
 <context>
-    <name>::EmacsKeys</name>
+    <name>QtC::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation type="unfinished"></translation>
@@ -18430,7 +18427,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Environment</source>
         <translation type="unfinished">环境</translation>
@@ -18453,7 +18450,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>名称:</translation>
@@ -18765,7 +18762,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
         <translation type="unfinished">使用FakeVim</translation>
@@ -19169,14 +19166,14 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation type="unfinished">未使用的变量</translation>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Constructor</source>
         <translation type="unfinished"></translation>
@@ -19252,7 +19249,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation type="unfinished">文件</translation>
@@ -19303,7 +19300,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>QtC::Git</name>
     <message>
         <source>Certificate Error</source>
         <translation type="unfinished"></translation>
@@ -19314,9 +19311,6 @@ Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation type="unfinished"></translation>
@@ -19375,9 +19369,6 @@ Reviewers can be specified by nickname or email address. Spaces not allowed.
 Partial names can be used if they are unambiguous.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Git</name>
     <message>
         <source>Delete Branch</source>
         <translation>删除分支 </translation>
@@ -20480,12 +20471,6 @@ Partially checked - Do not change current state.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Checked - Mark change as private.
-Unchecked - Remove mark.
-Partially checked - Do not change current state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Supported on Gerrit 2.15 and later.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -21435,7 +21420,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>::GitLab</name>
+    <name>QtC::GitLab</name>
     <message>
         <source>Clone Repository</source>
         <translation type="unfinished"></translation>
@@ -21684,7 +21669,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>::GlslEditor</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -21733,7 +21718,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Documentation</source>
         <translation>文档</translation>
@@ -22229,7 +22214,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Process %1</source>
         <translation type="unfinished">进程%1</translation>
@@ -22436,7 +22421,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>图像查看器</translation>
@@ -22615,7 +22600,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::IncrediBuild</name>
+    <name>QtC::IncrediBuild</name>
     <message>
         <source>IncrediBuild for Windows</source>
         <translation type="unfinished"></translation>
@@ -22865,7 +22850,7 @@ Id必须以小写字母开头。</translation>
     </message>
 </context>
 <context>
-    <name>::Ios</name>
+    <name>QtC::Ios</name>
     <message>
         <source>Deploy on iOS</source>
         <translation type="unfinished"></translation>
@@ -23425,7 +23410,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::LanguageServerProtocol</name>
+    <name>QtC::LanguageServerProtocol</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -23436,7 +23421,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Null</source>
         <translation type="unfinished"></translation>
@@ -23480,7 +23465,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::LanguageClient</name>
+    <name>QtC::LanguageClient</name>
     <message>
         <source>Language Client</source>
         <translation type="unfinished"></translation>
@@ -23695,7 +23680,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::LanguageServerProtocol</name>
+    <name>QtC::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -23706,14 +23691,14 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Locator</source>
         <translation>定位器</translation>
     </message>
 </context>
 <context>
-    <name>::ClangTools</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation type="unfinished"></translation>
@@ -23724,7 +23709,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Logging Category Viewer</source>
         <translation type="unfinished"></translation>
@@ -23823,7 +23808,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::LanguageClient</name>
+    <name>QtC::LanguageClient</name>
     <message>
         <source>Capabilities:</source>
         <translation type="unfinished">能力:</translation>
@@ -23862,7 +23847,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::Macros</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Macros</source>
         <translation>宏</translation>
@@ -24051,7 +24036,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::Marketplace</name>
+    <name>QtC::Marketplace</name>
     <message>
         <source>Marketplace</source>
         <translation type="unfinished"></translation>
@@ -24066,7 +24051,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::McuSupport</name>
+    <name>QtC::McuSupport</name>
     <message>
         <source>Flash and run CMake parameters:</source>
         <translation type="unfinished"></translation>
@@ -24309,7 +24294,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -24625,7 +24610,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>::MesonProjectManager</name>
+    <name>QtC::MesonProjectManager</name>
     <message>
         <source>Key</source>
         <translation type="unfinished">密钥</translation>
@@ -24838,7 +24823,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>::LanguageClient</name>
+    <name>QtC::LanguageClient</name>
     <message>
         <source>Select MIME Types</source>
         <translation type="unfinished"></translation>
@@ -24849,14 +24834,11 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>::ModelEditor</name>
+    <name>QtC::ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ActionHandler</name>
     <message>
         <source>&amp;Remove</source>
         <translation type="unfinished">删除(&amp;R)</translation>
@@ -24917,16 +24899,10 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Return</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ElementTasks</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation type="unfinished"></translation>
@@ -24939,9 +24915,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation type="unfinished"></translation>
@@ -24950,9 +24923,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
@@ -25049,16 +25019,10 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Swimlane</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation type="unfinished"></translation>
@@ -25147,7 +25111,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>Modeling</name>
+    <name>QtC::ModelEditor</name>
     <message>
         <source>Modeling</source>
         <translation type="unfinished"></translation>
@@ -25172,7 +25136,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>::Nim</name>
+    <name>QtC::Nim</name>
     <message>
         <source>Nim</source>
         <translation type="unfinished"></translation>
@@ -25309,7 +25273,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Meta+O</source>
         <translation type="unfinished">Meta+O</translation>
@@ -25437,7 +25401,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>::PerfProfiler</name>
+    <name>QtC::PerfProfiler</name>
     <message>
         <source>Samples</source>
         <translation type="unfinished"></translation>
@@ -26015,7 +25979,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Change编号</translation>
@@ -26495,7 +26459,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Unknown option %1</source>
         <translation>未知选项 %1</translation>
@@ -26590,7 +26554,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
@@ -26598,7 +26562,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Project Environment</source>
         <translation type="unfinished"></translation>
@@ -30391,7 +30355,7 @@ Expiration date: %3</source>
     </message>
 </context>
 <context>
-    <name>::Python</name>
+    <name>QtC::Python</name>
     <message>
         <source>Install %1</source>
         <translation type="unfinished"></translation>
@@ -30838,14 +30802,14 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>QWidget</name>
+    <name>QtC::Android</name>
     <message>
         <source>Images (*.png *.jpg *.jpeg)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation type="unfinished"></translation>
@@ -31210,7 +31174,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>::Qdb</name>
+    <name>QtC::Qdb</name>
     <message>
         <source>Flash wizard &quot;%1&quot; failed to start.</source>
         <translation type="unfinished"></translation>
@@ -31409,7 +31373,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt设计师无响应 (%1)。</translation>
@@ -32173,7 +32137,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>::QmlDebug</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation type="unfinished"></translation>
@@ -32207,7 +32171,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>::QmlDesigner</name>
+    <name>QtC::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation type="unfinished">错误</translation>
@@ -32692,7 +32656,7 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Export as Latest Project Format</source>
         <translation type="unfinished"></translation>
@@ -33221,7 +33185,7 @@ The new project can be opened in Qt Creator using the main CMakeLists.txt file.<
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Select Files to Generate</source>
         <translation type="unfinished"></translation>
@@ -35727,7 +35691,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>隐藏这个工具条.</translation>
@@ -35758,14 +35722,14 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation type="unfinished">匿名函数</translation>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>package import requires a version number</source>
         <translation>导入包需要版本号</translation>
@@ -35895,7 +35859,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation type="unfinished">XML 错误 在第 %1行,  %2列: %3</translation>
@@ -35906,7 +35870,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation type="unfinished"></translation>
@@ -36399,7 +36363,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Run Checks</source>
         <translation>运行检查</translation>
@@ -36618,7 +36582,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>::QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>代码风格</translation>
@@ -36657,7 +36621,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal.</source>
         <translation type="unfinished"></translation>
@@ -36674,7 +36638,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -36682,7 +36646,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;当前文件&gt;</translation>
@@ -36792,7 +36756,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlPreview::QmlPreviewPlugin</name>
+    <name>QtC::QmlPreview</name>
     <message>
         <source>QML Preview</source>
         <translation type="unfinished"></translation>
@@ -36803,7 +36767,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML 分析器(Profiler)</translation>
@@ -37636,7 +37600,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Qt Design Studio</source>
         <translation type="unfinished"></translation>
@@ -37745,7 +37709,7 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>部署到QNX设备</translation>
@@ -37998,7 +37962,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>ptrace: Operation not permitted.
 
@@ -38035,14 +37999,14 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::McuSupport</name>
+    <name>QtC::McuSupport</name>
     <message>
         <source>Qt for MCUs: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>没有设置qmake路径</translation>
@@ -38629,7 +38593,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::Qdb</name>
+    <name>QtC::Qdb</name>
     <message>
         <source>Boot2Qt</source>
         <comment>Qt version is used for Boot2Qt development</comment>
@@ -38637,7 +38601,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>解压缩函数</translation>
@@ -38683,14 +38647,14 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Default</source>
         <translation type="unfinished">默认</translation>
@@ -39504,7 +39468,7 @@ Control process failed to start.</source>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>撤销(&amp;U)</translation>
@@ -39709,7 +39673,7 @@ Control process failed to start.</source>
     </message>
 </context>
 <context>
-    <name>::ScxmlEditor</name>
+    <name>QtC::ScxmlEditor</name>
     <message>
         <source>Basic Colors</source>
         <translation type="unfinished"></translation>
@@ -40397,7 +40361,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>::SerialTerminal</name>
+    <name>QtC::SerialTerminal</name>
     <message>
         <source>Unable to open port %1: %2.</source>
         <translation type="unfinished"></translation>
@@ -40601,7 +40565,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Expected delimiter after mangler ID.</source>
         <translation type="unfinished"></translation>
@@ -40638,7 +40602,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>::Squish</name>
+    <name>QtC::Squish</name>
     <message>
         <source>Details</source>
         <translation type="unfinished">详情</translation>
@@ -41371,7 +41335,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Elapsed time: %1.</source>
         <translation type="unfinished"></translation>
@@ -41498,7 +41462,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished">注释修订版本 &quot;%1&quot;</translation>
@@ -41761,7 +41725,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>::LanguageClient</name>
+    <name>QtC::LanguageClient</name>
     <message>
         <source>Find References with %1 for:</source>
         <translation type="unfinished"></translation>
@@ -41913,7 +41877,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>No kit defined in this project.</source>
         <translation type="unfinished">项目中未定义构建套件(Kit)。</translation>
@@ -42098,7 +42062,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>文本编辑器</translation>
@@ -44713,7 +44677,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keyword</source>
         <translation>关键字</translation>
@@ -44837,7 +44801,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>为&lt;b&gt;%1&lt;/b&gt;选择一个标题:</translation>
@@ -44848,7 +44812,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Duration</source>
         <translation type="unfinished">持续时间</translation>
@@ -44932,7 +44896,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>::UpdateInfo</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Qt Maintenance Tool</source>
         <translation type="unfinished"></translation>
@@ -45057,7 +45021,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>File format not supported.</source>
         <translation type="unfinished"></translation>
@@ -45967,7 +45931,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>CVS提交编辑器</translation>
@@ -46094,7 +46058,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>函数:</translation>
@@ -46951,7 +46915,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -47452,7 +47416,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>collecting overrides ...</source>
         <translation type="unfinished"></translation>
@@ -47466,7 +47430,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>::WebAssembly</name>
+    <name>QtC::WebAssembly</name>
     <message>
         <source>Web Browser</source>
         <translation type="unfinished"></translation>
@@ -47554,7 +47518,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Create Project...</source>
         <translation type="unfinished">创建项目...</translation>
@@ -47834,7 +47798,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>qmt::ClassItem</name>
+    <name>QtC::qmt</name>
     <message>
         <source>Show Definition</source>
         <translation type="unfinished"></translation>
@@ -47847,9 +47811,6 @@ What do you want to do?</source>
         <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramController</name>
     <message>
         <source>Change</source>
         <translation type="unfinished"></translation>
@@ -47874,9 +47835,6 @@ What do you want to do?</source>
         <source>Delete</source>
         <translation type="unfinished">删除</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation type="unfinished"></translation>
@@ -47909,9 +47867,6 @@ What do you want to do?</source>
         <source>Relocate Relation</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation type="unfinished"></translation>
@@ -47928,9 +47883,6 @@ What do you want to do?</source>
         <source>New Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::Exception</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation type="unfinished"></translation>
@@ -47959,9 +47911,6 @@ What do you want to do?</source>
         <source>Unable to handle file version %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation type="unfinished"></translation>
@@ -47979,10 +47928,6 @@ What do you want to do?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation type="unfinished"></translation>
     </message>
@@ -47995,41 +47940,11 @@ What do you want to do?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation type="unfinished">剪切</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation type="unfinished">粘贴</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
-    <message>
-        <source>Show Definition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
     <message>
         <source>Dependency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48038,10 +47953,6 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-    <message>
-        <source>Delete</source>
         <translation type="unfinished">删除</translation>
     </message>
     <message>
@@ -48108,9 +48019,6 @@ What do you want to do?</source>
         <source>Add Related Elements</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation type="unfinished"></translation>
@@ -48123,9 +48031,6 @@ What do you want to do?</source>
         <source>Model</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation type="unfinished"></translation>
@@ -48152,10 +48057,6 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Relations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48243,19 +48144,11 @@ What do you want to do?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dependency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Dependencies</source>
         <translation type="unfinished">依赖关系</translation>
     </message>
     <message>
         <source>Direction:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Inheritance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48268,10 +48161,6 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Base class: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48458,9 +48347,6 @@ What do you want to do?</source>
         <source>Multi-Selection</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
     <message>
         <source>[unnamed]</source>
         <translation type="unfinished"></translation>

@@ -7,6 +7,7 @@
 #include "perfprofilertr.h"
 
 #include <debugger/analyzer/analyzericons.h>
+#include <debugger/debuggertr.h>
 
 namespace PerfProfiler {
 namespace Internal {
@@ -16,7 +17,7 @@ PerfOptionsPage::PerfOptionsPage(PerfSettings *settings)
     setId(Constants::PerfSettingsId);
     setDisplayName(Tr::tr("CPU Usage"));
     setCategory("T.Analyzer");
-    setDisplayCategory(QCoreApplication::translate("::Debugger", "Analyzer"));
+    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     setWidgetCreator([settings] { return new PerfConfigWidget(settings); });
 }

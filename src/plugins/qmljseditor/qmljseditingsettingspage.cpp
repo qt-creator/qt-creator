@@ -238,9 +238,9 @@ public:
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
-        useQmlls = new QCheckBox(tr("Use qmlls (EXPERIMENTAL!)"));
+        useQmlls = new QCheckBox(Tr::tr("Use qmlls (EXPERIMENTAL!)"));
         useQmlls->setChecked(s.qmllsSettigs().useQmlls);
-        useLatestQmlls = new QCheckBox(tr("Always use latest qmlls"));
+        useLatestQmlls = new QCheckBox(Tr::tr("Always use latest qmlls"));
         useLatestQmlls->setChecked(s.qmllsSettigs().useLatestQmlls);
         useLatestQmlls->setEnabled(s.qmllsSettigs().useQmlls);
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
@@ -276,7 +276,7 @@ public:
                 },
             },
             Group{
-                title(tr("Language Server")),
+                title(Tr::tr("Language Server")),
                 Column{useQmlls, useLatestQmlls},
             },
             st,

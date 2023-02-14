@@ -30,7 +30,7 @@ using namespace Utils;
 namespace QmlProjectManager {
 
 const char M_CURRENT_FILE[] = "CurrentFile";
-const char CURRENT_FILE[]  = QT_TRANSLATE_NOOP("::QmlProjectManager", "<Current File>");
+const char CURRENT_FILE[]  = QT_TRANSLATE_NOOP("QtC::QmlProjectManager", "<Current File>");
 
 static bool caseInsensitiveLessThan(const FilePath &s1, const FilePath &s2)
 {

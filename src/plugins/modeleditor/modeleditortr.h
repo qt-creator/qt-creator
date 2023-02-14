@@ -9,7 +9,7 @@ namespace ModelEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::ModelEditor)
+    Q_DECLARE_TR_FUNCTIONS(QtC::ModelEditor)
 };
 
 } // namespace ModelEditor

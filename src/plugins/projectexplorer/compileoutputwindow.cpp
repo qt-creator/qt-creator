@@ -4,14 +4,11 @@
 #include "compileoutputwindow.h"
 
 #include "buildmanager.h"
-#include "ioutputparser.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "showoutputtaskhandler.h"
-#include "task.h"
 
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/icore.h>
@@ -39,6 +36,9 @@
 #include <QVBoxLayout>
 
 namespace ProjectExplorer {
+
+class Task;
+
 namespace Internal {
 
 const char SETTINGS_KEY[] = "ProjectExplorer/CompileOutput/Zoom";

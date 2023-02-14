@@ -12,8 +12,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
-#include <ctype.h>
-
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 
@@ -45,7 +43,7 @@ void DebuggerOutputParser::skipCommas()
 
 void DebuggerOutputParser::skipSpaces()
 {
-    while (from < to && isspace(from->unicode()))
+    while (from < to && QChar::isSpace(from->unicode()))
         ++from;
 }
 
@@ -74,7 +72,7 @@ QChar DebuggerOutputParser::readChar()
 
 static bool isNameChar(char c)
 {
-    return c != '=' && c != ':' && c != ']' && !isspace(c);
+    return c != '=' && c != ':' && c != ']' && !QChar::isSpace(c);
 }
 
 void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)

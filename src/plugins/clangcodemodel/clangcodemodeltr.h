@@ -9,7 +9,7 @@ namespace ClangCodeModel {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::ClangCodeModel)
+    Q_DECLARE_TR_FUNCTIONS(QtC::ClangCodeModel)
 };
 
 } // namespace ClangCodeModel

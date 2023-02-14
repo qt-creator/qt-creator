@@ -10,7 +10,7 @@
 /*!
     \page creator-qml-debugging-example.html
     \if defined(qtdesignstudio)
-    \previouspage creator-debugging-qml.html
+    \previouspage creator-expressions-view.html
     \nextpage creator-qml-performance-monitor.html
     \else
     \previouspage creator-debugging-example.html

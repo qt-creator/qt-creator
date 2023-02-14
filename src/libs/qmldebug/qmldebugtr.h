@@ -9,7 +9,7 @@ namespace QmlDebug {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::QmlDebug)
+    Q_DECLARE_TR_FUNCTIONS(QtC::QmlDebug)
 };
 
 } // QmlDebug

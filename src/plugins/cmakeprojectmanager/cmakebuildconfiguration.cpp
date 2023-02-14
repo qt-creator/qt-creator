@@ -40,6 +40,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -1970,12 +1971,12 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
     switch (buildType) {
     case BuildTypeNone:
         info.typeName = "Build";
-        info.displayName = BuildConfiguration::tr("Build");
+        info.displayName = ::ProjectExplorer::Tr::tr("Build");
         info.buildType = BuildConfiguration::Unknown;
         break;
     case BuildTypeDebug: {
         info.typeName = "Debug";
-        info.displayName = BuildConfiguration::tr("Debug");
+        info.displayName = ::ProjectExplorer::Tr::tr("Debug");
         info.buildType = BuildConfiguration::Debug;
         QVariantMap extraInfo;
         // enable QML debugging by default
@@ -1985,7 +1986,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
     }
     case BuildTypeRelease:
         info.typeName = "Release";
-        info.displayName = BuildConfiguration::tr("Release");
+        info.displayName = ::ProjectExplorer::Tr::tr("Release");
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:

@@ -9,7 +9,7 @@ namespace Core {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Core)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Core)
 };
 
 } // namespace Core

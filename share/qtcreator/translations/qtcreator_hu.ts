@@ -21,7 +21,7 @@
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Debugger elindítása</translation>
@@ -55,7 +55,7 @@
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="obsolete">&amp;Visszavonás</translation>
@@ -66,7 +66,7 @@
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Visszacsinál</translation>
@@ -77,7 +77,7 @@
     </message>
 </context>
 <context>
-    <name>::Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Künyvjelző hozzáadása</translation>
@@ -227,7 +227,7 @@
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Condition:</source>
         <translation>Feltétel:</translation>
@@ -238,7 +238,7 @@
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build Environment</source>
         <translation type="obsolete">Fordítási környezet</translation>
@@ -493,7 +493,7 @@
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;Szimbólum kiválasztása&gt;</translation>
@@ -512,7 +512,7 @@
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>A log kimenet elemzése nem sikerült</translation>
@@ -850,7 +850,7 @@
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;KódBeillesztő</translation>
@@ -1057,7 +1057,7 @@
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation>Kód kiegészítés</translation>
@@ -1088,7 +1088,7 @@
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Link megnyitása</translation>
@@ -1099,7 +1099,7 @@
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation type="obsolete">Hiba történt a fájl generálása közben</translation>
@@ -3025,7 +3025,7 @@ p {
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation type="obsolete">Rendezés betűrendbe</translation>
@@ -3332,7 +3332,7 @@ p {
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Common</source>
         <translation>Közös</translation>
@@ -4954,7 +4954,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation>Nem lehet függőséget hozzáadni</translation>
@@ -4965,7 +4965,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Designer</source>
         <translation>Tervező</translation>
@@ -5201,7 +5201,7 @@ A projekt újraépítése talán segít.</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -5422,7 +5422,7 @@ A projekt újraépítése talán segít.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Registered Documentation</source>
         <translation>Nyilvántartott dokumentum</translation>
@@ -5483,7 +5483,7 @@ Ez automatikus beállítja a megfelelő Qt verziót is.</translation>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Invalid</source>
         <translation type="obsolete">Érvénytelen</translation>
@@ -5830,7 +5830,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation type="obsolete">Vim stílusú szerkesztés kapcsolgatása</translation>
@@ -6260,7 +6260,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Keresés...</translation>
@@ -6383,7 +6383,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation>Gdb kölcsönhatás</translation>
@@ -6457,7 +6457,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -6544,7 +6544,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>%1 megsemmisítése:</translation>
@@ -6559,7 +6559,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;új&gt;</translation>
@@ -6678,7 +6678,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
         <translation>Határozza meg a tároló URL-t, megnézési könyvtárat és útvonalat.</translation>
@@ -7940,7 +7940,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Új lap hozzáadása</translation>
@@ -8331,21 +8331,21 @@ Fájl kihagyása.</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Rákeresés:</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Nyomja meg a Ctrl-&lt;Return&gt; gombokat a sor végrehajtásához.</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filters</source>
         <translation>Szűrők</translation>
@@ -8606,7 +8606,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>MimeType</name>
@@ -8892,7 +8892,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Fájl megnyitása ezzel...</translation>
@@ -8903,7 +8903,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -8943,7 +8943,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation type="obsolete">Nincs futtatható meghatározva</translation>
@@ -9737,10 +9737,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>A(z) &apos;%1&apos; beépülő modul nem létezik.</translation>
@@ -9815,7 +9815,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -11020,7 +11020,7 @@ Ok: %2</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>Fájlrendszer</translation>
@@ -11031,7 +11031,7 @@ Ok: %2</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Starting %1...</source>
         <translation>%1 elindítása...</translation>
@@ -11612,7 +11612,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -11626,7 +11626,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>QMake Építési Konfiguráció:</translation>
@@ -11837,7 +11837,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation type="obsolete">QML Alkalmazás</translation>
@@ -11972,7 +11972,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Hozzáadás</translation>
@@ -11999,7 +11999,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;A make parancs nem található: %1 a fordító környezetben&lt;/font&gt;</translation>
@@ -12878,7 +12878,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation>Első lépések</translation>
@@ -13032,7 +13032,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation>Qt4 Gui Alkalmazás</translation>
@@ -14031,7 +14031,7 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>A debuggolást segítő könyvtárban (%1) egy idejét múlt verzió található; %2 verzió igényelt.</translation>
@@ -14493,7 +14493,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Resource file</source>
         <translation type="obsolete">Forrás fájl</translation>
@@ -14552,7 +14552,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Változtatások elmentése</translation>
@@ -14685,7 +14685,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Fájlok hozzáadása</translation>
@@ -14784,7 +14784,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Gyorsbillentyű</translation>
@@ -14834,7 +14834,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Snippets</source>
         <translation type="obsolete">Kódrészlet</translation>
@@ -14845,7 +14845,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Break at &apos;main&apos;:</source>
         <translation>Töréspont a &apos;main&apos;-re:</translation>
@@ -15080,7 +15080,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation>Egy projekt megnézése a Subversion tárolóból.</translation>
@@ -15311,7 +15311,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation type="obsolete">%1 gefunden</translation>
@@ -16619,7 +16619,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Topik kiválasztása</translation>
@@ -16653,7 +16653,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -16931,7 +16931,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Verzió követő</translation>
@@ -17225,7 +17225,7 @@ p, li { white-space: pre-wrap; }(new line)
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Community</source>
         <translation>Közösség</translation>

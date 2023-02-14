@@ -9,7 +9,7 @@ namespace QmlJSTools {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::QmlJSTools)
+    Q_DECLARE_TR_FUNCTIONS(QtC::QmlJSTools)
 };
 
 } // namespace QmlJSTools

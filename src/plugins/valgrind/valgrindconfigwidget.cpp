@@ -6,6 +6,7 @@
 #include "valgrindtr.h"
 
 #include <debugger/analyzer/analyzericons.h>
+#include <debugger/debuggertr.h>
 
 #include <coreplugin/icore.h>
 
@@ -90,7 +91,7 @@ ValgrindOptionsPage::ValgrindOptionsPage()
     setId(ANALYZER_VALGRIND_SETTINGS);
     setDisplayName(Tr::tr("Valgrind"));
     setCategory("T.Analyzer");
-    setDisplayCategory(Tr::tr("Analyzer"));
+    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     setWidgetCreator([] { return new ValgrindConfigWidget(ValgrindGlobalSettings::instance()); });
 }

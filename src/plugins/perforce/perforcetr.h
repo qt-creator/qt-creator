@@ -9,7 +9,7 @@ namespace Perforce {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Perforce)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Perforce)
 };
 
 } // Perforce

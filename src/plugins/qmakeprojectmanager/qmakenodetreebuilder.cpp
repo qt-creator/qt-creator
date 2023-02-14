@@ -41,19 +41,19 @@ public:
 };
 
 const FileTypeDataStorage fileTypeDataStorage[] = {
-    { FileType::Header, QT_TRANSLATE_NOOP("::QmakeProjectManager", "Headers"),
+    { FileType::Header, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Headers"),
       ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
-    { FileType::Source, QT_TRANSLATE_NOOP("::QmakeProjectManager", "Sources"),
+    { FileType::Source, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Sources"),
       ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FileType::Form, QT_TRANSLATE_NOOP("::QmakeProjectManager", "Forms"),
+    { FileType::Form, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Forms"),
       ProjectExplorer::Constants::FILEOVERLAY_UI, "*.ui;" },
-    { FileType::StateChart, QT_TRANSLATE_NOOP("::QmakeProjectManager", "State charts"),
+    { FileType::StateChart, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "State charts"),
       ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
-    { FileType::Resource, QT_TRANSLATE_NOOP("::QmakeProjectManager", "Resources"),
+    { FileType::Resource, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Resources"),
       ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
-    { FileType::QML, QT_TRANSLATE_NOOP("::QmakeProjectManager", "QML"),
+    { FileType::QML, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "QML"),
       ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
-    { FileType::Unknown, QT_TRANSLATE_NOOP("::QmakeProjectManager", "Other files"),
+    { FileType::Unknown, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Other files"),
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 

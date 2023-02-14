@@ -21,7 +21,7 @@
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>復原(&amp;U)</translation>
@@ -32,7 +32,7 @@
     </message>
 </context>
 <context>
-    <name>::Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>新增書籤</translation>
@@ -159,7 +159,7 @@
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
@@ -327,7 +327,7 @@
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;選擇符號&gt;</translation>
@@ -338,7 +338,7 @@
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>貼上代碼(&amp;C)</translation>
@@ -389,7 +389,7 @@
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>開啟連結</translation>
@@ -400,7 +400,7 @@
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>產生檔案失敗</translation>
@@ -1188,7 +1188,7 @@
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>類別名稱不能包含命名空間分隔符。</translation>
@@ -1553,7 +1553,7 @@
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Enter Class Name</source>
         <translation>輸入類別名稱</translation>
@@ -1776,7 +1776,7 @@
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
@@ -1794,9 +1794,6 @@
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>系統找到一個已過期的除錯小助手函式庫 (%1)，需要的版號為 %2。</translation>
@@ -1859,9 +1856,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>&lt;none&gt;</source>
         <translation>&lt;無&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation type="unfinished"></translation>
@@ -3678,7 +3672,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>無法新增相依性</translation>
@@ -3689,7 +3683,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="obsolete">檔名為空。</translation>
@@ -3912,7 +3906,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>名稱：</translation>
@@ -4076,7 +4070,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>使用 Vim 風格編輯</translation>
@@ -4320,7 +4314,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>搜尋(&amp;S)</translation>
@@ -4467,7 +4461,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
@@ -4539,7 +4533,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Checkout</source>
         <translation type="unfinished">取出</translation>
@@ -5318,7 +5312,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Print Document</source>
         <translation>列印文件</translation>
@@ -5646,7 +5640,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Locator</source>
         <translation>定位器</translation>
@@ -5660,7 +5654,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>變更數值</translation>
@@ -6115,7 +6109,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plugin Details of %1</source>
         <translation>外掛程式 %1 的詳情</translation>
@@ -6126,7 +6120,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>外掛程式 &apos;%1&apos; 不存在。</translation>
@@ -6209,7 +6203,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>正在啟動：&quot;%1&quot; %2</translation>
@@ -6453,7 +6447,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>檔案系統</translation>
@@ -6472,7 +6466,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Session Manager</source>
         <translation>工作階段管理器</translation>
@@ -7233,7 +7227,7 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>新增</translation>
@@ -7260,7 +7254,7 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt Console Application</source>
         <translation>Qt4 主控台應用程式</translation>
@@ -7806,7 +7800,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filter Configuration</source>
         <translation>過濾器設置</translation>
@@ -7949,7 +7943,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Qt Resource file</source>
         <translation>Qt 資源檔</translation>
@@ -7992,7 +7986,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Authentication</source>
         <translation>認證</translation>
@@ -8267,7 +8261,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Search</source>
         <translation>搜尋</translation>
@@ -9258,7 +9252,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter</source>
         <translation>過濾器</translation>
@@ -9285,7 +9279,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -9368,14 +9362,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>不要再次詢問</translation>
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -9422,7 +9416,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -9554,7 +9548,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>建置和執行</translation>
@@ -9641,7 +9635,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -9804,7 +9798,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>粗體</translation>
@@ -9835,7 +9829,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Details</source>
         <translation>詳情</translation>
@@ -9885,14 +9879,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation>喜好設定</translation>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>在 CodePaster 喜好設定中沒有定義伺服器。</translation>
@@ -9919,7 +9913,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Methods in Current Document</source>
         <translation>目前文件中的方法</translation>
@@ -9962,7 +9956,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>從 CVS 主目錄中取出，並試著載入裡面包含的專案。</translation>
@@ -10261,7 +10255,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Attached to core temporarily.</source>
         <translation type="obsolete">暫時附加到 core 檔。</translation>
@@ -10280,14 +10274,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
         <translation>複製一個 Git 主目錄，並試著載入裡面包含的專案。</translation>
@@ -10366,7 +10360,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>General Settings</source>
         <translation type="obsolete">一般設定</translation>
@@ -10509,7 +10503,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>啟動程式失敗。路徑或者權限是否有錯誤？</translation>
@@ -10578,7 +10572,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;新類別&gt;</translation>
@@ -10653,7 +10647,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
         <translation>從 Subversion 主目錄中取出，並試著載入裡面包含的專案。</translation>
@@ -10676,7 +10670,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>不是一個色彩機制檔。</translation>
@@ -10687,7 +10681,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>無法開啟專案</translation>
@@ -10769,7 +10763,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>新聞與支持</translation>
@@ -11030,7 +11024,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -11157,7 +11151,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Class name:</source>
         <translation>類別名稱：</translation>
@@ -11204,7 +11198,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation>執行 CMake 目標</translation>
@@ -11219,7 +11213,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -11238,21 +11232,21 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>貼上代碼</translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation>複製一個 Mercurial 主目錄，並試著載入裡面包含的專案。</translation>
@@ -11495,7 +11489,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>未指定執行檔</translation>
@@ -11531,7 +11525,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -11579,7 +11573,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt Versions</source>
         <translation>Qt 版本</translation>
@@ -11590,7 +11584,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>文字編輯器</translation>
@@ -11601,7 +11595,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Stashes</source>
         <translation>暫存檔</translation>
@@ -11697,7 +11691,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>雙標籤元件</translation>
@@ -11751,7 +11745,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Self-signed certificate</source>
         <translation type="obsolete">自行簽署的憑證</translation>
@@ -11786,7 +11780,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>目錄 %1 無法被刪除。</translation>
@@ -11833,7 +11827,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>無</translation>
@@ -11848,7 +11842,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; 或 &apos;real&apos;</translation>
@@ -11879,7 +11873,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -11926,7 +11920,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>記憶體於 0x%1</translation>
@@ -12029,7 +12023,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -12042,7 +12036,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command</source>
         <translation>指令</translation>
@@ -12073,7 +12067,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;註解&gt;</translation>
@@ -12084,10 +12078,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>CVS 提交編輯器</translation>
@@ -12230,14 +12224,14 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>::Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>此檔案只能在&lt;b&gt;設計&lt;/b&gt;模式中編輯。</translation>
@@ -12252,7 +12246,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Ex 指令映射</translation>
@@ -12271,7 +12265,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>搜尋/取代(&amp;F)</translation>
@@ -12290,7 +12284,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -12313,7 +12307,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Blame %1</source>
         <translation>&quot;%1&quot; 的提交紀錄</translation>
@@ -12324,7 +12318,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Error loading: %1</source>
         <translation type="unfinished"></translation>
@@ -12347,7 +12341,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Annotate %1</source>
         <translation>最後註記 %1</translation>
@@ -12358,14 +12352,14 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>註記變更列表 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
@@ -12408,7 +12402,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -12539,7 +12533,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>相依性</translation>
@@ -12565,7 +12559,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>開啟 &quot;%1&quot;</translation>
@@ -12592,7 +12586,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <translation>專案</translation>
@@ -12722,7 +12716,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -12730,7 +12724,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -12758,7 +12752,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -12892,7 +12886,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>開啟檔案</translation>
@@ -13070,7 +13064,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Creates a QML file.</source>
         <translation>建立一個 QML 檔案。</translation>
@@ -13145,7 +13139,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>載入專案檔案 %1 時發生錯誤。</translation>
@@ -13238,7 +13232,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Could not find make command &apos;%1&apos; in the build environment</source>
         <translation type="obsolete">在建置環境中找不到 make 指令 &apos;%1&apos;</translation>
@@ -13346,7 +13340,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>計算中</translation>
@@ -13369,7 +13363,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>沒有設定 qmake 路徑</translation>
@@ -13498,7 +13492,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Modules</source>
         <translation>模組</translation>
@@ -13533,14 +13527,14 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>檔案 &apos;%1&apos; 無法被刪除。</translation>
@@ -13599,7 +13593,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Locked</source>
         <translation>已鎖定</translation>
@@ -13635,7 +13629,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>無法開啟 %1：%2</translation>
@@ -13670,7 +13664,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>輸入工作階段的名稱：</translation>
@@ -13681,7 +13675,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>預覽 Qt Quick 檔案失敗</translation>
@@ -13694,7 +13688,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation>無法啟動 pdb &apos;%1&apos;：%2</translation>
@@ -13749,7 +13743,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>QmlDesigner::PropertyEditor</name>
@@ -13771,7 +13765,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>The Symbian SDK and the project sources must reside on the same drive.</source>
         <translation type="obsolete">Symbian SDK 和專案源碼檔必須在同一個磁碟上。</translation>
@@ -13786,7 +13780,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -13799,7 +13793,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake 不支援在源碼目錄下使用建置目錄。</translation>
@@ -13810,7 +13804,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>使用 %1 重寫</translation>
@@ -13909,7 +13903,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案已經被開啟</translation>
@@ -13976,7 +13970,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>文字</translation>
@@ -14462,14 +14456,14 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Unfiltered</source>
         <translation>未過濾</translation>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source> [New] </source>
         <translation> [新增] </translation>
@@ -14480,7 +14474,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -14611,7 +14605,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::ClassView</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -14622,7 +14616,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">過濾器設置</translation>
@@ -14645,7 +14639,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>影像檢視器</translation>
@@ -14664,7 +14658,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -14691,7 +14685,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>函式庫：</translation>
@@ -14770,7 +14764,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::QmlEditorWidgets</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>隱藏此工具列。</translation>
@@ -14797,7 +14791,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>兩個數字應該由點分隔</translation>
@@ -14808,7 +14802,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>無法啟動行程：%1</translation>
@@ -14857,7 +14851,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>指令 &apos;%1&apos; 已成功完成。</translation>
@@ -14896,14 +14890,14 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::ClassView</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>類別檢視</translation>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -14919,7 +14913,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>啟用 %1 窗格</translation>
@@ -14943,7 +14937,7 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>正在檢查連線</translation>
@@ -14954,7 +14948,7 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Expected a namespace-name</source>
         <translation>預期應為命名空間名稱</translation>
@@ -15041,7 +15035,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>File name and line number</source>
         <translation>檔名與行號</translation>
@@ -15652,7 +15646,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -15677,7 +15671,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Show Sidebar</source>
         <translation>顯示邊列</translation>
@@ -15688,7 +15682,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Next Open Document in History</source>
         <translation>歷史紀錄中下一個開啟的檔案</translation>
@@ -15703,7 +15697,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>複製完整路徑到剪貼簿</translation>
@@ -15714,7 +15708,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>放大</translation>
@@ -15773,7 +15767,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -15916,7 +15910,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Move Component into separate file</source>
         <translation type="obsolete">將組件移到分離的檔案中</translation>
@@ -16027,7 +16021,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>新增函式庫</translation>
@@ -16156,7 +16150,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -16176,7 +16170,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>僅限 Qt 桌面版或者 Qt 模擬器版本使用。</translation>
@@ -16187,7 +16181,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -16200,7 +16194,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Passphrase:</source>
         <translation type="obsolete">密碼片語：</translation>
@@ -16219,7 +16213,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">裝置：</translation>
@@ -16471,7 +16465,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>SBSv2 build log</source>
         <translation type="obsolete">SBSv2 建置紀錄</translation>
@@ -16511,7 +16505,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>找不到 QML 匯入路徑 &apos;%1&apos;。</translation>
@@ -16600,7 +16594,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>停止監看</translation>
@@ -16628,7 +16622,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>一般突顯器</translation>
@@ -16757,7 +16751,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -16794,7 +16788,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Stacked</source>
         <translation>已堆疊</translation>
@@ -16849,7 +16843,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -16908,7 +16902,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -16988,7 +16982,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>還原</translation>
@@ -17003,7 +16997,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -17110,7 +17104,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Macros</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -17153,7 +17147,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>選擇發佈精靈</translation>
@@ -17172,7 +17166,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>ARM &amp;version:</source>
         <translation type="obsolete">ARM 版本(&amp;V)：</translation>
@@ -17211,7 +17205,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -17226,7 +17220,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;未設定&gt;</translation>
@@ -17395,7 +17389,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>沒有找到錯誤</translation>
@@ -17514,7 +17508,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>分析器</translation>
@@ -17586,7 +17580,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Annotate %1</source>
         <translation>最後註記 %1</translation>
@@ -17777,7 +17771,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>複製一個 Bazaar 分支，並試著載入裡面包含的專案。</translation>
@@ -17788,7 +17782,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -17803,24 +17797,24 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>提交編輯器</translation>
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar 指令</translation>
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>未分類</translation>
@@ -18074,7 +18068,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>按字母排序</translation>
@@ -18105,7 +18099,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>條件(&amp;C)：</translation>
@@ -18736,7 +18730,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>使用 patience 演算法來計算差異。</translation>
@@ -18791,7 +18785,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::GlslEditor</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -18835,7 +18829,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::Macros</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Macros</source>
         <translation>巨集</translation>
@@ -18898,7 +18892,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
@@ -19070,7 +19064,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>新增 %1 </translation>
@@ -19116,7 +19110,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Methods and Functions</source>
         <translation>方法和函式</translation>
@@ -19181,7 +19175,7 @@ Error: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Manage Qt versions...</source>
         <translation type="obsolete">管理 Qt 版本...</translation>
@@ -19212,7 +19206,7 @@ Error: %2</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>目標目錄 %1 無法被建立。</translation>
@@ -19294,7 +19288,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -19540,7 +19534,7 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>WINSCW</source>
         <translation type="obsolete">WINSCW</translation>
@@ -19564,7 +19558,7 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">新增建置來源：</translation>
@@ -19766,7 +19760,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -19833,7 +19827,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>無法啟動行程 &apos;%1&apos;：%2</translation>
@@ -19955,7 +19949,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>::Macros</name>
+    <name>QtC::Macros</name>
 </context>
 <context>
     <name>AnchorButtons</name>
@@ -20043,7 +20037,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -20212,7 +20206,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -20267,7 +20261,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML 效能分析器</translation>
@@ -20290,7 +20284,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>用於從基於函式庫的外掛程式中展開 QML 型態資訊。</translation>
@@ -20377,7 +20371,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation type="unfinished">Suppression 檔案:</translation>
@@ -20532,7 +20526,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Configuration</source>
         <translation>設置</translation>
@@ -20543,7 +20537,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>拒絕移除根目錄。</translation>
@@ -20649,7 +20643,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -20660,7 +20654,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>建置之後在專案樹中顯示 cmake 檔的變化。</translation>
@@ -20671,7 +20665,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>覆寫現有檔案</translation>
@@ -20692,7 +20686,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -20712,7 +20706,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::CVS</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -20723,7 +20717,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Previous</source>
         <translation>前一個</translation>
@@ -20738,7 +20732,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>動作</translation>
@@ -20757,7 +20751,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>::GenericProjectManager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>隱藏符合條件的檔案：</translation>
@@ -20792,14 +20786,14 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>本地分支</translation>
     </message>
 </context>
 <context>
-    <name>::ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Cannot open image file %1.</source>
         <translation>無法開啟影像檔 %1。</translation>
@@ -20814,7 +20808,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>::Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -20825,14 +20819,14 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;自訂&gt;</translation>
@@ -20894,7 +20888,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -21075,7 +21069,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>代碼風格</translation>
@@ -21107,7 +21101,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
@@ -21266,7 +21260,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -21285,7 +21279,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -21391,7 +21385,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation type="obsolete">將 %1 佈署至 Symbian 裝置</translation>
@@ -21469,7 +21463,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>S60 SDK:</source>
         <translation type="obsolete">S60 SDK：</translation>
@@ -21504,7 +21498,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation type="unfinished"></translation>
@@ -21664,7 +21658,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation type="obsolete">&lt;沒有設定目標路徑&gt;</translation>
@@ -21886,14 +21880,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>::Subversion</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1/%2</translation>
@@ -21904,7 +21898,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>::Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>效能分析中</translation>
@@ -22385,14 +22379,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>回復差異區塊的指令</translation>
     </message>
 </context>
 <context>
-    <name>::Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>歡迎</translation>
@@ -22449,7 +22443,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>::QmlProjectManager</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Open Qt Versions</source>
         <translation>開啟 Qt 版本</translation>
@@ -22905,7 +22899,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Tarball creation not possible.</source>
         <translation>無法建立 Tarball 歸檔。</translation>
@@ -22916,7 +22910,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - 外掛程式載入器訊息</translation>
@@ -22931,7 +22925,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation>繪製中</translation>
@@ -22954,7 +22948,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Duration:</source>
         <translation>持續時間：</translation>
@@ -22980,7 +22974,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::ExtensionSystem</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>繼續</translation>
@@ -23038,7 +23032,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Password Required</source>
         <translation type="obsolete">需要密碼</translation>
@@ -23057,7 +23051,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>詳細</translation>
@@ -23100,7 +23094,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>啟動檔案瀏覽器失敗</translation>
@@ -23186,7 +23180,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++ 例外</translation>
@@ -23229,7 +23223,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>區分大小寫</translation>
@@ -23300,7 +23294,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation>大小應為 %1x%2 像素</translation>
@@ -23395,7 +23389,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Using Old Project Settings File</source>
         <translation>使用舊的專案設定檔</translation>
@@ -23438,14 +23432,14 @@ If you choose not to continue Qt Creator will not try to load the .shared file.<
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translation></translation>
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">此種類型名稱字串字面常數僅在 Qt Creator 中的 QML編輯器時可使用</translation>
@@ -23464,7 +23458,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>標頭</translation>
@@ -23535,7 +23529,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>不需要執行佈署。將跳過。</translation>
@@ -24076,7 +24070,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Edit Code Style</source>
         <translation>編輯代碼風格</translation>
@@ -24172,7 +24166,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>::UpdateInfo</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>無法決定維護工具所在位置。請檢查您的安裝，確定您是否沒有手動開啟此外掛程式的支援。</translation>
@@ -24191,14 +24185,14 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>編輯預覽內容來查看目前的設定如何套用到自訂代碼片段。在預覽中的變更並不會影響目前的設定。</translation>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -24276,7 +24270,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>指令映射</translation>
@@ -24351,7 +24345,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>::CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -24455,7 +24449,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation>標頭檔後置字串：</translation>
@@ -24474,7 +24468,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>啟動除錯工具</translation>
@@ -24597,7 +24591,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Has a passwordless (key-based) login already been set up for this device?</source>
         <translation>此裝置是否已經設定使用金鑰登入而不需要密碼？</translation>
@@ -24612,7 +24606,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -24682,7 +24676,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>選擇</translation>
@@ -24701,7 +24695,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Make 參數：</translation>
@@ -24724,14 +24718,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Details of Certificate</source>
         <translation type="obsolete">憑證詳情</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Main HTML File</source>
         <translation>主 HTML 檔案</translation>
@@ -24798,14 +24792,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>除錯小助手建置紀錄</translation>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>認證型態：</translation>
@@ -24960,7 +24954,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -25367,7 +25361,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -25406,7 +25400,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>精靈頁面</translation>
@@ -25513,7 +25507,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Recent Projects</source>
         <translation>最近使用的專案</translation>
@@ -25528,7 +25522,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>範例</translation>
@@ -25602,7 +25596,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>教學</translation>
@@ -25635,7 +25629,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -25658,7 +25652,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::QmlJS</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation>不要用 &apos;%1&apos; 做為建構子</translation>
@@ -25930,7 +25924,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Add</source>
         <translation>新增</translation>
@@ -26043,7 +26037,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -26187,7 +26181,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation type="unfinished"></translation>
@@ -26202,14 +26196,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>建置 CMake 目標</translation>
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Error while saving file: %1</source>
         <translation>儲存檔案時發生錯誤：%1</translation>
@@ -26260,7 +26254,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>展開函式</translation>
@@ -26279,7 +26273,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Reset</source>
         <translation>重置</translation>
@@ -26378,7 +26372,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>untracked</source>
         <translation>未追蹤的</translation>
@@ -26421,7 +26415,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
@@ -26454,7 +26448,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Edit Environment</source>
         <translation>編輯環境變數</translation>
@@ -26485,7 +26479,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Add a comment to suppress this message</source>
         <translation type="obsolete">新增註解以抑制此訊息</translation>
@@ -26516,7 +26510,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -26640,7 +26634,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Configure Project</source>
         <translation>設置專案</translation>
@@ -26671,7 +26665,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>是否要複製專案到可寫入的位置？</translation>
@@ -26742,14 +26736,14 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation>雙擊以編輯專案檔</translation>
     </message>
 </context>
 <context>
-    <name>::TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>找到 %1 </translation>
@@ -26774,7 +26768,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Description</source>
         <translation>描述</translation>
@@ -26789,7 +26783,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>待辦事項條目</translation>
@@ -26800,7 +26794,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>::VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Open URL in browser...</source>
         <translation type="obsolete">在瀏覽器中打開網址...</translation>
@@ -26914,7 +26908,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Create new AVD</source>
         <translation type="unfinished"></translation>
@@ -27247,7 +27241,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation type="unfinished"></translation>
@@ -27389,7 +27383,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Remove File</source>
         <translation type="unfinished">移除檔案</translation>
@@ -27408,7 +27402,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation type="unfinished">裝置設置精靈選擇</translation>
@@ -27451,7 +27445,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished">精靈頁面</translation>
@@ -27498,14 +27492,14 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation type="unfinished"></translation>
@@ -27548,7 +27542,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device:</source>
         <translation type="unfinished">裝置：</translation>
@@ -27574,7 +27568,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keyword</source>
         <translation type="unfinished">關鍵字</translation>
@@ -27601,7 +27595,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::QmlDebug</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -27826,7 +27820,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::Utils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation type="unfinished"></translation>
@@ -27982,7 +27976,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>::Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Error Creating AVD</source>
         <translation type="unfinished"></translation>
@@ -28372,7 +28366,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>::Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation type="unfinished"></translation>
@@ -28383,7 +28377,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>::ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation type="unfinished"></translation>
@@ -28741,7 +28735,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>::CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Choose Cmake Executable</source>
         <translation type="unfinished"></translation>
@@ -28768,7 +28762,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>::Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Meta+O</source>
         <translation type="unfinished"></translation>
@@ -28783,7 +28777,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>::CppEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation type="unfinished">目標檔案改變，無法套用變更</translation>
@@ -28802,7 +28796,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Delete Breakpoint</source>
         <translation>刪除中斷點</translation>
@@ -29006,14 +29000,14 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>::Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation type="unfinished">無法為型態 &apos;%1&apos; 建立除錯引擎</translation>
@@ -29548,7 +29542,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>::Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation type="unfinished"></translation>
@@ -29705,7 +29699,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>::RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Error Creating Debian Project Templates</source>
         <translation type="unfinished"></translation>
@@ -29792,7 +29786,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>::Perforce</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>&amp;Edit (%1)</source>
         <translation type="unfinished"></translation>
@@ -29803,7 +29797,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>::ProjectExplorer</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Run locally</source>
         <translation type="unfinished"></translation>
@@ -30086,7 +30080,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>::QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="unfinished">此種類型名稱字串字面常數僅在 Qt Creator 中的 QML編輯器時可使用</translation>
@@ -30105,7 +30099,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Source code not available</source>
         <translation type="unfinished">無法使用源碼</translation>
@@ -30188,7 +30182,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation type="unfinished">正在啟動：&quot;%1&quot; %2</translation>
@@ -30207,7 +30201,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished">管理...</translation>
@@ -30232,7 +30226,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Command:</source>
         <translation type="unfinished">指令：</translation>
@@ -30270,7 +30264,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>System Environment</source>
         <translation type="unfinished">系統環境變數</translation>
@@ -30301,7 +30295,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>::ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation type="unfinished">新增檔案</translation>

@@ -9,7 +9,7 @@ namespace FakeVim {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::FakeVim)
+    Q_DECLARE_TR_FUNCTIONS(QtC::FakeVim)
 };
 
 } // namespace FakeVim

@@ -3,9 +3,6 @@
 
 #include "configtaskhandler.h"
 
-#include "task.h"
-#include "taskhub.h"
-
 #include <coreplugin/icore.h>
 
 #include <QAction>

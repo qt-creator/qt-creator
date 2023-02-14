@@ -76,6 +76,7 @@ public:
     static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
     static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
+    static PluginSpec *specForPlugin(IPlugin *plugin);
 
     // Settings
     static void setSettings(Utils::QtcSettings *settings);

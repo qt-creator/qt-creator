@@ -3,6 +3,8 @@
 
 #include "qmllsclient.h"
 
+#include "qmljseditortr.h"
+
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 
@@ -47,7 +49,7 @@ QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
     auto interface = new StdIOClientInterface;
     interface->setCommandLine(CommandLine(qmlls));
     auto client = new QmllsClient(interface);
-    client->setName(QmllsClient::tr("Qmlls (%1)").arg(qmlls.toUserOutput()));
+    client->setName(Tr::tr("Qmlls (%1)").arg(qmlls.toUserOutput()));
     client->setActivateDocumentAutomatically(true);
     LanguageFilter filter;
     using namespace QmlJSTools::Constants;
