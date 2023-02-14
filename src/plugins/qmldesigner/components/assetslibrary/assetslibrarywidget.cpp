@@ -251,7 +251,8 @@ QString AssetsLibraryWidget::assetFileSize(const QString &id)
 
 bool AssetsLibraryWidget::assetIsImage(const QString &id)
 {
-    return m_assetsIconProvider->assetIsImage(id);
+    Asset asset(id);
+    return asset.isImage() || asset.isTexture3D();
 }
 
 QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()

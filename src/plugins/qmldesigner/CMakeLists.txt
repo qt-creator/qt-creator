@@ -23,6 +23,7 @@ add_qtc_library(QmlDesignerUtils STATIC
     filedownloader.cpp filedownloader.h
     fileextractor.cpp fileextractor.h
     hdrimage.cpp hdrimage.h
+    ktximage.cpp ktximage.h
     imageutils.cpp imageutils.h
     qmldesignerutils_global.h
 )

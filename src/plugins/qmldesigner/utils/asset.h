@@ -35,6 +35,7 @@ public:
     bool isVideo() const;
     bool isTexture3D() const;
     bool isHdrFile() const;
+    bool isKtxFile() const;
     bool isEffect() const;
     bool isSupported() const;
 

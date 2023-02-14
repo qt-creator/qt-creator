@@ -161,6 +161,11 @@ bool Asset::isHdrFile() const
     return m_suffix == "*.hdr";
 }
 
+bool Asset::isKtxFile() const
+{
+    return m_suffix == "*.ktx";
+}
+
 bool Asset::isEffect() const
 {
     return type() == Asset::Type::Effect;

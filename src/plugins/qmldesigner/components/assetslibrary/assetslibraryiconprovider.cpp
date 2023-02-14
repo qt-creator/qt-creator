@@ -7,6 +7,7 @@
 
 #include <theme.h>
 #include <utils/hdrimage.h>
+#include <utils/ktximage.h>
 #include <utils/stylehelper.h>
 
 namespace QmlDesigner {
@@ -43,13 +44,16 @@ Thumbnail AssetsLibraryIconProvider::createThumbnail(const QString &id, const QS
 {
     auto [pixmap, fileSize] = fetchPixmap(id, requestedSize);
     QSize originalSize = pixmap.size();
-    Asset::Type assetType = Asset(id).type();
+    Asset asset(id);
+    Asset::Type assetType = asset.type();
 
     if (pixmap.isNull()) {
         pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/assets_default.png");
 
         if (assetType == Asset::Image)
             assetType = Asset::MissingImage;
+        else if (asset.isKtxFile())
+            originalSize = KtxImage(id).dimensions();
     }
 
     if (requestedSize.isValid())
@@ -86,6 +90,10 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
         qint64 size = QFileInfo(id).size();
         QPixmap pixmap = HdrImage{id}.toPixmap();
         return {pixmap, size};
+    } else if (asset.isKtxFile()) {
+        qint64 size = QFileInfo(id).size();
+        // TODO: Return ktx specific default image once available (QDS-9140)
+        return {{}, size};
     } else {
         QString type;
         if (asset.isShader())
@@ -127,13 +135,6 @@ QSize AssetsLibraryIconProvider::imageSize(const QString &id)
 qint64 AssetsLibraryIconProvider::fileSize(const QString &id)
 {
     return m_thumbnails.contains(id) ? m_thumbnails[id].fileSize : 0;
-}
-
-bool AssetsLibraryIconProvider::assetIsImage(const QString &id)
-{
-    return m_thumbnails.contains(id)
-               ? (m_thumbnails[id].assetType == Asset::Type::Image || Asset(id).isHdrFile())
-               : false;
 }
 
 } // namespace QmlDesigner

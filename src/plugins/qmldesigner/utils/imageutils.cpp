@@ -3,6 +3,8 @@
 
 #include "imageutils.h"
 
+#include "ktximage.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QImageReader>
@@ -17,7 +19,8 @@ QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
 
     int width = 0;
     int height = 0;
-    if (info.suffix() == "hdr") {
+    const QString suffix = info.suffix();
+    if (suffix == "hdr") {
         QFile file(path);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return {};
@@ -27,6 +30,10 @@ QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
             if (sscanf(line.constData(), "-Y %d +X %d", &height, &width))
                 break;
         }
+    } else if (suffix == "ktx") {
+        KtxImage ktx(path);
+        width = ktx.dimensions().width();
+        height = ktx.dimensions().height();
     } else {
         QSize size = QImageReader(path).size();
         width = size.width();

@@ -29,7 +29,6 @@ public:
     void invalidateThumbnail(const QString &id);
     QSize imageSize(const QString &id);
     qint64 fileSize(const QString &id);
-    bool assetIsImage(const QString &id);
 
 private:
     QPixmap generateFontIcons(const QString &filePath, const QSize &requestedSize) const;
