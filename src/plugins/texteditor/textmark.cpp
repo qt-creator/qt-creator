@@ -12,11 +12,13 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QDesktopServices>
 #include <QGridLayout>
 #include <QPainter>
 #include <QToolButton>
@@ -338,11 +340,18 @@ bool TextMark::addToolTipContent(QLayout *target) const
     }
 
     auto textLabel = new QLabel;
-    textLabel->setOpenExternalLinks(true);
     textLabel->setText(text);
     // Differentiate between tool tips that where explicitly set and default tool tips.
     textLabel->setDisabled(useDefaultToolTip);
     target->addWidget(textLabel);
+    QObject::connect(textLabel, &QLabel::linkActivated, [](const QString &link) {
+        if (OutputLineParser::isLinkTarget(link)) {
+            Core::EditorManager::openEditorAt(OutputLineParser::parseLinkTarget(link), {},
+                                              Core::EditorManager::SwitchSplitIfAlreadyVisible);
+        } else {
+            QDesktopServices::openUrl(link);
+        }
+    });
 
     return true;
 }

@@ -120,6 +120,34 @@ QIcon Task::icon() const
     return m_icon;
 }
 
+QString Task::toolTip(const QString &extraHeading) const
+{
+    if (isNull())
+        return {};
+
+    QString text = description();
+    static const QString linkTagStartPlaceholder("__QTC_LINK_TAG_START__");
+    static const QString linkTagEndPlaceholder("__QTC_LINK_TAG_END__");
+    static const QString linkEndPlaceholder("__QTC_LINK_END__");
+    for (auto formatRange = formats.crbegin(); formatRange != formats.crend(); ++formatRange) {
+        if (!formatRange->format.isAnchor())
+            continue;
+        text.insert(formatRange->start + formatRange->length, linkEndPlaceholder);
+        text.insert(formatRange->start, QString::fromLatin1("%1%2%3").arg(
+                linkTagStartPlaceholder, formatRange->format.anchorHref(), linkTagEndPlaceholder));
+    }
+    text = text.toHtmlEscaped();
+    text.replace(linkEndPlaceholder, "</a>");
+    text.replace(linkTagStartPlaceholder, "<a href=\"");
+    text.replace(linkTagEndPlaceholder, "\">");
+    const QString htmlExtraHeading = extraHeading.isEmpty()
+                                         ? QString()
+                                         : QString::fromUtf8("<b>%1</b><br/>").arg(extraHeading);
+    return QString::fromUtf8("<html><body>%1<code style=\"white-space:pre;font-family:monospace\">"
+                             "%2</code></body></html>")
+        .arg(htmlExtraHeading, text);
+}
+
 //
 // functions
 //

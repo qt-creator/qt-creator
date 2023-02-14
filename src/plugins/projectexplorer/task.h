@@ -51,6 +51,7 @@ public:
     void setFile(const Utils::FilePath &file);
     QString description() const;
     QIcon icon() const;
+    QString toolTip(const QString &extraHeading = {}) const;
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
