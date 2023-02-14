@@ -54,7 +54,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <sqlitelibraryinitializer.h>
@@ -347,7 +347,7 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileName)
 {
     QStringList list;
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName);
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     if (currentProject) {
         const QList<Utils::FilePath> fileNames = currentProject->files(ProjectExplorer::Project::SourceFiles);
@@ -363,7 +363,7 @@ static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileNam
 static QString projectPath(const Utils::FilePath &fileName)
 {
     QString path;
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName);
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     if (currentProject)
         path = currentProject->projectDirectory().toString();

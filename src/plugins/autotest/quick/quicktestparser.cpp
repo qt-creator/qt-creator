@@ -12,10 +12,13 @@
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>
 #include <qmljstools/qmljsmodelmanager.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -324,8 +327,8 @@ void QuickTestParser::doUpdateWatchPaths(const QStringList &directories)
 QuickTestParser::QuickTestParser(ITestFramework *framework)
     : CppParser(framework)
 {
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged, this, [this] {
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged, this, [this] {
         const QStringList &dirs = m_directoryWatcher.directories();
         if (!dirs.isEmpty())
             m_directoryWatcher.removePaths(dirs);

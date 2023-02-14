@@ -13,7 +13,7 @@
 #include <nodehints.h>
 #include <nodemetainfo.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include <utils/algorithm.h>
@@ -336,7 +336,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     Utils::FilePath qmlFileName = document->fileName();
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(qmlFileName);
     QString projectName = project ? project->displayName() : "";
 
     QString materialBundlePrefix = QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1);

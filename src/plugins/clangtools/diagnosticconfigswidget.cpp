@@ -14,8 +14,8 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/selectablefilesmodel.h>
-#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -1294,7 +1294,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
     Utils::Id activeConfigId = settings->runSettings().diagnosticConfigId();
     ClangToolsProjectSettings::ClangToolsProjectSettingsPtr projectSettings;
 
-    if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+    if (ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
             diagnostics.first().location.filePath)) {
         projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())

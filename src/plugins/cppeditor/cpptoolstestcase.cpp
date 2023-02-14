@@ -18,7 +18,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
@@ -348,8 +348,8 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
 
     return QTest::qWaitFor(
         [project]() {
-            return SessionManager::startupBuildSystem()
-                    && !SessionManager::startupBuildSystem()->isParsing()
+            return ProjectManager::startupBuildSystem()
+                    && !ProjectManager::startupBuildSystem()->isParsing()
                     && CppModelManager::instance()->projectInfo(project);
         },
         timeOutInMs);
@@ -367,7 +367,7 @@ bool TestCase::writeFile(const FilePath &filePath, const QByteArray &contents)
 
 ProjectOpenerAndCloser::ProjectOpenerAndCloser()
 {
-    QVERIFY(!SessionManager::hasProjects());
+    QVERIFY(!ProjectManager::hasProjects());
 }
 
 ProjectOpenerAndCloser::~ProjectOpenerAndCloser()

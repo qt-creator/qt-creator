@@ -36,6 +36,7 @@ class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
 class Target;
+enum class SetActive : int;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Project : public QObject
@@ -89,6 +90,8 @@ public:
     Target *activeTarget() const;
     Target *target(Utils::Id id) const;
     Target *target(Kit *k) const;
+    void setActiveTarget(Target *target, SetActive cascade);
+
     virtual Tasks projectIssues(const Kit *k) const;
 
     static bool copySteps(Target *sourceTarget, Target *newTarget);
@@ -226,7 +229,7 @@ private:
     void removeProjectLanguage(Utils::Id id);
 
     void handleSubTreeChanged(FolderNode *node);
-    void setActiveTarget(Target *target);
+    void setActiveTargetHelper(Target *target);
 
     friend class ContainerNode;
     ProjectPrivate *d;

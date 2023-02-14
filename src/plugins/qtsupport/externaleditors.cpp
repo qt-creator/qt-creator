@@ -8,8 +8,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/session.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -181,7 +181,7 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     // As fallback check PATH
     data->workingDirectory.clear();
     QVector<QtSupport::QtVersion *> qtVersionsToCheck; // deduplicated after being filled
-    if (const Project *project = SessionManager::projectForFile(filePath)) {
+    if (const Project *project = ProjectManager::projectForFile(filePath)) {
         data->workingDirectory = project->projectDirectory();
         // active kit
         if (const Target *target = project->activeTarget()) {

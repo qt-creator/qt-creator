@@ -10,12 +10,13 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/session.h>
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/Overview.h>
+
 #include <utils/codegeneration.h>
 #include <utils/fileutils.h>
 
@@ -234,7 +235,7 @@ QString CppToolsJsExtension::includeStatement(
         }
         return false;
     };
-    for (const Project * const p : SessionManager::projects()) {
+    for (const Project * const p : ProjectManager::projects()) {
         const Node *theNode = p->rootProjectNode()->findNode(nodeMatchesFileName);
         if (theNode) {
             const bool sameDir = pathOfIncludingFile == theNode->filePath().toFileInfo().path();

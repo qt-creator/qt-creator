@@ -18,7 +18,7 @@
 #include <cplusplus/LookupContext.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/executeondestruction.h>
 #include <utils/hostosinfo.h>

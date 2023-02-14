@@ -21,7 +21,8 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -1542,10 +1543,10 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
 
     // ... else try the session manager's global startup project ...
     if (!startupProject)
-        startupProject = SessionManager::startupProject();
+        startupProject = ProjectManager::startupProject();
 
     // ... and if that is null, use the first project available.
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     QTC_CHECK(projects.isEmpty() || startupProject);
 
     FilePath projectDirectory;

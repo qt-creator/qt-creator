@@ -7,9 +7,9 @@
 #include "extracompiler.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "runconfiguration.h"
 #include "runcontrol.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/messagemanager.h>
@@ -64,7 +64,7 @@ BuildSystem::BuildSystem(Target *target)
 
     connect(&d->m_delayedParsingTimer, &QTimer::timeout, this,
             [this] {
-        if (SessionManager::hasProject(project()))
+        if (ProjectManager::hasProject(project()))
             triggerParsing();
         else
             requestDelayedParse();

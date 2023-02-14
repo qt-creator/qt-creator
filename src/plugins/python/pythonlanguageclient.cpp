@@ -23,7 +23,7 @@
 #include <languageserverprotocol/workspace.h>
 
 #include <projectexplorer/extracompiler.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>

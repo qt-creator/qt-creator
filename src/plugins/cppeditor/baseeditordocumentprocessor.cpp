@@ -8,7 +8,8 @@
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
 
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <texteditor/quickfix.h>
 
 namespace CppEditor {
@@ -37,7 +38,7 @@ void BaseEditorDocumentProcessor::run(bool projectsUpdated)
             : Utils::Language::Cxx;
 
     runImpl({CppModelManager::instance()->workingCopy(),
-             ProjectExplorer::SessionManager::startupProject(),
+             ProjectExplorer::ProjectManager::startupProject(),
              languagePreference,
              projectsUpdated});
 }

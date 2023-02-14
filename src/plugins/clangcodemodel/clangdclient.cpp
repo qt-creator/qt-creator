@@ -49,7 +49,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/codeassist/assistinterface.h>
@@ -701,7 +701,7 @@ bool ClangdClient::fileBelongsToProject(const Utils::FilePath &filePath) const
 {
     if (CppEditor::ClangdSettings::instance().granularity()
             == CppEditor::ClangdSettings::Granularity::Session) {
-        return SessionManager::projectForFile(filePath);
+        return ProjectManager::projectForFile(filePath);
     }
     return Client::fileBelongsToProject(filePath);
 }

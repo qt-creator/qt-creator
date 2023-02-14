@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "generatecmakelists.h"
+
 #include "generatecmakelistsconstants.h"
 #include "cmakegeneratordialog.h"
 #include "../qmlprojectmanagertr.h"
@@ -10,9 +11,9 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlmainfileaspect.h>
@@ -79,18 +80,18 @@ void generateMenuEntry(QObject *parent)
     exportMenu->addAction(cmd, QmlProjectManager::Constants::G_EXPORT_GENERATE);
 
     action->setEnabled(false);
-    QObject::connect(ProjectExplorer::SessionManager::instance(),
-                     &ProjectExplorer::SessionManager::startupProjectChanged,
+    QObject::connect(ProjectExplorer::ProjectManager::instance(),
+                     &ProjectExplorer::ProjectManager::startupProjectChanged,
                      [action]() {
                          auto qmlProject = qobject_cast<QmlProject *>(
-                             ProjectExplorer::SessionManager::startupProject());
+                             ProjectExplorer::ProjectManager::startupProject());
                          action->setEnabled(qmlProject != nullptr);
                      });
 }
 
 void onGenerateCmakeLists()
 {
-    FilePath rootDir = ProjectExplorer::SessionManager::startupProject()->projectDirectory();
+    FilePath rootDir = ProjectExplorer::ProjectManager::startupProject()->projectDirectory();
 
     int projectDirErrors = isProjectCorrectlyFormed(rootDir);
     if (projectDirErrors != NoError) {
@@ -246,7 +247,7 @@ const QString projectEnvironmentVariable(const QString &key)
 {
     QString value = {};
 
-    auto *target = ProjectExplorer::SessionManager::startupProject()->activeTarget();
+    auto *target = ProjectExplorer::ProjectManager::startupProject()->activeTarget();
     if (target && target->buildSystem()) {
         auto buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
         if (buildSystem) {
@@ -304,7 +305,7 @@ const char ADD_SUBDIR[] = "add_subdirectory(%1)\n";
 void CmakeFileGenerator::generateMainCmake(const FilePath &rootDir)
 {
     //TODO startupProject() may be a terrible way to try to get "current project". It's not necessarily the same thing at all.
-    QString projectName = ProjectExplorer::SessionManager::startupProject()->displayName();
+    QString projectName = ProjectExplorer::ProjectManager::startupProject()->displayName();
     QString appName = projectName + "App";
 
     QString fileSection = "";
@@ -523,7 +524,7 @@ bool CmakeFileGenerator::isDirBlacklisted(const FilePath &dir)
 bool CmakeFileGenerator::includeFile(const FilePath &filePath)
 {
     if (m_checkFileIsInProject) {
-        ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+        ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
         if (!project->isKnownFile(filePath))
             return false;
     }
@@ -570,7 +571,7 @@ bool CmakeFileGenerator::generateMainCpp(const FilePath &dir)
 
     bool envHeaderOk = true;
     QString environment;
-    auto *target = ProjectExplorer::SessionManager::startupProject()->activeTarget();
+    auto *target = ProjectExplorer::ProjectManager::startupProject()->activeTarget();
     if (target && target->buildSystem()) {
         auto buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
         if (buildSystem) {

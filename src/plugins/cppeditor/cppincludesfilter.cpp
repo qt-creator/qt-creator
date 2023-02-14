@@ -7,11 +7,13 @@
 #include "cppeditortr.h"
 #include "cppmodelmanager.h"
 
-#include <cplusplus/CppDocument.h>
 #include <coreplugin/editormanager/documentmodel.h>
+
+#include <cplusplus/CppDocument.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -128,7 +130,7 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
     if (m_needsUpdate) {
         m_needsUpdate = false;
         QSet<FilePath> seedPaths;
-        for (Project *project : SessionManager::projects()) {
+        for (Project *project : ProjectManager::projects()) {
             const FilePaths allFiles = project->files(Project::SourceFiles);
             for (const FilePath &filePath : allFiles )
                 seedPaths.insert(filePath);

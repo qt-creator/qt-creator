@@ -23,7 +23,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -97,7 +97,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     if (QmlProject::isQtDesignStudio()) {
         if (allowOnlySingleProject()) {
             EditorManager::closeAllDocuments();
-            SessionManager::closeAllProjects();
+            ProjectManager::closeAllProjects();
         }
 
         m_openFileConnection

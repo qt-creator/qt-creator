@@ -1,5 +1,6 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include "itemlibraryassetimportdialog.h"
 #include "ui_itemlibraryassetimportdialog.h"
 
@@ -13,7 +14,8 @@
 #include "theme.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <coreplugin/icore.h>
 
 #include <QFileInfo>
@@ -322,7 +324,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
                             // Unable to find original scene source, launch file dialog to locate it
                             QString initialPath;
                             ProjectExplorer::Project *currentProject
-                                    = ProjectExplorer::SessionManager::projectForFile(
+                                    = ProjectExplorer::ProjectManager::projectForFile(
                                         Utils::FilePath::fromString(compFileName));
                             if (currentProject)
                                 initialPath = currentProject->projectDirectory().toString();

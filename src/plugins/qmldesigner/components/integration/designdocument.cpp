@@ -20,7 +20,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/kit.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -403,7 +403,7 @@ bool DesignDocument::isQtForMCUsProject() const
 
 Utils::FilePath DesignDocument::projectFolder() const
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(fileName());
 
     if (currentProject)
         return currentProject->projectDirectory();
@@ -434,7 +434,7 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
 
 void DesignDocument::updateQrcFiles()
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(fileName());
 
     if (currentProject) {
         const auto srcFiles = currentProject->files(ProjectExplorer::Project::SourceFiles);
@@ -716,7 +716,7 @@ void DesignDocument::redo()
 
 static Target *getActiveTarget(DesignDocument *designDocument)
 {
-    Project *currentProject = SessionManager::projectForFile(designDocument->fileName());
+    Project *currentProject = ProjectManager::projectForFile(designDocument->fileName());
 
     if (!currentProject)
         currentProject = ProjectTree::currentProject();

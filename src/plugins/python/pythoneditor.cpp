@@ -19,7 +19,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
@@ -152,7 +152,7 @@ void PythonEditorWidget::setUserDefinedPython(const Interpreter &interpreter)
     QTC_ASSERT(pythonDocument, return);
     FilePath documentPath = pythonDocument->filePath();
     QTC_ASSERT(!documentPath.isEmpty(), return);
-    if (Project *project = SessionManager::projectForFile(documentPath)) {
+    if (Project *project = ProjectManager::projectForFile(documentPath)) {
         if (Target *target = project->activeTarget()) {
             if (RunConfiguration *rc = target->activeRunConfiguration()) {
                 if (auto interpretersAspect= rc->aspect<InterpreterAspect>()) {
@@ -184,7 +184,7 @@ void PythonEditorWidget::updateInterpretersSelector()
         disconnect(connection);
     m_projectConnections.clear();
     const FilePath documentPath = textDocument()->filePath();
-    if (Project *project = SessionManager::projectForFile(documentPath)) {
+    if (Project *project = ProjectManager::projectForFile(documentPath)) {
         m_projectConnections << connect(project,
                                         &Project::activeTargetChanged,
                                         this,

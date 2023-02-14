@@ -10,12 +10,16 @@
 #include "testprojectsettings.h"
 
 #include <cppeditor/cppmodelmanager.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -70,8 +74,8 @@ void TestTreeModel::setupParsingConnections()
     m_parser->setDirty();
     m_parser->setState(TestCodeParser::Idle);
 
-    SessionManager *sm = SessionManager::instance();
-    connect(sm, &SessionManager::startupProjectChanged, this, [this, sm](Project *project) {
+    ProjectManager *sm = ProjectManager::instance();
+    connect(sm, &ProjectManager::startupProjectChanged, this, [this, sm](Project *project) {
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
@@ -226,7 +230,7 @@ static QList<ITestTreeItem *> testItemsByName(TestTreeItem *root, const QString 
 void TestTreeModel::onTargetChanged(Target *target)
 {
     if (target && target->buildSystem()) {
-        const Target *topLevelTarget = SessionManager::startupProject()->targets().first();
+        const Target *topLevelTarget = ProjectManager::startupProject()->targets().first();
         connect(topLevelTarget->buildSystem(), &BuildSystem::testInformationUpdated,
                 this, &TestTreeModel::onBuildSystemTestsUpdated, Qt::UniqueConnection);
         disconnect(target->project(), &Project::activeTargetChanged,
@@ -236,7 +240,7 @@ void TestTreeModel::onTargetChanged(Target *target)
 
 void TestTreeModel::onBuildSystemTestsUpdated()
 {
-    const BuildSystem *bs = SessionManager::startupBuildSystem();
+    const BuildSystem *bs = ProjectManager::startupBuildSystem();
     if (!bs || !bs->project())
         return;
 
@@ -333,7 +337,7 @@ void TestTreeModel::synchronizeTestFrameworks()
 
 void TestTreeModel::synchronizeTestTools()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     TestTools tools;
     if (!project || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
         tools = Utils::filtered(TestFrameworkManager::registeredTestTools(),

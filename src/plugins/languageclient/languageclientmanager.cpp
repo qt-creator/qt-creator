@@ -17,7 +17,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -55,9 +55,9 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
             this, &LanguageClientManager::documentContentsSaved);
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
             this, &LanguageClientManager::documentWillSave);
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &LanguageClientManager::projectAdded);
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, [&](Project *project) { project->disconnect(this); });
 }
 
@@ -317,7 +317,7 @@ void LanguageClientManager::applySettings()
                     continue;
                 const Utils::FilePath filePath = textDocument->filePath();
                 for (ProjectExplorer::Project *project :
-                     ProjectExplorer::SessionManager::projects()) {
+                     ProjectExplorer::ProjectManager::projects()) {
                     if (project->isKnownFile(filePath)) {
                         Client *client = clientForProject[project];
                         if (!client) {
@@ -494,7 +494,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
             if (setting->m_startBehavior == BaseSettings::RequiresProject) {
                 const Utils::FilePath &filePath = document->filePath();
                 for (ProjectExplorer::Project *project :
-                     ProjectExplorer::SessionManager::projects()) {
+                     ProjectExplorer::ProjectManager::projects()) {
                     // check whether file is part of this project
                     if (!project->isKnownFile(filePath))
                         continue;

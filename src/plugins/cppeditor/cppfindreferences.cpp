@@ -10,14 +10,18 @@
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
+#include <cplusplus/Overview.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+
 #include <texteditor/basefilefind.h>
 
 #include <utils/algorithm.h>
@@ -25,10 +29,8 @@
 #include <utils/runextensions.h>
 #include <utils/textfileformat.h>
 
-#include <cplusplus/Overview.h>
 #include <QtConcurrentMap>
 #include <QCheckBox>
-#include <QDir>
 #include <QFutureWatcher>
 #include <QVBoxLayout>
 
@@ -577,7 +579,7 @@ static void displayResults(SearchResult *search,
         item.setStyle(colorStyleForUsageType(result.tags));
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
-            item.setSelectForReplacement(SessionManager::projectForFile(result.path));
+            item.setSelectForReplacement(ProjectManager::projectForFile(result.path));
         search->addResult(item);
 
         if (parameters.prettySymbolName.isEmpty())
@@ -586,7 +588,7 @@ static void displayResults(SearchResult *search,
         if (parameters.filesToRename.contains(result.path))
             continue;
 
-        if (!SessionManager::projectForFile(result.path))
+        if (!ProjectManager::projectForFile(result.path))
             continue;
 
         if (result.path.baseName().compare(parameters.prettySymbolName, Qt::CaseInsensitive) == 0)
@@ -766,7 +768,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
         item.setMainRange(macro.line(), column, macro.nameToQString().length());
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
-            item.setSelectForReplacement(SessionManager::projectForFile(filePath));
+            item.setSelectForReplacement(ProjectManager::projectForFile(filePath));
         search->addResult(item);
     }
 

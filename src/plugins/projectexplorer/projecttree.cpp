@@ -6,9 +6,9 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectnodes.h"
 #include "projecttreewidget.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -53,11 +53,11 @@ ProjectTree::ProjectTree(QObject *parent) : QObject(parent)
     connect(qApp, &QApplication::focusChanged,
             this, &ProjectTree::update);
 
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &ProjectTree::sessionAndTreeChanged);
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, &ProjectTree::sessionAndTreeChanged);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &ProjectTree::sessionChanged);
     connect(this, &ProjectTree::subtreeChanged, this, &ProjectTree::treeChanged);
 }
@@ -170,7 +170,7 @@ void ProjectTree::updateFromNode(Node *node)
     if (node)
         project = projectForNode(node);
     else
-        project = SessionManager::startupProject();
+        project = ProjectManager::startupProject();
 
     setCurrent(node, project);
     for (ProjectTreeWidget *widget : std::as_const(m_projectTreeWidgets))
@@ -224,7 +224,7 @@ void ProjectTree::sessionChanged()
 {
     if (m_currentProject) {
         Core::DocumentManager::setDefaultLocationForNewFiles(m_currentProject->projectDirectory());
-    } else if (Project *project = SessionManager::startupProject()) {
+    } else if (Project *project = ProjectManager::startupProject()) {
         Core::DocumentManager::setDefaultLocationForNewFiles(project->projectDirectory());
         updateFromNode(nullptr); // Make startup project current if there is no other current
     } else {
@@ -300,7 +300,7 @@ void ProjectTree::updateFileWarning(Core::IDocument *document, const QString &te
     if (!infoBar->canInfoBeAdded(infoId))
         return;
     const FilePath filePath = document->filePath();
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     if (projects.isEmpty())
         return;
     for (Project *project : projects) {
@@ -394,7 +394,7 @@ void ProjectTree::applyTreeManager(FolderNode *folder, ConstructionPhase phase)
 
 bool ProjectTree::hasNode(const Node *node)
 {
-    return Utils::contains(SessionManager::projects(), [node](const Project *p) {
+    return Utils::contains(ProjectManager::projects(), [node](const Project *p) {
         if (!p)
             return false;
         if (p->containerNode() == node)
@@ -409,7 +409,7 @@ bool ProjectTree::hasNode(const Node *node)
 
 void ProjectTree::forEachNode(const std::function<void(Node *)> &task)
 {
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     for (Project *project : projects) {
         if (ProjectNode *projectNode = project->rootProjectNode()) {
             task(projectNode);
@@ -430,7 +430,7 @@ Project *ProjectTree::projectForNode(const Node *node)
     while (folder && folder->parentFolderNode())
         folder = folder->parentFolderNode();
 
-    return Utils::findOrDefault(SessionManager::projects(), [folder](const Project *pro) {
+    return Utils::findOrDefault(ProjectManager::projects(), [folder](const Project *pro) {
         return pro->containerNode() == folder;
     });
 }
@@ -438,7 +438,7 @@ Project *ProjectTree::projectForNode(const Node *node)
 Node *ProjectTree::nodeForFile(const FilePath &fileName)
 {
     Node *node = nullptr;
-    for (const Project *project : SessionManager::projects()) {
+    for (const Project *project : ProjectManager::projects()) {
         project->nodeForFilePath(fileName, [&](const Node *n) {
             if (!node || (!node->asFileNode() && n->asFileNode()))
                 node = const_cast<Node *>(n);

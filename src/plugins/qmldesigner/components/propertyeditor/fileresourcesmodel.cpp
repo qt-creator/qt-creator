@@ -15,7 +15,7 @@
 #include <qmlmodelnodeproxy.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 static QString s_lastBrowserPath;
 
@@ -23,7 +23,7 @@ FileResourcesModel::FileResourcesModel(QObject *parent)
     : QObject(parent)
     , m_filter(QLatin1String("(*.*)"))
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         QmlDesigner::DocumentManager::currentFilePath());
 
     if (project) {

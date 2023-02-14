@@ -12,10 +12,10 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectnodes.h"
 #include "runconfigurationaspects.h"
 #include "runcontrol.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/icontext.h>
@@ -33,7 +33,6 @@
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
-#include <QDir>
 #include <QHash>
 #include <QPushButton>
 #include <QTimer>
@@ -313,7 +312,7 @@ void RunConfiguration::update()
 
     const bool isActive = target()->isActive() && target()->activeRunConfiguration() == this;
 
-    if (isActive && project() == SessionManager::startupProject())
+    if (isActive && project() == ProjectManager::startupProject())
         ProjectExplorerPlugin::updateRunActions();
 }
 

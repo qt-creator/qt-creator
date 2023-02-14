@@ -5,8 +5,8 @@
 
 #include "project.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectmodels.h"
-#include "session.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
@@ -463,7 +463,7 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
 
     TreeItem *root = m_model.rootItem();
     root->removeChildren();
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (ProjectNode *pn = project->rootProjectNode()) {
             if (kind == IWizardFactory::ProjectWizard) {
                 if (AddNewTree *child = buildAddProjectTree(pn, paths.first(), context, &selector))

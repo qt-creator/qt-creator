@@ -16,12 +16,14 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <cppeditor/cpptoolsreuse.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <utils/parameteraction.h>
@@ -59,7 +61,7 @@ CMakeManager::CMakeManager()
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_runCMakeAction, &QAction::triggered, this, [this] {
-        runCMake(SessionManager::startupBuildSystem());
+        runCMake(ProjectManager::startupBuildSystem());
     });
 
     command = Core::ActionManager::registerAction(m_clearCMakeCacheAction,
@@ -68,7 +70,7 @@ CMakeManager::CMakeManager()
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_clearCMakeCacheAction, &QAction::triggered, this, [this] {
-        clearCMakeCache(SessionManager::startupBuildSystem());
+        clearCMakeCache(ProjectManager::startupBuildSystem());
     });
 
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
@@ -111,7 +113,7 @@ CMakeManager::CMakeManager()
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildFileAction, &QAction::triggered, this, [this] { buildFile(); });
 
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, [this] {
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
@@ -127,7 +129,7 @@ CMakeManager::CMakeManager()
 
 void CMakeManager::updateCmakeActions(Node *node)
 {
-    auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
+    auto project = qobject_cast<CMakeProject *>(ProjectManager::startupProject());
     const bool visible = project && !BuildManager::isBuilding(project);
     m_runCMakeAction->setVisible(visible);
     m_runCMakeActionContextMenu->setEnabled(visible);

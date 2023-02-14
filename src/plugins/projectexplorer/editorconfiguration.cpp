@@ -5,7 +5,7 @@
 
 #include "project.h"
 #include "projectexplorertr.h"
-#include "session.h"
+#include "projectmanager.h"
 
 #include <utils/algorithm.h>
 
@@ -88,7 +88,7 @@ EditorConfiguration::EditorConfiguration() : d(std::make_unique<EditorConfigurat
     // if setCurrentDelegate is 0 values are read from *this prefs
     d->m_defaultCodeStyle->setCurrentDelegate(TextEditorSettings::codeStyle());
 
-    connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject,
+    connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
             this, &EditorConfiguration::slotAboutToRemoveProject);
 }
 
@@ -263,7 +263,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForOpenedDocuments();
     for (Core::IEditor *editor : editors) {
         if (auto widget = TextEditorWidget::fromEditor(editor)) {
-            Project *project = SessionManager::projectForFile(editor->document()->filePath());
+            Project *project = ProjectManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
                 switchSettings(widget);
         }
@@ -399,7 +399,7 @@ TabSettings actualTabSettings(const Utils::FilePath &file,
 {
     if (baseTextdocument)
         return baseTextdocument->tabSettings();
-    if (Project *project = SessionManager::projectForFile(file))
+    if (Project *project = ProjectManager::projectForFile(file))
         return project->editorConfiguration()->codeStyle()->tabSettings();
     return TextEditorSettings::codeStyle()->tabSettings();
 }

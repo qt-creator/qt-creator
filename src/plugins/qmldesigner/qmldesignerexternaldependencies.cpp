@@ -9,7 +9,7 @@
 #include <edit3d/edit3dviewconfig.h>
 #include <itemlibraryimport.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <puppetenvironmentbuilder.h>
 #include <qtsupport/baseqtversion.h>
@@ -109,7 +109,7 @@ QString ExternalDependencies::itemLibraryImportUserComponentsTitle() const
 
 bool ExternalDependencies::isQt6Import() const
 {
-    auto target = ProjectExplorer::SessionManager::startupTarget();
+    auto target = ProjectExplorer::ProjectManager::startupTarget();
     if (target) {
         QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
         if (currentQtVersion && currentQtVersion->isValid()) {
@@ -122,7 +122,7 @@ bool ExternalDependencies::isQt6Import() const
 
 bool ExternalDependencies::hasStartupTarget() const
 {
-    auto target = ProjectExplorer::SessionManager::startupTarget();
+    auto target = ProjectExplorer::ProjectManager::startupTarget();
     if (target) {
         QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
         if (currentQtVersion && currentQtVersion->isValid()) {
@@ -208,7 +208,7 @@ QString createFreeTypeOption(ProjectExplorer::Target *target)
 PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 {
     PuppetStartData data;
-    auto target = ProjectExplorer::SessionManager::startupTarget();
+    auto target = ProjectExplorer::ProjectManager::startupTarget();
     auto [workingDirectory, puppetPath] = qmlPuppetPaths(target, m_designerSettings);
 
     data.puppetPath = puppetPath.toString();

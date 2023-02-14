@@ -26,7 +26,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -181,7 +181,7 @@ const Utils::FilePath findQmlProjectUpwards(const Utils::FilePath &folder)
 static bool findAndOpenProject(const Utils::FilePath &filePath)
 {
     ProjectExplorer::Project *project
-            = ProjectExplorer::SessionManager::projectForFile(filePath);
+            = ProjectExplorer::ProjectManager::projectForFile(filePath);
 
     if (project) {
         if (project->projectFilePath().suffix() == "qmlproject") {
@@ -437,7 +437,7 @@ void QmlProjectPlugin::updateQmlLandingPageProjectInfo(const Utils::FilePath &pr
 
 Utils::FilePath QmlProjectPlugin::projectFilePath()
 {
-    auto project = ProjectExplorer::SessionManager::startupProject();
+    auto project = ProjectExplorer::ProjectManager::startupProject();
     const QmlProjectManager::QmlProject *qmlProject = qobject_cast<const QmlProjectManager::QmlProject*>(project);
     if (qmlProject) {
         return qmlProject->projectFilePath();

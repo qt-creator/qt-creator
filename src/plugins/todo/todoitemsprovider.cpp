@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "todoitemsprovider.h"
+
 #include "constants.h"
 #include "cpptodoitemsscanner.h"
 #include "qmljstodoitemsscanner.h"
@@ -13,9 +14,9 @@
 #include <coreplugin/idocument.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
 
@@ -182,8 +183,8 @@ void TodoItemsProvider::updateListTimeoutElapsed()
 
 void TodoItemsProvider::setupStartupProjectBinding()
 {
-    m_startupProject = SessionManager::startupProject();
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    m_startupProject = ProjectManager::startupProject();
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
         this, &TodoItemsProvider::startupProjectChanged);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &TodoItemsProvider::projectsFilesChanged);

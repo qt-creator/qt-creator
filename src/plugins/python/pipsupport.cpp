@@ -10,7 +10,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>

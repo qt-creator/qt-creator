@@ -4,7 +4,7 @@
 #include "fileinsessionfinder.h"
 
 #include "project.h"
-#include "session.h"
+#include "projectmanager.h"
 
 #include <utils/fileinprojectfinder.h>
 
@@ -30,12 +30,12 @@ private:
 
 FileInSessionFinder::FileInSessionFinder()
 {
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, [this](const Project *p) {
         invalidateFinder();
         connect(p, &Project::fileListChanged, this, &FileInSessionFinder::invalidateFinder);
     });
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
                      this, [this](const Project *p) {
         invalidateFinder();
         p->disconnect(this);
@@ -45,11 +45,11 @@ FileInSessionFinder::FileInSessionFinder()
 FilePaths FileInSessionFinder::doFindFile(const FilePath &filePath)
 {
     if (!m_finderIsUpToDate) {
-        m_finder.setProjectDirectory(SessionManager::startupProject()
-                                      ? SessionManager::startupProject()->projectDirectory()
+        m_finder.setProjectDirectory(ProjectManager::startupProject()
+                                      ? ProjectManager::startupProject()->projectDirectory()
                                       : FilePath());
         FilePaths allFiles;
-        for (const Project * const p : SessionManager::projects())
+        for (const Project * const p : ProjectManager::projects())
             allFiles << p->files(Project::SourceFiles);
         m_finder.setProjectFiles(allFiles);
         m_finderIsUpToDate = true;

@@ -185,7 +185,7 @@ void BuildSettingsWidget::currentIndexChanged(int index)
 {
     auto buildConfiguration = qobject_cast<BuildConfiguration *>(
                 m_target->buildConfigurationModel()->projectConfigurationAt(index));
-    SessionManager::setActiveBuildConfiguration(m_target, buildConfiguration, SetActive::Cascade);
+    m_target->setActiveBuildConfiguration(buildConfiguration, SetActive::Cascade);
 }
 
 void BuildSettingsWidget::updateActiveConfiguration()
@@ -222,7 +222,7 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
         return;
 
     m_target->addBuildConfiguration(bc);
-    SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
+    m_target->setActiveBuildConfiguration(bc, SetActive::Cascade);
 }
 
 QString BuildSettingsWidget::uniqueName(const QString & name)
@@ -292,7 +292,7 @@ void BuildSettingsWidget::cloneConfiguration()
         bc->setBuildDirectory(makeUniquelyNumbered(buildDirectory, isBuildDirOk));
     }
     m_target->addBuildConfiguration(bc);
-    SessionManager::setActiveBuildConfiguration(m_target, bc, SetActive::Cascade);
+    m_target->setActiveBuildConfiguration(bc, SetActive::Cascade);
 }
 
 void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfiguration)

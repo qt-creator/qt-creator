@@ -7,7 +7,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
-#include "session.h"
+#include "projectmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -44,7 +44,7 @@ QString AllProjectsFind::displayName() const
 
 bool AllProjectsFind::isEnabled() const
 {
-    return BaseFileFind::isEnabled() && SessionManager::hasProjects();
+    return BaseFileFind::isEnabled() && ProjectManager::hasProjects();
 }
 
 FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
@@ -52,7 +52,7 @@ FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
                                      const QVariant &additionalParameters) const
 {
     Q_UNUSED(additionalParameters)
-    return filesForProjects(nameFilters, exclusionFilters, SessionManager::projects());
+    return filesForProjects(nameFilters, exclusionFilters, ProjectManager::projects());
 }
 
 FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,

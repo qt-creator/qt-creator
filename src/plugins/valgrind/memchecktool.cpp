@@ -30,8 +30,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -337,7 +337,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // ALGORITHM: look at last five stack frames, if none of these is inside any open projects,
         // assume this error was created by an external library
         QSet<QString> validFolders;
-        for (Project *project : SessionManager::projects()) {
+        for (Project *project : ProjectManager::projects()) {
             validFolders << project->projectDirectory().toString();
             const QList<Target *> targets = project->targets();
             for (const Target *target : targets) {
@@ -676,7 +676,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this, action] {
-        RunConfiguration *runConfig = SessionManager::startupRunConfiguration();
+        RunConfiguration *runConfig = ProjectManager::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
             return;
@@ -718,7 +718,7 @@ void MemcheckToolPrivate::heobAction()
     Abi abi;
     bool hasLocalRc = false;
     Kit *kit = nullptr;
-    if (Target *target = SessionManager::startupTarget()) {
+    if (Target *target = ProjectManager::startupTarget()) {
         if (RunConfiguration *rc = target->activeRunConfiguration()) {
             kit = target->kit();
             if (kit) {
@@ -940,7 +940,7 @@ void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
     updateRunActions();
 
     ValgrindBaseSettings *settings = nullptr;
-    if (Project *project = SessionManager::startupProject())
+    if (Project *project = ProjectManager::startupProject())
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
                 settings = rc->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS);

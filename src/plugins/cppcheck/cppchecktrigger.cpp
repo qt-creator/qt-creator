@@ -13,7 +13,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -34,7 +34,7 @@ CppcheckTrigger::CppcheckTrigger(CppcheckTextMarkManager &marks, CppcheckTool &t
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
             this, &CppcheckTrigger::checkChangedDocument);
 
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &CppcheckTrigger::changeCurrentProject);
 
     connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated,

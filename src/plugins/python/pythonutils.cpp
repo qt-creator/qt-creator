@@ -10,7 +10,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
@@ -31,9 +31,9 @@ static QHash<FilePath, FilePath> &userDefinedPythonsForDocument()
 FilePath detectPython(const FilePath &documentPath)
 {
     Project *project = documentPath.isEmpty() ? nullptr
-                                              : SessionManager::projectForFile(documentPath);
+                                              : ProjectManager::projectForFile(documentPath);
     if (!project)
-        project = SessionManager::startupProject();
+        project = ProjectManager::startupProject();
 
     Environment env = Environment::systemEnvironment();
 
@@ -107,7 +107,7 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
 {
     static const auto workingDir = [](const FilePath &file) {
         if (file.isEmpty()) {
-            if (Project *project = SessionManager::startupProject())
+            if (Project *project = ProjectManager::startupProject())
                 return project->projectDirectory();
             return FilePath::currentWorkingPath();
         }
@@ -155,7 +155,7 @@ QString pythonName(const FilePath &pythonPath)
 
 PythonProject *pythonProjectForFile(const FilePath &pythonFile)
 {
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (auto pythonProject = qobject_cast<PythonProject *>(project)) {
             if (pythonProject->isKnownFile(pythonFile))
                 return pythonProject;

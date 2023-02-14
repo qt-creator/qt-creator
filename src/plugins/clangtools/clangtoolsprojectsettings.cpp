@@ -4,7 +4,7 @@
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsdiagnostic.h"
 
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

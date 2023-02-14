@@ -8,7 +8,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
@@ -51,7 +51,7 @@ PerfTracePointDialog::PerfTracePointDialog()
         m_buttonBox,
     }.attachTo(this);
 
-    if (const Target *target = SessionManager::startupTarget()) {
+    if (const Target *target = ProjectManager::startupTarget()) {
         const Kit *kit = target->kit();
         QTC_ASSERT(kit, return);
 

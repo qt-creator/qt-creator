@@ -26,11 +26,13 @@ class Project;
 class ProjectConfigurationModel;
 class RunConfiguration;
 
+enum class SetActive : int { Cascade, NoCascade };
+
 class TargetPrivate;
 
 class PROJECTEXPLORER_EXPORT Target : public QObject
 {
-    friend class SessionManager; // for setActiveBuild and setActiveDeployConfiguration
+    friend class ProjectManager; // for setActiveBuild and setActiveDeployConfiguration
     Q_OBJECT
 
 public:
@@ -108,6 +110,9 @@ public:
     BuildTargetInfo buildTarget(const QString &buildKey) const;
 
     QString activeBuildKey() const; // Build key of active run configuaration
+
+    void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
+    void setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade);
 
 signals:
     void targetEnabled(bool);

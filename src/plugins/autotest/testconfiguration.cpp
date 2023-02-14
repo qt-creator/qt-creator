@@ -12,7 +12,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
@@ -100,7 +100,7 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
         qCDebug(LOG) << "Executable has been set already - not completing configuration again.";
         return;
     }
-    Project *startupProject = SessionManager::startupProject();
+    Project *startupProject = ProjectManager::startupProject();
     if (!startupProject || startupProject != project())
         return;
 
@@ -145,7 +145,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         }
         qCDebug(LOG) << "Failed to complete - using 'normal' way.";
     }
-    Project *startupProject = SessionManager::startupProject();
+    Project *startupProject = ProjectManager::startupProject();
     if (!startupProject || startupProject != project()) {
         setProject(nullptr);
         return;

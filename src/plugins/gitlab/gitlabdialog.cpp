@@ -9,7 +9,7 @@
 #include "gitlabprojectsettings.h"
 #include "gitlabtr.h"
 
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -188,7 +188,7 @@ void GitLabDialog::requestMainViewUpdate()
 
     bool linked = false;
     m_currentServerId = Id();
-    if (auto project = ProjectExplorer::SessionManager::startupProject()) {
+    if (auto project = ProjectExplorer::ProjectManager::startupProject()) {
         GitLabProjectSettings *projSettings = GitLabPlugin::projectSettings(project);
         if (projSettings->isLinked()) {
             m_currentServerId = projSettings->currentServer();

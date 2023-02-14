@@ -5,7 +5,7 @@
 #include "suggest/nimsuggestcache.h"
 #include "suggest/nimsuggest.h"
 
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>

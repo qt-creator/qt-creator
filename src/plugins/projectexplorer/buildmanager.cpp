@@ -16,8 +16,8 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "runcontrol.h"
-#include "session.h"
 #include "target.h"
 #include "task.h"
 #include "taskhub.h"
@@ -258,7 +258,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     m_instance = this;
     d = new BuildManagerPrivate;
 
-    connect(SessionManager::instance(), &SessionManager::aboutToRemoveProject,
+    connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
             this, &BuildManager::aboutToRemoveProject);
 
     d->m_outputWindow = new Internal::CompileOutputWindow(cancelBuildAction);
@@ -318,19 +318,19 @@ void BuildManager::rebuildProjectWithoutDependencies(Project *project)
 
 void BuildManager::buildProjectWithDependencies(Project *project, ConfigSelection configSelection)
 {
-    queue(SessionManager::projectOrder(project), {Id(Constants::BUILDSTEPS_BUILD)},
+    queue(ProjectManager::projectOrder(project), {Id(Constants::BUILDSTEPS_BUILD)},
           configSelection);
 }
 
 void BuildManager::cleanProjectWithDependencies(Project *project, ConfigSelection configSelection)
 {
-    queue(SessionManager::projectOrder(project), {Id(Constants::BUILDSTEPS_CLEAN)},
+    queue(ProjectManager::projectOrder(project), {Id(Constants::BUILDSTEPS_CLEAN)},
           configSelection);
 }
 
 void BuildManager::rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection)
 {
-    queue(SessionManager::projectOrder(project),
+    queue(ProjectManager::projectOrder(project),
           {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)},
           configSelection);
 }
@@ -384,7 +384,7 @@ BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfigurat
     }
 
     Project * const pro = rc->target()->project();
-    const int queueCount = queue(SessionManager::projectOrder(pro), stepIds,
+    const int queueCount = queue(ProjectManager::projectOrder(pro), stepIds,
                                  ConfigSelection::Active, rc);
     if (rc->target()->activeBuildConfiguration())
         rc->target()->activeBuildConfiguration()->restrictNextBuild(nullptr);

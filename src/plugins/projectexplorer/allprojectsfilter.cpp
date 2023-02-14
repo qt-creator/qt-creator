@@ -3,10 +3,10 @@
 
 #include "allprojectsfilter.h"
 
+#include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
-#include "session.h"
-#include "project.h"
+#include "projectmanager.h"
 
 #include <utils/algorithm.h>
 
@@ -38,7 +38,7 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
     Q_UNUSED(entry)
     if (!fileIterator()) {
         Utils::FilePaths paths;
-        for (Project *project : SessionManager::projects())
+        for (Project *project : ProjectManager::projects())
             paths.append(project->files(Project::SourceFiles));
         Utils::sort(paths);
         setFileIterator(new BaseFileFilter::ListIterator(paths));

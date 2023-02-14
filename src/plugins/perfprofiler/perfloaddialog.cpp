@@ -9,7 +9,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/layoutbuilder.h>
@@ -109,7 +109,7 @@ void PerfLoadDialog::on_browseExecutableDirButton_pressed()
 
 void PerfLoadDialog::chooseDefaults()
 {
-    ProjectExplorer::Target *target = ProjectExplorer::SessionManager::startupTarget();
+    ProjectExplorer::Target *target = ProjectExplorer::ProjectManager::startupTarget();
     if (!target)
         return;
 

@@ -18,7 +18,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargettype.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
@@ -97,8 +97,8 @@ void DocumentClangToolRunner::scheduleRun()
 
 static Project *findProject(const FilePath &file)
 {
-    Project *project = SessionManager::projectForFile(file);
-    return project ? project : SessionManager::startupProject();
+    Project *project = ProjectManager::projectForFile(file);
+    return project ? project : ProjectManager::startupProject();
 }
 
 static VirtualFileSystemOverlay &vfso()

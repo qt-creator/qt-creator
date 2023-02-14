@@ -14,11 +14,15 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+
 #include <git/gitplugin.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/qtcassert.h>
+
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
@@ -89,8 +93,8 @@ void GitLabPlugin::initialize()
         if (dd->dialog)
             dd->dialog->updateRemotes();
     });
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged,
             this, &GitLabPlugin::onStartupProjectChanged);
 }
 
@@ -121,7 +125,7 @@ void GitLabPlugin::onStartupProjectChanged()
 {
     QTC_ASSERT(dd, return);
     disconnect(&dd->notificationTimer);
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project) {
         dd->notificationTimer.stop();
         return;
@@ -147,7 +151,7 @@ void GitLabPluginPrivate::setupNotificationTimer()
 
 void GitLabPluginPrivate::fetchEvents()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return);
 
     if (runningQuery)
@@ -218,7 +222,7 @@ void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &ti
 {
     runningQuery = false;
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return);
 
     GitLabProjectSettings *projSettings = GitLabPlugin::projectSettings(project);
@@ -311,7 +315,7 @@ void GitLabPlugin::linkedStateChanged(bool enabled)
 {
     QTC_ASSERT(dd, return);
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (project) {
         const GitLabProjectSettings *pSettings = projectSettings(project);
         dd->serverId = pSettings->currentServer();

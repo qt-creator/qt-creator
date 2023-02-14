@@ -9,7 +9,9 @@
 #include "../itestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/qtcassert.h>
 
 using namespace Utils;
@@ -116,7 +118,7 @@ bool QtTestTreeItem::canProvideDebugConfiguration() const
 
 ITestConfiguration *QtTestTreeItem::testConfiguration() const
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
     const auto cppMM = CppEditor::CppModelManager::instance();
     QTC_ASSERT(cppMM, return nullptr);
@@ -195,7 +197,7 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
         testConfig = new QtTestConfiguration(item->framework());
         testConfig->setTestCases(testCases);
         testConfig->setProjectFile(item->proFile());
-        testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
+        testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
         testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
         testConfigurations << testConfig;
     }
@@ -229,7 +231,7 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
     QtTestConfiguration *testConfig = new QtTestConfiguration(item->framework());
     testConfig->setTestCases(testCases);
     testConfig->setProjectFile(item->proFile());
-    testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
+    testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
     testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
     testConfigs << testConfig;
 }
@@ -246,7 +248,7 @@ QList<ITestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -269,7 +271,7 @@ QList<ITestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
 QList<ITestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -292,7 +294,7 @@ QList<ITestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const F
 {
     QList<ITestConfiguration *> result;
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 

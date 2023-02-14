@@ -14,11 +14,11 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/link.h>
-#include  <utils/qtcassert.h>
+#include <utils/qtcassert.h>
 
 using namespace Utils;
 
@@ -79,7 +79,7 @@ QVariant CTestTreeItem::data(int column, int role) const
 
 QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringList &selected) const
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return {};
 

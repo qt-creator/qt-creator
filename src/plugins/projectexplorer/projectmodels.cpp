@@ -8,6 +8,7 @@
 #include "projectnodes.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projecttree.h"
 #include "session.h"
 #include "target.h"
@@ -174,14 +175,15 @@ FlatModel::FlatModel(QObject *parent)
     ProjectTree *tree = ProjectTree::instance();
     connect(tree, &ProjectTree::subtreeChanged, this, &FlatModel::updateSubtree);
 
-    SessionManager *sm = SessionManager::instance();
-    connect(sm, &SessionManager::projectRemoved, this, &FlatModel::handleProjectRemoved);
-    connect(sm, &SessionManager::aboutToLoadSession, this, &FlatModel::loadExpandData);
-    connect(sm, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
-    connect(sm, &SessionManager::projectAdded, this, &FlatModel::handleProjectAdded);
-    connect(sm, &SessionManager::startupProjectChanged, this, [this] { emit layoutChanged(); });
+    ProjectManager *sm = ProjectManager::instance();
+    SessionManager *sb = SessionManager::instance();
+    connect(sm, &ProjectManager::projectRemoved, this, &FlatModel::handleProjectRemoved);
+    connect(sb, &SessionManager::aboutToLoadSession, this, &FlatModel::loadExpandData);
+    connect(sb, &SessionManager::aboutToSaveSession, this, &FlatModel::saveExpandData);
+    connect(sm, &ProjectManager::projectAdded, this, &FlatModel::handleProjectAdded);
+    connect(sm, &ProjectManager::startupProjectChanged, this, [this] { emit layoutChanged(); });
 
-    for (Project *project : SessionManager::projects())
+    for (Project *project : ProjectManager::projects())
         handleProjectAdded(project);
 }
 
@@ -234,7 +236,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     }
     case Qt::FontRole: {
         QFont font;
-        if (project == SessionManager::startupProject())
+        if (project == ProjectManager::startupProject())
             font.setBold(true);
         return font;
     }
@@ -407,7 +409,7 @@ void FlatModel::updateSubtree(FolderNode *node)
 
 void FlatModel::rebuildModel()
 {
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     for (Project *project : projects)
         addOrRebuildProjectModel(project);
 }

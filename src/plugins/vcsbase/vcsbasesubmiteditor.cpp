@@ -37,7 +37,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -606,7 +606,7 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const FilePath &reposito
 {
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
         const FilePath path = repositoryDirectory.resolvePath(*it).absoluteFilePath();
-        if (ProjectExplorer::SessionManager::projectForFile(path))
+        if (ProjectExplorer::ProjectManager::projectForFile(path))
             ++it;
         else
             it = untrackedFiles->erase(it);

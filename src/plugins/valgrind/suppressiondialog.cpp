@@ -12,9 +12,9 @@
 #include "xmlprotocol/stack.h"
 #include "xmlprotocol/frame.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/algorithm.h>
@@ -182,8 +182,8 @@ void SuppressionDialog::accept()
         return;
 
     // Add file to project if there is a project containing this file on the file system.
-    if (!ProjectExplorer::SessionManager::projectForFile(path)) {
-        for (ProjectExplorer::Project *p : ProjectExplorer::SessionManager::projects()) {
+    if (!ProjectExplorer::ProjectManager::projectForFile(path)) {
+        for (ProjectExplorer::Project *p : ProjectExplorer::ProjectManager::projects()) {
             if (path.startsWith(p->projectDirectory().toString())) {
                 p->rootProjectNode()->addFiles({path});
                 break;

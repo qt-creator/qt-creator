@@ -15,7 +15,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/parameteraction.h>
@@ -72,7 +72,7 @@ void CompilationDatabaseProjectManagerPlugin::initialize()
         d->changeRootAction.setEnabled(currentProject);
     };
 
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, onProjectChanged);
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,

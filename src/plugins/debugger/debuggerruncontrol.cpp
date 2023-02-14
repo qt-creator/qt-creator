@@ -23,8 +23,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -182,8 +183,8 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
 
         // FIXME: This is horribly wrong.
         // get files from all the projects in the session
-        QList<Project *> projects = SessionManager::projects();
-        if (Project *startupProject = SessionManager::startupProject()) {
+        QList<Project *> projects = ProjectManager::projects();
+        if (Project *startupProject = ProjectManager::startupProject()) {
             // startup project first
             projects.removeOne(startupProject);
             projects.insert(0, startupProject);

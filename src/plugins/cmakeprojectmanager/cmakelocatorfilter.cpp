@@ -12,7 +12,7 @@
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
@@ -29,9 +29,9 @@ namespace CMakeProjectManager::Internal {
 
 CMakeTargetLocatorFilter::CMakeTargetLocatorFilter()
 {
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &CMakeTargetLocatorFilter::projectListUpdated);
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, &CMakeTargetLocatorFilter::projectListUpdated);
 
     // Initialize the filter
@@ -41,7 +41,7 @@ CMakeTargetLocatorFilter::CMakeTargetLocatorFilter()
 void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
 {
     m_result.clear();
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     for (Project *p : projects) {
         auto cmakeProject = qobject_cast<const CMakeProject *>(p);
         if (!cmakeProject || !cmakeProject->activeTarget())
@@ -87,7 +87,7 @@ QList<LocatorFilterEntry> CMakeTargetLocatorFilter::matchesFor(
 void CMakeTargetLocatorFilter::projectListUpdated()
 {
     // Enable the filter if there's at least one CMake project
-    setEnabled(Utils::contains(SessionManager::projects(),
+    setEnabled(Utils::contains(ProjectManager::projects(),
                                [](Project *p) { return qobject_cast<CMakeProject *>(p); }));
 }
 
@@ -116,7 +116,7 @@ void BuildCMakeTargetLocatorFilter::accept(const LocatorFilterEntry &selection, 
 
     // Get the project containing the target selected
     const auto cmakeProject = qobject_cast<CMakeProject *>(
-        Utils::findOrDefault(SessionManager::projects(), [projectPath](Project *p) {
+        Utils::findOrDefault(ProjectManager::projects(), [projectPath](Project *p) {
             return p->projectFilePath() == projectPath;
         }));
     if (!cmakeProject || !cmakeProject->activeTarget()

@@ -30,9 +30,9 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/extracompiler.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/basefilefind.h>
@@ -755,7 +755,7 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
 {
     if (filePath.isEmpty())
         return;
-    for (const Project * const project : SessionManager::projects()) {
+    for (const Project * const project : ProjectManager::projects()) {
         const Node * const node = project->nodeForFilePath(filePath);
         if (!node)
             continue;
@@ -989,7 +989,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
             const QString fileName = filePath.fileName();
             if (fileName.startsWith("ui_") && fileName.endsWith(".h")) {
                 const QString uiFileName = fileName.mid(3, fileName.length() - 4) + "ui";
-                for (const Project * const project : SessionManager::projects()) {
+                for (const Project * const project : ProjectManager::projects()) {
                     const auto nodeMatcher = [uiFileName](Node *n) {
                         return n->filePath().fileName() == uiFileName;
                     };

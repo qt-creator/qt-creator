@@ -19,8 +19,8 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectwindow.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
@@ -73,7 +73,7 @@ static bool checkPackageName(const QString &packageName)
 
 static Target *androidTarget(const FilePath &fileName)
 {
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (Target *target = project->activeTarget()) {
             Kit *kit = target->kit();
             if (DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE

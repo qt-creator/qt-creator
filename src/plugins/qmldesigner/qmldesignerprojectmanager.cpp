@@ -6,7 +6,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectstorage/filestatuscache.h>
 #include <projectstorage/filesystem.h>
@@ -199,15 +199,15 @@ QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterfa
     QObject::connect(editorManager, &::Core::EditorManager::editorsClosed, [&](const auto &editors) {
         editorsClosed(editors);
     });
-    auto sessionManager = ::ProjectExplorer::SessionManager::instance();
+    auto sessionManager = ::ProjectExplorer::ProjectManager::instance();
     QObject::connect(sessionManager,
-                     &::ProjectExplorer::SessionManager::projectAdded,
+                     &::ProjectExplorer::ProjectManager::projectAdded,
                      [&](auto *project) { projectAdded(project); });
     QObject::connect(sessionManager,
-                     &::ProjectExplorer::SessionManager::aboutToRemoveProject,
+                     &::ProjectExplorer::ProjectManager::aboutToRemoveProject,
                      [&](auto *project) { aboutToRemoveProject(project); });
     QObject::connect(sessionManager,
-                     &::ProjectExplorer::SessionManager::projectRemoved,
+                     &::ProjectExplorer::ProjectManager::projectRemoved,
                      [&](auto *project) { projectRemoved(project); });
 
     QObject::connect(&m_previewTimer,
@@ -428,7 +428,7 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
                 imageCacheData->nodeInstanceCollector.setTarget(target);
             };
 
-        if (auto project = ProjectExplorer::SessionManager::startupProject(); project) {
+        if (auto project = ProjectExplorer::ProjectManager::startupProject(); project) {
             // TODO wrap in function in image cache data
             m_imageCacheData->meshImageCollector.setTarget(project->activeTarget());
             m_imageCacheData->nodeInstanceCollector.setTarget(project->activeTarget());
@@ -437,8 +437,8 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
                              this,
                              setTargetInImageCache);
         }
-        QObject::connect(ProjectExplorer::SessionManager::instance(),
-                         &ProjectExplorer::SessionManager::startupProjectChanged,
+        QObject::connect(ProjectExplorer::ProjectManager::instance(),
+                         &ProjectExplorer::ProjectManager::startupProjectChanged,
                          this,
                          [=](ProjectExplorer::Project *project) {
                              setTargetInImageCache(activeTarget(project));

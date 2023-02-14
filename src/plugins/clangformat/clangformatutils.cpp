@@ -15,7 +15,7 @@
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -211,7 +211,7 @@ bool getProjectOverriddenSettings(const ProjectExplorer::Project *project)
 
 bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
 {
-    const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
 
     return getProjectUseGlobalSettings(project)
@@ -233,7 +233,7 @@ ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
 
 ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils::FilePath &filePath)
 {
-    const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
 
     return getProjectUseGlobalSettings(project)
@@ -264,7 +264,7 @@ Utils::FilePath configForFile(const Utils::FilePath &fileName)
         return findConfig(fileName);
 
     const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::SessionManager::projectForFile(fileName);
+        = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     const TextEditor::ICodeStylePreferences *preferences
         = projectForFile

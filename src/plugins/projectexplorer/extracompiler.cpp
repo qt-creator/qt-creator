@@ -5,7 +5,7 @@
 
 #include "buildmanager.h"
 #include "kitinformation.h"
-#include "session.h"
+#include "projectmanager.h"
 #include "target.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -63,7 +63,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             this, &ExtraCompiler::onTargetsBuilt);
 
-    connect(SessionManager::instance(), &SessionManager::projectRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, [this](Project *project) {
         if (project == d->project)
             deleteLater();

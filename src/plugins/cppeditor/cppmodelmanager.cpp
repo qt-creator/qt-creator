@@ -37,9 +37,11 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -49,6 +51,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
@@ -577,7 +580,7 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
 
             if (link.hasValidTarget() && link.targetFilePath.isReadableFile()
                     && (folder.isEmpty() || link.targetFilePath.isChildOf(folder))
-                    && SessionManager::projectForFile(link.targetFilePath)) {
+                    && ProjectManager::projectForFile(link.targetFilePath)) {
                 links << link;
             }
         }
@@ -938,14 +941,14 @@ CppModelManager::CppModelManager()
     d->m_delayedGcTimer.setSingleShot(true);
     connect(&d->m_delayedGcTimer, &QTimer::timeout, this, &CppModelManager::GC);
 
-    auto sessionManager = SessionManager::instance();
-    connect(sessionManager, &SessionManager::projectAdded,
+    auto projectManager = ProjectManager::instance();
+    connect(projectManager, &ProjectManager::projectAdded,
             this, &CppModelManager::onProjectAdded);
-    connect(sessionManager, &SessionManager::aboutToRemoveProject,
+    connect(projectManager, &ProjectManager::aboutToRemoveProject,
             this, &CppModelManager::onAboutToRemoveProject);
-    connect(sessionManager, &SessionManager::aboutToLoadSession,
+    connect(SessionManager::instance(), &SessionManager::aboutToLoadSession,
             this, &CppModelManager::onAboutToLoadSession);
-    connect(sessionManager, &SessionManager::startupProjectChanged,
+    connect(projectManager, &ProjectManager::startupProjectChanged,
             this, &CppModelManager::onActiveProjectChanged);
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,

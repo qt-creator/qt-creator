@@ -27,7 +27,8 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -48,7 +49,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
 {
     using namespace CppEditor;
 
-    Target *target = SessionManager::startupTarget();
+    Target *target = ProjectManager::startupTarget();
     if (!target)
         return;
 
@@ -101,7 +102,7 @@ void ClangCodeModelPlugin::createCompilationDBAction()
                 Tr::tr("Generate Compilation Database"),
                 Tr::tr("Generate Compilation Database for \"%1\""),
                 ParameterAction::AlwaysEnabled, this);
-    Project *startupProject = SessionManager::startupProject();
+    Project *startupProject = ProjectManager::startupProject();
     if (startupProject)
         m_generateCompilationDBAction->setParameter(startupProject->displayName());
     Command *command = ActionManager::registerAction(m_generateCompilationDBAction,
@@ -128,7 +129,7 @@ void ClangCodeModelPlugin::createCompilationDBAction()
                                             "Generator is already running.");
             return;
         }
-        Project * const project = SessionManager::startupProject();
+        Project * const project = ProjectManager::startupProject();
         if (!project) {
             MessageManager::writeDisrupting("Cannot generate compilation database: "
                                             "No active project.");
@@ -146,21 +147,21 @@ void ClangCodeModelPlugin::createCompilationDBAction()
     });
     connect(CppEditor::CppModelManager::instance(), &CppEditor::CppModelManager::projectPartsUpdated,
             this, [this](Project *project) {
-        if (project != SessionManager::startupProject())
+        if (project != ProjectManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
     });
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, [this](Project *project) {
         m_generateCompilationDBAction->setParameter(project ? project->displayName() : "");
     });
-    connect(SessionManager::instance(), &SessionManager::projectDisplayNameChanged,
+    connect(ProjectManager::instance(), &ProjectManager::projectDisplayNameChanged,
             this, [this](Project *project) {
-        if (project != SessionManager::startupProject())
+        if (project != ProjectManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
     });
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, [this](Project *project) {
         project->registerGenerator(Constants::GENERATE_COMPILATION_DB,
                                    m_generateCompilationDBAction->text(),

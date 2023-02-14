@@ -3,15 +3,16 @@
 
 #include "qmlprofilerdetailsrewriter_test.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
+
 #include <utils/filepath.h>
 
 #include <QLibraryInfo>
@@ -157,15 +158,15 @@ void QmlProfilerDetailsRewriterTest::testPopulateFileFinder()
 
     // Test that the rewriter will populate from available projects if given nullptr as parameter.
     DummyProject *project1 = new DummyProject(":/nix.nix");
-    ProjectExplorer::SessionManager::addProject(project1);
+    ProjectExplorer::ProjectManager::addProject(project1);
     DummyProject *project2 = new DummyProject(":/qmlprofiler/tests/Test.qml");
-    ProjectExplorer::SessionManager::addProject(project2);
+    ProjectExplorer::ProjectManager::addProject(project2);
     m_rewriter.populateFileFinder(nullptr);
     QCOMPARE(m_rewriter.getLocalFile("Test.qml"),
              Utils::FilePath::fromString(":/qmlprofiler/tests/Test.qml"));
 
-    ProjectExplorer::SessionManager::removeProject(project1);
-    ProjectExplorer::SessionManager::removeProject(project2);
+    ProjectExplorer::ProjectManager::removeProject(project1);
+    ProjectExplorer::ProjectManager::removeProject(project2);
 }
 
 void QmlProfilerDetailsRewriterTest::seedRewriter()
@@ -196,11 +197,11 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     ProjectExplorer::SysRootKitAspect::setSysRoot(kit.get(), "/nowhere");
 
     DummyProject *project = new DummyProject(Utils::FilePath::fromString(filename));
-    ProjectExplorer::SessionManager::addProject(project);
+    ProjectExplorer::ProjectManager::addProject(project);
 
     m_rewriter.populateFileFinder(project->addTargetForKit(kit.get()));
 
-    ProjectExplorer::SessionManager::removeProject(project);
+    ProjectExplorer::ProjectManager::removeProject(project);
 }
 
 } // namespace Internal

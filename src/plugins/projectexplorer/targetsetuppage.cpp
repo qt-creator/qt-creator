@@ -658,7 +658,7 @@ bool TargetSetupPage::setupProject(Project *project)
     if (m_importer)
         activeTarget = m_importer->preferredTarget(project->targets());
     if (activeTarget)
-        SessionManager::setActiveTarget(project, activeTarget, SetActive::NoCascade);
+        project->setActiveTarget(activeTarget, SetActive::NoCascade);
 
     return true;
 }

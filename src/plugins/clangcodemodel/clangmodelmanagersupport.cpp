@@ -33,6 +33,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
@@ -53,6 +54,7 @@
 
 using namespace CppEditor;
 using namespace LanguageClient;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ClangCodeModel::Internal {
@@ -66,7 +68,7 @@ static ProjectExplorer::Project *fallbackProject()
 {
     if (ProjectExplorer::Project * const p = ProjectExplorer::ProjectTree::currentProject())
         return p;
-    return ProjectExplorer::SessionManager::startupProject();
+    return ProjectExplorer::ProjectManager::startupProject();
 }
 
 static bool sessionModeEnabled()
@@ -87,7 +89,7 @@ static const QList<ProjectExplorer::Project *> projectsForClient(const Client *c
 {
     QList<ProjectExplorer::Project *> projects;
     if (sessionModeEnabled()) {
-        for (ProjectExplorer::Project * const p : ProjectExplorer::SessionManager::projects()) {
+        for (ProjectExplorer::Project * const p : ProjectExplorer::ProjectManager::projects()) {
             if (ClangdProjectSettings(p).settings().useClangd)
                 projects << p;
         }
@@ -228,14 +230,13 @@ ClangModelManagerSupport::ClangModelManagerSupport()
         }
     });
 
-    auto *sessionManager = ProjectExplorer::SessionManager::instance();
-    connect(sessionManager, &ProjectExplorer::SessionManager::projectRemoved,
+    auto projectManager = ProjectExplorer::ProjectManager::instance();
+    connect(projectManager, &ProjectExplorer::ProjectManager::projectRemoved,
             this, [this] {
         if (!sessionModeEnabled())
             claimNonProjectSources(clientForProject(fallbackProject()));
     });
-    connect(sessionManager, &ProjectExplorer::SessionManager::sessionLoaded,
-            this, [this] {
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded, this, [this] {
         if (sessionModeEnabled())
             onClangdSettingsChanged();
     });
@@ -357,7 +358,7 @@ void ClangModelManagerSupport::checkUnused(const Link &link, Core::SearchResult 
                                            const LinkHandler &callback)
 {
     if (const ProjectExplorer::Project * const project
-            = ProjectExplorer::SessionManager::projectForFile(link.targetFilePath)) {
+            = ProjectExplorer::ProjectManager::projectForFile(link.targetFilePath)) {
         if (ClangdClient * const client = clientWithProject(project);
                 client && client->isFullyIndexed()) {
             client->checkUnused(link, search, callback);
@@ -435,7 +436,7 @@ static bool isProjectDataUpToDate(
         ProjectExplorer::Project *project, ProjectInfoList projectInfo,
         const FilePath &jsonDbDir)
 {
-    if (project && !ProjectExplorer::SessionManager::hasProject(project))
+    if (project && !ProjectExplorer::ProjectManager::hasProject(project))
         return false;
     const ClangdSettings settings(ClangdProjectSettings(project).settings());
     if (!settings.useClangd())
@@ -531,7 +532,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                     hasDocuments = true;
                     continue;
                 }
-                const Project * const docProject = SessionManager::projectForFile(doc->filePath());
+                const Project * const docProject = ProjectManager::projectForFile(doc->filePath());
                 if (currentClient && currentClient->project()
                         && currentClient->project() != project
                         && currentClient->project() == docProject) {
@@ -571,8 +572,8 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
             ProjectNode *rootNode = nullptr;
             if (project)
                 rootNode = project->rootProjectNode();
-            else if (SessionManager::startupProject())
-                rootNode = SessionManager::startupProject()->rootProjectNode();
+            else if (ProjectManager::startupProject())
+                rootNode = ProjectManager::startupProject()->rootProjectNode();
             if (!rootNode)
                 return;
             const Node * const cxxNode = rootNode->findNode([](Node *n) {
@@ -647,7 +648,7 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
         }
         if (!ClangdSettings::instance().sizeIsOkay(doc->filePath()))
             continue;
-        if (ProjectExplorer::SessionManager::projectForFile(doc->filePath()))
+        if (ProjectExplorer::ProjectManager::projectForFile(doc->filePath()))
             continue;
         if (client->project() && !ProjectFile::isHeader(doc->filePath()))
             continue;
@@ -672,7 +673,7 @@ void ClangModelManagerSupport::watchForExternalChanges()
             if (!ProjectFile::isSource(kind) && !ProjectFile::isHeader(kind))
                 continue;
             ProjectExplorer::Project * const project
-                    = ProjectExplorer::SessionManager::projectForFile(file);
+                    = ProjectExplorer::ProjectManager::projectForFile(file);
             if (!project)
                 continue;
 
@@ -698,7 +699,7 @@ void ClangModelManagerSupport::watchForInternalChanges()
             if (!ProjectFile::isSource(kind) && !ProjectFile::isHeader(kind))
                 continue;
             ProjectExplorer::Project * const project
-                    = ProjectExplorer::SessionManager::projectForFile(fp);
+                    = ProjectExplorer::ProjectManager::projectForFile(fp);
             if (!project)
                 continue;
             if (ClangdClient * const client = clientForProject(project);
@@ -735,7 +736,7 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
         connectToWidgetsMarkContextMenuRequested(editor->widget());
 
         ProjectExplorer::Project * project
-                = ProjectExplorer::SessionManager::projectForFile(document->filePath());
+                = ProjectExplorer::ProjectManager::projectForFile(document->filePath());
         const ClangdSettings settings(ClangdProjectSettings(project).settings());
         if (!settings.sizeIsOkay(textDocument->filePath()))
             return;
@@ -855,7 +856,7 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
 {
     const bool sessionMode = sessionModeEnabled();
 
-    for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
+    for (ProjectExplorer::Project * const project : ProjectExplorer::ProjectManager::projects()) {
         const CppEditor::ClangdSettings settings(
                     CppEditor::ClangdProjectSettings(project).settings());
         ClangdClient * const client = clientWithProject(project);

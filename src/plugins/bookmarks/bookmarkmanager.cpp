@@ -12,8 +12,10 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/icon.h>
@@ -29,7 +31,6 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QMenu>

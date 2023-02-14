@@ -16,19 +16,23 @@
 #include <cppeditor/cppworkingcopy.h>
 #include <cppeditor/insertionpointlocator.h>
 #include <cppeditor/symbolfinder.h>
+
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
-#include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
@@ -493,10 +497,10 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
     Snapshot docTable = CppEditor::CppModelManager::instance()->snapshot();
     Snapshot newDocTable;
-    const Project *uiProject = SessionManager::projectForFile(currentUiFile);
+    const Project *uiProject = ProjectManager::projectForFile(currentUiFile);
     if (uiProject) {
         for (Snapshot::const_iterator i = docTable.begin(), ei = docTable.end(); i != ei; ++i) {
-            const Project *project = SessionManager::projectForFile(i.key());
+            const Project *project = ProjectManager::projectForFile(i.key());
             if (project == uiProject)
                 newDocTable.insert(i.value());
         }
@@ -639,7 +643,7 @@ void QtCreatorIntegration::handleSymbolRenameStage1(
         return;
 
     // Get ExtraCompiler.
-    const Project * const project = SessionManager::projectForFile(uiFile);
+    const Project * const project = ProjectManager::projectForFile(uiFile);
     if (!project) {
         return reportRenamingError(oldName, Designer::Tr::tr("File \"%1\" not found in project.")
                                    .arg(uiFile.toUserOutput()));

@@ -21,7 +21,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -274,7 +274,7 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
                     if (!newTarget)
                         newTarget = project->addTargetForKit(kits.first());
 
-                    SessionManager::setActiveTarget(project, newTarget, SetActive::Cascade);
+                    project->setActiveTarget(newTarget, SetActive::Cascade);
 
                     /* Reset the aspect. We changed the target and this aspect should not change. */
                     m_qtversionAspect->blockSignals(true);

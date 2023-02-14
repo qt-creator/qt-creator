@@ -7,6 +7,7 @@
 #include "sessionmodel.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -324,7 +325,7 @@ public:
         if (expanded) {
             painter->setPen(textColor);
             painter->setFont(sizedFont(12, option.widget));
-            const FilePaths projects = SessionManager::projectsForSessionName(sessionName);
+            const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
             int yy = firstBase + SESSION_LINE_HEIGHT - 3;
             QFontMetrics fm(option.widget->font());
             for (const FilePath &projectPath : projects) {
@@ -378,7 +379,7 @@ public:
         int h = SESSION_LINE_HEIGHT;
         QString sessionName = idx.data(Qt::DisplayRole).toString();
         if (m_expandedSessions.contains(sessionName)) {
-            const FilePaths projects = SessionManager::projectsForSessionName(sessionName);
+            const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
             h += projects.size() * 40 + LINK_HEIGHT - 6;
         }
         return QSize(380, h + ItemGap);

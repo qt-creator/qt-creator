@@ -4,6 +4,7 @@
 #include "sessionmodel.h"
 
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "session.h"
 #include "sessiondialog.h"
 
@@ -122,10 +123,10 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
             result = SessionManager::activeSession() == sessionName;
             break;
         case ProjectsPathRole:
-            result = pathsWithTildeHomePath(SessionManager::projectsForSessionName(sessionName));
+            result = pathsWithTildeHomePath(ProjectManager::projectsForSessionName(sessionName));
             break;
         case ProjectsDisplayRole:
-            result = pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
+            result = pathsToBaseNames(ProjectManager::projectsForSessionName(sessionName));
             break;
         case ShortcutRole: {
             const Id sessionBase = SESSION_BASE_ID;
@@ -240,7 +241,7 @@ void SessionModel::renameSession(QWidget *parent, const QString &session)
 
 void SessionModel::switchToSession(const QString &session)
 {
-    SessionManager::loadSession(session);
+    ProjectManager::loadSession(session);
     emit sessionSwitched();
 }
 

@@ -291,11 +291,10 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
     if (m_ignoreChanges.isLocked())
         return;
     if (index == -1)
-        SessionManager::setActiveDeployConfiguration(m_target, nullptr, SetActive::Cascade);
+        m_target->setActiveDeployConfiguration(nullptr, SetActive::Cascade);
     else
-        SessionManager::setActiveDeployConfiguration(m_target,
-                                                     qobject_cast<DeployConfiguration *>(m_target->deployConfigurationModel()->projectConfigurationAt(index)),
-                                                     SetActive::Cascade);
+        m_target->setActiveDeployConfiguration(qobject_cast<DeployConfiguration *>(m_target->deployConfigurationModel()->projectConfigurationAt(index)),
+                                               SetActive::Cascade);
 }
 
 void RunSettingsWidget::aboutToShowDeployMenu()
@@ -309,7 +308,7 @@ void RunSettingsWidget::aboutToShowDeployMenu()
             if (!newDc)
                 return;
             m_target->addDeployConfiguration(newDc);
-            SessionManager::setActiveDeployConfiguration(m_target, newDc, SetActive::Cascade);
+            m_target->setActiveDeployConfiguration(newDc, SetActive::Cascade);
             m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
         });
     }

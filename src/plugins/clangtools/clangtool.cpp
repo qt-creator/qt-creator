@@ -34,7 +34,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -342,7 +342,7 @@ static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr>
 
 static RunSettings runSettings()
 {
-    if (Project *project = SessionManager::startupProject()) {
+    if (Project *project = ProjectManager::startupProject()) {
         const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
         if (!projectSettings->useGlobalSettings())
             return projectSettings->runSettings();
@@ -611,7 +611,7 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                           const RunSettings &runSettings,
                           const CppEditor::ClangDiagnosticConfig &diagnosticConfig)
 {
-    Project *project = SessionManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     QTC_ASSERT(project, return);
     QTC_ASSERT(project->activeTarget(), return);
 
@@ -870,7 +870,7 @@ static CheckResult canAnalyze()
                 Tr::tr("Set a valid Clazy-Standalone executable.")};
     }
 
-    if (Project *project = SessionManager::startupProject()) {
+    if (Project *project = ProjectManager::startupProject()) {
         if (!canAnalyzeProject(project)) {
             return {CheckResult::ProjectNotSuitable,
                     Tr::tr("Project \"%1\" is not a C/C++ project.")

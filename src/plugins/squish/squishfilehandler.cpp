@@ -15,8 +15,10 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
@@ -93,8 +95,7 @@ SquishFileHandler::SquishFileHandler(QObject *parent)
     : QObject(parent)
 {
     m_instance = this;
-    auto sessionManager = ProjectExplorer::SessionManager::instance();
-    connect(sessionManager, &ProjectExplorer::SessionManager::sessionLoaded,
+    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::sessionLoaded,
             this, &SquishFileHandler::onSessionLoaded);
 }
 

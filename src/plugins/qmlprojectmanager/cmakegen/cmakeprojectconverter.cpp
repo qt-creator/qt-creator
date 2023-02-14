@@ -1,5 +1,6 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include "cmakeprojectconverter.h"
 #include "cmakeprojectconverterdialog.h"
 #include "generatecmakelists.h"
@@ -11,7 +12,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
@@ -41,10 +42,10 @@ void CmakeProjectConverter::generateMenuEntry(QObject *parent)
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.ConvertToCmakeProject");
     exportMenu->addAction(cmd, QmlProjectManager::Constants::G_EXPORT_CONVERT);
 
-    action->setEnabled(isProjectConvertable(ProjectExplorer::SessionManager::startupProject()));
-    QObject::connect(ProjectExplorer::SessionManager::instance(),
-        &ProjectExplorer::SessionManager::startupProjectChanged, [action]() {
-            action->setEnabled(isProjectConvertable(ProjectExplorer::SessionManager::startupProject()));
+    action->setEnabled(isProjectConvertable(ProjectExplorer::ProjectManager::startupProject()));
+    QObject::connect(ProjectExplorer::ProjectManager::instance(),
+        &ProjectExplorer::ProjectManager::startupProjectChanged, [action]() {
+            action->setEnabled(isProjectConvertable(ProjectExplorer::ProjectManager::startupProject()));
     });
 }
 
@@ -83,7 +84,7 @@ bool CmakeProjectConverter::isProjectCurrentFormat(const ProjectExplorer::Projec
 
 void CmakeProjectConverter::onConvertProject()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const QmlProjectManager::QmlProject *qmlProject =
             qobject_cast<const QmlProjectManager::QmlProject*>(project);
     if (qmlProject) {

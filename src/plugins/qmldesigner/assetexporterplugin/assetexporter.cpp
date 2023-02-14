@@ -13,7 +13,7 @@
 #include "coreplugin/editormanager/editormanager.h"
 #include "utils/qtcassert.h"
 #include "utils/runextensions.h"
-#include "projectexplorer/session.h"
+#include "projectexplorer/projectmanager.h"
 #include "projectexplorer/project.h"
 
 #include <auxiliarydataproperties.h>
@@ -406,7 +406,7 @@ void AssetExporter::writeMetadata() const
 
     m_currentState.change(ParsingState::WritingJson);
 
-    auto const startupProject = ProjectExplorer::SessionManager::startupProject();
+    auto const startupProject = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(startupProject, return);
     const QString projectName = startupProject->displayName();
 

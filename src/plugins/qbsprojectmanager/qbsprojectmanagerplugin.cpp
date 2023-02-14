@@ -33,7 +33,7 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtsupportconstants.h>
@@ -60,7 +60,7 @@ static Node *currentEditorNode()
 static QbsProject *currentEditorProject()
 {
     Core::IDocument *doc = Core::EditorManager::currentDocument();
-    return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath())) : nullptr;
+    return doc ? qobject_cast<QbsProject *>(ProjectManager::projectForFile(doc->filePath())) : nullptr;
 }
 
 class QbsProjectManagerPluginPrivate
@@ -226,13 +226,13 @@ void QbsProjectManagerPlugin::initialize()
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &QbsProjectManagerPlugin::updateBuildActions);
 
-    connect(SessionManager::instance(), &SessionManager::targetAdded,
+    connect(ProjectManager::instance(), &ProjectManager::targetAdded,
             this, &QbsProjectManagerPlugin::targetWasAdded);
-    connect(SessionManager::instance(), &SessionManager::targetRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::targetRemoved,
             this, &QbsProjectManagerPlugin::updateBuildActions);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &QbsProjectManagerPlugin::updateReparseQbsAction);
-    connect(SessionManager::instance(), &SessionManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, [this](Project *project) {
         auto qbsProject = qobject_cast<QbsProject *>(project);
         connect(project, &Project::anyParsingStarted,
@@ -283,7 +283,7 @@ void QbsProjectManagerPlugin::updateContextActions(Node *node)
 
 void QbsProjectManagerPlugin::updateReparseQbsAction()
 {
-    auto project = qobject_cast<QbsProject *>(SessionManager::startupProject());
+    auto project = qobject_cast<QbsProject *>(ProjectManager::startupProject());
     m_reparseQbs->setEnabled(project
                              && !BuildManager::isBuilding(project)
                              && project && project->activeTarget()
@@ -342,7 +342,7 @@ void QbsProjectManagerPlugin::projectChanged(QbsProject *project)
 {
     auto qbsProject = qobject_cast<QbsProject *>(project);
 
-    if (!qbsProject || qbsProject == SessionManager::startupProject())
+    if (!qbsProject || qbsProject == ProjectManager::startupProject())
         updateReparseQbsAction();
 
     if (!qbsProject || qbsProject == ProjectTree::currentProject())
@@ -537,7 +537,7 @@ void QbsProjectManagerPlugin::reparseSelectedProject()
 
 void QbsProjectManagerPlugin::reparseCurrentProject()
 {
-    reparseProject(dynamic_cast<QbsProject *>(SessionManager::startupProject()));
+    reparseProject(dynamic_cast<QbsProject *>(ProjectManager::startupProject()));
 }
 
 void QbsProjectManagerPlugin::reparseProject(QbsProject *project)

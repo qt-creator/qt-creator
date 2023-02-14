@@ -27,7 +27,7 @@
 #include <texteditor/textdocument.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -595,7 +595,7 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     m_settings.fromSettings(ICore::settings());
 
     // update view name when changing active project
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &ClearCasePluginPrivate::projectChanged);
 
     const QString description = QLatin1String("ClearCase");
@@ -2124,7 +2124,7 @@ void ClearCasePluginPrivate::updateIndex()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return);
     ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
-    Project *project = SessionManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project)
         return;
     m_checkInAllAction->setEnabled(false);

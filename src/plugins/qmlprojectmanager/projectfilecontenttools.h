@@ -6,7 +6,7 @@
 #include "qmlprojectmanager_global.h"
 
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/fileutils.h>
 

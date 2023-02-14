@@ -14,10 +14,10 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectnodes.h"
 #include "runconfiguration.h"
 #include "runconfigurationaspects.h"
-#include "session.h"
 #include "target.h"
 #include "taskhub.h"
 #include "userfileaccessor.h"
@@ -273,7 +273,7 @@ void Project::addTarget(std::unique_ptr<Target> &&t)
 
     // check activeTarget:
     if (!activeTarget())
-        SessionManager::setActiveTarget(this, pointer, SetActive::Cascade);
+        setActiveTarget(pointer, SetActive::Cascade);
 }
 
 Target *Project::addTargetForDefaultKit()
@@ -309,7 +309,7 @@ bool Project::removeTarget(Target *target)
     auto keep = take(d->m_targets, target);
     if (target == d->m_activeTarget) {
         Target *newActiveTarget = (d->m_targets.size() == 0 ? nullptr : d->m_targets.at(0).get());
-        SessionManager::setActiveTarget(this, newActiveTarget, SetActive::Cascade);
+        setActiveTarget(newActiveTarget, SetActive::Cascade);
     }
     emit removedTarget(target);
 
@@ -326,7 +326,7 @@ Target *Project::activeTarget() const
     return d->m_activeTarget;
 }
 
-void Project::setActiveTarget(Target *target)
+void Project::setActiveTargetHelper(Target *target)
 {
     if (d->m_activeTarget == target)
         return;
@@ -414,6 +414,29 @@ Target *Project::target(Kit *k) const
     return findOrDefault(d->m_targets, equal(&Target::kit, k));
 }
 
+void Project::setActiveTarget(Target *target, SetActive cascade)
+{
+    if (isShuttingDown())
+        return;
+
+    setActiveTargetHelper(target);
+
+    if (!target) // never cascade setting no target
+        return;
+
+    if (cascade != SetActive::Cascade || !ProjectManager::isProjectConfigurationCascading())
+        return;
+
+    Utils::Id kitId = target->kit()->id();
+    for (Project *otherProject : ProjectManager::projects()) {
+        if (otherProject == this)
+            continue;
+        if (Target *otherTarget = Utils::findOrDefault(otherProject->targets(),
+                                                       [kitId](Target *t) { return t->kit()->id() == kitId; }))
+            otherProject->setActiveTargetHelper(otherTarget);
+    }
+}
+
 Tasks Project::projectIssues(const Kit *k) const
 {
     Tasks result;
@@ -445,12 +468,12 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
                     sourceBc->buildSystem()->name()));
         newTarget->addBuildConfiguration(newBc);
         if (sourceTarget->activeBuildConfiguration() == sourceBc)
-            SessionManager::setActiveBuildConfiguration(newTarget, newBc, SetActive::NoCascade);
+            newTarget->setActiveBuildConfiguration(newBc, SetActive::NoCascade);
     }
     if (!newTarget->activeBuildConfiguration()) {
         QList<BuildConfiguration *> bcs = newTarget->buildConfigurations();
         if (!bcs.isEmpty())
-            SessionManager::setActiveBuildConfiguration(newTarget, bcs.first(), SetActive::NoCascade);
+            newTarget->setActiveBuildConfiguration(bcs.first(), SetActive::NoCascade);
     }
 
     for (DeployConfiguration *sourceDc : sourceTarget->deployConfigurations()) {
@@ -462,12 +485,12 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
         newDc->setDisplayName(sourceDc->displayName());
         newTarget->addDeployConfiguration(newDc);
         if (sourceTarget->activeDeployConfiguration() == sourceDc)
-            SessionManager::setActiveDeployConfiguration(newTarget, newDc, SetActive::NoCascade);
+            newTarget->setActiveDeployConfiguration(newDc, SetActive::NoCascade);
     }
     if (!newTarget->activeBuildConfiguration()) {
         QList<DeployConfiguration *> dcs = newTarget->deployConfigurations();
         if (!dcs.isEmpty())
-            SessionManager::setActiveDeployConfiguration(newTarget, dcs.first(), SetActive::NoCascade);
+            newTarget->setActiveDeployConfiguration(dcs.first(), SetActive::NoCascade);
     }
 
     for (RunConfiguration *sourceRc : sourceTarget->runConfigurations()) {
@@ -1435,8 +1458,7 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     Target * const target = theProject.project()->activeTarget();
     QVERIFY(target);
     QCOMPARE(target->buildConfigurations().size(), 6);
-    SessionManager::setActiveBuildConfiguration(target, target->buildConfigurations().at(1),
-                                                SetActive::Cascade);
+    target->setActiveBuildConfiguration(target->buildConfigurations().at(1), SetActive::Cascade);
     BuildSystem * const bs = theProject.project()->activeTarget()->buildSystem();
     QVERIFY(bs);
     QCOMPARE(bs, target->activeBuildConfiguration()->buildSystem());
@@ -1452,12 +1474,12 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     }
     QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
 
-    QCOMPARE(SessionManager::startupProject(), theProject.project());
+    QCOMPARE(ProjectManager::startupProject(), theProject.project());
     QCOMPARE(ProjectTree::currentProject(), theProject.project());
     QVERIFY(EditorManager::openEditor(projectDir.pathAppended("main.cpp")));
     QVERIFY(ProjectTree::currentNode());
     ProjectTree::instance()->expandAll();
-    SessionManager::closeAllProjects(); // QTCREATORBUG-25655
+    ProjectManager::closeAllProjects(); // QTCREATORBUG-25655
 }
 
 #endif // WITH_TESTS

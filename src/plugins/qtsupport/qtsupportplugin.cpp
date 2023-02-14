@@ -24,8 +24,8 @@
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <proparser/qmakeevaluator.h>
@@ -170,7 +170,7 @@ void QtSupportPlugin::extensionsInitialized()
         });
 
     static const auto activeQtVersion = []() -> const QtVersion * {
-        ProjectExplorer::Project *project = SessionManager::startupProject();
+        ProjectExplorer::Project *project = ProjectManager::startupProject();
         if (!project || !project->activeTarget())
             return nullptr;
         return QtKitAspect::qtVersion(project->activeTarget()->kit());
@@ -208,7 +208,7 @@ void QtSupportPlugin::extensionsInitialized()
         const FilePath filePath = item.filePath();
         if (filePath.isEmpty())
             return links;
-        const Project *project = SessionManager::projectForFile(filePath);
+        const Project *project = ProjectManager::projectForFile(filePath);
         Target *target = project ? project->activeTarget() : nullptr;
         QtVersion *qt = target ? QtKitAspect::qtVersion(target->kit()) : nullptr;
         if (!qt)

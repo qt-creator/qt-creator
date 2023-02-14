@@ -33,7 +33,7 @@
 
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
@@ -7986,7 +7986,7 @@ private:
             }
         };
 
-        if (const Project *project = SessionManager::projectForFile(filePath())) {
+        if (const Project *project = ProjectManager::projectForFile(filePath())) {
             const FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
             QSet<FilePath> projectFiles(files.begin(), files.end());
             for (const auto &file : files) {

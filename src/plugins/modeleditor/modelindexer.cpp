@@ -18,7 +18,7 @@
 #include "qmt/tasks/findrootdiagramvisitor.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/mimeutils.h>
@@ -308,9 +308,9 @@ ModelIndexer::ModelIndexer(QObject *parent)
     connect(this, &ModelIndexer::filesQueued,
             d->indexerThread, &ModelIndexer::IndexerThread::onFilesQueued);
     d->indexerThread->start();
-    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectAdded,
+    connect(ProjectExplorer::ProjectManager::instance(), &ProjectExplorer::ProjectManager::projectAdded,
             this, &ModelIndexer::onProjectAdded);
-    connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::aboutToRemoveProject,
+    connect(ProjectExplorer::ProjectManager::instance(), &ProjectExplorer::ProjectManager::aboutToRemoveProject,
             this, &ModelIndexer::onAboutToRemoveProject);
 }
 

@@ -67,9 +67,10 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -1187,7 +1188,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     setInitialState();
 
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
         this, &DebuggerPluginPrivate::onStartupProjectChanged);
     connect(EngineManager::instance(), &EngineManager::engineStateChanged,
         this, &DebuggerPluginPrivate::updatePresetState);
@@ -1394,8 +1395,8 @@ void DebuggerPluginPrivate::updatePresetState()
     if (m_shuttingDown)
         return;
 
-    Project *startupProject = SessionManager::startupProject();
-    RunConfiguration *startupRunConfig = SessionManager::startupRunConfiguration();
+    Project *startupProject = ProjectManager::startupProject();
+    RunConfiguration *startupRunConfig = ProjectManager::startupRunConfiguration();
     DebuggerEngine *currentEngine = EngineManager::currentEngine();
 
     QString whyNot;
@@ -1997,7 +1998,7 @@ void DebuggerPluginPrivate::aboutToShutdown()
 {
     m_shuttingDown = true;
 
-    disconnect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, nullptr);
+    disconnect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, nullptr);
 
     m_shutdownTimer.setInterval(0);
     m_shutdownTimer.setSingleShot(true);
@@ -2165,7 +2166,7 @@ static bool buildTypeAccepted(QFlags<ToolMode> toolMode, BuildConfiguration::Bui
 static BuildConfiguration::BuildType startupBuildType()
 {
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-    if (RunConfiguration *runConfig = SessionManager::startupRunConfiguration()) {
+    if (RunConfiguration *runConfig = ProjectManager::startupRunConfiguration()) {
         if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             buildType = buildConfig->buildType();
     }
@@ -2335,12 +2336,12 @@ void DebuggerUnitTests::testStateMachine()
     QEventLoop loop;
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             &loop, &QEventLoop::quit);
-    BuildManager::buildProjectWithDependencies(SessionManager::startupProject());
+    BuildManager::buildProjectWithDependencies(ProjectManager::startupProject());
     loop.exec();
 
     ExecuteOnDestruction guard([] { EditorManager::closeAllEditors(false); });
 
-    RunConfiguration *rc = SessionManager::startupRunConfiguration();
+    RunConfiguration *rc = ProjectManager::startupRunConfiguration();
     QVERIFY(rc);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

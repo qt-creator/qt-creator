@@ -6,10 +6,10 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "projectmodels.h"
 #include "projectnodes.h"
 #include "projecttree.h"
-#include "session.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -343,7 +343,7 @@ Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
     int bestNodeExpandCount = INT_MAX;
 
     // FIXME: Looks like this could be done with less cycles.
-    for (Project *project : SessionManager::projects()) {
+    for (Project *project : ProjectManager::projects()) {
         if (ProjectNode *projectNode = project->rootProjectNode()) {
             projectNode->forEachGenericNode([&](Node *node) {
                 if (node->filePath() == fileName) {

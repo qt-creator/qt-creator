@@ -16,7 +16,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -97,8 +97,9 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
     }
 }
 
-void CppcheckPluginPrivate::startManualRun() {
-    auto project = ProjectExplorer::SessionManager::startupProject();
+void CppcheckPluginPrivate::startManualRun()
+{
+    auto project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return;
 
@@ -121,8 +122,8 @@ void CppcheckPluginPrivate::startManualRun() {
 void CppcheckPluginPrivate::updateManualRunAction()
 {
     using namespace ProjectExplorer;
-    const Project *project = SessionManager::startupProject();
-    const Target *target = SessionManager::startupTarget();
+    const Project *project = ProjectManager::startupProject();
+    const Target *target = ProjectManager::startupTarget();
     const Utils::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
     const bool canRun = target && project->projectLanguages().contains(cxx)
                   && ToolChainKitAspect::cxxToolChain(target->kit());

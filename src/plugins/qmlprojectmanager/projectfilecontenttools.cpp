@@ -18,7 +18,7 @@ QRegularExpression qdsVerRegexp(R"x(qdsVersion: "(.*)")x");
 const Utils::FilePaths rootCmakeFiles(ProjectExplorer::Project *project)
 {
     if (!project)
-        project = ProjectExplorer::SessionManager::startupProject();
+        project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return {};
     return project->projectDirectory().dirEntries({QList<QString>({"CMakeLists.txt"}), QDir::Files});

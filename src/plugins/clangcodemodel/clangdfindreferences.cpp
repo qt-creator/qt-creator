@@ -21,9 +21,10 @@
 #include <languageserverprotocol/lsptypes.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/basefilefind.h>
 
@@ -451,7 +452,7 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
         item.setContainingFunctionName(getContainingFunction(astPath, range).detail());
 
         if (search->supportsReplace()) {
-            const bool fileInSession = SessionManager::projectForFile(file);
+            const bool fileInSession = ProjectManager::projectForFile(file);
             item.setSelectForReplacement(fileInSession);
             if (fileInSession && file.baseName().compare(replacementData->oldSymbolName,
                                                          Qt::CaseInsensitive) == 0) {

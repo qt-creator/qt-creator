@@ -8,7 +8,7 @@
 #include "bindingproperty.h"
 #include "metainfo.h"
 #include "projectexplorer/project.h"
-#include "projectexplorer/session.h"
+#include "projectexplorer/projectmanager.h"
 #include "qmldesignerplugin.h"
 #include "signalhandlerproperty.h"
 #include "utils/fileutils.h"
@@ -23,7 +23,7 @@ namespace QmlDesigner {
 Utils::FilePath projectFilePath()
 {
     if (auto *doc = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()) {
-        if (auto *proj = ProjectExplorer::SessionManager::projectForFile(doc->fileName()))
+        if (auto *proj = ProjectExplorer::ProjectManager::projectForFile(doc->fileName()))
             return proj->projectDirectory();
     }
     return Utils::FilePath();

@@ -11,7 +11,7 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 
@@ -63,7 +63,7 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     m_ui->exportPath->setExpectedKind(Utils::PathChooser::Kind::SaveFile);
     m_ui->exportPath->setFilePath(
                 exportPath.pathAppended(
-                    ProjectExplorer::SessionManager::startupProject()->displayName()  + ".metadata"
+                    ProjectExplorer::ProjectManager::startupProject()->displayName()  + ".metadata"
                 ));
     m_ui->exportPath->setPromptDialogTitle(tr("Choose Export File"));
     m_ui->exportPath->setPromptDialogFilter(tr("Metadata file (*.metadata)"));

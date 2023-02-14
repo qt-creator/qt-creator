@@ -25,8 +25,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
@@ -213,7 +213,7 @@ static QString firstNonEmptyTestCaseTarget(const TestConfiguration *config)
 
 static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 {
-    const Project *project = SessionManager::startupProject();
+    const Project *project = ProjectManager::startupProject();
     if (!project)
         return nullptr;
     const Target *target = project->activeTarget();
@@ -295,7 +295,7 @@ int TestRunner::precheckTestConfigurations()
 
 void TestRunner::onBuildSystemUpdated()
 {
-    Target *target = SessionManager::startupTarget();
+    Target *target = ProjectManager::startupTarget();
     if (QTC_GUARD(target))
         disconnect(target, &Target::buildSystemUpdated, this, &TestRunner::onBuildSystemUpdated);
     if (!m_skipTargetsCheck) {
@@ -310,7 +310,7 @@ void TestRunner::runTestsHelper()
     bool projectChanged = false;
     for (ITestConfiguration *itc : std::as_const(m_selectedTests)) {
         if (itc->testBase()->type() == ITestBase::Tool) {
-            if (itc->project() != SessionManager::startupProject()) {
+            if (itc->project() != ProjectManager::startupProject()) {
                 projectChanged = true;
                 toBeRemoved.append(itc);
             }
@@ -596,7 +596,7 @@ void TestRunner::debugTests()
 
 static bool executablesEmpty()
 {
-    Target *target = SessionManager::startupTarget();
+    Target *target = ProjectManager::startupTarget();
     const QList<RunConfiguration *> configs = target->runConfigurations();
     QTC_ASSERT(!configs.isEmpty(), return false);
     if (auto execAspect = configs.first()->aspect<ExecutableAspect>())
@@ -609,7 +609,7 @@ void TestRunner::runOrDebugTests()
     if (!m_skipTargetsCheck) {
         if (executablesEmpty()) {
             m_skipTargetsCheck = true;
-            Target *target = SessionManager::startupTarget();
+            Target *target = ProjectManager::startupTarget();
             QTimer::singleShot(5000, this, [this, target = QPointer<Target>(target)] {
                 if (target) {
                     disconnect(target, &Target::buildSystemUpdated,
@@ -666,7 +666,7 @@ void TestRunner::buildFinished(bool success)
 
 static RunAfterBuildMode runAfterBuild()
 {
-    Project *project = SessionManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project)
         return RunAfterBuildMode::None;
 
@@ -786,7 +786,7 @@ void RunConfigurationSelectionDialog::populate()
 {
     m_rcCombo->addItem({}, QStringList{{}, {}, {}}); // empty default
 
-    if (auto project = SessionManager::startupProject()) {
+    if (auto project = ProjectManager::startupProject()) {
         if (auto target = project->activeTarget()) {
             for (RunConfiguration *rc : target->runConfigurations()) {
                 auto runnable = rc->runnable();

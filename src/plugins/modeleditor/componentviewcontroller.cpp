@@ -18,9 +18,9 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cplusplus/CppDocument.h>
 
-#include <projectexplorer/session.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <utils/qtcassert.h>
 
@@ -136,7 +136,7 @@ void UpdateIncludeDependenciesVisitor::setModelUtilities(ModelUtilities *modelUt
 void UpdateIncludeDependenciesVisitor::updateFilePaths()
 {
     m_filePaths.clear();
-    for (const ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
+    for (const ProjectExplorer::Project *project : ProjectExplorer::ProjectManager::projects()) {
         ProjectExplorer::ProjectNode *projectNode = project->rootProjectNode();
         if (projectNode)
             collectElementPaths(projectNode, &m_filePaths);

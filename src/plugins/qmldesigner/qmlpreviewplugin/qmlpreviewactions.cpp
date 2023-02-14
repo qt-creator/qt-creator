@@ -13,7 +13,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
@@ -36,7 +36,7 @@ static void handleAction(const SelectionContext &context)
     if (context.view()->isAttached()) {
         if (context.toggled()) {
             bool skipDeploy = false;
-            if (const Target *startupTarget = SessionManager::startupTarget()) {
+            if (const Target *startupTarget = ProjectManager::startupTarget()) {
                 const Kit *kit = startupTarget->kit();
                 if (kit
                     && (kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
@@ -241,10 +241,10 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
             }
         }
     };
-    connect(ProjectExplorer::SessionManager::instance(),  &ProjectExplorer::SessionManager::startupProjectChanged,
+    connect(ProjectExplorer::ProjectManager::instance(),  &ProjectExplorer::ProjectManager::startupProjectChanged,
         comboBox, refreshComboBoxFunction);
 
-    if (auto project = SessionManager::startupProject())
+    if (auto project = ProjectManager::startupProject())
         refreshComboBoxFunction(project);
 
     // do this after refreshComboBoxFunction so we do not get currentLocaleChanged signals at initialization

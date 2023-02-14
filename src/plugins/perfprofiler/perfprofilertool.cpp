@@ -27,7 +27,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -224,7 +224,7 @@ void PerfProfilerTool::createViews()
     connect(recordMenu, &QMenu::aboutToShow, recordMenu, [recordMenu] {
         recordMenu->hide();
         PerfSettings *settings = nullptr;
-        Target *target = SessionManager::startupTarget();
+        Target *target = ProjectManager::startupTarget();
         if (target) {
             if (auto runConfig = target->activeRunConfiguration())
                 settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
@@ -572,7 +572,7 @@ static Utils::FilePaths sourceFiles(const Project *currentProject = nullptr)
     if (currentProject)
         sourceFiles.append(currentProject->files(Project::SourceFiles));
 
-    const QList<Project *> projects = SessionManager::projects();
+    const QList<Project *> projects = ProjectManager::projects();
     for (const Project *project : projects) {
         if (project != currentProject)
             sourceFiles.append(project->files(Project::SourceFiles));
@@ -609,7 +609,7 @@ void PerfProfilerTool::showLoadTraceDialog()
 
     startLoading();
 
-    const Project *currentProject = SessionManager::startupProject();
+    const Project *currentProject = ProjectManager::startupProject();
     const Target *target = currentProject ?  currentProject->activeTarget() : nullptr;
     const Kit *kit = target ? target->kit() : nullptr;
     populateFileFinder(currentProject, kit);

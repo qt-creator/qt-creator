@@ -25,10 +25,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <qmljs/qmljsdocument.h>
@@ -150,15 +150,15 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
                 Constants::M_BUILDPROJECT);
     QAction *action = new QAction(Tr::tr("QML Preview"), this);
     action->setToolTip(Tr::tr("Preview changes to QML code live in your application."));
-    action->setEnabled(SessionManager::startupProject() != nullptr);
-    connect(SessionManager::instance(), &SessionManager::startupProjectChanged, action,
+    action->setEnabled(ProjectManager::startupProject() != nullptr);
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, action,
             &QAction::setEnabled);
     connect(action, &QAction::triggered, this, [this]() {
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
         bool skipDeploy = false;
-        const Kit *kit = SessionManager::startupTarget()->kit();
-        if (SessionManager::startupTarget() && kit)
+        const Kit *kit = ProjectManager::startupTarget()->kit();
+        if (ProjectManager::startupTarget() && kit)
             skipDeploy = kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
                 || DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);

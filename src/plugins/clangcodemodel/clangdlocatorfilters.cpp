@@ -11,13 +11,17 @@
 #include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/indexitem.h>
+
 #include <languageclient/languageclientutils.h>
 #include <languageclient/locatorfilter.h>
-#include <projectexplorer/session.h>
+
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/link.h>
 #include <utils/algorithm.h>
 
 #include <QHash>
+
 #include <set>
 #include <tuple>
 
@@ -141,7 +145,7 @@ void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
 {
     m_cppFilter->prepareSearch(entry);
     QList<Client *> clients;
-    for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
+    for (ProjectExplorer::Project * const project : ProjectExplorer::ProjectManager::projects()) {
         if (Client * const client = ClangModelManagerSupport::clientForProject(project))
             clients << client;
     }

@@ -13,7 +13,7 @@
 #include <coreplugin/find/searchresultwindow.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
@@ -237,7 +237,7 @@ QList<Core::SearchResultItem> generateSearchResultItems(
         item.setFilePath(filePath);
         item.setUseTextEditorFont(true);
         if (renaming && limitToProjects) {
-            const bool fileBelongsToProject = ProjectExplorer::SessionManager::projectForFile(
+            const bool fileBelongsToProject = ProjectExplorer::ProjectManager::projectForFile(
                 filePath);
             item.setSelectForReplacement(fileBelongsToProject);
             if (fileBelongsToProject

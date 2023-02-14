@@ -17,8 +17,8 @@
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "project.h"
+#include "projectmanager.h"
 #include "projecttree.h"
-#include "session.h"
 #include "target.h"
 
 #include <coreplugin/fileutils.h>
@@ -209,7 +209,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
     connect(target, &Target::parsingFinished, this, &BuildConfiguration::enabledChanged);
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
-        if (isActive() && project() == SessionManager::startupProject()) {
+        if (isActive() && project() == ProjectManager::startupProject()) {
             ProjectExplorerPlugin::updateActions();
             ProjectExplorerPlugin::updateRunActions();
         }

@@ -9,6 +9,7 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 

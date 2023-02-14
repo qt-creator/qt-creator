@@ -15,7 +15,7 @@
 #include <utils/genericconstants.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocumentlayout.h>

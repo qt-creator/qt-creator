@@ -9,7 +9,7 @@
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
@@ -744,7 +744,7 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
 clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
 {
     const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::SessionManager::projectForFile(fileName);
+        = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     const TextEditor::ICodeStylePreferences *preferences
         = projectForFile

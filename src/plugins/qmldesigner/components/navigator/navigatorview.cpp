@@ -29,7 +29,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/algorithm.h>
@@ -454,14 +454,14 @@ const ProjectExplorer::FileNode *NavigatorView::fileNodeForModelNode(const Model
 {
     QString filename = node.metaInfo().componentFileName();
     Utils::FilePath filePath = Utils::FilePath::fromString(filename);
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
 
     if (!currentProject) {
         filePath = Utils::FilePath::fromString(node.model()->fileUrl().toLocalFile());
 
         /* If the component does not belong to the project then we can fallback to the current file */
-        currentProject = ProjectExplorer::SessionManager::projectForFile(filePath);
+        currentProject = ProjectExplorer::ProjectManager::projectForFile(filePath);
     }
     if (!currentProject)
         return nullptr;
