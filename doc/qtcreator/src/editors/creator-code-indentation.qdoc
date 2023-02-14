@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -60,16 +60,16 @@
     the \uicontrol {Skip clean whitespace for file types} check box to
     exclude the specified file types.
 
-    \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior preferences"
+    \image qtcreator-options-text-editor-behavior.png {Text Editor Behavior preferences}
 
     To visualize whitespace in the editor, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Visualize whitespace}. To visualize indentation, select
-    \uicontrol {Visualize Indent}. To adjust the color of the visualization, 
-    change the value of the Visual Whitespace setting of the editor color scheme 
+    \uicontrol {Visualize Indent}. To adjust the color of the visualization,
+    change the value of the Visual Whitespace setting of the editor color scheme
     in \uicontrol {Font & Colors}.
 
-    \image qtcreator-options-text-editor-display.png "Text Editor Display preferences"
+    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
 
     To help you keep line length at a particular number of characters, set the
     number of characters in the \uicontrol {Display right margin at column}
@@ -80,24 +80,39 @@
     To use a context-specific margin when available, select the
     \uicontrol {Use context-specific margin} check box.
     \if defined(qtcreator)
-    For example, the margin could be set by the \c ColumnLimit option of the
-    \l{Specifying Code Style Settings}{Clang Format plugin}.
+    Then, use the ClangFormat \c ColumnLimit option to set the margin, for
+    example.
 
     \section1 Indenting C++ Files
+
+    \QC uses the Clang \l{https://clang.llvm.org/docs/LibFormat.html}{LibFormat}
+    library to automatically format and indent C++ code. It enforces a coding
+    style for a project or the whole organization.
 
     To specify indentation settings for the C++ editor:
 
     \list 1
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {C++}.
+            \image qtcreator-code-style-clang-format-global.webp {Code Style preferences}
+        \li In \uicontrol {Formatting mode}, select \uicontrol {Indenting Only}
+            to only indent code. Select \uicontrol {Full Formatting} to use the
+            \key {Ctrl+I} keyboard shortcut to format code instead of indenting.
+            Select \uicontrol Disable to turn off ClangFormat.
+        \li To apply the formatting while you type, select
+            \uicontrol {Format while typing}.
+        \li To apply the formatting to the edited code when you save the file,
+            select \uicontrol {Format edited code on file save}.
+        \li To change the ClangFormat style globally for all projects,
+            select \uicontrol {Override ClangFormat configuration file}.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
-            \image qtcreator-options-code-style-cpp.png "C++ Code Style preferences"
         \li Give a name to the settings and click \uicontrol OK.
-        \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style dialog"
+        \li Click \uicontrol Edit to set
+            \l{https://clang.llvm.org/docs/ClangFormatStyleOptions.html}
+            {ClangFormat Style Options}.
     \endlist
 
-    You can specify how to:
+    In the other tabs, you can specify how to:
 
     \list
         \li Interpret the \key Tab and \key Backspace key presses.
@@ -111,12 +126,27 @@
         \li Name getter functions.
     \endlist
 
-    You can use the live preview to see how the preferences change the indentation.
+    Use the live preview to see how the preferences change the indentation.
 
-    To specify different settings for a particular project, select
-    \uicontrol Projects > \uicontrol {Code Style}.
+    \section2 Creating Project-Specific ClangFormat Files
 
-    \include creator-clangformat.qdocinc clang format
+    To override the \c {.clang-format} file for a particular project, create a
+    copy of the built-in style and edit its settings by selecting
+    \uicontrol Projects > \uicontrol {Project Settings} >
+    \uicontrol {Code Style} > \uicontrol Copy > \uicontrol Edit >
+    \uicontrol {ClangFormat} >
+    \uicontrol {Override ClangFormat configuration file}.
+
+    \section2 Creating ClangFormat Files from Command Line
+
+    You can create \c {.clang-format} files that have the configuration
+    options of a certain predefined style from the command line. For example,
+    to create a format file for the LLVM style, enter the following command:
+
+    \badcode
+    clang-format -style=llvm -dump-config > .clang-format
+    \endcode
+
     \endif
 
     \section1 Indenting QML Files
@@ -128,10 +158,10 @@
             \uicontrol {Qt Quick}.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
-            \image qtcreator-options-code-style-qml.png "QML Code Style preferences"
+            \image qtcreator-options-code-style-qml.png {QML Code Style preferences}
         \li Give a name to the settings and click \uicontrol OK.
         \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style dialog"
+            \image qtcreator-code-style-settings-edit-qtquick.png {Edit Code Style dialog}
     \endlist
 
     You can specify how to interpret the \key Tab key presses and how to align
@@ -152,10 +182,10 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Nim.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
-            \image qtcreator-options-code-style-nim.png "Nim Code Style preferences"
+            \image qtcreator-options-code-style-nim.png {Nim Code Style preferences}
         \li Give a name to the settings and click \uicontrol OK.
         \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-nim.png "Edit Code Style dialog"
+            \image qtcreator-code-style-settings-edit-nim.png {Edit Code Style dialog}
     \endlist
 
     You can specify how to interpret the \key Tab key presses and how to align
@@ -171,7 +201,7 @@
     QML code (such as Python code files), select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior.
 
-    \image qtcreator-indentation.png "Text Editor Behavior preferences"
+    \image qtcreator-indentation.png {Text Editor Behavior preferences}
 
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol Editor.
@@ -251,21 +281,21 @@
     You can also indent statements within functions and blocks and declarations
     within namespaces.
 
-    \image qtcreator-code-style-content.png "Content preferences"
+    \image qtcreator-code-style-content.png {Content preferences}
 
     \section1 Specifying Settings for Braces
 
     You can indent class, namespace, enum and function declarations and code
     blocks.
 
-    \image qtcreator-code-style-braces.png "Braces preferences"
+    \image qtcreator-code-style-braces.png {Braces preferences}
 
     \section1 Specifying Settings for Switch Statements
 
     You can indent case or default statements, or statements or blocks related
     to them within switch statements.
 
-    \image qtcreator-code-style-switch.png "Switch preferences"
+    \image qtcreator-code-style-switch.png {Switch preferences}
 
     \section1 Specifying Alignment
 
@@ -278,7 +308,7 @@
     aligned with the following line. Usually, this only affects \c if
     statements.
 
-    \image qtcreator-code-style-alignment.png "Alignment preferences"
+    \image qtcreator-code-style-alignment.png {Alignment preferences}
 
     \section1 Binding Pointers and References
 
@@ -289,6 +319,6 @@
     The \c * and \c & characters are automatically bound to identifiers of
     pointers to functions and pointers to arrays.
 
-    \image qtcreator-pointers-references.png "Pointers and References preferences"
+    \image qtcreator-pointers-references.png {Pointers and References preferences}
     \endif
 */

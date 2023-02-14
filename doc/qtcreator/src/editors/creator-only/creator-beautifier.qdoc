@@ -51,6 +51,12 @@
         \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {C++} >
             \uicontrol Beautifier to enable the plugin.
 
+            \note Since \QC 10.0.0, the ClangFormat plugin is enabled by
+            default. Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol {C++} > \uicontrol {Formatting mode} > \uicontrol Disable
+            to turn off ClangFormat if you enable Beautifier because combining
+            them can lead to unexpected results.
+
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
         \li Select \uicontrol Edit > \uicontrol Preferences >
@@ -75,7 +81,7 @@
             project} check box to only beautify files that belong to the
             current project.
 
-        \li Select \uicontrol {Artistic Style}, \uicontrol {Clang Format}, or
+        \li Select \uicontrol {Artistic Style}, \uicontrol {ClangFormat}, or
             \uicontrol Uncrustify to specify settings for the tool you want to
             use.
 
@@ -83,7 +89,7 @@
 
         \li In the \uicontrol Configuration group, specify the path to
             the tool executable in the \uicontrol {Artistic Style command},
-            \uicontrol {Clang Format command}, or
+            \uicontrol {ClangFormat command}, or
             \uicontrol {Uncrustify command} field.
 
         \li In the \uicontrol {Restrict to MIME types} field, define the MIME
@@ -113,12 +119,12 @@
                     use the specified file in the user's home directory as the
                     configuration file for the selected tool.
 
-                \li For Clang Format, you can use a predefined style, by
+                \li For ClangFormat, you can use a predefined style, by
                     selecting the \uicontrol {Use predefined style} radio
                     button, and then selecting the style to use from the list of
                     available styles.
 
-                    \image qtcreator-beautifier-options-clangformat.png "Clang Format Beautifier preferences"
+                    \image qtcreator-beautifier-options-clangformat.png "ClangFormat Beautifier preferences"
 
                     Select \uicontrol File to load the style configuration from
                     the \c .clang-format or \c _clang-format file located in the
