@@ -790,15 +790,23 @@ def qdump__std__valarray(d, value):
 
 
 def qdump__std__variant(d, value):
-    which = int(value["_M_index"])
+    if d.isMsvcTarget():
+        which = int(value["_Which"])
+    else:
+        which = int(value["_M_index"])
     type = d.templateArgument(value.type, which)
-    d.putValue("<%s:%s>" % (which, type.name))
 
-    d.putNumChild(1)
-    if d.isExpanded():
-        storage = value["_M_u"]["_M_first"]["_M_storage"]
-        with Children(d, 1):
-            d.putSubItem("value", storage.cast(type))
+    if d.isMsvcTarget():
+         storage = value
+         while which > 0:
+             storage = storage["_Tail"]
+             which = which - 1
+         storage = storage["_Head"]
+    else:
+         storage = value["_M_u"]["_M_first"]["_M_storage"]
+    d.putItem(storage)
+    d.putBetterType(type)
+
 
 def qform__std__vector():
     return [DisplayFormat.ArrayPlot]

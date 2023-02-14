@@ -5590,6 +5590,24 @@ void tst_Dumpers::dumper_data()
                + Check("o3", "<3 items>", "std::vector<int>")
                + Check("o3.1", "[1]", "2", "int");
 
+
+    QTest::newRow("StdVariant")
+        << Data("#include <variant>\n"
+                "#include <vector>\n",
+
+                "std::variant<bool, std::vector<int>> v1 = false;\n"
+                "std::variant<bool, std::vector<int>> v2 = true;\n"
+                "std::variant<bool, std::vector<int>> v3 = std::vector<int>{1,2,3};",
+
+                "&v1, &v2, &v3")
+
+               + Cxx11Profile()
+
+               + Check("v1", "0", "bool")
+               + Check("v2", "1", "bool") // 1 -> true is done on display
+               + Check("v3", "<3 items>", "std::vector<int>")
+               + Check("v3.1", "[1]", "2", "int");
+
 //    class Goo
 //    {
 //    public:
