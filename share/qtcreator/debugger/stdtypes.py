@@ -1055,7 +1055,7 @@ def qdump__std__optional(d, value):
     (payload, pad, initialized) = d.split('{%s}@b' % innerType.name, value)
     if initialized:
         d.putItem(payload)
-        d.putBetterType(value.type)
+        d.putBetterType(innerType)
     else:
         d.putSpecialValue("uninitialized")
 

@@ -5572,6 +5572,24 @@ void tst_Dumpers::dumper_data()
 
                + Check("empty", "<0 items>", "std::initializer_list<int>");
 
+
+    QTest::newRow("StdOptional")
+        << Data("#include <optional>\n"
+                "#include <vector>\n",
+
+                "std::optional<bool> o1;\n"
+                "std::optional<bool> o2 = true;\n"
+                "std::optional<std::vector<int>> o3 = std::vector<int>{1,2,3};",
+
+                "&o1, &o2, &o3")
+
+               + Cxx11Profile()
+
+               + Check("o1", "<uninitialized>", "std::optional<bool>")
+               + Check("o2", "1", "bool") // 1 -> true is done on display
+               + Check("o3", "<3 items>", "std::vector<int>")
+               + Check("o3.1", "[1]", "2", "int");
+
 //    class Goo
 //    {
 //    public:
