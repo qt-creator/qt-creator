@@ -24112,7 +24112,7 @@ Remote error output was: %1</source>
         <translation>代碼風格 (*.xml);;所有檔案(*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

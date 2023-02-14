@@ -190,7 +190,7 @@ void CMakeTargetNode::build()
 
 void CMakeTargetNode::setTargetInformation(const QList<FilePath> &artifacts, const QString &type)
 {
-    m_tooltip = Tr::tr("Target type: ") + type + "<br>";
+    m_tooltip = Tr::tr("Target type:") + " " + type + "<br>";
     if (artifacts.isEmpty()) {
         m_tooltip += Tr::tr("No build artifacts");
     } else {

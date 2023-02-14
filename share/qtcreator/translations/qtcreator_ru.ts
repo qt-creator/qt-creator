@@ -6028,8 +6028,8 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>&lt;Заголовки&gt;</translation>
     </message>
     <message>
-        <source>Target type: </source>
-        <translation>Тип цели: </translation>
+        <source>Target type:</source>
+        <translation>Тип цели:</translation>
     </message>
     <message>
         <source>No build artifacts</source>
@@ -19732,8 +19732,7 @@ Commit now?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files: %1
-</source>
+        <source>Cannot commit %n files: %1</source>
         <translation>
             <numerusform>Не удалось фиксировать %n файл: %1
 </numerusform>
@@ -42694,8 +42693,8 @@ Row: %4, Column: %5
         <translation>Стили кода (*.xml);;Все файлы (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Не удалось импортировать стиль кода из %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Не удалось импортировать стиль кода из &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Export Code Style</source>

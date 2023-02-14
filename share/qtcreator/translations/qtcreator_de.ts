@@ -692,11 +692,11 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>CMake mit Änderungen der Konfiguration ausführen?</translation>
     </message>
     <message>
-        <source>&lt;b&gt;CMake configuration failed&lt;b&gt;&lt;p&gt;The backup of the previous configuration has been restored.&lt;/p&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p</source>
+        <source>&lt;b&gt;CMake configuration failed&lt;b&gt;&lt;p&gt;The backup of the previous configuration has been restored.&lt;/p&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p&gt;</source>
         <translation>&lt;b&gt;CMake-Konfiguration ist fehlgeschlagen&lt;b/&gt;&lt;p&gt;Das Backup der vorherigen Konfiguration wurde wiederhergestellt.&lt;/p&gt;&lt;p&gt;Details zu dem Problem finden Sie in &quot;Probleme&quot; und den Einstellungen in &quot;Projekte &gt; Erstellen&quot;.&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Failed to load project&lt;b&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p</source>
+        <source>&lt;b&gt;Failed to load project&lt;b&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p&gt;</source>
         <translation>&lt;b&gt;Laden des Projekts fehlgeschlagen&lt;/b&gt;&lt;p&gt;Details zu dem Problem finden Sie in &quot;Probleme&quot; und den Einstellungen in &quot;Projekte &gt; Erstellen&quot;.&lt;/p&gt;</translation>
     </message>
     <message>
@@ -944,8 +944,8 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
         <translation>CMake-Module</translation>
     </message>
     <message>
-        <source>Target type: </source>
-        <translation>Zieltyp: </translation>
+        <source>Target type:</source>
+        <translation>Zieltyp:</translation>
     </message>
     <message>
         <source>No build artifacts</source>
@@ -1068,24 +1068,24 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
         <translation>CMake hat einen Fehlerwert zurückgegeben: %1</translation>
     </message>
     <message>
-        <source>Failed to rename %1 to %2.</source>
-        <translation>Umbenennen von %1 nach %2 ist fehlgeschlagen.</translation>
+        <source>Failed to rename &quot;%1&quot; to &quot;%2&quot;.</source>
+        <translation>Umbenennen von &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>Failed to copy %1 to %2.</source>
-        <translation>Kopieren von %1 nach %2 ist fehlgeschlagen.</translation>
+        <source>Failed to copy &quot;%1&quot; to &quot;%2&quot;.</source>
+        <translation>Kopieren von &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>Failed to read %1 file</source>
-        <translation>Die Datei %1 konnte nicht gelesen werden</translation>
+        <source>Failed to read file &quot;%1&quot;.</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht gelesen werden.</translation>
     </message>
     <message>
-        <source>Invalid %1 file</source>
-        <translation>Ungültige Datei %1</translation>
+        <source>Invalid file &quot;%1&quot;.</source>
+        <translation>Ungültige Datei &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Invalid &quot;version&quot; in %1 file</source>
-        <translation>Ungültige &quot;version&quot; in Datei %1</translation>
+        <source>Invalid &quot;version&quot; in file &quot;%1&quot;.</source>
+        <translation>Ungültige &quot;version&quot; in Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;configurePresets&quot; section in %1 file</source>
@@ -7374,8 +7374,7 @@ Jetzt Commit ausführen?</translation>
         <translation>Commit &quot;%1&quot; geändert.</translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files
-</source>
+        <source>Cannot commit %n files</source>
         <translation>
             <numerusform>Commit schlug für eine Datei fehl
 </numerusform>
@@ -7488,8 +7487,8 @@ Jetzt Commit ausführen?</translation>
         <translation>branch</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;head&quot;&gt;Show HEAD&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;head&quot;&gt;HEAD anzeigen&lt;/a&gt;</translation>
+        <source>Show HEAD</source>
+        <translation>HEAD anzeigen</translation>
     </message>
     <message>
         <source>Commit Information</source>
@@ -20898,8 +20897,8 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation>Coding-Stile (*.xml);;Alle Dateien (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Der Coding-Stil kann nicht von %1 importiert werden</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Der Coding-Stil kann nicht von &quot;%1&quot; importiert werden.</translation>
     </message>
     <message>
         <source>Export Code Style</source>
@@ -51141,8 +51140,7 @@ in &quot;%2&quot; aus.
         <translation>Vorverarbeitete Datei kann nicht angezeigt werden: %1</translation>
     </message>
     <message>
-        <source>%1, falling back to built-in preprocessor.</source>
-        <translatorcomment>Explicitly not using a full stop at the end, because the value for %1 contains one</translatorcomment>
+        <source>Falling back to built-in preprocessor: %1</source>
         <translation>Falle auf den integrierten Präprozessor zurück: %1</translation>
     </message>
     <message>

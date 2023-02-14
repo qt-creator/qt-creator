@@ -285,8 +285,8 @@ void FileApiReader::makeBackupConfiguration(bool store)
             replyPrev.removeRecursively();
         QTC_CHECK(!replyPrev.exists());
         if (!reply.renameFile(replyPrev))
-            Core::MessageManager::writeFlashing(Tr::tr("Failed to rename %1 to %2.")
-                                                .arg(reply.toString(), replyPrev.toString()));
+            Core::MessageManager::writeFlashing(Tr::tr("Failed to rename \"%1\" to \"%2\".")
+                                                    .arg(reply.toString(), replyPrev.toString()));
     }
 
     FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
@@ -296,9 +296,9 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     if (cmakeCacheTxt.exists())
         if (!FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev))
-            Core::MessageManager::writeFlashing(Tr::tr("Failed to copy %1 to %2.")
-                                                .arg(cmakeCacheTxt.toString(), cmakeCacheTxtPrev.toString()));
-
+            Core::MessageManager::writeFlashing(
+                Tr::tr("Failed to copy \"%1\" to \"%2\".")
+                    .arg(cmakeCacheTxt.toString(), cmakeCacheTxtPrev.toString()));
 }
 
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)

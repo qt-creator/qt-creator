@@ -41,7 +41,7 @@ MacroOptionsWidget::MacroOptionsWidget()
     m_treeWidget->header()->setSortIndicatorShown(true);
     m_treeWidget->header()->setStretchLastSection(true);
     m_treeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
-    m_treeWidget->setHeaderLabels({Tr::tr("Name"), Tr::tr("Description)"), Tr::tr("Shortcut")});
+    m_treeWidget->setHeaderLabels({Tr::tr("Name"), Tr::tr("Description"), Tr::tr("Shortcut")});
 
     m_description = new QLineEdit;
 

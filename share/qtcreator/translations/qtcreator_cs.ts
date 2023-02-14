@@ -36922,8 +36922,8 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Styly kódování (*.xml);;Všechny soubory (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Nelze importovat styl kódování z %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Nelze importovat styl kódování z &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot import code style</source>

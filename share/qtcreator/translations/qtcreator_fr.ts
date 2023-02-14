@@ -35420,8 +35420,8 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>Styles de code (*.xml);;Tous les fichiers (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Impossible d&apos;importer le style de code à partir de %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Impossible d&apos;importer le style de code à partir de &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot import code style</source>

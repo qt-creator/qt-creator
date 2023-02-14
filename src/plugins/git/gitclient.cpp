@@ -2862,7 +2862,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
         GitPlugin::updateCurrentBranch();
         return true;
     }
-    VcsOutputWindow::appendError(Tr::tr("Cannot commit %n files\n", nullptr, commitCount));
+    VcsOutputWindow::appendError(Tr::tr("Cannot commit %n files", nullptr, commitCount) + "\n");
     return false;
 }
 

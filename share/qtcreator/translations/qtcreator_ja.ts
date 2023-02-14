@@ -19802,8 +19802,7 @@ Commit now?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files
-</source>
+        <source>Cannot commit %n files</source>
         <translation>
             <numerusform>%n 個のファイルをコミットできません
 </numerusform>
@@ -29197,8 +29196,8 @@ In addition, device connectivity will be tested.</source>
         <translation>コードスタイル (*.xml);;すべてのファイル (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>%1 からコードスタイルをインポートできません</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; からコードスタイルをインポートできません。</translation>
     </message>
     <message>
         <source>Export Code Style</source>
