@@ -93,7 +93,14 @@ function(_create_ts_custom_target name)
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}"
     COMMAND Qt::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generate .ts files"
+    COMMENT "Generate .ts files, with obsolete translations and files and line numbers"
+    DEPENDS ${_sources}
+    VERBATIM)
+
+  add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_no_locations"
+    COMMAND Qt::lupdate -locations none -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMENT "Generate .ts files, with obsolete translations, without files and line numbers"
     DEPENDS ${_sources}
     VERBATIM)
 
