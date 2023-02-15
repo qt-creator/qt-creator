@@ -237,6 +237,7 @@ private:
     PPToken generateConcatenated(const PPToken &leftTk, const PPToken &rightTk);
 
     void startSkippingBlocks(const PPToken &tk) const;
+    bool checkConditionalNesting() const;
 
 private:
     Client *m_client;

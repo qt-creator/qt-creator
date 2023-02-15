@@ -37,20 +37,17 @@
 #include <QDebug>
 #include <QList>
 #include <QDate>
+#include <QLoggingCategory>
 #include <QTime>
 #include <QPair>
 
 #include <cctype>
+#include <deque>
 #include <list>
 #include <algorithm>
 
-#define NO_DEBUG
-
-#ifndef NO_DEBUG
-#  include <iostream>
-#endif // NO_DEBUG
-
-#include <deque>
+// FIXME: This is used for errors that should appear in the editor.
+static Q_LOGGING_CATEGORY(lexerLog, "qtc.cpp.lexer", QtWarningMsg)
 
 using namespace Utils;
 
@@ -117,13 +114,6 @@ static bool isQtReservedWord(const char *name, int size)
         return size == 4 && same(name, "emit", size);
 
     return false;
-}
-
-static void nestingTooDeep()
-{
-#ifndef NO_DEBUG
-        std::cerr << "*** WARNING #if / #ifdef nesting exceeded the max level " << MAX_LEVEL << std::endl;
-#endif
 }
 
 } // anonymous namespace
@@ -1680,10 +1670,7 @@ void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
 
     GuardLocker depthLocker(m_includeDepthGuard);
     if (m_includeDepthGuard.lockCount() > MAX_INCLUDE_DEPTH) {
-        // FIXME: Categorized logging!
-#ifndef NO_DEBUG
-        std::cerr << "Maximum include depth exceeded" << m_state.m_currentFileName << std::endl;
-#endif
+        qCWarning(lexerLog) << "Maximum include depth exceeded" << m_state.m_currentFileName;
         return;
     }
 
@@ -1929,10 +1916,8 @@ void Preprocessor::handleIfDirective(PPToken *tk)
     Value result;
     const PPToken lastExpressionToken = evalExpression(tk, result);
 
-    if (m_state.m_ifLevel >= MAX_LEVEL - 1) {
-        nestingTooDeep();
+    if (!checkConditionalNesting())
         return;
-    }
 
     const bool value = !result.is_zero();
 
@@ -1953,7 +1938,7 @@ void Preprocessor::handleIfDirective(PPToken *tk)
 void Preprocessor::handleElifDirective(PPToken *tk, const PPToken &poundToken)
 {
     if (m_state.m_ifLevel == 0) {
-//        std::cerr << "*** WARNING #elif without #if" << std::endl;
+        qCWarning(lexerLog) << "#elif without #if";
         handleIfDirective(tk);
     } else {
         lex(tk); // consume "elif" token
@@ -2000,22 +1985,18 @@ void Preprocessor::handleElseDirective(PPToken *tk, const PPToken &poundToken)
             else if (m_client && !wasSkipping && startSkipping)
                 startSkippingBlocks(poundToken);
         }
-#ifndef NO_DEBUG
     } else {
-        std::cerr << "*** WARNING #else without #if" << std::endl;
-#endif // NO_DEBUG
+        qCWarning(lexerLog) << "#else without #if";
     }
 }
 
 void Preprocessor::handleEndIfDirective(PPToken *tk, const PPToken &poundToken)
 {
     if (m_state.m_ifLevel == 0) {
-#ifndef NO_DEBUG
-        std::cerr << "*** WARNING #endif without #if";
+        qCWarning(lexerLog) << "#endif without #if";
         if (!tk->generated())
-            std::cerr << " on line " << tk->lineno << " of file " << m_state.m_currentFileName.toUtf8().constData();
-        std::cerr << std::endl;
-#endif // NO_DEBUG
+            qCWarning(lexerLog) << "on line" << tk->lineno << "of file"
+                              << m_state.m_currentFileName.toUtf8().constData();
     } else {
         bool wasSkipping = m_state.m_skipping[m_state.m_ifLevel];
         m_state.m_skipping[m_state.m_ifLevel] = false;
@@ -2061,22 +2042,18 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
 
         const bool wasSkipping = m_state.m_skipping[m_state.m_ifLevel];
 
-        if (m_state.m_ifLevel < MAX_LEVEL - 1) {
+        if (checkConditionalNesting()) {
             ++m_state.m_ifLevel;
             m_state.m_trueTest[m_state.m_ifLevel] = value;
             m_state.m_skipping[m_state.m_ifLevel] = wasSkipping ? wasSkipping : !value;
 
             if (m_client && !wasSkipping && !value)
                 startSkippingBlocks(*tk);
-        } else {
-            nestingTooDeep();
         }
 
         lex(tk); // consume the identifier
-#ifndef NO_DEBUG
     } else {
-        std::cerr << "*** WARNING #ifdef without identifier" << std::endl;
-#endif // NO_DEBUG
+        qCWarning(lexerLog) << "#ifdef without identifier";
     }
 }
 
@@ -2103,10 +2080,8 @@ void Preprocessor::handleUndefDirective(PPToken *tk)
             m_client->macroAdded(*macro);
         }
         lex(tk); // consume macro name
-#ifndef NO_DEBUG
     } else {
-        std::cerr << "*** WARNING #undef without identifier" << std::endl;
-#endif // NO_DEBUG
+        qCWarning(lexerLog) << "#undef without identifier";
     }
 }
 
@@ -2202,5 +2177,15 @@ void Preprocessor::maybeStartOutputLine()
     if (*ch == '\\')
         buffer.append('\n');
 }
+
+bool Preprocessor::checkConditionalNesting() const
+{
+    if (m_state.m_ifLevel >= MAX_LEVEL - 1) {
+        qCWarning(lexerLog) << "#if/#ifdef nesting exceeding maximum level" << MAX_LEVEL;
+        return false;
+    }
+    return true;
+}
+
 
 } // namespace CPlusPlus
