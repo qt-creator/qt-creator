@@ -117,12 +117,6 @@ const char TASK_CATEGORY_TASKLIST_ID[] = "Task.Category.TaskListId";
 const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";
 const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "Other Project");
 
-const char QT_APPLICATION_WIZARD_CATEGORY[] = "F.Application";
-const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "Application");
-
-const char LIBRARIES_WIZARD_CATEGORY[] = "G.Library";
-const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "Library");
-
 const char IMPORT_WIZARD_CATEGORY[] = "T.Import";
 const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "Import Project");
 
