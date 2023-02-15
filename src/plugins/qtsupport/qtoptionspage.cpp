@@ -852,14 +852,6 @@ static bool canLinkWithQt(QString *toolTip)
         tip << Tr::tr("%1's resource directory is not writable.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME);
     }
-    // guard against redirecting Qt Creator that is part of a Qt installations
-    // TODO this fails for pre-releases in the online installer
-    // TODO this will fail when make Qt Creator non-required in the Qt installers
-    if (installSettingsExist && !installSettingsValue) {
-        canLink = false;
-        tip << Tr::tr("%1 is part of a Qt installation.")
-                   .arg(Core::Constants::IDE_DISPLAY_NAME);
-    }
     const FilePath link = installSettingsValue ? *installSettingsValue : FilePath();
     if (!link.isEmpty())
         tip << Tr::tr("%1 is currently linked to \"%2\".")
