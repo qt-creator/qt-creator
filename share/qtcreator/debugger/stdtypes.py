@@ -804,6 +804,7 @@ def qdump__std__variant(d, value):
          storage = storage["_Head"]
     else:
          storage = value["_M_u"]["_M_first"]["_M_storage"]
+         storage = storage.cast(type)
     d.putItem(storage)
     d.putBetterType(type)
 
