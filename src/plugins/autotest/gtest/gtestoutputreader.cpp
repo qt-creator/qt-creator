@@ -105,7 +105,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = newTestSetStarts.match(line)) {
         m_testSetStarted = true;
         setCurrentTestCase(match.captured(1));
-        GTestResult testResult("internal", {}, m_projectFile);
+        GTestResult testResult({}, {}, m_projectFile);
         testResult.setResult(ResultType::MessageCurrentTest);
         testResult.setDescription(Tr::tr("Entering test case %1").arg(m_currentTestCase));
         reportResult(testResult);

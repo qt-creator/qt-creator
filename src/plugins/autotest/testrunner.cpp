@@ -784,7 +784,7 @@ void TestRunner::onFinished()
 
 void TestRunner::reportResult(ResultType type, const QString &description)
 {
-    TestResult result("internal", {});
+    TestResult result({}, {});
     result.setResult(type);
     result.setDescription(description);
     emit testResultReady(result);
