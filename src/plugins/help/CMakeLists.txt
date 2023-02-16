@@ -12,7 +12,6 @@ add_qtc_plugin(Help
     helpfindsupport.cpp helpfindsupport.h
     helpindexfilter.cpp helpindexfilter.h
     helpmanager.cpp helpmanager.h
-    helpmode.cpp helpmode.h
     helpplugin.cpp helpplugin.h
     helpviewer.cpp helpviewer.h
     helpwidget.cpp helpwidget.h

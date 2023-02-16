@@ -4,7 +4,6 @@
 #include "helpplugin.h"
 
 #include "bookmarkmanager.h"
-#include "contentwindow.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
 #include "generalsettingspage.h"
@@ -13,11 +12,9 @@
 #include "helpicons.h"
 #include "helpindexfilter.h"
 #include "helpmanager.h"
-#include "helpmode.h"
 #include "helptr.h"
 #include "helpviewer.h"
 #include "helpwidget.h"
-#include "indexwindow.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "searchtaskhandler.h"
@@ -35,6 +32,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/helpitem.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
@@ -52,38 +50,47 @@
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QApplication>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QFileInfo>
-#include <QLabel>
-#include <QLibraryInfo>
-#include <QPlainTextEdit>
-#include <QTimer>
-#include <QTranslator>
-#include <qplugin.h>
-#include <QRegularExpression>
-
 #include <QAction>
+#include <QApplication>
 #include <QComboBox>
 #include <QDesktopServices>
-#include <QMenu>
-#include <QStackedLayout>
-#include <QSplitter>
-
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QHelpEngine>
+#include <QLabel>
+#include <QLibraryInfo>
+#include <QMenu>
+#include <QPlainTextEdit>
+#include <QRegularExpression>
+#include <QSplitter>
+#include <QStackedLayout>
+#include <QTimer>
+#include <QTranslator>
 
 #include <functional>
-
-static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
-static const char kToolTipHelpContext[] = "Help.ToolTip";
 
 using namespace Core;
 using namespace Utils;
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
+
+const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
+const char kToolTipHelpContext[] = "Help.ToolTip";
+
+class HelpMode : public IMode
+{
+public:
+    HelpMode()
+    {
+        setObjectName("HelpMode");
+        setContext(Core::Context(Constants::C_MODE_HELP));
+        setIcon(Icon::modeIcon(Icons::MODE_HELP_CLASSIC,
+                               Icons::MODE_HELP_FLAT, Icons::MODE_HELP_FLAT_ACTIVE));
+        setDisplayName(Tr::tr("Help"));
+        setPriority(Constants::P_MODE_HELP);
+        setId(Constants::ID_MODE_HELP);
+    }
+};
 
 class HelpPluginPrivate : public QObject
 {
@@ -641,5 +648,4 @@ void HelpPluginPrivate::doSetupIfNeeded()
     }
 }
 
-} // Internal
-} // Help
+} // Help::Internal
