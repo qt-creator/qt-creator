@@ -29,11 +29,11 @@ Editing
 ### C++
 
 * Added renaming of includes when renaming `.ui` files (QTCREATORBUG-14259)
+* Added automatic refactoring of C++ code when forms in `.ui` files are renamed
+  (QTCREATORBUG-1179)
 * Added option for ignoring files for indexing (QTCREATORBUG-28313)
 * Added `Tools > C++ > Find Unused Functions`, and `Find Unused C/C++ Functions`
   to the project context menu (QTCREATORBUG-6772)
-* Added automatic refactoring of C++ code when `.ui` files are renamed
-  (QTCREATORBUG-1179)
 * Fixed text codec when rewriting headers as part of renaming
   (QTCREATORBUG-28164)
 * Fixed color of whitespace visualization in string literals
@@ -46,9 +46,9 @@ Editing
 * Built-in
     * Added support for spaceship operator (QTCREATORBUG-27503)
     * Fixed handling of `= default` (QTCREATORBUG-28102)
-* Clang Format
+* ClangFormat
     * Enabled by default
-    * Added project setting for `Clang Format` (QTCREATORBUG-28188)
+    * Added project setting for `ClangFormat` (QTCREATORBUG-28188)
 
 ### Language Server Protocol
 
@@ -57,6 +57,7 @@ Editing
 
 ### QML
 
+* Updated code model to Qt 6.5
 * Added experimental support for QML language server
 * Added color preview tooltip (QTCREATORBUG-28446)
 * Added option for applying `qmlformat` on file save (QTCREATORBUG-28192,
@@ -85,8 +86,8 @@ Projects
 ### CMake
 
 * Added deployment method with `cmake --install` (QTCREATORBUG-25880)
-* Added option for using `clang-format` for CMake files
-  ([clang-format Documentation](https://cmake-format.readthedocs.io/en/latest/))
+* Added option for using `cmake-format` for CMake files
+  ([cmake-format Documentation](https://cmake-format.readthedocs.io/en/latest/))
 * Added option for showing advanced configure items by default
 * Moved `Autorun CMake` to global settings
 * Changed environment for running CMake to be based on build environment by
@@ -96,7 +97,6 @@ Projects
 
 ### Qbs
 
-* Updated code model to Qt 6.5
 * Added `Profile` build variant (QTCREATORBUG-27206)
 * Fixed that generated files were not made known to the code model
 
@@ -170,9 +170,8 @@ Platforms
 
 * Added support for remote code model via remote Clangd
 * Added support for loading and attaching to core dumps from remote devices
-* Added support for using Clang Format on remote files
-* Added option to enable necessary capabilities for docker devices to allow lldb
-  debugging
+* Added support for using ClangFormat on remote files
+* Added option to enable necessary capabilities for debugging with LLDB
 * Fixed issue with space in file paths (QTCREATORBUG-28476)
 * Fixed that auto-detection controls were shown for devices registered by the
   installer
