@@ -237,20 +237,23 @@ def substituteCdb(settingsDir):
     test.log("Injected architecture '%s' and bitness '%s' in cdb path..." % (architecture, bitness))
 
 
-def substituteMsvcPaths(settingsDir):
+def substituteMsvcPaths(settingsDir, version):
+    if not version in ['2017', '2019']:
+        test.fatal('Unexpected MSVC version - "%s" not implemented yet.' % version)
+        return
+
     for msvcFlavor in ["Community", "BuildTools"]:
         try:
-            msvc2017Path = os.path.join("C:\\Program Files (x86)", "Microsoft Visual Studio",
-                                        "2017", msvcFlavor, "VC", "Tools", "MSVC")
-            msvc2017Path = os.path.join(msvc2017Path, os.listdir(msvc2017Path)[0], "bin",
-                                        "HostX64", "x64")
+            msvcPath = os.path.join("C:\\Program Files (x86)", "Microsoft Visual Studio",
+                                    version, msvcFlavor, "VC", "Tools", "MSVC")
+            msvcPath = os.path.join(msvcPath, os.listdir(msvcPath)[0], "bin", "HostX64", "x64")
             __substitute__(os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml'),
-                           "SQUISH_MSVC2017_PATH", msvc2017Path)
+                           "SQUISH_MSVC%s_PATH" % version, msvcPath)
             return
         except:
             continue
-    test.warning("PATH variable for MSVC2017 could not be set, some tests will fail.",
-                 "Please make sure that MSVC2017 is installed correctly.")
+    test.warning("PATH variable for MSVC%s could not be set, some tests will fail." % version,
+                 "Please make sure that MSVC%s is installed correctly." % version)
 
 
 def __guessABI__(supportedABIs, use64Bit):
@@ -347,7 +350,8 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
         substituteDefaultCompiler(tmpSettingsDir)
     elif platform.system() in ('Windows', 'Microsoft'):
         substituteCdb(tmpSettingsDir)
-        substituteMsvcPaths(tmpSettingsDir)
+        substituteMsvcPaths(tmpSettingsDir, '2017')
+        substituteMsvcPaths(tmpSettingsDir, '2019')
     substituteOnlineInstallerPath(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
