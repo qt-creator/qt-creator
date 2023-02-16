@@ -162,6 +162,8 @@ namespace ADS
         if (!dockWidget)
             dockWidget = qobject_cast<DockWidget *>(focusedNow);
 
+        bool focusActual = dockWidget && dockWidget->widget();
+
         if (!dockWidget)
             dockWidget = internal::findParent<DockWidget *>(focusedNow);
 
@@ -174,6 +176,12 @@ namespace ADS
     #endif
 
         d->updateDockWidgetFocus(dockWidget);
+
+        if (focusActual) {
+            // Do this async to avoid issues when changing focus in middle of another focus handling
+            QMetaObject::invokeMethod(dockWidget->widget(), QOverload<>::of(&QWidget::setFocus),
+                                      Qt::QueuedConnection);
+        }
     }
 
     void DockFocusController::setDockWidgetFocused(DockWidget *focusedNow)
