@@ -14,7 +14,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    available = ["5.14"]
+    available = ["6.2"]
 
     for qtVersion in available:
         # using a temporary directory won't mess up a potentially existing
@@ -23,9 +23,10 @@ def main():
         checkedKitNames = Targets.getTargetsAsStrings(checkedKits)
         test.verify(_exactlyOne_(map(lambda name: qtVersion in name, checkedKitNames)),
                     "The requested kit should have been checked")
-        if qtVersion == "5.14":
-            test.verify(not any(map(lambda name: "5.10" in name, checkedKitNames)),
-                        "The 5.10 kit should not have been checked when 5.14 is required")
+        if qtVersion == "6.2":
+            check = lambda name : ("5.10" in name or "5.14" in name)
+            test.verify(not any(map(check, checkedKitNames)),
+                        "The 5.x kits should not have been checked when 6.2 is required")
         clickButton(waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
         if not waitForProcessRunning():
             test.fatal("Couldn't start application - leaving test")

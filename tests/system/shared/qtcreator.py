@@ -43,6 +43,7 @@ def __closeInfoBarEntry__(leftButtonText):
                   "window=':Qt Creator_Core::Internal::MainWindow'")
     doNotShowAgain = toolButton % "Do Not Show Again"
     leftWidget = "leftWidget={%s}" % (toolButton % leftButtonText)
+    test.log("closing %s" % leftButtonText)
     clickButton(waitForObject("{%s %s}" % (doNotShowAgain, leftWidget)))
 
 # additionalParameters must be a list or tuple of strings or None
@@ -182,6 +183,16 @@ def substituteTildeWithinQtVersion(settingsDir):
     home = os.path.expanduser("~")
     __substitute__(toolchains, "~", home)
     test.log("Substituted all tildes with '%s' inside qtversion.xml..." % home)
+
+
+def substituteOnlineInstallerPath(settingsDir):
+    qtversions = os.path.join(settingsDir, "QtProject", 'qtcreator', 'qtversion.xml')
+    dflt = "C:/Qt" if platform.system() in ('Microsoft', 'Windows') else os.path.expanduser("~/Qt")
+    replacement = str(os.getenv("SYSTEST_QTOI_BASEPATH", dflt)).replace('\\', '/')
+    while replacement.endswith('/'):
+        replacement = replacement[:-1]
+    __substitute__(qtversions, "SQUISH_QTOI_BASEPATH", replacement)
+    test.log("Substituted online installer base path (%s) inside qtversions.xml." % replacement)
 
 
 def substituteDefaultCompiler(settingsDir):
@@ -337,6 +348,7 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
     elif platform.system() in ('Windows', 'Microsoft'):
         substituteCdb(tmpSettingsDir)
         substituteMsvcPaths(tmpSettingsDir)
+    substituteOnlineInstallerPath(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
 

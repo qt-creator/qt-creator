@@ -5,12 +5,14 @@ Squish tests inside this folder have several prerequisites to get them running.
 First - and most important - you have to own a valid Squish license. At least Squish 6.0 is required.
 
 Second - some of the test suites/test cases expect Qt versions to be installed in their default
-locations. On Linux/macOS this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1. It's easiest to
-use installations of the official opensource Qt packages. Just install the Qt version for the
-respective toolchain with the components (if available):
+locations. On Linux/macOS this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1 and for Qt6 using
+an online installer located in SYSTEST_QTOI_BASEPATH which defaults to ~/Qt on UNIX and C:\Qt on
+Windows - alternatively set it to the base path of the Qt installation used by the online installer.
+It's easiest to use installations of the official opensource Qt packages. Just install the
+Qt version for the respective toolchain with the components (if available):
 - (Desktop) <toolchain> <bitness>, e.g. Desktop gcc 64-bit
 - Qt Quick Controls (if available)
-- Qt Script
+- Qt Script (Qt5 only)
 
 The exact versions and toolchains are:
 
@@ -18,15 +20,18 @@ Linux:
 Qt 5.4.1 (gcc)
 Qt 5.10.1 (gcc)
 Qt 5.14.1 (gcc)
+Qt 6.2.4 (gcc)
 
 macOS:
 Qt 5.10.1 (clang)
 Qt 5.14.1 (clang)
+Qt 6.2.4  (clang)
 
 Windows:
 Qt 5.4.1 (gcc)
 Qt 5.10.1 (MSVC2015, 32 bit)
 Qt 5.14.1 (MSVC2017, 64 bit)
+Qt 6.2.4 (MSVC2019, 64bit)
 
 Third - you'll have to provide some additional repositories.
 These additional repositories are located inside ~/squish-data or C:\Users\<user>\squish-data (depending on the OS you're on).

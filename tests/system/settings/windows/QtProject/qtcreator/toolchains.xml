@@ -99,8 +99,46 @@
   </valuemap>
  </data>
  <data>
+  <variable>ToolChain.6</variable>
+  <valuemap type="QVariantMap">
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2019-pe-64bit</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvarsall.bat</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">amd64</value>
+   <valuelist type="QVariantList" key="ProjectExplorer.MsvcToolChain.environmentModifications">
+    <valuelist type="QVariantList">
+     <value type="QString">PATH</value>
+     <value type="int">0</value>
+     <value type="QString">SQUISH_MSVC2019_PATH</value>
+    </valuelist>
+   </valuelist>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC2019 (amd64)</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{4580fc7c-8102-4144-a808-749b1a29f739}</value>
+   <value type="int" key="ProjectExplorer.ToolChain.Language">1</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.LanguageV2">C</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>ToolChain.7</variable>
+  <valuemap type="QVariantMap">
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2019-pe-64bit</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvarsall.bat</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBatArg">amd64</value>
+   <valuelist type="QVariantList" key="ProjectExplorer.MsvcToolChain.environmentModifications">
+    <valuelist type="QVariantList">
+     <value type="QString">PATH</value>
+     <value type="int">0</value>
+     <value type="QString">SQUISH_MSVC2019_PATH</value>
+    </valuelist>
+   </valuelist>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC2019 (amd64)</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{c6590889-1d34-4d12-af47-51ec76305e88}</value>
+   <value type="int" key="ProjectExplorer.ToolChain.Language">2</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.LanguageV2">Cxx</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>ToolChain.Count</variable>
-  <value type="int">6</value>
+  <value type="int">8</value>
  </data>
  <data>
   <variable>Version</variable>
