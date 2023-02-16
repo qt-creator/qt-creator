@@ -24,20 +24,20 @@ FlameGraphView {
     ]
 
     trRoleNames: [
-        QmlProfilerFlameGraphModel.DurationRole,      qsTranslate("QmlProfiler", "Total Time"),
-        QmlProfilerFlameGraphModel.CallCountRole,     qsTranslate("QmlProfiler", "Calls"),
-        QmlProfilerFlameGraphModel.DetailsRole,       qsTranslate("QmlProfiler", "Details"),
-        QmlProfilerFlameGraphModel.TimePerCallRole,   qsTranslate("QmlProfiler", "Mean Time"),
-        QmlProfilerFlameGraphModel.LocationRole,      qsTranslate("QmlProfiler", "Location"),
-        QmlProfilerFlameGraphModel.AllocationsRole,   qsTranslate("QmlProfiler", "Allocations"),
-        QmlProfilerFlameGraphModel.MemoryRole,        qsTranslate("QmlProfiler", "Memory")
+        QmlProfilerFlameGraphModel.DurationRole,      qsTranslate("QtC::QmlProfiler", "Total Time"),
+        QmlProfilerFlameGraphModel.CallCountRole,     qsTranslate("QtC::QmlProfiler", "Calls"),
+        QmlProfilerFlameGraphModel.DetailsRole,       qsTranslate("QtC::QmlProfiler", "Details"),
+        QmlProfilerFlameGraphModel.TimePerCallRole,   qsTranslate("QtC::QmlProfiler", "Mean Time"),
+        QmlProfilerFlameGraphModel.LocationRole,      qsTranslate("QtC::QmlProfiler", "Location"),
+        QmlProfilerFlameGraphModel.AllocationsRole,   qsTranslate("QtC::QmlProfiler", "Allocations"),
+        QmlProfilerFlameGraphModel.MemoryRole,        qsTranslate("QtC::QmlProfiler", "Memory")
     ].reduce(toMap, {})
 
     details: function(flameGraph) {
         var model = [];
         if (!flameGraph.dataValid) {
             model.push(trRoleNames[QmlProfilerFlameGraphModel.DetailsRole]);
-            model.push(qsTranslate("QmlProfiler", "Various Events"));
+            model.push(qsTranslate("QtC::QmlProfiler", "Various Events"));
         } else {
             function addDetail(role, format) { root.addDetail(role, format, model, flameGraph); }
 
@@ -54,7 +54,7 @@ FlameGraphView {
 
     summary: function(attached) {
         if (!attached.dataValid)
-            return qsTranslate("QmlProfiler", "others");
+            return qsTranslate("QtC::QmlProfiler", "others");
 
         return attached.data(QmlProfilerFlameGraphModel.DetailsRole) + " ("
                 + attached.data(QmlProfilerFlameGraphModel.TypeRole) + ", "
