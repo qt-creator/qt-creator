@@ -1056,6 +1056,7 @@ extend_qtc_plugin(QmlDesigner
     curveeditorview.cpp curveeditorview.h
     animationcurve.cpp animationcurve.h
     curveeditor.cpp curveeditor.h
+    curveeditorconstants.h
     curveeditortoolbar.cpp curveeditortoolbar.h
     curveeditormodel.cpp curveeditormodel.h
     curveeditorstyle.h
