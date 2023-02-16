@@ -11,6 +11,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
+#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -121,63 +123,55 @@ DocumentModel::Entry *DocumentModelPrivate::addEntry(DocumentModel::Entry *entry
 bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
 {
     const QString displayName = entry->plainDisplayName();
-    int minIdx = -1, maxIdx = -1;
 
-    QList<DynamicEntry> dups;
+    QList<DocumentModel::Entry *> dups;
+    FilePaths paths;
+    int minIdx = m_entries.count();
+    int maxIdx = 0;
 
-    for (int i = 0, total = m_entries.count(); i < total; ++i) {
+    for (int i = 0; i < m_entries.count(); ++i) {
         DocumentModel::Entry *e = m_entries.at(i);
         if (e == entry || e->plainDisplayName() == displayName) {
-            e->document->setUniqueDisplayName(QString());
-            dups += DynamicEntry(e);
-            maxIdx = i;
-            if (minIdx < 0)
+            if (minIdx > i)
                 minIdx = i;
+            if (maxIdx < i)
+                maxIdx = i;
+            dups += e;
+            if (!e->filePath().isEmpty())
+                paths += e->filePath();
         }
     }
 
-    const int dupsCount = dups.count();
-    if (dupsCount == 0)
+    const auto triggerDataChanged = [this](int minIdx, int maxIdx) {
+        const QModelIndex idxMin = index(minIdx + 1 /*<no document>*/, 0);
+        const QModelIndex idxMax = index(maxIdx + 1 /*<no document>*/, 0);
+        if (idxMin.isValid() && idxMax.isValid())
+            emit dataChanged(idxMin, idxMax);
+    };
+
+    if (dups.count() == 1) {
+        dups.at(0)->document->setUniqueDisplayName({});
+        triggerDataChanged(minIdx, maxIdx);
         return false;
-
-    if (dupsCount > 1) {
-        int serial = 0;
-        int count = 0;
-        // increase uniqueness unless no dups are left
-        forever {
-            bool seenDups = false;
-            for (int i = 0; i < dupsCount - 1; ++i) {
-                DynamicEntry &e = dups[i];
-                const Utils::FilePath myFileName = e->document->filePath();
-                if (e->document->isTemporary() || myFileName.isEmpty() || count > 10) {
-                    // path-less entry, append number
-                    e.setNumberedName(++serial);
-                    continue;
-                }
-                for (int j = i + 1; j < dupsCount; ++j) {
-                    DynamicEntry &e2 = dups[j];
-                    if (e->displayName().compare(e2->displayName(), Utils::HostOsInfo::fileNameCaseSensitivity()) == 0) {
-                        const Utils::FilePath otherFileName = e2->document->filePath();
-                        if (otherFileName.isEmpty())
-                            continue;
-                        seenDups = true;
-                        e2.disambiguate();
-                        if (j > maxIdx)
-                            maxIdx = j;
-                    }
-                }
-                if (seenDups) {
-                    e.disambiguate();
-                    ++count;
-                    break;
-                }
-            }
-            if (!seenDups)
-                break;
-        }
     }
 
-    emit dataChanged(index(minIdx + 1, 0), index(maxIdx + 1, 0));
+    const FilePath commonAncestor = FileUtils::commonPath(paths);
+
+    int countWithoutFilePath = 0;
+    for (DocumentModel::Entry *e : std::as_const(dups)) {
+        const FilePath path = e->filePath();
+        if (path.isEmpty()) {
+            e->document->setUniqueDisplayName(QStringLiteral("%1 (%2)")
+                                                  .arg(e->document->displayName())
+                                                  .arg(++countWithoutFilePath));
+            continue;
+        }
+        const QString uniqueDisplayName = path.relativeChildPath(commonAncestor).toString();
+        if (uniqueDisplayName != "" && e->document->uniqueDisplayName() != uniqueDisplayName) {
+            e->document->setUniqueDisplayName(uniqueDisplayName);
+        }
+    }
+    triggerDataChanged(minIdx, maxIdx);
     return true;
 }
 
@@ -481,30 +475,6 @@ void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pin
         displayNames.insert(displayName);
         d->disambiguateDisplayNames(entry);
     }
-}
-
-DocumentModelPrivate::DynamicEntry::DynamicEntry(DocumentModel::Entry *e) :
-    entry(e),
-    pathComponents(0)
-{
-}
-
-DocumentModel::Entry *DocumentModelPrivate::DynamicEntry::operator->() const
-{
-    return entry;
-}
-
-void DocumentModelPrivate::DynamicEntry::disambiguate()
-{
-    const QString display = entry->filePath().fileNameWithPathComponents(++pathComponents);
-    entry->document->setUniqueDisplayName(display);
-}
-
-void DocumentModelPrivate::DynamicEntry::setNumberedName(int number)
-{
-    entry->document->setUniqueDisplayName(QStringLiteral("%1 (%2)")
-                                          .arg(entry->document->displayName())
-                                          .arg(number));
 }
 
 } // Internal
