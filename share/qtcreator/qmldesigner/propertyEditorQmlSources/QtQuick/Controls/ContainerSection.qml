@@ -14,7 +14,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Current index")
-            tooltip: qsTr("The index of the current item.")
+            tooltip: qsTr("Sets the index of the current item.")
         }
 
         SecondColumnLayout {
