@@ -48,7 +48,7 @@ ToolBox::ToolBox(SeekerSlider *seeker, QWidget *parentWidget)
     m_rightToolBar->setOrientation(Qt::Horizontal);
     horizontalLayout->addWidget(m_leftToolBar);
     horizontalLayout->addWidget(stretchToolbar);
-    if (seeker)
+    if (m_seeker)
         horizontalLayout->addWidget(m_seeker);
     horizontalLayout->addWidget(m_rightToolBar);
 }
