@@ -119,10 +119,10 @@ const char resetPositionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 const char copyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Copy Formatting");
 const char applyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Apply Formatting");
 
-const char enterComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Enter Component");
+const char enterComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Component");
 const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Merge with Template");
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
-const char makeComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Make Component");
+const char makeComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Create Component");
 const char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Material");
 const char editAnnotationsDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Annotations");
 const char addMouseAreaFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Mouse Area");

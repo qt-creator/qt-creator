@@ -151,7 +151,7 @@ Item {
             }
             StudioControls.MenuItem {
                 id: openSourceItem
-                text: qsTr("Go into Component")
+                text: qsTr("Edit Component")
                 visible: itemsView.componentSource
                 height: visible ? implicitHeight : 0
                 onTriggered: rootView.goIntoComponent(itemsView.componentSource)
