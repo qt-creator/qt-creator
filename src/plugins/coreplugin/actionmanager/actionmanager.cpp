@@ -34,8 +34,6 @@ namespace Core::Internal {
 
 class PresentationModeHandler : public QObject
 {
-    Q_OBJECT
-
 public:
     void connectCommand(Command *command);
 
@@ -520,5 +518,3 @@ void ActionManagerPrivate::saveSettings()
         saveSettings(j.value());
     }
 }
-
-#include "actionmanager.moc"
