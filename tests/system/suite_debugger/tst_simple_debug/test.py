@@ -22,8 +22,8 @@ def main():
                            'onTriggered: console.log("Break here")'])
         invokeMenuItem("File", "Save All")
         filesAndLines = [
-                        { "%s.%s.Source Files.main\\.cpp" % (projectName, projectName) : "QQmlApplicationEngine engine;" },
-                        { "%s.%s.qml\.qrc./.main\\.qml" % (projectName, projectName) : 'onTriggered.*' }
+                        { "%s.app%s.Source Files.main\\.cpp" % (projectName, projectName) : "QQmlApplicationEngine engine;" },
+                        { "%s.app%s.Main\\.qml" % (projectName, projectName) : 'onTriggered.*' }
                         ]
         test.log("Setting breakpoints")
         expectedBreakpointsOrder = setBreakpointsForCurrentProject(filesAndLines)
