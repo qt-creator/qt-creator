@@ -532,6 +532,7 @@ void StudioWelcomePlugin::extensionsInitialized()
 
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
+            Core::ModeManager::setModeStyle(Core::ModeManager::Style::Hidden);
             if (Utils::HostOsInfo::isMacHost()) {
                 s_viewWindow = new QQuickView(Core::ICore::mainWindow()->windowHandle());
 
