@@ -1,5 +1,5 @@
 add_qtc_plugin(QmlDesignerBase
-  DEPENDS Qt::Core
+  DEPENDS Qt::Core Qt::QuickWidgets
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES
     qmldesignerbase_global.h
@@ -12,4 +12,5 @@ extend_qtc_plugin(QmlDesignerBase
   SOURCES
     designersettings.cpp designersettings.h
     qmlpuppetpaths.cpp qmlpuppetpaths.h
+    studioquickwidget.cpp studioquickwidget.h
 )
