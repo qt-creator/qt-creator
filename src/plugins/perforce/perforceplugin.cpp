@@ -1603,7 +1603,7 @@ static QString msgWhereFailed(const QString & file, const QString &why)
 {
     //: Failed to run p4 "where" to resolve a Perforce file name to a local
     //: file system name.
-    return Tr::Tr::tr("Error running \"where\" on %1: %2").
+    return Tr::tr("Error running \"where\" on %1: %2").
             arg(QDir::toNativeSeparators(file), why);
 }
 
