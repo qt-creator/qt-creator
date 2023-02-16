@@ -221,7 +221,9 @@ Item {
 
     MouseArea {
         id: focusGrabber
-        anchors.fill: parent
+        y: searchBox.height
+        width: parent.width
+        height: parent.height - searchBox.height
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onPressed: (mouse) => {
             forceActiveFocus() // Steal focus from name edit
