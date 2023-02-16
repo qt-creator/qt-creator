@@ -3,16 +3,12 @@
 
 #pragma once
 
-#include <QQuickWidget>
-
 namespace QmlDesigner {
 
-class ToolBar : public QQuickWidget
+class ToolBar
 {
-    Q_OBJECT
 
 public:
-    ToolBar();
     static void create();
     static void createStatusBar();
     static bool isVisible();
