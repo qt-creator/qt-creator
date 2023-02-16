@@ -181,6 +181,8 @@ Item {
                     id: searchBox
                     width: parent.width
                     style: StudioTheme.Values.searchControlStyle
+
+                    onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
                 }
 
                 Row {
