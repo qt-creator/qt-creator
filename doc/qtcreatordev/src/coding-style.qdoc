@@ -899,6 +899,29 @@
     container is const or unshared, use \c{std::cref()} to ensure that the container
     is not unnecessarily detached.
 
+    \section3 std::optional
+
+    Avoid the throwing function \c{value()}. Check the availability of the value first, and then use
+    the non-throwing functions for accessing values, like \c{operator*} and \c{operator->}.
+    In very simple cases, you can also use \c{value_or()}.
+
+    \code
+
+    if (optionalThing) {
+        val = optionalThing->member;
+        other = doSomething(*optionalThing);
+    }
+
+    -NOT-
+
+    if (optionalThing) {
+        val = optionalThing.value().member;
+        other = doSomething(optionalThing.value());
+    }
+
+    \endcode
+
+
     \section2 Using QObject
 
     \list
