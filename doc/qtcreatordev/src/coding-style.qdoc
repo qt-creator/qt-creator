@@ -907,11 +907,6 @@
     Make sure that a class uses \c{override} consistently, either for all overridden functions or
     for none.
 
-    \section3 Nullptr
-
-    All compilers support \c{nullptr}, but there is no consensus on using it. If in doubt, ask
-    the maintainer of the module whether they prefer using \c{nullptr}.
-
     \section3 Range-Based for-Loop
 
     You may use range-based for-loops, but beware of the spurious detachment problem.
