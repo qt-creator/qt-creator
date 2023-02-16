@@ -9,6 +9,7 @@ import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
+    focus: true
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 120

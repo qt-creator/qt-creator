@@ -66,6 +66,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_NAVIGATORVIEW_TIME);
+
+    setFocusProxy(m_treeView);
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel *model)
