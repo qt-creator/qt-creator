@@ -24,8 +24,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 const char CHANGEROOTDIR[] = "CompilationDatabaseProjectManager.ChangeRootDirectory";
 const char COMPILE_COMMANDS_JSON[] = "compile_commands.json";
@@ -78,16 +77,10 @@ void CompilationDatabaseProjectManagerPlugin::initialize()
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, onProjectChanged);
-}
 
-QVector<QObject *> CompilationDatabaseProjectManagerPlugin::createTestObjects() const
-{
-    return {
 #ifdef WITH_TESTS
-        new CompilationDatabaseTests
+    addTest<CompilationDatabaseTests>();
 #endif
-    };
 }
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Internal

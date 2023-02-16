@@ -3,6 +3,7 @@
 
 #include "workspacedialog.h"
 
+#include "advanceddockingsystemtr.h"
 #include "dockmanager.h"
 #include "workspaceview.h"
 
@@ -65,7 +66,7 @@ WorkspaceNameInputDialog::WorkspaceNameInputDialog(DockManager *manager, QWidget
     : QDialog(parent)
     , m_manager(manager)
 {
-    auto label = new QLabel(tr("Enter the name of the workspace:"), this);
+    auto label = new QLabel(Tr::tr("Enter the name of the workspace:"), this);
     m_newWorkspaceLineEdit = new QLineEdit(this);
     m_newWorkspaceLineEdit->setValidator(new WorkspaceValidator(this, m_manager->workspaces()));
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -113,21 +114,21 @@ WorkspaceDialog::WorkspaceDialog(DockManager *manager, QWidget *parent)
     : QDialog(parent)
     , m_manager(manager)
     , m_workspaceView(new WorkspaceView(manager))
-    , m_btCreateNew(new QPushButton(tr("&New")))
-    , m_btRename(new QPushButton(tr("&Rename")))
-    , m_btClone(new QPushButton(tr("C&lone")))
-    , m_btDelete(new QPushButton(tr("&Delete")))
-    , m_btReset(new QPushButton(tr("Reset")))
-    , m_btSwitch(new QPushButton(tr("&Switch To")))
-    , m_btImport(new QPushButton(tr("Import")))
-    , m_btExport(new QPushButton(tr("Export")))
-    , m_autoLoadCheckBox(new QCheckBox(tr("Restore last workspace on startup")))
+    , m_btCreateNew(new QPushButton(Tr::tr("&New")))
+    , m_btRename(new QPushButton(Tr::tr("&Rename")))
+    , m_btClone(new QPushButton(Tr::tr("C&lone")))
+    , m_btDelete(new QPushButton(Tr::tr("&Delete")))
+    , m_btReset(new QPushButton(Tr::tr("Reset")))
+    , m_btSwitch(new QPushButton(Tr::tr("&Switch To")))
+    , m_btImport(new QPushButton(Tr::tr("Import")))
+    , m_btExport(new QPushButton(Tr::tr("Export")))
+    , m_autoLoadCheckBox(new QCheckBox(Tr::tr("Restore last workspace on startup")))
 {
-    setWindowTitle(tr("Workspace Manager"));
+    setWindowTitle(Tr::tr("Workspace Manager"));
 
     m_workspaceView->setActivationMode(Utils::DoubleClickActivation);
 
-    QLabel *whatsAWorkspaceLabel = new QLabel(tr("<a href=\"qthelp://org.qt-project.qtcreator/doc/"
+    QLabel *whatsAWorkspaceLabel = new QLabel(Tr::tr("<a href=\"qthelp://org.qt-project.qtcreator/doc/"
            "creator-project-managing-workspaces.html\">What is a Workspace?</a>"));
     whatsAWorkspaceLabel->setOpenExternalLinks(true);
 

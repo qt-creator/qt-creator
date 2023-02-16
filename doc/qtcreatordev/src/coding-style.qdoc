@@ -739,10 +739,6 @@
     \note As an exception, imported third party code as well as code
     interfacing the native APIs (src/support/os_*) can use NULL or 0.
 
-    \section2 C++11 and C++14 Features
-
-    Code should compile with Microsoft Visual Studio 2013, g++ 4.7, and Clang 3.1.
-
     \section3 Lambdas
 
     When using lambdas, note the following:
@@ -910,11 +906,6 @@
 
     Make sure that a class uses \c{override} consistently, either for all overridden functions or
     for none.
-
-    \section3 Nullptr
-
-    All compilers support \c{nullptr}, but there is no consensus on using it. If in doubt, ask
-    the maintainer of the module whether they prefer using \c{nullptr}.
 
     \section3 Range-Based for-Loop
 

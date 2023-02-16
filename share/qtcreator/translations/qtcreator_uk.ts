@@ -18300,8 +18300,8 @@ with a password, which you can enter below.</source>
         <translation>Стилі коду (*.xml);;Усі файли (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Неможливо імпортувати стиль коду з %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Неможливо імпортувати стиль коду з &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Export Code Style</source>

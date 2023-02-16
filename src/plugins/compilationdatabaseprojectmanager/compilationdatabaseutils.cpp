@@ -182,7 +182,7 @@ void filteredFlags(const QString &fileName,
 
         if (flag.startsWith("--sysroot=")) {
             if (sysRoot.isEmpty())
-                sysRoot = FilePath::fromString(updatedPathFlag(flag.mid(10), workingDir));
+                sysRoot = FilePath::fromUserInput(updatedPathFlag(flag.mid(10), workingDir));
             continue;
         }
 

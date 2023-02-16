@@ -186,12 +186,20 @@ static CMakeConfig configurationFromPresetProbe(
         args.emplace_back(configurePreset.generator.value());
     }
     if (configurePreset.architecture && configurePreset.architecture.value().value) {
-        args.emplace_back("-A");
-        args.emplace_back(configurePreset.architecture.value().value.value());
+        if (!configurePreset.architecture->strategy
+            || configurePreset.architecture->strategy
+                   != PresetsDetails::ValueStrategyPair::Strategy::external) {
+            args.emplace_back("-A");
+            args.emplace_back(configurePreset.architecture.value().value.value());
+        }
     }
     if (configurePreset.toolset && configurePreset.toolset.value().value) {
-        args.emplace_back("-T");
-        args.emplace_back(configurePreset.toolset.value().value.value());
+        if (!configurePreset.toolset->strategy
+            || configurePreset.toolset->strategy
+                   != PresetsDetails::ValueStrategyPair::Strategy::external) {
+            args.emplace_back("-T");
+            args.emplace_back(configurePreset.toolset.value().value.value());
+        }
     }
 
     if (configurePreset.cacheVariables) {
@@ -493,6 +501,89 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
                                   data->qt.qt->qmakeFilePath().toString().toUtf8());
 }
 
+ToolChain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
+{
+    // A compiler path example. Note that the compiler version is not the same version from MsvcToolChain
+    // ... \MSVC\14.29.30133\bin\Hostx64\x64\cl.exe
+    //
+    // And the CMakePresets.json
+    //
+    // "toolset": {
+    //      "value": "v142,host=x64,version=14.29.30133",
+    //      "strategy": "external"
+    //  },
+    //  "architecture": {
+    //      "value": "x64",
+    //      "strategy": "external"
+    //  }
+
+    auto msvcToolchains = ToolChainManager::toolchains([](const ToolChain *tc) {
+        return  tc->typeId() ==  ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    });
+
+    const QSet<Abi::OSFlavor> msvcFlavors = Utils::toSet(Utils::transform(msvcToolchains, [](const ToolChain *tc) {
+        return tc->targetAbi().osFlavor();
+    }));
+
+    return ToolChainManager::toolChain(
+        [presetArchitecture, presetToolset, msvcFlavors](const ToolChain *tc) -> bool {
+            if (tc->typeId() != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+                return false;
+
+            const FilePath compilerPath = tc->compilerCommand();
+            const QString architecture = compilerPath.parentDir().fileName().toLower();
+            const QString host
+                = compilerPath.parentDir().parentDir().fileName().toLower().replace("host", "host=");
+            const QString version
+                = QString("version=%1")
+                      .arg(compilerPath.parentDir().parentDir().parentDir().parentDir().fileName());
+
+            static std::pair<QString, Abi::OSFlavor> abiTable[] = {
+                {QStringLiteral("v143"), Abi::WindowsMsvc2022Flavor},
+                {QStringLiteral("v142"), Abi::WindowsMsvc2019Flavor},
+                {QStringLiteral("v141"), Abi::WindowsMsvc2017Flavor},
+            };
+
+            Abi::OSFlavor toolsetAbi = Abi::UnknownFlavor;
+            for (auto abiPair : abiTable) {
+                if (presetToolset.contains(abiPair.first)) {
+                    toolsetAbi = abiPair.second;
+                    break;
+                }
+            }
+
+            // User didn't specify any flavor, so pick the highest toolchain available
+            if (toolsetAbi == Abi::UnknownFlavor) {
+                for (auto abiPair : abiTable) {
+                    if (msvcFlavors.contains(abiPair.second)) {
+                        toolsetAbi = abiPair.second;
+                        break;
+                    }
+                }
+            }
+
+            if (toolsetAbi != tc->targetAbi().osFlavor())
+                return false;
+
+            if (presetToolset.contains("host=") && !presetToolset.contains(host))
+                return false;
+
+            // Make sure we match also version=14.29
+            auto versionIndex = presetToolset.indexOf("version=");
+            if (versionIndex != -1 && !version.startsWith(presetToolset.mid(versionIndex)))
+                return false;
+
+            if (presetArchitecture != architecture)
+                return false;
+
+            qCDebug(cmInputLog) << "For external architecture" << presetArchitecture
+                                << "and toolset" << presetToolset
+                                << "the following toolchain was selected:\n"
+                                << compilerPath.toString();
+            return true;
+        });
+}
+
 QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                      QString *warningMessage) const
 {
@@ -528,16 +619,35 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (configurePreset.generator)
             data->generator = configurePreset.generator.value();
 
-        if (configurePreset.architecture && configurePreset.architecture.value().value)
-            data->platform = configurePreset.architecture.value().value.value();
-
-        if (configurePreset.toolset && configurePreset.toolset.value().value)
-            data->toolset = configurePreset.toolset.value().value.value();
-
         if (configurePreset.binaryDir) {
             QString binaryDir = configurePreset.binaryDir.value();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), binaryDir);
             data->buildDirectory = Utils::FilePath::fromString(binaryDir);
+        }
+
+        const bool architectureExternalStrategy
+            = configurePreset.architecture && configurePreset.architecture->strategy
+              && configurePreset.architecture->strategy
+                     == PresetsDetails::ValueStrategyPair::Strategy::external;
+
+        const bool toolsetExternalStrategy
+            = configurePreset.toolset && configurePreset.toolset->strategy
+              && configurePreset.toolset->strategy
+                     == PresetsDetails::ValueStrategyPair::Strategy::external;
+
+        if (!architectureExternalStrategy && configurePreset.architecture
+            && configurePreset.architecture.value().value)
+            data->platform = configurePreset.architecture.value().value.value();
+
+        if (!toolsetExternalStrategy && configurePreset.toolset && configurePreset.toolset.value().value)
+            data->toolset = configurePreset.toolset.value().value.value();
+
+        if (architectureExternalStrategy && toolsetExternalStrategy) {
+            const ToolChain *tc
+                = findExternalToolchain(configurePreset.architecture->value.value_or(QString()),
+                                        configurePreset.toolset->value.value_or(QString()));
+            if (tc)
+                tc->addToEnvironment(env);
         }
 
         CMakePresets::Macros::updateToolchainFile(configurePreset,

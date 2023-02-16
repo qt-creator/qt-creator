@@ -394,7 +394,7 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
 {
     const Utils::expected_str<QByteArray> jsonContents = jsonFile.fileContents();
     if (!jsonContents) {
-        errorMessage = Tr::tr("Failed to read %1 file").arg(jsonFile.fileName());
+        errorMessage = Tr::tr("Failed to read file \"%1\".").arg(jsonFile.fileName());
         return false;
     }
 
@@ -410,14 +410,14 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     }
 
     if (!jsonDoc.isObject()) {
-        errorMessage = Tr::tr( "Invalid %1 file").arg(jsonFile.fileName());
+        errorMessage = Tr::tr("Invalid file \"%1\".").arg(jsonFile.fileName());
         return false;
     }
 
     QJsonObject root = jsonDoc.object();
 
     if (!parseVersion(root.value("version"), m_presetsData.version)) {
-        errorMessage = Tr::tr("Invalid \"version\" in %1 file").arg(jsonFile.fileName());
+        errorMessage = Tr::tr("Invalid \"version\" in file \"%1\".").arg(jsonFile.fileName());
         return false;
     }
 

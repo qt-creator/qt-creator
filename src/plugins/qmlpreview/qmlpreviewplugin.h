@@ -50,7 +50,6 @@ public:
 
     void initialize() override;
     ShutdownFlag aboutToShutdown() override;
-    QVector<QObject *> createTestObjects() const override;
 
     QString previewedFile() const;
     void setPreviewedFile(const QString &previewedFile);

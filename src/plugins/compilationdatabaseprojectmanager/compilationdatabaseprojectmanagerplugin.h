@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -16,10 +15,8 @@ class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IP
     ~CompilationDatabaseProjectManagerPlugin();
 
     void initialize() final;
-    QVector<QObject *> createTestObjects() const final;
 
     class CompilationDatabaseProjectManagerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Internal

@@ -3,6 +3,7 @@
 
 #include "workspacemodel.h"
 
+#include "advanceddockingsystemtr.h"
 #include "dockmanager.h"
 #include "workspacedialog.h"
 
@@ -42,10 +43,10 @@ QVariant WorkspaceModel::headerData(int section, Qt::Orientation orientation, in
         case Qt::DisplayRole:
             switch (section) {
             case 0:
-                result = tr("Workspace");
+                result = Tr::tr("Workspace");
                 break;
             case 1:
-                result = tr("Last Modified");
+                result = Tr::tr("Last Modified");
                 break;
             } // switch (section)
             break;
@@ -162,8 +163,8 @@ void WorkspaceModel::resetWorkspaces()
 void WorkspaceModel::newWorkspace(QWidget *parent)
 {
     WorkspaceNameInputDialog workspaceInputDialog(m_manager, parent);
-    workspaceInputDialog.setWindowTitle(tr("New Workspace Name"));
-    workspaceInputDialog.setActionText(tr("&Create"), tr("Create and &Open"));
+    workspaceInputDialog.setWindowTitle(Tr::tr("New Workspace Name"));
+    workspaceInputDialog.setActionText(Tr::tr("&Create"), Tr::tr("Create and &Open"));
 
     runWorkspaceNameInputDialog(&workspaceInputDialog, [this](const QString &newName) {
         m_manager->createWorkspace(newName);
@@ -173,8 +174,8 @@ void WorkspaceModel::newWorkspace(QWidget *parent)
 void WorkspaceModel::cloneWorkspace(QWidget *parent, const QString &workspace)
 {
     WorkspaceNameInputDialog workspaceInputDialog(m_manager, parent);
-    workspaceInputDialog.setWindowTitle(tr("New Workspace Name"));
-    workspaceInputDialog.setActionText(tr("&Clone"), tr("Clone and &Open"));
+    workspaceInputDialog.setWindowTitle(Tr::tr("New Workspace Name"));
+    workspaceInputDialog.setActionText(Tr::tr("&Clone"), Tr::tr("Clone and &Open"));
     workspaceInputDialog.setValue(workspace + " (2)");
 
     runWorkspaceNameInputDialog(&workspaceInputDialog, [this, workspace](const QString &newName) {
@@ -195,8 +196,8 @@ void WorkspaceModel::deleteWorkspaces(const QStringList &workspaces)
 void WorkspaceModel::renameWorkspace(QWidget *parent, const QString &workspace)
 {
     WorkspaceNameInputDialog workspaceInputDialog(m_manager, parent);
-    workspaceInputDialog.setWindowTitle(tr("Rename Workspace"));
-    workspaceInputDialog.setActionText(tr("&Rename"), tr("Rename and &Open"));
+    workspaceInputDialog.setWindowTitle(Tr::tr("Rename Workspace"));
+    workspaceInputDialog.setActionText(Tr::tr("&Rename"), Tr::tr("Rename and &Open"));
     workspaceInputDialog.setValue(workspace);
 
     runWorkspaceNameInputDialog(&workspaceInputDialog, [this, workspace](const QString &newName) {

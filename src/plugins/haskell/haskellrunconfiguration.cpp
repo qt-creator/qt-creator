@@ -6,6 +6,7 @@
 #include "haskellconstants.h"
 #include "haskellmanager.h"
 #include "haskellproject.h"
+#include "haskelltr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/localenvironmentaspect.h>
@@ -28,7 +29,7 @@ HaskellRunConfigurationFactory::HaskellRunConfigurationFactory()
 HaskellExecutableAspect::HaskellExecutableAspect()
 {
     setSettingsKey("Haskell.Executable");
-    setLabelText(tr("Executable"));
+    setLabelText(Tr::tr("Executable"));
 }
 
 HaskellRunConfiguration::HaskellRunConfiguration(Target *target, Utils::Id id)

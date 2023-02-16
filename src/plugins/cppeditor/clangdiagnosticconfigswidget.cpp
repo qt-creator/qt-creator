@@ -370,7 +370,7 @@ void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMes
         m_infoLabel->setFilled(false);
     } else {
         m_infoLabel->setType(InfoLabel::Error);
-        m_infoLabel->setText(Tr::tr("%1").arg(errorMessage));
+        m_infoLabel->setText(errorMessage);
         m_infoLabel->setFilled(true);
     }
 }

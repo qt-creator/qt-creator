@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
-    <name>ADS::DockAreaTitleBar</name>
+    <name>QtC::ADS</name>
     <message>
         <source>Detach Area</source>
         <translation>分离区域</translation>
@@ -15,9 +15,6 @@
         <source>Close Other Areas</source>
         <translation>关闭其它区域</translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockManager</name>
     <message>
         <source>Cannot Save Workspace</source>
         <translation>无法保存工作区</translation>
@@ -52,9 +49,6 @@
         <source>Could not restore workspace %1</source>
         <translation>无法恢复 %1 工作区</translation>
     </message>
-</context>
-<context>
-    <name>ADS::DockWidgetTab</name>
     <message>
         <source>Detach</source>
         <translation>分离</translation>
@@ -67,9 +61,6 @@
         <source>Close Others</source>
         <translation>关闭其它</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceDialog</name>
     <message>
         <source>Workspace Manager</source>
         <translation>工作区管理器</translation>
@@ -114,9 +105,6 @@
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;What is a Workspace?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;什么是工作区？&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceModel</name>
     <message>
         <source>Workspace</source>
         <translation>工作区</translation>
@@ -150,23 +138,13 @@
         <translation>重命名工作区</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>重命名(&amp;R)</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation>重命名并打开(&amp;O)</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceNameInputDialog</name>
     <message>
         <source>Enter the name of the workspace:</source>
         <translation>输入工作区名称：</translation>
     </message>
-</context>
-<context>
-    <name>ADS::WorkspaceView</name>
     <message>
         <source>Import Workspace</source>
         <translation>导入工作区</translation>
@@ -5772,11 +5750,11 @@ Copy the path to the source files to the clipboard?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;CMake configuration failed&lt;b&gt;&lt;p&gt;The backup of the previous configuration has been restored.&lt;/p&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p</source>
+        <source>&lt;b&gt;CMake configuration failed&lt;b&gt;&lt;p&gt;The backup of the previous configuration has been restored.&lt;/p&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Failed to load project&lt;b&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p</source>
+        <source>&lt;b&gt;Failed to load project&lt;b&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6056,7 +6034,7 @@ Copy the path to the source files to the clipboard?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Target type: </source>
+        <source>Target type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6383,23 +6361,23 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to rename %1 to %2.</source>
+        <source>Failed to rename &quot;%1&quot; to &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to copy %1 to %2.</source>
+        <source>Failed to copy &quot;%1&quot; to &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to read %1 file</source>
+        <source>Failed to read file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Invalid %1 file</source>
+        <source>Invalid file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Invalid &quot;version&quot; in %1 file</source>
+        <source>Invalid &quot;version&quot; in file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11320,7 +11298,7 @@ to version control (%2)
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1, falling back to built-in preprocessor.</source>
+        <source>Falling back to built-in preprocessor: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15717,7 +15695,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Attempts to correct the location of a breakpoint based on file and line number shouldit be in a comment or in a line for which no code is generated. The correction is based on the code model.</source>
+        <source>Attempts to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -20760,8 +20738,7 @@ Commit now?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files
-</source>
+        <source>Cannot commit %n files</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
@@ -21236,7 +21213,7 @@ instead of its installation directory when run outside git bash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;head&quot;&gt;Show HEAD&lt;/a&gt;</source>
+        <source>Show HEAD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

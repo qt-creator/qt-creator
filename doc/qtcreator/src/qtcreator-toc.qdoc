@@ -70,7 +70,7 @@
                     \endlist
                 \li \l{Specifying Run Settings}
                 \li \l{Specifying Editor Settings}
-                \li \l{Specifying Code Style Settings}
+                \li \l{Specifying Code Style}
                 \li \l{Specifying Dependencies}
                 \li \l{Specifying Environment Settings}
                 \li \l{Using Custom Output Parsers}

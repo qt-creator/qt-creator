@@ -4,6 +4,7 @@
 #include "workspaceview.h"
 
 #include "dockmanager.h"
+#include "advanceddockingsystemtr.h"
 
 #include <utils/algorithm.h>
 
@@ -95,7 +96,7 @@ void WorkspaceView::importWorkspace()
     static QString lastDir;
     const QString currentDir = lastDir.isEmpty() ? "" : lastDir;
     const auto fileName = QFileDialog::getOpenFileName(this,
-                                                       tr("Import Workspace"),
+                                                       Tr::tr("Import Workspace"),
                                                        currentDir,
                                                        "Workspaces (*" + m_manager->workspaceFileExtension() + ")");
 
@@ -112,7 +113,7 @@ void WorkspaceView::exportCurrentWorkspace()
     QFileInfo fileInfo(currentDir, m_manager->workspaceNameToFileName(currentWorkspace()));
 
     const auto fileName = QFileDialog::getSaveFileName(this,
-                                                       tr("Export Workspace"),
+                                                       Tr::tr("Export Workspace"),
                                                        fileInfo.absoluteFilePath(),
                                                        "Workspaces (*" + m_manager->workspaceFileExtension() + ")");
 

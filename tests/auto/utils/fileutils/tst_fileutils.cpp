@@ -118,6 +118,9 @@ private slots:
     void tmp_data();
     void tmp();
 
+    void filePathInfoFromTriple_data();
+    void filePathInfoFromTriple();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1357,6 +1360,77 @@ void tst_fileutils::tmp()
         QVERIFY(result->removeFile());
     }
 }
+
+void tst_fileutils::filePathInfoFromTriple_data()
+{
+    QTest::addColumn<QString>("statoutput");
+    QTest::addColumn<FilePathInfo>("expected");
+
+    QTest::newRow("empty") << QString() << FilePathInfo();
+
+    QTest::newRow("linux-root") << QString("41ed 1676354359 4096")
+                                << FilePathInfo{4096,
+                                                FilePathInfo::FileFlags(
+                                                    FilePathInfo::ReadOwnerPerm
+                                                    | FilePathInfo::WriteOwnerPerm
+                                                    | FilePathInfo::ExeOwnerPerm
+                                                    | FilePathInfo::ReadGroupPerm
+                                                    | FilePathInfo::ExeGroupPerm
+                                                    | FilePathInfo::ReadOtherPerm
+                                                    | FilePathInfo::ExeOtherPerm
+                                                    | FilePathInfo::DirectoryType
+                                                    | FilePathInfo::ExistsFlag),
+                                                QDateTime::fromSecsSinceEpoch(1676354359)};
+
+    QTest::newRow("linux-grep-bin")
+        << QString("81ed 1668852790 808104")
+        << FilePathInfo{808104,
+                        FilePathInfo::FileFlags(
+                            FilePathInfo::ReadOwnerPerm | FilePathInfo::WriteOwnerPerm
+                            | FilePathInfo::ExeOwnerPerm | FilePathInfo::ReadGroupPerm
+                            | FilePathInfo::ExeGroupPerm | FilePathInfo::ReadOtherPerm
+                            | FilePathInfo::ExeOtherPerm | FilePathInfo::FileType
+                            | FilePathInfo::ExistsFlag),
+                        QDateTime::fromSecsSinceEpoch(1668852790)};
+
+    QTest::newRow("linux-disk") << QString("61b0 1651167746 0")
+                                << FilePathInfo{0,
+                                                FilePathInfo::FileFlags(
+                                                    FilePathInfo::ReadOwnerPerm
+                                                    | FilePathInfo::WriteOwnerPerm
+                                                    | FilePathInfo::ReadGroupPerm
+                                                    | FilePathInfo::WriteGroupPerm
+                                                    | FilePathInfo::LocalDiskFlag
+                                                    | FilePathInfo::ExistsFlag),
+                                                QDateTime::fromSecsSinceEpoch(1651167746)};
+}
+
+void tst_fileutils::filePathInfoFromTriple()
+{
+    QFETCH(QString, statoutput);
+    QFETCH(FilePathInfo, expected);
+
+    const FilePathInfo result = FileUtils::filePathInfoFromTriple(statoutput);
+
+    QCOMPARE(result, expected);
+}
+
+QT_BEGIN_NAMESPACE
+namespace QTest {
+template<>
+char *toString(const FilePathInfo &filePathInfo)
+{
+    QByteArray ba = "FilePathInfo(";
+    ba += QByteArray::number(filePathInfo.fileSize);
+    ba += ", ";
+    ba += QByteArray::number(filePathInfo.fileFlags, 16);
+    ba += ", ";
+    ba += filePathInfo.lastModified.toString().toUtf8();
+    ba += ")";
+    return qstrdup(ba.constData());
+}
+
+} // namespace QTest
 
 QTEST_GUILESS_MAIN(tst_fileutils)
 

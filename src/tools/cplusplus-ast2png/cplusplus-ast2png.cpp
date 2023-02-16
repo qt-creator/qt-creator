@@ -511,11 +511,9 @@ int main(int argc, char *argv[])
     }
 
     // Process options & arguments
-    const bool helpRequested = args.contains(QLatin1String("-h"))
-        || args.contains(QLatin1String("-help"));
-    if (helpRequested) {
+    if (args.contains(QLatin1String("-h")) || args.contains(QLatin1String("-help"))) {
         printUsage();
-        return helpRequested ? EXIT_SUCCESS : EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
     if (args.contains(QLatin1String("-v"))) {

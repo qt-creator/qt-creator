@@ -188,7 +188,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->buttonLayout->setContentsMargins(0, -1, -1, -1);
     QToolButton *openSettingsButton = new QToolButton;
     openSettingsButton->setIcon(Utils::Icons::SETTINGS.icon());
-    openSettingsButton->setToolTip(Tr::tr("Open Settings Page..."));
+    openSettingsButton->setToolTip(Core::ICore::msgShowOptionsDialog());
     connect(openSettingsButton, &QToolButton::clicked,  this, [] {
         Core::ICore::showOptionsDialog(Constants::VCS_COMMON_SETTINGS_ID);
     });

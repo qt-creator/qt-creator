@@ -16654,7 +16654,7 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <translation>CMake moduli</translation>
     </message>
     <message>
-        <source>Target type: </source>
+        <source>Target type:</source>
         <translation>Vrsta odredišta:</translation>
     </message>
     <message>
@@ -23048,8 +23048,7 @@ Commit now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files: %1
-</source>
+        <source>Cannot commit %n files: %1</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -33148,7 +33147,7 @@ Row: %4, Column: %5
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

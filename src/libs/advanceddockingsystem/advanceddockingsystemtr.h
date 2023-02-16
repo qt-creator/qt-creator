@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace AdvancedDockingSystem {
+namespace ADS {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QtC::AdvancedDockingSystem)
+    Q_DECLARE_TR_FUNCTIONS(QtC::ADS)
 };
 
 } // AdvancedDockingSystem

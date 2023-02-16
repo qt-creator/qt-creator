@@ -4456,8 +4456,8 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>*** cmake proces afsluttede med afslutningskode %1.</translation>
     </message>
     <message>
-        <source>Target type: </source>
-        <translation>Måltype: </translation>
+        <source>Target type:</source>
+        <translation>Måltype:</translation>
     </message>
     <message>
         <source>No build artifacts</source>
@@ -16077,8 +16077,7 @@ Commit nu?</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files: %1
-</source>
+        <source>Cannot commit %n files: %1</source>
         <translation>
             <numerusform>Kan ikke commit %n fil: %1
 </numerusform>
@@ -33328,8 +33327,8 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <translation>Kodestile (*.xml);;Alle filer (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Kan ikke importere kodestil fra %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Kan ikke importere kodestil fra &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Export Code Style</source>

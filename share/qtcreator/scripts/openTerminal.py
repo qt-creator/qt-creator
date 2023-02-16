@@ -100,7 +100,13 @@ def main():
         shell_script.write(commands)
         shell_script.flush()
         os.chmod(shell_script.name, stat.S_IXUSR | stat.S_IRUSR | stat.S_IWUSR)
-        subprocess.call(['/usr/bin/open', '-a', 'Terminal', shell_script.name])
+        # TODO /usr/bin/open doesn't work with notarized app in macOS 13,
+        #      use osascript instead (QTCREATORBUG-28683).
+        #      This has the disadvantage that the Terminal windows doesn't close
+        #      automatically anymore.
+        # subprocess.call(['/usr/bin/open', '-a', 'Terminal', shell_script.name])
+        subprocess.call(['/usr/bin/osascript', '-e', 'tell app "Terminal" to activate'])
+        subprocess.call(['/usr/bin/osascript', '-e', 'tell app "Terminal" to do script "' + shell_script.name + '"'])
 
 if __name__ == "__main__":
     main()

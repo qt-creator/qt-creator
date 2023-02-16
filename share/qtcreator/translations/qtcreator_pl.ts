@@ -5499,8 +5499,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files: %1
-</source>
+        <source>Cannot commit %n files: %1</source>
         <translation>
             <numerusform>Nie można utworzyć poprawki ze zmian w %n pliku: %1
 </numerusform>
@@ -17814,8 +17813,8 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <translation>Style kodu (*.xml);;Wszystkie pliki (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Nie można zaimportować stylu kodu z %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Nie można zaimportować stylu kodu z &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Export Code Style</source>
@@ -38667,8 +38666,8 @@ Błąd: %2</translation>
         <translation>Moduły CMake</translation>
     </message>
     <message>
-        <source>Target type: </source>
-        <translation>Typ docelowy: </translation>
+        <source>Target type:</source>
+        <translation>Typ docelowy:</translation>
     </message>
     <message>
         <source>No build artifacts</source>

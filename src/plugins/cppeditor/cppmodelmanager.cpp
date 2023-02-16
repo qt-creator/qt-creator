@@ -354,8 +354,8 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
                                             .arg(reason));
     };
     static const auto showFallbackWarning = [](const QString &reason) {
-        Core::MessageManager::writeSilently(Tr::tr("%1, falling back to built-in preprocessor.")
-                                            .arg(reason));
+        Core::MessageManager::writeSilently(
+            Tr::tr("Falling back to built-in preprocessor: %1").arg(reason));
     };
     static const auto saveAndOpen = [](const FilePath &filePath, const QByteArray &contents,
                                        bool inNextSplit) {

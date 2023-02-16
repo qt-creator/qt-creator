@@ -209,7 +209,7 @@ void CodeStyleSelectorWidget::slotImportClicked()
         else
             QMessageBox::warning(this,
                                  Tr::tr("Import Code Style"),
-                                 Tr::tr("Cannot import code style from %1")
+                                 Tr::tr("Cannot import code style from \"%1\".")
                                      .arg(fileName.toUserOutput()));
     }
 }

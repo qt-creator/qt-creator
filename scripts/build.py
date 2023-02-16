@@ -189,7 +189,7 @@ def build_qtcreator(args, paths):
     if args.with_cpack:
         cmake_args += ['-DCPACK_PACKAGE_FILE_NAME=qtcreator' + args.zip_infix]
         if common.is_linux_platform():
-            cmake_args += ['-DCPACK_INSTALL_PREFIX=/opt']
+            cmake_args += ['-DCPACK_INSTALL_PREFIX=/opt/qt-creator']
 
     cmake_args += args.config_args
 

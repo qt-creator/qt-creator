@@ -14,7 +14,7 @@ struct QmlPreviewRunnerSetting
     QmlPreviewFileLoader fileLoader;
     QmlPreviewFileClassifier fileClassifier;
     QmlPreviewFpsHandler fpsHandler;
-    float zoomFactor = 1.0;
+    float zoomFactor = -1.0;
     QString language;
     QmlDebugTranslationClientCreator createDebugTranslationClientMethod;
 };

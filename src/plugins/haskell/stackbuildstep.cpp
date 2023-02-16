@@ -5,6 +5,7 @@
 
 #include "haskellconstants.h"
 #include "haskellmanager.h"
+#include "haskelltr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
@@ -29,7 +30,7 @@ QWidget *StackBuildStep::createConfigWidget()
 
 QString StackBuildStep::trDisplayName()
 {
-    return tr("Stack Build");
+    return Tr::tr("Stack Build");
 }
 
 bool StackBuildStep::init()

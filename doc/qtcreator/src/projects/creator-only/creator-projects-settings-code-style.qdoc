@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -12,40 +12,37 @@
     \page creator-code-style-settings.html
     \nextpage creator-build-dependencies.html
 
-    \title Specifying Code Style Settings
+    \title Specifying Code Style
 
     \QC uses the \l{Editing MIME Types}{MIME type} of the file to
     determine which mode and editor to use for opening the file.
     \QC opens C++ files in \uicontrol Edit mode in the C++ code editor and
     QML files in the Qt Quick editor.
 
-    You can configure the code style according to your needs. You can specify
-    code style either globally for all projects or separately for each
-    project. You can specify several sets of code style settings and easily
-    switch between them. In addition, you can import and export code style
-    settings.
-
-    \image qtcreator-projects-code-style.png "Code Style settings in Projects mode"
-
-    Alternatively, you can enable the Clang Format plugin to enforce
-    the code style specified in a \c {.clang-format} file. It uses the
+    \QC uses ClangFormat to enforce the C++ code style specified in a
+    \c {.clang-format} file. It uses the
     \l{https://clang.llvm.org/docs/LibFormat.html}{LibFormat} library for
     automatic code formatting and indentation. For more information, see
-    \l {Automatic Formatting and Indentation}.
+    \l {Indenting C++ Files}.
 
-    \image qtcreator-code-style-clang-format.png "Clang Format Code Style settings in Projects mode"
+    \image qtcreator-code-style-clang-format-project.webp {Code Style settings in Projects mode}
 
-    To specify global code style settings sets for C++ files, select
+    In rare cases, ClangFormat can trip over a code construct and
+    trigger a \QC crash. If that happens for your project, select
+    \uicontrol {Formatting mode} > \uicontrol Disable to switch
+    ClangFormat off for the project. If you can reproduce the crash,
+    please select \uicontrol Help > \uicontrol {Report Bug} to report
+    the bug and and attach the code that triggers the crash.
+
+    To specify a global code style for C++ files, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol C++.
 
-    \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
+    \image qtcreator-code-style-clang-format-global.webp {Code Style preferences}
 
-    To specify global code style settings sets for QML files, select
+    To specify a global code style for QML files, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick}.
 
-    \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings view"
-
-    Only \uicontrol General settings are available for QML files.
+    \image qtcreator-code-style-settings-edit-qtquick.png {Code Style view}
 
     To configure the editor behavior for the current project:
 
@@ -62,7 +59,7 @@
 
         \li Give a name to the settings and click \uicontrol OK.
 
-        \li Click \uicontrol Edit to specify code style settings for the project.
+        \li Click \uicontrol Edit to specify a code style for the project.
 
     \endlist
 

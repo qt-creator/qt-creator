@@ -15,3 +15,10 @@ add_qtc_plugin(WebAssembly
     webassemblyrunconfiguration.cpp webassemblyrunconfiguration.h
     webassemblytoolchain.cpp webassemblytoolchain.h
 )
+
+extend_qtc_plugin(WebAssembly
+  CONDITION WITH_TESTS
+  SOURCES
+    webassembly_test.cpp
+    webassembly_test.h
+)

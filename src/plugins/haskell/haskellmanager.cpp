@@ -3,6 +3,8 @@
 
 #include "haskellmanager.h"
 
+#include "haskelltr.h"
+
 #include <coreplugin/messagemanager.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
@@ -92,7 +94,7 @@ void HaskellManager::openGhci(const FilePath &haskellFile)
     connect(p, &QtcProcess::done, p, [p] {
         if (p->result() != ProcessResult::FinishedWithSuccess) {
             Core::MessageManager::writeDisrupting(
-                tr("Failed to run GHCi: \"%1\".").arg(p->errorString()));
+                Tr::tr("Failed to run GHCi: \"%1\".").arg(p->errorString()));
         }
         p->deleteLater();
     });

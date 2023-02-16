@@ -29,6 +29,10 @@ public:
     explicit Environment(const NameValueDictionary &dict) : m_dict(dict) {}
 
     QString value(const QString &key) const { return m_dict.value(key); }
+    QString value_or(const QString &key, const QString &defaultValue) const
+    {
+        return m_dict.hasKey(key) ? m_dict.value(key) : defaultValue;
+    }
     bool hasKey(const QString &key) const { return m_dict.hasKey(key); }
 
     void set(const QString &key, const QString &value, bool enabled = true) { m_dict.set(key, value, enabled); }

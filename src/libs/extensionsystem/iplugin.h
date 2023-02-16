@@ -33,6 +33,9 @@ public:
     virtual QObject *remoteCommand(const QStringList & /* options */,
                                    const QString & /* workingDirectory */,
                                    const QStringList & /* arguments */) { return nullptr; }
+
+
+    // Deprecated in 10.0, use addTest()
     virtual QVector<QObject *> createTestObjects() const;
 
 protected:

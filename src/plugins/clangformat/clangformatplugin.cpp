@@ -103,15 +103,10 @@ void ClangFormatPlugin::initialize()
                         openClangFormatConfigAction->setData(doc->filePath().toVariant());
                 });
     }
-}
 
-QVector<QObject *> ClangFormatPlugin::createTestObjects() const
-{
-    return {
 #ifdef WITH_TESTS
-        new Internal::ClangFormatTest,
+    addTest<Internal::ClangFormatTest>();
 #endif
-    };
 }
 
-} // namespace ClangFormat
+} // ClangFormat

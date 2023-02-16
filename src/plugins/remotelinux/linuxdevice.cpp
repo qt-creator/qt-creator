@@ -1022,10 +1022,17 @@ LinuxDevice::LinuxDevice()
             d->m_terminals.removeOne(proc);
         });
 
-        // Empty command for ssh implies the user's shell, which would be nice in general,
-        // but we can't use that if we modify environment settings, as variables without
-        // command don't work on the ssh commandline.
-        const QString shell = env.toDictionary().size() == 0 ? QString() : QString("/bin/sh");
+        // We recreate the same way that QtcProcess uses to create the actual environment.
+        const Environment finalEnv = (!env.hasChanges() && env.combineWithDeviceEnvironment())
+                                         ? d->getEnvironment()
+                                         : env;
+        // If we will not set any environment variables, we can leave out the shell executable
+        // as the "ssh ..." call will automatically launch the default shell if there are
+        // no arguments. But if we will set environment variables, we need to explicitly
+        // specify the shell executable.
+        const QString shell = finalEnv.hasChanges() ? finalEnv.value_or("SHELL", "/bin/sh")
+                                                    : QString();
+
         proc->setCommand({filePath(shell), {}});
         proc->setTerminalMode(TerminalMode::On);
         proc->setEnvironment(env);
