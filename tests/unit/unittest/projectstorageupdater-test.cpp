@@ -5,6 +5,7 @@
 
 #include "filesystemmock.h"
 #include "projectstoragemock.h"
+#include "projectstoragepathwatchermock.h"
 #include "qmldocumentparsermock.h"
 #include "qmltypesparsermock.h"
 
@@ -218,12 +219,14 @@ protected:
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
+    NiceMock<ProjectStoragePathWatcherMock> patchWatcherMock;
     QmlDesigner::ProjectStorageUpdater updater{fileSystemMock,
                                                projectStorageMock,
                                                fileStatusCache,
                                                sourcePathCache,
                                                qmlDocumentParserMock,
-                                               qmlTypesParserMock};
+                                               qmlTypesParserMock,
+                                               patchWatcherMock};
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/types/example2.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");

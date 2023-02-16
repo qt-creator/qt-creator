@@ -12,6 +12,7 @@
 #include <projectstorage/filesystem.h>
 #include <projectstorage/nonlockingmutex.h>
 #include <projectstorage/projectstorage.h>
+#include <projectstorage/projectstoragepathwatcher.h>
 #include <projectstorage/projectstorageupdater.h>
 #include <projectstorage/qmldocumentparser.h>
 #include <projectstorage/qmltypesparser.h>
@@ -38,6 +39,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QFileSystemWatcher>
 #include <QQmlEngine>
 
 namespace QmlDesigner {
@@ -179,8 +181,15 @@ public:
     FileStatusCache fileStatusCache{fileSystem};
     QmlDocumentParser qmlDocumentParser{storage, pathCache};
     QmlTypesParser qmlTypesParser{pathCache, storage};
-    ProjectStorageUpdater updater{
-        fileSystem, storage, fileStatusCache, pathCache, qmlDocumentParser, qmlTypesParser};
+    ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, ProjectStorageUpdater::PathCache>
+        pathWatcher{pathCache, fileSystem, &updater};
+    ProjectStorageUpdater updater{fileSystem,
+                                  storage,
+                                  fileStatusCache,
+                                  pathCache,
+                                  qmlDocumentParser,
+                                  qmlTypesParser,
+                                  pathWatcher};
 };
 
 std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project)

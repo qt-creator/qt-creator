@@ -32,7 +32,6 @@ void set_greedy_intersection_call(
     }
 }
 
-
 template<typename FileSystemWatcher, typename Timer, class SourcePathCache>
 class ProjectStoragePathWatcher : public ProjectStoragePathWatcherInterface
 {

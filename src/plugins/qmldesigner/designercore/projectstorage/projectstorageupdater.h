@@ -41,13 +41,15 @@ public:
                           FileStatusCache &fileStatusCache,
                           PathCache &pathCache,
                           QmlDocumentParserInterface &qmlDocumentParser,
-                          QmlTypesParserInterface &qmlTypesParser)
+                          QmlTypesParserInterface &qmlTypesParser,
+                          class ProjectStoragePathWatcherInterface &pathWatcher)
         : m_fileSystem{fileSystem}
         , m_projectStorage{projectStorage}
         , m_fileStatusCache{fileStatusCache}
         , m_pathCache{pathCache}
         , m_qmlDocumentParser{qmlDocumentParser}
         , m_qmlTypesParser{qmlTypesParser}
+        , m_pathWatcher{pathWatcher}
     {}
 
     void update(QStringList directories, QStringList qmlTypesPaths);
@@ -151,6 +153,7 @@ private:
     PathCache &m_pathCache;
     QmlDocumentParserInterface &m_qmlDocumentParser;
     QmlTypesParserInterface &m_qmlTypesParser;
+    ProjectStoragePathWatcherInterface &m_pathWatcher;
 };
 
 } // namespace QmlDesigner
