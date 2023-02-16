@@ -739,10 +739,6 @@
     \note As an exception, imported third party code as well as code
     interfacing the native APIs (src/support/os_*) can use NULL or 0.
 
-    \section2 C++11 and C++14 Features
-
-    Code should compile with Microsoft Visual Studio 2013, g++ 4.7, and Clang 3.1.
-
     \section3 Lambdas
 
     When using lambdas, note the following:
