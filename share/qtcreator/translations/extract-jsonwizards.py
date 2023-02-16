@@ -44,7 +44,7 @@ def parse_file(file_path):
 
     for key, value in recursive_iter(root):
         if key.startswith('tr'):
-            result += 'const char *a{} = QT_TRANSLATE_NOOP("ProjectExplorer::JsonWizard", "{}"); // {}\n'.format(index, fix_value(value), file_path)
+            result += 'const char *a{} = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "{}"); // {}\n'.format(index, fix_value(value), file_path)
 
             index += 1
     return result

@@ -27,7 +27,7 @@ def parse_file(file_path):
     index = 0
     for i in ['.//description', './/displayname', './/category']:
         for e in root.findall(i):
-            result += 'const char *a{} = QT_TRANSLATE_NOOP("Core::Internal::ExternalTool", "{}"); // {}\n'.format(index, fix_value(e.text), file_path)
+            result += 'const char *a{} = QT_TRANSLATE_NOOP("QtC::Core", "{}"); // {}\n'.format(index, fix_value(e.text), file_path)
 
             index += 1
     return result

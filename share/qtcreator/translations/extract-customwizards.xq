@@ -1,4 +1,4 @@
-let $prefix := string("QT_TRANSLATE_NOOP(&quot;ProjectExplorer::CustomWizard&quot;, &quot;")
+let $prefix := string("QT_TRANSLATE_NOOP(&quot;QtC::ProjectExplorer&quot;, &quot;")
 let $suffix := concat("&quot;)", codepoints-to-string(10))
 for $file in tokenize($files, string("\|"))
     let $doc := doc($file)

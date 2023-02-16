@@ -1,4 +1,4 @@
-let $prefix := string("QT_TRANSLATE_NOOP3(&quot;TextEditor::Internal::Snippets&quot;, &quot;")
+let $prefix := string("QT_TRANSLATE_NOOP3(&quot;QtC::TextEditor&quot;, &quot;")
 let $midfix := string("&quot;, &quot;")
 let $suffix := concat("&quot;)", codepoints-to-string(10))
 for $file in tokenize($files, string("\|"))
