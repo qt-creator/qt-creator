@@ -116,7 +116,7 @@ QString StatesEditorWidget::qmlSourcesPath()
 
 void StatesEditorWidget::showEvent(QShowEvent *event)
 {
-    QQuickWidget::showEvent(event);
+    StudioQuickWidget::showEvent(event);
     update();
 }
 
@@ -124,13 +124,13 @@ void StatesEditorWidget::focusOutEvent(QFocusEvent *focusEvent)
 {
     QmlDesignerPlugin::emitUsageStatisticsTime(Constants::EVENT_STATESEDITOR_TIME,
                                                m_usageTimer.elapsed());
-    QQuickWidget::focusOutEvent(focusEvent);
+    StudioQuickWidget::focusOutEvent(focusEvent);
 }
 
 void StatesEditorWidget::focusInEvent(QFocusEvent *focusEvent)
 {
     m_usageTimer.restart();
-    QQuickWidget::focusInEvent(focusEvent);
+    StudioQuickWidget::focusInEvent(focusEvent);
 }
 
 void StatesEditorWidget::reloadQmlSource()
