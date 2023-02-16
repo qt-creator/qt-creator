@@ -46,7 +46,7 @@ Item {
 
     DropArea { // handles external drop on empty area of the view (goes to root folder)
         id: dropArea
-        y: assetsView.y + assetsView.contentHeight + 5
+        y: assetsView.y + assetsView.contentHeight - assetsView.rowSpacing
         width: parent.width
         height: parent.height - y
 
@@ -62,7 +62,9 @@ Item {
 
         Canvas { // marker for the drop area
             id: dropCanvas
-            anchors.fill: parent
+            y: 5
+            width: parent.width
+            height: parent.height - y
             visible: dropArea.containsDrag && root.dropSimpleExtFiles.length > 0
 
             onWidthChanged: dropCanvas.requestPaint()
