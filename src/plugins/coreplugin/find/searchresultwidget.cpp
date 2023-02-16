@@ -193,6 +193,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
             this, &SearchResultWidget::replaceTextChanged);
     connect(m_replaceButton, &QAbstractButton::clicked,
             this, &SearchResultWidget::handleReplaceButton);
+
+    topFindWidget->setMinimumHeight(m_cancelButton->sizeHint().height());
 }
 
 SearchResultWidget::~SearchResultWidget()
