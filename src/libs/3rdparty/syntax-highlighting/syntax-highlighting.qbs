@@ -86,7 +86,7 @@ Project {
                 "themedata.cpp",
                 "themedata_p.h",
                 "wildcardmatcher.cpp",
-                "wildcardmatcher_p.h",
+                "wildcardmatcher.h",
                 "worddelimiters.cpp",
                 "worddelimiters_p.h",
                 "xml_p.h",
