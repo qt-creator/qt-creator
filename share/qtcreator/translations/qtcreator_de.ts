@@ -32671,7 +32671,9 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Vollständig qualifizierter Name einschließlich Namensräumen</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.Preselects a desktop Qt for building the application if available.</source>
+        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.
+
+Preselects a desktop Qt for building the application if available.</source>
         <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Designer-basierten Hauptfenster.
 
 Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
@@ -32745,7 +32747,9 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>C++-Bibliothek</translation>
     </message>
     <message>
-        <source>Creates a project containing a single main.cpp file with a stub implementation.Preselects a desktop Qt for building the application if available.</source>
+        <source>Creates a project containing a single main.cpp file with a stub implementation.
+
+Preselects a desktop Qt for building the application if available.</source>
         <translation>Erstellt ein Projekt, das aus einer main.cpp-Datei mit einem Implementationsrumpf besteht.
 
 Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
@@ -32803,7 +32807,9 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Qt 6</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
+        <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.
+
+Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
         <translation>Erstellt ein Qt Quick 2 UI-Projekt mit QML-Einsprungpunkt. Um es zu verwenden, brauchen Sie eine QML-Laufzeitumgebung wie qmlscene.
 
 Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anwendung erstellen. Vielleicht ist ein Qt Quick-Anwendungsprojekt besser geeignet.</translation>

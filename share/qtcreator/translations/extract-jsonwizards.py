@@ -29,8 +29,8 @@ def recursive_iter(obj, key=''):
 
 
 def fix_value(value):
-    value = value.replace('\"', '\\\"')
-    value = value.replace('\n', '\\\n')
+    value = value.replace('\"', '\\"')
+    value = value.replace('\n', '\\n')
     return value
 
 

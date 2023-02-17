@@ -15,8 +15,8 @@ target_file = sys.argv[2]
 
 
 def fix_value(value):
-    value = value.replace('\"', '\\\"')
-    value = value.replace('\n', '\\\n')
+    value = value.replace('\"', '\\"')
+    value = value.replace('\n', '\\n')
     return value
 
 
