@@ -403,7 +403,11 @@ def openDocument(treeElement):
         rect = navigator.visualRect(parentIndex)
         doubleClick(navigator, rect.x + 50, rect.y + 5, 0, Qt.LeftButton)
         mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-        if waitFor("str(mainWindow.windowTitle).startswith(treePathElements[-1] + ' ')", 5000):
+        fileNameWithoutLinePrefix = treePathElements[-1]
+        matching = re.match("^(.+)(:\\d+)$", fileNameWithoutLinePrefix)
+        if matching is not None:
+            fileNameWithoutLinePrefix = matching.group(1)
+        if waitFor("str(mainWindow.windowTitle).startswith(fileNameWithoutLinePrefix + ' ')", 5000):
             return True
         test.log("Expected file (%s) was not being opened in openDocument()" % treePathElements[-1])
         return False
