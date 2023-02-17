@@ -100,7 +100,6 @@ signals:
 protected:
     void virtual start();
     void virtual stop();
-    void virtual onFinished() {}
 
 private:
     friend class Internal::RunControlPrivate;
