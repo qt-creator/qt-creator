@@ -9,7 +9,7 @@ namespace ModelEditor {
 namespace Constants {
 
 const char MODEL_EDITOR_ID[] = "Editors.ModelEditor";
-const char MODEL_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Model Editor");
+const char MODEL_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Model Editor");
 
 const char REMOVE_SELECTED_ELEMENTS[] = "ModelEditor.RemoveSelectedElements";
 const char DELETE_SELECTED_ELEMENTS[] = "ModelEditor.DeleteSelectedElements";

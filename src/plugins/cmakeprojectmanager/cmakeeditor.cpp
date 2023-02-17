@@ -10,6 +10,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreplugintr.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 
@@ -219,7 +220,7 @@ static TextDocument *createCMakeDocument()
 CMakeEditorFactory::CMakeEditorFactory()
 {
     setId(Constants::CMAKE_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "CMake Editor"));
+    setDisplayName(::Core::Tr::tr("CMake Editor"));
     addMimeType(Constants::CMAKE_MIMETYPE);
     addMimeType(Constants::CMAKE_PROJECT_MIMETYPE);
 

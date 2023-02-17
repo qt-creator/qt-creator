@@ -25527,9 +25527,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>OpenWith::Editors</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Текстовый редактор</translation>

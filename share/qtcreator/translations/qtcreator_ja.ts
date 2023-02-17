@@ -12126,7 +12126,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Binary Editor</source>
         <translation>バイナリエディタ</translation>

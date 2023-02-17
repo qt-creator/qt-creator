@@ -48,7 +48,7 @@ const char C_PROBLEM_PANE[]        = "Core.ProblemPane";
 const char C_GENERAL_OUTPUT_PANE[] = "Core.GeneralOutputPane";
 
 // Default editor kind
-const char K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Plain Text Editor");
+const char K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Plain Text Editor");
 const char K_DEFAULT_TEXT_EDITOR_ID[] = "Core.PlainTextEditor";
 const char K_DEFAULT_BINARY_EDITOR_ID[] = "Core.BinaryEditor";
 

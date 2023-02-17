@@ -9,6 +9,7 @@
 #include "haskelltr.h"
 
 #include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/coreplugintr.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textindenter.h>
@@ -33,7 +34,7 @@ static QWidget *createEditorWidget()
 HaskellEditorFactory::HaskellEditorFactory()
 {
     setId(Constants::C_HASKELLEDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Haskell Editor"));
+    setDisplayName(::Core::Tr::tr("Haskell Editor"));
     addMimeType("text/x-haskell");
     setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection
                             | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);

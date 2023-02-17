@@ -7,6 +7,8 @@
 #include "actionhandler.h"
 #include "modeleditor.h"
 
+#include <coreplugin/coreplugintr.h>
+
 #include <QCoreApplication>
 
 namespace ModelEditor {
@@ -15,7 +17,7 @@ namespace Internal {
 ModelEditorFactory::ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler)
 {
     setId(Constants::MODEL_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::MODEL_EDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr(Constants::MODEL_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::MIME_TYPE_MODEL);
     setEditorCreator([uiController, actionHandler] { return new ModelEditor(uiController, actionHandler); });
 }

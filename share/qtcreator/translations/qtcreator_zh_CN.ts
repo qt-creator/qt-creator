@@ -25259,9 +25259,6 @@ Error:
         <source>Alt+O</source>
         <translation type="unfinished">Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>OpenWith::Editors</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>普通文本编辑器</translation>

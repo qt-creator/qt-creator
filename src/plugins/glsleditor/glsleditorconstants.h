@@ -14,7 +14,7 @@ const char M_TOOLS_GLSL[] = "GLSLEditor.Tools.Menu";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "GLSLEditor.RefactorGroup";
 
 const char C_GLSLEDITOR_ID[] = "GLSLEditor.GLSLEditor";
-const char C_GLSLEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "GLSL Editor");
+const char C_GLSLEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "GLSL Editor");
 
 const char GLSL_MIMETYPE[] = "application/x-glsl";
 const char GLSL_MIMETYPE_VERT[] = "text/x-glsl-vert";

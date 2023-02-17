@@ -15999,7 +15999,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Editor prostého textu</translation>
@@ -16048,9 +16048,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Python Editor</source>
         <translation>Editor Pythonu</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation>Nastavení</translation>

@@ -5,6 +5,7 @@
 #include "javaindenter.h"
 #include "androidconstants.h"
 
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
@@ -42,7 +43,7 @@ JavaEditorFactory::JavaEditorFactory()
         "transient", "try", "void", "volatile", "while"
     };
     setId(Constants::JAVA_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Java Editor"));
+    setDisplayName(::Core::Tr::tr("Java Editor"));
     addMimeType(Constants::JAVA_MIMETYPE);
 
     setDocumentCreator(createJavaDocument);

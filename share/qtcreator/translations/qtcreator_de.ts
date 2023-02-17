@@ -9470,9 +9470,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Locator</source>
         <translation>Locator</translation>
     </message>
-</context>
-<context>
-    <name>OpenWith::Editors</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Texteditor</translation>

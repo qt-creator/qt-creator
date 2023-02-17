@@ -6,6 +6,7 @@
 #include "compilationdatabaseconstants.h"
 #include "compilationdbparser.h"
 
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/icontext.h>
 #include <cppeditor/cppprojectupdater.h>
 #include <cppeditor/projectinfo.h>
@@ -482,7 +483,7 @@ static TextEditor::TextDocument *createCompilationDatabaseDocument()
 CompilationDatabaseEditorFactory::CompilationDatabaseEditorFactory()
 {
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Compilation Database"));
+    setDisplayName(::Core::Tr::tr("Compilation Database"));
     addMimeType(Constants::COMPILATIONDATABASEMIMETYPE);
 
     setEditorCreator([]() { return new TextEditor::BaseTextEditor; });
