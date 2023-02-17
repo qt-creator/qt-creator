@@ -120,7 +120,9 @@
             name. For more information, see \l{Using Qt Creator Variables}.
         \li In the \uicontrol Java field, enter the path to the Java executable.
         \li In the \uicontrol {Java Language Server} field, enter the path to
-            the Java language server \c .jar file.
+            the Java language server \c .jar file. You can download the Java
+            language server from \l{https://download.eclipse.org/jdtls/milestones/}
+            {Eclipse Downloads}.
     \endlist
 
     \section2 Python Language Server
