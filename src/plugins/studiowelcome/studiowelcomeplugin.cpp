@@ -4,6 +4,7 @@
 #include "studiowelcomeplugin.h"
 #include "examplecheckout.h"
 
+#include "projectexplorer/target.h"
 #include "qdsnewdialog.h"
 
 #include <app/app_version.h>
@@ -96,6 +97,20 @@ const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
 QPointer<QQuickView> s_viewWindow = nullptr;
 QPointer<QQuickWidget> s_viewWidget = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
+
+static Utils::FilePath getMainUiFile()
+{
+    auto project = ProjectExplorer::SessionManager::startupProject();
+    if (!project)
+        return {};
+
+    if (!project->activeTarget())
+        return {};
+
+    auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        project->activeTarget()->buildSystem());
+    return qmlBuildSystem->mainUiFilePath();
+}
 
 std::unique_ptr<QSettings> makeUserFeedbackSettings()
 {
@@ -224,8 +239,15 @@ public:
 
         m_blockOpenRecent = true;
         const FilePath projectFile = FilePath::fromVariant(data(index(row, 0), ProjectModel::FilePathRole));
-        if (projectFile.exists())
-            ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+        if (projectFile.exists()) {
+            const ProjectExplorerPlugin::OpenProjectResult result
+                = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFile);
+            if (!result && !result.alreadyOpen().isEmpty()) {
+                const auto mainUiFile = getMainUiFile();
+                if (mainUiFile.exists())
+                    Core::EditorManager::openEditor(mainUiFile, Utils::Id());
+            };
+        }
 
         resetProjects();
     }
