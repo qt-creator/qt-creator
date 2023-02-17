@@ -191,41 +191,6 @@ public:
 
     bool canStart() const;
     bool canStop() const;
-    void timerEvent(QTimerEvent *ev) override;
-
-    void killStartWatchdog()
-    {
-        if (startWatchdogTimerId != -1) {
-            killTimer(startWatchdogTimerId);
-            startWatchdogTimerId = -1;
-        }
-    }
-
-    void killStopWatchdog()
-    {
-        if (stopWatchdogTimerId != -1) {
-            killTimer(stopWatchdogTimerId);
-            stopWatchdogTimerId = -1;
-        }
-    }
-
-    void startStartWatchdog()
-    {
-        killStartWatchdog();
-        killStopWatchdog();
-
-        if (startWatchdogInterval != 0)
-            startWatchdogTimerId = startTimer(startWatchdogInterval);
-    }
-
-    void startStopWatchdog()
-    {
-        killStopWatchdog();
-        killStartWatchdog();
-
-        if (stopWatchdogInterval != 0)
-            stopWatchdogTimerId = startTimer(stopWatchdogInterval);
-    }
 
     RunWorker *q;
     RunWorkerState state = RunWorkerState::Initialized;
@@ -235,12 +200,6 @@ public:
     QString id;
 
     QVariantMap data;
-    int startWatchdogInterval = 0;
-    int startWatchdogTimerId = -1;
-    std::function<void()> startWatchdogCallback;
-    int stopWatchdogInterval = 0; // 5000;
-    int stopWatchdogTimerId = -1;
-    std::function<void()> stopWatchdogCallback;
     bool supportsReRunning = true;
     bool essential = false;
 };
@@ -1561,28 +1520,6 @@ bool RunWorkerPrivate::canStop() const
     return true;
 }
 
-void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
-{
-    if (ev->timerId() == startWatchdogTimerId) {
-        if (startWatchdogCallback) {
-            killStartWatchdog();
-            startWatchdogCallback();
-        } else {
-            q->reportFailure(Tr::tr("Worker start timed out."));
-        }
-        return;
-    }
-    if (ev->timerId() == stopWatchdogTimerId) {
-        if (stopWatchdogCallback) {
-            killStopWatchdog();
-            stopWatchdogCallback();
-        } else {
-            q->reportFailure(Tr::tr("Worker stop timed out."));
-        }
-        return;
-    }
-}
-
 /*!
     \class ProjectExplorer::RunWorker
 
@@ -1632,7 +1569,6 @@ RunWorker::~RunWorker() = default;
  */
 void RunWorker::initiateStart()
 {
-    d->startStartWatchdog();
     d->runControl->d->debugMessage("Initiate start for " + d->id);
     start();
 }
@@ -1645,7 +1581,6 @@ void RunWorker::initiateStart()
  */
 void RunWorker::reportStarted()
 {
-    d->killStartWatchdog();
     d->runControl->d->onWorkerStarted(this);
     emit started();
 }
@@ -1658,7 +1593,6 @@ void RunWorker::reportStarted()
  */
 void RunWorker::initiateStop()
 {
-    d->startStopWatchdog();
     d->runControl->d->debugMessage("Initiate stop for " + d->id);
     stop();
 }
@@ -1674,7 +1608,6 @@ void RunWorker::initiateStop()
  */
 void RunWorker::reportStopped()
 {
-    d->killStopWatchdog();
     d->runControl->d->onWorkerStopped(this);
     emit stopped();
 }
@@ -1688,8 +1621,6 @@ void RunWorker::reportStopped()
  */
 void RunWorker::reportDone()
 {
-    d->killStartWatchdog();
-    d->killStopWatchdog();
     switch (d->state) {
         case RunWorkerState::Initialized:
             QTC_CHECK(false);
@@ -1715,8 +1646,6 @@ void RunWorker::reportDone()
  */
 void RunWorker::reportFailure(const QString &msg)
 {
-    d->killStartWatchdog();
-    d->killStopWatchdog();
     d->runControl->d->onWorkerFailed(this, msg);
 }
 
@@ -1760,18 +1689,6 @@ RunControl *RunWorker::runControl() const
 void RunWorker::setId(const QString &id)
 {
     d->id = id;
-}
-
-void RunWorker::setStartTimeout(int ms, const std::function<void()> &callback)
-{
-    d->startWatchdogInterval = ms;
-    d->startWatchdogCallback = callback;
-}
-
-void RunWorker::setStopTimeout(int ms, const std::function<void()> &callback)
-{
-    d->stopWatchdogInterval = ms;
-    d->stopWatchdogCallback = callback;
 }
 
 void RunWorker::recordData(const QString &channel, const QVariant &data)
