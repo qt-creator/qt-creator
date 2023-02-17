@@ -159,13 +159,7 @@ void ToolBarBackend::setCurrentWorkspace(const QString &workspace)
 
 void ToolBarBackend::editGlobalAnnoation()
 {
-    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION);
-    ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
-
-    if (node.isValid()) {
-        designModeWidget()->globalAnnotationEditor().setModelNode(node);
-        designModeWidget()->globalAnnotationEditor().showWidget();
-    }
+    launchGlobalAnnotations();
 }
 
 void ToolBarBackend::showZoomMenu(int x, int y)
@@ -413,6 +407,17 @@ bool ToolBarBackend::isInEditMode() const
         return false;
 
     return Core::ModeManager::currentModeId() == Core::Constants::MODE_EDIT;
+}
+
+void ToolBarBackend::launchGlobalAnnotations()
+{
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION);
+    ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
+
+    if (node.isValid()) {
+        designModeWidget()->globalAnnotationEditor().setModelNode(node);
+        designModeWidget()->globalAnnotationEditor().showWidget();
+    }
 }
 
 bool ToolBarBackend::isDesignModeEnabled() const

@@ -245,12 +245,13 @@ Rectangle {
 
         ToolbarButton {
             id: annotations
+            visible: false
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: shareButton.left
             anchors.rightMargin: 10
             tooltip: qsTr("Edit Annotations")
             buttonIcon: StudioTheme.Constants.annotations_large
-            visible: !root.flyoutEnabled
+            //visible: !root.flyoutEnabled
 
             onClicked: backend.editGlobalAnnoation()
         }
@@ -358,6 +359,7 @@ Rectangle {
                         }
 
                         ToolbarButton {
+                            visible: false
                             style: StudioTheme.Values.statusbarButtonStyle
                             anchors.verticalCenter: parent.verticalCenter
                             tooltip: qsTr("Edit Annotations")

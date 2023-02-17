@@ -129,6 +129,8 @@ public:
 
     bool isInEditMode() const;
 
+    static void launchGlobalAnnotations();
+
 signals:
     void navigationHistoryChanged();
     void openDocumentsChanged();
