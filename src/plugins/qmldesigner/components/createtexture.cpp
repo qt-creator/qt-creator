@@ -85,7 +85,9 @@ ModelNode CreateTexture::createTextureFromImage(const QString &assetPath, AddTex
         newTexNode = m_view->createModelNode("QtQuick3D.Texture",
                                              metaInfo.majorVersion(),
                                              metaInfo.minorVersion());
-        newTexNode.validId();
+
+        newTexNode.setIdWithoutRefactoring(m_view->model()->generateNewId(QFileInfo(assetPath).baseName()));
+
         VariantProperty sourceProp = newTexNode.variantProperty("source");
         sourceProp.setValue(textureSource);
         matLib.defaultNodeListProperty().reparentHere(newTexNode);
