@@ -5,6 +5,8 @@
 
 #include <designersettings.h>
 
+#include <toolbarbackend.h>
+
 #include <viewmanager.h>
 #include <designeractionmanagerview.h>
 #include <componentcore_constants.h>
@@ -106,6 +108,13 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     connect(&m_exportAsImageAction, &QAction::triggered, [] {
         QmlDesignerPlugin::instance()->viewManager().exportAsImage();
     });
+
+    QAction *action = new QAction(tr("Edit Global Annotations..."), this);
+    command = Core::ActionManager::registerAction(action, "Edit.Annotations", qmlDesignerMainContext);
+    Core::ActionManager::actionContainer(Core::Constants::M_EDIT)
+        ->addAction(command, Core::Constants::G_EDIT_OTHER);
+
+    connect(action, &QAction::triggered, this, [] { ToolBarBackend::launchGlobalAnnotations(); });
 
     Core::ActionContainer *exportMenu = Core::ActionManager::actionContainer(
         QmlProjectManager::Constants::EXPORT_MENU);
