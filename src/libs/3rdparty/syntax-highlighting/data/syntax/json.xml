@@ -10,9 +10,10 @@
  **
  ** The application/json Media Type for JavaScript Object Notation (JSON)
  ** http://tools.ietf.org/html/rfc4627
+ ** https://www.json.org/json-en.html
  ***************************************************************************
 -->
-<language name="JSON" section="Markup" version="6" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.geojson;*.gltf;*.theme" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
+<language name="JSON" section="Markup" version="7" kateversion="2.4" extensions="*.json;.kateproject;.arcconfig;*.geojson;*.gltf;*.theme" mimetype="application/json" author="Sebastian Pipping (sebastian@pipping.org)" license="GPL">
   <highlighting>
     <list name="Constants">
       <item>null</item>
@@ -39,42 +40,37 @@
 
       <context name="String_Key" lineEndContext="#stay" attribute="Style_String_Key">
         <DetectChar char="&quot;"  context="#pop" attribute="Style_String_Key" />
-        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" insensitive="false" minimal="false" attribute="Style_String_Key_Char" />
+        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" attribute="Style_String_Key_Char" />
       </context>
 
       <context name="Value" lineEndContext="#stay" attribute="Style_Error" >
+        <AnyChar String="},"       context="#pop" lookAhead="true" />
+        <IncludeRules context="JsonValue"/>
+      </context>
+
+      <context name="JsonValue" lineEndContext="#stay" attribute="Style_Error" >
         <DetectChar char="&quot;"  context="String_Value" attribute="Style_String_Value" />
         <DetectChar char="{"       context="Pair" beginRegion="Region_Object" attribute="Style_Seperator_Pair" />
         <DetectChar char="["       context="Array" beginRegion="Region_Array" attribute="Style_Seperator_Array" />
-        <AnyChar String="},"       context="#pop" lookAhead="true" />
 
         <DetectSpaces context="#stay" attribute="Style_Normal" />
 
         <keyword String="Constants" context="#stay" attribute="Style_Keyword" />
 
-        <RegExpr String="-?(?:[0-9]|[1-9][0-9]+)\.[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="Style_Float" />
-        <RegExpr String="-?(?:[0-9]|[1-9][0-9]+)(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="Style_Decimal" />
+        <RegExpr String="-?[0-9]+\.[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" attribute="Style_Float" />
+        <RegExpr String="-?[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" attribute="Style_Decimal" />
       </context>
 
       <context name="String_Value" lineEndContext="#stay" attribute="Style_String_Value">
         <DetectChar char="&quot;"  context="#pop" attribute="Style_String_Value" />
-        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" insensitive="false" minimal="false" attribute="Style_String_Value_Char" />
+        <RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" attribute="Style_String_Value_Char" />
       </context>
 
       <context name="Array" lineEndContext="#stay" attribute="Style_Error">
         <DetectChar char=","       context="#stay" attribute="Style_Seperator_Array" />
         <DetectChar char="]"       context="#pop" endRegion="Region_Array" attribute="Style_Seperator_Array" />
 
-        <DetectChar char="{"       context="Pair" beginRegion="Region_Object" attribute="Style_Seperator_Pair" />
-        <DetectChar char="["       context="Array" beginRegion="Region_Array" attribute="Style_Seperator_Array" />
-        <DetectChar char="&quot;"  context="String_Value" attribute="Style_String_Value" />
-
-        <DetectSpaces context="#stay" attribute="Style_Normal" />
-
-        <keyword String="Constants" context="#stay" attribute="Style_Keyword" />
-
-        <RegExpr String="-?(?:[0-9]|[1-9][0-9]+)\.[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="Style_Float" />
-        <RegExpr String="-?(?:[0-9]|[1-9][0-9]+)(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="Style_Decimal" />
+        <IncludeRules context="JsonValue"/>
       </context>
     </contexts>
 

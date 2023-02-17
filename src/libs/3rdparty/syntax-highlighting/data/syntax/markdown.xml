@@ -90,7 +90,7 @@
 <!ENTITY checkbox "\[[ x]\](?=\s)">
 ]>
 
-<language name="Markdown" version="21" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
+<language name="Markdown" version="24" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
   <highlighting>
     <contexts>
       <!-- Start of the Markdown document: find metadata or code block -->
@@ -149,40 +149,39 @@
       </context>
 
       <context name="find-header" attribute="Normal Text" lineEndContext="#pop">
-        <RegExpr attribute="Header H1" context="#pop!close-H2-region" String="^(#\s.*[#]?)$" column="0" endRegion="H1" beginRegion="H1" lookAhead="true"/>
-        <RegExpr attribute="Header H2" context="#pop!close-H3-region" String="^(##\s.*[#]?)$" column="0" endRegion="H2" beginRegion="H2" lookAhead="true"/>
-        <RegExpr attribute="Header H3" context="#pop!close-H4-region" String="^(###\s.*[#]?)$" column="0" endRegion="H3" beginRegion="H3" lookAhead="true"/>
-        <RegExpr attribute="Header H4" context="#pop!close-H5-region" String="^(####\s.*[#]?)$" column="0" endRegion="H4" beginRegion="H4" lookAhead="true"/>
-        <RegExpr attribute="Header H5" context="#pop!close-H6-region" String="^(#####\s.*[#]?)$" column="0" endRegion="H5" beginRegion="H5" lookAhead="true"/>
-        <RegExpr attribute="Header H6" context="#pop!close-sentinel-region" String="^(######\s.*[#]?)$" column="0" endRegion="H6" beginRegion="H6" lookAhead="true"/>
+        <RegExpr attribute="Header H1" context="#pop!close-H2-region" String="^#\s" column="0" endRegion="H1" beginRegion="H1" lookAhead="true"/>
+        <RegExpr attribute="Header H2" context="#pop!close-H3-region" String="^##\s" column="0" endRegion="H2" beginRegion="H2" lookAhead="true"/>
+        <RegExpr attribute="Header H3" context="#pop!close-H4-region" String="^###\s" column="0" endRegion="H3" beginRegion="H3" lookAhead="true"/>
+        <RegExpr attribute="Header H4" context="#pop!close-H5-region" String="^####\s" column="0" endRegion="H4" beginRegion="H4" lookAhead="true"/>
+        <RegExpr attribute="Header H5" context="#pop!close-H6-region" String="^#####\s" column="0" endRegion="H5" beginRegion="H5" lookAhead="true"/>
+        <RegExpr attribute="Header H6" context="#pop" String="^######\s.*" column="0" endRegion="H6" beginRegion="H6"/>
         <DetectChar attribute="Normal Text" context="#pop" char="#"/>
       </context>
       <!-- BUG: 441278 sub-headers should be closed when their parent header is closed  (e.g. in h1 h2 h3 h1, h1-h3 should all be closed at the 2nd h1) -->
       <!-- TODO: Port to a less hacky version (maybe a new attribute for declaring multiple endRegions)  -->
       <context name="close-H2-region" attribute="Header H2" lineEndContext="#pop!close-H3-region" fallthroughContext="#pop!close-H3-region">
-        <RegExpr attribute="Header H2" context="#pop!close-H3-region" String="(%1)" dynamic="true" lookAhead="true" endRegion="H2"/>
+        <DetectChar attribute="Header H2" context="#pop!close-H3-region" char="#" lookAhead="true" endRegion="H2"/>
       </context>
       <context name="close-H3-region" attribute="Header H3" lineEndContext="#pop!close-H4-region" fallthroughContext="#pop!close-H4-region">
-        <RegExpr attribute="Header H3" context="#pop!close-H4-region" String="(%1)" dynamic="true" lookAhead="true" endRegion="H3"/>
+        <DetectChar attribute="Header H3" context="#pop!close-H4-region" char="#" lookAhead="true" endRegion="H3"/>
       </context>
       <context name="close-H4-region" attribute="Header H4" lineEndContext="#pop!close-H5-region" fallthroughContext="#pop!close-H5-region">
-        <RegExpr attribute="Header H4" context="#pop!close-H5-region" String="(%1)" dynamic="true" lookAhead="true" endRegion="H4"/>
+        <DetectChar attribute="Header H4" context="#pop!close-H5-region" char="#" lookAhead="true" endRegion="H4"/>
       </context>
       <context name="close-H5-region" attribute="Header H5" lineEndContext="#pop!close-H6-region" fallthroughContext="#pop!close-H6-region">
-        <RegExpr attribute="Header H5" context="#pop!close-H6-region" String="(%1)" dynamic="true" lookAhead="true" endRegion="H5"/>
+        <DetectChar attribute="Header H5" context="#pop!close-H6-region" char="#" lookAhead="true" endRegion="H5"/>
       </context>
       <context name="close-H6-region" attribute="Header H6" lineEndContext="#pop" fallthroughContext="#pop">
-        <RegExpr attribute="Header H6" context="#pop!close-sentinel-region" String="(%1)" dynamic="true" lookAhead="true" endRegion="H6"/>
+        <DetectChar attribute="Header H6" context="#pop!close-sentinel-region" char="#" lookAhead="true" endRegion="H6"/>
       </context>
       <!-- This sentinel does not close any actual region, it's just here so that the proper attribute/highlighting is applied and -->
       <!--to ensure that H6 headers won't be set as the "primary" region that was closed just because it was closed last -->
       <context name="close-sentinel-region" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
-        <RegExpr attribute="Header H1" context="#pop" String="^(?=#\s)%1$" column="0" dynamic="true"/>
-        <RegExpr attribute="Header H2" context="#pop" String="^(?=##\s)%1$" column="0" dynamic="true"/>
-        <RegExpr attribute="Header H3" context="#pop" String="^(?=###\s)%1$" column="0" dynamic="true"/>
-        <RegExpr attribute="Header H4" context="#pop" String="^(?=####\s)%1$" column="0" dynamic="true"/>
-        <RegExpr attribute="Header H5" context="#pop" String="^(?=#####\s)%1$" column="0" dynamic="true"/>
-        <RegExpr attribute="Header H6" context="#pop" String="^(?=######\s)%1$" column="0" dynamic="true"/>
+        <RegExpr attribute="Header H1" context="#pop" String="^#\s.*" column="0"/>
+        <RegExpr attribute="Header H2" context="#pop" String="^##\s.*" column="0"/>
+        <RegExpr attribute="Header H3" context="#pop" String="^###\s.*" column="0"/>
+        <RegExpr attribute="Header H4" context="#pop" String="^####\s.*" column="0"/>
+        <RegExpr attribute="Header H5" context="#pop" String="^#####\s.*" column="0"/>
       </context>
 
 
@@ -314,7 +313,8 @@
       <context name="find-lang-fenced-code" attribute="Normal Text" lineEndContext="#pop">
         <!-- Apply syntax highlighting to fenced code blocks for some languages -->
         <RegExpr attribute="Fenced Code" context="#pop!code" String="&fcode;&end;"/>
-        <RegExpr attribute="Fenced Code" context="#pop!bash-code" String="&fcode;\s*(?:bash(?:rc|_profile|_login|_logout)?|shell|sh|zsh|profile|PKGBUILD|APKBUILD|ebuild|eclass|nix)&end;" insensitive="true"/>
+        <RegExpr attribute="Fenced Code" context="#pop!bash-code" String="&fcode;\s*(?:bash(?:rc|_profile|_login|_logout)?|shell|sh|profile|PKGBUILD|APKBUILD|ebuild|eclass|nix)&end;" insensitive="true"/>
+        <RegExpr attribute="Fenced Code" context="#pop!zsh-code" String="&fcode;\s*(?:zsh)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!cpp-code" String="&fcode;\s*(?:[ch]pp|[ch]\+\+|[ch]xx|h?cc|hh|cuh?|ino|pde|moc)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!csharp-code" String="&fcode;\s*(?:cs|csharp|c\#)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!cmake-code" String="&fcode;\s*(?:cmake|CMakeLists(?:\.txt)?)&end;" insensitive="true"/>
@@ -344,6 +344,7 @@
         <RegExpr attribute="Fenced Code" context="#pop!ruby-code" String="&fcode;\s*(?:ruby|rbx?|rjs|rake|f?cgi|gemspec|irbrc|ru|prawn|Appraisals|(?:Rake|Cap|Chef|Gem|Guard|Hobo|Vagrant||Rant|Berks|Thor|Puppet)file|rxml|(?:xml|js)\.erb)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!rust-code" String="&fcode;\s*(?:rust|rs)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!mysql-code" String="&fcode;\s*(?:mysql|sql|ddl)&end;" insensitive="true"/> <!-- Included in the PHP definition -->
+        <RegExpr attribute="Fenced Code" context="#pop!nim-code" String="&fcode;\s*(?:nims?)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!typescript-code" String="&fcode;\s*(?:typescript|ts)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!xml-code" String="&fcode;\s*(?:xml|xsd|xspf|tld|jsp|c?pt|dtml|rss|opml|svg|daml|rdf|ui|kcfg|qrc|wsdl|scxml|xbel|dae|sch|brd|docbook)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!code" String="&fcode;.*$"/>
@@ -354,6 +355,10 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="bash-code" fallthroughContext="Command##Bash">
         <IncludeRules context="code"/>
         <IncludeRules context="##Bash" includeAttrib="true"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="zsh-code" fallthroughContext="Command##Zsh">
+        <IncludeRules context="code"/>
+        <IncludeRules context="##Zsh" includeAttrib="true"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="cmake-code">
         <IncludeRules context="code"/>
@@ -470,6 +475,10 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="mysql-code">
         <IncludeRules context="code"/>
         <IncludeRules context="##SQL (MySQL)" includeAttrib="true"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="nim-code">
+        <IncludeRules context="code"/>
+        <IncludeRules context="##Nim" includeAttrib="true"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="typescript-code">
         <IncludeRules context="code"/>

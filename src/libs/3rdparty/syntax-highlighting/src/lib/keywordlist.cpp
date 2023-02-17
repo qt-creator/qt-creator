@@ -124,10 +124,10 @@ void KeywordList::resolveIncludeKeywords(DefinitionData &def)
         KeywordList *keywords = nullptr;
 
         if (idx >= 0) {
-            auto listName = kw_include.left(idx);
             auto defName = kw_include.mid(idx + 2);
             auto includeDef = def.repo->definitionForName(defName);
             if (includeDef.isValid()) {
+                auto listName = kw_include.left(idx);
                 auto defData = DefinitionData::get(includeDef);
                 defData->load(DefinitionData::OnlyKeywords(true));
                 keywords = defData->keywordList(listName);

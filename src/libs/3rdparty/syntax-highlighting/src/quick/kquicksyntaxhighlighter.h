@@ -10,8 +10,8 @@
 
 #include "repositorywrapper.h"
 
-#include <definition.h>
-#include <theme.h>
+#include <KSyntaxHighlighting/Definition>
+#include <KSyntaxHighlighting/Theme>
 
 #include <QObject>
 #include <QVariant>

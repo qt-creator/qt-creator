@@ -39,7 +39,7 @@ add_qtc_library(KSyntaxHighlighting
     src/lib/textstyledata_p.h
     src/lib/theme.cpp src/lib/theme.h
     src/lib/themedata.cpp src/lib/themedata_p.h
-    src/lib/wildcardmatcher.cpp src/lib/wildcardmatcher_p.h
+    src/lib/wildcardmatcher.cpp
     src/lib/worddelimiters.cpp src/lib/worddelimiters_p.h
     src/lib/xml_p.h
 )

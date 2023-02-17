@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="16" kateversion="5.0"
+	  version="17" kateversion="5.0"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -183,6 +183,8 @@
 			<item>extend</item>
 			<item>include</item>
 			<item>prepend</item>
+			<item>refine</item>
+			<item>using</item>
 		</list>
 
 		<contexts>

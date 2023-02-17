@@ -75,14 +75,14 @@ void DefinitionDownloaderPrivate::updateDefinition(QXmlStreamReader &parser)
 
     auto localDef = repo->definitionForName(name.toString());
     if (!localDef.isValid()) {
-        Q_EMIT q->informationMessage(QObject::tr("Downloading new syntax definition for '%1'...").arg(name.toString()));
+        Q_EMIT q->informationMessage(QObject::tr("Downloading new syntax definition for '%1'...").arg(name));
         downloadDefinition(QUrl(parser.attributes().value(QLatin1String("url")).toString()));
         return;
     }
 
     const auto version = parser.attributes().value(QLatin1String("version"));
     if (localDef.version() < version.toFloat()) {
-        Q_EMIT q->informationMessage(QObject::tr("Updating syntax definition for '%1' to version %2...").arg(name.toString(), version.toString()));
+        Q_EMIT q->informationMessage(QObject::tr("Updating syntax definition for '%1' to version %2...").arg(name, version));
         downloadDefinition(QUrl(parser.attributes().value(QLatin1String("url")).toString()));
     }
 }

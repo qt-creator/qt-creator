@@ -1,7 +1,7 @@
 <!DOCTYPE language SYSTEM "language.dtd">
 <language
   name="PowerShell"
-  version="11"
+  version="13"
   kateversion="5.0"
   extensions="*.ps1;*.psm1;*.psd1"
   section="Scripts"
@@ -879,6 +879,7 @@
         <keyword attribute="Data Type" context="#stay" String="types" />
         <IncludeRules context="Cmdlet" />
         <DetectChar attribute="String" context="String" char="&quot;"/>
+        <DetectChar attribute="String" context="StringQ" char="'"/>
         <Detect2Chars attribute="HereString" context="HereStringer" char="@" char1="&quot;" beginRegion="StringRegion"/>
         <DetectChar attribute="Comment" context="Commentar 1" char="#"/>
         <Detect2Chars attribute="Comment" context="Commentar 2" char="&lt;" char1="#" beginRegion="CommentRegion"/>
@@ -891,12 +892,23 @@
         <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/*&lt;=&gt;?[]|~^&#59;"/>
       </context>
       <context attribute="String Char" lineEndContext="#stay" name="StringEscape">
-        <RegExpr attribute="String Char" String="`[`&quot;0abefnrtv]|`u\{[0-9A-Fa-f]+\}" context="#stay"/>
+        <RegExpr attribute="String Char" String="`[`&quot;0abefnrtv\$]|`u\{[0-9A-Fa-f]+\}" context="#stay"/>
       </context>
       <context attribute="String" lineEndContext="#pop" name="String">
         <IncludeRules context="StringEscape"/>
+        <Detect2Chars attribute="Variable Substitution" context="#stay" char="$" char1="_" />
+        <Detect2Chars attribute="Variable Substitution" context="VarSubst" char="$" char1="{" />
         <LineContinue attribute="String" context="#pop"/>
         <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+      <context attribute="String" lineEndContext="#pop" name="StringQ">
+        <IncludeRules context="StringEscape"/>
+        <LineContinue attribute="String" context="#pop"/>
+        <DetectChar attribute="String" context="#pop" char="'"/>
+      </context>
+      <context attribute="Variable Substitution" lineEndContext="#pop" name="VarSubst">
+        <DetectIdentifier />
+        <DetectChar attribute="Variable Substitution" context="#pop" char="}" />
       </context>
       <context attribute="HereString" lineEndContext="#stay" name="HereStringer">
         <Detect2Chars attribute="HereString" context="#pop" char="&quot;" char1="@" endRegion="StringRegion"/>
@@ -913,23 +925,23 @@
         <Detect2Chars attribute="Comment" context="#pop" char="#" char1="&gt;" endRegion="CommentRegion"/>
         <IncludeRules context="##Comments"/>
       </context>
-      <context attribute="Cmdlets" lineEndContext="#stay" name="Cmdlet">
+      <context attribute="Normal Text" lineEndContext="#stay" name="Cmdlet">
         <keyword attribute="Function" context="#stay" String="cmdlets"/>
       </context>
     </contexts>
     <itemDatas>
-      <itemData name="Normal Text"  defStyleNum="dsNormal" spellChecking="false"/>
-      <itemData name="Keyword"      defStyleNum="dsKeyword" spellChecking="false"/>
-      <itemData name="Function"     defStyleNum="dsFunction" spellChecking="false"/>
-      <itemData name="Data Type"    defStyleNum="dsDataType" spellChecking="false"/>
-      <itemData name="String"       defStyleNum="dsString"/>
-      <itemData name="String Char"  defStyleNum="dsChar" spellChecking="false"/>
-      <itemData name="HereString"       defStyleNum="dsVerbatimString"/>
-      <itemData name="Comment"      defStyleNum="dsComment"/>
-      <itemData name="Cmdlets"      defStyleNum="dsBuiltIn" spellChecking="false"/>
-      <itemData name="Symbol"       defStyleNum="dsOperator" spellChecking="false"/>
-      <itemData name="Variable" defStyleNum="dsVariable" spellChecking="false"/>
-      <itemData name="Special Variable" defStyleNum="dsVariable" bold="1" spellChecking="false"/>
+      <itemData name="Normal Text"           defStyleNum="dsNormal"   spellChecking="false"/>
+      <itemData name="Keyword"               defStyleNum="dsKeyword"  spellChecking="false"/>
+      <itemData name="Function"              defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Data Type"             defStyleNum="dsDataType" spellChecking="false"/>
+      <itemData name="String"                defStyleNum="dsString"/>
+      <itemData name="String Char"           defStyleNum="dsChar"     spellChecking="false"/>
+      <itemData name="HereString"            defStyleNum="dsVerbatimString"/>
+      <itemData name="Comment"               defStyleNum="dsComment"/>
+      <itemData name="Symbol"                defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Variable"              defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="Special Variable"      defStyleNum="dsVariable" spellChecking="false" bold="1"/>
+      <itemData name="Variable Substitution" defStyleNum="dsString"   spellChecking="false" />
     </itemDatas>
   </highlighting>
   <general>

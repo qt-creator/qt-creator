@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language version="6" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhaumann@kde.org)" license="MIT" hidden="true">
+<language version="7" kateversion="3.1" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhaumann@kde.org)" license="MIT" hidden="true">
   <highlighting>
     <list name="alerts_hi">
       <item>ALERT</item>
@@ -48,7 +48,8 @@
     </itemDatas>
   </highlighting>
   <general>
-    <keywords casesensitive="1"/>
+    <!-- NO-BREAK SPACE (nbsp) as deliminator -->
+    <keywords casesensitive="1" additionalDeliminator="&#160;"/>
   </general>
 </language>
 <!-- kate: indent-width 2; -->

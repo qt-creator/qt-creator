@@ -137,8 +137,7 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     in.setCodec("UTF-8");
 #endif
-    while (!in.atEnd()) {
-        d->currentLine = in.readLine();
+    while (in.readLineInto(&d->currentLine)) {
         state = highlightLine(d->currentLine, state);
         *d->out << "\n";
     }
