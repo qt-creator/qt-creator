@@ -7381,7 +7381,11 @@ void tst_Dumpers::dumper_data()
         "struct A { int a = 1; char aa = 'a'; };\n"
         "struct B : virtual A { int b = 2; float bb = 2; };\n"
         "struct C : virtual A { int c = 3; double cc = 3; };\n"
-        "struct D : virtual B, virtual C { int d = 4; };\n";
+        "struct D : virtual B, virtual C { int d = 4; };\n"
+
+        "struct Base1 { int b1 = 42; virtual ~Base1() {} };\n"
+        "struct Base2 { int b2 = 43; };\n"
+        "struct MyClass : public Base2, public Base1 { int val = 44; };\n";
 
 
     QTest::newRow("Inheritance")
@@ -7399,9 +7403,11 @@ void tst_Dumpers::dumper_data()
                     "D dd;\n\n"
 
                     "D *dp = new D;\n"
-                    "D &dr = dd;",
+                    "D &dr = dd;\n"
 
-                    "&c.S2::v, &tt.T2::v, &dp, &dr")
+                    "Base1 *array[] = {new MyClass};\n",
+
+                    "&c.S2::v, &tt.T2::v, &dp, &dr, &array")
 
                 + Cxx11Profile()
 
@@ -7437,7 +7443,9 @@ void tst_Dumpers::dumper_data()
                 + Check("dr.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dr.@1.b", "2", "int")
                 + Check("dr.@2.c", "3", "int")
-                + Check("dr.d", "4", "int");
+                + Check("dr.d", "4", "int")
+
+                + Check("array.0.val", "44", "int");
 
 
     QTest::newRow("Gdb13393")
