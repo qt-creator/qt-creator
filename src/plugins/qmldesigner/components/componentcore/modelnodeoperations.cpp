@@ -1210,7 +1210,7 @@ void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typ
                                   if (container.hasProperty("effect"))
                                       container.removeProperty("effect");
 
-                                  if (effectMetaInfo.isValid()) {
+                                  if (effectMetaInfo.isQtObject()) {
                                       ModelNode effectNode =
                                           view->createModelNode(effectMetaInfo.typeName(),
                                                                 effectMetaInfo.majorVersion(),
