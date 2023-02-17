@@ -503,7 +503,8 @@ Item {
                             materialsSection.highlight = false
                         }
 
-                        onDrop: {
+                        onDrop: (drag) => {
+                            drag.accept()
                             materialsSection.highlight = false
                             rootView.acceptBundleMaterialDrop()
                         }
@@ -587,7 +588,8 @@ Item {
                             highlight = false
                         }
 
-                        onDrop: {
+                        onDrop: (drag) => {
+                            drag.accept()
                             highlight = false
                             rootView.acceptBundleTextureDrop()
                         }

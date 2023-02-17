@@ -210,6 +210,7 @@ void NavigatorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
 void NavigatorWidget::dropEvent(QDropEvent *dropEvent)
 {
+    dropEvent->accept();
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
