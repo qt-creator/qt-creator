@@ -32,6 +32,8 @@
             \l{Viewing Defined Types and Symbols}{Outline} view or
             in the \uicontrol Symbols list on the \l{Using the Editor Toolbar}
             {editor toolbar}
+        \li \l{Viewing Call Hierarchy}
+            {Viewing the callers and callees of a function}
         \li \l{Finding Symbols}{Finding references to symbols}
         \li \l{Renaming Symbols}{Renaming the symbol under cursor}
         \li Code actions
@@ -183,6 +185,10 @@
     \uicontrol {Startup behavior} field in the language server preferences
     determines when the server is started. The information displayed depends on
     the language server.
+
+    Select the \inlineimage icons/languageclient.png
+    button on the \l{Managing Language Servers}{editor toolbar}, and then select
+    \uicontrol {Restart} to restart language servers.
 
     \uicontrol Log displays additional information about the selected log entry.
     You can see the \uicontrol {Content length} and \uicontrol {MIME type} of
