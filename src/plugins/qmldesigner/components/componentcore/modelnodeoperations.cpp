@@ -1385,15 +1385,15 @@ void addCustomFlowEffect(const SelectionContext &selectionContext)
     if (typeName.isEmpty())
         return;
 
-    qDebug() << Q_FUNC_INFO << typeName << importString;
-
-    const Import import = Import::createFileImport("FlowEffects");
-
-    if (!importString.isEmpty() && !selectionContext.view()->model()->hasImport(import, true, true)) {
-        selectionContext.view()-> model()->changeImports({import}, {});
-    }
-
     AbstractView *view = selectionContext.view();
+
+    view->executeInTransaction("DesignerActionManager:addFlowEffect", [view, importString]() {
+        const Import import = Import::createFileImport("FlowEffects");
+
+        if (!importString.isEmpty() && !view->model()->hasImport(import, true, true)) {
+            view->model()->changeImports({import}, {});
+        }
+    });
 
     QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
     ModelNode container = selectionContext.currentSingleSelectedNode();
