@@ -193,11 +193,11 @@ void DesignModeWidget::setup()
     const QSize size = QSize(28, 28);
 
     auto tabCloseIconNormal = Utils::StyleHelper::IconFontHelper(
-        closeUnicode, Theme::getColor(Theme::DStabInactiveIcon), size, QIcon::Normal, QIcon::Off);
+        closeUnicode, Theme::getColor(Theme::DSdockWidgetTitleBar), size, QIcon::Normal, QIcon::Off);
     auto tabCloseIconActive = Utils::StyleHelper::IconFontHelper(
-        closeUnicode, Theme::getColor(Theme::DStabActiveIcon), size, QIcon::Active, QIcon::Off);
+        closeUnicode, Theme::getColor(Theme::DSdockWidgetTitleBar), size, QIcon::Active, QIcon::Off);
     auto tabCloseIconFocus = Utils::StyleHelper::IconFontHelper(
-        closeUnicode, Theme::getColor(Theme::DStabFocusIcon), size, QIcon::Selected, QIcon::Off);
+        closeUnicode, Theme::getColor(Theme::DSdockWidgetTitleBar), size, QIcon::Selected, QIcon::Off);
 
     const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(
                 fontName, {tabCloseIconNormal,
