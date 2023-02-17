@@ -344,13 +344,14 @@ TreeView {
             let [row, item] = dropArea.__rowAndItem(drag)
 
             if (item) {
-               root.endDropHover(row)
+                drag.accept()
+                root.endDropHover(row)
 
-               let dirPath = item.getDirPath()
+                let dirPath = item.getDirPath()
 
-               rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
-                                         root.assetsRoot.dropComplexExtFiles,
-                                         dirPath)
+                rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
+                                          root.assetsRoot.dropComplexExtFiles,
+                                          dirPath)
             }
 
             dropArea.__isHoveringDrop = false

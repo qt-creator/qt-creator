@@ -50,11 +50,12 @@ Item {
         width: parent.width
         height: parent.height - y
 
-        onEntered: (drag)=> {
+        onEntered: (drag) => {
             root.updateDropExtFiles(drag)
         }
 
-        onDropped: {
+        onDropped: (drag) => {
+            drag.accept()
             rootView.handleExtFilesDrop(root.dropSimpleExtFiles,
                                         root.dropComplexExtFiles,
                                         assetsModel.rootPath())
@@ -194,11 +195,12 @@ Item {
             DropArea { // handles external drop (goes into default folder based on suffix)
                 anchors.fill: parent
 
-                onEntered: (drag)=> {
+                onEntered: (drag) => {
                     root.updateDropExtFiles(drag)
                 }
 
-                onDropped: {
+                onDropped: (drag) => {
+                    drag.accept()
                     rootView.emitExtFilesDrop(root.dropSimpleExtFiles, root.dropComplexExtFiles)
                 }
 

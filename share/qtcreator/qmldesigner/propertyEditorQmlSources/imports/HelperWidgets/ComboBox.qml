@@ -69,7 +69,8 @@ StudioControls.ComboBox {
 
         onExited: comboBox.hasActiveHoverDrag = false
 
-        onDropped: {
+        onDropped: (drag) => {
+            drag.accept()
             comboBox.backendValue.commitDrop(dropArea.dropData)
             comboBox.hasActiveHoverDrag = false
         }

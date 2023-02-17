@@ -51,6 +51,7 @@ Rectangle {
         }
 
         onDropped: (drag) => {
+            drag.accept()
             rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
         }
     }

@@ -636,7 +636,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
         }
     }
 
-    return false; // don't let the view do drag&drop on its own
+    return true;
 }
 
 void NavigatorTreeModel::handleInternalDrop(const QMimeData *mimeData,
