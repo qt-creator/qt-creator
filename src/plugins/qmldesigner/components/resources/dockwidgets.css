@@ -29,10 +29,12 @@ ADS--DockWidgetTab {
     border-color: creatorTheme.DStabSplitter;
     border-style: solid;
     border-width: 0 1px 0 0;
+    padding-left: 16px;
 }
 
 ADS--DockWidgetTab QLabel {
     color: creatorTheme.DStabInactiveText;
+    min-width: 80px;
 }
 
 ADS--DockWidgetTab[activeTab="true"] {
@@ -44,7 +46,7 @@ ADS--DockWidgetTab[activeTab="true"] QLabel {
 }
 
 ADS--DockWidgetTab[activeTab="true"] > #tabCloseButton:hover {
-    background: creatorTheme.DStabActiveButtonHover;
+    background: creatorTheme.DStabActiveBackground;
 }
 
 ADS--DockWidgetTab[activeTab="true"] > #tabCloseButton:pressed {
@@ -105,7 +107,7 @@ QScrollArea#dockWidgetScrollArea {
 }
 
 #tabCloseButton:hover {
-    background: creatorTheme.DStabInactiveButtonHover;
+    background: creatorTheme.DStabActiveBackground;
 }
 
 #tabCloseButton:pressed {
