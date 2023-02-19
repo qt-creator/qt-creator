@@ -19,6 +19,7 @@ class BranchNode;
 
 class BranchModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     explicit BranchModel(QObject *parent = nullptr);
     ~BranchModel() override;
@@ -34,7 +35,10 @@ public:
 
     void clear();
     enum class ShowError { No, Yes };
-    void refresh(const Utils::FilePath &workingDirectory, ShowError showError = ShowError::No);
+    enum class RefreshMode { IfChanged, Force };
+    void refresh(const Utils::FilePath &workingDirectory,
+                 ShowError showError = ShowError::No,
+                 RefreshMode mode = RefreshMode::Force);
 
     void renameBranch(const QString &oldName, const QString &newName);
     void renameTag(const QString &oldName, const QString &newName);
@@ -60,9 +64,27 @@ public:
     QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
     void setRemoteTracking(const QModelIndex &trackingIndex);
     void setOldBranchesIncluded(bool value);
+    bool oldBranchesIncluded() const;
+    void setTagsIncluded(bool value);
     std::optional<QString> remoteName(const QModelIndex &idx) const;
     void refreshCurrentBranch();
     void updateCurrentBranchModifiedFiles();
+
+    Utils::FilePath repository() const;
+    void setRepository(const Utils::FilePath &repository);
+    void refreshIfSame(const Utils::FilePath &repository);
+    void refreshCurrentRepository();
+    void setRefreshBlocked(bool blocked);
+    void setCheckoutRefreshEnabled(bool enabled);
+    bool checkoutRefreshEnabled() const;
+
+signals:
+    void refreshStarted();
+    void refreshResultReady(bool success);
+    void refreshFinished(bool success);
+    void repositoryChanged();
+    void oldBranchesIncludedChanged(bool value);
+    void tagsIncludedChanged(bool value);
 
 private:
     void setCurrentBranch(const QString &currentBranch);

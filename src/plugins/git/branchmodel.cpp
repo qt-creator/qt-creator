@@ -368,6 +368,29 @@ public:
     QParallelTaskTreeRunner parallelTaskTreeRunner;
     quint64 refreshGeneration = 0;
     bool oldBranchesIncluded = false;
+    int refreshBlockCount = 0;
+    bool refreshPending = false;
+    RefreshMode pendingRefreshMode = RefreshMode::IfChanged;
+    ShowError pendingShowError = ShowError::No;
+    FilePath pendingRepository;
+    bool refsLoaded = false;
+    std::function<void()> deferredRefreshCompletion;
+    bool checkoutRefreshEnabled = true;
+
+    void queueRefresh(const FilePath &repository, ShowError showError, RefreshMode mode)
+    {
+        refreshPending = true;
+        pendingRepository = repository;
+        if (mode == RefreshMode::Force)
+            pendingRefreshMode = RefreshMode::Force;
+        if (showError == ShowError::Yes)
+            pendingShowError = ShowError::Yes;
+    }
+
+    FilePath requestedRepository() const
+    {
+        return refreshBlockCount && refreshPending ? pendingRepository : workingDirectory;
+    }
 
     struct OldEntry
     {
@@ -592,6 +615,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 void BranchModel::clear()
 {
     qCDebug(modelLog) << "clear() called";
+    d->refsLoaded = false;
     for (BranchNode *root : std::as_const(d->rootNode->children)) {
         QTC_ASSERT(root, continue);
 
@@ -617,8 +641,28 @@ void BranchModel::clear()
     qCDebug(modelLog) << "clear: model state reset";
 }
 
-void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
+void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError,
+                          RefreshMode mode)
 {
+    if (d->refreshBlockCount) {
+        const bool supersedesActiveRefresh = d->deferredRefreshCompletion
+                                             || d->taskTreeRunner.isRunning();
+        const RefreshMode queuedMode = supersedesActiveRefresh ? RefreshMode::Force : mode;
+        d->queueRefresh(workingDirectory, showError, queuedMode);
+        d->deferredRefreshCompletion = {};
+        return;
+    }
+    if (d->workingDirectory == workingDirectory && mode == RefreshMode::IfChanged) {
+        if (d->taskTreeRunner.isRunning())
+            return;
+        if (d->refsLoaded) {
+            emit refreshFinished(true);
+            return;
+        }
+    }
+    d->deferredRefreshCompletion = {};
+    const bool repositoryWasChanged = d->workingDirectory != workingDirectory;
+    emit refreshStarted();
     const quint64 generation = ++d->refreshGeneration;
     d->taskTreeRunner.reset();
 
@@ -627,16 +671,22 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         beginResetModel();
         clear();
         d->workingDirectory = {};
+        d->refsLoaded = true;
         endResetModel();
+        if (repositoryWasChanged)
+            emit repositoryChanged();
+        emit refreshFinished(true);
         return;
     }
 
-    if (workingDirectory != d->workingDirectory) {
+    if (repositoryWasChanged) {
         d->parallelTaskTreeRunner.reset();
         beginResetModel();
         clear();
         d->workingDirectory = workingDirectory;
+        d->refsLoaded = false;
         endResetModel();
+        emit repositoryChanged();
     }
 
     const auto refreshData = std::make_shared<Private::RefreshData>();
@@ -734,48 +784,64 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         if (generation != d->refreshGeneration)
             return;
 
-        d->parallelTaskTreeRunner.reset();
-        beginResetModel();
-        clear();
-        d->workingDirectory = refreshData->workingDirectory;
-        d->currentHash = refreshData->currentHash;
-        d->currentDateTime = refreshData->currentDateTime;
+        emit refreshResultReady(refreshData->refsSucceeded);
+        const auto applyResult = [this, refreshData, generation] {
+            if (generation != d->refreshGeneration)
+                return;
 
-        if (refreshData->refsSucceeded) {
-            const QStringList lastCheckout = d->lastCheckout(d->workingDirectory);
-            if (refreshData->currentBranch.isEmpty() && lastCheckout.size() == 2
-                && lastCheckout.at(1) == d->currentHash) {
-                d->checkedOutRef = lastCheckout.first();
-            } else if (!lastCheckout.isEmpty()) {
-                d->rememberCheckout(d->workingDirectory, {});
-            }
-            const QStringList lines = refreshData->refsOutput.split('\n');
-            for (const QString &line : lines)
-                d->parseOutputLine(line);
-            d->flushOldEntries();
+            d->parallelTaskTreeRunner.reset();
+            beginResetModel();
+            clear();
+            d->workingDirectory = refreshData->workingDirectory;
+            d->currentHash = refreshData->currentHash;
+            d->currentDateTime = refreshData->currentDateTime;
 
-            if (d->checkedOutBranch)
-                d->currentBranch = d->checkedOutBranch;
-            if (d->currentBranch && d->currentBranch->isLocal())
-                d->currentBranch = nullptr;
-            setCurrentBranch(refreshData->currentBranch);
-            if (!d->currentBranch) {
-                BranchNode *local = d->rootNode->children.at(LocalBranches);
-                if (!local) {
-                    endResetModel();
-                    return;
+            if (refreshData->refsSucceeded) {
+                const QStringList lastCheckout = d->lastCheckout(d->workingDirectory);
+                if (refreshData->currentBranch.isEmpty() && lastCheckout.size() == 2
+                    && lastCheckout.at(1) == d->currentHash) {
+                    d->checkedOutRef = lastCheckout.first();
+                } else if (!lastCheckout.isEmpty()) {
+                    d->rememberCheckout(d->workingDirectory, {});
                 }
-                d->currentBranch = d->headNode = new BranchNode(
-                    Tr::tr("Detached HEAD"), "HEAD", {}, d->currentDateTime);
-                local->prepend(d->headNode);
-            }
-        }
-        endResetModel();
+                const QStringList lines = refreshData->refsOutput.split('\n');
+                for (const QString &line : lines)
+                    d->parseOutputLine(line);
+                d->flushOldEntries();
 
-        if (!refreshData->refsSucceeded)
+                if (d->checkedOutBranch)
+                    d->currentBranch = d->checkedOutBranch;
+                if (d->currentBranch && d->currentBranch->isLocal())
+                    d->currentBranch = nullptr;
+                setCurrentBranch(refreshData->currentBranch);
+                if (!d->currentBranch) {
+                    BranchNode *local = d->rootNode->children.at(LocalBranches);
+                    if (!local) {
+                        endResetModel();
+                        d->refsLoaded = false;
+                        emit refreshFinished(false);
+                        return;
+                    }
+                    d->currentBranch = d->headNode = new BranchNode(
+                        Tr::tr("Detached HEAD"), "HEAD", {}, d->currentDateTime);
+                    local->prepend(d->headNode);
+                }
+            }
+            endResetModel();
+
+            d->refsLoaded = refreshData->refsSucceeded;
+            emit refreshFinished(refreshData->refsSucceeded);
+            if (!refreshData->refsSucceeded)
+                return;
+            d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
+            updateCurrentBranchModifiedFiles();
+        };
+
+        if (d->refreshBlockCount) {
+            d->deferredRefreshCompletion = applyResult;
             return;
-        d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
-        updateCurrentBranchModifiedFiles();
+        }
+        applyResult();
     });
 }
 
@@ -783,7 +849,6 @@ void BranchModel::setCurrentBranch(const QString &currentBranch)
 {
     if (currentBranch.isEmpty())
         return;
-
     BranchNode *local = d->rootNode->children.at(LocalBranches);
     QTC_ASSERT(local, return);
 
@@ -804,7 +869,7 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
                                           &output, &errorMessage))
         VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
     else
-        refresh(d->workingDirectory);
+        refreshCurrentRepository();
 }
 
 void BranchModel::renameTag(const QString &oldName, const QString &newName)
@@ -817,7 +882,7 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
                                           &output, &errorMessage)) {
         VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
     } else {
-        refresh(d->workingDirectory);
+        refreshCurrentRepository();
     }
 }
 
@@ -963,8 +1028,8 @@ void BranchModel::removeBranch(const QModelIndex &idx)
         if (currentIndex.isValid())
             removeNode(currentIndex);
     }
-    if (d->workingDirectory == workingDirectory)
-        refresh(workingDirectory);
+    if (d->requestedRepository() == workingDirectory)
+        refreshCurrentRepository();
 }
 
 void BranchModel::removeTag(const QModelIndex &idx)
@@ -993,8 +1058,8 @@ void BranchModel::removeTag(const QModelIndex &idx)
         if (currentIndex.isValid())
             removeNode(currentIndex);
     }
-    if (d->workingDirectory == workingDirectory)
-        refresh(workingDirectory);
+    if (d->requestedRepository() == workingDirectory)
+        refreshCurrentRepository();
 }
 
 void BranchModel::checkoutBranch(const QModelIndex &idx,
@@ -1027,6 +1092,11 @@ void BranchModel::checkoutBranch(const QModelIndex &idx,
             else
                 rememberCheckoutInProjects(projectsForRepository(workingDirectory), workingDirectory,
                                            checkout);
+        }
+        if (result.result() == ProcessResult::FinishedWithSuccess && guard
+            && guard->d->requestedRepository() == workingDirectory
+            && guard->d->checkoutRefreshEnabled) {
+            guard->refreshCurrentRepository();
         }
         if (handler)
             handler(result);
@@ -1124,7 +1194,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     }
 
     // The synchronous command may have delivered events that switched the repository.
-    if (d->workingDirectory != workingDirectory)
+    if (d->requestedRepository() != workingDirectory)
         return {};
 
     BranchNode *local = d->rootNode->children.at(LocalBranches);
@@ -1159,7 +1229,8 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     qCDebug(modelLog) << "addBranch: branch added successfully:" << leafName;
     const QModelIndex newIndex = nodeToIndex(newNode, ColumnBranch);
     // Invalidate a snapshot that may have been collected before the branch was added.
-    refresh(workingDirectory);
+    if (d->requestedRepository() == workingDirectory)
+        refreshCurrentRepository();
     return newIndex;
 }
 
@@ -1203,8 +1274,26 @@ void BranchModel::setRemoteTracking(const QModelIndex &trackingIndex)
 
 void BranchModel::setOldBranchesIncluded(bool value)
 {
+    if (d->oldBranchesIncluded == value)
+        return;
     qCDebug(modelLog) << "setOldBranchesIncluded() called: value=" << value;
     d->oldBranchesIncluded = value;
+    emit oldBranchesIncludedChanged(value);
+    refreshCurrentRepository();
+}
+
+bool BranchModel::oldBranchesIncluded() const
+{
+    return d->oldBranchesIncluded;
+}
+
+void BranchModel::setTagsIncluded(bool value)
+{
+    if (settings().showTags() == value)
+        return;
+    settings().showTags.setValue(value);
+    emit tagsIncludedChanged(value);
+    refreshCurrentRepository();
 }
 
 std::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
@@ -1241,7 +1330,6 @@ void BranchModel::refreshCurrentBranch()
         d->parallelTaskTreeRunner.start({d->updateUpstreamStatusTask(node)});
     else
         updateCurrentBranchModifiedFiles();
-
     qCDebug(modelLog) << "refreshCurrentBranch: upstream status updated for" << node->name;
 }
 
@@ -1516,6 +1604,63 @@ QString BranchModel::toolTip(const QString &hash) const
     const QString result = res ? *res : res.error();
     qCDebug(modelLog) << "toolTip: result=" << result;
     return result;
+}
+
+Utils::FilePath BranchModel::repository() const
+{
+    return d->workingDirectory;
+}
+
+void BranchModel::setRepository(const FilePath &repository)
+{
+    refresh(repository, ShowError::Yes, RefreshMode::IfChanged);
+}
+
+void BranchModel::refreshIfSame(const FilePath &repository)
+{
+    if (d->requestedRepository() != repository)
+        return;
+    refreshCurrentRepository();
+}
+
+void BranchModel::refreshCurrentRepository()
+{
+    const FilePath repository = d->requestedRepository();
+    refresh(repository, ShowError::Yes);
+}
+
+void BranchModel::setRefreshBlocked(bool blocked)
+{
+    if (blocked) {
+        ++d->refreshBlockCount;
+        return;
+    }
+    QTC_ASSERT(d->refreshBlockCount > 0, return);
+    if (--d->refreshBlockCount == 0 && d->refreshPending) {
+        const FilePath repository = d->pendingRepository;
+        const ShowError showError = d->pendingShowError;
+        const RefreshMode mode = d->pendingRefreshMode;
+        d->refreshPending = false;
+        d->pendingRepository = {};
+        d->pendingShowError = ShowError::No;
+        d->pendingRefreshMode = RefreshMode::IfChanged;
+        d->deferredRefreshCompletion = {};
+        refresh(repository, showError, mode);
+    } else if (!d->refreshBlockCount && d->deferredRefreshCompletion) {
+        std::function<void()> completion = std::move(d->deferredRefreshCompletion);
+        d->deferredRefreshCompletion = {};
+        completion();
+    }
+}
+
+void BranchModel::setCheckoutRefreshEnabled(bool enabled)
+{
+    d->checkoutRefreshEnabled = enabled;
+}
+
+bool BranchModel::checkoutRefreshEnabled() const
+{
+    return d->checkoutRefreshEnabled;
 }
 
 } // Git::Internal

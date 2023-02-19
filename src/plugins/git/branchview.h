@@ -7,6 +7,7 @@
 
 #include <utils/filepath.h>
 
+#include <QHash>
 #include <QPointer>
 #include <QWidget>
 
@@ -28,15 +29,13 @@ namespace Git::Internal {
 
 class BranchModel;
 class BranchFilterModel;
+class BranchViewFactory;
 
 class BranchView : public QWidget
 {
+    Q_OBJECT
 public:
-    explicit BranchView();
-
-    void refreshIfSame(const Utils::FilePath &repository);
-    void refresh(const Utils::FilePath &repository, bool force);
-    void refreshCurrentBranch();
+    explicit BranchView(BranchViewFactory *factory = nullptr);
 
     QList<QToolButton *> createToolButtons();
 
@@ -44,10 +43,15 @@ protected:
     void showEvent(QShowEvent *) override;
 
 private:
-    void refreshCurrentRepository();
+    void refresh();
     void resizeColumns();
     void slotCustomContextMenu(const QPoint &point);
     void expandAndResize();
+    void saveTreeState();
+    void restoreTreeState();
+    QString pathElementForIndex(const QModelIndex &index) const;
+    QString pathForIndex(const QModelIndex &index) const;
+    QModelIndex sourceIndexForPath(const QString &path) const;
     void setIncludeOldEntries(bool filter);
     void setIncludeTags(bool includeTags);
     QModelIndex selectedIndex();
@@ -73,22 +77,31 @@ private:
     Utils::NavigationTreeView *m_branchView = nullptr;
     BranchModel *m_model = nullptr;
     BranchFilterModel *m_filterModel = nullptr;
-    Utils::FilePath m_repository;
-    bool m_blockRefresh = false;
-    bool m_postponedRefresh = false;
+    BranchViewFactory *m_factory = nullptr;
+    QHash<QString, bool> m_expandedPaths;
+    QString m_currentPath;
+    Utils::FilePath m_treeStateRepository;
+    bool m_hasSavedTreeState = false;
 };
 
 class BranchViewFactory : public Core::INavigationWidgetFactory
 {
 public:
     BranchViewFactory();
+    ~BranchViewFactory() override;
 
-    BranchView *view() const;
+    void refresh(const Utils::FilePath &repository);
+    void refreshIfSame(const Utils::FilePath &repository);
+    void refreshCurrentBranch();
+    void viewShown(BranchView *view);
 
 private:
     Core::NavigationView createWidget() override;
+    bool hasVisibleView() const;
 
-    QPointer<BranchView> m_view;
+    QList<QPointer<BranchView>> m_views;
+    Utils::FilePath m_repository;
+    bool m_needsRefresh = true;
 };
 
 } // Git::Internal

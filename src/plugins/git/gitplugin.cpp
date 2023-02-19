@@ -84,6 +84,7 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QKeyEvent>
@@ -95,19 +96,28 @@
 #include <QScopeGuard>
 #include <QSplitter>
 #include <QTimer>
+#include <QToolButton>
 #include <QVBoxLayout>
+
+#include <memory>
 
 #ifdef WITH_TESTS
 #include "gerrit/gerritdialog.h"
 #include "gerrit/gerritmodel.h"
 #include "gerrit/gerritparameters.h"
 
+#include <coreplugin/outputwindow.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/guitest.h>
+#include <utils/hostosinfo.h>
 
+#include <QAbstractItemModelTester>
+#include <QAbstractProxyModel>
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QScrollBar>
@@ -1914,8 +1924,7 @@ void GitPluginPrivate::updateActions(VersionControlBase::ActionState as)
     const bool repositoryEnabled = state.hasTopLevel();
     if (m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), false);
-    if (m_branchViewFactory.view())
-        m_branchViewFactory.view()->refresh(state.topLevel(), false);
+    m_branchViewFactory.refresh(state.topLevel());
     if (m_graphViewFactory.view())
         m_graphViewFactory.view()->refresh(state.topLevel(), false);
     if (m_remoteDialog)
@@ -1987,16 +1996,14 @@ void GitPluginPrivate::delayedPushToGerrit()
 
 void GitPluginPrivate::updateBranches(const FilePath &repository)
 {
-    if (m_branchViewFactory.view())
-        m_branchViewFactory.view()->refreshIfSame(repository);
+    m_branchViewFactory.refreshIfSame(repository);
     if (m_graphViewFactory.view())
         m_graphViewFactory.view()->refreshIfSame(repository);
 }
 
 void GitPluginPrivate::updateCurrentBranch()
 {
-    if (m_branchViewFactory.view())
-        m_branchViewFactory.view()->refreshCurrentBranch();
+    m_branchViewFactory.refreshCurrentBranch();
     if (m_graphViewFactory.view())
         m_graphViewFactory.view()->refreshCurrentBranch();
 }
@@ -2508,6 +2515,12 @@ private slots:
     void testGerritEscape();
     void testCommitMessageHighlighting_data();
     void testCommitMessageHighlighting();
+    void testSharedBranchViews();
+    void testBranchViewVisibility();
+    void testBranchRefreshError();
+    void testBranchViewRefreshErrorOnRepositoryChange();
+    void testBranchRefreshIfChanged();
+    void testBranchRefreshRetry();
     void testRebaseAction();
 };
 
@@ -3429,7 +3442,7 @@ void GitTest::testBranchModelCheckoutSelection()
     model.checkoutBranch(selected, onCheckoutDone);
     QTRY_VERIFY(done);
     QCOMPARE(result, ProcessResult::FinishedWithSuccess);
-    QCOMPARE(model.fullName(model.currentBranch()), QString("main"));
+    QTRY_COMPARE(model.fullName(model.currentBranch()), selectedName);
     refresh(repo);
     QCOMPARE(model.fullName(model.currentBranch()), selectedName);
     QCOMPARE(model.isTag(model.currentBranch()), selectedTag);
@@ -3897,6 +3910,507 @@ void GitTest::testSubmitMessageSpellCheck()
 
     widget.setDescriptionText("Rename mispelledFunction in src/libs/utils/spellcheckr.cpp");
     QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
+}
+
+void GitTest::testSharedBranchViews()
+{
+    const bool previousShowTags = settings().showTags();
+    const auto createRepo = [](const FilePath &repo, const QString &branch) {
+        const auto runGit = [repo](const QStringList &arguments) {
+            return gitClient().vcsSynchronousExec(repo, arguments).result()
+                   == ProcessResult::FinishedWithSuccess;
+        };
+        return runGit({"init", "-b", "main", "."})
+               && runGit({"config", "user.email", "test@test"})
+               && runGit({"config", "user.name", "test"})
+               && bool((repo / "file.txt").writeFileContents("test\n"))
+               && runGit({"add", "file.txt"})
+               && runGit({"-c", "commit.gpgsign=false", "commit", "-m", "initial"})
+               && runGit({"branch", branch});
+    };
+
+    QTemporaryDir firstDir;
+    QTemporaryDir secondDir;
+    QVERIFY(firstDir.isValid());
+    QVERIFY(secondDir.isValid());
+    const FilePath first = FilePath::fromString(firstDir.path());
+    const FilePath second = FilePath::fromString(secondDir.path());
+    QVERIFY(createRepo(first, "first-only"));
+    QVERIFY(createRepo(second, "second-only"));
+    QVERIFY(gitClient().vcsSynchronousExec(
+                second, {"update-ref", "refs/remotes/origin/remote-only", "HEAD"})
+                .result() == ProcessResult::FinishedWithSuccess);
+
+    BranchView firstView;
+    BranchView secondView;
+    auto firstProxy = qobject_cast<QAbstractProxyModel *>(firstView.findChild<QTreeView *>()->model());
+    auto secondProxy = qobject_cast<QAbstractProxyModel *>(secondView.findChild<QTreeView *>()->model());
+    QVERIFY(firstProxy);
+    QVERIFY(secondProxy);
+    QCOMPARE(firstProxy->sourceModel(), secondProxy->sourceModel());
+    auto model = qobject_cast<BranchModel *>(firstProxy->sourceModel());
+    QVERIFY(model);
+    const FilePath originalRepository = model->repository();
+    const QScopeGuard restoreRepository([model, originalRepository] {
+        QSignalSpy finished(model, &BranchModel::refreshFinished);
+        model->refresh(originalRepository, BranchModel::ShowError::No,
+                       BranchModel::RefreshMode::Force);
+        QTRY_VERIFY(!finished.isEmpty());
+    });
+    const bool originalCheckoutRefreshEnabled = model->checkoutRefreshEnabled();
+    const QScopeGuard restoreCheckoutRefresh([model, originalCheckoutRefreshEnabled] {
+        model->setCheckoutRefreshEnabled(originalCheckoutRefreshEnabled);
+    });
+    model->setCheckoutRefreshEnabled(true);
+    const QScopeGuard restoreShowTags([previousShowTags] {
+        settings().showTags.setValue(previousShowTags);
+    });
+    QAbstractItemModelTester modelTester(model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+
+    model->setRepository(first);
+    QTRY_VERIFY(model->localBranchNames().contains("first-only"));
+    QCOMPARE(model->repository(), first);
+    QCOMPARE(firstView.findChild<ElidingLabel *>()->text(), first.toUserOutput());
+    QCOMPARE(secondView.findChild<ElidingLabel *>()->text(), first.toUserOutput());
+
+    model->setRepository(second);
+    QTRY_VERIFY(model->localBranchNames().contains("second-only"));
+    QVERIFY(!model->localBranchNames().contains("first-only"));
+    QCOMPARE(firstView.findChild<ElidingLabel *>()->text(), second.toUserOutput());
+    QCOMPARE(secondView.findChild<ElidingLabel *>()->text(), second.toUserOutput());
+
+    QSignalSpy resultReadySpy(model, &BranchModel::refreshResultReady);
+    QSignalSpy refreshFinishedSpy(model, &BranchModel::refreshFinished);
+    QSignalSpy resetDuringBlockedRefreshSpy(model, &QAbstractItemModel::modelReset);
+    connect(model, &BranchModel::refreshStarted, model, [model] {
+        model->setRefreshBlocked(true);
+    }, Qt::SingleShotConnection);
+    model->refresh(second, BranchModel::ShowError::No, BranchModel::RefreshMode::Force);
+    QTRY_COMPARE(resultReadySpy.size(), 1);
+    QCOMPARE(resetDuringBlockedRefreshSpy.count(), 0);
+    QCOMPARE(refreshFinishedSpy.count(), 0);
+    model->refresh(second, BranchModel::ShowError::No, BranchModel::RefreshMode::IfChanged);
+    model->setRefreshBlocked(false);
+    QTRY_COMPARE(resultReadySpy.size(), 2);
+    QTRY_COMPARE(resetDuringBlockedRefreshSpy.count(), 1);
+    QCOMPARE(refreshFinishedSpy.count(), 1);
+    refreshFinishedSpy.clear();
+
+    auto firstTree = firstView.findChild<QTreeView *>();
+    auto secondTree = secondView.findChild<QTreeView *>();
+    QVERIFY(firstTree);
+    QVERIFY(secondTree);
+    const QModelIndex localBranchesIndex = model->index(0, 0);
+    const QModelIndex remoteBranchesIndex = model->index(1, 0);
+    const QModelIndex firstRemoteBranches = firstProxy->mapFromSource(remoteBranchesIndex);
+    const QModelIndex firstSelection = firstProxy->mapFromSource(
+        model->index(1, 0, localBranchesIndex));
+    const QModelIndex secondSelection = secondProxy->mapFromSource(
+        model->index(0, 0, localBranchesIndex));
+    QVERIFY(firstSelection.isValid());
+    QVERIFY(secondSelection.isValid());
+    firstTree->setCurrentIndex(firstSelection);
+    secondTree->setCurrentIndex(secondSelection);
+    firstTree->selectionModel()->select(firstSelection, QItemSelectionModel::ClearAndSelect);
+    secondTree->selectionModel()->select(secondSelection, QItemSelectionModel::ClearAndSelect);
+    firstTree->collapse(firstRemoteBranches);
+    QCOMPARE(model->fullName(firstProxy->mapToSource(firstTree->currentIndex())),
+             QString("second-only"));
+    QCOMPARE(model->fullName(secondProxy->mapToSource(secondTree->currentIndex())), QString("main"));
+    model->refreshCurrentRepository();
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    const QModelIndex refreshedRemoteBranches = model->index(1, 0);
+    QVERIFY(!firstTree->isExpanded(firstProxy->mapFromSource(refreshedRemoteBranches)));
+    QVERIFY(secondTree->isExpanded(secondProxy->mapFromSource(refreshedRemoteBranches)));
+    QCOMPARE(model->fullName(firstProxy->mapToSource(firstTree->currentIndex())),
+             QString("second-only"));
+    QCOMPARE(model->fullName(secondProxy->mapToSource(secondTree->currentIndex())), QString("main"));
+
+    QSignalSpy forcedRefreshSpy(model, &BranchModel::modelReset);
+    model->setRefreshBlocked(true);
+    auto unblockForcedRefresh = qScopeGuard([model] {
+        model->setRefreshBlocked(false);
+    });
+    model->refresh(second, BranchModel::ShowError::Yes, BranchModel::RefreshMode::Force);
+    model->refresh(second, BranchModel::ShowError::No, BranchModel::RefreshMode::IfChanged);
+    model->setRefreshBlocked(false);
+    unblockForcedRefresh.dismiss();
+    QTRY_COMPARE(forcedRefreshSpy.count(), 1);
+
+    QModelIndex checkoutIndex;
+    const QModelIndex localBranches = model->index(0, 0);
+    for (int row = 0; row < model->rowCount(localBranches); ++row) {
+        const QModelIndex candidate = model->index(row, 0, localBranches);
+        if (model->fullName(candidate) == "second-only") {
+            checkoutIndex = candidate;
+            break;
+        }
+    }
+    QVERIFY(checkoutIndex.isValid());
+    model->checkoutBranch(checkoutIndex);
+    QTRY_COMPARE(model->fullName(model->currentBranch()), QString("second-only"));
+
+    QVERIFY(gitClient().vcsSynchronousExec(second,
+                                          {"update-ref", "refs/remotes/origin/remote-only", "HEAD"})
+                .result() == ProcessResult::FinishedWithSuccess);
+    QVERIFY(gitClient().vcsSynchronousExec(second,
+                                          {"update-ref", "refs/remotes/origin/zzz-same-commit", "HEAD"})
+                .result() == ProcessResult::FinishedWithSuccess);
+    model->refresh(second, BranchModel::ShowError::Yes, BranchModel::RefreshMode::Force);
+    const auto findBranch = [model](const QString &name) {
+        std::function<QModelIndex(const QModelIndex &)> find = [&](const QModelIndex &parent) {
+            for (int row = 0; row < model->rowCount(parent); ++row) {
+                const QModelIndex index = model->index(row, 0, parent);
+                if (model->fullName(index, true) == name)
+                    return index;
+                if (const QModelIndex child = find(index); child.isValid())
+                    return child;
+            }
+            return QModelIndex{};
+        };
+        return find({});
+    };
+    QTRY_VERIFY(findBranch("refs/remotes/origin/remote-only").isValid());
+    bool checkoutCompleted = false;
+    QtcSettings *userSettings = ICore::settings();
+    const Key promptKey("DoNotAskAgain/Git.CreateLocalBranchOnCheckout");
+    const QVariant previousPrompt = userSettings->value(promptKey);
+    const QScopeGuard restorePrompt([=] {
+        userSettings->setValueWithDefault(promptKey, previousPrompt);
+    });
+    userSettings->setValue(promptKey, true);
+    model->checkoutBranch(findBranch("refs/remotes/origin/remote-only"),
+                          [&](const CommandResult &result) {
+        checkoutCompleted = result.result() == ProcessResult::FinishedWithSuccess;
+    });
+    QTRY_VERIFY(checkoutCompleted);
+    QTRY_COMPARE(model->fullName(model->currentBranch(), true),
+                 QString("refs/remotes/origin/remote-only"));
+    QCOMPARE(firstProxy->mapFromSource(model->currentBranch()).data(Qt::FontRole).value<QFont>().underline(),
+             true);
+    QCOMPARE(secondProxy->mapFromSource(model->currentBranch()).data(Qt::FontRole).value<QFont>().underline(),
+             true);
+    QSignalSpy remoteRefreshSpy(model, &QAbstractItemModel::modelReset);
+    model->refreshCurrentRepository();
+    QTRY_COMPARE(remoteRefreshSpy.count(), 1);
+    QTRY_COMPARE(model->fullName(model->currentBranch(), true),
+                 QString("refs/remotes/origin/remote-only"));
+    const QModelIndex localAgain = findBranch("refs/heads/second-only");
+    QVERIFY(localAgain.isValid());
+    model->checkoutBranch(localAgain);
+    QTRY_COMPARE(model->fullName(model->currentBranch(), true), QString("refs/heads/second-only"));
+
+    model->setRefreshBlocked(true);
+    auto unblockPendingRefresh = qScopeGuard([model] {
+        model->setRefreshBlocked(false);
+    });
+    model->setRepository(first);
+    QCOMPARE(model->repository(), second);
+    model->setTagsIncluded(!settings().showTags());
+    QCOMPARE(model->repository(), second);
+    model->refreshIfSame(second); // An old-repository notification must not replace the switch.
+    model->refreshCurrentRepository(); // Refresh action still targets the pending repository.
+    model->setRefreshBlocked(false);
+    unblockPendingRefresh.dismiss();
+    QTRY_VERIFY(model->localBranchNames().contains("first-only"));
+}
+
+void GitTest::testBranchViewVisibility()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("test\n")));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+    QVERIFY(runGit({"branch", "visible-test"}));
+
+    BranchViewFactory *factory = nullptr;
+    for (Core::INavigationWidgetFactory *candidate : Core::INavigationWidgetFactory::allNavigationFactories()) {
+        if (candidate->id() == Constants::GIT_BRANCH_VIEW_ID) {
+            factory = static_cast<BranchViewFactory *>(candidate);
+            break;
+        }
+    }
+    QVERIFY(factory);
+
+    Core::INavigationWidgetFactory *navigationFactory = factory;
+    const Core::NavigationView firstNavigation = navigationFactory->createWidget();
+    std::unique_ptr<BranchView> firstView(static_cast<BranchView *>(firstNavigation.widget));
+    const auto firstButtonsCleanup = qScopeGuard([&] {
+        qDeleteAll(firstNavigation.dockToolBarWidgets);
+    });
+    auto tree = firstView->findChild<QTreeView *>();
+    QVERIFY(tree);
+    auto model = qobject_cast<BranchModel *>(
+        qobject_cast<QAbstractProxyModel *>(tree->model())->sourceModel());
+    QVERIFY(model);
+    const FilePath originalRepository = model->repository();
+    const QScopeGuard restoreRepository([factory, model, originalRepository] {
+        QSignalSpy finished(model, &BranchModel::refreshFinished);
+        factory->refresh(originalRepository);
+        model->setRepository(originalRepository);
+        QTRY_VERIFY(!finished.isEmpty());
+    });
+
+    factory->refresh(repository);
+    QCOMPARE(model->repository(), originalRepository); // Hidden views do not fetch refs.
+    firstView->show();
+    QTRY_VERIFY(model->localBranchNames().contains("visible-test"));
+
+    const QModelIndex localBranches = tree->model()->index(0, 0);
+    QVERIFY(localBranches.isValid());
+    tree->collapse(localBranches);
+    tree->selectionModel()->setCurrentIndex(localBranches, QItemSelectionModel::ClearAndSelect);
+    QCOMPARE(tree->selectionModel()->currentIndex(), localBranches);
+    QSignalSpy resetSpy(model, &QAbstractItemModel::modelReset);
+    QSignalSpy refreshSpy(model, &BranchModel::refreshStarted);
+
+    const Core::NavigationView secondNavigation = navigationFactory->createWidget();
+    std::unique_ptr<BranchView> secondView(static_cast<BranchView *>(secondNavigation.widget));
+    const auto secondButtonsCleanup = qScopeGuard([&] {
+        qDeleteAll(secondNavigation.dockToolBarWidgets);
+    });
+    secondView->show();
+    QCOMPARE(refreshSpy.count(), 0);
+    QCOMPARE(resetSpy.count(), 0);
+    QVERIFY(!tree->isExpanded(localBranches));
+    QCOMPARE(tree->selectionModel()->currentIndex(), localBranches);
+
+    firstView->hide();
+    secondView->hide();
+    factory->refresh({});
+    QCOMPARE(model->repository(), repository); // The last hidden view keeps its cached model.
+    firstView->show();
+    QTRY_VERIFY(model->repository().isEmpty());
+}
+
+void GitTest::testBranchRefreshError()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Requires a POSIX shell wrapper for Git.");
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("test\n")));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+    const FilePath gitExecutable = settings().gitExecutable().value_or(FilePath{});
+    QVERIFY(!gitExecutable.isEmpty());
+    const FilePath wrapper = repository / "git-wrapper";
+    const QByteArray script = "#!/bin/sh\n"
+                              "for arg in \"$@\"; do\n"
+                              "  if [ \"$arg\" = for-each-ref ]; then\n"
+                              "    echo 'forced ref failure' >&2\n"
+                              "    exit 23\n"
+                              "  fi\n"
+                              "done\n"
+                              "exec '" + gitExecutable.toUrlishString().toUtf8() + "' \"$@\"\n";
+    QVERIFY(bool(wrapper.writeFileContents(script)));
+    QVERIFY(QFile::setPermissions(wrapper.toFSPathString(),
+                                  QFileDevice::ReadOwner | QFileDevice::WriteOwner
+                                      | QFileDevice::ExeOwner));
+    const auto restoreGit = qScopeGuard([gitExecutable] {
+        settings().resolvedBinPath = gitExecutable;
+    });
+    settings().resolvedBinPath = wrapper;
+    settings().tryResolve = false;
+
+    auto output = VcsOutputWindow::instance()->outputWindows().first();
+    output->clear();
+    BranchModel model;
+    QSignalSpy refreshStartedSpy(&model, &BranchModel::refreshStarted);
+    QSignalSpy refreshFinishedSpy(&model, &BranchModel::refreshFinished);
+    model.refresh(repository, BranchModel::ShowError::Yes);
+    QTRY_VERIFY(output->toPlainText().contains("Cannot run \"git for-each-ref\""));
+    if (!output->toPlainText().contains("Cannot run \"git for-each-ref\""))
+        qDebug() << "Branch refresh output:" << output->toPlainText();
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    QCOMPARE(refreshFinishedSpy.takeFirst().at(0).toBool(), false);
+
+    const QString outputAfterFailure = output->toPlainText();
+    model.refresh(repository, BranchModel::ShowError::No, BranchModel::RefreshMode::IfChanged);
+    QCOMPARE(refreshStartedSpy.size(), 2);
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    QCOMPARE(refreshFinishedSpy.takeFirst().at(0).toBool(), false);
+    QCOMPARE(output->toPlainText(), outputAfterFailure);
+}
+
+void GitTest::testBranchViewRefreshErrorOnRepositoryChange()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Requires a POSIX shell wrapper for Git.");
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDir.path()) / "repository";
+    const FilePath failingRepository = FilePath::fromString(temporaryDir.path()) / "failing";
+    QVERIFY(repository.createDir());
+    QVERIFY(failingRepository.createDir());
+    const auto runGit = [](const FilePath &workingDirectory, const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(workingDirectory, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit(repository, {"init", "."}));
+    QVERIFY(runGit(repository, {"config", "user.email", "test@test"}));
+    QVERIFY(runGit(repository, {"config", "user.name", "test"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("test\n")));
+    QVERIFY(runGit(repository, {"add", "file.txt"}));
+    QVERIFY(runGit(repository, {"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+    QVERIFY(runGit(repository, {"branch", "visible-test"}));
+    QVERIFY(runGit(failingRepository, {"init", "."}));
+    QVERIFY(runGit(failingRepository, {"config", "user.email", "test@test"}));
+    QVERIFY(runGit(failingRepository, {"config", "user.name", "test"}));
+    QVERIFY(bool((failingRepository / "file.txt").writeFileContents("test\n")));
+    QVERIFY(runGit(failingRepository, {"add", "file.txt"}));
+    QVERIFY(runGit(failingRepository, {"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+
+    BranchViewFactory *factory = nullptr;
+    for (Core::INavigationWidgetFactory *candidate : Core::INavigationWidgetFactory::allNavigationFactories()) {
+        if (candidate->id() == Constants::GIT_BRANCH_VIEW_ID) {
+            factory = static_cast<BranchViewFactory *>(candidate);
+            break;
+        }
+    }
+    QVERIFY(factory);
+    Core::INavigationWidgetFactory *navigationFactory = factory;
+    const Core::NavigationView navigation = navigationFactory->createWidget();
+    std::unique_ptr<BranchView> view(static_cast<BranchView *>(navigation.widget));
+    const auto buttonsCleanup = qScopeGuard([&] { qDeleteAll(navigation.dockToolBarWidgets); });
+    auto tree = view->findChild<QTreeView *>();
+    QVERIFY(tree);
+    auto proxy = qobject_cast<QAbstractProxyModel *>(tree->model());
+    QVERIFY(proxy);
+    BranchModel *model = qobject_cast<BranchModel *>(proxy->sourceModel());
+    QVERIFY(model);
+    const FilePath originalRepository = model->repository();
+    const FilePath gitExecutable = settings().gitExecutable().value_or(FilePath{});
+    QVERIFY(!gitExecutable.isEmpty());
+    const bool tryResolve = settings().tryResolve;
+    const QScopeGuard restore([factory, model, originalRepository, gitExecutable, tryResolve] {
+        settings().resolvedBinPath = gitExecutable;
+        settings().tryResolve = tryResolve;
+        QSignalSpy finished(model, &BranchModel::refreshFinished);
+        factory->refresh(originalRepository);
+        QTRY_VERIFY(!finished.isEmpty());
+    });
+
+    QSignalSpy initialRefreshFinishedSpy(model, &BranchModel::refreshFinished);
+    factory->refresh(repository);
+    view->show();
+    QTRY_VERIFY(model->localBranchNames().contains("visible-test"));
+    QTRY_COMPARE(initialRefreshFinishedSpy.size(), 1);
+    QCOMPARE(initialRefreshFinishedSpy.takeFirst().at(0).toBool(), true);
+
+    const FilePath wrapper = FilePath::fromString(temporaryDir.path()) / "git-wrapper";
+    const QByteArray script = "#!/bin/sh\n"
+                              "for arg in \"$@\"; do\n"
+                              "  if [ \"$arg\" = for-each-ref ]; then\n"
+                              "    echo 'forced ref failure' >&2\n"
+                              "    exit 23\n"
+                              "  fi\n"
+                              "done\n"
+                              "exec '" + gitExecutable.toUrlishString().toUtf8() + "' \"$@\"\n";
+    QVERIFY(bool(wrapper.writeFileContents(script)));
+    QVERIFY(QFile::setPermissions(wrapper.toFSPathString(),
+                                  QFileDevice::ReadOwner | QFileDevice::WriteOwner
+                                      | QFileDevice::ExeOwner));
+    settings().resolvedBinPath = wrapper;
+    settings().tryResolve = false;
+
+    QCOMPARE(model->repository(), repository);
+    auto output = VcsOutputWindow::instance()->outputWindows().first();
+    output->clear();
+    QSignalSpy refreshResultReadySpy(model, &BranchModel::refreshResultReady);
+    QSignalSpy refreshStartedSpy(model, &BranchModel::refreshStarted);
+    QSignalSpy refreshFinishedSpy(model, &BranchModel::refreshFinished);
+    factory->refresh(failingRepository);
+    QCOMPARE(refreshStartedSpy.size(), 1);
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    QCOMPARE(refreshResultReadySpy.takeFirst().at(0).toBool(), false);
+    QVERIFY(output->toPlainText().contains("Cannot run \"git for-each-ref\""));
+    QCOMPARE(refreshFinishedSpy.takeFirst().at(0).toBool(), false);
+
+    const QString outputAfterFailure = output->toPlainText();
+    factory->refresh(failingRepository);
+    QCOMPARE(refreshStartedSpy.size(), 2);
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    QCOMPARE(refreshFinishedSpy.takeFirst().at(0).toBool(), false);
+    QCOMPARE(output->toPlainText(), outputAfterFailure);
+}
+
+void GitTest::testBranchRefreshIfChanged()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "-b", "main", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("test\n")));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+
+    BranchModel model;
+    QSignalSpy refreshStartedSpy(&model, &BranchModel::refreshStarted);
+    QSignalSpy refreshFinishedSpy(&model, &BranchModel::refreshFinished);
+    model.refresh(repository, BranchModel::ShowError::No,
+                  BranchModel::RefreshMode::IfChanged);
+    QCOMPARE(refreshStartedSpy.size(), 1);
+
+    model.refresh(repository, BranchModel::ShowError::No,
+                  BranchModel::RefreshMode::IfChanged);
+    QCOMPARE(refreshStartedSpy.size(), 1);
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    QCOMPARE(refreshFinishedSpy.first().at(0).toBool(), true);
+}
+
+void GitTest::testBranchRefreshRetry()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDir.path());
+
+    BranchModel model;
+    QSignalSpy refreshFinishedSpy(&model, &BranchModel::refreshFinished);
+    model.refresh(repository, BranchModel::ShowError::No);
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    QCOMPARE(refreshFinishedSpy.takeFirst().at(0).toBool(), false);
+
+    const auto runGit = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "-b", "main", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("test\n")));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+
+    model.setRepository(repository);
+    QTRY_COMPARE(refreshFinishedSpy.size(), 1);
+    QCOMPARE(refreshFinishedSpy.takeFirst().at(0).toBool(), true);
+    QVERIFY(model.localBranchNames().contains("main"));
 }
 
 void GitTest::testGerritEscape_data()
