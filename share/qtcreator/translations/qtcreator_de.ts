@@ -51203,29 +51203,8 @@ in &quot;%2&quot; aus.
         <translation>Codemodell</translation>
     </message>
     <message>
-        <source>If background indexing is enabled, global symbol searches will yield
-more accurate results, at the cost of additional CPU load when
-the project is first opened.
-The indexing result is persisted in the project&apos;s build directory.
-
-If you disable background indexing, a faster, but less accurate,
-built-in indexer is used instead.
-
-The thread priority for building the background index can be adjusted since clangd 15.
-Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.
-Normal Priority: Reduced priority compared to interactive work.
-Low Priority: Same priority as other clangd work.</source>
-        <translation>Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate,
-es erhöht aber die CPU-Last beim ersten Öffnen von Projekten.
-Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert.
-
-Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer,
-aber weniger genauer, integrierter Indexer benutzt.
-
-Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.
-Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.
-Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.
-Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.</translation>
+        <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;Low Priority: Same priority as other clangd work.</source>
+        <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.</translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>

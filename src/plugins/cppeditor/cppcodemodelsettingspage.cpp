@@ -211,18 +211,14 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
 {
     const ClangdSettings settings(settingsData);
     const QString indexingToolTip = Tr::tr(
-        "If background indexing is enabled, global symbol searches will yield\n"
-        "more accurate results, at the cost of additional CPU load when\n"
-        "the project is first opened.\n"
-        "The indexing result is persisted in the project's build directory.\n"
-        "\n"
-        "If you disable background indexing, a faster, but less accurate,\n"
-        "built-in indexer is used instead.\n"
-        "\n"
-        "The thread priority for building the background index can be adjusted since clangd 15.\n"
-        "Background Priority: Minimum priority, runs on idle CPUs. May leave 'performance' cores "
-        "unused.\n"
-        "Normal Priority: Reduced priority compared to interactive work.\n"
+        "<p>If background indexing is enabled, global symbol searches will yield more accurate "
+        "results, at the cost of additional CPU load when the project is first opened. The "
+        "indexing result is persisted in the project's build directory. If you disable background "
+        "indexing, a faster, but less accurate, built-in indexer is used instead. The thread "
+        "priority for building the background index can be adjusted since clangd 15.</p>"
+        "<p>Background Priority: Minimum priority, runs on idle CPUs. May leave 'performance' "
+        "cores unused.</p>"
+        "<p>Normal Priority: Reduced priority compared to interactive work.</p>"
         "Low Priority: Same priority as other clangd work.");
     const QString workerThreadsToolTip = Tr::tr(
         "Number of worker threads used by clangd. Background indexing also uses this many "

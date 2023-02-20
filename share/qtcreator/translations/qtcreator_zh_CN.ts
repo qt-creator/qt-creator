@@ -11523,18 +11523,7 @@ to version control (%2)
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>If background indexing is enabled, global symbol searches will yield
-more accurate results, at the cost of additional CPU load when
-the project is first opened.
-The indexing result is persisted in the project&apos;s build directory.
-
-If you disable background indexing, a faster, but less accurate,
-built-in indexer is used instead.
-
-The thread priority for building the background index can be adjusted since clangd 15.
-Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.
-Normal Priority: Reduced priority compared to interactive work.
-Low Priority: Same priority as other clangd work.</source>
+        <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;Low Priority: Same priority as other clangd work.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
