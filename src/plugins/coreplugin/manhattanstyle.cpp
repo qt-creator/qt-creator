@@ -1001,7 +1001,10 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 painter->save();
                 if (!enabled)
                     painter->setOpacity(0.75);
-                painter->fillRect(backgroundRect, option->palette.base());
+                QBrush baseBrush = option->palette.base();
+                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget()))
+                    baseBrush = creatorTheme()->color(Theme::DScontrolBackgroundDisabled);
+                painter->fillRect(backgroundRect, baseBrush);
                 painter->restore();
             } else {
                 backgroundRect.adjust(1, 1, -1, -1);
@@ -1786,7 +1789,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
         }
         break;
     case CC_Slider:
-        if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+        if (const auto *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect groove = proxy()->subControlRect(CC_Slider, option, SC_SliderGroove, widget);
             QRect handle = proxy()->subControlRect(CC_Slider, option, SC_SliderHandle, widget);
 

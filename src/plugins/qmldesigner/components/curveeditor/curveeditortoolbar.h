@@ -58,8 +58,8 @@ public:
 
 private:
     void addSpacer();
-    void addSpace(int spaceSize = 40);
-    void addSpace(QLayout *layout, int spaceSize = 40);
+    void addSpace(int spaceSize = 32);
+    void addSpace(QLayout *layout, int spaceSize = 32);
 
     ValidatableSpinBox *m_startSpin;
     ValidatableSpinBox *m_endSpin;
