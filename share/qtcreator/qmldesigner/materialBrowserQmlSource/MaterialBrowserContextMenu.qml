@@ -13,11 +13,13 @@ StudioControls.Menu {
     property var targetItem: null
     property int copiedMaterialInternalId: -1
     property var matSectionsModel: []
+    property bool restoreFocusOnClose: true
 
     function popupMenu(targetItem = null, targetMaterial = null)
     {
         this.targetItem = targetItem
         this.targetMaterial = targetMaterial
+        restoreFocusOnClose = true
         popup()
     }
 
@@ -102,7 +104,10 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         text: qsTr("Rename")
         enabled: root.targetItem
-        onTriggered: root.targetItem.startRename();
+        onTriggered: {
+            restoreFocusOnClose = false
+            root.targetItem.startRename()
+        }
     }
 
     StudioControls.MenuItem {

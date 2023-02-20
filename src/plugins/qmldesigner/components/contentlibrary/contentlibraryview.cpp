@@ -323,6 +323,8 @@ ModelNode ContentLibraryView::createMaterial(const NodeMetaInfo &metaInfo)
     VariantProperty objNameProp = newMatNode.variantProperty("objectName");
     objNameProp.setValue(newName);
 
+    emitCustomNotification("focus_material_section", {});
+
     return newMatNode;
 }
 

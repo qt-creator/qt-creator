@@ -497,6 +497,8 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         if (idx != -1) {
             m_widget->materialBrowserTexturesModel()->selectTexture(idx);
             m_widget->materialBrowserTexturesModel()->refreshSearch();
+            if (!data.isEmpty() && data[0].toBool())
+                m_widget->focusMaterialSection(false);
         }
     } else if (identifier == "refresh_material_browser") {
         QTimer::singleShot(0, model(), [this]() {
@@ -511,6 +513,8 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         applyTextureToModel3D(nodeList.at(0), nodeList.at(1));
     } else if (identifier == "apply_texture_to_material") {
         applyTextureToMaterial({nodeList.at(0)}, nodeList.at(1));
+    } else if (identifier == "focus_material_section") {
+        m_widget->focusMaterialSection(true);
     }
 }
 
