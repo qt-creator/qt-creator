@@ -87,20 +87,21 @@ private:
     }
 };
 
-// 4 policies:
+// WorkflowPolicy:
 // 1. When all children finished with done -> report done, otherwise:
 //    a) Report error on first error and stop executing other children (including their subtree)
-//    b) On first error - wait for all children to be finished and report error afterwards
+//    b) On first error - continue executing all children and report error afterwards
 // 2. When all children finished with error -> report error, otherwise:
 //    a) Report done on first done and stop executing other children (including their subtree)
-//    b) On first done - wait for all children to be finished and report done afterwards
+//    b) On first done - continue executing all children and report done afterwards
+// 3. Always run all children, ignore their result and report done afterwards
 
 enum class WorkflowPolicy {
-    StopOnError,     // 1a - Will report error on any child error, otherwise done (if all children were done)
-    ContinueOnError, // 1b - the same. When no children it reports done.
-    StopOnDone,      // 2a - Will report done on any child done, otherwise error (if all children were error)
-    ContinueOnDone,  // 2b - the same. When no children it reports done. (?)
-    Optional         // Returns always done after all children finished
+    StopOnError,     // 1a - Reports error on first child error, otherwise done (if all children were done)
+    ContinueOnError, // 1b - The same, but children execution continues. When no children it reports done.
+    StopOnDone,      // 2a - Reports done on first child done, otherwise error (if all children were error)
+    ContinueOnDone,  // 2b - The same, but children execution continues. When no children it reports done. (?)
+    Optional         // 3 - Always reports done after all children finished
 };
 
 enum class TaskAction
