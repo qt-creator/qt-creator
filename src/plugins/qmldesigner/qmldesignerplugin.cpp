@@ -740,7 +740,10 @@ void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
         qDebug() << m_feedbackWidget->errors().first().toString();
     }
     m_feedbackWidget->setWindowModality(Qt::ApplicationModal);
-    m_feedbackWidget->setWindowFlags(Qt::SplashScreen);
+    if (Utils::HostOsInfo::isMacHost())
+        m_feedbackWidget->setWindowFlags(Qt::Dialog);
+    else
+        m_feedbackWidget->setWindowFlags(Qt::SplashScreen);
     m_feedbackWidget->setAttribute(Qt::WA_DeleteOnClose);
 
     QQuickItem *root = m_feedbackWidget->rootObject();

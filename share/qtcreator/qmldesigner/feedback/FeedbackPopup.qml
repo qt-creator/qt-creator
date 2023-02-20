@@ -66,14 +66,21 @@ Rectangle {
         height: 96
         anchors { horizontalCenter: parent.horizontalCenter; top: starRow.bottom; topMargin: 28 }
 
-        TextArea {
+        TextEdit {
             id: textarea
             width: 426
             height: 90
             color: "#333333";
-            placeholderText: "We highly appreciate additional feedback.\nBouquets, brickbats, or suggestions, all feedback is welcome!"
             font { pixelSize: 14; family: "Titillium" }
             wrapMode: Text.Wrap
+            property string placeholderText: "We highly appreciate additional feedback.\nBouquets, brickbats, or suggestions, all feedback is welcome!"
+
+            Text {
+                text: textarea.placeholderText
+                color: "gray"
+                visible: !textarea.text
+                font: parent.font
+            }
         }
 
         background: Rectangle {
