@@ -393,6 +393,13 @@
     CMake script that installs dependencies from a \c conanfile.txt,
     \c conanfile.py, or \c vcpkg.json file in the project source directory.
 
+    \section1 QTC_RUN Environment Variable
+
+    \QC sets the environment variable \c QTC_RUN to \c 1 when executing
+    the \c cmake process.
+
+    This enables the CMake code to detect if it's being executed from \QC.
+
     \section1 CMake Clean Steps
 
     When building with CMake, you can add arguments to pass to CMake and the
