@@ -17,7 +17,6 @@ SeekerSlider::SeekerSlider(QWidget *parent)
 {
     setProperty("panelwidget", true);
     setProperty("panelwidget_singlerow", true);
-    setProperty("DSSlider", true);
     setOrientation(Qt::Horizontal);
     setFixedWidth(120);
     setMaxValue(30);

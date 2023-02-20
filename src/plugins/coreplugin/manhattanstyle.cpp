@@ -89,11 +89,6 @@ bool panelWidget(const QWidget *widget)
     return false;
 }
 
-inline bool isDSSlider(const QWidget *widget)
-{
-    return (widget && widget->property("DSSlider").toBool());
-}
-
 // Consider making this a QStyle state
 static bool isQmlEditorMenu(const QWidget *widget)
 {
@@ -496,7 +491,7 @@ QRect ManhattanStyle::subControlRect(ComplexControl control, const QStyleOptionC
 #endif
 
     QRect retval = QProxyStyle::subControlRect(control, option, subControl, widget);;
-    if (isDSSlider(widget)) {
+    if (panelWidget(widget)) {
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             switch (subControl) {
             case SubControl::SC_SliderGroove:
@@ -1645,7 +1640,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                                         QPainter *painter, const QWidget *widget) const
 {
     if (!panelWidget(widget))
-         return     QProxyStyle::drawComplexControl(control, option, painter, widget);
+         return QProxyStyle::drawComplexControl(control, option, painter, widget);
 
     QRect rect = option->rect;
     switch (control) {
@@ -1788,11 +1783,6 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
         break;
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
-            if (!isDSSlider(widget)) {
-                QProxyStyle::drawComplexControl(control, option, painter, widget);
-                break;
-            }
-
             QRect groove = proxy()->subControlRect(CC_Slider, option, SC_SliderGroove, widget);
             QRect handle = proxy()->subControlRect(CC_Slider, option, SC_SliderHandle, widget);
 
@@ -1800,26 +1790,40 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             bool ticksAbove = slider->tickPosition & QSlider::TicksAbove;
             bool ticksBelow = slider->tickPosition & QSlider::TicksBelow;
             bool enabled = option->state & QStyle::State_Enabled;
+            bool grooveHover = slider->activeSubControls & SC_SliderGroove;
+            bool handleHover = slider->activeSubControls & SC_SliderHandle;
+            bool interaction = option->state & State_Sunken;
             bool activeFocus = option->state & State_HasFocus && option->state & State_KeyboardFocusChange;
 
             int sliderPaintingOffset = horizontal
                     ? handle.center().x()
                     : handle.center().y();
 
+            int borderRadius = 4;
+
             painter->save();
             painter->setRenderHint(QPainter::RenderHint::Antialiasing);
 
             int lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth, option, widget);
             Theme::Color themeframeColor = enabled
-                    ? activeFocus
-                      ? Theme::DSstateBackgroundColor_hover
-                      : Theme::DSBackgroundColorAlternate
-                    : Theme::DScontrolBackgroundDisabled;
+                    ? interaction
+                      ? Theme::DSstateControlBackgroundColor_hover // Pressed
+                      : grooveHover
+                          ? Theme::DSstateSeparatorColor // GrooveHover
+                          : Theme::DSpopupBackground // Idle
+                    : Theme::DSpopupBackground; // Disabled
+
             QColor frameColor = creatorTheme()->color(themeframeColor);
 
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
-                Theme::Color bgPlusColor = enabled ? Theme::DSBackgroundColorAlternate : Theme::DScontrolOutlineDisabled;
-                Theme::Color bgMinusColor = enabled ? Theme::DScontrolBackground : Theme::DScontrolOutlineDisabled;
+                Theme::Color bgPlusColor = enabled
+                        ? interaction
+                          ? Theme::DSstateControlBackgroundColor_hover // Pressed
+                          : grooveHover
+                              ? Theme::DSstateSeparatorColor // GrooveHover
+                              : Theme::DStoolbarBackground // Idle
+                        : Theme::DStoolbarBackground; // Disabled
+                Theme::Color bgMinusColor = Theme::DSpopupBackground;
 
                 QRect minusRect(groove);
                 QRect plusRect(groove);
@@ -1842,9 +1846,13 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                     }
                 }
 
+                painter->save();
                 painter->setPen(Qt::NoPen);
-                painter->fillRect(plusRect, creatorTheme()->color(bgPlusColor));
-                painter->fillRect(minusRect, creatorTheme()->color(bgMinusColor));
+                painter->setBrush(creatorTheme()->color(bgPlusColor));
+                painter->drawRoundedRect(plusRect, borderRadius, borderRadius);
+                painter->setBrush(creatorTheme()->color(bgMinusColor));
+                painter->drawRoundedRect(minusRect, borderRadius, borderRadius);
+                painter->restore();
             }
 
             if (option->subControls & SC_SliderTickmarks) {
@@ -1912,17 +1920,18 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             // draw handle
             if ((option->subControls & SC_SliderHandle) ) {
                 Theme::Color handleColor = enabled
-                        ? slider->state & QStyle::State_Editing
-                          ? Theme::DSsliderHandleInteraction
-                          : slider->activeSubControls & SC_SliderHandle
-                            ? Theme::DSsliderHandleHover
-                            : Theme::DSsliderHandle
-                        : Theme::DSiconColorDisabled;
+                        ? interaction
+                            ? Theme::DSinteraction  // Interaction
+                            : grooveHover || handleHover
+                              ? Theme::DStabActiveText // Hover
+                              : Theme::PalettePlaceholderText // Idle
+                        : Theme::DStoolbarIcon_blocked; // Disabled
 
                 int halfSliderThickness = horizontal
                         ? handle.width() / 2
                         : handle.height() / 2;
                 painter->setBrush(creatorTheme()->color(handleColor));
+                painter->setPen(Qt::NoPen);
                 painter->drawRoundedRect(handle,
                                         halfSliderThickness,
                                         halfSliderThickness);
@@ -1931,7 +1940,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             if (groove.isValid()) {
                 painter->setBrush(Qt::NoBrush);
                 painter->setPen(QPen(frameColor, lineWidth));
-                painter->drawRect(groove);
+                painter->drawRoundedRect(groove, borderRadius, borderRadius);
             }
             painter->restore();
         }

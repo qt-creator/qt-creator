@@ -249,6 +249,8 @@ void TransitionEditorToolBar::createRightControls()
     addSpacing(10);
 
     m_scale = new QSlider(this);
+    m_scale->setProperty("panelwidget", true);
+    m_scale->setProperty("panelwidget_singlerow", true);
     m_scale->setOrientation(Qt::Horizontal);
     m_scale->setMaximumWidth(200);
     m_scale->setMinimumWidth(100);
