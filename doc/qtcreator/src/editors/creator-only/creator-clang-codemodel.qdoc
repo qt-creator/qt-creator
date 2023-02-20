@@ -104,7 +104,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
             \uicontrol {Code Model}.
 
-            \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
+            \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
 
         \li To instruct the code model to interpret ambiguous header files as C
             language files if you develop mainly using C, select the
@@ -126,6 +126,10 @@
             files to index is limited to 5MB by default. To adjust the limit,
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
+
+        \li To ignore files that match wildcard patterns, select the
+            \uicontrol {Ignore files} check box and enter each wildcard pattern
+            on a separate line in the field.
 
     \endlist
 
