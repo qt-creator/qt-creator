@@ -5,7 +5,7 @@ add_qtc_plugin(QmlDesigner
     Qt::QuickWidgets Qt::CorePrivate Sqlite Qt::Xml Qt::Svg
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSEditor QmlProjectManager
-    QtSupport
+    QtSupport QmakeProjectManager
   PLUGIN_RECOMMENDS QmlPreview
 )
 qtc_plugin_enabled(_qmlDesignerEnabled QmlDesigner)
