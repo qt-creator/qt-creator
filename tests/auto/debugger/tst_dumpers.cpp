@@ -3502,7 +3502,11 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QSharedPointer")
             << Data("#include <QSharedPointer>\n"
-                    "#include <QString>\n" + fooData,
+                    "#include <QString>\n"
+                    "struct Base1 { int b1 = 42; virtual ~Base1() {} };\n"
+                    "struct Base2 { int b2 = 43; };\n"
+                    "struct MyClass : public Base2, public Base1 { int val = 44; };\n"
+                    + fooData,
 
                     "QSharedPointer<int> ptr10;\n"
                     "QSharedPointer<int> ptr11 = ptr10;\n"
@@ -3525,13 +3529,17 @@ void tst_Dumpers::dumper_data()
                     "QSharedPointer<Foo> ptr50(new Foo(1));\n"
                     "QWeakPointer<Foo> ptr51(ptr50);\n"
                     "QWeakPointer<Foo> ptr52 = ptr50;\n"
-                    "QWeakPointer<Foo> ptr53 = ptr50;\n",
+                    "QWeakPointer<Foo> ptr53 = ptr50;\n"
+
+                    "QSharedPointer<Base1> ptr60(new MyClass());\n"
+                    "QWeakPointer<Base1> ptr61(ptr60);\n",
 
                     "&ptr10, &ptr11, &ptr12, "
                     "&ptr20, &ptr21, &ptr22, "
                     "&ptr30, &ptr31, &ptr32, &ptr33, "
                     "&ptr40, &ptr41, &ptr42, &ptr43, "
-                    "&ptr50, &ptr51, &ptr52, &ptr53")
+                    "&ptr50, &ptr51, &ptr52, &ptr53, "
+                    "&ptr60, &ptr61")
 
                + CoreProfile()
 
@@ -3559,7 +3567,12 @@ void tst_Dumpers::dumper_data()
 
                + Check("ptr50", "", "@QSharedPointer<Foo>")
                + Check("ptr50.data", "", "Foo")
-               + Check("ptr53", "", "@QWeakPointer<Foo>");
+               + Check("ptr53", "", "@QWeakPointer<Foo>")
+
+               + Check("ptr60.data", "", "MyClass")
+               + Check("ptr61.data", "", "MyClass")
+               + Check("ptr60.data.val", "44", "int")
+               + Check("ptr61.data.val", "44", "int");
 
 
     QTest::newRow("QLazilyAllocated")
