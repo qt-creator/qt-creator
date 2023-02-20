@@ -241,6 +241,16 @@ Rectangle {
             visible: !root.flyoutEnabled
 
             onActivated: backend.setCurrentWorkspace(workspaces.currentText)
+            Text {
+                z: 20
+                x: workspaces.contentItem.implicitWidth
+
+                text: qsTr("Workspace")
+                font: workspaces.font
+                anchors.verticalCenter: parent.verticalCenter
+
+                color: workspaces.contentItem.color
+            }
         }
 
         ToolbarButton {
@@ -254,6 +264,7 @@ Rectangle {
             //visible: !root.flyoutEnabled
 
             onClicked: backend.editGlobalAnnoation()
+            width: 0
         }
 
         ToolbarButton {
