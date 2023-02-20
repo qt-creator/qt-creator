@@ -76,7 +76,9 @@
         \li Add libraries. For more information, see
             \l{Adding Libraries to Projects}.
         \li Add and remove subprojects.
+        \li Find unused functions.
         \endif
+
         \li Search from the selected directory.
         \li Open a terminal window in the project directory. To specify the
             terminal to use on Linux and \macos, select \uicontrol Edit >
