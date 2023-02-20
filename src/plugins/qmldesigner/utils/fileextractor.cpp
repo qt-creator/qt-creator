@@ -82,6 +82,14 @@ QString FileExtractor::targetPath() const
 void FileExtractor::setTargetPath(const QString &path)
 {
     m_targetPath = Utils::FilePath::fromString(path);
+
+    QDir dir(m_targetPath.toString());
+
+    if (!path.isEmpty() && !dir.exists()) {
+        // Even though m_targetPath will be created eventually, we need to make sure the path exists
+        // before m_bytesBefore is being calculated.
+        dir.mkpath(m_targetPath.toString());
+    }
 }
 
 void FileExtractor::browse()

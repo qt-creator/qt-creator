@@ -15,7 +15,7 @@ class ContentLibraryTexture : public QObject
 
     Q_PROPERTY(QString textureIconPath MEMBER m_iconPath CONSTANT)
     Q_PROPERTY(QString textureParentPath READ parentDirPath CONSTANT)
-    Q_PROPERTY(QString textureToolTip MEMBER m_toolTip CONSTANT)
+    Q_PROPERTY(QString textureToolTip MEMBER m_toolTip NOTIFY textureToolTipChanged)
     Q_PROPERTY(QUrl textureIcon MEMBER m_icon CONSTANT)
     Q_PROPERTY(bool textureVisible MEMBER m_visible NOTIFY textureVisibleChanged)
     Q_PROPERTY(QString textureWebUrl MEMBER m_webUrl CONSTANT)
@@ -35,10 +35,12 @@ public:
 
 signals:
     void textureVisibleChanged();
+    void textureToolTipChanged();
 
 private:
     inline static const QString m_defaultExt = ".png";
-    QString computeFileExt();
+    QString resolveFileExt();
+    QString resolveToolTipText();
 
     QString m_iconPath;
     QString m_downloadPath;

@@ -121,6 +121,8 @@ Item {
 
             anchors.right: parent.right
             anchors.bottom: parent.bottom
+            style: Text.Outline
+            styleColor: "black"
 
             visible: root.downloadState !== "downloaded"
         }
@@ -164,10 +166,10 @@ Item {
         }
 
         onClicked: {
-            if (!rootView.markTextureDownloading())
+            if (root.downloadState !== "" && root.downloadState !== "failed")
                 return
 
-            if (root.downloadState !== "" && root.downloadState !== "failed")
+            if (!rootView.markTextureDownloading())
                 return
 
             progressBar.visible = true
@@ -205,7 +207,7 @@ Item {
             root.progressText = ""
             root.progressValue = 0
 
-            root.downloadState = "failed"
+            root.downloadState = ""
             root.downloadStateChanged()
             mouseArea.enabled = true
 
