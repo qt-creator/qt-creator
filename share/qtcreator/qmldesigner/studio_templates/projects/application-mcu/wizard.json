@@ -165,6 +165,10 @@
                     "target": "%{ProjectDirectory}/imports/Constants/DirectoryFontLoader.qml"
                 },
                 {
+                    "source": "constants_module.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/imports/Constants/constants_module.qmlproject"
+                },
+                {
                     "source": "Screen01.ui.qml.tpl",
                     "target": "%{ProjectDirectory}/Screen01.ui.qml",
                     "openInEditor": true

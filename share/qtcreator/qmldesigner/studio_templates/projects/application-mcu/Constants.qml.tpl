@@ -8,8 +8,8 @@ QtObject {
 
     readonly property color backgroundColor: "#e8e8e8"
 
-    /* DirectoryFontLoader doesn't work with Qt Ultralite.
-    However you may want to uncomment this block to load fonts in real qml environment */
+    /* DirectoryFontLoader doesn't work with Qt Quick Ultralite.
+    However you may want to uncomment this block to load fonts in QtQuick environment: */
     /*
     property alias fontDirectory: directoryFontLoader.fontDirectory
     property alias relativeFontDirectory: directoryFontLoader.relativeFontDirectory
