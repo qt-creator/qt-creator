@@ -91,6 +91,11 @@ Rectangle {
             cache: false
         }
 
+        // Eat keys so they are not passed to parent while editing name
+        Keys.onPressed: (e) => {
+            e.accepted = true;
+        }
+
         TextInput {
             id: matName
 

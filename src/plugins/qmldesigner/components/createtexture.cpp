@@ -36,7 +36,7 @@ ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, i
 
     QTimer::singleShot(0, m_view, [this, texture]() {
         if (m_view->model())
-            m_view->emitCustomNotification("selected_texture_changed", {texture});
+            m_view->emitCustomNotification("selected_texture_changed", {texture}, {true});
     });
 
     return texture;
