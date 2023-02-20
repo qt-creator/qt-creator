@@ -33,6 +33,7 @@ add_qtc_library(Sqlite
     sqliteexception.cpp sqliteexception.h
     sqliteglobal.cpp sqliteglobal.h
     sqliteindex.h
+    sqliteprogresshandler.h
     sqlitereadstatement.h
     sqlitereadwritestatement.h
     sqlitesessionchangeset.cpp sqlitesessionchangeset.h

@@ -459,6 +459,36 @@ void DatabaseBackend::setBusyHandler(DatabaseBackend::BusyHandler &&busyHandler)
     registerBusyHandler();
 }
 
+namespace {
+
+int progressHandlerCallback(void *userData)
+{
+    auto &&progressHandler = *static_cast<DatabaseBackend::ProgressHandler *>(userData);
+
+    return progressHandler() == Progress::Interrupt;
+}
+
+} // namespace
+
+void DatabaseBackend::setProgressHandler(int operationCount, ProgressHandler &&progressHandler)
+{
+    m_progressHandler = std::move(progressHandler);
+
+    if (m_progressHandler)
+        sqlite3_progress_handler(sqliteDatabaseHandle(),
+                                 operationCount,
+                                 &progressHandlerCallback,
+                                 &m_progressHandler);
+    else {
+        sqlite3_progress_handler(sqliteDatabaseHandle(), 0, nullptr, nullptr);
+    }
+}
+
+void DatabaseBackend::resetProgressHandler()
+{
+    sqlite3_progress_handler(sqliteDatabaseHandle(), 0, nullptr, nullptr);
+}
+
 void DatabaseBackend::throwExceptionStatic(const char *whatHasHappens)
 {
     throw Exception(whatHasHappens);

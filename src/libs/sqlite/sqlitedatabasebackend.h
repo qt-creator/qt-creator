@@ -15,10 +15,13 @@ namespace Sqlite {
 
 class Database;
 
+enum class Progress { Interrupt, Continue };
+
 class SQLITE_EXPORT DatabaseBackend
 {
 public:
     using BusyHandler = std::function<bool(int count)>;
+    using ProgressHandler = std::function<Progress()>;
 
     DatabaseBackend(Database &database);
     ~DatabaseBackend();
@@ -76,6 +79,8 @@ public:
     void resetUpdateHook();
 
     void setBusyHandler(BusyHandler &&busyHandler);
+    void setProgressHandler(int operationCount, ProgressHandler &&progressHandler);
+    void resetProgressHandler();
 
     void registerBusyHandler();
 
@@ -112,6 +117,7 @@ private:
     Database &m_database;
     sqlite3 *m_databaseHandle;
     BusyHandler m_busyHandler;
+    ProgressHandler m_progressHandler;
 };
 
 } // namespace Sqlite
