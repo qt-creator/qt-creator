@@ -73,6 +73,7 @@ add_qtc_test(unittest GTEST
     sqlitecolumn-test.cpp
     sqlitedatabasebackend-test.cpp
     sqlitedatabase-test.cpp
+    sqlitefunctionregistry-test.cpp
     sqlitesessions-test.cpp
     sqlitestatement-test.cpp
     sqlitetable-test.cpp
