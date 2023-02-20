@@ -3,6 +3,7 @@
 #pragma once
 
 #include <QSlider>
+#include <QWidgetAction>
 
 namespace QmlDesigner {
 class SeekerSlider : public QSlider
@@ -26,6 +27,29 @@ private:
     using QSlider::setRange;
 
     bool m_moving = false;
+};
+
+class SeekerSlider;
+class SeekerSliderAction : public QWidgetAction
+{
+    Q_OBJECT
+
+public:
+    explicit SeekerSliderAction(QObject *parent);
+    virtual ~SeekerSliderAction();
+
+    SeekerSlider *defaultSlider() const;
+    int value();
+
+signals:
+    void valueChanged(int);
+
+protected:
+    virtual QWidget *createWidget(QWidget *parent) override;
+
+private:
+    using QWidgetAction::setDefaultWidget;
+    SeekerSlider *m_defaultSlider = nullptr;
 };
 
 } // namespace QmlDesigner

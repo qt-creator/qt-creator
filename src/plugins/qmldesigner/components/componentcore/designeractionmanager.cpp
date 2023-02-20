@@ -311,17 +311,17 @@ public:
 
     void updateContext() override
     {
-        defaultAction()->setSelectionContext(selectionContext());
+        pureAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
-            defaultAction()->setEnabled(isEnabled(selectionContext()));
-            defaultAction()->setVisible(isVisible(selectionContext()));
+            action()->setEnabled(isEnabled(selectionContext()));
+            action()->setVisible(isVisible(selectionContext()));
 
-            defaultAction()->setCheckable(true);
+            action()->setCheckable(true);
             QmlItemNode itemNode = QmlItemNode(selectionContext().currentSingleSelectedNode());
             if (itemNode.isValid())
-                defaultAction()->setChecked(itemNode.instanceValue("visible").toBool());
+                action()->setChecked(itemNode.instanceValue("visible").toBool());
             else
-                defaultAction()->setEnabled(false);
+                action()->setEnabled(false);
         }
     }
 };
@@ -337,12 +337,12 @@ public:
     {}
     void updateContext() override
     {
-        defaultAction()->setSelectionContext(selectionContext());
+        pureAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
-            defaultAction()->setEnabled(isEnabled(selectionContext()));
-            defaultAction()->setVisible(isVisible(selectionContext()));
+            action()->setEnabled(isEnabled(selectionContext()));
+            action()->setVisible(isVisible(selectionContext()));
 
-            defaultAction()->setCheckable(true);
+            action()->setCheckable(true);
             QmlItemNode itemNode = QmlItemNode(selectionContext().currentSingleSelectedNode());
             if (itemNode.isValid()) {
                 bool flag = false;
@@ -350,9 +350,9 @@ public:
                         || itemNode.propertyAffectedByCurrentState(m_propertyName)) {
                     flag = itemNode.modelValue(m_propertyName).toBool();
                 }
-                defaultAction()->setChecked(flag);
+                action()->setChecked(flag);
             } else {
-                defaultAction()->setEnabled(false);
+                action()->setEnabled(false);
             }
         }
     }

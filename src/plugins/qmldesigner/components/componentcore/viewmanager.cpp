@@ -261,7 +261,7 @@ void ViewManager::registerNanotraceActions()
                                                         22,
                                                         handleShutdownNanotraceAction);
 
-        QObject::connect(startNanotraceAction->defaultAction(), &QAction::triggered, [&]() {
+        QObject::connect(startNanotraceAction->action(), &QAction::triggered, [&]() {
             d->nodeInstanceView.startNanotrace();
         });
 
@@ -276,7 +276,7 @@ void ViewManager::registerNanotraceActions()
                                                            23,
                                                            handleShutdownNanotraceAction);
 
-        QObject::connect(shutDownNanotraceAction->defaultAction(), &QAction::triggered, [&]() {
+        QObject::connect(shutDownNanotraceAction->action(), &QAction::triggered, [&]() {
             d->nodeInstanceView.endNanotrace();
         });
 

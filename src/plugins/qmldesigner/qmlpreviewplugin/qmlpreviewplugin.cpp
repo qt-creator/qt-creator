@@ -59,7 +59,7 @@ QmlPreviewWidgetPlugin::QmlPreviewWidgetPlugin()
     auto separator = new SeparatorDesignerAction(ComponentCoreConstants::qmlPreviewCategory, 0);
     designerActionManager.addDesignerAction(separator);
 
-    m_previewToggleAction = previewAction->defaultAction();
+    m_previewToggleAction = previewAction->action();
 
     if (s_previewPlugin) {
         auto fpsAction = new FpsAction;

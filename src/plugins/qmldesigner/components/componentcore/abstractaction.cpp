@@ -8,7 +8,7 @@
 namespace QmlDesigner {
 
 AbstractAction::AbstractAction(const QString &description)
-    : m_defaultAction(new DefaultAction(description))
+    : m_pureAction(new DefaultAction(description))
 {
     const Utils::Icon defaultIcon({
             {":/utils/images/select.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
@@ -16,14 +16,14 @@ AbstractAction::AbstractAction(const QString &description)
     action()->setIcon(defaultIcon.icon());
 }
 
-AbstractAction::AbstractAction(DefaultAction *action)
-    : m_defaultAction(action)
+AbstractAction::AbstractAction(PureActionInterface *action)
+    : m_pureAction(action)
 {
 }
 
 QAction *AbstractAction::action() const
 {
-    return m_defaultAction.data();
+    return m_pureAction->action();
 }
 
 void AbstractAction::currentContextChanged(const SelectionContext &selectionContext)
@@ -34,12 +34,13 @@ void AbstractAction::currentContextChanged(const SelectionContext &selectionCont
 
 void AbstractAction::updateContext()
 {
-    m_defaultAction->setSelectionContext(m_selectionContext);
+    m_pureAction->setSelectionContext(m_selectionContext);
     if (m_selectionContext.isValid()) {
-        m_defaultAction->setEnabled(isEnabled(m_selectionContext));
-        m_defaultAction->setVisible(isVisible(m_selectionContext));
-        if (m_defaultAction->isCheckable())
-            m_defaultAction->setChecked(isChecked(m_selectionContext));
+        QAction *action = m_pureAction->action();
+        action->setEnabled(isEnabled(m_selectionContext));
+        action->setVisible(isVisible(m_selectionContext));
+        if (action->isCheckable())
+            action->setChecked(isChecked(m_selectionContext));
     }
 }
 
@@ -50,12 +51,12 @@ bool AbstractAction::isChecked(const SelectionContext &) const
 
 void AbstractAction::setCheckable(bool checkable)
 {
-    m_defaultAction->setCheckable(checkable);
+    action()->setCheckable(checkable);
 }
 
-DefaultAction *AbstractAction::defaultAction() const
+PureActionInterface *AbstractAction::pureAction() const
 {
-    return m_defaultAction.data();
+    return m_pureAction.data();
 }
 
 SelectionContext AbstractAction::selectionContext() const
@@ -65,6 +66,7 @@ SelectionContext AbstractAction::selectionContext() const
 
 DefaultAction::DefaultAction(const QString &description)
     : QAction(description, nullptr)
+    , PureActionInterface(this)
 {
     connect(this, &QAction::triggered, this, &DefaultAction::actionTriggered);
 }
@@ -72,6 +74,17 @@ DefaultAction::DefaultAction(const QString &description)
 void DefaultAction::setSelectionContext(const SelectionContext &selectionContext)
 {
     m_selectionContext = selectionContext;
+}
+
+PureActionInterface::PureActionInterface(QAction *action)
+    : m_action(action)
+{
+
+}
+
+QAction *PureActionInterface::action()
+{
+    return m_action;
 }
 
 } // namespace QmlDesigner

@@ -182,8 +182,8 @@ public:
         , m_priority(priority)
         , m_visibility(&SelectionContextFunctors::always)
     {
-        defaultAction()->setSeparator(true);
-        defaultAction()->setIcon({});
+        action()->setSeparator(true);
+        action()->setIcon({});
     }
 
     bool isVisible(const SelectionContext &m_selectionState) const override { return m_visibility(m_selectionState); }

@@ -25,7 +25,6 @@ namespace QmlDesigner {
 class Edit3DWidget;
 class Edit3DAction;
 class Edit3DCameraAction;
-class SeekerSlider;
 
 class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
 {
@@ -58,7 +57,6 @@ public:
     QVector<Edit3DAction *> visibilityToggleActions() const;
     QVector<Edit3DAction *> backgroundColorActions() const;
     Edit3DAction *edit3DAction(View3DActionType type) const;
-    void setSeeker(SeekerSlider *slider);
 
     void addQuick3DImport();
     void startContextMenu(const QPoint &pos);
@@ -91,6 +89,7 @@ private:
     Edit3DAction *createGridColorSelectionAction();
     Edit3DAction *createResetColorAction(QAction *syncBackgroundColorAction);
     Edit3DAction *createSyncBackgroundColorAction();
+    Edit3DAction *createSeekerSliderAction();
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;
@@ -120,7 +119,7 @@ private:
     Edit3DAction *m_particlesRestartAction = nullptr;
     Edit3DAction *m_visibilityTogglesAction = nullptr;
     Edit3DAction *m_backgrondColorMenuAction = nullptr;
-    SeekerSlider *m_seeker = nullptr;
+    Edit3DAction *m_seekerAction = nullptr;
     int particlemode;
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedModelNode;
