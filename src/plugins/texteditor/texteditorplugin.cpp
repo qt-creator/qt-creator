@@ -10,6 +10,7 @@
 #include "highlighter.h"
 #include "icodestylepreferences.h"
 #include "linenumberfilter.h"
+#include "markdowneditor.h"
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
@@ -66,6 +67,7 @@ public:
     FindInOpenFiles findInOpenFilesFilter;
 
     PlainTextEditorFactory plainTextEditorFactory;
+    MarkdownEditorFactory markdownEditorFactory;
 };
 
 static TextEditorPlugin *m_instance = nullptr;

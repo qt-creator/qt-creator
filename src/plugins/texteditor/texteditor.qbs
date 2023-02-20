@@ -94,6 +94,8 @@ Project {
             "linenumberfilter.h",
             "marginsettings.cpp",
             "marginsettings.h",
+            "markdowneditor.cpp",
+            "markdowneditor.h",
             "outlinefactory.cpp",
             "outlinefactory.h",
             "plaintexteditorfactory.cpp",

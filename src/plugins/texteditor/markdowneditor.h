@@ -5,14 +5,12 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace Markdown {
-namespace Internal {
+namespace TextEditor::Internal {
 
-class MarkdownViewerFactory final : public Core::IEditorFactory
+class MarkdownEditorFactory final : public Core::IEditorFactory
 {
 public:
-    MarkdownViewerFactory();
+    MarkdownEditorFactory();
 };
 
-} // namespace Internal
-} // namespace Markdown
+} // TextEditor::Internal
