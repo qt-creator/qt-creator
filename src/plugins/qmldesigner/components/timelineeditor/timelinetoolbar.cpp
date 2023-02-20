@@ -429,7 +429,6 @@ void TimelineToolBar::createRightControls()
 
     m_scale = new QSlider(this);
     m_scale->setOrientation(Qt::Horizontal);
-    m_scale->setProperty("DSSlider", true);
     m_scale->setProperty("panelwidget", true);
     m_scale->setProperty("panelwidget_singlerow", true);
     m_scale->setMaximumWidth(200);

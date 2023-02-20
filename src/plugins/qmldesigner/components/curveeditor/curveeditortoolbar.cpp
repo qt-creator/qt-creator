@@ -152,7 +152,6 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     m_zoomSlider = new QSlider(Qt::Horizontal);
     m_zoomSlider->setRange(0, 100);
-    m_zoomSlider->setProperty("DSSlider", true);
     m_zoomSlider->setProperty("panelwidget", true);
     m_zoomSlider->setProperty("panelwidget_singlerow", true);
     m_zoomSlider->setFixedWidth(120);
