@@ -13,7 +13,7 @@ ControlStyle {
     icon: ControlStyle.IconColors {
         idle: Values.themeTextColor
         hover: Values.themeTextColor
-        interaction: Values.themeTextSelectedTextColor
+        interaction: Values.themeIconColor
         disabled: Values.themeToolbarIcon_blocked
     }
 

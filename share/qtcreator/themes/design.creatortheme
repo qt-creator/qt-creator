@@ -143,7 +143,7 @@ DStextSelectedTextColor=ff000000
 DSplaceholderTextColor=ffffffff
 DSplaceholderTextColorInteraction=ffababab
 
-DSiconColor=ffffffff
+DSiconColor=fullWhite
 DSiconColorHover=ffffffff
 DSiconColorDisabled=ffC7C7C7
 DSiconColorSelected=ff2aafd3
