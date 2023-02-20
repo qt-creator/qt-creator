@@ -91,14 +91,14 @@ function(_create_ts_custom_target name)
   file(WRITE "${ts_file_list}" "${_sources_str}\n${_includes_str}\n")
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}"
-    COMMAND Qt::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
+    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generate .ts files, with obsolete translations and files and line numbers"
     DEPENDS ${_sources}
     VERBATIM)
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_no_locations"
-    COMMAND Qt::lupdate -locations none -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
+    COMMAND Qt::lupdate -locations none -no-ui-lines "@${ts_file_list}" -ts ${ts_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generate .ts files, with obsolete translations, without files and line numbers"
     DEPENDS ${_sources}
@@ -114,7 +114,7 @@ function(_create_ts_custom_target name)
     get_filename_component(_bin_dir ${_lupdate_binary} DIRECTORY)
 
     add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
-      COMMAND Qt::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
+      COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_files}
       COMMAND ${_bin_dir}/lconvert -locations none -no-ui-lines -no-obsolete ${ts_files} -o ${ts_files}
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       COMMENT "Generate .ts files, remove obsolete and vanished translations, and do not add files and line number"
