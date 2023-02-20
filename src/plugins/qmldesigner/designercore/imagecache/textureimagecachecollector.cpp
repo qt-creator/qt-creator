@@ -15,7 +15,7 @@ TextureImageCacheCollector::~TextureImageCacheCollector() = default;
 
 void TextureImageCacheCollector::start(Utils::SmallStringView name,
                                        Utils::SmallStringView,
-                                       const ImageCache::AuxiliaryData &auxiliaryData,
+                                       const ImageCache::AuxiliaryData &,
                                        CaptureCallback captureCallback,
                                        AbortCallback abortCallback)
 {
