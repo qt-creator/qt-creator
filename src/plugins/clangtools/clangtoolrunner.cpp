@@ -111,11 +111,10 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
     };
     const TreeStorage<ClangToolStorage> storage;
 
-    const auto mainToolArguments = [=](const ClangToolStorage *data)
-    {
+    const auto mainToolArguments = [=](const ClangToolStorage &data) {
         QStringList result;
-        result << "-export-fixes=" + data->outputFilePath.nativePath();
-        if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data->executable))
+        result << "-export-fixes=" + data.outputFilePath.nativePath();
+        if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data.executable))
             result << "--vfsoverlay=" + input.overlayFilePath;
         result << input.unit.file.nativePath();
         return result;
@@ -147,13 +146,13 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         process.setLowPriority();
         process.setWorkingDirectory(input.outputDirPath); // Current clang-cl puts log file into working dir.
 
-        const ClangToolStorage *data = storage.activeStorage();
+        const ClangToolStorage &data = *storage;
 
         const QStringList args = checksArguments(input.tool, input.config)
                                  + mainToolArguments(data)
                                  + QStringList{"--"}
                                  + clangArguments(input.config, input.unit.arguments);
-        const CommandLine commandLine = {data->executable, args};
+        const CommandLine commandLine = {data.executable, args};
 
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
@@ -162,8 +161,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
         if (!outputHandler)
             return;
-        const ClangToolStorage *data = storage.activeStorage();
-        outputHandler({true, input.unit.file, data->outputFilePath, input.tool});
+        outputHandler({true, input.unit.file, storage->outputFilePath, input.tool});
     };
     const auto onProcessError = [=](const QtcProcess &process) {
         if (!outputHandler)
@@ -172,15 +170,15 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
                                     .arg(process.commandLine().toUserOutput())
                                     .arg(process.error())
                                     .arg(process.cleanedStdOut());
-        const ClangToolStorage *data = storage.activeStorage();
+        const ClangToolStorage &data = *storage;
         QString message;
         if (process.result() == ProcessResult::StartFailed)
-            message = Tr::tr("An error occurred with the %1 process.").arg(data->name);
+            message = Tr::tr("An error occurred with the %1 process.").arg(data.name);
         else if (process.result() == ProcessResult::FinishedWithError)
-            message = Tr::tr("%1 finished with exit code: %2.").arg(data->name).arg(process.exitCode());
+            message = Tr::tr("%1 finished with exit code: %2.").arg(data.name).arg(process.exitCode());
         else
-            message = Tr::tr("%1 crashed.").arg(data->name);
-        outputHandler({false, input.unit.file, data->outputFilePath, input.tool, message, details});
+            message = Tr::tr("%1 crashed.").arg(data.name);
+        outputHandler({false, input.unit.file, data.outputFilePath, input.tool, message, details});
     };
 
     const Group group {

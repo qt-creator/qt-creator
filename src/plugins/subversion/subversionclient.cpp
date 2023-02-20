@@ -203,7 +203,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         process.setCommand(command);
     };
     const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
-        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+        *diffInputStorage = process.cleanedStdOut();
     };
 
     const Group root {

@@ -74,6 +74,7 @@ class TreeStorage : public TreeStorageBase
 {
 public:
     TreeStorage() : TreeStorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
+    StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
         return static_cast<StorageStruct *>(activeStorageVoid());

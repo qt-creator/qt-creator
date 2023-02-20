@@ -135,7 +135,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
         taskTree.setupRoot(tasks);
     };
     const auto onTreeDone = [this, storage] {
-        const QList<std::optional<FileData>> &results = *storage.activeStorage();
+        const QList<std::optional<FileData>> &results = *storage;
         QList<FileData> finalList;
         for (const std::optional<FileData> &result : results) {
             if (result.has_value())

@@ -171,7 +171,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
     const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
-        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+        *diffInputStorage = process.cleanedStdOut();
     };
 
     const Group root {
@@ -258,7 +258,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     };
 
     const auto onStagingDone = [storage, diffInputStorage] {
-        *diffInputStorage.activeStorage() = storage->m_stagedOutput + storage->m_unstagedOutput;
+        *diffInputStorage = storage->m_stagedOutput + storage->m_unstagedOutput;
     };
 
     const Group root {
@@ -455,7 +455,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
     const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
-        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+        *diffInputStorage = process.cleanedStdOut();
     };
 
     const Group root {

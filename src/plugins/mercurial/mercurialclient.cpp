@@ -60,7 +60,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
     const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
-        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+        *diffInputStorage = process.cleanedStdOut();
     };
 
     const Group root {
