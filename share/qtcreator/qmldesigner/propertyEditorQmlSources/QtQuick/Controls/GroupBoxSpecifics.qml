@@ -17,7 +17,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Title")
-                tooltip: qsTr("The title of the group box.")
+                tooltip: qsTr("Sets the title for the group box.")
             }
 
             SecondColumnLayout {
