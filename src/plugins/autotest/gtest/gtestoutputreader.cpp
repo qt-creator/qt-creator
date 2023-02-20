@@ -69,13 +69,8 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
             m_iteration = match.captured(1).toInt();
             m_description.clear();
         } else if (line.startsWith(QStringLiteral("Note:"))) {
-            m_description = line;
-            if (m_iteration > 1)
-                m_description.append(' ' + Tr::tr("(iteration %1)").arg(m_iteration));
-            GTestResult testResult(id(), {}, m_projectFile);
-            testResult.setResult(ResultType::MessageInternal);
-            testResult.setDescription(m_description);
-            reportResult(testResult);
+            // notes contain insignificant information we fail to include properly into the
+            // visual tree, so ignore them here as they are available inside the text display anyhow
             m_description.clear();
         } else if (ExactMatch match = disabledTests.match(line)) {
             m_disabled = match.captured(1).toInt();
