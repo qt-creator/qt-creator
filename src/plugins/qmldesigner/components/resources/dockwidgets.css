@@ -34,7 +34,6 @@ ADS--DockWidgetTab {
 
 ADS--DockWidgetTab QLabel {
     color: creatorTheme.DStabInactiveText;
-    min-width: 80px;
 }
 
 ADS--DockWidgetTab[activeTab="true"] {
