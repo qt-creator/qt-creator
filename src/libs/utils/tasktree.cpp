@@ -74,6 +74,54 @@ void TreeStorageBase::activateStorage(int id) const
     m_storageData->m_activeStorage = id;
 }
 
+Condition::Condition()
+    : m_conditionData(new ConditionData()) {}
+
+Condition::ConditionData::~ConditionData()
+{
+    QTC_CHECK(m_activatorHash.isEmpty());
+    qDeleteAll(m_activatorHash);
+}
+
+ConditionActivator *Condition::activator() const
+{
+    QTC_ASSERT(m_conditionData->m_activeActivator, return nullptr);
+    const auto it = m_conditionData->m_activatorHash.constFind(m_conditionData->m_activeActivator);
+    QTC_ASSERT(it != m_conditionData->m_activatorHash.constEnd(), return nullptr);
+    return it.value();
+}
+
+int Condition::createActivator(TaskNode *node) const
+{
+    QTC_ASSERT(m_conditionData->m_activeActivator == 0, return 0); // TODO: should be allowed?
+    const int newId = ++m_conditionData->m_activatorCounter;
+    m_conditionData->m_activatorHash.insert(newId, new ConditionActivator(node));
+    return newId;
+}
+
+void Condition::deleteActivator(int id) const
+{
+    QTC_ASSERT(m_conditionData->m_activeActivator == 0, return); // TODO: should be allowed?
+    const auto it = m_conditionData->m_activatorHash.constFind(id);
+    QTC_ASSERT(it != m_conditionData->m_activatorHash.constEnd(), return);
+    delete it.value();
+    m_conditionData->m_activatorHash.erase(it);
+}
+
+// passing 0 deactivates currently active condition
+void Condition::activateActivator(int id) const
+{
+    if (id == 0) {
+        QTC_ASSERT(m_conditionData->m_activeActivator, return);
+        m_conditionData->m_activeActivator = 0;
+        return;
+    }
+    QTC_ASSERT(m_conditionData->m_activeActivator == 0, return);
+    const auto it = m_conditionData->m_activatorHash.find(id);
+    QTC_ASSERT(it != m_conditionData->m_activatorHash.end(), return);
+    m_conditionData->m_activeActivator = id;
+}
+
 ParallelLimit sequential(1);
 ParallelLimit parallel(0);
 Workflow stopOnError(WorkflowPolicy::StopOnError);
@@ -84,20 +132,21 @@ Workflow optional(WorkflowPolicy::Optional);
 
 void TaskItem::addChildren(const QList<TaskItem> &children)
 {
-    QTC_ASSERT(m_type == Type::Group, qWarning("Only Task may have children, skipping..."); return);
+    QTC_ASSERT(m_type == Type::Group, qWarning("Only Group may have children, skipping...");
+               return);
     for (const TaskItem &child : children) {
         switch (child.m_type) {
         case Type::Group:
             m_children.append(child);
             break;
         case Type::Limit:
-            QTC_ASSERT(m_type == Type::Group,
-                       qWarning("Mode may only be a child of Group, skipping..."); return);
+            QTC_ASSERT(m_type == Type::Group, qWarning("Execution Mode may only be a child of a "
+                                                       "Group, skipping..."); return);
             m_parallelLimit = child.m_parallelLimit; // TODO: Assert on redefinition?
             break;
         case Type::Policy:
-            QTC_ASSERT(m_type == Type::Group,
-                       qWarning("Workflow Policy may only be a child of Group, skipping..."); return);
+            QTC_ASSERT(m_type == Type::Group, qWarning("Workflow Policy may only be a child of a "
+                                                       "Group, skipping..."); return);
             m_workflowPolicy = child.m_workflowPolicy; // TODO: Assert on redefinition?
             break;
         case Type::TaskHandler:
@@ -109,7 +158,7 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
             break;
         case Type::GroupHandler:
             QTC_ASSERT(m_type == Type::Group, qWarning("Group Handler may only be a "
-                       "child of Group, skipping..."); break);
+                       "child of a Group, skipping..."); break);
             QTC_ASSERT(!child.m_groupHandler.m_setupHandler
                        || !m_groupHandler.m_setupHandler,
                        qWarning("Group Setup Handler redefinition, overriding..."));
@@ -126,6 +175,12 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
             if (child.m_groupHandler.m_errorHandler)
                 m_groupHandler.m_errorHandler = child.m_groupHandler.m_errorHandler;
             break;
+        case Type::Condition:
+            QTC_ASSERT(m_type == Type::Group, qWarning("WaitFor may only be a child of a Group, "
+                                                       "skipping..."); break);
+            QTC_ASSERT(!m_condition, qWarning("WaitFor redefinition, overriding..."));
+            m_condition = child.m_condition;
+            break;
         case Type::Storage:
             m_storageList.append(child.m_storageList);
             break;
@@ -140,147 +195,25 @@ using namespace Tasking;
 class TaskTreePrivate;
 class TaskNode;
 
-class TaskContainer
-{
-public:
-    TaskContainer(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
-                  TaskContainer *parentContainer)
-        : m_constData(taskTreePrivate, task, parentContainer, this) {}
-    TaskAction start();
-    TaskAction continueStart(TaskAction startAction, int nextChild);
-    TaskAction startChildren(int nextChild);
-    TaskAction childDone(bool success);
-    void stop();
-    void invokeEndHandler();
-    bool isRunning() const { return m_runtimeData.has_value(); }
-    bool isStarting() const { return isRunning() && m_runtimeData->m_startGuard.isLocked(); }
-
-    struct ConstData {
-        ConstData(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
-                  TaskContainer *parentContainer, TaskContainer *thisContainer);
-        ~ConstData() { qDeleteAll(m_children); }
-        TaskTreePrivate * const m_taskTreePrivate = nullptr;
-        TaskContainer * const m_parentContainer = nullptr;
-
-        const int m_parallelLimit = 1;
-        const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
-        const TaskItem::GroupHandler m_groupHandler;
-        const QList<TreeStorageBase> m_storageList;
-        const QList<TaskNode *> m_children;
-        const int m_taskCount = 0;
-    };
-
-    struct RuntimeData {
-        RuntimeData(const ConstData &constData);
-        ~RuntimeData();
-
-        static QList<int> createStorages(const TaskContainer::ConstData &constData);
-        void callStorageDoneHandlers();
-        bool updateSuccessBit(bool success);
-        int currentLimit() const;
-
-        const ConstData &m_constData;
-        const QList<int> m_storageIdList;
-        int m_doneCount = 0;
-        bool m_successBit = true;
-        Guard m_startGuard;
-    };
-
-    const ConstData m_constData;
-    std::optional<RuntimeData> m_runtimeData;
-};
-
-class TaskNode : public QObject
-{
-public:
-    TaskNode(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
-             TaskContainer *parentContainer)
-        : m_taskHandler(task.taskHandler())
-        , m_container(taskTreePrivate, task, parentContainer)
-    {}
-
-    // If returned value != Continue, childDone() needs to be called in parent container (in caller)
-    // in order to unwind properly.
-    TaskAction start();
-    void stop();
-    void invokeEndHandler(bool success);
-    bool isRunning() const { return m_task || m_container.isRunning(); }
-    bool isTask() const { return m_taskHandler.m_createHandler && m_taskHandler.m_setupHandler; }
-    int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
-    TaskContainer *parentContainer() const { return m_container.m_constData.m_parentContainer; }
-
-private:
-    const TaskItem::TaskHandler m_taskHandler;
-    TaskContainer m_container;
-    std::unique_ptr<TaskInterface> m_task;
-};
-
 class TaskTreePrivate
 {
 public:
     TaskTreePrivate(TaskTree *taskTree)
         : q(taskTree) {}
 
-    void start() {
-        QTC_ASSERT(m_root, return);
-        m_progressValue = 0;
-        emitStartedAndProgress();
-        // TODO: check storage handlers for not existing storages in tree
-        for (auto it = m_storageHandlers.cbegin(); it != m_storageHandlers.cend(); ++it) {
-            QTC_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
-                       "exist in task tree. Its handlers will never be called."));
-        }
-        m_root->start();
-    }
-    void stop() {
-        QTC_ASSERT(m_root, return);
-        if (!m_root->isRunning())
-            return;
-        // TODO: should we have canceled flag (passed to handler)?
-        // Just one done handler with result flag:
-        //   FinishedWithSuccess, FinishedWithError, Canceled, TimedOut.
-        // Canceled either directly by user, or by workflow policy - doesn't matter, in both
-        // cases canceled from outside.
-        m_root->stop();
-        emitError();
-    }
-    void advanceProgress(int byValue) {
-        if (byValue == 0)
-            return;
-        QTC_CHECK(byValue > 0);
-        QTC_CHECK(m_progressValue + byValue <= m_root->taskCount());
-        m_progressValue += byValue;
-        emitProgress();
-    }
-    void emitStartedAndProgress() {
-        GuardLocker locker(m_guard);
-        emit q->started();
-        emit q->progressValueChanged(m_progressValue);
-    }
-    void emitProgress() {
-        GuardLocker locker(m_guard);
-        emit q->progressValueChanged(m_progressValue);
-    }
-    void emitDone() {
-        QTC_CHECK(m_progressValue == m_root->taskCount());
-        GuardLocker locker(m_guard);
-        emit q->done();
-    }
-    void emitError() {
-        QTC_CHECK(m_progressValue == m_root->taskCount());
-        GuardLocker locker(m_guard);
-        emit q->errorOccurred();
-    }
-    QList<TreeStorageBase> addStorages(const QList<TreeStorageBase> &storages) {
-        QList<TreeStorageBase> addedStorages;
-        for (const TreeStorageBase &storage : storages) {
-            QTC_ASSERT(!m_storages.contains(storage), qWarning("Can't add the same storage into "
-                       "one TaskTree twice, skipping..."); continue);
-            addedStorages << storage;
-            m_storages << storage;
-        }
-        return addedStorages;
-    }
+    void start();
+    void stop();
+    void advanceProgress(int byValue);
+    void emitStartedAndProgress();
+    void emitProgress();
+    void emitDone();
+    void emitError();
+    bool addCondition(const TaskItem &task, TaskContainer *container);
+    void createConditionActivators();
+    void deleteConditionActivators();
+    void activateConditions();
+    void deactivateConditions();
+    QList<TreeStorageBase> addStorages(const QList<TreeStorageBase> &storages);
     void callSetupHandler(TreeStorageBase storage, int storageId) {
         callStorageHandler(storage, storageId, &StorageHandler::m_setupHandler);
     }
@@ -308,36 +241,252 @@ public:
     TaskTree *q = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
+    QHash<Condition, TaskContainer *> m_conditions;
     QSet<TreeStorageBase> m_storages;
     QHash<TreeStorageBase, StorageHandler> m_storageHandlers;
     std::unique_ptr<TaskNode> m_root = nullptr; // Keep me last in order to destruct first
 };
 
-class StorageActivator
+class TaskContainer
 {
 public:
-    StorageActivator(TaskContainer *container)
-        : m_container(container) { activateStorages(m_container); }
-    ~StorageActivator() { deactivateStorages(m_container); }
+    TaskContainer(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+                  TaskNode *parentNode, TaskContainer *parentContainer)
+        : m_constData(taskTreePrivate, task, parentNode, parentContainer, this)
+        , m_conditionData(taskTreePrivate->addCondition(task, this)
+                              ? ConditionData() : std::optional<ConditionData>()) {}
+    TaskAction start();
+    TaskAction continueStart(TaskAction startAction, int nextChild);
+    TaskAction startChildren(int nextChild);
+    TaskAction childDone(bool success);
+    void activateCondition();
+    void stop();
+    void invokeEndHandler();
+    bool isRunning() const { return m_runtimeData.has_value(); }
+    bool isStarting() const { return isRunning() && m_runtimeData->m_startGuard.isLocked(); }
+
+    struct ConstData {
+        ConstData(TaskTreePrivate *taskTreePrivate, const TaskItem &task, TaskNode *parentNode,
+                  TaskContainer *parentContainer, TaskContainer *thisContainer);
+        ~ConstData() { qDeleteAll(m_children); }
+        TaskTreePrivate * const m_taskTreePrivate = nullptr;
+        TaskNode * const m_parentNode = nullptr;
+        TaskContainer * const m_parentContainer = nullptr;
+
+        const int m_parallelLimit = 1;
+        const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
+        const TaskItem::GroupHandler m_groupHandler;
+        const QList<TreeStorageBase> m_storageList;
+        const QList<TaskNode *> m_children;
+        const int m_taskCount = 0;
+    };
+
+    struct ConditionData {
+        bool m_activated = false;
+        int m_conditionId = 0;
+    };
+
+    struct RuntimeData {
+        RuntimeData(const ConstData &constData);
+        ~RuntimeData();
+
+        static QList<int> createStorages(const TaskContainer::ConstData &constData);
+        void callStorageDoneHandlers();
+        bool updateSuccessBit(bool success);
+        int currentLimit() const;
+
+        const ConstData &m_constData;
+        const QList<int> m_storageIdList;
+        int m_doneCount = 0;
+        bool m_successBit = true;
+        Guard m_startGuard;
+    };
+
+    const ConstData m_constData;
+    std::optional<ConditionData> m_conditionData;
+    std::optional<RuntimeData> m_runtimeData;
+};
+
+class TaskNode : public QObject
+{
+public:
+    TaskNode(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
+             TaskContainer *parentContainer)
+        : m_taskHandler(task.taskHandler())
+        , m_container(taskTreePrivate, task, this, parentContainer)
+    {}
+
+    // If returned value != Continue, childDone() needs to be called in parent container (in caller)
+    // in order to unwind properly.
+    TaskAction start();
+    void stop();
+    void invokeEndHandler(bool success);
+    bool isRunning() const { return m_task || m_container.isRunning(); }
+    bool isTask() const { return m_taskHandler.m_createHandler && m_taskHandler.m_setupHandler; }
+    int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
+    TaskContainer *parentContainer() const { return m_container.m_constData.m_parentContainer; }
+    void activateCondition();
 
 private:
-    static void activateStorages(TaskContainer *container)
+    const TaskItem::TaskHandler m_taskHandler;
+    TaskContainer m_container;
+    std::unique_ptr<TaskInterface> m_task;
+};
+
+void TaskTreePrivate::start()
+{
+    QTC_ASSERT(m_root, return);
+    m_progressValue = 0;
+    emitStartedAndProgress();
+    // TODO: check storage handlers for not existing storages in tree
+    for (auto it = m_storageHandlers.cbegin(); it != m_storageHandlers.cend(); ++it) {
+        QTC_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
+                   "exist in task tree. Its handlers will never be called."));
+    }
+    createConditionActivators();
+    m_root->start();
+}
+
+void TaskTreePrivate::stop()
+{
+    QTC_ASSERT(m_root, return);
+    if (!m_root->isRunning())
+        return;
+    // TODO: should we have canceled flag (passed to handler)?
+    // Just one done handler with result flag:
+    //   FinishedWithSuccess, FinishedWithError, Canceled, TimedOut.
+    // Canceled either directly by user, or by workflow policy - doesn't matter, in both
+    // cases canceled from outside.
+    m_root->stop();
+    emitError();
+}
+
+void TaskTreePrivate::advanceProgress(int byValue)
+{
+    if (byValue == 0)
+        return;
+    QTC_CHECK(byValue > 0);
+    QTC_CHECK(m_progressValue + byValue <= m_root->taskCount());
+    m_progressValue += byValue;
+    emitProgress();
+}
+
+void TaskTreePrivate::emitStartedAndProgress()
+{
+    GuardLocker locker(m_guard);
+    emit q->started();
+    emit q->progressValueChanged(m_progressValue);
+}
+
+void TaskTreePrivate::emitProgress()
+{
+    GuardLocker locker(m_guard);
+    emit q->progressValueChanged(m_progressValue);
+}
+
+void TaskTreePrivate::emitDone()
+{
+    deleteConditionActivators();
+    QTC_CHECK(m_progressValue == m_root->taskCount());
+    GuardLocker locker(m_guard);
+    emit q->done();
+}
+
+void TaskTreePrivate::emitError()
+{
+    deleteConditionActivators();
+    QTC_CHECK(m_progressValue == m_root->taskCount());
+    GuardLocker locker(m_guard);
+    emit q->errorOccurred();
+}
+
+bool TaskTreePrivate::addCondition(const TaskItem &task, TaskContainer *container)
+{
+    if (!task.condition())
+        return false;
+    QTC_ASSERT(!m_conditions.contains(*task.condition()), qWarning("Can't add the same condition "
+               "into one TaskTree twice, skipping..."); return false);
+    m_conditions.insert(*task.condition(), container);
+    return true;
+}
+
+void TaskTreePrivate::createConditionActivators()
+{
+    for (auto it = m_conditions.cbegin(); it != m_conditions.cend(); ++it) {
+        Condition condition = it.key();
+        TaskContainer *container = it.value();
+        container->m_conditionData->m_conditionId
+            = condition.createActivator(container->m_constData.m_parentNode);
+    }
+}
+
+void TaskTreePrivate::deleteConditionActivators()
+{
+    for (auto it = m_conditions.cbegin(); it != m_conditions.cend(); ++it) {
+        Condition condition = it.key();
+        TaskContainer *container = it.value();
+        condition.deleteActivator(container->m_conditionData->m_conditionId);
+        container->m_conditionData = TaskContainer::ConditionData();
+    }
+}
+
+void TaskTreePrivate::activateConditions()
+{
+    for (auto it = m_conditions.cbegin(); it != m_conditions.cend(); ++it) {
+        Condition condition = it.key();
+        TaskContainer *container = it.value();
+        condition.activateActivator(container->m_conditionData->m_conditionId);
+    }
+}
+
+void TaskTreePrivate::deactivateConditions()
+{
+    for (auto it = m_conditions.cbegin(); it != m_conditions.cend(); ++it)
+        it.key().activateActivator(0);
+}
+
+QList<TreeStorageBase> TaskTreePrivate::addStorages(const QList<TreeStorageBase> &storages)
+{
+    QList<TreeStorageBase> addedStorages;
+    for (const TreeStorageBase &storage : storages) {
+        QTC_ASSERT(!m_storages.contains(storage), qWarning("Can't add the same storage into "
+                                                           "one TaskTree twice, skipping..."); continue);
+        addedStorages << storage;
+        m_storages << storage;
+    }
+    return addedStorages;
+}
+
+// TODO: Activate/deactivate Conditions
+class ExecutionContextActivator
+{
+public:
+    ExecutionContextActivator(TaskContainer *container)
+        : m_container(container) { activateContext(m_container); }
+    ~ExecutionContextActivator() { deactivateContext(m_container); }
+
+private:
+    static void activateContext(TaskContainer *container)
     {
         QTC_ASSERT(container && container->isRunning(), return);
         const TaskContainer::ConstData &constData = container->m_constData;
         if (constData.m_parentContainer)
-            activateStorages(constData.m_parentContainer);
+            activateContext(constData.m_parentContainer);
+        else
+            constData.m_taskTreePrivate->activateConditions();
         for (int i = 0; i < constData.m_storageList.size(); ++i)
             constData.m_storageList[i].activateStorage(container->m_runtimeData->m_storageIdList.value(i));
     }
-    static void deactivateStorages(TaskContainer *container)
+    static void deactivateContext(TaskContainer *container)
     {
         QTC_ASSERT(container && container->isRunning(), return);
         const TaskContainer::ConstData &constData = container->m_constData;
         for (int i = constData.m_storageList.size() - 1; i >= 0; --i) // iterate in reverse order
             constData.m_storageList[i].activateStorage(0);
         if (constData.m_parentContainer)
-            deactivateStorages(constData.m_parentContainer);
+            deactivateContext(constData.m_parentContainer);
+        else
+            constData.m_taskTreePrivate->deactivateConditions();
     }
     TaskContainer *m_container = nullptr;
 };
@@ -346,7 +495,7 @@ template <typename Handler, typename ...Args,
           typename ReturnType = typename std::invoke_result_t<Handler, Args...>>
 ReturnType invokeHandler(TaskContainer *container, Handler &&handler, Args &&...args)
 {
-    StorageActivator activator(container);
+    ExecutionContextActivator activator(container);
     GuardLocker locker(container->m_constData.m_taskTreePrivate->m_guard);
     return std::invoke(std::forward<Handler>(handler), std::forward<Args>(args)...);
 }
@@ -362,8 +511,10 @@ static QList<TaskNode *> createChildren(TaskTreePrivate *taskTreePrivate, TaskCo
 }
 
 TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const TaskItem &task,
-                                    TaskContainer *parentContainer, TaskContainer *thisContainer)
+                                    TaskNode *parentNode, TaskContainer *parentContainer,
+                                    TaskContainer *thisContainer)
     : m_taskTreePrivate(taskTreePrivate)
+    , m_parentNode(parentNode)
     , m_parentContainer(parentContainer)
     , m_parallelLimit(task.parallelLimit())
     , m_workflowPolicy(task.workflowPolicy())
@@ -440,8 +591,12 @@ TaskAction TaskContainer::start()
         if (startAction != TaskAction::Continue)
             m_constData.m_taskTreePrivate->advanceProgress(m_constData.m_taskCount);
     }
-    if (m_constData.m_children.isEmpty() && startAction == TaskAction::Continue)
-        startAction = TaskAction::StopWithDone;
+    if (startAction == TaskAction::Continue) {
+        if (m_conditionData && !m_conditionData->m_activated) // Group has condition and it wasn't activated yet
+            return TaskAction::Continue;
+        if (m_constData.m_children.isEmpty())
+            startAction = TaskAction::StopWithDone;
+    }
     return continueStart(startAction, 0);
 }
 
@@ -511,6 +666,35 @@ TaskAction TaskContainer::childDone(bool success)
     if (isStarting())
         return startAction;
     return continueStart(startAction, limit);
+}
+
+void ConditionActivator::activate()
+{
+    m_node->activateCondition();
+}
+
+void TaskContainer::activateCondition()
+{
+    QTC_ASSERT(m_conditionData, return);
+    if (!m_constData.m_taskTreePrivate->m_root->isRunning())
+        return;
+
+    if (!isRunning())
+        return; // Condition not run yet or group already skipped or stopped
+
+    if (!m_conditionData->m_activated)
+        return; // May it happen that scheduled call is coming from previous TaskTree's start?
+
+    if (m_runtimeData->m_doneCount != 0)
+        return; // In meantime the group was started
+
+    for (TaskNode *child : m_constData.m_children) {
+        if (child->isRunning())
+            return; // In meantime the group was started
+    }
+    const TaskAction startAction = m_constData.m_children.isEmpty() ? TaskAction::StopWithDone
+                                                                    : TaskAction::Continue;
+    continueStart(startAction, 0);
 }
 
 void TaskContainer::stop()
@@ -595,6 +779,26 @@ void TaskNode::invokeEndHandler(bool success)
     else if (!success && m_taskHandler.m_errorHandler)
         invokeHandler(parentContainer(), m_taskHandler.m_errorHandler, *m_task.get());
     m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
+}
+
+void TaskNode::activateCondition()
+{
+    QTC_ASSERT(m_container.m_conditionData, return);
+    QTC_ASSERT(m_container.m_constData.m_taskTreePrivate->m_root->isRunning(), return);
+
+    if (m_container.m_conditionData->m_activated)
+        return; // Was already activated
+
+    m_container.m_conditionData->m_activated = true;
+    if (!isRunning())
+        return; // Condition not run yet or group already skipped or stopped
+
+    QTC_CHECK(m_container.m_runtimeData->m_doneCount == 0);
+    for (TaskNode *child : m_container.m_constData.m_children)
+        QTC_CHECK(!child->isRunning());
+
+    QMetaObject::invokeMethod(this, [this] { m_container.activateCondition(); },
+                              Qt::QueuedConnection);
 }
 
 /*!
@@ -1324,6 +1528,9 @@ TaskTree::~TaskTree()
 {
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting TaskTree instance directly from "
                "one of its handlers will lead to crash!"));
+    if (isRunning())
+        d->deleteConditionActivators();
+    // TODO: delete storages explicitly here?
     delete d;
 }
 
@@ -1332,6 +1539,7 @@ void TaskTree::setupRoot(const Tasking::Group &root)
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setupRoot() is called from one of the"
                                                 "TaskTree handlers, ingoring..."); return);
+    d->m_conditions.clear();
     d->m_storages.clear();
     d->m_root.reset(new TaskNode(d, root, nullptr));
 }

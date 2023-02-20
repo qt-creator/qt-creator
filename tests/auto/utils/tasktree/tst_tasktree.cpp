@@ -20,7 +20,8 @@ enum class Handler {
     GroupSetup,
     GroupDone,
     GroupError,
-    Sync
+    Sync,
+    Activator,
 };
 
 using Log = QList<QPair<int, Handler>>;
@@ -1053,25 +1054,65 @@ void tst_TaskTree::processTree_data()
             << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Failure};
     }
 
-    const Group root {
-        Storage(storage),
-        Sync(setupSync(1, true)),
-        Process(setupProcess(2)),
-        Sync(setupSync(3, true)),
-        Process(setupProcess(4)),
-        Sync(setupSync(5, true)),
-        OnGroupDone(groupDone(0))
-    };
-    const Log log {
-        {1, Handler::Sync},
-        {2, Handler::Setup},
-        {3, Handler::Sync},
-        {4, Handler::Setup},
-        {5, Handler::Sync},
-        {0, Handler::GroupDone}
-    };
-    QTest::newRow("SyncAndAsync")
-        << TestData{storage, root, log, 2, OnStart::Running, OnDone::Success};
+    {
+        const Group root {
+            Storage(storage),
+            Sync(setupSync(1, true)),
+            Process(setupProcess(2)),
+            Sync(setupSync(3, true)),
+            Process(setupProcess(4)),
+            Sync(setupSync(5, true)),
+            OnGroupDone(groupDone(0))
+        };
+        const Log log {
+            {1, Handler::Sync},
+            {2, Handler::Setup},
+            {3, Handler::Sync},
+            {4, Handler::Setup},
+            {5, Handler::Sync},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("SyncAndAsync")
+            << TestData{storage, root, log, 2, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        Condition condition;
+
+        const auto setupProcessWithCondition
+            = [storage, condition, setupProcessHelper](int processId) {
+            return [storage, condition, setupProcessHelper, processId](QtcProcess &process) {
+                setupProcessHelper(process, {"-return", "0"}, processId);
+                CustomStorage *currentStorage = storage.activeStorage();
+                ConditionActivator *currentActivator = condition.activator();
+                connect(&process, &QtcProcess::started, [currentStorage, currentActivator, processId] {
+                    currentStorage->m_log.append({processId, Handler::Activator});
+                    currentActivator->activate();
+                });
+            };
+        };
+
+        const Group root {
+            parallel,
+            Storage(storage),
+            Process(setupProcessWithCondition(1)),
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                WaitFor(condition),
+                Process(setupProcess(2)),
+                Process(setupProcess(3))
+            }
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {1, Handler::Activator},
+            {2, Handler::Setup},
+            {3, Handler::Setup}
+        };
+        QTest::newRow("WaitFor")
+            << TestData{storage, root, log, 3, OnStart::Running, OnDone::Success};
+    }
 }
 
 void tst_TaskTree::processTree()
