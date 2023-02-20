@@ -113,7 +113,7 @@ QtObject {
 
     component IconColors: QtObject {
         property color idle: Values.themeIconColor
-        property color interaction: Values.themeIconColorInteraction
+        property color interaction: Values.themeIconColor
         property color selected: Values.themeIconColorSelected
         property color hover: Values.themeIconColorHover
         property color disabled: Values.themeIconColorDisabled
