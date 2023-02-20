@@ -20,20 +20,8 @@ ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &i
     , m_baseName{iconFileInfo.baseName()}
     , m_icon(icon)
 {
-    m_fileExt = computeFileExt();
-
-    QString fileName;
-    QString imageInfo;
-    if (m_fileExt.isEmpty()) {
-        imageInfo = ImageUtils::imageInfo(m_iconPath, false);
-        fileName = m_baseName + m_defaultExt;
-    } else {
-        fileName = m_baseName + m_fileExt;
-        QString fullDownloadPath = m_downloadPath + "/" + fileName;
-        imageInfo = ImageUtils::imageInfo(fullDownloadPath, false);
-    }
-
-    m_toolTip = QLatin1String("%1\n%2").arg(fileName, imageInfo);
+    m_fileExt = resolveFileExt();
+    m_toolTip = resolveToolTipText();
 }
 
 bool ContentLibraryTexture::filter(const QString &searchText)
@@ -56,7 +44,7 @@ QString ContentLibraryTexture::path() const
     return m_iconPath;
 }
 
-QString ContentLibraryTexture::computeFileExt()
+QString ContentLibraryTexture::resolveFileExt()
 {
     const QFileInfoList files = QDir(m_downloadPath).entryInfoList(QDir::Files);
     const QFileInfoList textureFiles = Utils::filtered(files, [this](const QFileInfo &fi) {
@@ -76,6 +64,23 @@ QString ContentLibraryTexture::computeFileExt()
     return QString{"."} + textureFiles.at(0).completeSuffix();
 }
 
+QString ContentLibraryTexture::resolveToolTipText()
+{
+    QString fileName;
+    QString imageInfo;
+
+    if (m_fileExt.isEmpty()) {
+        imageInfo = ImageUtils::imageInfo(m_iconPath, false);
+        fileName = m_baseName + m_defaultExt;
+    } else {
+        fileName = m_baseName + m_fileExt;
+        QString fullDownloadPath = m_downloadPath + "/" + fileName;
+        imageInfo = ImageUtils::imageInfo(fullDownloadPath, true);
+    }
+
+    return QLatin1String("%1\n%2").arg(fileName, imageInfo);
+}
+
 bool ContentLibraryTexture::isDownloaded() const
 {
     if (m_fileExt.isEmpty())
@@ -87,7 +92,13 @@ bool ContentLibraryTexture::isDownloaded() const
 
 void ContentLibraryTexture::setDownloaded()
 {
-    m_fileExt = computeFileExt();
+    m_fileExt = resolveFileExt();
+    QString toolTip = resolveToolTipText();
+
+    if (toolTip != m_toolTip) {
+        m_toolTip = toolTip;
+        emit textureToolTipChanged();
+    }
 }
 
 QString ContentLibraryTexture::parentDirPath() const
