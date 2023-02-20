@@ -83,11 +83,8 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 
-    SeekerSlider *seeker = new SeekerSlider(this);
-    seeker->setEnabled(false);
-
     // Initialize toolbar
-    m_toolBox = new ToolBox(seeker, this);
+    m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
 
     // Iterate through view actions. A null action indicates a separator and a second null action
@@ -163,13 +160,6 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
 
     createContextMenu();
-
-    view->setSeeker(seeker);
-    seeker->setToolTip(QLatin1String("Seek particle system time when paused."));
-
-    QObject::connect(seeker, &SeekerSlider::valueChanged, [view](int value) {
-        view->emitView3DAction(View3DActionType::ParticlesSeek, value);
-    });
 
     // Onboarding label contains instructions for new users how to get 3D content into the project
     m_onboardingLabel = new QLabel(this);

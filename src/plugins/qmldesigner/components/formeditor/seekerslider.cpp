@@ -67,4 +67,41 @@ void SeekerSlider::mouseReleaseEvent(QMouseEvent *event)
     QSlider::mouseReleaseEvent(event);
 }
 
+SeekerSliderAction::SeekerSliderAction(QObject *parent)
+    : QWidgetAction(parent)
+    , m_defaultSlider(new SeekerSlider())
+{
+    setDefaultWidget(m_defaultSlider);
+    QObject::connect(m_defaultSlider, &QSlider::valueChanged, this, &SeekerSliderAction::valueChanged);
+}
+
+SeekerSliderAction::~SeekerSliderAction()
+{
+    m_defaultSlider->deleteLater();
+}
+
+SeekerSlider *SeekerSliderAction::defaultSlider() const
+{
+    return m_defaultSlider;
+}
+
+int SeekerSliderAction::value()
+{
+    return m_defaultSlider->value();
+}
+
+QWidget *SeekerSliderAction::createWidget(QWidget *parent)
+{
+    SeekerSlider *slider = new SeekerSlider(parent);
+
+    QObject::connect(m_defaultSlider, &SeekerSlider::valueChanged, slider, &SeekerSlider::setValue);
+    QObject::connect(slider, &SeekerSlider::valueChanged, m_defaultSlider, &SeekerSlider::setValue);
+    QObject::connect(m_defaultSlider, &QSlider::rangeChanged, slider, &QSlider::setRange);
+
+    slider->setValue(m_defaultSlider->value());
+    slider->setMaxValue(m_defaultSlider->maxValue());
+
+    return slider;
+}
+
 } // namespace QmlDesigner

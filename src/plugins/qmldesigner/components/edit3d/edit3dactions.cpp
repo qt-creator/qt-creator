@@ -6,8 +6,9 @@
 
 #include <viewmanager.h>
 #include <nodeinstanceview.h>
-#include <qmldesignerplugin.h>
 #include <nodemetainfo.h>
+#include <qmldesignerplugin.h>
+#include "seekerslider.h"
 
 #include <utils/algorithm.h>
 
@@ -36,6 +37,12 @@ void Edit3DActionTemplate::actionTriggered(bool b)
         m_action(m_selectionContext);
 }
 
+Edit3DWidgetActionTemplate::Edit3DWidgetActionTemplate(QWidgetAction *widget)
+    : PureActionInterface(widget)
+{
+
+}
+
 Edit3DAction::Edit3DAction(const QByteArray &menuId,
                            View3DActionType type,
                            const QString &description,
@@ -47,11 +54,11 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId,
                            Edit3DView *view,
                            SelectionContextOperation selectionAction,
                            const QString &toolTip)
-    : AbstractAction(new Edit3DActionTemplate(description, selectionAction, view, type))
-    , m_menuId(menuId)
-    , m_actionTemplate(qobject_cast<Edit3DActionTemplate *>(defaultAction()))
+    : Edit3DAction(menuId, type, view, new Edit3DActionTemplate(description,
+                                                                selectionAction,
+                                                                view,
+                                                                type))
 {
-    view->registerEdit3DAction(this);
     action()->setShortcut(key);
     action()->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     action()->setCheckable(checkable);
@@ -74,6 +81,17 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId,
     }
 }
 
+Edit3DAction::Edit3DAction(const QByteArray &menuId,
+                           View3DActionType type,
+                           Edit3DView *view,
+                           PureActionInterface *pureInt)
+    : AbstractAction(pureInt)
+    , m_menuId(menuId)
+    , m_actionType(type)
+{
+    view->registerEdit3DAction(this);
+}
+
 QByteArray Edit3DAction::category() const
 {
     return QByteArray();
@@ -81,7 +99,7 @@ QByteArray Edit3DAction::category() const
 
 View3DActionType Edit3DAction::actionType() const
 {
-    return m_actionTemplate->m_type;
+    return m_actionType;
 }
 
 bool Edit3DAction::isVisible([[maybe_unused]] const SelectionContext &selectionContext) const
@@ -114,5 +132,31 @@ bool Edit3DCameraAction::isEnabled(const SelectionContext &selectionContext) con
                         [](const ModelNode &node) { return node.metaInfo().isQtQuick3DCamera(); });
 }
 
+Edit3DParticleSeekerAction::Edit3DParticleSeekerAction(const QByteArray &menuId,
+                                                       View3DActionType type,
+                                                       Edit3DView *view)
+    : Edit3DAction(menuId,
+                   type,
+                   view,
+                   new Edit3DWidgetActionTemplate(
+                       new SeekerSliderAction(nullptr)))
+{
+    m_seeker = qobject_cast<SeekerSliderAction *>(action());
 }
 
+SeekerSliderAction *Edit3DParticleSeekerAction::seekerAction()
+{
+    return m_seeker;
+}
+
+bool Edit3DParticleSeekerAction::isVisible(const SelectionContext &) const
+{
+    return m_seeker->isVisible();
+}
+
+bool Edit3DParticleSeekerAction::isEnabled(const SelectionContext &) const
+{
+    return m_seeker->isEnabled();
+}
+
+}

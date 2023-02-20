@@ -346,11 +346,6 @@ QSize Edit3DView::canvasSize() const
     return {};
 }
 
-void Edit3DView::setSeeker(SeekerSlider *slider)
-{
-    m_seeker = slider;
-}
-
 Edit3DAction *Edit3DView::createSelectBackgroundColorAction(QAction *syncBackgroundColorAction)
 {
     QString description = QCoreApplication::translate("SelectBackgroundColorAction",
@@ -466,6 +461,25 @@ Edit3DAction *Edit3DView::createSyncBackgroundColorAction()
                             this,
                             {},
                             tooltip);
+}
+
+Edit3DAction *Edit3DView::createSeekerSliderAction()
+{
+    Edit3DParticleSeekerAction *seekerAction = new Edit3DParticleSeekerAction(
+                QmlDesigner::Constants::EDIT3D_PARTICLES_SEEKER,
+                View3DActionType::ParticlesSeek,
+                this);
+
+    seekerAction->action()->setEnabled(false);
+    seekerAction->action()->setToolTip(QLatin1String("Seek particle system time when paused."));
+
+    connect(seekerAction->seekerAction(),
+            &SeekerSliderAction::valueChanged,
+            this, [=] (int value) {
+        this->emitView3DAction(View3DActionType::ParticlesSeek, value);
+    });
+
+    return seekerAction;
 }
 
 void Edit3DView::createEdit3DActions()
@@ -661,8 +675,8 @@ void Edit3DView::createEdit3DActions()
         m_particlesRestartAction->action()->setEnabled(particlemode);
         if (particlemode)
             m_particlesPlayAction->action()->setChecked(true);
-        if (m_seeker)
-            m_seeker->setEnabled(false);
+        if (m_seekerAction)
+            m_seekerAction->action()->setEnabled(false);
         resetPuppet();
     };
 
@@ -670,15 +684,15 @@ void Edit3DView::createEdit3DActions()
         particlemode = !particlemode;
         m_particlesPlayAction->action()->setEnabled(particlemode);
         m_particlesRestartAction->action()->setEnabled(particlemode);
-        if (m_seeker)
-            m_seeker->setEnabled(false);
+        if (m_seekerAction)
+            m_seekerAction->action()->setEnabled(false);
         QmlDesignerPlugin::settings().insert("particleMode", particlemode);
         resetPuppet();
     };
 
     SelectionContextOperation particlesPlayTrigger = [this](const SelectionContext &) {
-        if (m_seeker)
-            m_seeker->setEnabled(!m_particlesPlayAction->action()->isChecked());
+        if (m_seekerAction)
+            m_seekerAction->action()->setEnabled(!m_particlesPlayAction->action()->isChecked());
     };
 
     m_particleViewModeAction = new Edit3DAction(
@@ -786,6 +800,8 @@ void Edit3DView::createEdit3DActions()
         this,
         backgroundColorActionsTrigger);
 
+    m_seekerAction = createSeekerSliderAction();
+
     m_leftActions << m_selectionModeAction;
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -809,6 +825,8 @@ void Edit3DView::createEdit3DActions()
     m_rightActions << m_particleViewModeAction;
     m_rightActions << m_particlesPlayAction;
     m_rightActions << m_particlesRestartAction;
+    m_rightActions << nullptr;
+    m_rightActions << m_seekerAction;
     m_rightActions << nullptr;
     m_rightActions << m_resetAction;
 
