@@ -177,6 +177,8 @@ static ResultHooks::DirectParentHook directParentHook(const QString &functionNam
                 return (functionName.isEmpty() && dataTag.isEmpty())
                         || (functionName == otherData.m_function
                             && other.result() != ResultType::TestStart);
+            } else if (other.result() == ResultType::MessageInternal) {
+                return other.name() == result.name();
             }
         }
         return false;
