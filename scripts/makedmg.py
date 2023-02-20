@@ -18,6 +18,7 @@ def parse_arguments():
     parser.add_argument('dmg_volumename', help='volume name to use for the disk image')
     parser.add_argument('source_directory', help='directory with the Qt Creator sources')
     parser.add_argument('binary_directory', help='directory that contains the Qt Creator.app')
+    parser.add_argument('--dmg-size', default='1500m', required=False)
     return parser.parse_args()
 
 def main():
@@ -32,7 +33,7 @@ def main():
         os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
         shutil.copy(os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT'), tempdir)
         dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,
-                   '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', '1500m', '-verbose']
+                   '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', arguments.dmg_size, '-verbose']
         subprocess.check_call(dmg_cmd)
         # sleep a few seconds to make sure disk image is fully unmounted etc
         time.sleep(5)
