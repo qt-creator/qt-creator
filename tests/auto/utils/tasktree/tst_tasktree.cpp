@@ -1054,26 +1054,40 @@ void tst_TaskTree::storageOperators()
 }
 
 // This test checks whether a running task tree may be safely destructed.
-// It also checks whether destructor of task tree deletes properly the storage created
-// while starting the task tree.
+// It also checks whether the destructor of a task tree deletes properly the storage created
+// while starting the task tree. When running task tree is destructed, the storage done
+// handler shouldn't be invoked.
 void tst_TaskTree::storageDestructor()
 {
+    bool setupCalled = false;
+    const auto setupHandler = [&setupCalled](CustomStorage *) {
+        setupCalled = true;
+    };
+    bool doneCalled = false;
+    const auto doneHandler = [&doneCalled](CustomStorage *) {
+        doneCalled = true;
+    };
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
+        TreeStorage<CustomStorage> storage;
         const auto setupProcess = [testAppPath = m_testAppPath](QtcProcess &process) {
             process.setCommand(CommandLine(testAppPath, {"-sleep", "1000"}));
         };
         const Group root {
-            Storage(TreeStorage<CustomStorage>()),
+            Storage(storage),
             Process(setupProcess)
         };
 
-        TaskTree processTree(root);
+        TaskTree taskTree(root);
         QCOMPARE(CustomStorage::instanceCount(), 0);
-        processTree.start();
+        taskTree.onStorageSetup(storage, setupHandler);
+        taskTree.onStorageDone(storage, doneHandler);
+        taskTree.start();
         QCOMPARE(CustomStorage::instanceCount(), 1);
     }
     QCOMPARE(CustomStorage::instanceCount(), 0);
+    QVERIFY(setupCalled);
+    QVERIFY(!doneCalled);
 }
 
 QTEST_GUILESS_MAIN(tst_TaskTree)
