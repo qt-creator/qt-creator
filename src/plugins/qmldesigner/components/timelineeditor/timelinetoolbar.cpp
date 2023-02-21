@@ -95,6 +95,9 @@ TimelineToolBar::TimelineToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
 {
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+
     setContentsMargins(0, 0, 0, 0);
     setFixedHeight(Theme::toolbarSize());
     createLeftControls();
@@ -275,7 +278,8 @@ void TimelineToolBar::createCenterControls()
 
     addSpacing(2);
     QIcon playbackIcon = TimelineUtils::mergeIcons(
-        Theme::iconFromName(Theme::Icon::pause),
+        Theme::iconFromName(Theme::Icon::pause,
+                            Theme::getColor(Theme::Color::DStextSelectedTextColor)),
         Theme::iconFromName(Theme::Icon::playOutline_medium,
                             Theme::getColor(Theme::Color::IconsRunColor)));
 
