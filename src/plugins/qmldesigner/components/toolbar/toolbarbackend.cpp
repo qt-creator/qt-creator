@@ -319,6 +319,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this]() {
         emit isInDesignModeChanged();
         emit isInEditModeChanged();
+        emit isDesignModeEnabledChanged();
     });
 
     connect(ProjectExplorer::SessionManager::instance(),
