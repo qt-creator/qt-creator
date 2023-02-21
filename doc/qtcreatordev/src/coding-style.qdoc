@@ -741,43 +741,28 @@
 
     \section3 Lambdas
 
-    When using lambdas, note the following:
-
-    \list
-        \li You do not have to explicitly specify the return type. If you are not using one
-            of the previously mentioned compilers, do note that this is a C++14 feature and you
-            might need to enable C++14 support in your compiler.
-            \code
-            []() {
-                Foo *foo = activeFoo();
-                return foo ? foo->displayName() : QString();
-            });
-            \endcode
-
-        \li If you use static functions from the class that the lambda is located in, you have to
-            explicitly capture \c this. Otherwise it does not compile with g++ 4.7 and earlier.
-            \code
-            void Foo::something()
-            {
-                ...
-                [this]() { Foo::someStaticFunction(); }
-                ...
-            }
-
-            -NOT-
-
-            void Foo::something()
-            {
-                ...
-                []() { Foo::someStaticFunction(); }
-                ...
-            }
-            \endcode
-    \endlist
-
     Format the lambda according to the following rules:
 
     \list
+        \li When the lambda neither takes arguments nor specifies a return type,
+            drop round brackets.
+            \code
+            [] { ... lambda body ... }
+
+            -NOT-
+
+            []() { ... lambda body ... }
+            \endcode
+
+        \li Glue square brackets with round brackets when defining a lambda.
+            \code
+            [](int a) { ... lambda body ... }
+
+            -NOT-
+
+            [] (int a) { ... lambda body ... }
+            \endcode
+
         \li Place the capture-list, parameter list, return type, and opening brace on the first line,
             the body indented on the following lines, and the closing brace on a new line.
             \code
@@ -795,7 +780,7 @@
         \li Place a closing parenthesis and semicolon of an enclosing function call on the same line
             as the closing brace of the lambda.
             \code
-            foo([]() {
+            foo([] {
                 something();
             });
             \endcode
@@ -866,7 +851,7 @@
     Use initializer lists to initialize containers, for example:
 
     \code
-    const QVector<int> values = {1, 2, 3, 4, 5};
+    const QList<int> values = {1, 2, 3, 4, 5};
     \endcode
 
     \section3 Initialization with Curly Brackets
@@ -878,7 +863,7 @@
     class Values // the following code is quite useful for test fixtures
     {
         float floatValue = 4; // prefer that for simple types
-        QVector<int> values = {1, 2, 3, 4, integerValue}; // prefer that syntax for initializer lists
+        QList<int> values = {1, 2, 3, 4, integerValue}; // prefer that syntax for initializer lists
         SomeValues someValues{"One", 2, 3.4}; // not an initializer_list
         SomeValues &someValuesReference = someValues;
         ComplexType complexType{values, otherValues} // constructor call
