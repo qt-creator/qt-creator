@@ -77,29 +77,6 @@ private:
     bool m_initalized = false;
 };
 
-enum InstructionalType
-{
-    Example = 0, Demo, Tutorial
-};
-
-class ExampleItem : public Core::ListItem
-{
-public:
-    QString projectPath;
-    QString docUrl;
-    QStringList filesToOpen;
-    QString mainFile; /* file to be visible after opening filesToOpen */
-    QStringList dependencies;
-    InstructionalType type;
-    int difficulty = 0;
-    bool hasSourceCode = false;
-    bool isVideo = false;
-    bool isHighlighted = false;
-    QString videoUrl;
-    QString videoLength;
-    QStringList platforms;
-};
-
 class ExamplesViewController : public QObject
 {
     Q_OBJECT
@@ -119,5 +96,3 @@ private:
 
 } // namespace Internal
 } // namespace QtSupport
-
-Q_DECLARE_METATYPE(QtSupport::Internal::ExampleItem *)
