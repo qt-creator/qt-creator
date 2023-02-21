@@ -77,6 +77,8 @@ private slots:
     void testJoinStrings();
     void testTrim_data();
     void testTrim();
+    void testWildcardToRegularExpression_data();
+    void testWildcardToRegularExpression();
 
 private:
     TestMacroExpander mx;
@@ -328,6 +330,78 @@ void tst_StringUtils::testTrim()
     QCOMPARE(Utils::trimFront(data.input, data.ch), data.front);
     QCOMPARE(Utils::trimBack(data.input, data.ch), data.back);
     QCOMPARE(Utils::trim(data.input, data.ch), data.bothSides);
+}
+
+void tst_StringUtils::testWildcardToRegularExpression_data()
+{
+    QTest::addColumn<QString>("pattern");
+    QTest::addColumn<QString>("string");
+    QTest::addColumn<bool>("matches");
+    auto addRow = [](const char *pattern, const char *string, bool matchesNonPathGlob) {
+        QTest::addRow("%s@%s", pattern, string) << pattern << string << matchesNonPathGlob;
+    };
+    addRow("*.html", "test.html", true);
+    addRow("*.html", "test.htm", false);
+    addRow("*bar*", "foobarbaz", true);
+    addRow("*", "Qt Rocks!", true);
+    addRow("*.h", "test.cpp", false);
+    addRow("*.???l", "test.html", true);
+    addRow("*?", "test.html", true);
+    addRow("*?ml", "test.html", true);
+    addRow("*[*]", "test.html", false);
+    addRow("*[?]", "test.html", false);
+    addRow("*[?]ml", "test.h?ml", true);
+    addRow("*[[]ml", "test.h[ml", true);
+    addRow("*[]]ml", "test.h]ml", true);
+    addRow("*.h[a-z]ml", "test.html", true);
+    addRow("*.h[A-Z]ml", "test.html", false);
+    addRow("*.h[A-Z]ml", "test.hTml", true);
+    addRow("*.h[!A-Z]ml", "test.hTml", false);
+    addRow("*.h[!A-Z]ml", "test.html", true);
+    addRow("*.h[!T]ml", "test.hTml", false);
+    addRow("*.h[!T]ml", "test.html", true);
+    addRow("*.h[!T]m[!L]", "test.htmL", false);
+    addRow("*.h[!T]m[!L]", "test.html", true);
+    addRow("*.h[][!]ml", "test.h]ml", true);
+    addRow("*.h[][!]ml", "test.h[ml", true);
+    addRow("*.h[][!]ml", "test.h!ml", true);
+    addRow("foo/*/bar", "foo/baz/bar", true);
+    addRow("foo/*/bar", "foo/fie/baz/bar", true);
+    addRow("foo?bar", "foo/bar", true);
+    addRow("foo/(*)/bar", "foo/baz/bar", false);
+    addRow("foo/(*)/bar", "foo/(baz)/bar", true);
+    addRow("foo/?/bar", "foo/Q/bar", true);
+    addRow("foo/?/bar", "foo/Qt/bar", false);
+    addRow("foo/(?)/bar", "foo/Q/bar", false);
+    addRow("foo/(?)/bar", "foo/(Q)/bar", true);
+    addRow("foo\\*\\bar", "foo\\baz\\bar", true);
+    addRow("foo\\*\\bar", "foo/baz/bar", false);
+    addRow("foo\\*\\bar", "foo/baz\\bar", false);
+    addRow("foo\\*\\bar", "foo\\fie\\baz\\bar", true);
+    addRow("foo\\*\\bar", "foo/fie/baz/bar", false);
+    addRow("foo/*/bar", "foo\\baz\\bar", false);
+    addRow("foo/*/bar", "foo/baz/bar", true);
+    addRow("foo/*/bar", "foo\\fie\\baz\\bar", false);
+    addRow("foo/*/bar", "foo/fie/baz/bar", true);
+    addRow("foo\\(*)\\bar", "foo\\baz\\bar", false);
+    addRow("foo\\(*)\\bar", "foo\\(baz)\\bar", true);
+    addRow("foo\\?\\bar", "foo\\Q\\bar", true);
+    addRow("foo\\?\\bar", "foo\\Qt\\bar", false);
+    addRow("foo\\(?)\\bar", "foo\\Q\\bar", false);
+    addRow("foo\\(?)\\bar", "foo\\(Q)\\bar", true);
+
+    addRow("foo*bar", "foo/fie/baz/bar", true);
+    addRow("fie*bar", "foo/fie/baz/bar", false);
+}
+
+void tst_StringUtils::testWildcardToRegularExpression()
+{
+    QFETCH(QString, pattern);
+    QFETCH(QString, string);
+    QFETCH(bool, matches);
+
+    const QRegularExpression re(Utils::wildcardToRegularExpression(pattern));
+    QCOMPARE(string.contains(re), matches);
 }
 
 QTEST_GUILESS_MAIN(tst_StringUtils)
