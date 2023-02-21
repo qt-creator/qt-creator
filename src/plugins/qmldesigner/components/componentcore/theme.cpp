@@ -176,7 +176,7 @@ QIcon Theme::iconFromName(Icon i, QColor c)
 {
     QColor color = c;
     if (!color.isValid())
-        color = getColor(Theme::Color::IconsBaseColor);
+        color = getColor(Theme::Color::DSiconColor);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
     return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(i), 32, 32, color);
