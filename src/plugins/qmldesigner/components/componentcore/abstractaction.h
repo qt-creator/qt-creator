@@ -14,6 +14,7 @@ class QMLDESIGNERCOMPONENTS_EXPORT PureActionInterface
 {
 public:
     explicit PureActionInterface(QAction *action);
+    virtual ~PureActionInterface() = default;
     virtual void setSelectionContext(const SelectionContext &selectionContext) = 0;
     QAction *action();
 
