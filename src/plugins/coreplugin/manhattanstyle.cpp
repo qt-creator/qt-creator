@@ -587,6 +587,10 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
         if (qobject_cast<const QLineEdit*>(widget) && panelWidget(widget))
             return 1;
         break;
+    case PM_ToolBarExtensionExtent:
+        if (StyleHelper::isQDSTheme())
+            retval = 29;
+        break;
     default:
         break;
     }
