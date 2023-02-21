@@ -42,7 +42,7 @@ static std::atomic_int s_pidFileCounter = 1;
 
 QnxProcessImpl::QnxProcessImpl(const LinuxDevice *linuxDevice)
     : SshProcessInterface(linuxDevice)
-    , m_pidFile(QString::fromLatin1("/var/run/qtc.%1.pid").arg(s_pidFileCounter.fetch_add(1)))
+    , m_pidFile(QString("%1/qtc.%2.pid").arg(Constants::QNX_TMP_DIR).arg(s_pidFileCounter.fetch_add(1)))
 {
 }
 
