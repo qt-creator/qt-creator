@@ -23,6 +23,7 @@ Project {
         "coco/coco.qbs",
         "compilationdatabaseprojectmanager/compilationdatabaseprojectmanager.qbs",
         "conan/conan.qbs",
+        "copilot/copilot.qbs",
         "coreplugin/coreplugin.qbs",
         "coreplugin/images/logo/logo.qbs",
         "cpaster/cpaster.qbs",
@@ -84,7 +85,6 @@ Project {
         "valgrind/valgrind.qbs",
         "vcsbase/vcsbase.qbs",
         "webassembly/webassembly.qbs",
-        "welcome/welcome.qbs"
-        "copilot/copilot.qbs"
+        "welcome/welcome.qbs",
     ].concat(project.additionalPlugins)
 }
