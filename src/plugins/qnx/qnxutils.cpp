@@ -21,11 +21,6 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
-const char *EVAL_ENV_VARS[] = {
-    "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "QNX_CONFIGURATION_EXCLUSIVE",
-    "MAKEFLAGS", "LD_LIBRARY_PATH", "PATH", "QDE", "CPUVARDIR", "PYTHONPATH"
-};
-
 QString QnxUtils::cpuDirFromAbi(const Abi &abi)
 {
     if (abi.os() != Abi::OS::QnxOS)
@@ -64,30 +59,46 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     const bool isWindows = filePath.osType() == Utils::OsTypeWindows;
 
     // locking creating sdp-env file wrapper script
-    TemporaryFile tmpFile("sdp-env-eval-XXXXXX" + QString::fromLatin1(isWindows ? ".bat" : ".sh"));
-    if (!tmpFile.open())
-        return items;
-    tmpFile.setTextModeEnabled(true);
+    const expected_str<FilePath> tmpPath = filePath.tmpDir();
+    if (!tmpPath)
+        return {}; // make_unexpected(tmpPath.error());
 
-    // writing content to wrapper script
-    QTextStream fileContent(&tmpFile);
+    const QString tmpName = "sdp-env-eval-XXXXXX" + QLatin1String(isWindows ? ".bat" : "");
+    const FilePath pattern = *tmpPath / tmpName;
+
+    const expected_str<FilePath> tmpFile = pattern.createTempFile();
+    if (!tmpFile)
+        return {}; // make_unexpected(tmpFile.error());
+
+    QStringList fileContent;
+
+    // writing content to wrapper script.
+    // this has to use bash as qnxsdp-env.sh requires this
     if (isWindows)
-        fileContent << "@echo off\n"
-                    << "call " << filePath.path() << '\n';
+        fileContent << "@echo off" << "call " + filePath.path();
     else
-        fileContent << "#!/bin/bash\n"
-                    << ". " << filePath.path() << '\n';
-    QString linePattern = QString::fromLatin1(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
-    for (int i = 0, len = sizeof(EVAL_ENV_VARS) / sizeof(const char *); i < len; ++i)
-        fileContent << linePattern.arg(QLatin1String(EVAL_ENV_VARS[i])) << QLatin1Char('\n');
-    tmpFile.close();
+        fileContent << "#!/bin/bash" << ". " + filePath.path();
+
+    QLatin1String linePattern(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
+
+    static const char *envVars[] = {
+        "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "QNX_CONFIGURATION_EXCLUSIVE",
+        "MAKEFLAGS", "LD_LIBRARY_PATH", "PATH", "QDE", "CPUVARDIR", "PYTHONPATH"
+    };
+
+    for (const char *envVar : envVars)
+        fileContent << linePattern.arg(QLatin1String(envVar));
+
+    QString content = fileContent.join(QLatin1String(isWindows ? "\r\n" : "\n"));
+
+    tmpFile->writeFileContents(content.toUtf8());
 
     // running wrapper script
     QtcProcess process;
     if (isWindows)
-        process.setCommand({"cmd.exe", {"/C", tmpFile.fileName()}});
+        process.setCommand({filePath.withNewPath("cmd.exe"), {"/C", tmpFile->path()}});
     else
-        process.setCommand({"/bin/bash", {tmpFile.fileName()}});
+        process.setCommand({filePath.withNewPath("/bin/bash"), {tmpFile->path()}});
     process.start();
 
     // waiting for finish
@@ -190,25 +201,25 @@ QList<QnxTarget> QnxUtils::findTargets(const FilePath &basePath)
 {
     QList<QnxTarget> result;
 
-    QDirIterator iterator(basePath.toString());
-    while (iterator.hasNext()) {
-        iterator.next();
-        const FilePath libc = FilePath::fromString(iterator.filePath()).pathAppended("lib/libc.so");
-        if (libc.exists()) {
-            auto abis = Abi::abisOfBinary(libc);
-            if (abis.isEmpty()) {
-                qWarning() << libc << "has no ABIs ... discarded";
-                continue;
-            }
+    basePath.iterateDirectory(
+            [&result](const FilePath &filePath) {
+                const FilePath libc = filePath / "lib/libc.so";
+                if (libc.exists()) {
+                    const Abis abis = Abi::abisOfBinary(libc);
+                    if (abis.isEmpty()) {
+                        qWarning() << libc << "has no ABIs ... discarded";
+                        return IterationPolicy::Continue;
+                    }
 
-            if (abis.count() > 1)
-                qWarning() << libc << "has more than one ABI ... processing all";
+                    if (abis.count() > 1)
+                        qWarning() << libc << "has more than one ABI ... processing all";
 
-            FilePath path = FilePath::fromString(iterator.filePath());
-            for (const Abi &abi : abis)
-                result.append(QnxTarget(path, QnxUtils::convertAbi(abi)));
-        }
-    }
+                    for (const Abi &abi : abis)
+                        result.append(QnxTarget(filePath, QnxUtils::convertAbi(abi)));
+                }
+                return IterationPolicy::Continue;
+            },
+            {{}, QDir::Dirs});
 
     return result;
 }
