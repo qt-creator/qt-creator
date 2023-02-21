@@ -4,6 +4,7 @@
 #include "gettingstartedwelcomepage.h"
 
 #include "exampleslistmodel.h"
+#include "examplesparser.h"
 #include "qtsupporttr.h"
 
 #include <coreplugin/coreconstants.h>
