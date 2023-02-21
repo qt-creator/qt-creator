@@ -282,9 +282,9 @@
             and transition line.
     \endlist
 
-    To preview the flow, select the \inlineimage icons/live_preview.png
-    (\uicontrol {Show Live Preview}) button on the Design mode
-    \l{Summary of Main Toolbar Actions}{toolbar} or press \key {Alt+P}.
+    To preview the flow, select the
+    \uicontrol {Live Preview} button on the top toolbar or press \key Alt +
+    \key P.
 
     \section1 Common Properties
 

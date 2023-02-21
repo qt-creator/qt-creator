@@ -240,9 +240,8 @@
     \endlist
 
     To preview the whole UI, select the
-    \inlineimage icons/live_preview.png
-    (\uicontrol {Show Live Preview}) button on the canvas toolbar
-    or press \key {Alt+P}.
+    \uicontrol {Live Preview} button on the top toolbar
+    or press \key Alt + \key P.
 
     \section1 Animating Rotation
 

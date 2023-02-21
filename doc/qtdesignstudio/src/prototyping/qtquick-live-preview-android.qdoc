@@ -150,13 +150,14 @@
 
     Next, to run the emulator, do one of the following:
     \list
-      \li Select \uicontrol{Show Live Preview} in the the \uicontrol {2D} view toolbar.
+      \li Select \uicontrol{Live Preview} in the top toolbar.
       \image toolbar-show-live-preview.png
       \li Select \uicontrol Build > \uicontrol{QML Preview}.
       \note The \uicontrol Build menu option is not visible by default. To show
       it, go to \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment
       > \uicontrol {Qt Design Studio Configuration}.
       \image menu-build-qml-preview.png
+      \li Select \key Alt + \key P.
     \endlist
 
     Now the emulator runs, the qtdesignviewer APK delivered with the \QDS installation
