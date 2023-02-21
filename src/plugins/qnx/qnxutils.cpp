@@ -61,7 +61,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     if (!filePath.exists())
         return items;
 
-    const bool isWindows = HostOsInfo::isWindowsHost();
+    const bool isWindows = filePath.osType() == Utils::OsTypeWindows;
 
     // locking creating sdp-env file wrapper script
     TemporaryFile tmpFile("sdp-env-eval-XXXXXX" + QString::fromLatin1(isWindows ? ".bat" : ".sh"));
