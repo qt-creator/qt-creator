@@ -68,6 +68,8 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
+    addSpace(5);
+
     QAction *tangentLinearAction = addAction(Theme::iconFromName(Theme::linear_medium), "Linear");
     QAction *tangentStepAction = addAction(Theme::iconFromName(Theme::step_medium), "Step");
     QAction *tangentSplineAction = addAction(Theme::iconFromName(Theme::bezier_medium), "Spline");
@@ -185,6 +187,8 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     addAction(zoomOut);
     addWidget(m_zoomSlider);
     addAction(zoomIn);
+
+    addSpace(5);
 }
 
 void CurveEditorToolBar::setZoom(double zoom)

@@ -53,22 +53,8 @@ LineEdit::LineEdit(QWidget *parent)
     connect(this, &QLineEdit::textChanged, this, &LineEdit::updateClearButton);
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    setStyleSheet(Theme::replaceCssColors(
-        QString("QLineEdit { padding-right: %1px; border-radius: 4;"
-                "color: creatorTheme.DStextColor;"
-                "border-color: creatorTheme.DScontrolOutline_topToolbarIdle;"
-                "background: creatorTheme.DStoolbarBackground; }"
-                "QLineEdit:hover {"
-                "color: creatorTheme.DStextColor;"
-                "border-color: creatorTheme.DScontrolOutline_topToolbarHover;"
-                "background: creatorTheme.DScontrolBackground_toolbarHover; }"
-                "QLineEdit:focus {"
-                "color: creatorTheme.DStextColor;"
-                "border-color: creatorTheme.DSinteraction;"
-                "background: creatorTheme.DStoolbarBackground; }")
-            .arg(clearButton->sizeHint().width() + frameWidth + 8)));
-
-    setFixedHeight(29);
+    setStyleSheet(Theme::replaceCssColors(QString("QLineEdit { padding-right: %1px; }")
+                                              .arg(clearButton->sizeHint().width() + frameWidth + 8)));
 }
 
 void LineEdit::resizeEvent(QResizeEvent *)

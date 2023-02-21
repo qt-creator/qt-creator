@@ -282,6 +282,8 @@ void TransitionEditorToolBar::createRightControls()
 
     auto emitEndChanged = [this]() { emit durationChanged(m_duration->text().toInt()); };
     connect(m_duration, &QLineEdit::editingFinished, emitEndChanged);
+
+    addSpacing(5);
 }
 
 void TransitionEditorToolBar::addSpacing(int width)
