@@ -12,7 +12,6 @@
 namespace QmakeProjectManager {
 
 class QmakeProFileNode;
-class QmakeProject;
 
 // Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
