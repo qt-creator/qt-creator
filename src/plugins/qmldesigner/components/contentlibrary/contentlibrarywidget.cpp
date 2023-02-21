@@ -65,12 +65,13 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             }
         } else if (m_textureToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20
+                && m_textureToDrag->isDownloaded()) {
                 QMimeData *mimeData = new QMimeData;
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, {m_textureToDrag->path().toUtf8()});
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, {m_textureToDrag->iconPath().toUtf8()});
 
                 // Allows standard file drag-n-drop. As of now needed to drop on Assets view
-                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->path())});
+                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->realTexturePath())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
                 model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
@@ -261,17 +262,26 @@ void ContentLibraryWidget::startDragTexture(QmlDesigner::ContentLibraryTexture *
 
 void ContentLibraryWidget::addImage(ContentLibraryTexture *tex)
 {
-    emit addTextureRequested(tex->path(), AddTextureMode::Image);
+    if (!tex->isDownloaded())
+        return;
+
+    emit addTextureRequested(tex->realTexturePath(), AddTextureMode::Image);
 }
 
 void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
 {
-    emit addTextureRequested(tex->path(), AddTextureMode::Texture);
+    if (!tex->isDownloaded())
+        return;
+
+    emit addTextureRequested(tex->realTexturePath(), AddTextureMode::Texture);
 }
 
 void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
 {
-    emit addTextureRequested(tex->path(), AddTextureMode::LightProbe);
+    if (!tex->isDownloaded())
+        return;
+
+    emit addTextureRequested(tex->realTexturePath(), AddTextureMode::LightProbe);
 }
 
 void ContentLibraryWidget::updateSceneEnvState()

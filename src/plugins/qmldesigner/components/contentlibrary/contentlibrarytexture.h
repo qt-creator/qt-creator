@@ -30,7 +30,8 @@ public:
     bool filter(const QString &searchText);
 
     QUrl icon() const;
-    QString path() const;
+    QString iconPath() const;
+    QString realTexturePath() const;
     QString parentDirPath() const;
 
 signals:

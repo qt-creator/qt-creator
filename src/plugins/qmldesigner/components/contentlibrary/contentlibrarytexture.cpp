@@ -39,7 +39,7 @@ QUrl ContentLibraryTexture::icon() const
     return m_icon;
 }
 
-QString ContentLibraryTexture::path() const
+QString ContentLibraryTexture::iconPath() const
 {
     return m_iconPath;
 }
@@ -86,8 +86,13 @@ bool ContentLibraryTexture::isDownloaded() const
     if (m_fileExt.isEmpty())
         return false;
 
-    QString fullPath = m_downloadPath + "/" + m_baseName + m_fileExt;
+    QString fullPath = realTexturePath();
     return QFileInfo(fullPath).isFile();
+}
+
+QString ContentLibraryTexture::realTexturePath() const
+{
+    return m_downloadPath + "/" + m_baseName + m_fileExt;
 }
 
 void ContentLibraryTexture::setDownloaded()
