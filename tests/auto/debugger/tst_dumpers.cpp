@@ -686,8 +686,15 @@ struct Profile
 struct Cxx11Profile : public Profile
 {
     Cxx11Profile()
-      : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
-                "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+        : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
+                  "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+    {}
+};
+
+struct Cxx17Profile : public Profile
+{
+    Cxx17Profile()
+        : Profile("CONFIG += c++17\n")
     {}
 };
 
@@ -5596,7 +5603,7 @@ void tst_Dumpers::dumper_data()
 
                 "&o1, &o2, &o3")
 
-               + Cxx11Profile()
+               + Cxx17Profile()
 
                + Check("o1", "<uninitialized>", "std::optional<bool>")
                + Check("o2", "1", "bool") // 1 -> true is done on display
@@ -5614,7 +5621,7 @@ void tst_Dumpers::dumper_data()
 
                 "&v1, &v2, &v3")
 
-               + Cxx11Profile()
+               + Cxx17Profile()
 
                + Check("v1", "0", "bool")
                + Check("v2", "1", "bool") // 1 -> true is done on display
