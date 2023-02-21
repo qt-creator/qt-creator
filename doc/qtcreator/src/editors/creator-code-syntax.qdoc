@@ -746,7 +746,8 @@
     \uicontrol {Code Model}, this action also expands all
     \c {"#include <foo.h>"} statements to their actual contents.
 
-    \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
+    \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
+
 
     \endif
 
