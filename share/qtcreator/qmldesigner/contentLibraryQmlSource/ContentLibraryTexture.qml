@@ -160,7 +160,7 @@ Item {
             if (mouse.button === Qt.LeftButton) {
                 if (root.downloadState === "downloaded")
                     rootView.startDragTexture(modelData, mapToGlobal(mouse.x, mouse.y))
-            } else if (mouse.button === Qt.RightButton) {
+            } else if (mouse.button === Qt.RightButton && root.downloadState === "downloaded") {
                 root.showContextMenu()
             }
         }
