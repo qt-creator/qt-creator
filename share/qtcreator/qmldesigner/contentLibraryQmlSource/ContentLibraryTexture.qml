@@ -165,7 +165,10 @@ Item {
             }
         }
 
-        onClicked: {
+        onClicked: (mouse) => {
+            if (mouse.button !== Qt.LeftButton)
+                return
+
             if (root.downloadState !== "" && root.downloadState !== "failed")
                 return
 
