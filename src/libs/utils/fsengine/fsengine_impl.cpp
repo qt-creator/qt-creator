@@ -238,7 +238,7 @@ QString FSEngineImpl::fileName(FileName file) const
         return m_filePath.toFSPathString();
         break;
     case QAbstractFileEngine::BaseName:
-        return m_filePath.baseName();
+        return m_filePath.fileName();
         break;
     case QAbstractFileEngine::PathName:
     case QAbstractFileEngine::AbsolutePathName:
