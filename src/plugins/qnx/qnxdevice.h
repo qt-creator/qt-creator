@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qnx_export.h"
-
 #include <remotelinux/linuxdevice.h>
 
 namespace Qnx::Internal {
