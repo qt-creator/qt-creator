@@ -130,8 +130,7 @@ void QnxSettingsWidget::addConfiguration()
         return;
 
     QnxConfiguration *config = new QnxConfiguration(envFile);
-    if (m_qnxConfigManager->configurations().contains(config)
-            || !config->isValid()) {
+    if (m_qnxConfigManager->configurations().contains(config) || !config->isValid()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              Tr::tr("Warning"),
                              Tr::tr("Configuration already exists or is invalid."));
