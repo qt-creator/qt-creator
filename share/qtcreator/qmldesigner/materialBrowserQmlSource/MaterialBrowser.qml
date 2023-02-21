@@ -373,6 +373,125 @@ Item {
         id: ctxMenuTextures
     }
 
+    component DoubleButton: Rectangle {
+        id: doubleButton
+
+        signal clicked()
+
+        property alias icon: iconLabel.text
+        property alias tooltip: mouseArea.tooltip
+
+        property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
+
+        width: doubleButton.style.squareControlSize.width * 2
+        height: doubleButton.style.squareControlSize.height
+        radius: StudioTheme.Values.smallRadius
+
+        Row {
+            id: contentRow
+            spacing: 0
+
+            Text {
+                id: iconLabel
+                width: doubleButton.style.squareControlSize.width
+                height: doubleButton.height
+                text: StudioTheme.Constants.material_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                font.pixelSize: doubleButton.style.baseIconFontSize
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            Text {
+                id: plusLabel
+                width: doubleButton.style.squareControlSize.width
+                height: doubleButton.height
+                text: StudioTheme.Constants.add_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                font.pixelSize: doubleButton.style.baseIconFontSize
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+
+        HelperWidgets.ToolTipArea {
+            id: mouseArea
+            anchors.fill: parent
+            onClicked: doubleButton.clicked()
+        }
+
+        states: [
+            State {
+                name: "default"
+                when: doubleButton.enabled && !mouseArea.containsMouse && !mouseArea.pressed
+                PropertyChanges {
+                    target: doubleButton
+                    color: doubleButton.style.background.idle
+                    border.color: doubleButton.style.border.idle
+                }
+                PropertyChanges {
+                    target: iconLabel
+                    color: doubleButton.style.icon.idle
+                }
+                PropertyChanges {
+                    target: plusLabel
+                    color: doubleButton.style.icon.idle
+                }
+            },
+            State {
+                name: "hover"
+                when: doubleButton.enabled && mouseArea.containsMouse && !mouseArea.pressed
+                PropertyChanges {
+                    target: doubleButton
+                    color: doubleButton.style.background.hover
+                    border.color: doubleButton.style.border.hover
+                }
+                PropertyChanges {
+                    target: iconLabel
+                    color: doubleButton.style.icon.hover
+                }
+                PropertyChanges {
+                    target: plusLabel
+                    color: doubleButton.style.icon.hover
+                }
+            },
+            State {
+                name: "pressed"
+                when: doubleButton.enabled && mouseArea.containsMouse && mouseArea.pressed
+                PropertyChanges {
+                    target: doubleButton
+                    color: doubleButton.style.interaction
+                    border.color: doubleButton.style.interaction
+                }
+                PropertyChanges {
+                    target: iconLabel
+                    color: doubleButton.style.icon.interaction
+                }
+                PropertyChanges {
+                    target: plusLabel
+                    color: doubleButton.style.icon.interaction
+                }
+            },
+            State {
+                name: "disable"
+                when: !doubleButton.enabled
+                PropertyChanges {
+                    target: doubleButton
+                    color: doubleButton.style.background.disabled
+                    border.color: doubleButton.style.border.disabled
+                }
+                PropertyChanges {
+                    target: iconLabel
+                    color: doubleButton.style.icon.disabled
+                }
+                PropertyChanges {
+                    target: plusLabel
+                    color: doubleButton.style.icon.disabled
+                }
+            }
+        ]
+    }
+
     Column {
         id: col
         spacing: 5
@@ -425,19 +544,17 @@ Item {
                     height: StudioTheme.Values.toolbarHeight
                     spacing: 6
 
-                    HelperWidgets.AbstractButton {
+                    DoubleButton {
                         id: addMaterial
-                        style: StudioTheme.Values.viewBarButtonStyle
-                        buttonIcon: StudioTheme.Constants.material_medium
+                        icon: StudioTheme.Constants.material_medium
                         tooltip: qsTr("Add a Material.")
                         onClicked: materialBrowserModel.addNewMaterial()
                         enabled: root.enableUiElements
                     }
 
-                    HelperWidgets.AbstractButton {
+                    DoubleButton {
                         id: addTexture
-                        style: StudioTheme.Values.viewBarButtonStyle
-                        buttonIcon: StudioTheme.Constants.textures_medium
+                        icon: StudioTheme.Constants.textures_medium
                         tooltip: qsTr("Add a Texture.")
                         onClicked: materialBrowserTexturesModel.addNewTexture()
                         enabled: root.enableUiElements
