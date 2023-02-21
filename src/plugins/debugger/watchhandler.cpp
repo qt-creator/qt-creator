@@ -402,6 +402,7 @@ public:
     WatchModel(WatchHandler *handler, DebuggerEngine *engine);
 
     static QString nameForFormat(int format);
+    constexpr static int defaultMaxArrayCount = 100;
 
     QVariant data(const QModelIndex &idx, int role) const override;
     bool setData(const QModelIndex &idx, const QVariant &value, int role) override;
@@ -410,6 +411,7 @@ public:
     bool hasChildren(const QModelIndex &idx) const override;
     bool canFetchMore(const QModelIndex &idx) const override;
     void fetchMore(const QModelIndex &idx) override;
+    void expand(WatchItem *item, bool requestEngineUpdate);
 
     QString displayForAutoTest(const QByteArray &iname) const;
     void reinitialize(bool includeInspectData = false);
@@ -468,6 +470,7 @@ public:
     SeparatedView *m_separatedView; // Not owned.
 
     QSet<QString> m_expandedINames;
+    QHash<QString, int> m_maxArrayCount;
     QTimer m_requestUpdateTimer;
 
     QHash<QString, TypeInfo> m_reportedTypeInfo;
@@ -1210,7 +1213,8 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             if (value.toBool()) {
                 // Should already have been triggered by fetchMore()
                 //QTC_CHECK(m_expandedINames.contains(item->iname));
-                m_expandedINames.insert(item->iname);
+                if (!item->isLoadMore())
+                    m_expandedINames.insert(item->iname);
             } else {
                 m_expandedINames.remove(item->iname);
             }
@@ -1320,13 +1324,22 @@ bool WatchModel::canFetchMore(const QModelIndex &idx) const
 
 void WatchModel::fetchMore(const QModelIndex &idx)
 {
-    if (!idx.isValid())
-        return;
+    if (idx.isValid())
+        expand(nonRootItemForIndex(idx), true);
+}
 
-    WatchItem *item = nonRootItemForIndex(idx);
-    if (item) {
+void WatchModel::expand(WatchItem *item, bool requestEngineUpdate)
+{
+    if (!item)
+        return;
+    if (item->isLoadMore()) {
+        item = item->parent();
+        m_maxArrayCount[item->iname] = m_maxArrayCount.value(item->iname, defaultMaxArrayCount) * 10;
+        if (requestEngineUpdate)
+            m_engine->updateItem(item->iname);
+    } else {
         m_expandedINames.insert(item->iname);
-        if (item->childCount() == 0)
+        if (requestEngineUpdate && item->childCount() == 0)
             m_engine->expandItem(item->iname);
     }
 }
@@ -1749,10 +1762,14 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     menu->addSeparator();
 
     addAction(this, menu, Tr::tr("Expand All Children"), item, [this, name = item ? item->iname : QString()] {
-        m_expandedINames.insert(name);
-        if (auto item = findItem(name)) {
-            item->forFirstLevelChildren(
-                [this](WatchItem *child) { m_expandedINames.insert(child->iname); });
+        if (name.isEmpty())
+            return;
+        if (WatchItem *item = findItem(name)) {
+            expand(item, false);
+            item->forFirstLevelChildren([this](WatchItem *child) {
+                if (!child->isLoadMore())
+                    expand(child, false);
+            });
             m_engine->updateLocals();
         }
     });
@@ -2210,7 +2227,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
 void WatchModel::reexpandItems()
 {
-    for (const QString &iname : std::as_const(m_expandedINames)) {
+    for (const QString &iname: m_expandedINames) {
         if (WatchItem *item = findItem(iname)) {
             emit itemIsExpanded(indexForItem(item));
             emit inameIsExpanded(iname);
@@ -2292,7 +2309,8 @@ void WatchHandler::notifyUpdateFinished()
         m_model->destroyItem(item);
 
     m_model->forAllItems([this](WatchItem *item) {
-        if (item->wantsChildren && isExpandedIName(item->iname)) {
+        if (item->wantsChildren && isExpandedIName(item->iname)
+            && item->name != WatchItem::loadMoreName) {
             m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
             item->wantsChildren = false;
         }
@@ -2593,11 +2611,8 @@ const WatchItem *WatchHandler::watchItem(const QModelIndex &idx) const
 
 void WatchHandler::fetchMore(const QString &iname) const
 {
-    if (WatchItem *item = m_model->findItem(iname)) {
-        m_model->m_expandedINames.insert(iname);
-        if (item->childCount() == 0)
-            m_model->m_engine->expandItem(iname);
-    }
+    if (WatchItem *item = m_model->findItem(iname))
+        m_model->expand(item, true);
 }
 
 WatchItem *WatchHandler::findItem(const QString &iname) const
@@ -2711,9 +2726,9 @@ QString WatchHandler::individualFormatRequests() const
 
 void WatchHandler::appendFormatRequests(DebuggerCommand *cmd) const
 {
-    QJsonArray expanded;
-    for (const QString &name : std::as_const(m_model->m_expandedINames))
-        expanded.append(name);
+    QJsonObject expanded;
+    for (const QString &iname : std::as_const(m_model->m_expandedINames))
+        expanded.insert(iname, maxArrayCount(iname));
 
     cmd->arg("expanded", expanded);
 
@@ -2815,6 +2830,11 @@ bool WatchHandler::isExpandedIName(const QString &iname) const
 QSet<QString> WatchHandler::expandedINames() const
 {
     return m_model->m_expandedINames;
+}
+
+int WatchHandler::maxArrayCount(const QString &iname) const
+{
+    return m_model->m_maxArrayCount.value(iname, WatchModel::defaultMaxArrayCount);
 }
 
 void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)

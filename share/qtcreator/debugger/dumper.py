@@ -106,7 +106,7 @@ class Children():
             self.d.putNumChild(0)
         if self.d.currentMaxNumChild is not None:
             if self.d.currentMaxNumChild < self.d.currentNumChild:
-                self.d.put('{name="<incomplete>",value="",type="",numchild="0"},')
+                self.d.put('{name="<load more>",value="",type="",numchild="1"},')
         self.d.currentChildType = self.savedChildType
         self.d.currentChildNumChild = self.savedChildNumChild
         self.d.currentNumChild = self.savedNumChild
@@ -214,7 +214,7 @@ class DumperBase():
 
     def setVariableFetchingOptions(self, args):
         self.resultVarName = args.get('resultvarname', '')
-        self.expandedINames = set(args.get('expanded', []))
+        self.expandedINames = args.get('expanded', {})
         self.stringCutOff = int(args.get('stringcutoff', 10000))
         self.displayStringLimit = int(args.get('displaystringlimit', 100))
         self.typeformats = args.get('typeformats', {})
@@ -296,6 +296,11 @@ class DumperBase():
         if self.currentMaxNumChild is None:
             return range(0, self.currentNumChild)
         return range(min(self.currentMaxNumChild, self.currentNumChild))
+
+    def maxArrayCount(self):
+        if self.currentIName in self.expandedINames:
+            return self.expandedINames[self.currentIName]
+        return 100
 
     def enterSubItem(self, item):
         if self.useTimeStamps:
@@ -2232,7 +2237,7 @@ class DumperBase():
             res = self.currentValue
         return res  # The 'short' display.
 
-    def putArrayData(self, base, n, innerType, childNumChild=None, maxNumChild=10000):
+    def putArrayData(self, base, n, innerType, childNumChild=None):
         self.checkIntType(base)
         self.checkIntType(n)
         addrBase = base
@@ -2240,6 +2245,7 @@ class DumperBase():
         self.putNumChild(n)
         #DumperBase.warn('ADDRESS: 0x%x INNERSIZE: %s INNERTYPE: %s' % (addrBase, innerSize, innerType))
         enc = innerType.simpleEncoding()
+        maxNumChild = self.maxArrayCount()
         if enc:
             self.put('childtype="%s",' % innerType.name)
             self.put('addrbase="0x%x",' % addrBase)
@@ -2247,7 +2253,7 @@ class DumperBase():
             self.put('arrayencoding="%s",' % enc)
             self.put('endian="%s",' % self.packCode)
             if n > maxNumChild:
-                self.put('childrenelided="%s",' % n)  # FIXME: Act on that in frontend
+                self.put('childrenelided="%s",' % n)
                 n = maxNumChild
             self.put('arraydata="')
             self.put(self.readMemory(addrBase, n * innerSize))
@@ -2281,7 +2287,7 @@ class DumperBase():
     def putPlotData(self, base, n, innerType, maxNumChild=1000 * 1000):
         self.putPlotDataHelper(base, n, innerType, maxNumChild=maxNumChild)
         if self.isExpanded():
-            self.putArrayData(base, n, innerType, maxNumChild=maxNumChild)
+            self.putArrayData(base, n, innerType)
 
     def putSpecialArgv(self, value):
         """

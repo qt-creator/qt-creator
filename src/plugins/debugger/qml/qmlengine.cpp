@@ -2321,7 +2321,6 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
     QTC_ASSERT(parent, return);
     LookupItems itemsToLookup;
 
-    const QSet<QString> expandedINames = engine->watchHandler()->expandedINames();
     for (const QVariant &property : properties) {
         QmlV8ObjectData propertyData = extractData(property);
         std::unique_ptr<WatchItem> item(new WatchItem);
@@ -2343,7 +2342,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         item->id = propertyData.handle;
         item->type = propertyData.type;
         item->value = propertyData.value.toString();
-        if (item->type.isEmpty() || expandedINames.contains(item->iname))
+        if (item->type.isEmpty() || engine->watchHandler()->isExpandedIName(item->iname))
             itemsToLookup.insert(propertyData.handle, {item->iname, item->name, item->exp});
         setWatchItemHasChildren(item.get(), propertyData.hasChildren());
         parent->appendChild(item.release());

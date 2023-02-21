@@ -2120,7 +2120,7 @@ class SummaryDumper(Dumper, LogMixin):
 
         # Expand variable if we need synthetic children
         oldExpanded = self.expandedINames
-        self.expandedINames = [value.name] if expanded else []
+        self.expandedINames = {value.name: 100} if expanded else {}
 
         savedOutput = self.output
         self.output = []

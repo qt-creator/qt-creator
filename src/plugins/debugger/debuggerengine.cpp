@@ -471,7 +471,7 @@ public:
     QString m_qtNamespace;
 
     // Safety net to avoid infinite lookups.
-    QSet<QString> m_lookupRequests; // FIXME: Integrate properly.
+    QHash<QString, int> m_lookupRequests; // FIXME: Integrate properly.
     QPointer<QWidget> m_alertBox;
 
     QPointer<BaseTreeView> m_breakView;
@@ -2360,9 +2360,10 @@ bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) con
 
 void DebuggerEngine::updateItem(const QString &iname)
 {
-    if (d->m_lookupRequests.contains(iname)) {
+    WatchHandler *handler = watchHandler();
+    const int maxArrayCount = handler->maxArrayCount(iname);
+    if (d->m_lookupRequests.value(iname, -1) == maxArrayCount) {
         showMessage(QString("IGNORING REPEATED REQUEST TO EXPAND " + iname));
-        WatchHandler *handler = watchHandler();
         WatchItem *item = handler->findItem(iname);
         QTC_CHECK(item);
         WatchModelBase *model = handler->model();
@@ -2382,7 +2383,7 @@ void DebuggerEngine::updateItem(const QString &iname)
         }
         // We could legitimately end up here after expanding + closing + re-expaning an item.
     }
-    d->m_lookupRequests.insert(iname);
+    d->m_lookupRequests[iname] = maxArrayCount;
 
     UpdateParameters params;
     params.partialVariable = iname;
