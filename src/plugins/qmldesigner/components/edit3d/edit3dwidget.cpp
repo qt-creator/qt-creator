@@ -70,6 +70,10 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 {
     setAcceptDrops(true);
 
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+
     Core::Context context(Constants::C_QMLEDITOR3D);
     m_context = new Core::IContext(this);
     m_context->setContext(context);

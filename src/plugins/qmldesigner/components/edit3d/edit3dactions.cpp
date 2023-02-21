@@ -49,8 +49,7 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId,
                            const QKeySequence &key,
                            bool checkable,
                            bool checked,
-                           const QIcon &iconOff,
-                           const QIcon &iconOn,
+                           const QIcon &icon,
                            Edit3DView *view,
                            SelectionContextOperation selectionAction,
                            const QString &toolTip)
@@ -68,17 +67,7 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId,
     if (!toolTip.isEmpty())
         action()->setToolTip(toolTip);
 
-    if (checkable) {
-        QIcon onOffIcon;
-        const auto onAvail = iconOn.availableSizes(); // Assume both icons have same sizes available
-        for (const auto &size : onAvail) {
-            onOffIcon.addPixmap(iconOn.pixmap(size), QIcon::Normal, QIcon::On);
-            onOffIcon.addPixmap(iconOff.pixmap(size), QIcon::Normal, QIcon::Off);
-        }
-        action()->setIcon(onOffIcon);
-    } else {
-        action()->setIcon(iconOff);
-    }
+    action()->setIcon(icon);
 }
 
 Edit3DAction::Edit3DAction(const QByteArray &menuId,
@@ -118,11 +107,10 @@ Edit3DCameraAction::Edit3DCameraAction(const QByteArray &menuId,
                                        const QKeySequence &key,
                                        bool checkable,
                                        bool checked,
-                                       const QIcon &iconOff,
-                                       const QIcon &iconOn,
+                                       const QIcon &icon,
                                        Edit3DView *view,
                                        SelectionContextOperation selectionAction)
-    : Edit3DAction(menuId, type, description, key, checkable, checked, iconOff, iconOn, view, selectionAction)
+    : Edit3DAction(menuId, type, description, key, checkable, checked, icon, view, selectionAction)
 {
 }
 

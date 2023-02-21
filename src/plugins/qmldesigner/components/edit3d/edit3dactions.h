@@ -50,8 +50,7 @@ public:
                  const QKeySequence &key,
                  bool checkable,
                  bool checked,
-                 const QIcon &iconOff,
-                 const QIcon &iconOn,
+                 const QIcon &icon,
                  Edit3DView *view,
                  SelectionContextOperation selectionAction = nullptr,
                  const QString &toolTip = {});
@@ -98,8 +97,7 @@ public:
                        const QKeySequence &key,
                        bool checkable,
                        bool checked,
-                       const QIcon &iconOff,
-                       const QIcon &iconOn,
+                       const QIcon &icon,
                        Edit3DView *view,
                        SelectionContextOperation selectionAction = nullptr);
 
