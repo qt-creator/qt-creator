@@ -4,6 +4,8 @@ QtcPlugin {
     name: "Copilot"
 
     Depends { name: "Core" }
+    Depends { name: "LanguageClient" }
+    Depends { name: "TextEditor" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     files: [
