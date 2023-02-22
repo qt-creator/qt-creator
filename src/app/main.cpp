@@ -502,6 +502,8 @@ int main(int argc, char **argv)
         }
     }
 
+    qputenv("QML_DISABLE_DISK_CACHE", "true");
+
     qputenv("QSG_RHI_BACKEND", "opengl");
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
                 Qt::HighDpiScaleFactorRoundingPolicy::Round);
