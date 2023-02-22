@@ -21,7 +21,6 @@ namespace TextEditor::Internal {
 
 const char MARKDOWNVIEWER_ID[] = "Editors.MarkdownViewer";
 const char MARKDOWNVIEWER_MIME_TYPE[] = "text/markdown";
-const char MARKDOWNVIEWER_EDITOR_CONTEXT[] = "Editors.MarkdownViewer.Id";
 
 class MarkdownEditor : public Core::IEditor
 {
@@ -41,11 +40,6 @@ public:
         editor->setTextDocument(m_document);
         editor->setupGenericHighlighter();
         editor->setMarksVisible(false);
-
-        auto context = new Core::IContext(this);
-        context->setWidget(editor);
-        context->setContext(Core::Context(MARKDOWNVIEWER_EDITOR_CONTEXT));
-        Core::ICore::addContextObject(context);
 
         setContext(Core::Context(MARKDOWNVIEWER_ID));
         setWidget(&m_widget);
