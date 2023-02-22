@@ -122,7 +122,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     return items;
 }
 
-FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
+EnvironmentItems QnxUtils::qnxEnvironment(const FilePath &sdpPath)
 {
     FilePaths entries;
     if (sdpPath.osType() == OsTypeWindows)
@@ -130,15 +130,10 @@ FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
     else
         entries = sdpPath.dirEntries({{"*-env.sh"}});
 
-    if (!entries.isEmpty())
-        return entries.first();
+    if (entries.isEmpty())
+        return {};
 
-    return {};
-}
-
-EnvironmentItems QnxUtils::qnxEnvironment(const FilePath &sdpPath)
-{
-    return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
+    return qnxEnvironmentFromEnvFile(entries.first());
 }
 
 QList<QnxTarget> QnxUtils::findTargets(const FilePath &basePath)
