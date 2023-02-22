@@ -19,8 +19,6 @@ QtcPlugin {
         "copilotsettings.h",
         "copilotoptionspage.cpp",
         "copilotoptionspage.h",
-        "copilotoptionspagewidget.cpp",
-        "copilotoptionspagewidget.h",
         "documentwatcher.cpp",
         "documentwatcher.h",
         "requests/getcompletions.h",

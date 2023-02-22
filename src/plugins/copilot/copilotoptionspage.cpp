@@ -3,12 +3,40 @@
 
 #include "copilotoptionspage.h"
 
-#include "copilotoptionspagewidget.h"
+#include "authwidget.h"
+#include "copilotsettings.h"
 #include "copilotsettings.h"
 
 #include <coreplugin/icore.h>
 
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+using namespace Utils;
+using namespace LanguageClient;
+
 namespace Copilot {
+
+class CopilotOptionsPageWidget : public QWidget
+{
+public:
+    CopilotOptionsPageWidget(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+        using namespace Layouting;
+
+        auto authWidget = new AuthWidget();
+
+        // clang-format off
+        Column {
+            authWidget, br,
+            CopilotSettings::instance().nodeJsPath, br,
+            CopilotSettings::instance().distPath, br,
+            st
+        }.attachTo(this);
+        // clang-format on
+    }
+};
 
 CopilotOptionsPage::CopilotOptionsPage()
 {
