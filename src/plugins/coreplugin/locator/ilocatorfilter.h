@@ -154,8 +154,8 @@ public:
 
     virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry) = 0;
 
-    virtual void accept(const LocatorFilterEntry &selection,
-                        QString *newText, int *selectionStart, int *selectionLength) const = 0;
+    virtual void accept(const LocatorFilterEntry &selection, QString *newText,
+                        int *selectionStart, int *selectionLength) const;
 
     virtual void refresh(QFutureInterface<void> &future) { Q_UNUSED(future) };
 

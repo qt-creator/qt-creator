@@ -5,7 +5,6 @@
 
 #include "cppeditor_global.h"
 #include "cpplocatordata.h"
-#include "searchsymbols.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -21,9 +20,6 @@ public:
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-
 protected:
     virtual IndexItem::ItemType matchTypes() const { return IndexItem::All; }
     virtual Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);

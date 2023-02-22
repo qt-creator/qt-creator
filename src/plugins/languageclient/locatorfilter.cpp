@@ -7,18 +7,14 @@
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
 #include "languageclienttr.h"
-#include "languageclientutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <languageserverprotocol/lsptypes.h>
-#include <languageserverprotocol/servercapabilities.h>
 
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 
 #include <utils/fuzzymatcher.h>
-#include <utils/linecolumn.h>
 
 #include <QFutureWatcher>
 #include <QRegularExpression>
@@ -204,15 +200,6 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
     return {};
 }
 
-void DocumentLocatorFilter::accept(const LocatorFilterEntry &selection,
-                                   QString * /*newText*/,
-                                   int * /*selectionStart*/,
-                                   int * /*selectionLength*/) const
-{
-    if (selection.linkForEditor)
-        EditorManager::openEditor(selection);
-}
-
 WorkspaceLocatorFilter::WorkspaceLocatorFilter()
     : WorkspaceLocatorFilter(QVector<SymbolKind>())
 {}
@@ -300,14 +287,6 @@ QList<LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
         return generateLocatorEntry(info.symbol, this, info.mapper);
     };
     return Utils::transform(m_results, generateEntry).toList();
-}
-
-void WorkspaceLocatorFilter::accept(const LocatorFilterEntry &selection,
-                                    QString * /*newText*/,
-                                    int * /*selectionStart*/,
-                                    int * /*selectionLength*/) const
-{
-    EditorManager::openEditor(selection);
 }
 
 void WorkspaceLocatorFilter::handleResponse(Client *client,

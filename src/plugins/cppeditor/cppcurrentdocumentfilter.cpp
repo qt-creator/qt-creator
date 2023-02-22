@@ -9,7 +9,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
 #include <utils/algorithm.h>
 
 #include <QHash>
@@ -136,15 +135,6 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         }
     }
     return betterEntries;
-}
-
-void CppCurrentDocumentFilter::accept(const LocatorFilterEntry &selection, QString *newText,
-                                      int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
 }
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)

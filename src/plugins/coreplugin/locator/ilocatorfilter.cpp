@@ -4,6 +4,7 @@
 #include "ilocatorfilter.h"
 
 #include "../coreplugintr.h"
+#include "../editormanager/editormanager.h"
 
 #include <utils/fuzzymatcher.h>
 
@@ -96,6 +97,24 @@ QString ILocatorFilter::shortcutString() const
 void ILocatorFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
+}
+
+/*!
+    Called with the entry specified by \a selection when the user activates it
+    in the result list.
+    Implementations can return a new search term \a newText, which has \a selectionLength characters
+    starting from \a selectionStart preselected, and the cursor set to the end of the selection.
+
+    The default implementation tries to open an editor for \a selections's linkForEditor,
+    if it exists.
+*/
+void ILocatorFilter::accept(const LocatorFilterEntry &selection, QString *newText,
+                            int *selectionStart, int *selectionLength) const
+{
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
+    EditorManager::openEditor(selection);
 }
 
 /*!
@@ -595,15 +614,6 @@ bool ILocatorFilter::isOldSetting(const QByteArray &state)
 
     \sa prepareSearch()
     \sa caseSensitivity()
-*/
-
-/*!
-    \fn void Core::ILocatorFilter::accept(Core::const LocatorFilterEntry &selection, QString *newText, int *selectionStart, int *selectionLength) const
-
-    Called with the entry specified by \a selection when the user activates it
-    in the result list.
-    Implementations can return a new search term \a newText, which has \a selectionLength characters
-    starting from \a selectionStart preselected, and the cursor set to the end of the selection.
 */
 
 /*!

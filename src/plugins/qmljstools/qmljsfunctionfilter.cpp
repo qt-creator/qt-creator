@@ -5,12 +5,9 @@
 #include "qmljslocatordata.h"
 #include "qmljstoolstr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 
 #include <QRegularExpression>
-
-#include <numeric>
 
 using namespace Core;
 using namespace QmlJSTools::Internal;
@@ -71,13 +68,4 @@ QList<LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<LocatorFil
             Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
     }
     return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
-}
-
-void FunctionFilter::accept(const LocatorFilterEntry &selection,
-                            QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
 }

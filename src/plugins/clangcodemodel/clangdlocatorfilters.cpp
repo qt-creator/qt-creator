@@ -168,16 +168,6 @@ QList<LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     return matches;
 }
 
-void ClangGlobalSymbolFilter::accept(const LocatorFilterEntry &selection, QString *newText,
-                                     int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
-}
-
-
 ClangClassesFilter::ClangClassesFilter()
     : ClangGlobalSymbolFilter(new CppClassesFilter, new LspClassesFilter)
 {
@@ -342,15 +332,6 @@ QList<LocatorFilterEntry> ClangdCurrentDocumentFilter::matchesFor(
 {
     QTC_ASSERT(d->activeFilter, return {});
     return d->activeFilter->matchesFor(future, entry);
-}
-
-void ClangdCurrentDocumentFilter::accept(const LocatorFilterEntry &selection, QString *newText,
-                                         int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
 }
 
 } // namespace Internal

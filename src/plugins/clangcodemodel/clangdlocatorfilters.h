@@ -22,9 +22,6 @@ private:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection, QString *newText,
-                int *selectionStart, int *selectionLength) const override;
-
     Core::ILocatorFilter * const m_cppFilter;
     LanguageClient::WorkspaceLocatorFilter * const m_lspFilter;
 };
@@ -53,9 +50,6 @@ private:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection, QString *newText,
-                int *selectionStart, int *selectionLength) const override;
-
     class Private;
     Private * const d;
 };

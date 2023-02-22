@@ -3,10 +3,8 @@
 
 #include "basefilefilter.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
-#include <utils/linecolumn.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>
 
@@ -190,18 +188,6 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     }
 
     return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
-}
-
-/*!
-    \reimp
-*/
-void BaseFileFilter::accept(const LocatorFilterEntry &selection,
-                            QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
 }
 
 /*!

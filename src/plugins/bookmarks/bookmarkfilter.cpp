@@ -110,10 +110,8 @@ void BookmarkFilter::accept(const LocatorFilterEntry &selection, QString *newTex
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    if (const Bookmark *bookmark = m_manager->bookmarkForIndex(
-                selection.internalData.toModelIndex())) {
+    if (Bookmark *bookmark = m_manager->bookmarkForIndex(selection.internalData.toModelIndex()))
         m_manager->gotoBookmark(bookmark);
-    }
 }
 
 } // Bookmarks::Internal

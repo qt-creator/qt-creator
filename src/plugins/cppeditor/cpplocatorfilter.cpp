@@ -6,13 +6,9 @@
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 
 #include <QRegularExpression>
-
-#include <algorithm>
-#include <numeric>
 
 using namespace Core;
 
@@ -114,15 +110,6 @@ QList<LocatorFilterEntry> CppLocatorFilter::matchesFor(
     }
 
     return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
-}
-
-void CppLocatorFilter::accept(const LocatorFilterEntry &selection,
-                              QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
 }
 
 CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)

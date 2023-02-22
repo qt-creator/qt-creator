@@ -4,11 +4,9 @@
 #include "opendocumentsfilter.h"
 
 #include "../coreplugintr.h"
-#include "../editormanager/editormanager.h"
 
 #include <utils/filepath.h>
 #include <utils/link.h>
-#include <utils/linecolumn.h>
 
 #include <QAbstractItemModel>
 #include <QMutexLocker>
@@ -115,15 +113,6 @@ QList<OpenDocumentsFilter::Entry> OpenDocumentsFilter::editors() const
 {
     QMutexLocker lock(&m_mutex);
     return m_editors;
-}
-
-void OpenDocumentsFilter::accept(const LocatorFilterEntry &selection,
-                                 QString *newText, int *selectionStart, int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
 }
 
 } // Core::Internal

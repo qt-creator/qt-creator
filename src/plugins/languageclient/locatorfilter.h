@@ -29,11 +29,6 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText,
-                int *selectionStart,
-                int *selectionLength) const override;
-
 signals:
     void symbolsUpToDate(QPrivateSignal);
 
@@ -85,11 +80,6 @@ public:
     void prepareSearch(const QString &entry, const QList<Client *> &clients);
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
-    void accept(const Core::LocatorFilterEntry &selection,
-                QString *newText,
-                int *selectionStart,
-                int *selectionLength) const override;
-
 signals:
     void allRequestsFinished(QPrivateSignal);
 

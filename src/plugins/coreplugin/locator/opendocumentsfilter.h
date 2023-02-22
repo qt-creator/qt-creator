@@ -23,9 +23,6 @@ public:
     OpenDocumentsFilter();
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
-    void accept(const LocatorFilterEntry &selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-
 public slots:
     void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                          const QVector<int> &roles);

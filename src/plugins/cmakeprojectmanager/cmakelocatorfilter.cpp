@@ -8,8 +8,6 @@
 #include "cmakeproject.h"
 #include "cmakeprojectmanagertr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectmanager.h>
@@ -145,17 +143,6 @@ OpenCMakeTargetLocatorFilter::OpenCMakeTargetLocatorFilter()
     setDescription(Tr::tr("Jumps to the definition of a target of any open CMake project."));
     setDefaultShortcutString("cmo");
     setPriority(Medium);
-}
-
-void OpenCMakeTargetLocatorFilter::accept(const LocatorFilterEntry &selection,
-                                          QString *newText,
-                                          int *selectionStart,
-                                          int *selectionLength) const
-{
-    Q_UNUSED(newText)
-    Q_UNUSED(selectionStart)
-    Q_UNUSED(selectionLength)
-    EditorManager::openEditor(selection);
 }
 
 } // CMakeProjectManager::Internal
