@@ -44,9 +44,9 @@ public:
 
 private:
     /**
-     * weak reference to the used definition to filter out invalid states
+     * definition id to filter out invalid states
      */
-    DefinitionRef m_defRef;
+    uint64_t m_defId = 0;
 
     /**
      * the context stack combines the active context + valid captures

@@ -43,7 +43,7 @@ public:
             return chopIfEndsWith(m_filePath.toString(), '/');
             break;
         case QAbstractFileEngine::BaseName:
-            return m_filePath.baseName();
+            return m_filePath.fileName();
             break;
         case QAbstractFileEngine::PathName:
         case QAbstractFileEngine::AbsolutePathName:

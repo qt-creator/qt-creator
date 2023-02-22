@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="18" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="19" kateversion="5.0" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
       <item>if</item>
@@ -829,23 +829,23 @@
     </contexts>
     <itemDatas>
       <itemData name="Normal Text"               defStyleNum="dsNormal" />
-      <itemData name="Keyword"                   defStyleNum="dsKeyword" />
-      <itemData name="Pragma"                    defStyleNum="dsKeyword" />
-      <itemData name="Function"                  defStyleNum="dsFunction" />
-      <itemData name="Operator"                  defStyleNum="dsOthers" bold="1" /> <!-- #008000 -->
-      <itemData name="Data Type"                 defStyleNum="dsDataType" />
+      <itemData name="Keyword"                   defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Pragma"                    defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Function"                  defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Operator"                  defStyleNum="dsOthers" bold="1" spellChecking="false"/> <!-- #008000 -->
+      <itemData name="Data Type"                 defStyleNum="dsDataType" spellChecking="false"/>
       <itemData name="Special Variable"          defStyleNum="dsWarning" bold="0" italic="0" /> <!-- #C00000 -->
-      <itemData name="Decimal"                   defStyleNum="dsDecVal" />
-      <itemData name="Octal"                     defStyleNum="dsBaseN" />
-      <itemData name="Hex"                       defStyleNum="dsBaseN" />
-      <itemData name="Bin"                       defStyleNum="dsBaseN" />
-      <itemData name="Float"                     defStyleNum="dsFloat" />
+      <itemData name="Decimal"                   defStyleNum="dsDecVal" spellChecking="false"/>
+      <itemData name="Octal"                     defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Hex"                       defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Bin"                       defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Float"                     defStyleNum="dsFloat" spellChecking="false"/>
       <itemData name="String"                    defStyleNum="dsSpecialString" /> <!-- #FF6C6C -->
       <itemData name="String (interpolated)"     defStyleNum="dsString" />
       <itemData name="String Special Character"  defStyleNum="dsChar" />
-      <itemData name="Pattern"                   defStyleNum="dsOthers" />
-      <itemData name="Pattern Internal Operator" defStyleNum="dsChar" />
-      <itemData name="Pattern Character Class"   defStyleNum="dsBaseN" />
+      <itemData name="Pattern"                   defStyleNum="dsOthers"  spellChecking="false"/>
+      <itemData name="Pattern Internal Operator" defStyleNum="dsChar"  spellChecking="false"/>
+      <itemData name="Pattern Character Class"   defStyleNum="dsBaseN"  spellChecking="false"/>
       <itemData name="Data"                      defStyleNum="dsNormal" />
       <itemData name="Comment"                   defStyleNum="dsComment" />
       <itemData name="Pod"                       defStyleNum="dsComment" />

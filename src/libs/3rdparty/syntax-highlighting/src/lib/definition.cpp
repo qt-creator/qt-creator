@@ -31,6 +31,7 @@
 #include <QXmlStreamReader>
 
 #include <algorithm>
+#include <atomic>
 
 using namespace KSyntaxHighlighting;
 
@@ -240,7 +241,7 @@ QVector<Definition> Definition::includedDefinitions() const
     while (!queue.empty()) {
         const auto *def = queue.back();
         queue.pop_back();
-        for (const auto &defRef : def->immediateIncludedDefinitions) {
+        for (const auto &defRef : std::as_const(def->immediateIncludedDefinitions)) {
             const auto definition = defRef.definition();
             if (!definitions.contains(definition)) {
                 definitions.push_back(definition);
@@ -286,7 +287,7 @@ Context *DefinitionData::initialContext()
     return &contexts.front();
 }
 
-Context *DefinitionData::contextByName(const QString &wantedName)
+Context *DefinitionData::contextByName(QStringView wantedName)
 {
     for (auto &context : contexts) {
         if (context.name() == wantedName) {
@@ -315,6 +316,11 @@ Format DefinitionData::formatByName(const QString &wantedName) const
 bool DefinitionData::isLoaded() const
 {
     return !contexts.empty();
+}
+
+namespace
+{
+std::atomic<uint64_t> definitionId{1};
 }
 
 bool DefinitionData::load(OnlyKeywords onlyKeywords)
@@ -361,12 +367,15 @@ bool DefinitionData::load(OnlyKeywords onlyKeywords)
 
     resolveContexts();
 
+    id = definitionId.fetch_add(1, std::memory_order_relaxed);
+
     return true;
 }
 
 void DefinitionData::clear()
 {
     // keep only name and repo, so we can re-lookup to make references persist over repo reloads
+    id = 0;
     keywordLists.clear();
     contexts.clear();
     formats.clear();
@@ -465,13 +474,13 @@ bool DefinitionData::loadLanguage(QXmlStreamReader &reader)
     indenter = reader.attributes().value(QLatin1String("indenter")).toString();
     author = reader.attributes().value(QLatin1String("author")).toString();
     license = reader.attributes().value(QLatin1String("license")).toString();
-    const auto exts = reader.attributes().value(QLatin1String("extensions")).toString();
+    const auto exts = reader.attributes().value(QLatin1String("extensions"));
     for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
-        extensions.push_back(ext);
+        extensions.push_back(ext.toString());
     }
-    const auto mts = reader.attributes().value(QLatin1String("mimetype")).toString();
+    const auto mts = reader.attributes().value(QLatin1String("mimetype"));
     for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
-        mimetypes.push_back(mt);
+        mimetypes.push_back(mt.toString());
     }
     if (reader.attributes().hasAttribute(QLatin1String("casesensitive"))) {
         caseSensitive = Xml::attrToBool(reader.attributes().value(QLatin1String("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
@@ -592,15 +601,6 @@ void DefinitionData::resolveContexts()
     for (auto &context : contexts) {
         context.resolveIncludes(*this);
     }
-
-    /**
-     * Post-processing on rules.
-     */
-    for (const auto &context : contexts) {
-        for (auto &rule : context.rules()) {
-            rule->resolvePostProcessing();
-        }
-    }
 }
 
 void DefinitionData::loadItemData(QXmlStreamReader &reader)
@@ -614,7 +614,7 @@ void DefinitionData::loadItemData(QXmlStreamReader &reader)
             if (reader.name() == QLatin1String("itemData")) {
                 Format f;
                 auto formatData = FormatPrivate::detachAndGet(f);
-                formatData->definition = q;
+                formatData->definitionName = name;
                 formatData->load(reader);
                 formatData->id = RepositoryPrivate::get(repo)->nextFormatId();
                 formats.insert(f.name(), f);
@@ -707,7 +707,7 @@ void DefinitionData::loadComments(QXmlStreamReader &reader)
                 const bool isSingleLine = reader.attributes().value(QLatin1String("name")) == QLatin1String("singleLine");
                 if (isSingleLine) {
                     singleLineCommentMarker = reader.attributes().value(QLatin1String("start")).toString();
-                    const bool afterWhiteSpace = reader.attributes().value(QLatin1String("position")).toString() == QLatin1String("afterwhitespace");
+                    const bool afterWhiteSpace = reader.attributes().value(QLatin1String("position")) == QLatin1String("afterwhitespace");
                     singleLineCommentPosition = afterWhiteSpace ? CommentPosition::AfterWhitespace : CommentPosition::StartOfLine;
                 } else {
                     multiLineCommentStartMarker = reader.attributes().value(QLatin1String("start")).toString();
@@ -778,8 +778,8 @@ void DefinitionData::loadSpellchecking(QXmlStreamReader &reader)
             if (reader.name() == QLatin1String("encoding")) {
                 const auto charRef = reader.attributes().value(QLatin1String("char"));
                 if (!charRef.isEmpty()) {
-                    const auto str = reader.attributes().value(QLatin1String("string")).toString();
-                    characterEncodings.push_back({charRef[0], str});
+                    const auto str = reader.attributes().value(QLatin1String("string"));
+                    characterEncodings.push_back({charRef[0], str.toString()});
                 }
             }
             reader.readNext();
@@ -865,6 +865,11 @@ Definition DefinitionRef::definition() const
 }
 
 bool DefinitionRef::operator==(const DefinitionRef &other) const
+{
+    return !d.owner_before(other.d) && !other.d.owner_before(d);
+}
+
+bool DefinitionRef::operator==(const Definition &other) const
 {
     return !d.owner_before(other.d) && !other.d.owner_before(d);
 }

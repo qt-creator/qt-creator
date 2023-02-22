@@ -109,7 +109,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         if (match.hasMatch()) {
             const MatchLevel level = matchLevelFor(match, dir);
             const QString fullPath = dirInfo.filePath(dir);
-            LocatorFilterEntry filterEntry(this, dir, QVariant());
+            LocatorFilterEntry filterEntry(this, dir);
             filterEntry.filePath = FilePath::fromString(fullPath);
             filterEntry.highlightInfo = highlightInfo(match);
 
@@ -117,8 +117,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         }
     }
     // file names can match with +linenumber or :linenumber
-    QString postfix;
-    Link link = Link::fromString(entryFileName, true, &postfix);
+    const Link link = Link::fromString(entryFileName, true);
     regExp = createRegExp(link.targetFilePath.toString(), caseSensitivity_);
     if (!regExp.isValid())
         return {};
@@ -130,10 +129,11 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         if (match.hasMatch()) {
             const MatchLevel level = matchLevelFor(match, file);
             const QString fullPath = dirInfo.filePath(file);
-            LocatorFilterEntry filterEntry(this, file, QString(fullPath + postfix));
+            LocatorFilterEntry filterEntry(this, file);
             filterEntry.filePath = FilePath::fromString(fullPath);
             filterEntry.highlightInfo = highlightInfo(match);
-
+            filterEntry.linkForEditor = Link(filterEntry.filePath, link.targetLine,
+                                             link.targetColumn);
             entries[int(level)].append(filterEntry);
         }
     }
@@ -142,9 +142,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     const QString fullFilePath = dirInfo.filePath(entryFileName);
     const bool containsWildcard = expandedEntry.contains('?') || expandedEntry.contains('*');
     if (!containsWildcard && !QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
-        LocatorFilterEntry createAndOpen(this,
-                                         Tr::tr("Create and Open \"%1\"").arg(expandedEntry),
-                                         fullFilePath);
+        LocatorFilterEntry createAndOpen(this, Tr::tr("Create and Open \"%1\"").arg(expandedEntry));
         createAndOpen.filePath = FilePath::fromString(fullFilePath);
         createAndOpen.extraInfo = FilePath::fromString(dirInfo.absolutePath()).shortNativePath();
         entries[int(MatchLevel::Normal)].append(createAndOpen);
@@ -170,13 +168,12 @@ void FileSystemFilter::accept(const LocatorFilterEntry &selection,
     } else {
         // Don't block locator filter execution with dialog
         QMetaObject::invokeMethod(EditorManager::instance(), [selection] {
-            const FilePath targetFile = FilePath::fromVariant(selection.internalData);
             if (!selection.filePath.exists()) {
                 if (CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
                     CheckableMessageBox messageBox(ICore::dialogParent());
                     messageBox.setWindowTitle(Tr::tr("Create File"));
                     messageBox.setIcon(QMessageBox::Question);
-                    messageBox.setText(Tr::tr("Create \"%1\"?").arg(targetFile.shortNativePath()));
+                    messageBox.setText(Tr::tr("Create \"%1\"?").arg(selection.filePath.shortNativePath()));
                     messageBox.setCheckBoxVisible(true);
                     messageBox.setCheckBoxText(Tr::tr("Always create"));
                     messageBox.setChecked(false);
@@ -190,10 +187,10 @@ void FileSystemFilter::accept(const LocatorFilterEntry &selection,
                     if (messageBox.isChecked())
                         CheckableMessageBox::doNotAskAgain(ICore::settings(), kAlwaysCreate);
                 }
-                QFile file(targetFile.toString());
+                QFile file(selection.filePath.toString());
                 file.open(QFile::WriteOnly);
                 file.close();
-                VcsManager::promptToAdd(targetFile.absolutePath(), {targetFile});
+                VcsManager::promptToAdd(selection.filePath.absolutePath(), {selection.filePath});
             }
             BaseFileFilter::openEditorAt(selection);
         }, Qt::QueuedConnection);

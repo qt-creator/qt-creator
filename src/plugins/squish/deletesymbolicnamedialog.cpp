@@ -104,11 +104,11 @@ DeleteSymbolicNameDialog::~DeleteSymbolicNameDialog() = default;
 
 void DeleteSymbolicNameDialog::updateDetailsLabel(const QString &nameToDelete)
 {
-    const char *detailsText = QT_TRANSLATE_NOOP("QtC::Squish",
+    const QString detailsText = Tr::tr(
         "The Symbolic Name <span style='white-space: nowrap'>\"%1\"</span> you "
         "want to remove is used in Multi Property Names. Select the action to "
         "apply to references in these Multi Property Names.");
-    m_detailsLabel->setText(tr(detailsText).arg(nameToDelete));
+    m_detailsLabel->setText(detailsText.arg(nameToDelete));
 }
 
 void DeleteSymbolicNameDialog::populateSymbolicNamesList(const QStringList &symbolicNames)

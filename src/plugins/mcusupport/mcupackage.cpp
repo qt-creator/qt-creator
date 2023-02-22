@@ -256,9 +256,7 @@ QWidget *McuPackage::widget()
     m_fileChooser->setExpectedKind(m_valueType);
     m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right, Icons::RESET.icon());
     m_fileChooser->lineEdit()->setButtonVisible(FancyLineEdit::Right, true);
-    connect(m_fileChooser->lineEdit(), &FancyLineEdit::rightButtonClicked, this, [&] {
-        m_fileChooser->setFilePath(m_defaultPath);
-    });
+    connect(m_fileChooser->lineEdit(), &FancyLineEdit::rightButtonClicked, this, &McuPackage::reset);
 
     auto layout = new QGridLayout(widget);
     layout->setContentsMargins(0, 0, 0, 0);

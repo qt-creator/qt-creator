@@ -8873,7 +8873,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Egyszerű szöveg szerkesztő</translation>
@@ -8890,9 +8890,6 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
         <source>.pro File Editor</source>
         <translation>.pro fájl szerkesztő</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Fájl megnyitása ezzel...</translation>

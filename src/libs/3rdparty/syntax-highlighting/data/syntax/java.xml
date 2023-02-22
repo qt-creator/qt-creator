@@ -7,7 +7,7 @@
 	<!ENTITY float "(\b&int;(\.((&int;&exp;?+|&exp;)[fFdD]?\b|[fFdD]\b)?|&exp;[fFdD]?\b|[fFdD]\b)|\.&int;&exp;?[fFdD]?\b)">
 	<!ENTITY hexfloat "\b0[xX](&hex;\.?+&hex;?+|\.&hex;?)[pP][-+]?&int;[fFdD]?\b">
 ]>
-<language name="Java" version="10" kateversion="5.62" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="11" kateversion="5.62" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item>ACTIVE</item>
@@ -3909,7 +3909,7 @@
 	</highlighting>
 	<general>
 		<comments>
-			<comment name="singleLine" start="//"/>
+			<comment name="singleLine" start="//" position="afterwhitespace"/>
 			<comment name="multiLine" start="/*" end="*/" region="Comment"/>
 		</comments>
 		<keywords casesensitive="1"/>

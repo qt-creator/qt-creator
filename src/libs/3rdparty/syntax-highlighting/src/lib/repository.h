@@ -10,8 +10,9 @@
 #include "ksyntaxhighlighting_export.h"
 
 #include <QVector>
+#include <QtGlobal>
+
 #include <memory>
-#include <qglobal.h>
 
 QT_BEGIN_NAMESPACE
 class QString;

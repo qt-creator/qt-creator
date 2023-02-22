@@ -1992,6 +1992,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
+    if (auto sanitizerTester = SanitizerParser::testCreator())
+        addTestCreator(sanitizerTester.value());
+
     return true;
 }
 
@@ -2205,11 +2208,6 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     dd->m_outputPane.closeTabs(AppOutputPane::CloseTabNoPrompt /* No prompt any more */);
     dd->m_shutdownWatchDogId = dd->startTimer(10 * 1000); // Make sure we shutdown *somehow*
     return AsynchronousShutdown;
-}
-
-QVector<QObject *> ProjectExplorerPlugin::createTestObjects() const
-{
-    return SanitizerParser::createTestObjects();
 }
 
 void ProjectExplorerPlugin::showSessionManager()
@@ -4362,10 +4360,8 @@ void RunConfigurationLocatorFilter::prepareSearch(const QString &entry)
     if (!target)
         return;
     for (auto rc : target->runConfigurations()) {
-        if (rc->displayName().contains(entry, Qt::CaseInsensitive)) {
-            Core::LocatorFilterEntry filterEntry(this, rc->displayName(), {});
-            m_result.append(filterEntry);
-        }
+        if (rc->displayName().contains(entry, Qt::CaseInsensitive))
+            m_result.append(LocatorFilterEntry(this, rc->displayName()));
     }
 }
 

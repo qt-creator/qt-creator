@@ -5,7 +5,7 @@
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
 	<!ENTITY entref        "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="14" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="15" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm;*.aspx" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>

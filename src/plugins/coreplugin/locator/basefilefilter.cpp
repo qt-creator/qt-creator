@@ -117,8 +117,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
     // If search string contains spaces, treat them as wildcard '*' and search in full path
     const QString entry = QDir::fromNativeSeparators(origEntry).replace(' ', '*');
-    QString postfix;
-    Link link = Link::fromString(entry, true, &postfix);
+    const Link link = Link::fromString(entry, true);
 
     const QRegularExpression regexp = createRegExp(link.targetFilePath.toString());
     if (!regexp.isValid()) {
@@ -156,10 +155,10 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         QRegularExpressionMatch match = regexp.match(matchText);
 
         if (match.hasMatch()) {
-            LocatorFilterEntry filterEntry(this, path.fileName(), QString(path.toString() + postfix));
+            LocatorFilterEntry filterEntry(this, path.fileName());
             filterEntry.filePath = path;
             filterEntry.extraInfo = path.shortNativePath();
-
+            filterEntry.linkForEditor = Link(path, link.targetLine, link.targetColumn);
             const MatchLevel matchLevel = matchLevelFor(match, matchText);
             if (hasPathSeparator) {
                 match = regexp.match(filterEntry.extraInfo);
@@ -187,7 +186,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
 
     for (auto &entry : entries) {
         if (entry.size() < 1000)
-            Utils::sort(entry, Core::LocatorFilterEntry::compareLexigraphically);
+            Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
     }
 
     return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
@@ -205,21 +204,13 @@ void BaseFileFilter::accept(const LocatorFilterEntry &selection,
     openEditorAt(selection);
 }
 
-void BaseFileFilter::openEditorAt(const LocatorFilterEntry& selection)
+void BaseFileFilter::openEditorAt(const LocatorFilterEntry &entry)
 {
-    const FilePath locatorText = FilePath::fromVariant(selection.internalData);
-    const int postfixLength = locatorText.fileName().length() - selection.filePath.fileName().length();
-    if (postfixLength > 0) {
-        const QString postfix = selection.internalData.toString().right(postfixLength);
-        int postfixPos = -1;
-        const LineColumn lineColumn = LineColumn::extractFromFileName(postfix, postfixPos);
-        if (postfixPos >= 0) {
-            const Link link(selection.filePath, lineColumn.line, lineColumn.column);
-            EditorManager::openEditorAt(link, {}, Core::EditorManager::AllowExternalEditor);
-            return;
-        }
+    if (entry.linkForEditor) {
+        EditorManager::openEditorAt(*entry.linkForEditor, {}, EditorManager::AllowExternalEditor);
+        return;
     }
-    EditorManager::openEditor(selection.filePath, {}, Core::EditorManager::AllowExternalEditor);
+    EditorManager::openEditor(entry.filePath, {}, EditorManager::AllowExternalEditor);
 }
 
 /*!

@@ -94,7 +94,7 @@ State &State::operator=(const State &other)
 bool State::operator==(const State &other) const
 {
     // use pointer equal as shortcut for shared states
-    return (d == other.d) || (d && other.d && d->m_contextStack == other.d->m_contextStack && d->m_defRef == other.d->m_defRef);
+    return (d == other.d) || (d && other.d && d->m_contextStack == other.d->m_contextStack && d->m_defId == other.d->m_defId);
 }
 
 bool State::operator!=(const State &other) const

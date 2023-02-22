@@ -86,7 +86,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     QList<LocatorFilterEntry> entries;
     for (const QString &keyword : std::as_const(m_lastIndicesCache)) {
         const int index = keyword.indexOf(entry, 0, cs);
-        LocatorFilterEntry filterEntry(this, keyword, QVariant(), m_icon);
+        LocatorFilterEntry filterEntry(this, keyword, {}, m_icon);
         filterEntry.highlightInfo = {index, int(entry.length())};
         entries.append(filterEntry);
     }

@@ -26,6 +26,7 @@ ThemeData *ThemeData::get(const Theme &theme)
 ThemeData::ThemeData()
 {
     memset(m_editorColors, 0, sizeof(m_editorColors));
+    m_textStyles.resize(QMetaEnum::fromType<Theme::TextStyle>().keyCount());
 }
 
 /**
@@ -104,9 +105,7 @@ bool ThemeData::load(const QString &filePath)
     m_revision = metadata.value(QLatin1String("revision")).toInt();
 
     // read text styles
-    static const auto styleIdx = Theme::staticMetaObject.indexOfEnumerator("TextStyle");
-    Q_ASSERT(styleIdx >= 0);
-    const auto metaEnumStyle = Theme::staticMetaObject.enumerator(styleIdx);
+    const auto metaEnumStyle = QMetaEnum::fromType<Theme::TextStyle>();
     const QJsonObject textStyles = obj.value(QLatin1String("text-styles")).toObject();
     for (int i = 0; i < metaEnumStyle.keyCount(); ++i) {
         Q_ASSERT(i == metaEnumStyle.value(i));
@@ -114,9 +113,7 @@ bool ThemeData::load(const QString &filePath)
     }
 
     // read editor colors
-    static const auto colorIdx = Theme::staticMetaObject.indexOfEnumerator("EditorColorRole");
-    Q_ASSERT(colorIdx >= 0);
-    const auto metaEnumColor = Theme::staticMetaObject.enumerator(colorIdx);
+    const auto metaEnumColor = QMetaEnum::fromType<Theme::EditorColorRole>();
     const QJsonObject editorColors = obj.value(QLatin1String("editor-colors")).toObject();
     for (int i = 0; i < metaEnumColor.keyCount(); ++i) {
         Q_ASSERT(i == metaEnumColor.value(i));
@@ -188,52 +185,49 @@ QString ThemeData::filePath() const
     return m_filePath;
 }
 
+TextStyleData ThemeData::textStyle(Theme::TextStyle style) const
+{
+    return m_textStyles[style];
+}
+
 QRgb ThemeData::textColor(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].textColor;
+    return textStyle(style).textColor;
 }
 
 QRgb ThemeData::selectedTextColor(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].selectedTextColor;
+    return textStyle(style).selectedTextColor;
 }
 
 QRgb ThemeData::backgroundColor(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].backgroundColor;
+    return textStyle(style).backgroundColor;
 }
 
 QRgb ThemeData::selectedBackgroundColor(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].selectedBackgroundColor;
+    return textStyle(style).selectedBackgroundColor;
 }
 
 bool ThemeData::isBold(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].bold;
+    return textStyle(style).bold;
 }
 
 bool ThemeData::isItalic(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].italic;
+    return textStyle(style).italic;
 }
 
 bool ThemeData::isUnderline(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].underline;
+    return textStyle(style).underline;
 }
 
 bool ThemeData::isStrikeThrough(Theme::TextStyle style) const
 {
-    Q_ASSERT(static_cast<int>(style) >= 0 && static_cast<int>(style) <= static_cast<int>(Theme::Others));
-    return m_textStyles[style].strikeThrough;
+    return textStyle(style).strikeThrough;
 }
 
 QRgb ThemeData::editorColor(Theme::EditorColorRole role) const
@@ -244,5 +238,9 @@ QRgb ThemeData::editorColor(Theme::EditorColorRole role) const
 
 TextStyleData ThemeData::textStyleOverride(const QString &definitionName, const QString &attributeName) const
 {
-    return m_textStyleOverrides.value(definitionName).value(attributeName);
+    auto it = m_textStyleOverrides.find(definitionName);
+    if (it != m_textStyleOverrides.end()) {
+        return it->value(attributeName);
+    }
+    return TextStyleData();
 }

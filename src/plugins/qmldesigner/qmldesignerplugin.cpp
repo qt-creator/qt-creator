@@ -41,6 +41,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/featureprovider.h>
@@ -55,8 +56,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <sqlitelibraryinitializer.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <sqlitelibraryinitializer.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -112,7 +113,7 @@ public:
 QtQuickDesignerFactory::QtQuickDesignerFactory()
     : QmlJSEditorFactory(QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)
 {
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Qt Quick Designer"));
+    setDisplayName(::Core::Tr::tr("Qt Quick Designer"));
 
     addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);
     setDocumentCreator([this]() {

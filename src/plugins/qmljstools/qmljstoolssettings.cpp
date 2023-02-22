@@ -40,7 +40,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     // global code style settings
     m_globalCodeStyle = new QmlJSCodeStylePreferences(this);
     m_globalCodeStyle->setDelegatingPool(pool);
-    m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
+    m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
     m_globalCodeStyle->setId(idKey);
     pool->addCodeStyle(m_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, m_globalCodeStyle);

@@ -87,7 +87,10 @@
 
         \li Locating any open document (\c {o})
 
-        \li Locating files anywhere on your file system (\c {f})
+        \li Locating files anywhere on your file system (\c {f}). You can use
+            environment variables in the \c {f} filter. For example, use
+            \c {f $ENVVAR} to expand the environment variable \c ENVVAR on Unix
+            systems and \c {f %ENVVAR%} to expand it on Windows systems.
 
         \li Locating files belonging to your project (\c {p}), such as source,
             header, resource, and \c {.ui} files, or to any project (\c {a})

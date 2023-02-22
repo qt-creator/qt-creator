@@ -7,8 +7,8 @@
 
 #include "kquicksyntaxhighlighter.h"
 
-#include <repository.h>
-#include <syntaxhighlighter.h>
+#include <KSyntaxHighlighting/Repository>
+#include <KSyntaxHighlighting/SyntaxHighlighter>
 
 #include <QGuiApplication>
 #include <QPalette>

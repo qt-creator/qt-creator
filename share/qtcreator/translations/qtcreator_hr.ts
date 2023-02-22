@@ -15282,7 +15282,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Binary Editor</source>
         <translation>Binarni uređivač</translation>

@@ -20,6 +20,7 @@ namespace KSyntaxHighlighting
 {
 class AnsiHighlighterPrivate;
 
+// Exported for a bundled helper program
 class KSYNTAXHIGHLIGHTING_EXPORT AnsiHighlighter final : public AbstractHighlighter
 {
 public:

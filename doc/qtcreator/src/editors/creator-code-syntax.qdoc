@@ -21,7 +21,7 @@
     In the following screenshot, \QC annotates an error because a semicolon is
     missing at the end of the line:
 
-    \image qtcreator-syntaxerror.png
+    \image qtcreator-syntaxerror.png {Syntax error in the Edit mode}
 
     In the following screenshot, \QC issues a warning because the variable is
     not used:
@@ -30,10 +30,11 @@
 
     In the following screenshot, a Qt class name has a typo:
 
-    \image qtcreator-typo-clang.png
+    \image qtcreator-typo-clang.png {Annotation tooltip in the Edit mode}
 
     You can use the icons in the tooltip popup to copy the error or
-    warning message to the clipboard or to ignore and hide it. Select
+    warning message to the clipboard, to hide messages of a particular type,
+    or to \l{Configuring clangd}{change the diagnostics settings}. Select
     the \uicontrol {Annotation Settings} link to specify the position
     of the line annotations.
 
@@ -745,7 +746,8 @@
     \uicontrol {Code Model}, this action also expands all
     \c {"#include <foo.h>"} statements to their actual contents.
 
-    \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
+    \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
+
 
     \endif
 

@@ -186,7 +186,11 @@ static Rule::Ptr createRule(DefinitionData &def, const HighlightingContextData::
     case Type::RangeDetect:
         return std::make_shared<RangeDetect>(ruleData.data.rangeDetect);
     case Type::RegExpr:
-        return std::make_shared<RegExpr>(ruleData.data.regExpr);
+        if (!ruleData.data.regExpr.dynamic) {
+            return std::make_shared<RegExpr>(ruleData.data.regExpr);
+        } else {
+            return std::make_shared<DynamicRegExpr>(ruleData.data.regExpr);
+        }
     case Type::StringDetect:
         if (ruleData.data.stringDetect.dynamic) {
             return std::make_shared<DynamicStringDetect>(ruleData.data.stringDetect);
@@ -575,65 +579,42 @@ MatchResult RangeDetect::doMatch(QStringView text, int offset, const QStringList
     return offset;
 }
 
-RegExpr::RegExpr(const HighlightingContextData::Rule::RegExpr &data)
+static QRegularExpression::PatternOptions makePattenOptions(const HighlightingContextData::Rule::RegExpr &data)
 {
-    m_regexp.setPattern(data.pattern);
-    m_regexp.setPatternOptions((data.isMinimal ? QRegularExpression::InvertedGreedinessOption : QRegularExpression::NoPatternOption)
-                               | (data.caseSensitivity == Qt::CaseInsensitive ? QRegularExpression::CaseInsensitiveOption : QRegularExpression::NoPatternOption)
-                               // DontCaptureOption is removed by resolvePostProcessing() when necessary
-                               | QRegularExpression::DontCaptureOption
-                               // ensure Unicode support is enabled
-                               | QRegularExpression::UseUnicodePropertiesOption);
-
-    m_dynamic = data.dynamic;
+    return (data.isMinimal ? QRegularExpression::InvertedGreedinessOption : QRegularExpression::NoPatternOption)
+        | (data.caseSensitivity == Qt::CaseInsensitive ? QRegularExpression::CaseInsensitiveOption : QRegularExpression::NoPatternOption)
+        // DontCaptureOption is removed by resolve() when necessary
+        | QRegularExpression::DontCaptureOption
+        // ensure Unicode support is enabled
+        | QRegularExpression::UseUnicodePropertiesOption;
 }
 
-void RegExpr::resolvePostProcessing()
+static void resolveRegex(QRegularExpression &regexp, Context *context)
 {
-    if (m_isResolved) {
+    if (!regexp.isValid()) {
+        // DontCaptureOption with back reference capture is an error, remove this option then try again
+        regexp.setPatternOptions(regexp.patternOptions() & ~QRegularExpression::DontCaptureOption);
+
+        if (!regexp.isValid()) {
+            qCDebug(Log) << "Invalid regexp:" << regexp.pattern();
+        }
+
         return;
     }
 
-    m_isResolved = true;
-    bool hasCapture = false;
-
     // disable DontCaptureOption when reference a context with dynamic rule
-    if (auto *ctx = context().context()) {
-        for (const Rule::Ptr &rule : ctx->rules()) {
+    if (context) {
+        for (const Rule::Ptr &rule : context->rules()) {
             if (rule->isDynamic()) {
-                hasCapture = true;
-                m_regexp.setPatternOptions(m_regexp.patternOptions() & ~QRegularExpression::DontCaptureOption);
+                regexp.setPatternOptions(regexp.patternOptions() & ~QRegularExpression::DontCaptureOption);
                 break;
             }
         }
     }
-
-    // optimize the pattern for the non-dynamic case, we use them OFTEN
-    if (!m_dynamic) {
-        m_regexp.optimize();
-    }
-
-    bool isValid = m_regexp.isValid();
-    if (!isValid) {
-        // DontCaptureOption with back reference capture is an error, remove this option then try again
-        if (!hasCapture) {
-            m_regexp.setPatternOptions(m_regexp.patternOptions() & ~QRegularExpression::DontCaptureOption);
-            isValid = m_regexp.isValid();
-        }
-
-        if (!isValid) {
-            qCDebug(Log) << "Invalid regexp:" << m_regexp.pattern();
-        }
-    }
 }
 
-MatchResult RegExpr::doMatch(QStringView text, int offset, const QStringList &captures) const
+static MatchResult regexMatch(const QRegularExpression &regexp, QStringView text, int offset)
 {
-    /**
-     * for dynamic case: create new pattern with right instantiation
-     */
-    const auto &regexp = m_dynamic ? QRegularExpression(replaceCaptures(m_regexp.pattern(), captures, true), m_regexp.patternOptions()) : m_regexp;
-
     /**
      * match the pattern
      */
@@ -659,6 +640,65 @@ MatchResult RegExpr::doMatch(QStringView text, int offset, const QStringList &ca
      * we can always compute the skip offset as the highlighter will invalidate the cache for changed captures for dynamic rules!
      */
     return MatchResult(offset, result.capturedStart());
+}
+
+RegExpr::RegExpr(const HighlightingContextData::Rule::RegExpr &data)
+    : m_regexp(data.pattern, makePattenOptions(data))
+{
+}
+
+void RegExpr::resolve()
+{
+    if (m_isResolved) {
+        return;
+    }
+
+    m_isResolved = true;
+
+    resolveRegex(m_regexp, context().context());
+}
+
+MatchResult RegExpr::doMatch(QStringView text, int offset, const QStringList &) const
+{
+    if (Q_UNLIKELY(!m_isResolved)) {
+        const_cast<RegExpr *>(this)->resolve();
+    }
+
+    return regexMatch(m_regexp, text, offset);
+}
+
+DynamicRegExpr::DynamicRegExpr(const HighlightingContextData::Rule::RegExpr &data)
+    : m_pattern(data.pattern)
+    , m_patternOptions(makePattenOptions(data))
+{
+    m_dynamic = true;
+}
+
+void DynamicRegExpr::resolve()
+{
+    if (m_isResolved) {
+        return;
+    }
+
+    m_isResolved = true;
+
+    QRegularExpression regexp(m_pattern, m_patternOptions);
+    resolveRegex(regexp, context().context());
+    m_patternOptions = regexp.patternOptions();
+}
+
+MatchResult DynamicRegExpr::doMatch(QStringView text, int offset, const QStringList &captures) const
+{
+    if (Q_UNLIKELY(!m_isResolved)) {
+        const_cast<DynamicRegExpr *>(this)->resolve();
+    }
+
+    /**
+     * create new pattern with right instantiation
+     */
+    const QRegularExpression regexp(replaceCaptures(m_pattern, captures, true), m_patternOptions);
+
+    return regexMatch(regexp, text, offset);
 }
 
 StringDetect::StringDetect(const HighlightingContextData::Rule::StringDetect &data)

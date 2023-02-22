@@ -44,7 +44,7 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
 {
     QList<LocatorFilterEntry> value;
     if (!entry.isEmpty()) // avoid empty entry
-        value.append(LocatorFilterEntry(this, entry, QVariant()));
+        value.append(LocatorFilterEntry(this, entry));
     QList<LocatorFilterEntry> others;
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
     for (const QString &cmd : std::as_const(m_commandHistory)) {
@@ -52,7 +52,7 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
             break;
         if (cmd == entry) // avoid repeated entry
             continue;
-        LocatorFilterEntry filterEntry(this, cmd, QVariant());
+        LocatorFilterEntry filterEntry(this, cmd);
         const int index = cmd.indexOf(entry, 0, entryCaseSensitivity);
         if (index >= 0) {
             filterEntry.highlightInfo = {index, int(entry.length())};

@@ -60,6 +60,9 @@
     You can change the font family and size as well as text formatting, style,
     alignment, and color.
 
+    \note Move the mouse pointer over a color hex value in the code editor to
+    see the color as a tooltip.
+
     If a property is assigned an expression instead of a value, you
     cannot use the toolbar to edit it. The button for editing the property
     is disabled.

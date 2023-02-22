@@ -2019,9 +2019,6 @@ Przyczyna: %3</translation>
         <source>Existing files</source>
         <translation>Istniejące pliki</translation>
     </message>
-</context>
-<context>
-    <name>OpenWith::Editors</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Zwykły edytor tekstowy</translation>
@@ -2078,9 +2075,6 @@ Przyczyna: %3</translation>
         <source>SCXML Editor</source>
         <translation>Edytor SCXML</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Otwórz plik przy pomocy...</translation>

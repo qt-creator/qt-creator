@@ -33,6 +33,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -1094,7 +1095,7 @@ QmlJSEditorFactory::QmlJSEditorFactory()
 QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
 {
     setId(_id);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "QMLJS Editor"));
+    setDisplayName(::Core::Tr::tr("QMLJS Editor"));
 
     addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);

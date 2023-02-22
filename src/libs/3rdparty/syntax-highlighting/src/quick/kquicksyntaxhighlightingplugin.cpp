@@ -9,10 +9,9 @@
 #include "kquicksyntaxhighlighter.h"
 #include "repositorywrapper.h"
 
-#include <definition.h>
-#include <repository.h>
-#include <theme.h>
-
+#include <KSyntaxHighlighting/Definition>
+#include <KSyntaxHighlighting/Repository>
+#include <KSyntaxHighlighting/Theme>
 
 #include <memory>
 

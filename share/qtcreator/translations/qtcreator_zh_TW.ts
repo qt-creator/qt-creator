@@ -9836,7 +9836,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>純文字編輯器</translation>
@@ -9877,9 +9877,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>GLSL Editor</source>
         <translation>GLSL 編輯器</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation>喜好設定</translation>

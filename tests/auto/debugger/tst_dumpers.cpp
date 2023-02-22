@@ -686,8 +686,15 @@ struct Profile
 struct Cxx11Profile : public Profile
 {
     Cxx11Profile()
-      : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
-                "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+        : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
+                  "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+    {}
+};
+
+struct Cxx17Profile : public Profile
+{
+    Cxx17Profile()
+        : Profile("CONFIG += c++17\n")
     {}
 };
 
@@ -3502,7 +3509,11 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QSharedPointer")
             << Data("#include <QSharedPointer>\n"
-                    "#include <QString>\n" + fooData,
+                    "#include <QString>\n"
+                    "struct Base1 { int b1 = 42; virtual ~Base1() {} };\n"
+                    "struct Base2 { int b2 = 43; };\n"
+                    "struct MyClass : public Base2, public Base1 { int val = 44; };\n"
+                    + fooData,
 
                     "QSharedPointer<int> ptr10;\n"
                     "QSharedPointer<int> ptr11 = ptr10;\n"
@@ -3525,13 +3536,17 @@ void tst_Dumpers::dumper_data()
                     "QSharedPointer<Foo> ptr50(new Foo(1));\n"
                     "QWeakPointer<Foo> ptr51(ptr50);\n"
                     "QWeakPointer<Foo> ptr52 = ptr50;\n"
-                    "QWeakPointer<Foo> ptr53 = ptr50;\n",
+                    "QWeakPointer<Foo> ptr53 = ptr50;\n"
+
+                    "QSharedPointer<Base1> ptr60(new MyClass());\n"
+                    "QWeakPointer<Base1> ptr61(ptr60);\n",
 
                     "&ptr10, &ptr11, &ptr12, "
                     "&ptr20, &ptr21, &ptr22, "
                     "&ptr30, &ptr31, &ptr32, &ptr33, "
                     "&ptr40, &ptr41, &ptr42, &ptr43, "
-                    "&ptr50, &ptr51, &ptr52, &ptr53")
+                    "&ptr50, &ptr51, &ptr52, &ptr53, "
+                    "&ptr60, &ptr61")
 
                + CoreProfile()
 
@@ -3559,7 +3574,12 @@ void tst_Dumpers::dumper_data()
 
                + Check("ptr50", "", "@QSharedPointer<Foo>")
                + Check("ptr50.data", "", "Foo")
-               + Check("ptr53", "", "@QWeakPointer<Foo>");
+               + Check("ptr53", "", "@QWeakPointer<Foo>")
+
+               + Check("ptr60.data", "", "MyClass")
+               + Check("ptr61.data", "", "MyClass")
+               + Check("ptr60.data.val", "44", "int")
+               + Check("ptr61.data.val", "44", "int");
 
 
     QTest::newRow("QLazilyAllocated")
@@ -5583,7 +5603,7 @@ void tst_Dumpers::dumper_data()
 
                 "&o1, &o2, &o3")
 
-               + Cxx11Profile()
+               + Cxx17Profile()
 
                + Check("o1", "<uninitialized>", "std::optional<bool>")
                + Check("o2", "1", "bool") // 1 -> true is done on display
@@ -5601,7 +5621,7 @@ void tst_Dumpers::dumper_data()
 
                 "&v1, &v2, &v3")
 
-               + Cxx11Profile()
+               + Cxx17Profile()
 
                + Check("v1", "0", "bool")
                + Check("v2", "1", "bool") // 1 -> true is done on display
@@ -7381,7 +7401,11 @@ void tst_Dumpers::dumper_data()
         "struct A { int a = 1; char aa = 'a'; };\n"
         "struct B : virtual A { int b = 2; float bb = 2; };\n"
         "struct C : virtual A { int c = 3; double cc = 3; };\n"
-        "struct D : virtual B, virtual C { int d = 4; };\n";
+        "struct D : virtual B, virtual C { int d = 4; };\n"
+
+        "struct Base1 { int b1 = 42; virtual ~Base1() {} };\n"
+        "struct Base2 { int b2 = 43; };\n"
+        "struct MyClass : public Base2, public Base1 { int val = 44; };\n";
 
 
     QTest::newRow("Inheritance")
@@ -7399,9 +7423,11 @@ void tst_Dumpers::dumper_data()
                     "D dd;\n\n"
 
                     "D *dp = new D;\n"
-                    "D &dr = dd;",
+                    "D &dr = dd;\n"
 
-                    "&c.S2::v, &tt.T2::v, &dp, &dr")
+                    "Base1 *array[] = {new MyClass};\n",
+
+                    "&c.S2::v, &tt.T2::v, &dp, &dr, &array")
 
                 + Cxx11Profile()
 
@@ -7437,7 +7463,9 @@ void tst_Dumpers::dumper_data()
                 + Check("dr.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dr.@1.b", "2", "int")
                 + Check("dr.@2.c", "3", "int")
-                + Check("dr.d", "4", "int");
+                + Check("dr.d", "4", "int")
+
+                + Check("array.0.val", "44", "int");
 
 
     QTest::newRow("Gdb13393")

@@ -3,14 +3,15 @@
 
 #include "bindingeditorwidget.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <qmljseditor/qmljseditor.h>
+#include <coreplugin/coreplugintr.h>
+#include <coreplugin/icore.h>
+#include <qmljseditor/qmljsautocompleter.h>
 #include <qmljseditor/qmljscompletionassist.h>
+#include <qmljseditor/qmljseditor.h>
+#include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljshighlighter.h>
 #include <qmljseditor/qmljshoverhandler.h>
-#include <qmljseditor/qmljsautocompleter.h>
-#include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljssemantichighlighter.h>
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljstoolsconstants.h>
@@ -114,7 +115,7 @@ void BindingDocument::triggerPendingUpdates()
 BindingEditorFactory::BindingEditorFactory()
 {
     setId(BINDINGEDITOR_CONTEXT_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", BINDINGEDITOR_CONTEXT_ID));
+    setDisplayName(::Core::Tr::tr("Binding Editor"));
     setEditorActionHandlers(0);
     addMimeType(BINDINGEDITOR_CONTEXT_ID);
     addMimeType(QmlJSTools::Constants::QML_MIMETYPE);

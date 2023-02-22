@@ -6,12 +6,12 @@
 
 #include "ksyntaxhighlighting_version.h"
 
+#include <KSyntaxHighlighting/Definition>
+#include <KSyntaxHighlighting/DefinitionDownloader>
+#include <KSyntaxHighlighting/Repository>
+#include <KSyntaxHighlighting/Theme>
 #include <ansihighlighter.h>
-#include <definition.h>
-#include <definitiondownloader.h>
 #include <htmlhighlighter.h>
-#include <repository.h>
-#include <theme.h>
 
 #include <QCommandLineParser>
 #include <QCoreApplication>

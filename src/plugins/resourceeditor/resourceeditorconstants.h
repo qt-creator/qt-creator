@@ -10,7 +10,7 @@ namespace Constants {
 
 const char C_RESOURCEEDITOR[] = "Qt4.ResourceEditor";
 const char RESOURCEEDITOR_ID[] = "Qt4.ResourceEditor";
-const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Resource Editor");
+const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Resource Editor");
 
 const char REFRESH[] = "ResourceEditor.Refresh";
 

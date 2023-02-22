@@ -14,6 +14,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
@@ -249,8 +250,7 @@ PythonEditorFactory::PythonEditorFactory()
     registerReplAction(this);
 
     setId(Constants::C_PYTHONEDITOR_ID);
-    setDisplayName(
-        QCoreApplication::translate("OpenWith::Editors", Constants::C_EDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr(Constants::C_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::C_PY_MIMETYPE);
 
     setEditorActionHandlers(TextEditorActionHandler::Format

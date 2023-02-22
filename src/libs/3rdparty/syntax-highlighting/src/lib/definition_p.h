@@ -64,7 +64,7 @@ public:
     KeywordList *keywordList(const QString &name);
 
     Context *initialContext();
-    Context *contextByName(const QString &name);
+    Context *contextByName(QStringView name);
 
     Format formatByName(const QString &name) const;
 
@@ -73,6 +73,7 @@ public:
     void addImmediateIncludedDefinition(const Definition &def);
 
     DefinitionRef q;
+    uint64_t id = 0;
 
     Repository *repo = nullptr;
     QHash<QString, KeywordList> keywordLists;

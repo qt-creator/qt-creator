@@ -37,7 +37,7 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.SampleApp.qml\\.qrc./.MyComponent\\.qml"
+    myCompTE = "SampleApp.appSampleApp.MyComponent\\.qml"
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         # openDocument() doesn't wait for expected elements, so it might be faster than the updates

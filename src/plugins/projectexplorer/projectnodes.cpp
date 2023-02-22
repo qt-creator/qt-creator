@@ -68,7 +68,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
 
     ProjectExplorer::FolderNode *parent = folder;
     for (const QString &part : std::as_const(parts)) {
-        path = path.pathAppended(part);
+        path = path.pathAppended(part).cleanPath();
         // Find folder in subFolders
         FolderNode *next = parent->folderNode(path);
         if (!next) {

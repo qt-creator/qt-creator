@@ -15,7 +15,7 @@ namespace ProjectExplorer::Internal {
 class SanitizerParser : public OutputTaskParser
 {
 public:
-    static QVector<QObject *> createTestObjects();
+    static std::optional<std::function<QObject *()>> testCreator();
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat format) override;

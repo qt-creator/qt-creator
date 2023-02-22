@@ -775,9 +775,6 @@
     but this option should be used with care, as it is slow and unstable on the
     GDB side. For more information, see \l{Specifying GDB Settings}.
 
-    \include creator-debugger-common.qdocinc debugger-expressions-cpp
-    \include creator-debugger-common.qdocinc debugger-qt-basic-objects
-
     \section1 Debugging C++ Based Applications
 
     The following sections describe additional debugging functions that apply

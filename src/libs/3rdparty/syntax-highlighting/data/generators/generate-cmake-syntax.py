@@ -7,7 +7,7 @@
 #
 # To install prerequisites:
 #
-#   $ pip install --user click jinja2 yaml
+#   $ pip install --user click jinja2 pyyaml
 #
 # To use:
 #
@@ -15,11 +15,10 @@
 #
 import click
 import jinja2
-import pathlib
 import re
 import yaml
 
-import pprint
+from lxml import etree
 
 
 _TEMPLATED_NAME = re.compile('<[^>]+>')
@@ -34,6 +33,19 @@ _PROPERTY_KEYS = [
   ]
 _KW_RE_LIST = ['kw', 're']
 _VAR_KIND_LIST = ['variables', 'deprecated-or-internal-variables', 'environment-variables']
+_CONTROL_FLOW_LIST = set((
+    'break'
+  , 'continue'
+  , 'elseif'
+  , 'else'
+  , 'endforeach'
+  , 'endif'
+  , 'endwhile'
+  , 'foreach'
+  , 'if'
+  , 'return'
+  , 'while'
+))
 
 
 def try_transform_placeholder_string_to_regex(name):
@@ -107,7 +119,7 @@ def transform_command(cmd):
         assert new_cmd == cmd
         can_be_nulary = False
 
-    cmd['nested_parentheses'] = cmd['nested-parentheses?'] if 'nested-parentheses?' in cmd else False
+    cmd['nested_parentheses'] = cmd.get('nested-parentheses?', False)
 
     if 'first-arg-is-target?' in cmd:
         cmd['first_arg_is_target'] = cmd['first-arg-is-target?']
@@ -138,7 +150,87 @@ def transform_command(cmd):
     if 'end-region' in cmd:
         cmd['end_region'] = cmd['end-region']
 
+    cmd['attribute'] = 'Control Flow' if cmd['name'] in _CONTROL_FLOW_LIST else 'Command'
+
     return cmd
+
+
+def remove_duplicate_list_nodes(contexts, highlighting):
+    remap = {}
+
+    items_by_kws = {}
+    # extract duplicate keyword list
+    for items in highlighting:
+        if items.tag != 'list':
+            break
+        k = '<'.join(item.text for item in items)
+        name = items.attrib['name']
+        rename = items_by_kws.get(k)
+        if rename:
+            remap[name] = rename
+            highlighting.remove(items)
+        else:
+            items_by_kws[k] = name
+
+    # update keyword list name referenced by each rule
+    for context in contexts:
+        for rule in context:
+            if rule.tag == 'keyword':
+                name = rule.attrib['String']
+                rule.attrib['String'] = remap.get(name, name)
+
+
+def remove_duplicate_context_nodes(contexts):
+    # 3 levels: ctx, ctx_op and ctx_op_nested
+    for _ in range(3):
+        remap = {}
+        duplicated = {}
+
+        # remove duplicate nodes
+        for context in contexts:
+            name = context.attrib['name']
+            context.attrib['name'] = 'dummy'
+            ref = duplicated.setdefault(etree.tostring(context), [])
+            if ref:
+                contexts.remove(context)
+            else:
+                context.attrib['name'] = name
+                ref.append(name)
+            remap[name] = ref[0]
+
+        # update context name referenced by each rule
+        for context in contexts:
+            for rule in context:
+                ref = remap.get(rule.attrib.get('context'))
+                if ref:
+                    rule.attrib['context'] = ref
+
+
+def remove_duplicate_nodes(xml_string):
+    parser = etree.XMLParser(resolve_entities=False, collect_ids=False)
+    root = etree.fromstring(xml_string.encode(), parser=parser)
+    highlighting = root[0]
+
+    contexts = highlighting.find('contexts')
+
+    remove_duplicate_list_nodes(contexts, highlighting)
+    remove_duplicate_context_nodes(contexts)
+
+    # reformat comments
+    xml = etree.tostring(root)
+    xml = re.sub(b'(?=[^\n ])<!--', b'\n<!--', xml)
+    xml = re.sub(b'-->(?=[^ \n])', b'-->\n', xml)
+
+    # extract DOCTYPE removed by etree.fromstring and reformat <language>
+    doctype = xml_string[:xml_string.find('<highlighting')]
+
+    # remove unformatted <language>
+    xml = xml[xml.find(b'<highlighting'):]
+
+    # last comment removed by etree.fromstring
+    last_comment = '\n<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->'
+
+    return f'{doctype}{xml.decode()}{last_comment}'
 
 
 #BEGIN Jinja filters
@@ -217,6 +309,8 @@ def cli(input_yaml, template):
 
     tpl = env.from_string(template.read())
     result = tpl.render(data)
+    result = remove_duplicate_nodes(result)
+
     print(result)
 
 

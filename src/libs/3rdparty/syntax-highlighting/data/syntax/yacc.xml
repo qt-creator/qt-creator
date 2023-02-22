@@ -32,7 +32,7 @@ This code is released under the LGPL as part of kdelibs/kate.
 
 ========================================================================
 -->
-<language name="Yacc/Bison" version="9" kateversion="5.0" section="Sources" extensions="*.y;*.yy;*.ypp;*.y++" mimetype="text/x-yacc;text/x-bison" priority="5" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
+<language name="Yacc/Bison" version="9" kateversion="5.79" section="Sources" extensions="*.y;*.yy;*.ypp;*.y++" mimetype="text/x-yacc;text/x-bison" priority="5" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
 
 <highlighting>
 <contexts>
@@ -112,7 +112,7 @@ This code is released under the LGPL as part of kdelibs/kate.
     <IncludeRules context="Symbol-Variable" />
     <IncludeRules context="##C++" />
   </context>
-  <context name="Code-Symbols End" attribute="Normal Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop!Percent Command In">
+  <context name="Code-Symbols End" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop!Percent Command In">
     <IncludeRules context="Comment" />
     <DetectSpaces />
     <DetectChar attribute="Normal Text" context="#pop" char=";" lookAhead="true" />
@@ -145,7 +145,7 @@ This code is released under the LGPL as part of kdelibs/kate.
   </context>
   <!-- The Bison parser allows to have ';' followed by '|', without the rule ending.
        The problem here is that the ';' char has endRegion="rule" (although it is not very relevant). -->
-  <context name="Rule End" attribute="Normal Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop#pop">
+  <context name="Rule End" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop#pop">
     <DetectSpaces />
     <DetectChar attribute="Normal Text" context="#stay" char=";" />
     <DetectChar attribute="Normal Text" context="#pop" char="|" />
@@ -231,10 +231,10 @@ This code is released under the LGPL as part of kdelibs/kate.
     <DetectChar attribute="Directive" context="Dol" char="$" />
     <RegExpr attribute="Directive" context="#stay" String="@\$?(?:\d+|[A-Za-z_]\w*)?" />
   </context>
-  <context name="Dol" attribute="Normal Text" fallthrough="true" fallthroughContext="DolEnd" lineEndContext="#stay">
+  <context name="Dol" attribute="Normal Text" fallthroughContext="DolEnd" lineEndContext="#stay">
     <RegExpr attribute="Data Type" context="DolEnd" String="&lt;[^&gt;]+&gt;" />
   </context>
-  <context name="DolEnd" attribute="Normal Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop#pop">
+  <context name="DolEnd" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop#pop">
     <RegExpr attribute="Directive" context="#pop#pop" String="@?\d+" />
     <DetectChar attribute="Directive" context="#pop#pop" char="$" />
     <DetectIdentifier attribute="Directive" context="#pop#pop" />

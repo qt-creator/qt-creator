@@ -15,7 +15,7 @@ class TextStyleData
 {
 public:
     // Constructor initializing all data.
-    TextStyleData()
+    TextStyleData() noexcept
         : bold(false)
         , italic(false)
         , underline(false)

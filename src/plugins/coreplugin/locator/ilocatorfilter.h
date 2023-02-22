@@ -7,6 +7,7 @@
 
 #include <utils/filepath.h>
 #include <utils/id.h>
+#include <utils/link.h>
 
 #include <QFutureInterface>
 #include <QIcon>
@@ -67,7 +68,7 @@ struct LocatorFilterEntry
 
     LocatorFilterEntry(ILocatorFilter *fromFilter,
                        const QString &name,
-                       const QVariant &data,
+                       const QVariant &data = {},
                        std::optional<QIcon> icon = std::nullopt)
         : filter(fromFilter)
         , displayName(name)
@@ -93,7 +94,8 @@ struct LocatorFilterEntry
     Utils::FilePath filePath;
     /* highlighting support */
     HighlightInfo highlightInfo;
-
+    // Should be used only when accept() calls BaseFileFilter::openEditorAt()
+    std::optional<Utils::Link> linkForEditor;
     static bool compareLexigraphically(const Core::LocatorFilterEntry &lhs,
                                        const Core::LocatorFilterEntry &rhs)
     {

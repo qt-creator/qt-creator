@@ -2328,7 +2328,10 @@ def qdump_QWeakPointerHelper(d, value, isWeak, innerType=None):
     if innerType is None:
         innerType = value.type[0]
     with Children(d):
-        short = d.putSubItem('data', d.createValue(val, innerType))
+        dataAddress = value.laddress
+        if isWeak:
+            dataAddress = dataAddress + d.ptrSize()
+        short = d.putSubItem('data', d.createValue(dataAddress, d.createPointerType(innerType)))
         d.putIntItem('weakref', weakref)
         d.putIntItem('strongref', strongref)
     d.putValue(short.value, short.encoding)

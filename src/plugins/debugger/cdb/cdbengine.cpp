@@ -994,7 +994,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
             const QString prefix = m_extensionCommandPrefix + dbgCmd.function;
             if (dbgCmd.args.isString()) {
                 const QString &arguments = dbgCmd.argsToString();
-                cmd = prefix + arguments;
+                cmd = prefix + ' ' + arguments;
                 int argumentSplitPos = 0;
                 QList<QStringView> splittedArguments;
                 int maxArgumentSize = maxCommandLength - prefix.length() - maxTokenLength;

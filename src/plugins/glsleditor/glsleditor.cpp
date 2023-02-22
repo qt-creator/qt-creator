@@ -15,9 +15,10 @@
 #include <glsl/glslsemantic.h>
 #include <glsl/glslsymbols.h>
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
@@ -366,7 +367,7 @@ std::unique_ptr<AssistInterface> GlslEditorWidget::createAssistInterface(
 GlslEditorFactory::GlslEditorFactory()
 {
     setId(Constants::C_GLSLEDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
     addMimeType(Constants::GLSL_MIMETYPE);
     addMimeType(Constants::GLSL_MIMETYPE_VERT);
     addMimeType(Constants::GLSL_MIMETYPE_FRAG);

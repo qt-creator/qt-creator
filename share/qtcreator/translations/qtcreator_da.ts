@@ -19956,7 +19956,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Binary Editor</source>
         <translation>Binær-redigering</translation>

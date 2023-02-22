@@ -7,7 +7,6 @@
 #ifndef KSYNTAXHIGHLIGHTING_FORMAT_P_H
 #define KSYNTAXHIGHLIGHTING_FORMAT_P_H
 
-#include "definitionref_p.h"
 #include "textstyledata_p.h"
 #include "theme.h"
 
@@ -25,7 +24,12 @@ public:
     TextStyleData styleOverride(const Theme &theme) const;
     void load(QXmlStreamReader &reader);
 
-    DefinitionRef definition;
+    using StyleColor = QRgb(TextStyleData::*);
+    using ThemeColor = QRgb (Theme::*)(Theme::TextStyle) const;
+    bool hasColor(const Theme &theme, StyleColor styleColor, ThemeColor themeColor) const;
+    QColor color(const Theme &theme, StyleColor styleColor, ThemeColor themeColor) const;
+
+    QString definitionName;
     QString name;
     TextStyleData style;
     Theme::TextStyle defaultStyle = Theme::Normal;

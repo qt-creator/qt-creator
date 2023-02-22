@@ -10584,7 +10584,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation type="unfinished"></translation>
@@ -10601,9 +10601,6 @@ p, li { white-space: pre-wrap; }
         <source>.pro File Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QtC::Core</name>
     <message>
         <source>Preferences</source>
         <translation type="unfinished"></translation>

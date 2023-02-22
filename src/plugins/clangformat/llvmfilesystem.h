@@ -151,7 +151,8 @@ public:
             Path.assign(asString.begin(), asString.end());
             return {};
         }
-        const FilePath filePath = FilePath::fromString(QString::fromStdString(Path.data()));
+        const FilePath filePath = FilePath::fromString(QString::fromStdString(
+                                                       std::string(Path.data(), Path.size())));
         if (filePath.isRelativePath()) {
             const std::string asString
                 = m_workingDirectory.resolvePath(filePath).toFSPathString().toStdString();

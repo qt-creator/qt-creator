@@ -17,7 +17,7 @@ namespace Utils {
     \c {filepath.txt+19+12}, and \c {filepath.txt(19)}.
 */
 
-Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNumber, QString *postfix)
+Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNumber)
 {
     Link link;
     if (!canContainLineNumber) {
@@ -25,8 +25,6 @@ Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNum
     } else {
         int postfixPos = -1;
         const LineColumn lineColumn = LineColumn::extractFromFileName(filePathWithNumbers, postfixPos);
-        if (postfix && postfixPos >= 0)
-            *postfix = filePathWithNumbers.mid(postfixPos);
         link.targetFilePath = FilePath::fromUserInput(filePathWithNumbers.left(postfixPos));
         link.targetLine = lineColumn.line;
         link.targetColumn = lineColumn.column;

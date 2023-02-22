@@ -97,6 +97,6 @@
     To show or hide detailed progress information, select
     \uicontrol {Toggle Progress Details} (1).
 
-    \image creator-toggle-progress-bar.png "Toggle Progress Details button"
+    \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
 
 */

@@ -11140,7 +11140,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Binary Editor</source>
         <translation>Бінарний редактор</translation>

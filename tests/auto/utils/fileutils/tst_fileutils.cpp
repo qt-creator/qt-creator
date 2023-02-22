@@ -805,13 +805,10 @@ void tst_fileutils::linkFromString()
 {
     QFETCH(QString, testFile);
     QFETCH(Utils::FilePath, filePath);
-    QFETCH(QString, postfix);
     QFETCH(int, line);
     QFETCH(int, column);
-    QString extractedPostfix;
-    Link link = Link::fromString(testFile, true, &extractedPostfix);
+    const Link link = Link::fromString(testFile, true);
     QCOMPARE(link.targetFilePath, filePath);
-    QCOMPARE(extractedPostfix, postfix);
     QCOMPARE(link.targetLine, line);
     QCOMPARE(link.targetColumn, column);
 }
@@ -820,58 +817,41 @@ void tst_fileutils::linkFromString_data()
 {
     QTest::addColumn<QString>("testFile");
     QTest::addColumn<Utils::FilePath>("filePath");
-    QTest::addColumn<QString>("postfix");
     QTest::addColumn<int>("line");
     QTest::addColumn<int>("column");
 
-    QTest::newRow("no-line-no-column")
-        << QString("someFile.txt") << FilePath("someFile.txt")
-        << QString() << -1 << -1;
+    QTest::newRow("no-line-no-column") << QString("someFile.txt")
+                                       << FilePath("someFile.txt") << -1 << -1;
     QTest::newRow(": at end") << QString::fromLatin1("someFile.txt:")
-                              << FilePath("someFile.txt")
-                              << QString::fromLatin1(":") << 0 << -1;
+                              << FilePath("someFile.txt") << 0 << -1;
     QTest::newRow("+ at end") << QString::fromLatin1("someFile.txt+")
-                              << FilePath("someFile.txt")
-                              << QString::fromLatin1("+") << 0 << -1;
+                              << FilePath("someFile.txt") << 0 << -1;
     QTest::newRow(": for column") << QString::fromLatin1("someFile.txt:10:")
-                                  << FilePath("someFile.txt")
-                                  << QString::fromLatin1(":10:") << 10 << -1;
+                                  << FilePath("someFile.txt") << 10 << -1;
     QTest::newRow("+ for column") << QString::fromLatin1("someFile.txt:10+")
-                                  << FilePath("someFile.txt")
-                                  << QString::fromLatin1(":10+") << 10 << -1;
-    QTest::newRow(": and + at end")
-        << QString::fromLatin1("someFile.txt:+") << FilePath("someFile.txt")
-        << QString::fromLatin1(":+") << 0 << -1;
+                                  << FilePath("someFile.txt") << 10 << -1;
+    QTest::newRow(": and + at end") << QString::fromLatin1("someFile.txt:+")
+                                    << FilePath("someFile.txt") << 0 << -1;
     QTest::newRow("empty line") << QString::fromLatin1("someFile.txt:+10")
-                                << FilePath("someFile.txt")
-                                << QString::fromLatin1(":+10") << 0 << 9;
+                                << FilePath("someFile.txt") << 0 << 9;
     QTest::newRow(":line-no-column") << QString::fromLatin1("/some/path/file.txt:42")
-                                     << FilePath("/some/path/file.txt")
-                                     << QString::fromLatin1(":42") << 42 << -1;
+                                     << FilePath("/some/path/file.txt") << 42 << -1;
     QTest::newRow("+line-no-column") << QString::fromLatin1("/some/path/file.txt+42")
-                                     << FilePath("/some/path/file.txt")
-                                     << QString::fromLatin1("+42") << 42 << -1;
+                                     << FilePath("/some/path/file.txt") << 42 << -1;
     QTest::newRow(":line-:column") << QString::fromLatin1("/some/path/file.txt:42:3")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1(":42:3") << 42 << 2;
+                                   << FilePath("/some/path/file.txt") << 42 << 2;
     QTest::newRow(":line-+column") << QString::fromLatin1("/some/path/file.txt:42+33")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1(":42+33") << 42 << 32;
+                                   << FilePath("/some/path/file.txt")  << 42 << 32;
     QTest::newRow("+line-:column") << QString::fromLatin1("/some/path/file.txt+142:30")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1("+142:30") << 142 << 29;
+                                   << FilePath("/some/path/file.txt") << 142 << 29;
     QTest::newRow("+line-+column") << QString::fromLatin1("/some/path/file.txt+142+33")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1("+142+33") << 142 << 32;
+                                   << FilePath("/some/path/file.txt") << 142 << 32;
     QTest::newRow("( at end") << QString::fromLatin1("/some/path/file.txt(")
-                              << FilePath("/some/path/file.txt")
-                              << QString::fromLatin1("(") << -1 << -1;
+                              << FilePath("/some/path/file.txt") << -1 << -1;
     QTest::newRow("(42 at end") << QString::fromLatin1("/some/path/file.txt(42")
-                                << FilePath("/some/path/file.txt")
-                                << QString::fromLatin1("(42") << 42 << -1;
+                                << FilePath("/some/path/file.txt") << 42 << -1;
     QTest::newRow("(42) at end") << QString::fromLatin1("/some/path/file.txt(42)")
-                                 << FilePath("/some/path/file.txt")
-                                 << QString::fromLatin1("(42)") << 42 << -1;
+                                 << FilePath("/some/path/file.txt") << 42 << -1;
 }
 
 void tst_fileutils::pathAppended()
@@ -882,7 +862,6 @@ void tst_fileutils::pathAppended()
 
     const FilePath fleft = FilePath::fromString(left);
     const FilePath fexpected = FilePath::fromString(expected);
-
     const FilePath result = fleft.pathAppended(right);
 
     QCOMPARE(result, fexpected);

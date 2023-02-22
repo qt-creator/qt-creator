@@ -1,45 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd"
 [
-        <!ENTITY tab      "&#009;">
-        <!ENTITY funcname "([^&_fragpathseps;}=#$]|[+!@](?!\())([^&_fragpathseps;}=$]*+([+!@](?!\())?+)*+">
-        <!ENTITY varname  "[A-Za-z_][A-Za-z0-9_]*">
-        <!ENTITY eos      "(?=$|[ &tab;])">                 <!-- eol or space following -->
-        <!ENTITY eoexpr   "(?=$|[ &tab;&lt;>|&amp;;)])">
+    <!ENTITY tab      "&#009;">
+    <!ENTITY funcname "([^&_fragpathseps;}=#$]|[+!@](?!\())([^&_fragpathseps;}=$]*+([+!@](?!\())?+)*+">
+    <!ENTITY varname  "[A-Za-z_][A-Za-z0-9_]*">
+    <!ENTITY eos      "(?=$|[ &tab;])">                 <!-- eol or space following -->
+    <!ENTITY eoexpr   "(?=$|[ &tab;&lt;>|&amp;;)])">
 
-        <!ENTITY substseps  "${'&quot;`\\">
-        <!ENTITY symbolseps "&lt;>|&amp;;()"> <!-- see man bash -->
-        <!ENTITY wordseps   " &tab;&symbolseps;"> <!-- see man bash -->
+    <!ENTITY substseps  "${'&quot;`\\">
+    <!ENTITY symbolseps "&lt;>|&amp;;()"> <!-- see man bash -->
+    <!ENTITY wordseps   " &tab;&symbolseps;"> <!-- see man bash -->
 
-        <!ENTITY _fragpathseps  "*?+!@&wordseps;&substseps;">
-        <!ENTITY _fragpathnosep "(?:[+!@](?!\()|\\.|&_brace_noexpansion;)?+">
-        <!ENTITY path       "(?:[^&_fragpathseps;]*+&_fragpathnosep;)*+">
-        <!ENTITY fragpath   "(?:[^&_fragpathseps;/]*+&_fragpathnosep;)*+">
-        <!ENTITY opt        "(?:[^&_fragpathseps;=/]*+&_fragpathnosep;)*+">
-        <!ENTITY pathpart   "(?:~|\.\.?|&fragpath;)(?:/&path;|(?=[*?]|[+!@]\(|&fragpath;(?:[/*?]|[+!@]\()))|(?:~|\.\.?)(?=[&wordseps;]|$)">
+    <!ENTITY bq_string  "`[^`]*+`">
+    <!ENTITY sq_string  "'[^']*+'">
+    <!ENTITY dq_string  "&quot;(?:[^&quot;\\`]*+|&bq_string;|\\.)*+&quot;">
+    <!ENTITY strings    "(?:&sq_string;|&dq_string;|&bq_string;)">
 
-        <!ENTITY _fragpathseps_alt  "*?+!@&substseps;}">
-        <!ENTITY _fragpathnosep_alt "(?:[+!@](?!\()|\\.)?+">
-        <!ENTITY path_alt       "(?:[^&_fragpathseps_alt;]*+&_fragpathnosep_alt;)*+">
-        <!ENTITY fragpath_alt   "(?:[^&_fragpathseps_alt;/]*+&_fragpathnosep_alt;)*+">
-        <!ENTITY opt_alt        "(?:[^&_fragpathseps_alt;=/]*+&_fragpathnosep_alt;)*+">
-        <!ENTITY pathpart_alt   "(?:~|\.\.?|&fragpath_alt;)(?:/&path_alt;|(?=[*?]|[+!@]\(|&fragpath_alt;(?:[/*?]|[+!@]\()))|(?:~|\.\.?)(?=\}|$)">
+    <!ENTITY globany    "\[(?:[^&wordseps;&quot;'`\\\[\]]+|\\.|&strings;|\[:\w+:\]|\[)*\]">
 
-        <!ENTITY _braceexpansion_spe     " &tab;&lt;>|&amp;;{}\\`'&quot;$">
-        <!ENTITY _brace_noexpansion       "\{[^&_braceexpansion_spe;,]*+\}">
-        <!ENTITY _braceexpansion_var     "\$(?:\{[^\[\]&_braceexpansion_spe;]*+(?:\[[*@a-zA-Z0-9]\])\})?">
-        <!ENTITY _braceexpansion_string  "'[^']*'|&quot;([^&quot;\`]*+|`[^`]*`)*+&quot;">
-        <!ENTITY _braceexpansion_elems   "\\.|`[^`]*`|&_braceexpansion_string;|&_braceexpansion_var;|&_brace_noexpansion;">
-        <!ENTITY _braceexpansion_consume "&_braceexpansion_elems;|{(?:[^&_braceexpansion_spe;,]++|&_braceexpansion_elems;)*?}|(?R)?+">
-        <!ENTITY _braceexpansion "(?:[^&_braceexpansion_spe;,]++|&_braceexpansion_consume;)*?,(?:[^&_braceexpansion_spe;]++|&_braceexpansion_consume;)*?}">
-        <!ENTITY braceexpansion "{&_braceexpansion;">
+    <!ENTITY next_is_globany    "(?:\^?\]\]|(?:\^?\]?)?(?:\\.|[^'&quot; &tab;&lt;>|&amp;;()\\[\]]+|&strings;|\[:\w+:\])+\])">
+    <!ENTITY bracket_noglobany  "\[(?!&next_is_globany;)">
 
-        <!ENTITY heredocq "(?|&quot;([^&quot;]+)&quot;|'([^']+)'|\\(.[^&wordseps;&substseps;]*))">
+    <!ENTITY _fragpathseps  "*?+!@&wordseps;&substseps;">
+    <!ENTITY _fragpathnosep "(?:[+!@](?!\()|\\.|&_brace_noexpansion;)?+">
+    <!ENTITY path       "(?:[^&_fragpathseps;\[]*+&_fragpathnosep;)*+">
+    <!ENTITY fragpath   "(?:[^&_fragpathseps;\[/]*+&_fragpathnosep;)*+">
+    <!ENTITY opt        "(?:[^&_fragpathseps;\[=/]*+&_fragpathnosep;)*+">
+    <!ENTITY pathpart   "(?:~|\.\.?|&fragpath;)(?:/&path;|(?=[*?]|[+!@]\(|&fragpath;(?:[/*?]|\[&next_is_globany;|[+!@]\()))|(?:~|\.\.?)(?=[&wordseps;]|$)">
 
-        <!ENTITY arithmetic_as_subshell "\(((?:[^`'&quot;()$]++|\$\{[^`'&quot;(){}$]+\}|\$(?=[^{`'&quot;()])|`[^`]*+`|\((?1)(?:[)]|(?=['&quot;])))++)(?:[)](?=$|[^)])|[&quot;'])">
+    <!ENTITY _fragpathseps_alt  "*?+!@&substseps;}">
+    <!ENTITY _fragpathnosep_alt "(?:[+!@](?!\()|\\.)?+">
+    <!ENTITY path_alt       "(?:[^&_fragpathseps_alt;]*+&_fragpathnosep_alt;)*+">
+    <!ENTITY fragpath_alt   "(?:[^&_fragpathseps_alt;/]*+&_fragpathnosep_alt;)*+">
+    <!ENTITY opt_alt        "(?:[^&_fragpathseps_alt;=/]*+&_fragpathnosep_alt;)*+">
+    <!ENTITY pathpart_alt   "(?:~|\.\.?|&fragpath_alt;)(?:/&path_alt;|(?=[*?]|[+!@]\(|&fragpath_alt;(?:[/*?]|[+!@]\()))|(?:~|\.\.?)(?=\}|$)">
+
+    <!-- Path only with / -->
+    <!ENTITY path_with_sep_text  "[^?*+!@&wordseps;'&quot;`\\/]">
+    <!ENTITY path_with_sep_text2 "[^?*+!@()'&quot;`\\/]">
+    <!ENTITY path_with_sep_expr  "\\.|&strings;|&globany;|[?*+](?!\()">
+    <!ENTITY path_with_sep_spe   "(~|\.\.?)($|[/ &tab;&lt;>|&amp;;)])">
+    <!ENTITY path_with_sep_sub   "[?*+!@]\((&path_with_sep_text2;++|&path_with_sep_expr;)*+(\)|(?=/))">
+    <!ENTITY path_with_sep "/|&path_with_sep_spe;|(&path_with_sep_text;++|&path_with_sep_expr;|&path_with_sep_sub;)*+/">
+
+    <!ENTITY _braceexpansion_spe     " &tab;&lt;>|&amp;;{}\\`'&quot;$">
+    <!ENTITY _brace_noexpansion       "\{[^&_braceexpansion_spe;,]*+\}">
+    <!ENTITY _braceexpansion_var     "\$(?:\{[^\[\]&_braceexpansion_spe;]*+(?:\[[*@a-zA-Z0-9]\])\})?">
+    <!ENTITY _braceexpansion_string  "'[^']*'|&quot;([^&quot;\`]*+|`[^`]*`)*+&quot;">
+    <!ENTITY _braceexpansion_elems   "\\.|`[^`]*`|&_braceexpansion_string;|&_braceexpansion_var;|&_brace_noexpansion;">
+    <!ENTITY _braceexpansion_consume "&_braceexpansion_elems;|{(?:[^&_braceexpansion_spe;,]++|&_braceexpansion_elems;)*?}|(?R)?+">
+    <!ENTITY _braceexpansion "(?:[^&_braceexpansion_spe;,]++|&_braceexpansion_consume;)*?,(?:[^&_braceexpansion_spe;]++|&_braceexpansion_consume;)*?}">
+    <!ENTITY braceexpansion "{&_braceexpansion;">
+
+    <!ENTITY heredocq "(?|&quot;([^&quot;]+)&quot;|'([^']+)'|\\(.[^&wordseps;&substseps;]*))">
+
+    <!ENTITY arithmetic_as_subshell "\(((?:[^`'&quot;()$]++|\$\{[^`'&quot;(){}$]+\}|\$(?=[^{`'&quot;()])|`[^`]*+`|\((?1)(?:[)]|(?=['&quot;])))++)(?:[)](?=$|[^)])|[&quot;'])">
+
+    <!ENTITY unary_operators  "-[abcdefghkprstuwxGLNOSovRnz]&eos;">
+    <!ENTITY binary_operators "(?:-(?:e[fq]|[nolg]t|[nlg]e)|==?|!=)&eos;">
+
+    <!ENTITY dblbracket_close "\]\](?=($|[ &tab;;|&amp;)]))">
+
+    <!ENTITY weakDeliminatorSymbols "^&#37;#[]$.{}:-/">
 ]>
 
-<language name="Bash" version="39" kateversion="5.79" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.exlib;*.exheres-0;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language
+    name="Bash"
+    version="46"
+    kateversion="5.79"
+    section="Scripts"
+    extensions="*.sh;*.bash;*.ebuild;*.eclass;*.exlib;*.exheres-0;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD"
+    mimetype="application/x-shellscript"
+    casesensitive="1"
+    author="Wilbert Berendsen (wilbert@kde.nl)"
+    license="LGPL"
+  >
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -544,6 +579,9 @@
         <keyword attribute="Builtin" context="VarName" String="builtins_var" lookAhead="1"/>
         <!-- mark function definitions without function keyword -->
         <RegExpr attribute="Function" context="#stay" String="&funcname;[ &tab;]*\(\)"/>
+        <!-- Special case for `: << '#BLOCK-COMMENT' form of "multiline" comments-->
+        <RegExpr attribute="Normal Text" context="PreHereDocMLComment" String="^:[ &tab;]+&lt;&lt;[ &tab;]*'#([^']+)'$" lookAhead="1" column="0"/>
+        <WordDetect attribute="Builtin" context="Coproc" String="coproc"/>
         <keyword attribute="Builtin" context="CommandArgs" String="builtins"/>
         <keyword attribute="Command" context="CommandArgs" String="unixcommands"/>
 
@@ -592,6 +630,18 @@
         <DetectChar context="#pop!Command" char="}" lookAhead="1"/>
       </context>
 
+      <context attribute="Normal Text" lineEndContext="#pop" name="Coproc" fallthroughContext="#pop">
+        <DetectSpaces attribute="Normal Text"/>
+        <LineContinue attribute="Escape" context="#stay"/>
+        <RegExpr context="CoprocName" String="(\$?&varname;|\$\{&varname;\}|'&varname;'|&quot;(\$?&varname;|\$\{&varname;\}|[a-zA-Z0-9_])+&quot;)+(?=\s+\{($|\s))" lookAhead="1"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="CoprocName">
+        <DetectChar attribute="Keyword" context="#pop#pop!Group" char="{" beginRegion="group"/>
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectIdentifier attribute="Normal Text"/>
+        <IncludeRules context="FindWord"/>
+      </context>
+
       <context attribute="Command" lineEndContext="#pop" name="Command" fallthroughContext="#pop">
         <DetectSpaces attribute="Normal Text" context="#pop!CommandArgs"/>
         <DetectChar context="CommandVariables" char="$" lookAhead="1"/>
@@ -620,7 +670,11 @@
         <Detect2Chars attribute="String Transl." context="#pop!StringDQ" char="$" char1="&quot;"/>
       </context>
       <context attribute="Command" lineEndContext="#pop#pop" name="DispatchVarnameVariables">
-        <RegExpr attribute="Variable" context="#pop" String="\$(?:&varname;|[*@#?$!0-9-])"/>
+        <RegExpr attribute="Dollar Prefix" context="#pop!VarNamePrefixedWithDollar" String="\$(?=&varname;|[*@#?$!0-9-])"/>
+      </context>
+      <context attribute="Variable" lineEndContext="#pop" name="VarNamePrefixedWithDollar">
+        <DetectIdentifier attribute="Variable" context="#pop"/>
+        <AnyChar attribute="Variable" context="#pop" String="*@#?$!0123456789-"/>
       </context>
       <context attribute="OtherCommand" lineEndContext="#pop#pop" name="CommandName">
         <DetectSpaces attribute="Normal Text" context="#pop#pop!CommandArgs"/>
@@ -693,17 +747,24 @@
         <IncludeRules context="FindWord"/>
         <IncludeRules context="FindGlobAndPop"/>
         <DetectChar context="OptionMaybeBraceExpansion" char="{" lookAhead="1"/>
+        <DetectChar context="LongOptionMaybeGlobAny" char="[" lookAhead="1"/>
         <RegExpr attribute="Option" context="#stay" String="&opt;"/>
+      </context>
+      <context attribute="Option" lineEndContext="#pop#pop" name="LongOptionMaybeGlobAny" fallthroughContext="#pop">
+        <IncludeRules context="FindGlobAny"/>
+        <DetectChar attribute="Option" context="#pop" char="["/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="NormalOption" fallthroughContext="#pop">
         <AnyChar context="#pop" String="&wordseps;`" lookAhead="1"/>
         <IncludeRules context="FindWord"/>
         <DetectChar context="NormalMaybeBraceExpansion" char="{" lookAhead="1"/>
-        <IncludeRules context="FindPathThenPop"/>
-        <IncludeRules context="FindNormalTextOption"/>
+        <IncludeRules context="FindNormalText"/>
       </context>
-      <context attribute="Normal Text" lineEndContext="#stay" name="FindNormalTextOption">
-        <RegExpr attribute="Normal Text" context="#stay" String="[^&wordseps;&substseps;]+"/>
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindNormalText">
+        <IncludeRules context="FindGlobAndPop"/>
+        <RegExpr attribute="Path" context="PathThenPop" String="&pathpart;"/>
+        <DetectChar context="FindPathThenPopMaybeGlobAny" char="[" lookAhead="1"/>
+        <RegExpr attribute="Normal Text" context="#stay" String="[^&wordseps;&substseps;\[]+"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="OptionMaybeBraceExpansion">
         <IncludeRules context="DispatchBraceExpansion"/>
@@ -735,18 +796,15 @@
         <RegExpr attribute="Escape" context="#pop!SequenceExpression" String="{(?=([-+]?[0-9]+\.\.[-+]?[0-9]+|[a-zA-Z]\.\.[a-zA-Z])(\.\.[-+]?[0-9]+)?\})"/>
       </context>
 
-      <!-- FindPathThenPop consumes path -->
-      <context attribute="Normal Text" lineEndContext="#pop" name="FindPathThenPop">
-        <IncludeRules context="FindGlobAndPop"/>
-        <RegExpr attribute="Path" context="PathThenPop" String="&pathpart;"/>
+      <!-- FindPathThenPopMaybeGlobAny consumes path -->
+      <context attribute="Normal Text" lineEndContext="#pop#pop" name="FindPathThenPopMaybeGlobAny" fallthroughContext="#pop!PathThenPop">
+        <IncludeRules context="FindGlobAny"/>
+        <DetectChar attribute="Normal Text" context="#pop" char="["/>
       </context>
       <context attribute="Path" lineEndContext="#pop" name="FindGlobAndPop">
-        <IncludeRules context="FindExtGlobAndPop"/>
-        <AnyChar attribute="Glob" context="PathThenPop" String="?*"/>
-      </context>
-      <context attribute="Path" lineEndContext="#pop" name="FindExtGlobAndPop">
         <Detect2Chars attribute="Glob" context="ExtGlobAndPop" char="?" char1="("/>
         <Detect2Chars attribute="Glob" context="ExtGlobAndPop" char="*" char1="("/>
+        <AnyChar attribute="Glob" context="PathThenPop" String="?*"/>
         <Detect2Chars attribute="Glob" context="ExtGlobAndPop" char="+" char1="("/>
         <Detect2Chars attribute="Glob" context="ExtGlobAndPop" char="@" char1="("/>
         <Detect2Chars attribute="Glob" context="ExtGlobAndPop" char="!" char1="("/>
@@ -768,8 +826,10 @@
         <DetectChar attribute="Glob" context="#pop" char=")"/>
         <IncludeRules context="FindWord"/>
         <IncludeRules context="IncExtGlob"/>
+        <IncludeRules context="PathThenPopMaybeGlobAny"/>
       </context>
       <context attribute="Path" lineEndContext="#stay" name="IncExtGlob">
+        <DetectIdentifier attribute="Path"/>
         <IncludeRules context="FindExtGlob"/>
         <DetectChar context="PathMaybeBraceExpansion" char="{" lookAhead="1"/>
       </context>
@@ -778,11 +838,36 @@
         <IncludeRules context="FindWord"/>
         <IncludeRules context="FindExtGlob"/>
         <DetectChar context="PathMaybeBraceExpansion" char="{" lookAhead="1"/>
+        <DetectChar context="PathThenPopMaybeGlobAny" char="[" lookAhead="1"/>
         <RegExpr attribute="Path" context="#stay" String="&path;"/>
+      </context>
+      <context attribute="Path" lineEndContext="#pop#pop" name="PathThenPopMaybeGlobAny" fallthroughContext="#pop">
+        <IncludeRules context="FindGlobAny"/>
+        <DetectChar attribute="Path" context="#pop" char="["/>
       </context>
       <context attribute="Path" lineEndContext="#pop" name="PathMaybeBraceExpansion" fallthroughContext="#pop">
         <IncludeRules context="DispatchBraceExpansion"/>
         <DetectChar attribute="Path" context="#pop" char="{"/>
+      </context>
+
+      <context attribute="Glob" lineEndContext="#stay" name="FindGlobAny">
+        <RegExpr attribute="Glob" context="GlobAnyFlag" String="\[(?=&next_is_globany;)"/>
+      </context>
+      <context attribute="Pattern" lineEndContext="#pop" name="GlobAnyFlag" fallthroughContext="#pop!GlobAny">
+        <DetectChar attribute="Glob" context="#pop!GlobAny" char="^"/>
+      </context>
+      <context attribute="Pattern" lineEndContext="#pop" name="GlobAny">
+        <DetectIdentifier attribute="Pattern"/>
+        <DetectChar context="AssumeEscape" char="\" lookAhead="1"/>
+        <DetectChar attribute="Glob" context="#stay" char="-"/>
+        <IncludeRules context="FindStrings"/>
+        <DetectChar attribute="Glob" context="#pop" char="]"/>
+        <Detect2Chars attribute="Glob" context="GlobClass" char="[" char1=":"/>
+      </context>
+      <context attribute="Glob" lineEndContext="#pop#pop" name="GlobClass">
+        <DetectIdentifier attribute="Pattern"/>
+        <Detect2Chars attribute="Glob" context="#pop" char=":" char1="]"/>
+        <DetectChar attribute="Error" context="#pop" char="]"/>
       </context>
 
       <!-- FindPathThenPopInAlternateValue consumes path in ${xx:here}-->
@@ -813,6 +898,7 @@
         <IncludeRules context="FindExtGlobInAlternateValue"/>
       </context>
       <context attribute="Path" lineEndContext="#stay" name="FindExtGlobInAlternateValue">
+        <DetectIdentifier attribute="Path"/>
         <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="?" char1="("/>
         <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="*" char1="("/>
         <Detect2Chars attribute="Glob" context="RecursiveExtGlobInAlternateValue" char="+" char1="("/>
@@ -836,6 +922,7 @@
         <AnyChar attribute="Glob" context="#stay" String="?*"/>
       </context>
       <context attribute="Pattern" lineEndContext="#stay" name="ExtPattern">
+        <DetectIdentifier attribute="Pattern"/>
         <DetectChar attribute="Glob" context="#stay" char="|"/>
         <IncludeRules context="FindWord"/>
         <DetectChar attribute="Glob" context="#pop" char=")"/>
@@ -937,6 +1024,7 @@
       <context attribute="Normal Text" lineEndContext="#pop" name="StringRedirection2">
         <AnyChar context="#pop" String="&wordseps;`" lookAhead="1"/>
         <IncludeRules context="FindWord"/>
+        <DetectIdentifier attribute="Normal Text"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="CloseFile" fallthroughContext="#pop">
         <DetectChar attribute="Keyword" context="#pop" char="-"/>
@@ -944,6 +1032,7 @@
 
       <!-- HereDoc consumes Here-documents. It is called at the beginning of the "<<" construct. -->
       <context attribute="Normal Text" lineEndContext="#stay" name="HereDoc">
+        <RegExpr attribute="Redirection" context="HereDocMLComment" String="^[ &tab;]*&lt;&lt;[ &tab;]*'#([^']+)'$" column="0"/>
         <RegExpr attribute="Redirection" context="HereDocIQ"  String="&lt;&lt;-[ &tab;]*&heredocq;(?=[ &tab;]*$)"/>
         <RegExpr attribute="Redirection" context="HereDocINQ" String="&lt;&lt;-[ &tab;]*([^&wordseps;]+)(?=[ &tab;]*$)"/>
         <RegExpr attribute="Redirection" context="HereDocQ"   String="&lt;&lt;[ &tab;]*&heredocq;(?=[ &tab;]*$)"/>
@@ -959,6 +1048,24 @@
 
       <context attribute="Normal Text" lineEndContext="#pop" name="HereDocRemainder" fallthroughContext="Command">
         <IncludeRules context="Start"/>
+      </context>
+
+      <!-- Highlight the builtin `:` (true) and the followed redirection, then fall into `HereDocMLComment` -->
+      <context attribute="Comment" lineEndContext="#stay" name="PreHereDocMLComment">
+        <DetectChar attribute="Builtin" context="#stay" char=":" column="0"/>
+        <RegExpr attribute="Redirection" context="HereDocMLComment" String="&lt;&lt;[ &tab;]*'#([^']+)'$"/>
+      </context>
+
+      <context attribute="Comment" lineEndContext="#stay" name="HereDocMLComment" dynamic="true" fallthroughContext="Comment">
+        <RegExpr attribute="Redirection" context="#pop#pop" String="^#%1$" column="0" dynamic="true"/>
+        <RegExpr attribute="Region Marker" context="RST Documentation" String="^#?\[(=*)\[\.rst:" column="0" beginRegion="RSTDocumentation" />
+        <IncludeRules context="Comment"/>
+      </context>
+
+      <context attribute="Comment" lineEndContext="#stay" name="RST Documentation" dynamic="true">
+        <RegExpr attribute="Redirection" context="#pop#pop#pop" String="^#BLOCK-COMMENT$" column="0"/>
+        <RegExpr attribute="Region Marker" context="#pop" String="^#?\]%1\]" dynamic="true" column="0" endRegion="RSTDocumentation" />
+        <IncludeRules context="##reStructuredText" />
       </context>
 
       <context attribute="Here Doc" lineEndContext="#stay" name="HereDocQ" dynamic="true" fallthroughContext="HereDocText">
@@ -1001,6 +1108,8 @@
       </context>
 
       <context attribute="Here Doc" lineEndContext="#pop" name="HereDocSubstitutions">
+        <DetectSpaces attribute="Here Doc"/>
+        <DetectIdentifier attribute="Here Doc"/>
         <DetectChar context="HereDocVariables" char="$" lookAhead="1"/>
         <DetectChar attribute="Backquote" context="CommandBackq" char="`"/>
         <DetectChar context="AssumeEscape" char="\" lookAhead="1"/>
@@ -1086,11 +1195,15 @@
 
       <!-- StringSQ consumes anything till ' -->
       <context attribute="String SingleQ" lineEndContext="#stay" name="StringSQ">
+        <DetectSpaces attribute="String SingleQ"/>
+        <DetectIdentifier attribute="String SingleQ"/>
         <DetectChar attribute="String SingleQ" context="#pop" char="'"/>
       </context>
 
       <!-- StringDQ consumes anything till ", substitutes vars and expressions -->
       <context attribute="String DoubleQ" lineEndContext="#stay" name="StringDQ">
+        <DetectSpaces attribute="String DoubleQ"/>
+        <DetectIdentifier attribute="String DoubleQ"/>
         <DetectChar attribute="String DoubleQ" context="#pop" char="&quot;"/>
         <DetectChar context="StringDQEscape" char="\" lookAhead="1"/>
         <DetectChar context="StringDQDispatchVariables" char="$" lookAhead="1"/>
@@ -1119,6 +1232,8 @@
 
       <!-- StringEsc eats till ', but escaping many characters -->
       <context attribute="String SingleQ" lineEndContext="#stay" name="StringEsc">
+        <DetectSpaces attribute="String SingleQ"/>
+        <DetectIdentifier attribute="String SingleQ"/>
         <DetectChar attribute="String SingleQ" context="#pop" char="'"/>
         <RegExpr attribute="String Escape" context="#stay" String="\\(?:[abefnrtv\\']|[0-7]{1,3}|x[A-Fa-f0-9]{1,2}|c.)"/>
       </context>
@@ -1165,13 +1280,13 @@
 
       <!-- VarBrace is called as soon as ${ or ${# are encoutered -->
       <context attribute="Variable" lineEndContext="#stay" name="VarBrace" fallthroughContext="#pop!VarError">
-        <DetectChar attribute="Variable" context="#pop" char="}"/>
+        <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
         <DetectIdentifier attribute="Variable" context="#pop!CheckVarAlt"/>
         <AnyChar attribute="Variable" context="#pop!CheckVarAlt" String="*@?$!-"/>
         <Int attribute="Variable" context="#pop!CheckVarAlt" additionalDeliminator=":#%^,/@{}"/>
       </context>
       <context attribute="Error" lineEndContext="#stay" name="VarError">
-        <DetectChar attribute="Variable" context="#pop" char="}"/>
+        <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="CheckVarAlt" fallthroughContext="#pop!VarError">
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
@@ -1195,7 +1310,7 @@
 
       <!-- called as soon as ${xxx: is encoutered -->
       <context attribute="Normal Text" lineEndContext="#stay" name="VarSub">
-        <DetectChar attribute="Variable" context="#pop" char="}"/>
+        <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
         <!-- <Int> doesn't match :3 because : is a weakDeliminator -->
         <AnyChar attribute="Decimal" String="0123456789"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#stay" char=":"/>
@@ -1214,6 +1329,7 @@
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
         <IncludeRules context="FindWord"/>
         <IncludeRules context="FindPathThenPopInAlternateValue"/>
+        <DetectIdentifier attribute="Normal Text"/>
       </context>
 
       <!-- called as soon as ${xxx^ are ${xxx, are encoutered -->
@@ -1221,6 +1337,7 @@
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
         <IncludeRules context="FindWord"/>
         <IncludeRules context="FindPattern"/>
+        <DetectIdentifier attribute="Pattern"/>
       </context>
 
       <!-- called as soon as ${xxx/ is encoutered -->
@@ -1250,6 +1367,7 @@
         <DetectChar context="BraceExpansionVariables" char="$" lookAhead="1"/>
         <IncludeRules context="FindStrings"/>
         <IncludeRules context="FindPattern"/>
+        <DetectIdentifier attribute="Escape"/>
       </context>
       <context attribute="Escape" lineEndContext="#pop" name="EscapeMaybeBraceExpansion">
         <IncludeRules context="DispatchBraceExpansion"/>
@@ -1305,27 +1423,17 @@
       </context>
 
       <context attribute="Decimal" lineEndContext="#pop" name="Number">
-        <Detect2Chars attribute="Hex" context="#pop!Hex" char="0" char1="x"/>
-        <Detect2Chars attribute="Hex" context="#pop!Hex" char="0" char1="X"/>
-        <DetectChar context="#pop!Octal" char="0" lookAhead="1"/>
+        <HlCHex attribute="Hex" context="#pop" additionalDeliminator="&weakDeliminatorSymbols;"/>
+        <HlCOct attribute="Octal" context="#pop!NumberError" additionalDeliminator="&weakDeliminatorSymbols;"/>
         <RegExpr attribute="Base" context="#pop!BaseN" String="[1-9][0-9]*#"/>
-        <AnyChar attribute="Decimal" context="#pop!Decimal" String="123456789"/>
-      </context>
-      <context attribute="Octal" lineEndContext="#pop" name="Octal" fallthroughContext="#pop!Decimal">
-        <RegExpr attribute="Octal" context="#pop!NumberError" String="0[0-7]+"/>
-        <DetectChar attribute="Decimal" context="#pop" char="0"/>
-      </context>
-      <context attribute="Decimal" lineEndContext="#pop" name="Decimal" fallthroughContext="#pop">
-        <AnyChar attribute="Decimal" context="#stay" String="0123456789"/>
-      </context>
-      <context attribute="Hex" lineEndContext="#pop" name="Hex" fallthroughContext="#pop">
-        <RegExpr attribute="Hex" context="#pop" String="[0-9a-fA-F]+"/>
+        <DetectChar attribute="Decimal" context="#pop!NumberError" char="0"/>
+        <Int attribute="Decimal" context="#pop" additionalDeliminator="&weakDeliminatorSymbols;"/>
       </context>
       <context attribute="BaseN" lineEndContext="#pop" name="BaseN" fallthroughContext="#pop">
         <RegExpr attribute="BaseN" context="#pop" String="[0-9a-zA-Z@_]+"/>
       </context>
       <context attribute="Error" lineEndContext="#pop" name="NumberError" fallthroughContext="#pop">
-        <AnyChar attribute="Error" context="#stay" String="8901234567"/>
+        <Int attribute="Error" context="#pop" additionalDeliminator="0123456789"/>
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblParenSubstOrSubstCommand">
@@ -1335,7 +1443,7 @@
       <!-- ExprDblParenSubst like ExprDblParen but matches )) as Variable -->
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblParenSubst">
         <DetectSpaces attribute="Normal Text" context="#stay"/>
-        <Detect2Chars attribute="Variable" context="#pop" char=")" char1=")" endRegion="expression"/>
+        <Detect2Chars attribute="Parameter Expansion" context="#pop" char=")" char1=")" endRegion="expression"/>
         <IncludeRules context="FindExprDblParen"/>
         <!-- $((cmd
               ) # jump to SubstCommand context -->
@@ -1368,8 +1476,7 @@
         <AnyChar context="#pop" String=" &tab;" lookAhead="1"/>
         <IncludeRules context="FindWord"/>
         <DetectChar context="NormalMaybeBraceExpansion" char="{" lookAhead="1"/>
-        <IncludeRules context="FindPathThenPop"/>
-        <IncludeRules context="FindNormalTextOption"/>
+        <IncludeRules context="FindNormalText"/>
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprBracketParam2" fallthroughContext="ExprBracketValue">
@@ -1386,6 +1493,7 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprBracketFinal" fallthroughContext="ExprBracketValue">
         <DetectSpaces attribute="Normal Text" context="#stay"/>
         <IncludeRules context="FindExprBracketEnd"/>
+        <RegExpr attribute="Expression" context="#pop!ExprBracket" String="-[ao]&eos;"/>
         <RegExpr attribute="Error" context="#pop" String="(?:[^] &tab;]++|\][^ &tab;])++" endRegion="expression"/>
       </context>
 
@@ -1395,10 +1503,10 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#pop" name="TestMaybeUnary" fallthroughContext="#pop!ExprBracketValue">
-        <RegExpr attribute="Expression" context="#pop" String="-[abcdefghkprstuwxGLNOSovRnz](?=[ &tab;])"/>
+        <RegExpr attribute="Expression" context="#pop#pop!ExprBracketParam2" String="&unary_operators;"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="TestMaybeBinary" fallthroughContext="#pop!ExprBracketValue">
-        <RegExpr attribute="Expression" context="#pop" String="(?:-(?:e[fq]|[nolg]t|[nlg]e)|==?|!=)(?=[ &tab;])"/>
+        <RegExpr attribute="Expression" context="#pop" String="&binary_operators;"/>
       </context>
 
 
@@ -1417,28 +1525,88 @@
         <RegExpr attribute="Expression" context="#pop" String="!(?=$|[ &tab;(])"/>
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam1" fallthroughContext="ExprDblBracketValue">
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam1" fallthroughContext="ExprDblBracketValueText">
         <DetectSpaces attribute="Normal Text" context="#pop!ExprDblBracketParam2"/>
         <DetectChar context="TestMaybeUnary2" char="-" lookAhead="1"/>
         <AnyChar attribute="Expression" context="#pop!ExprDblBracketParam3Spe" String="&lt;>"/>
         <IncludeRules context="FindExprDblBracketEnd"/>
       </context>
-      <context attribute="Normal Text" lineEndContext="#pop" name="TestMaybeUnary2" fallthroughContext="#pop!ExprDblBracketValue">
-        <IncludeRules context="TestMaybeUnary"/>
+      <context attribute="Normal Text" lineEndContext="#pop" name="TestMaybeUnary2" fallthroughContext="#pop!ExprDblBracketValueText">
+        <RegExpr attribute="Expression" context="#pop!ExprDblBracketUnary" String="&unary_operators;(?!\s+(?:=~|&binary_operators;))"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketUnary">
+        <DetectSpaces attribute="Normal Text" context="#pop!ExprDblBracketValueText"/>
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValue">
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValueText" fallthroughContext="#pop!ExprDblBracketValueText2">
+        <Detect2Chars context="#pop!ExprDblBracketValueTextMaybeEnd" char="]" char1="]" lookAhead="1"/>
+        <DetectChar attribute="Error" context="#pop!Comment" char="#"/>
+        <IncludeRules context="FindExprDblBracketValueTextPath"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="FindExprDblBracketValueTextPath">
+        <RegExpr context="#pop!ExprDblBracketValueTextPath" String="&path_with_sep;|" lookAhead="1"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValueTextMaybeEnd">
+        <RegExpr attribute="Keyword" context="#pop#pop" String="&dblbracket_close;" endRegion="expression"/>
+        <IncludeRules context="FindExprDblBracketValueTextPath"/>
+        <Detect2Chars context="#pop!ExprDblBracketValueText2" char="]" char1="]" lookAhead="1"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValueText2">
+        <DetectIdentifier/>
+        <AnyChar String="*?+!@~^:%+-/,"/>
+        <IncludeRules context="ExprDblBracketValueCommon"/>
+      </context>
+      <context attribute="Path" lineEndContext="#pop" name="ExprDblBracketValueTextPath">
+        <IncludeRules context="ExprDblBracketValueText2"/>
+      </context>
+
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValuePattern" fallthroughContext="#pop!ExprDblBracketValuePattern2">
+        <RegExpr context="PathThenPop" String="&path_with_sep;|" lookAhead="1"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValuePattern2">
+        <DetectIdentifier attribute="Normal Text"/>
+        <IncludeRules context="ExprDblBracketValueCommon"/>
+        <IncludeRules context="FindExprDblBracketValueExtGlob"/>
+        <AnyChar attribute="Glob" String="?*"/>
+      </context>
+      <context attribute="Glob" lineEndContext="#stay" name="FindExprDblBracketValueExtGlob">
+        <Detect2Chars attribute="Glob" context="ExprDblBracketValueExtGlob" char="?" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExprDblBracketValueExtGlob" char="*" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExprDblBracketValueExtGlob" char="+" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExprDblBracketValueExtGlob" char="@" char1="("/>
+        <Detect2Chars attribute="Glob" context="ExprDblBracketValueExtGlob" char="!" char1="("/>
+        <DetectChar context="ExprDblBracketValueMaybeGlobAny" char="[" lookAhead="1"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketValueMaybeGlobAny" fallthroughContext="#pop">
+        <IncludeRules context="FindGlobAny"/>
+        <DetectChar attribute="Normal Text" context="#pop" char="["/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop#pop" name="ExprDblBracketValueExtGlob">
+        <DetectIdentifier attribute="Normal Text"/>
+        <DetectChar attribute="Glob" context="#pop" char=")"/>
+        <DetectChar attribute="Normal Text" context="ExprDblBracketValueExtGlobNormal" char="("/>
+        <IncludeRules context="FindExprDblBracketValueExtGlob"/>
+        <AnyChar attribute="Glob" String="|?*"/>
+        <IncludeRules context="FindWord"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop#pop" name="ExprDblBracketValueExtGlobNormal">
+        <DetectIdentifier attribute="Normal Text"/>
+        <DetectChar attribute="Normal Text" context="#pop" char=")"/>
+        <DetectChar attribute="Normal Text" context="ExprDblBracketValueExtGlobNormal" char="("/>
+        <IncludeRules context="FindExprDblBracketValueExtGlob"/>
+        <AnyChar attribute="Glob" String="?*"/>
+        <IncludeRules context="FindWord"/>
+      </context>
+
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketValueCommon">
         <Detect2Chars context="ExprDblBracketDblParentOrSubValue" char="(" char1="(" lookAhead="1"/>
         <DetectChar context="ExprDblBracketSubValue" char="(" lookAhead="1"/>
         <DetectChar attribute="Operator" context="#pop#pop" char=")"/>
         <Detect2Chars attribute="Control" context="#pop#pop!ExprDblBracket" char="&amp;" char1="&amp;"/>
         <Detect2Chars attribute="Control" context="#pop#pop!ExprDblBracket" char="|" char1="|"/>
-        <AnyChar attribute="Error" context="#stay" String="|&amp;;)"/>
+        <AnyChar attribute="Error" context="#stay" String="|&amp;;"/>
         <AnyChar context="#pop" String=" &tab;&lt;>" lookAhead="1"/>
         <IncludeRules context="FindWord"/>
-        <DetectChar context="NormalMaybeBraceExpansion" char="{" lookAhead="1"/>
-        <IncludeRules context="FindPathThenPop"/>
-        <IncludeRules context="FindNormalTextOption"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketSubValue" fallthroughContext="#pop">
         <DetectChar attribute="Operator" context="ExprDblBracketNot" char="("/>
@@ -1453,35 +1621,38 @@
         <Detect2Chars attribute="Keyword" context="#pop" char=")" char1=")" endRegion="expression"/>
         <IncludeRules context="FindExprDblParen"/>
         <!-- ((cmd
-              ) # jump to ExprDblBracketValue context -->
-        <DetectChar attribute="Operator" context="ExprDblBracketValue" char=")" endRegion="expression" beginRegion="subshell"/>
+              ) # jump to ExprDblBracketValuePattern context -->
+        <DetectChar attribute="Operator" context="ExprDblBracketValuePattern" char=")" endRegion="expression" beginRegion="subshell"/>
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam2" fallthroughContext="ExprDblBracketValue">
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam2" fallthroughContext="ExprDblBracketValuePattern">
         <DetectSpaces attribute="Normal Text" context="#pop!ExprDblBracketParam3"/>
         <AnyChar context="TestMaybeBinary2" String="-=!" lookAhead="1"/>
         <AnyChar attribute="Expression" context="#pop!ExprDblBracketParam3Spe" String="&lt;>"/>
         <IncludeRules context="FindExprDblBracketEnd"/>
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
       </context>
-      <context attribute="Normal Text" lineEndContext="#pop" name="TestMaybeBinary2" fallthroughContext="#pop!ExprDblBracketValue">
+      <context attribute="Normal Text" lineEndContext="#pop" name="TestMaybeBinary2" fallthroughContext="#pop!ExprDblBracketValuePattern">
         <IncludeRules context="TestMaybeBinary"/>
-        <RegExpr attribute="Expression" context="#pop#pop!ExprDblBracketRegex" String="=~(?=[ &tab;(])"/>
+        <RegExpr attribute="Expression" context="#pop!ExprDblBracketRegex" String="=~(?=[ &tab;(])"/>
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam3Spe" fallthroughContext="#pop!ExprDblBracketParam3">
         <DetectSpaces attribute="Normal Text" context="#pop!ExprDblBracketParam3"/>
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam3" fallthroughContext="ExprDblBracketValue">
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketParam3" fallthroughContext="ExprDblBracketValuePattern">
         <DetectSpaces attribute="Normal Text" context="#pop!ExprDblBracketFinal"/>
         <IncludeRules context="FindExprDblBracketEnd"/>
         <AnyChar attribute="Error" context="#stay" String="&lt;>"/>
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketFinal" fallthroughContext="ExprDblBracketValue">
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketFinal" fallthroughContext="ExprDblBracketValuePattern">
         <DetectSpaces attribute="Normal Text" context="#stay"/>
         <IncludeRules context="FindExprDblBracketEnd"/>
         <DetectChar attribute="Comment" context="Comment" char="#"/>
+        <DetectChar attribute="Operator" context="#pop" char=")"/>
         <RegExpr attribute="Error" context="#pop" String="(?:[^] &tab;]++|\](?:[^]]|\][^ &tab;]))++" endRegion="expression"/>
       </context>
 
@@ -1489,13 +1660,17 @@
         <LineContinue attribute="Escape" context="#stay"/>
         <Detect2Chars attribute="Control" context="#pop!ExprDblBracket" char="&amp;" char1="&amp;"/>
         <Detect2Chars attribute="Control" context="#pop!ExprDblBracket" char="|" char1="|"/>
-        <RegExpr attribute="Keyword" context="#pop" String="\]\](?=($|[ &tab;;|&amp;)]))" endRegion="expression"/>
+        <RegExpr attribute="Keyword" context="#pop" String="&dblbracket_close;" endRegion="expression"/>
       </context>
 
-      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketRegex">
-        <DetectSpaces attribute="Normal Text" context="#pop!Regex"/>
+      <context attribute="Normal Text" lineEndContext="#stay" name="ExprDblBracketRegex" fallthroughContext="#pop!ExprDblBracketRegexCheck">
+        <DetectSpaces attribute="Normal Text" context="#pop!ExprDblBracketRegexCheck"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="ExprDblBracketRegexCheck" fallthroughContext="#pop#pop!Regex">
+        <DetectChar attribute="Error" context="Comment" char="#"/>
       </context>
       <context attribute="Pattern" lineEndContext="#stay" name="Regex">
+        <DetectIdentifier attribute="Pattern"/>
         <DetectSpaces attribute="Normal Text" context="#pop!ExprDblBracketFinal"/>
         <DetectChar attribute="Operator" context="#pop" char=")"/>
         <Detect2Chars attribute="Operator" context="RegexChar" char="[" char1="^"/>
@@ -1503,6 +1678,7 @@
         <IncludeRules context="FindRegex"/>
       </context>
       <context attribute="Pattern" lineEndContext="#stay" name="ExprDblBracketSubRegex">
+        <DetectIdentifier attribute="Pattern"/>
         <DetectSpaces attribute="Pattern" context="#stay"/>
         <DetectChar attribute="Operator" context="#pop" char=")"/>
         <Detect2Chars attribute="Operator" context="RegexSubChar" char="[" char1="^"/>
@@ -1529,7 +1705,7 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#pop" name="RegexDup">
-        <AnyChar attribute="Decimal" context="#stay" String="0123456789"/>
+        <Int attribute="Decimal" additionalDeliminator="{"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#stay" char=","/>
         <DetectChar attribute="Parameter Expansion" context="#pop" char="}"/>
       </context>
@@ -1552,6 +1728,7 @@
         <DetectChar context="RegexCharClassSelect" char="[" lookAhead="1"/>
         <DetectChar attribute="Operator" context="#pop" char="]"/>
         <AnyChar context="#pop" String="() &tab;" lookAhead="1"/>
+        <IncludeRules context="FindStrings"/>
       </context>
       <context attribute="Operator" lineEndContext="#stay" name="RegexInCharEnd">
         <DetectChar attribute="Pattern" context="#stay" char="-"/>
@@ -1565,14 +1742,17 @@
       </context>
 
       <context attribute="Parameter Expansion" lineEndContext="#pop#pop#pop" name="RegexCharClass">
+        <DetectIdentifier attribute="Parameter Expansion"/>
         <Detect2Chars attribute="Parameter Expansion Operator" context="#pop" char=":" char1="]"/>
         <DetectChar attribute="Error" context="#pop" char="]"/>
       </context>
       <context attribute="Parameter Expansion" lineEndContext="#pop#pop#pop" name="RegexCollatingSymbols">
+        <DetectIdentifier attribute="Parameter Expansion"/>
         <Detect2Chars attribute="Parameter Expansion Operator" context="#pop" char="." char1="]"/>
         <DetectChar attribute="Error" context="#pop" char="]"/>
       </context>
       <context attribute="Parameter Expansion" lineEndContext="#pop#pop#pop" name="RegexEquivalenceClass">
+        <DetectIdentifier attribute="Parameter Expansion"/>
         <Detect2Chars attribute="Parameter Expansion Operator" context="#pop" char="=" char1="]"/>
         <DetectChar attribute="Error" context="#pop" char="]"/>
       </context>
@@ -1617,6 +1797,7 @@
         <AnyChar attribute="Decimal" context="#stay" String="0123456789"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="Subscript2">
+        <DetectIdentifier attribute="Normal Text"/>
         <DetectChar attribute="Parameter Expansion Operator" context="#pop" char="]"/>
         <IncludeRules context="FindWord"/>
         <IncludeRules context="FindPattern"/>
@@ -1667,43 +1848,45 @@
     <itemDatas>
       <itemData name="Normal Text"    defStyleNum="dsNormal"/>
       <itemData name="Comment"        defStyleNum="dsComment"/>
-      <itemData name="Keyword"        defStyleNum="dsKeyword"/>
-      <itemData name="Control"        defStyleNum="dsKeyword"/>
-      <itemData name="Control Flow"   defStyleNum="dsControlFlow"/>
-      <itemData name="Builtin"        defStyleNum="dsBuiltIn"/>
-      <itemData name="Command"        defStyleNum="dsFunction"/>
-      <itemData name="OtherCommand"   defStyleNum="dsExtension"/>
-      <itemData name="Redirection"    defStyleNum="dsOperator"/>
-      <itemData name="Escape"         defStyleNum="dsDataType"/>
+      <itemData name="Keyword"        defStyleNum="dsKeyword"       spellChecking="false"/>
+      <itemData name="Control"        defStyleNum="dsKeyword"       spellChecking="false"/>
+      <itemData name="Control Flow"   defStyleNum="dsControlFlow"   spellChecking="false"/>
+      <itemData name="Builtin"        defStyleNum="dsBuiltIn"       spellChecking="false"/>
+      <itemData name="Command"        defStyleNum="dsFunction"      spellChecking="false"/>
+      <itemData name="OtherCommand"   defStyleNum="dsExtension"     spellChecking="false"/>
+      <itemData name="Redirection"    defStyleNum="dsOperator"      spellChecking="false"/>
+      <itemData name="Escape"         defStyleNum="dsDataType"      spellChecking="false"/>
       <itemData name="String SingleQ" defStyleNum="dsString"/>
       <itemData name="String DoubleQ" defStyleNum="dsString"/>
       <itemData name="Here Doc"       defStyleNum="dsString"/>
-      <itemData name="Backquote"      defStyleNum="dsKeyword"/>
+      <itemData name="Backquote"      defStyleNum="dsKeyword"       spellChecking="false"/>
       <itemData name="String Transl." defStyleNum="dsString"/>
       <itemData name="String Escape"  defStyleNum="dsDataType"/>
-      <itemData name="Variable"       defStyleNum="dsVariable"/>
-      <itemData name="Expression"     defStyleNum="dsOthers"/>
-      <itemData name="Function"       defStyleNum="dsFunction"/>
-      <itemData name="Pattern"        defStyleNum="dsSpecialString"/>
-      <itemData name="Path"           defStyleNum="dsNormal"/>
-      <itemData name="Glob"           defStyleNum="dsPreprocessor"/>
-      <itemData name="Option"         defStyleNum="dsAttribute"/>
-      <itemData name="Hex"            defStyleNum="dsBaseN"/>
-      <itemData name="Octal"          defStyleNum="dsBaseN"/>
-      <itemData name="Decimal"        defStyleNum="dsDecVal"/>
-      <itemData name="Base"           defStyleNum="dsDataType"/>
-      <itemData name="BaseN"          defStyleNum="dsBaseN"/>
-      <itemData name="File Descriptor" defStyleNum="dsDecVal"/>
-      <itemData name="Parameter Expansion" defStyleNum="dsVariable"/>
-      <itemData name="Parameter Expansion Operator" defStyleNum="dsOperator"/>
-      <itemData name="Operator"       defStyleNum="dsOperator"/>
-      <itemData name="Error"          defStyleNum="dsError"/>
+      <itemData name="Variable"       defStyleNum="dsVariable"      spellChecking="false"/>
+      <itemData name="Dollar Prefix"  defStyleNum="dsVariable"      spellChecking="false"/>
+      <itemData name="Expression"     defStyleNum="dsOthers"        spellChecking="false"/>
+      <itemData name="Function"       defStyleNum="dsFunction"      spellChecking="false"/>
+      <itemData name="Pattern"        defStyleNum="dsSpecialString" spellChecking="false"/>
+      <itemData name="Path"           defStyleNum="dsNormal"        spellChecking="false"/>
+      <itemData name="Glob"           defStyleNum="dsPreprocessor"  spellChecking="false"/>
+      <itemData name="Option"         defStyleNum="dsAttribute"     spellChecking="false"/>
+      <itemData name="Hex"            defStyleNum="dsBaseN"         spellChecking="false"/>
+      <itemData name="Octal"          defStyleNum="dsBaseN"         spellChecking="false"/>
+      <itemData name="Decimal"        defStyleNum="dsDecVal"        spellChecking="false"/>
+      <itemData name="Base"           defStyleNum="dsDataType"      spellChecking="false"/>
+      <itemData name="BaseN"          defStyleNum="dsBaseN"         spellChecking="false"/>
+      <itemData name="File Descriptor" defStyleNum="dsDecVal"       spellChecking="false"/>
+      <itemData name="Parameter Expansion" defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="Parameter Expansion Operator" defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Operator"       defStyleNum="dsOperator"      spellChecking="false"/>
+      <itemData name="Error"          defStyleNum="dsError"         spellChecking="false"/>
+      <itemData name="Region Marker"  defStyleNum="dsRegionMarker"  spellChecking="false" />
     </itemDatas>
   </highlighting>
   <general>
     <comments>
       <comment name="singleLine" start="#"/>
     </comments>
-    <keywords casesensitive="1" weakDeliminator="^%#[]$._{}:-/" additionalDeliminator="`"/>
+    <keywords casesensitive="1" weakDeliminator="_&weakDeliminatorSymbols;" additionalDeliminator="`"/>
   </general>
 </language>

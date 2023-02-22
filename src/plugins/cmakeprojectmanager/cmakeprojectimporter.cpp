@@ -545,7 +545,7 @@ ToolChain *findExternalToolchain(const QString &presetArchitecture, const QStrin
             };
 
             Abi::OSFlavor toolsetAbi = Abi::UnknownFlavor;
-            for (auto abiPair : abiTable) {
+            for (const auto &abiPair : abiTable) {
                 if (presetToolset.contains(abiPair.first)) {
                     toolsetAbi = abiPair.second;
                     break;
@@ -554,7 +554,7 @@ ToolChain *findExternalToolchain(const QString &presetArchitecture, const QStrin
 
             // User didn't specify any flavor, so pick the highest toolchain available
             if (toolsetAbi == Abi::UnknownFlavor) {
-                for (auto abiPair : abiTable) {
+                for (const auto &abiPair : abiTable) {
                     if (msvcFlavors.contains(abiPair.second)) {
                         toolsetAbi = abiPair.second;
                         break;

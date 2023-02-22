@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace SilverSearcher {
-namespace Internal {
+namespace SilverSearcher::Internal {
 
 class SilverSearcherPlugin : public ExtensionSystem::IPlugin
 {
@@ -15,12 +14,6 @@ class SilverSearcherPlugin : public ExtensionSystem::IPlugin
 
 public:
     void initialize() override;
-
-#ifdef WITH_TESTS
-private:
-    QVector<QObject *> createTestObjects() const override;
-#endif
 };
 
-} // namespace Internal
-} // namespace SilverSearcher
+} // SilverSearcher::Internal

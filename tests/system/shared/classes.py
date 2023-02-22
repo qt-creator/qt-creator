@@ -8,16 +8,18 @@ except ImportError:
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
-    ALL_TARGETS = tuple(range(3))
+    ALL_TARGETS = tuple(range(4))
 
     (DESKTOP_5_4_1_GCC,
      DESKTOP_5_10_1_DEFAULT,
-     DESKTOP_5_14_1_DEFAULT) = ALL_TARGETS
+     DESKTOP_5_14_1_DEFAULT,
+     DESKTOP_6_2_4) = ALL_TARGETS
 
     __TARGET_NAME_DICT__ = dict(zip(ALL_TARGETS,
                                     ["Desktop 5.4.1 GCC",
                                      "Desktop 5.10.1 default",
-                                     "Desktop 5.14.1 default"]))
+                                     "Desktop 5.14.1 default",
+                                     "Desktop 6.2.4"]))
 
     @staticmethod
     def availableTargetClasses(ignoreValidity=False):

@@ -107,7 +107,6 @@ DocumentModel::Entry *DocumentModelPrivate::addEntry(DocumentModel::Entry *entry
     int row = positions.second + 1/*<no document>*/;
     beginInsertRows(QModelIndex(), row, row);
     m_entries.insert(positions.second, entry);
-    disambiguateDisplayNames(entry);
     FilePath fixedPath = DocumentManager::filePathKey(filePath, DocumentManager::ResolveLinks);
     if (!fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
@@ -115,6 +114,7 @@ DocumentModel::Entry *DocumentModelPrivate::addEntry(DocumentModel::Entry *entry
         itemChanged(document);
     });
     endInsertRows();
+    disambiguateDisplayNames(entry);
     return entry;
 }
 

@@ -358,11 +358,11 @@ void QnxConfiguration::setDefaultConfiguration(const FilePath &envScript)
     m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile);
     for (const EnvironmentItem &item : std::as_const(m_qnxEnv)) {
         if (item.name == QNXConfiguration)
-            m_qnxConfiguration = FilePath::fromString(item.value).canonicalPath();
+            m_qnxConfiguration = envScript.withNewPath(item.value).canonicalPath();
         else if (item.name == QNXTarget)
-            m_qnxTarget = FilePath::fromString(item.value).canonicalPath();
+            m_qnxTarget = envScript.withNewPath(item.value).canonicalPath();
         else if (item.name == QNXHost)
-            m_qnxHost = FilePath::fromString(item.value).canonicalPath();
+            m_qnxHost = envScript.withNewPath(item.value).canonicalPath();
     }
 
     const FilePath qccPath = m_qnxHost.pathAppended("usr/bin/qcc").withExecutableSuffix();
@@ -383,9 +383,9 @@ void QnxConfiguration::setDefaultConfiguration(const FilePath &envScript)
 EnvironmentItems QnxConfiguration::qnxEnvironmentItems() const
 {
     Utils::EnvironmentItems envList;
-    envList.push_back(EnvironmentItem(QNXConfiguration, m_qnxConfiguration.toString()));
-    envList.push_back(EnvironmentItem(QNXTarget, m_qnxTarget.toString()));
-    envList.push_back(EnvironmentItem(QNXHost, m_qnxHost.toString()));
+    envList.push_back(EnvironmentItem(QNXConfiguration, m_qnxConfiguration.path()));
+    envList.push_back(EnvironmentItem(QNXTarget, m_qnxTarget.path()));
+    envList.push_back(EnvironmentItem(QNXHost, m_qnxHost.path()));
 
     return envList;
 }
@@ -401,17 +401,20 @@ const QnxConfiguration::Target *QnxConfiguration::findTargetByDebuggerPath(
 void QnxConfiguration::updateTargets()
 {
     m_targets.clear();
-    QList<QnxTarget> targets = QnxUtils::findTargets(m_qnxTarget);
-    for (const auto &target : targets)
+    const QList<QnxTarget> targets = QnxUtils::findTargets(m_qnxTarget);
+    for (const QnxTarget &target : targets)
         m_targets.append(Target(target.m_abi, target.m_path));
 }
 
 void QnxConfiguration::assignDebuggersToTargets()
 {
     const FilePath hostUsrBinDir = m_qnxHost.pathAppended("usr/bin");
-    const FilePaths debuggerNames = hostUsrBinDir.dirEntries(
-                {{HostOsInfo::withExecutableSuffix("nto*-gdb")}, QDir::Files});
-    Environment sysEnv = Environment::systemEnvironment();
+    QString pattern = "nto*-gdb";
+    if (m_qnxHost.osType() == Utils::OsTypeWindows)
+        pattern += ".exe";
+
+    const FilePaths debuggerNames = hostUsrBinDir.dirEntries({{pattern}, QDir::Files});
+    Environment sysEnv = m_qnxHost.deviceEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
 
     for (const FilePath &debuggerPath : debuggerNames) {

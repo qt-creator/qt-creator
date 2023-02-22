@@ -479,6 +479,10 @@ class Dumper(DumperBase):
             return None
 
         nativeValue = value.nativeValue
+        if nativeValue is None:
+            if not self.isExpanded():
+                raise Exception("Casting not expanded values is to expensive")
+            nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
         castVal = nativeVtCastValue(nativeValue)
         if castVal is not None:
             val = self.fromNativeValue(castVal)

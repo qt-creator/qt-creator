@@ -9470,9 +9470,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Locator</source>
         <translation>Locator</translation>
     </message>
-</context>
-<context>
-    <name>OpenWith::Editors</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Texteditor</translation>
@@ -32671,7 +32668,9 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Vollständig qualifizierter Name einschließlich Namensräumen</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.Preselects a desktop Qt for building the application if available.</source>
+        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.
+
+Preselects a desktop Qt for building the application if available.</source>
         <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Designer-basierten Hauptfenster.
 
 Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
@@ -32745,7 +32744,9 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>C++-Bibliothek</translation>
     </message>
     <message>
-        <source>Creates a project containing a single main.cpp file with a stub implementation.Preselects a desktop Qt for building the application if available.</source>
+        <source>Creates a project containing a single main.cpp file with a stub implementation.
+
+Preselects a desktop Qt for building the application if available.</source>
         <translation>Erstellt ein Projekt, das aus einer main.cpp-Datei mit einem Implementationsrumpf besteht.
 
 Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
@@ -32803,7 +32804,9 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Qt 6</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
+        <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.
+
+Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
         <translation>Erstellt ein Qt Quick 2 UI-Projekt mit QML-Einsprungpunkt. Um es zu verwenden, brauchen Sie eine QML-Laufzeitumgebung wie qmlscene.
 
 Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anwendung erstellen. Vielleicht ist ein Qt Quick-Anwendungsprojekt besser geeignet.</translation>
@@ -51200,29 +51203,8 @@ in &quot;%2&quot; aus.
         <translation>Codemodell</translation>
     </message>
     <message>
-        <source>If background indexing is enabled, global symbol searches will yield
-more accurate results, at the cost of additional CPU load when
-the project is first opened.
-The indexing result is persisted in the project&apos;s build directory.
-
-If you disable background indexing, a faster, but less accurate,
-built-in indexer is used instead.
-
-The thread priority for building the background index can be adjusted since clangd 15.
-Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.
-Normal Priority: Reduced priority compared to interactive work.
-Low Priority: Same priority as other clangd work.</source>
-        <translation>Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate,
-es erhöht aber die CPU-Last beim ersten Öffnen von Projekten.
-Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert.
-
-Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer,
-aber weniger genauer, integrierter Indexer benutzt.
-
-Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.
-Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.
-Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.
-Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.</translation>
+        <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;Low Priority: Same priority as other clangd work.</source>
+        <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.</translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>

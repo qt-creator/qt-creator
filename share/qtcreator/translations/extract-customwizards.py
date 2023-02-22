@@ -15,8 +15,8 @@ target_file = sys.argv[2]
 
 
 def fix_value(value):
-    value = value.replace('\"', '\\\"')
-    value = value.replace('\n', '\\\n')
+    value = value.replace('\"', '\\"')
+    value = value.replace('\n', '\\n')
     return value
 
 
@@ -30,7 +30,7 @@ def parse_file(file_path):
               './/comboentrytext',
               './/message']:
         for e in root.findall(i):
-            result += 'const char *a{} = QT_TRANSLATE_NOOP("ProjectExplorer::CustomWizard", "{}"); // {}\n'.format(index, fix_value(e.text), file_path)
+            result += 'const char *a{} = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "{}"); // {}\n'.format(index, fix_value(e.text), file_path)
 
             index += 1
     return result

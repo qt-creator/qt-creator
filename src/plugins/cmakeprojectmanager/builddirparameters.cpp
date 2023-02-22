@@ -65,6 +65,8 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
     if (Utils::HostOsInfo::isAnyUnixHost())
         environment.set("ICECC", "no");
 
+    environment.set("QTC_RUN", "1");
+
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
 }
 

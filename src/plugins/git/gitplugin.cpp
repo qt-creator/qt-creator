@@ -1502,7 +1502,8 @@ CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &fil
                             const Git::Internal::Author &author)
 {
     CommitInfo result;
-    QTC_ASSERT(blame.size() > 12, return result);
+    if (blame.size() <= 12)
+        return result;
 
     result.sha1 = blame.at(0).left(40);
     result.author = blame.at(1).mid(7);

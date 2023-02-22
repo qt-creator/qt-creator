@@ -378,7 +378,7 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget, bool immutable)
                 dockWidget->setProperty(dockWidgetActiveState, visible);
         });
 
-        connect(dockWidget->toggleViewAction(), &QAction::triggered, this, [dockWidget] {
+        connect(dockWidget->toggleViewAction(), &QAction::triggered, dockWidget, [dockWidget] {
             if (dockWidget->isVisible())
                 dockWidget->raise();
         }, Qt::QueuedConnection);

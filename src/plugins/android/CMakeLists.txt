@@ -58,5 +58,6 @@ add_qtc_plugin(Android
 extend_qtc_plugin(Android
   CONDITION WITH_TESTS
   SOURCES
+    androidsdkmanager_test.cpp androidsdkmanager_test.h
     android_tst.qrc
 )

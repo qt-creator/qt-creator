@@ -23,9 +23,7 @@ public:
         , targetColumn(column)
     {}
 
-    static Link fromString(const QString &filePathWithNumbers,
-                           bool canContainLineNumber = false,
-                           QString *postfix = nullptr);
+    static Link fromString(const QString &filePathWithNumbers, bool canContainLineNumber = false);
 
     bool hasValidTarget() const
     { return !targetFilePath.isEmpty(); }

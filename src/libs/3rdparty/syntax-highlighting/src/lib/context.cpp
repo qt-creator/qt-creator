@@ -91,7 +91,7 @@ void Context::resolveIncludes(DefinitionData &def)
             if (idx == 0) {
                 context = defData->initialContext();
             } else {
-                context = defData->contextByName(contextName.left(idx));
+                context = defData->contextByName(QStringView(contextName).left(idx));
             }
         }
 

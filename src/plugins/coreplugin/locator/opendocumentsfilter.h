@@ -25,10 +25,12 @@ public:
                                          const QString &entry) override;
     void accept(const LocatorFilterEntry &selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
 
 public slots:
-    void refreshInternally();
+    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                         const QVector<int> &roles);
+    void slotRowsInserted(const QModelIndex &, int first, int last);
+    void slotRowsRemoved(const QModelIndex &, int first, int last);
 
 private:
     class Entry
