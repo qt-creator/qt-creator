@@ -10,7 +10,7 @@
 void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &future,
                                const QList<ILocatorFilter *> &filters, const QString &searchText)
 {
-    std::unordered_set<Utils::FilePath> addedCache;
+    std::unordered_set<Utils::Link> addedCache;
     const bool checkDuplicates = (filters.size() > 1);
     const auto duplicatesRemoved = [&](const QList<LocatorFilterEntry> &entries) {
         if (!checkDuplicates)
@@ -19,7 +19,7 @@ void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &futur
         results.reserve(entries.size());
         for (const LocatorFilterEntry &entry : entries) {
             const auto &link = entry.linkForEditor;
-            if (!link || addedCache.emplace(link->targetFilePath).second)
+            if (!link || addedCache.emplace(*link).second)
                 results.append(entry);
         }
         return results;

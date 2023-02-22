@@ -42,6 +42,7 @@ protected:
 
     QPointer<DocumentSymbolCache> m_symbolCache;
     LanguageServerProtocol::DocumentUri m_currentUri;
+    Utils::FilePath m_currentFilePath;
 
 private:
     void updateSymbols(const LanguageServerProtocol::DocumentUri &uri,

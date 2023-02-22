@@ -136,10 +136,8 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
             CppEditor::IndexItem::Ptr info = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;
-            if (EditorManager::instance()->openEditorAt(
-                    {info->filePath(), info->line(), info->column()})) {
+            if (EditorManager::openEditor(entry))
                 return;
-            }
         }
     }
 }

@@ -52,6 +52,7 @@ QList<LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<LocatorFil
             if (match.hasMatch()) {
                 QVariant id = QVariant::fromValue(info);
                 LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
+                filterEntry.linkForEditor = {info.fileName, info.line, info.column};
                 filterEntry.extraInfo = info.extraInfo;
                 filterEntry.highlightInfo = highlightInfo(match);
 
@@ -78,6 +79,5 @@ void FunctionFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    const LocatorData::Entry entry = qvariant_cast<LocatorData::Entry>(selection.internalData);
-    EditorManager::openEditorAt({entry.fileName, entry.line, entry.column});
+    EditorManager::openEditor(selection);
 }

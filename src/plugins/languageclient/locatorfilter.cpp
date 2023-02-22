@@ -96,7 +96,7 @@ static LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
     if (std::optional<QString> container = info.containerName())
         entry.extraInfo = container.value_or(QString());
     entry.displayIcon = symbolIcon(info.kind());
-    entry.internalData = QVariant::fromValue(info.location().toLink(pathMapper));
+    entry.linkForEditor = info.location().toLink(pathMapper);
     return entry;
 }
 
@@ -127,7 +127,7 @@ LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(const DocumentSym
         entry.extraInfo = detail.value_or(QString());
     entry.displayIcon = symbolIcon(info.kind());
     const Position &pos = info.range().start();
-    entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
+    entry.linkForEditor = {m_currentFilePath, pos.line() + 1, pos.character()};
     return entry;
 }
 
@@ -150,7 +150,7 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
 
 template<class T>
 QList<LocatorFilterEntry> DocumentLocatorFilter::generateEntries(const QList<T> &list,
-                                                                       const QString &filter)
+                                                                 const QString &filter)
 {
     QList<LocatorFilterEntry> entries;
     FuzzyMatcher::CaseSensitivity caseSensitivity
@@ -169,6 +169,7 @@ QList<LocatorFilterEntry> DocumentLocatorFilter::generateEntries(const QList<T> 
 void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
 {
     QMutexLocker locker(&m_mutex);
+    m_currentFilePath = m_pathMapper ? m_currentUri.toFilePath(m_pathMapper) : Utils::FilePath();
     if (m_symbolCache && !m_currentSymbols.has_value()) {
         locker.unlock();
         m_symbolCache->requestSymbols(m_currentUri, Schedule::Now);
@@ -208,17 +209,8 @@ void DocumentLocatorFilter::accept(const LocatorFilterEntry &selection,
                                    int * /*selectionStart*/,
                                    int * /*selectionLength*/) const
 {
-    if (selection.internalData.canConvert<Utils::LineColumn>()) {
-        QTC_ASSERT(m_pathMapper, return);
-        auto lineColumn = qvariant_cast<Utils::LineColumn>(selection.internalData);
-        const Utils::Link link(m_currentUri.toFilePath(m_pathMapper),
-                               lineColumn.line + 1,
-                               lineColumn.column);
-        EditorManager::openEditorAt(link, {}, EditorManager::AllowExternalEditor);
-    } else if (selection.internalData.canConvert<Utils::Link>()) {
-        EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData), {},
-                                    EditorManager::AllowExternalEditor);
-    }
+    if (selection.linkForEditor)
+        EditorManager::openEditor(selection);
 }
 
 WorkspaceLocatorFilter::WorkspaceLocatorFilter()
@@ -299,7 +291,6 @@ QList<LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
         locker.relock();
     }
 
-
     if (!m_filterKinds.isEmpty()) {
         m_results = Utils::filtered(m_results, [&](const SymbolInfoWithPathMapper &info) {
             return m_filterKinds.contains(SymbolKind(info.symbol.kind()));
@@ -316,10 +307,7 @@ void WorkspaceLocatorFilter::accept(const LocatorFilterEntry &selection,
                                     int * /*selectionStart*/,
                                     int * /*selectionLength*/) const
 {
-    if (selection.internalData.canConvert<Utils::Link>()) {
-        EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData), {},
-                                    EditorManager::AllowExternalEditor);
-    }
+    EditorManager::openEditor(selection);
 }
 
 void WorkspaceLocatorFilter::handleResponse(Client *client,

@@ -33,6 +33,7 @@ LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr inf
 {
     const QVariant id = QVariant::fromValue(info);
     LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
+    filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
         filterEntry.extraInfo = info->shortNativeFilePath();
     else
@@ -121,9 +122,7 @@ void CppLocatorFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    EditorManager::openEditorAt({info->filePath(), info->line(), info->column()}, {},
-                                EditorManager::AllowExternalEditor);
+    EditorManager::openEditor(selection);
 }
 
 CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
@@ -141,6 +140,7 @@ LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr inf
 {
     const QVariant id = QVariant::fromValue(info);
     LocatorFilterEntry filterEntry(this, info->symbolName(), id, info->icon());
+    filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     filterEntry.extraInfo = info->symbolScope().isEmpty()
         ? info->shortNativeFilePath()
         : info->symbolScope();
@@ -173,6 +173,7 @@ LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr i
     }
 
     LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());
+    filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     filterEntry.extraInfo = extraInfo;
 
     return filterEntry;

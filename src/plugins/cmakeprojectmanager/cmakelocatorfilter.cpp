@@ -58,17 +58,13 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
             if (index >= 0) {
                 const FilePath path = target.backtrace.isEmpty() ? cmakeProject->projectFilePath()
                                                                  : target.backtrace.last().path;
-                const int line = target.backtrace.isEmpty() ? -1 : target.backtrace.last().line;
+                const int line = target.backtrace.isEmpty() ? 0 : target.backtrace.last().line;
 
-                QVariantMap extraData;
-                extraData.insert("project", cmakeProject->projectFilePath().toString());
-                extraData.insert("line", line);
-                extraData.insert("file", path.toString());
-
-                LocatorFilterEntry filterEntry(this, target.title, extraData);
+                LocatorFilterEntry filterEntry(this, target.title);
+                filterEntry.linkForEditor = {path, line};
                 filterEntry.extraInfo = path.shortNativePath();
                 filterEntry.highlightInfo = {index, int(entry.length())};
-                filterEntry.filePath = path;
+                filterEntry.filePath = cmakeProject->projectFilePath();
 
                 m_result.append(filterEntry);
             }
@@ -111,8 +107,7 @@ void BuildCMakeTargetLocatorFilter::accept(const LocatorFilterEntry &selection, 
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
 
-    const QVariantMap extraData = selection.internalData.toMap();
-    const FilePath projectPath = FilePath::fromString(extraData.value("project").toString());
+    const FilePath projectPath = selection.filePath;
 
     // Get the project containing the target selected
     const auto cmakeProject = qobject_cast<CMakeProject *>(
@@ -160,15 +155,7 @@ void OpenCMakeTargetLocatorFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-
-    const QVariantMap extraData = selection.internalData.toMap();
-    const int line = extraData.value("line").toInt();
-    const auto file = FilePath::fromVariant(extraData.value("file"));
-
-    if (line >= 0)
-        EditorManager::openEditorAt({file, line}, {}, EditorManager::AllowExternalEditor);
-    else
-        EditorManager::openEditor(file, {}, EditorManager::AllowExternalEditor);
+    EditorManager::openEditor(selection);
 }
 
 } // CMakeProjectManager::Internal

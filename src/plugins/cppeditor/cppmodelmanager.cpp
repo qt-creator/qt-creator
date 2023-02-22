@@ -572,12 +572,9 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
                     return entry.displayName.startsWith(prefix); })) {
                 continue;
             }
-            Link link;
-            if (entry.internalData.canConvert<Link>())
-                link = qvariant_cast<Link>(entry.internalData);
-            else if (const auto item = qvariant_cast<IndexItem::Ptr>(entry.internalData))
-                link = Link(item->filePath(), item->line(), item->column());
-
+            if (!entry.linkForEditor)
+                continue;
+            const Link link = *entry.linkForEditor;
             if (link.hasValidTarget() && link.targetFilePath.isReadableFile()
                     && (folder.isEmpty() || link.targetFilePath.isChildOf(folder))
                     && ProjectManager::projectForFile(link.targetFilePath)) {

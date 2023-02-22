@@ -86,6 +86,7 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
             }
 
             LocatorFilterEntry filterEntry(this, name, id, info->icon());
+            filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
             filterEntry.extraInfo = extraInfo;
             if (match.hasMatch()) {
                 filterEntry.highlightInfo = highlightInfo(match);
@@ -127,13 +128,13 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         }
         if (definitions.size() == 1
             && declarations.size() + definitions.size() == duplicates.size()) {
-            for (const LocatorFilterEntry &decl : std::as_const(declarations))
+            for (const LocatorFilterEntry &decl : std::as_const(declarations)) {
                 Utils::erase(betterEntries, [&decl](const LocatorFilterEntry &e) {
                     return e.internalData == decl.internalData;
                 });
+            }
         }
     }
-
     return betterEntries;
 }
 
@@ -143,8 +144,7 @@ void CppCurrentDocumentFilter::accept(const LocatorFilterEntry &selection, QStri
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    EditorManager::openEditorAt({info->filePath(), info->line(), info->column()});
+    EditorManager::openEditor(selection);
 }
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)

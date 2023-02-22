@@ -6,24 +6,19 @@
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditortr.h>
 #include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/indexitem.h>
-
 #include <languageclient/languageclientutils.h>
 #include <languageclient/locatorfilter.h>
-
 #include <projectexplorer/projectmanager.h>
-
 #include <utils/link.h>
 #include <utils/algorithm.h>
 
 #include <QHash>
-
-#include <set>
-#include <tuple>
 
 using namespace Core;
 using namespace LanguageClient;
@@ -159,33 +154,27 @@ QList<LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     QList<LocatorFilterEntry> matches = m_cppFilter->matchesFor(future, entry);
     const QList<LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
     if (!lspMatches.isEmpty()) {
-        std::set<std::tuple<FilePath, int, int>> locations;
+        QSet<Link> locations;
         for (const auto &entry : std::as_const(matches)) {
-            const CppEditor::IndexItem::Ptr item
-                    = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
-            locations.insert(std::make_tuple(item->filePath(), item->line(), item->column()));
+            QTC_ASSERT(entry.linkForEditor, continue);
+            locations.insert(*entry.linkForEditor);
         }
         for (const auto &entry : lspMatches) {
-            if (!entry.internalData.canConvert<Link>())
-                continue;
-            const auto link = qvariant_cast<Link>(entry.internalData);
-            if (locations.find(std::make_tuple(link.targetFilePath, link.targetLine,
-                                               link.targetColumn)) == locations.cend()) {
+            QTC_ASSERT(entry.linkForEditor, continue);
+            if (!locations.contains(*entry.linkForEditor))
                 matches << entry; // TODO: Insert sorted?
-            }
         }
     }
-
     return matches;
 }
 
 void ClangGlobalSymbolFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                                      int *selectionStart, int *selectionLength) const
 {
-    if (qvariant_cast<CppEditor::IndexItem::Ptr>(selection.internalData))
-        m_cppFilter->accept(selection, newText, selectionStart, selectionLength);
-    else
-        m_lspFilter->accept(selection, newText, selectionStart, selectionLength);
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
+    EditorManager::openEditor(selection);
 }
 
 
@@ -236,6 +225,8 @@ private:
                     static_cast<SymbolKind>(info.kind()), info.name(),
                     info.detail().value_or(QString()));
         entry.internalData = QVariant::fromValue(info);
+        const Position pos = info.range().start();
+        entry.linkForEditor = {m_currentFilePath, pos.line() + 1, pos.character()};
         entry.extraInfo = parent.extraInfo;
         if (!entry.extraInfo.isEmpty())
             entry.extraInfo.append("::");
@@ -289,19 +280,13 @@ private:
             }
             if (definitions.size() == 1
                 && declarations.size() + definitions.size() == duplicates.size()) {
-                for (const LocatorFilterEntry &decl : std::as_const(declarations))
+                for (const LocatorFilterEntry &decl : std::as_const(declarations)) {
                     Utils::erase(allMatches, [&decl](const LocatorFilterEntry &e) {
                         return e.internalData == decl.internalData;
                     });
+                }
             }
         }
-
-        // The base implementation expects the position in the internal data.
-        for (LocatorFilterEntry &e : allMatches) {
-            const Position pos = qvariant_cast<DocumentSymbol>(e.internalData).range().start();
-            e.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
-        }
-
         return allMatches;
     }
 
@@ -362,8 +347,10 @@ QList<LocatorFilterEntry> ClangdCurrentDocumentFilter::matchesFor(
 void ClangdCurrentDocumentFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                                          int *selectionStart, int *selectionLength) const
 {
-    QTC_ASSERT(d->activeFilter, return);
-    d->activeFilter->accept(selection, newText, selectionStart, selectionLength);
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
+    EditorManager::openEditor(selection);
 }
 
 } // namespace Internal
