@@ -342,12 +342,22 @@ QString QmlBuildSystem::mainUiFile() const
 
 Utils::FilePath QmlBuildSystem::mainFilePath() const
 {
-    return projectDirectory().pathAppended(mainFile());
+    const auto mainFileString = mainFile();
+
+    if (mainFileString.isEmpty())
+        return {};
+
+    return projectDirectory().pathAppended(mainFileString);
 }
 
 Utils::FilePath QmlBuildSystem::mainUiFilePath() const
 {
-    return projectDirectory().pathAppended(mainUiFile());
+    const auto mainUiFileString = mainUiFile();
+
+    if (mainUiFileString.isEmpty())
+        return {};
+
+    return projectDirectory().pathAppended(mainUiFileString);
 }
 
 bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)
