@@ -176,15 +176,6 @@ bool QnxConfiguration::isActive() const
     return hasToolChain && hasDebugger;
 }
 
-bool QnxConfiguration::canCreateKits() const
-{
-    if (!isValid())
-        return false;
-
-    return Utils::anyOf(m_targets,
-                        [this](const Target &target) -> bool { return qnxQtVersion(target); });
-}
-
 FilePath QnxConfiguration::sdpPath() const
 {
     return envFile().parentDir();
@@ -276,10 +267,7 @@ QList<ToolChain *> QnxConfiguration::findToolChain(const QList<ToolChain *> &alr
 void QnxConfiguration::createKit(const Target &target, const QnxToolChainMap &toolChainMap,
                                  const QVariant &debugger)
 {
-    QnxQtVersion *qnxQt = qnxQtVersion(target);
-    // Do not create incomplete kits if no qt qnx version found
-    if (!qnxQt)
-        return;
+    QnxQtVersion *qnxQt = qnxQtVersion(target); // nullptr is ok.
 
     const auto init = [&](Kit *k) {
         QtKitAspect::setQtVersion(k, qnxQt);

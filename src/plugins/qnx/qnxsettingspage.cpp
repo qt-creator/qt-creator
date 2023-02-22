@@ -183,7 +183,7 @@ void QnxSettingsWidget::updateInformation()
             m_configsCombo->itemData(currentIndex).value<void*>());
 
     // update the checkbox
-    m_generateKitsCheckBox->setEnabled(config ? config->canCreateKits() : false);
+    m_generateKitsCheckBox->setEnabled(config ? config->isValid() : false);
     m_generateKitsCheckBox->setChecked(config ? config->isActive() : false);
 
     // update information

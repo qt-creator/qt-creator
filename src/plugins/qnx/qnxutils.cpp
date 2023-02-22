@@ -4,13 +4,11 @@
 #include "qnxutils.h"
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>
-#include <QStandardPaths>
 #include <QApplication>
 
 using namespace ProjectExplorer;

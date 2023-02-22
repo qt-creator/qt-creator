@@ -47,7 +47,6 @@ public:
     bool activate();
     void deactivate();
     bool isActive() const;
-    bool canCreateKits() const;
     Utils::FilePath sdpPath() const;
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
