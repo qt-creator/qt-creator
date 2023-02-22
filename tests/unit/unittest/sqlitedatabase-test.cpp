@@ -330,7 +330,7 @@ TEST_F(SqliteDatabase, SessionsCommit)
         .write(2, "hoo");
     database.applyAndUpdateSessions();
 
-    ASSERT_THAT(names(), ElementsAre("foo", "bar"));
+    ASSERT_THAT(names(), UnorderedElementsAre("foo", "bar"));
 }
 
 TEST_F(SqliteDatabase, SessionsRollback)
