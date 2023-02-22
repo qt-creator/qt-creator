@@ -19,6 +19,8 @@ public:
     QnxConfigurationManager();
     ~QnxConfigurationManager() override;
 
+    void restoreConfigurations();
+
     static QnxConfigurationManager *instance();
     QList<QnxConfiguration*> configurations() const;
     void removeConfiguration(QnxConfiguration *config);
@@ -34,7 +36,6 @@ signals:
 private:
     QList<QnxConfiguration*> m_configurations;
     Utils::PersistentSettingsWriter *m_writer;
-    void restoreConfigurations();
 };
 
 } // Qnx::Internal

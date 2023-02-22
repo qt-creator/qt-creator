@@ -29,7 +29,6 @@ QnxConfigurationManager::QnxConfigurationManager()
 {
     m_instance = this;
     m_writer = new PersistentSettingsWriter(qnxConfigSettingsFileName(), "QnxConfigurations");
-    restoreConfigurations();
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &QnxConfigurationManager::saveConfigs);
 }
