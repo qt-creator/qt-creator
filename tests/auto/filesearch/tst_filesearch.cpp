@@ -36,7 +36,7 @@ namespace {
                                                               QList<QTextCodec *>()
                                                                   << QTextCodec::codecForLocale());
         QFutureWatcher<Utils::FileSearchResultList> watcher;
-        QSignalSpy ready(&watcher, SIGNAL(resultsReadyAt(int,int)));
+        QSignalSpy ready(&watcher, &QFutureWatcherBase::resultsReadyAt);
         if (regexp == tst_FileSearch::NoRegExp)
             watcher.setFuture(Utils::findInFiles(term, it, flags));
         else

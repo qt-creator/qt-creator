@@ -5,11 +5,13 @@
 #include <QColor>
 #include <tracing/timelinezoomcontrol.h>
 
+using namespace Timeline;
+
 class tst_TimelineZoomControl : public QObject
 {
     Q_OBJECT
 private:
-    void verifyWindow(const Timeline::TimelineZoomControl &zoomControl);
+    void verifyWindow(const TimelineZoomControl &zoomControl);
 
 private slots:
     void trace();
@@ -18,7 +20,7 @@ private slots:
     void selection();
 };
 
-void tst_TimelineZoomControl::verifyWindow(const Timeline::TimelineZoomControl &zoomControl)
+void tst_TimelineZoomControl::verifyWindow(const TimelineZoomControl &zoomControl)
 {
     QVERIFY(zoomControl.windowStart() <= zoomControl.rangeStart());
     QVERIFY(zoomControl.windowEnd() >= zoomControl.rangeEnd());
@@ -28,8 +30,8 @@ void tst_TimelineZoomControl::verifyWindow(const Timeline::TimelineZoomControl &
 
 void tst_TimelineZoomControl::trace()
 {
-    Timeline::TimelineZoomControl zoomControl;
-    QSignalSpy spy(&zoomControl, SIGNAL(traceChanged(qint64,qint64)));
+    TimelineZoomControl zoomControl;
+    QSignalSpy spy(&zoomControl, &TimelineZoomControl::traceChanged);
     QCOMPARE(zoomControl.traceStart(), -1);
     QCOMPARE(zoomControl.traceEnd(), -1);
     QCOMPARE(zoomControl.traceDuration(), 0);
@@ -49,18 +51,18 @@ void tst_TimelineZoomControl::trace()
 
 void tst_TimelineZoomControl::window()
 {
-    Timeline::TimelineZoomControl zoomControl;
+    TimelineZoomControl zoomControl;
 
     QTimer timer;
     timer.setSingleShot(true);
-    connect(&timer, &QTimer::timeout, [&](){
+    connect(&timer, &QTimer::timeout, [&] {
         QVERIFY(zoomControl.windowLocked());
         zoomControl.setWindowLocked(false);
     });
 
     int numWindowChanges = 0;
 
-    connect(&zoomControl, &Timeline::TimelineZoomControl::windowChanged,
+    connect(&zoomControl, &TimelineZoomControl::windowChanged,
             [&](qint64, qint64) {
         verifyWindow(zoomControl);
 
@@ -98,8 +100,7 @@ void tst_TimelineZoomControl::window()
     zoomControl.setRange(152000, 152005); // move right
 
     QMetaObject::Connection connection = connect(
-                &zoomControl, &Timeline::TimelineZoomControl::windowMovingChanged,
-                [&](bool moving) {
+                &zoomControl, &TimelineZoomControl::windowMovingChanged, [&](bool moving) {
         if (moving)
             return;
 
@@ -129,7 +130,7 @@ void tst_TimelineZoomControl::window()
     disconnect(connection);
 
     bool stopDetected = false;
-    connect(&zoomControl, &Timeline::TimelineZoomControl::windowMovingChanged, [&](bool moving) {
+    connect(&zoomControl, &TimelineZoomControl::windowMovingChanged, [&](bool moving) {
         if (!moving) {
             QCOMPARE(stopDetected, false);
             stopDetected = true;
@@ -148,8 +149,8 @@ void tst_TimelineZoomControl::window()
 
 void tst_TimelineZoomControl::range()
 {
-    Timeline::TimelineZoomControl zoomControl;
-    QSignalSpy spy(&zoomControl, SIGNAL(rangeChanged(qint64,qint64)));
+    TimelineZoomControl zoomControl;
+    QSignalSpy spy(&zoomControl, &TimelineZoomControl::rangeChanged);
     QCOMPARE(zoomControl.rangeStart(), -1);
     QCOMPARE(zoomControl.rangeEnd(), -1);
     QCOMPARE(zoomControl.rangeDuration(), 0);
@@ -175,8 +176,8 @@ void tst_TimelineZoomControl::range()
 
 void tst_TimelineZoomControl::selection()
 {
-    Timeline::TimelineZoomControl zoomControl;
-    QSignalSpy spy(&zoomControl, SIGNAL(selectionChanged(qint64,qint64)));
+    TimelineZoomControl zoomControl;
+    QSignalSpy spy(&zoomControl, &TimelineZoomControl::selectionChanged);
     QCOMPARE(zoomControl.selectionStart(), -1);
     QCOMPARE(zoomControl.selectionEnd(), -1);
     QCOMPARE(zoomControl.selectionDuration(), 0);

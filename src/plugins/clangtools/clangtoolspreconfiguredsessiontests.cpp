@@ -102,7 +102,7 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
     for (ClangTool * const tool : {ClangTidyTool::instance(), ClazyTool::instance()}) {
         tool->startTool(ClangTool::FileSelectionType::AllFiles);
-        QSignalSpy waitUntilAnalyzerFinished(tool, SIGNAL(finished(bool)));
+        QSignalSpy waitUntilAnalyzerFinished(tool, &ClangTool::finished);
         QVERIFY(waitUntilAnalyzerFinished.wait(30000));
         const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
         const bool analyzerFinishedSuccessfully = arguments.first().toBool();

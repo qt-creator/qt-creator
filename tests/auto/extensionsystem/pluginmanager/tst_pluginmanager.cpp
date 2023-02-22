@@ -57,9 +57,9 @@ void tst_PluginManager::init()
     m_pm = new PluginManager;
     PluginManager::setSettings(new Utils::QtcSettings);
     PluginManager::setPluginIID(QLatin1String("plugin"));
-    m_objectAdded = new QSignalSpy(m_pm, SIGNAL(objectAdded(QObject*)));
-    m_aboutToRemoveObject = new QSignalSpy(m_pm, SIGNAL(aboutToRemoveObject(QObject*)));
-    m_pluginsChanged = new QSignalSpy(m_pm, SIGNAL(pluginsChanged()));
+    m_objectAdded = new QSignalSpy(m_pm, &PluginManager::objectAdded);
+    m_aboutToRemoveObject = new QSignalSpy(m_pm, &PluginManager::aboutToRemoveObject);
+    m_pluginsChanged = new QSignalSpy(m_pm, &PluginManager::pluginsChanged);
 }
 
 void tst_PluginManager::cleanup()

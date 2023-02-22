@@ -105,9 +105,9 @@ void QmlProfilerClientManagerTest::testConnectionFailure()
     QFETCH(QmlProfilerStateManager *, stateManager);
     QFETCH(QUrl, serverUrl);
 
-    QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
-    QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
-    QSignalSpy failedSpy(&clientManager, SIGNAL(connectionFailed()));
+    QSignalSpy openedSpy(&clientManager, &QmlProfilerClientManager::connectionOpened);
+    QSignalSpy closedSpy(&clientManager, &QmlProfilerClientManager::connectionClosed);
+    QSignalSpy failedSpy(&clientManager, &QmlProfilerClientManager::connectionFailed);
 
     QVERIFY(!clientManager.isConnected());
 
@@ -137,9 +137,9 @@ void QmlProfilerClientManagerTest::testConnectionFailure()
 
 void QmlProfilerClientManagerTest::testUnresponsiveTcp()
 {
-    QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
-    QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
-    QSignalSpy failedSpy(&clientManager, SIGNAL(connectionFailed()));
+    QSignalSpy openedSpy(&clientManager, &QmlProfilerClientManager::connectionOpened);
+    QSignalSpy closedSpy(&clientManager, &QmlProfilerClientManager::connectionClosed);
+    QSignalSpy failedSpy(&clientManager, &QmlProfilerClientManager::connectionFailed);
 
     QVERIFY(!clientManager.isConnected());
 
@@ -150,7 +150,7 @@ void QmlProfilerClientManagerTest::testUnresponsiveTcp()
 
     QTcpServer server;
     server.listen(QHostAddress(serverUrl.host()), serverUrl.port());
-    QSignalSpy connectionSpy(&server, SIGNAL(newConnection()));
+    QSignalSpy connectionSpy(&server, &QTcpServer::newConnection);
 
     clientManager.connectToServer(serverUrl);
 
@@ -165,9 +165,9 @@ void QmlProfilerClientManagerTest::testUnresponsiveTcp()
 
 void QmlProfilerClientManagerTest::testUnresponsiveLocal()
 {
-    QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
-    QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
-    QSignalSpy failedSpy(&clientManager, SIGNAL(connectionFailed()));
+    QSignalSpy openedSpy(&clientManager, &QmlProfilerClientManager::connectionOpened);
+    QSignalSpy closedSpy(&clientManager, &QmlProfilerClientManager::connectionClosed);
+    QSignalSpy failedSpy(&clientManager, &QmlProfilerClientManager::connectionFailed);
 
     QVERIFY(!clientManager.isConnected());
 
@@ -176,7 +176,7 @@ void QmlProfilerClientManagerTest::testUnresponsiveLocal()
 
     QUrl socketUrl = Utils::urlFromLocalSocket();
     QLocalSocket socket;
-    QSignalSpy connectionSpy(&socket, SIGNAL(connected()));
+    QSignalSpy connectionSpy(&socket, &QLocalSocket::connected);
 
     clientManager.connectToServer(socketUrl);
 
@@ -209,8 +209,8 @@ void QmlProfilerClientManagerTest::testResponsiveTcp()
 
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
 
-    QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
-    QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
+    QSignalSpy openedSpy(&clientManager, &QmlProfilerClientManager::connectionOpened);
+    QSignalSpy closedSpy(&clientManager, &QmlProfilerClientManager::connectionClosed);
 
     QVERIFY(!clientManager.isConnected());
 
@@ -267,8 +267,8 @@ void QmlProfilerClientManagerTest::testResponsiveLocal()
 
     QUrl socketUrl = Utils::urlFromLocalSocket();
 
-    QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
-    QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
+    QSignalSpy openedSpy(&clientManager, &QmlProfilerClientManager::connectionOpened);
+    QSignalSpy closedSpy(&clientManager, &QmlProfilerClientManager::connectionClosed);
 
     QVERIFY(!clientManager.isConnected());
 
@@ -320,9 +320,9 @@ void QmlProfilerClientManagerTest::testInvalidData()
     MessageHandler handler(&invalidHelloMessageHandler);
     Q_UNUSED(handler)
 
-    QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
-    QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
-    QSignalSpy failedSpy(&clientManager, SIGNAL(connectionFailed()));
+    QSignalSpy openedSpy(&clientManager, &QmlProfilerClientManager::connectionOpened);
+    QSignalSpy closedSpy(&clientManager, &QmlProfilerClientManager::connectionClosed);
+    QSignalSpy failedSpy(&clientManager, &QmlProfilerClientManager::connectionFailed);
 
     QVERIFY(!clientManager.isConnected());
 
@@ -365,8 +365,8 @@ void QmlProfilerClientManagerTest::testStopRecording()
         QmlProfilerClientManager clientManager;
         clientManager.setRetryInterval(10);
         clientManager.setMaximumRetries(10);
-        QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
-        QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
+        QSignalSpy openedSpy(&clientManager, &QmlProfilerClientManager::connectionOpened);
+        QSignalSpy closedSpy(&clientManager, &QmlProfilerClientManager::connectionClosed);
 
         QVERIFY(!clientManager.isConnected());
 

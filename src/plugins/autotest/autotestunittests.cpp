@@ -99,8 +99,8 @@ void AutoTestUnitTests::testCodeParser()
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, true, m_kit));
 
-    QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
-    QSignalSpy modelUpdateSpy(m_model, SIGNAL(sweepingDone()));
+    QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
+    QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
     QVERIFY(parserSpy.wait(20000));
     QVERIFY(modelUpdateSpy.wait());
 
@@ -149,8 +149,8 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
         qDebug() << "Opening project" << projectFilePaths.at(i);
         QVERIFY(projectManager.open(projectFilePaths.at(i), true, m_kit));
 
-        QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
-        QSignalSpy modelUpdateSpy(m_model, SIGNAL(sweepingDone()));
+        QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
+        QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
         QVERIFY(parserSpy.wait(20000));
         QVERIFY(modelUpdateSpy.wait());
 
@@ -199,8 +199,8 @@ void AutoTestUnitTests::testCodeParserGTest()
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, true, m_kit));
 
-    QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
-    QSignalSpy modelUpdateSpy(m_model, SIGNAL(sweepingDone()));
+    QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
+    QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
     QVERIFY(parserSpy.wait(20000));
     QVERIFY(modelUpdateSpy.wait());
 
@@ -250,8 +250,8 @@ void AutoTestUnitTests::testCodeParserBoostTest()
             = projectManager.open(projectFilePath, true, m_kit);
     QVERIFY(projectInfo);
 
-    QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
-    QSignalSpy modelUpdateSpy(m_model, SIGNAL(sweepingDone()));
+    QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
+    QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
     QVERIFY(parserSpy.wait(20000));
     QVERIFY(modelUpdateSpy.wait());
 
