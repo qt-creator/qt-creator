@@ -33,6 +33,8 @@
 
 #include <QMenu>
 
+using namespace Core;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -87,15 +89,14 @@ bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
                 ? klass->name()
                 : klass->umlNamespace() + "::" + klass->name();
 
-        Core::ILocatorFilter *classesFilter
-                = CppEditor::CppModelManager::instance()->classesFilter();
+        ILocatorFilter *classesFilter = CppEditor::CppModelManager::instance()->classesFilter();
         if (!classesFilter)
             return false;
 
-        QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
-        const QList<Core::LocatorFilterEntry> matches
+        QFutureInterface<LocatorFilterEntry> dummyInterface;
+        const QList<LocatorFilterEntry> matches
             = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
-        for (const Core::LocatorFilterEntry &entry : matches) {
+        for (const LocatorFilterEntry &entry : matches) {
             CppEditor::IndexItem::Ptr info = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;
@@ -124,19 +125,18 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
                 ? klass->name()
                 : klass->umlNamespace() + "::" + klass->name();
 
-        Core::ILocatorFilter *classesFilter
-                = CppEditor::CppModelManager::instance()->classesFilter();
+        ILocatorFilter *classesFilter = CppEditor::CppModelManager::instance()->classesFilter();
         if (!classesFilter)
             return;
 
-        QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
-        const QList<Core::LocatorFilterEntry> matches
+        QFutureInterface<LocatorFilterEntry> dummyInterface;
+        const QList<LocatorFilterEntry> matches
             = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
-        for (const Core::LocatorFilterEntry &entry : matches) {
+        for (const LocatorFilterEntry &entry : matches) {
             CppEditor::IndexItem::Ptr info = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;
-            if (Core::EditorManager::instance()->openEditorAt(
+            if (EditorManager::instance()->openEditorAt(
                     {info->filePath(), info->line(), info->column()})) {
                 return;
             }

@@ -15,6 +15,7 @@
 #include <QHash>
 #include <QRegularExpression>
 
+using namespace Core;
 using namespace CPlusPlus;
 
 namespace CppEditor::Internal {
@@ -35,9 +36,9 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
 
     connect(manager, &CppModelManager::documentUpdated,
             this, &CppCurrentDocumentFilter::onDocumentUpdated);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &CppCurrentDocumentFilter::onCurrentEditorChanged);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::editorAboutToClose,
+    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
             this, &CppCurrentDocumentFilter::onEditorAboutToClose);
 }
 
@@ -50,11 +51,11 @@ void CppCurrentDocumentFilter::makeAuxiliary()
     setHidden(true);
 }
 
-QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString & entry)
+QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
+        QFutureInterface<LocatorFilterEntry> &future, const QString & entry)
 {
-    QList<Core::LocatorFilterEntry> goodEntries;
-    QList<Core::LocatorFilterEntry> betterEntries;
+    QList<LocatorFilterEntry> goodEntries;
+    QList<LocatorFilterEntry> betterEntries;
 
     const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
@@ -84,14 +85,14 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
                 }
             }
 
-            Core::LocatorFilterEntry filterEntry(this, name, id, info->icon());
+            LocatorFilterEntry filterEntry(this, name, id, info->icon());
             filterEntry.extraInfo = extraInfo;
             if (match.hasMatch()) {
                 filterEntry.highlightInfo = highlightInfo(match);
             } else {
                 match = regexp.match(extraInfo);
                 filterEntry.highlightInfo =
-                        highlightInfo(match, Core::LocatorFilterEntry::HighlightInfo::ExtraInfo);
+                        highlightInfo(match, LocatorFilterEntry::HighlightInfo::ExtraInfo);
             }
 
             if (betterMatch)
@@ -104,18 +105,18 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     // entries are unsorted by design!
     betterEntries += goodEntries;
 
-    QHash<QString, QList<Core::LocatorFilterEntry>> possibleDuplicates;
-    for (const Core::LocatorFilterEntry &e : std::as_const(betterEntries)) {
+    QHash<QString, QList<LocatorFilterEntry>> possibleDuplicates;
+    for (const LocatorFilterEntry &e : std::as_const(betterEntries)) {
         const IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(e.internalData);
         possibleDuplicates[info->scopedSymbolName() + info->symbolType()] << e;
     }
     for (auto it = possibleDuplicates.cbegin(); it != possibleDuplicates.cend(); ++it) {
-        const QList<Core::LocatorFilterEntry> &duplicates = it.value();
+        const QList<LocatorFilterEntry> &duplicates = it.value();
         if (duplicates.size() == 1)
             continue;
-        QList<Core::LocatorFilterEntry> declarations;
-        QList<Core::LocatorFilterEntry> definitions;
-        for (const Core::LocatorFilterEntry &candidate : duplicates) {
+        QList<LocatorFilterEntry> declarations;
+        QList<LocatorFilterEntry> definitions;
+        for (const LocatorFilterEntry &candidate : duplicates) {
             const IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(candidate.internalData);
             if (info->type() != IndexItem::Function)
                 break;
@@ -126,8 +127,8 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         }
         if (definitions.size() == 1
             && declarations.size() + definitions.size() == duplicates.size()) {
-            for (const Core::LocatorFilterEntry &decl : std::as_const(declarations))
-                Utils::erase(betterEntries, [&decl](const Core::LocatorFilterEntry &e) {
+            for (const LocatorFilterEntry &decl : std::as_const(declarations))
+                Utils::erase(betterEntries, [&decl](const LocatorFilterEntry &e) {
                     return e.internalData == decl.internalData;
                 });
         }
@@ -136,15 +137,14 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     return betterEntries;
 }
 
-void CppCurrentDocumentFilter::accept(const Core::LocatorFilterEntry &selection,
-                                      QString *newText, int *selectionStart,
-                                      int *selectionLength) const
+void CppCurrentDocumentFilter::accept(const LocatorFilterEntry &selection, QString *newText,
+                                      int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    Core::EditorManager::openEditorAt({info->filePath(), info->line(), info->column()});
+    EditorManager::openEditorAt({info->filePath(), info->line(), info->column()});
 }
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
@@ -154,7 +154,7 @@ void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
         m_itemsOfCurrentDoc.clear();
 }
 
-void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *currentEditor)
+void CppCurrentDocumentFilter::onCurrentEditorChanged(IEditor *currentEditor)
 {
     QMutexLocker locker(&m_mutex);
     if (currentEditor)
@@ -164,7 +164,7 @@ void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *currentEdit
     m_itemsOfCurrentDoc.clear();
 }
 
-void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor *editorAboutToClose)
+void CppCurrentDocumentFilter::onEditorAboutToClose(IEditor *editorAboutToClose)
 {
     if (!editorAboutToClose)
         return;

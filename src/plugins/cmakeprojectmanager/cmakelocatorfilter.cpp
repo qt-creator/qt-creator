@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -64,7 +65,7 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
                 extraData.insert("line", line);
                 extraData.insert("file", path.toString());
 
-                Core::LocatorFilterEntry filterEntry(this, target.title, extraData);
+                LocatorFilterEntry filterEntry(this, target.title, extraData);
                 filterEntry.extraInfo = path.shortNativePath();
                 filterEntry.highlightInfo = {index, int(entry.length())};
                 filterEntry.filePath = path;
@@ -75,7 +76,8 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
     }
 }
 
-QList<Core::LocatorFilterEntry> CMakeTargetLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> CMakeTargetLocatorFilter::matchesFor(
+    QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     Q_UNUSED(future)
     Q_UNUSED(entry)
@@ -85,7 +87,8 @@ QList<Core::LocatorFilterEntry> CMakeTargetLocatorFilter::matchesFor(QFutureInte
 void CMakeTargetLocatorFilter::projectListUpdated()
 {
     // Enable the filter if there's at least one CMake project
-    setEnabled(Utils::contains(SessionManager::projects(), [](Project *p) { return qobject_cast<CMakeProject *>(p); }));
+    setEnabled(Utils::contains(SessionManager::projects(),
+                               [](Project *p) { return qobject_cast<CMakeProject *>(p); }));
 }
 
 // --------------------------------------------------------------------
@@ -101,10 +104,8 @@ BuildCMakeTargetLocatorFilter::BuildCMakeTargetLocatorFilter()
     setPriority(High);
 }
 
-void BuildCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
-                                           QString *newText,
-                                           int *selectionStart,
-                                           int *selectionLength) const
+void BuildCMakeTargetLocatorFilter::accept(const LocatorFilterEntry &selection, QString *newText,
+                                           int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
@@ -151,7 +152,7 @@ OpenCMakeTargetLocatorFilter::OpenCMakeTargetLocatorFilter()
     setPriority(Medium);
 }
 
-void OpenCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
+void OpenCMakeTargetLocatorFilter::accept(const LocatorFilterEntry &selection,
                                           QString *newText,
                                           int *selectionStart,
                                           int *selectionLength) const
@@ -165,11 +166,9 @@ void OpenCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &select
     const auto file = FilePath::fromVariant(extraData.value("file"));
 
     if (line >= 0)
-        Core::EditorManager::openEditorAt({file, line},
-                                          {},
-                                          Core::EditorManager::AllowExternalEditor);
+        EditorManager::openEditorAt({file, line}, {}, EditorManager::AllowExternalEditor);
     else
-        Core::EditorManager::openEditor(file, {}, Core::EditorManager::AllowExternalEditor);
+        EditorManager::openEditor(file, {}, EditorManager::AllowExternalEditor);
 }
 
 } // CMakeProjectManager::Internal

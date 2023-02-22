@@ -21,6 +21,7 @@
 #include <set>
 #include <tuple>
 
+using namespace Core;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace Utils;
@@ -148,11 +149,11 @@ void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
         m_lspFilter->prepareSearch(entry, clients);
 }
 
-QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
+        QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    QList<Core::LocatorFilterEntry> matches = m_cppFilter->matchesFor(future, entry);
-    const QList<Core::LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
+    QList<LocatorFilterEntry> matches = m_cppFilter->matchesFor(future, entry);
+    const QList<LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
     if (!lspMatches.isEmpty()) {
         std::set<std::tuple<FilePath, int, int>> locations;
         for (const auto &entry : std::as_const(matches)) {
@@ -174,7 +175,7 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     return matches;
 }
 
-void ClangGlobalSymbolFilter::accept(const Core::LocatorFilterEntry &selection, QString *newText,
+void ClangGlobalSymbolFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                                      int *selectionStart, int *selectionLength) const
 {
     if (qvariant_cast<CppEditor::IndexItem::Ptr>(selection.internalData))
@@ -221,10 +222,10 @@ private:
         m_content = TextEditor::TextDocument::currentTextDocument()->plainText();
     }
 
-    Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
-                                                  const Core::LocatorFilterEntry &parent) override
+    LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
+                                            const LocatorFilterEntry &parent) override
     {
-        Core::LocatorFilterEntry entry;
+        LocatorFilterEntry entry;
         entry.filter = this;
         entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
                     static_cast<SymbolKind>(info.kind()), info.name(),
@@ -242,22 +243,22 @@ private:
     }
 
     // Filter out declarations for which a definition is also present.
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                         const QString &entry) override
     {
-        QList<Core::LocatorFilterEntry> allMatches
+        QList<LocatorFilterEntry> allMatches
             = DocumentLocatorFilter::matchesFor(future, entry);
-        QHash<QString, QList<Core::LocatorFilterEntry>> possibleDuplicates;
-        for (const Core::LocatorFilterEntry &e : std::as_const(allMatches))
+        QHash<QString, QList<LocatorFilterEntry>> possibleDuplicates;
+        for (const LocatorFilterEntry &e : std::as_const(allMatches))
             possibleDuplicates[e.displayName + e.extraInfo] << e;
         const QTextDocument doc(m_content);
         for (auto it = possibleDuplicates.cbegin(); it != possibleDuplicates.cend(); ++it) {
-            const QList<Core::LocatorFilterEntry> &duplicates = it.value();
+            const QList<LocatorFilterEntry> &duplicates = it.value();
             if (duplicates.size() == 1)
                 continue;
-            QList<Core::LocatorFilterEntry> declarations;
-            QList<Core::LocatorFilterEntry> definitions;
-            for (const Core::LocatorFilterEntry &candidate : duplicates) {
+            QList<LocatorFilterEntry> declarations;
+            QList<LocatorFilterEntry> definitions;
+            for (const LocatorFilterEntry &candidate : duplicates) {
                 const auto symbol = qvariant_cast<DocumentSymbol>(candidate.internalData);
                 const SymbolKind kind = static_cast<SymbolKind>(symbol.kind());
                 if (kind != SymbolKind::Class && kind != SymbolKind::Function)
@@ -283,15 +284,15 @@ private:
             }
             if (definitions.size() == 1
                 && declarations.size() + definitions.size() == duplicates.size()) {
-                for (const Core::LocatorFilterEntry &decl : std::as_const(declarations))
-                    Utils::erase(allMatches, [&decl](const Core::LocatorFilterEntry &e) {
+                for (const LocatorFilterEntry &decl : std::as_const(declarations))
+                    Utils::erase(allMatches, [&decl](const LocatorFilterEntry &e) {
                         return e.internalData == decl.internalData;
                     });
             }
         }
 
         // The base implementation expects the position in the internal data.
-        for (Core::LocatorFilterEntry &e : allMatches) {
+        for (LocatorFilterEntry &e : allMatches) {
             const Position pos = qvariant_cast<DocumentSymbol>(e.internalData).range().start();
             e.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
         }
@@ -307,10 +308,10 @@ class ClangdCurrentDocumentFilter::Private
 public:
     ~Private() { delete cppFilter; }
 
-    Core::ILocatorFilter * const cppFilter
+    ILocatorFilter * const cppFilter
             = CppEditor::CppModelManager::createAuxiliaryCurrentDocumentFilter();
     LspCurrentDocumentFilter lspFilter;
-    Core::ILocatorFilter *activeFilter = nullptr;
+    ILocatorFilter *activeFilter = nullptr;
 };
 
 
@@ -322,8 +323,8 @@ ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter() : d(new Private)
     setPriority(High);
     setDefaultIncludedByDefault(false);
     setEnabled(false);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, [this](const Core::IEditor *editor) { setEnabled(editor); });
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, [this](const IEditor *editor) { setEnabled(editor); });
 }
 
 ClangdCurrentDocumentFilter::~ClangdCurrentDocumentFilter() { delete d; }
@@ -346,14 +347,14 @@ void ClangdCurrentDocumentFilter::prepareSearch(const QString &entry)
     d->activeFilter->prepareSearch(entry);
 }
 
-QList<Core::LocatorFilterEntry> ClangdCurrentDocumentFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> ClangdCurrentDocumentFilter::matchesFor(
+        QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     QTC_ASSERT(d->activeFilter, return {});
     return d->activeFilter->matchesFor(future, entry);
 }
 
-void ClangdCurrentDocumentFilter::accept(const Core::LocatorFilterEntry &selection, QString *newText,
+void ClangdCurrentDocumentFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                                          int *selectionStart, int *selectionLength) const
 {
     QTC_ASSERT(d->activeFilter, return);

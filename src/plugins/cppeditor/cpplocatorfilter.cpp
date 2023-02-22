@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <numeric>
 
+using namespace Core;
+
 namespace CppEditor {
 
 CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
@@ -27,10 +29,10 @@ CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
 
 CppLocatorFilter::~CppLocatorFilter() = default;
 
-Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
+LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = QVariant::fromValue(info);
-    Core::LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
+    LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
     if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
         filterEntry.extraInfo = info->shortNativeFilePath();
     else
@@ -39,10 +41,10 @@ Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::P
     return filterEntry;
 }
 
-QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> CppLocatorFilter::matchesFor(
+        QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    QList<Core::LocatorFilterEntry> entries[int(MatchLevel::Count)];
+    QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
     const IndexItem::ItemType wanted = matchTypes();
 
@@ -70,7 +72,7 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
             }
 
             if (match.hasMatch()) {
-                Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
+                LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
 
                 // Highlight the matched characters, therefore it may be necessary
                 // to update the match if the displayName is different from matchString
@@ -82,7 +84,7 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
                 if (matchInParameterList && filterEntry.highlightInfo.startsDisplay.isEmpty()) {
                     match = regexp.match(filterEntry.extraInfo);
                     filterEntry.highlightInfo
-                        = highlightInfo(match, Core::LocatorFilterEntry::HighlightInfo::ExtraInfo);
+                        = highlightInfo(match, LocatorFilterEntry::HighlightInfo::ExtraInfo);
                 } else if (matchOffset > 0) {
                     for (int &start : filterEntry.highlightInfo.startsDisplay)
                         start -= matchOffset;
@@ -107,22 +109,21 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
 
     for (auto &entry : entries) {
         if (entry.size() < 1000)
-            Utils::sort(entry, Core::LocatorFilterEntry::compareLexigraphically);
+            Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
     }
 
-    return std::accumulate(std::begin(entries), std::end(entries), QList<Core::LocatorFilterEntry>());
+    return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
 }
 
-void CppLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
+void CppLocatorFilter::accept(const LocatorFilterEntry &selection,
                               QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    Core::EditorManager::openEditorAt({info->filePath(), info->line(), info->column()},
-                                      {},
-                                      Core::EditorManager::AllowExternalEditor);
+    EditorManager::openEditorAt({info->filePath(), info->line(), info->column()}, {},
+                                EditorManager::AllowExternalEditor);
 }
 
 CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
@@ -136,10 +137,10 @@ CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
 
 CppClassesFilter::~CppClassesFilter() = default;
 
-Core::LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
+LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = QVariant::fromValue(info);
-    Core::LocatorFilterEntry filterEntry(this, info->symbolName(), id, info->icon());
+    LocatorFilterEntry filterEntry(this, info->symbolName(), id, info->icon());
     filterEntry.extraInfo = info->symbolScope().isEmpty()
         ? info->shortNativeFilePath()
         : info->symbolScope();
@@ -158,7 +159,7 @@ CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
 
 CppFunctionsFilter::~CppFunctionsFilter() = default;
 
-Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
+LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = QVariant::fromValue(info);
 
@@ -171,7 +172,7 @@ Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem:
         extraInfo.append(" (" + info->filePath().fileName() + ')');
     }
 
-    Core::LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());
+    LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());
     filterEntry.extraInfo = extraInfo;
 
     return filterEntry;

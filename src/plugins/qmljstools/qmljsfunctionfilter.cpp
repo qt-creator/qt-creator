@@ -12,12 +12,13 @@
 
 #include <numeric>
 
+using namespace Core;
 using namespace QmlJSTools::Internal;
 
 Q_DECLARE_METATYPE(LocatorData::Entry)
 
 FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
-    : Core::ILocatorFilter(parent)
+    : ILocatorFilter(parent)
     , m_data(data)
 {
     setId("Functions");
@@ -28,11 +29,10 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
 
 FunctionFilter::~FunctionFilter() = default;
 
-QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future,
-        const QString &entry)
+QList<LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                                     const QString &entry)
 {
-    QList<Core::LocatorFilterEntry> entries[int(MatchLevel::Count)];
+    QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
     const QRegularExpression regexp = createRegExp(entry);
@@ -51,7 +51,7 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
             const QRegularExpressionMatch match = regexp.match(info.symbolName);
             if (match.hasMatch()) {
                 QVariant id = QVariant::fromValue(info);
-                Core::LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
+                LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
                 filterEntry.extraInfo = info.extraInfo;
                 filterEntry.highlightInfo = highlightInfo(match);
 
@@ -67,18 +67,17 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
 
     for (auto &entry : entries) {
         if (entry.size() < 1000)
-            Utils::sort(entry, Core::LocatorFilterEntry::compareLexigraphically);
+            Utils::sort(entry, LocatorFilterEntry::compareLexigraphically);
     }
-
-    return std::accumulate(std::begin(entries), std::end(entries), QList<Core::LocatorFilterEntry>());
+    return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
 }
 
-void FunctionFilter::accept(const Core::LocatorFilterEntry &selection,
+void FunctionFilter::accept(const LocatorFilterEntry &selection,
                             QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     const LocatorData::Entry entry = qvariant_cast<LocatorData::Entry>(selection.internalData);
-    Core::EditorManager::openEditorAt({entry.fileName, entry.line, entry.column});
+    EditorManager::openEditorAt({entry.fileName, entry.line, entry.column});
 }

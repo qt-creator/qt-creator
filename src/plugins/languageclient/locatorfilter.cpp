@@ -23,6 +23,7 @@
 #include <QFutureWatcher>
 #include <QRegularExpression>
 
+using namespace Core;
 using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
@@ -36,7 +37,7 @@ DocumentLocatorFilter::DocumentLocatorFilter()
     setDefaultShortcutString(".");
     setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &DocumentLocatorFilter::updateCurrentClient);
 }
 
@@ -56,7 +57,7 @@ void DocumentLocatorFilter::updateCurrentClient()
             m_updateSymbolsConnection = connect(m_symbolCache, &DocumentSymbolCache::gotSymbols,
                                                 this, &DocumentLocatorFilter::updateSymbols);
         }
-        m_resetSymbolsConnection = connect(document, &Core::IDocument::contentsChanged,
+        m_resetSymbolsConnection = connect(document, &IDocument::contentsChanged,
                                            this, &DocumentLocatorFilter::resetSymbols);
         m_currentUri = client->hostPathToServerUri(document->filePath());
         m_pathMapper = client->hostPathMapper();
@@ -85,11 +86,11 @@ void DocumentLocatorFilter::resetSymbols()
     m_currentSymbols.reset();
 }
 
-static Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
-                                                     Core::ILocatorFilter *filter,
-                                                     DocumentUri::PathMapper pathMapper)
+static LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
+                                               ILocatorFilter *filter,
+                                               DocumentUri::PathMapper pathMapper)
 {
-    Core::LocatorFilterEntry entry;
+    LocatorFilterEntry entry;
     entry.filter = filter;
     entry.displayName = info.name();
     if (std::optional<QString> container = info.containerName())
@@ -99,15 +100,15 @@ static Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &in
     return entry;
 }
 
-Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(const SymbolInformation &info)
+LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(const SymbolInformation &info)
 {
     QTC_ASSERT(m_pathMapper, return {});
     return LanguageClient::generateLocatorEntry(info, this, m_pathMapper);
 }
 
-QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
+QList<LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
         const SymbolInformation &info, const QRegularExpression &regexp,
-        const Core::LocatorFilterEntry &parent)
+        const LocatorFilterEntry &parent)
 {
     Q_UNUSED(parent)
     if (regexp.match(info.name()).hasMatch())
@@ -115,12 +116,11 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
     return {};
 }
 
-Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(
-        const DocumentSymbol &info,
-        const Core::LocatorFilterEntry &parent)
+LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(const DocumentSymbol &info,
+                                                               const LocatorFilterEntry &parent)
 {
     Q_UNUSED(parent)
-    Core::LocatorFilterEntry entry;
+    LocatorFilterEntry entry;
     entry.filter = this;
     entry.displayName = info.name();
     if (std::optional<QString> detail = info.detail())
@@ -131,14 +131,14 @@ Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(
     return entry;
 }
 
-QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
+QList<LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
         const DocumentSymbol &info, const QRegularExpression &regexp,
-        const Core::LocatorFilterEntry &parent)
+        const LocatorFilterEntry &parent)
 {
-    QList<Core::LocatorFilterEntry> entries;
+    QList<LocatorFilterEntry> entries;
     const QList<DocumentSymbol> children = info.children().value_or(QList<DocumentSymbol>());
     const bool hasMatch = regexp.match(info.name()).hasMatch();
-    Core::LocatorFilterEntry entry;
+    LocatorFilterEntry entry;
     if (hasMatch || !children.isEmpty())
         entry = generateLocatorEntry(info, parent);
     if (hasMatch)
@@ -149,10 +149,10 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
 }
 
 template<class T>
-QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateEntries(const QList<T> &list,
+QList<LocatorFilterEntry> DocumentLocatorFilter::generateEntries(const QList<T> &list,
                                                                        const QString &filter)
 {
-    QList<Core::LocatorFilterEntry> entries;
+    QList<LocatorFilterEntry> entries;
     FuzzyMatcher::CaseSensitivity caseSensitivity
         = ILocatorFilter::caseSensitivity(filter) == Qt::CaseSensitive
               ? FuzzyMatcher::CaseSensitivity::CaseSensitive
@@ -175,20 +175,17 @@ void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
     }
 }
 
-QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
-    QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
+    QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     QMutexLocker locker(&m_mutex);
     if (!m_symbolCache)
         return {};
     if (!m_currentSymbols.has_value()) {
         QEventLoop loop;
-        connect(this, &DocumentLocatorFilter::symbolsUpToDate, &loop, [&]() { loop.exit(1); });
-        QFutureWatcher<Core::LocatorFilterEntry> watcher;
-        connect(&watcher,
-                &QFutureWatcher<Core::LocatorFilterEntry>::canceled,
-                &loop,
-                &QEventLoop::quit);
+        connect(this, &DocumentLocatorFilter::symbolsUpToDate, &loop, [&] { loop.exit(1); });
+        QFutureWatcher<LocatorFilterEntry> watcher;
+        connect(&watcher, &QFutureWatcher<LocatorFilterEntry>::canceled, &loop, &QEventLoop::quit);
         watcher.setFuture(future.future());
         locker.unlock();
         if (!loop.exec())
@@ -206,7 +203,7 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
     return {};
 }
 
-void DocumentLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
+void DocumentLocatorFilter::accept(const LocatorFilterEntry &selection,
                                    QString * /*newText*/,
                                    int * /*selectionStart*/,
                                    int * /*selectionLength*/) const
@@ -217,11 +214,10 @@ void DocumentLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
         const Utils::Link link(m_currentUri.toFilePath(m_pathMapper),
                                lineColumn.line + 1,
                                lineColumn.column);
-        Core::EditorManager::openEditorAt(link, {}, Core::EditorManager::AllowExternalEditor);
+        EditorManager::openEditorAt(link, {}, EditorManager::AllowExternalEditor);
     } else if (selection.internalData.canConvert<Utils::Link>()) {
-        Core::EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData),
-                                          {},
-                                          Core::EditorManager::AllowExternalEditor);
+        EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData), {},
+                                    EditorManager::AllowExternalEditor);
     }
 }
 
@@ -283,16 +279,16 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
     }
 }
 
-QList<Core::LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
-    QFutureInterface<Core::LocatorFilterEntry> &future, const QString & /*entry*/)
+QList<LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
+    QFutureInterface<LocatorFilterEntry> &future, const QString & /*entry*/)
 {
     QMutexLocker locker(&m_mutex);
     if (!m_pendingRequests.isEmpty()) {
         QEventLoop loop;
-        connect(this, &WorkspaceLocatorFilter::allRequestsFinished, &loop, [&]() { loop.exit(1); });
-        QFutureWatcher<Core::LocatorFilterEntry> watcher;
+        connect(this, &WorkspaceLocatorFilter::allRequestsFinished, &loop, [&] { loop.exit(1); });
+        QFutureWatcher<LocatorFilterEntry> watcher;
         connect(&watcher,
-                &QFutureWatcher<Core::LocatorFilterEntry>::canceled,
+                &QFutureWatcher<LocatorFilterEntry>::canceled,
                 &loop,
                 &QEventLoop::quit);
         watcher.setFuture(future.future());
@@ -315,15 +311,15 @@ QList<Core::LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
     return Utils::transform(m_results, generateEntry).toList();
 }
 
-void WorkspaceLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
+void WorkspaceLocatorFilter::accept(const LocatorFilterEntry &selection,
                                     QString * /*newText*/,
                                     int * /*selectionStart*/,
                                     int * /*selectionLength*/) const
 {
-    if (selection.internalData.canConvert<Utils::Link>())
-        Core::EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData),
-                                          {},
-                                          Core::EditorManager::AllowExternalEditor);
+    if (selection.internalData.canConvert<Utils::Link>()) {
+        EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData), {},
+                                    EditorManager::AllowExternalEditor);
+    }
 }
 
 void WorkspaceLocatorFilter::handleResponse(Client *client,
