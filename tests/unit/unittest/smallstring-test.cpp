@@ -1609,6 +1609,11 @@ TEST(SmallString, LongSmallStringCopyAssignment)
     ASSERT_THAT(copy, text);
 }
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
+
 TEST(SmallString, LongSmallStringCopySelfAssignment)
 {
     SmallString text("this is a very very very very long text");
@@ -1617,6 +1622,10 @@ TEST(SmallString, LongSmallStringCopySelfAssignment)
 
     ASSERT_THAT(text, SmallString("this is a very very very very long text"));
 }
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 TEST(SmallString, ShortSmallStringMoveAssignment)
 {
