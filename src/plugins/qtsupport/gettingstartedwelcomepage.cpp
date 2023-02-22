@@ -69,16 +69,18 @@ Id ExamplesWelcomePage::id() const
     return m_showExamples ? "Examples" : "Tutorials";
 }
 
-QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
+FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
+                                                        FilePaths &filesToOpen,
+                                                        const FilePaths &dependencies)
 {
-    const QString projectDir = proFileInfo.canonicalPath();
+    const FilePath projectDir = proFile.canonicalPath().parentDir();
     QDialog d(ICore::dialogParent());
     auto lay = new QGridLayout(&d);
     auto descrLbl = new QLabel;
     d.setWindowTitle(Tr::tr("Copy Project to writable Location?"));
     descrLbl->setTextFormat(Qt::RichText);
     descrLbl->setWordWrap(false);
-    const QString nativeProjectDir = QDir::toNativeSeparators(projectDir);
+    const QString nativeProjectDir = projectDir.toUserOutput();
     descrLbl->setText(QString::fromLatin1("<blockquote>%1</blockquote>").arg(nativeProjectDir));
     descrLbl->setMinimumWidth(descrLbl->sizeHint().width());
     descrLbl->setWordWrap(true);
@@ -95,9 +97,10 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
     chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
-    const QString defaultRootDirectory = DocumentManager::projectsDirectory().toString();
+    const FilePath defaultRootDirectory = DocumentManager::projectsDirectory();
     QtcSettings *settings = ICore::settings();
-    chooser->setFilePath(FilePath::fromSettings(settings->value(C_FALLBACK_ROOT, defaultRootDirectory)));
+    chooser->setFilePath(
+        FilePath::fromSettings(settings->value(C_FALLBACK_ROOT, defaultRootDirectory.toVariant())));
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
@@ -111,35 +114,32 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     connect(chooser, &PathChooser::validChanged, copyBtn, &QWidget::setEnabled);
     int code = d.exec();
     if (code == Copy) {
-        QString exampleDirName = proFileInfo.dir().dirName();
-        QString destBaseDir = chooser->filePath().toString();
+        const QString exampleDirName = projectDir.fileName();
+        const FilePath destBaseDir = chooser->filePath();
         settings->setValueWithDefault(C_FALLBACK_ROOT, destBaseDir, defaultRootDirectory);
-        QDir toDirWithExamplesDir(destBaseDir);
-        if (toDirWithExamplesDir.cd(exampleDirName)) {
-            toDirWithExamplesDir.cdUp(); // step out, just to not be in the way
+        const FilePath targetDir = destBaseDir / exampleDirName;
+        if (targetDir.exists()) {
             QMessageBox::warning(ICore::dialogParent(),
                                  Tr::tr("Cannot Use Location"),
                                  Tr::tr("The specified location already exists. "
                                         "Please specify a valid location."),
                                  QMessageBox::Ok,
                                  QMessageBox::NoButton);
-            return QString();
+            return {};
         } else {
-            QString targetDir = destBaseDir + QLatin1Char('/') + exampleDirName;
-
-            expected_str<void> result
-                = FilePath::fromString(projectDir).copyRecursively(FilePath::fromString(targetDir));
+            expected_str<void> result = projectDir.copyRecursively(targetDir);
 
             if (result) {
                 // set vars to new location
-                const QStringList::Iterator end = filesToOpen.end();
-                for (QStringList::Iterator it = filesToOpen.begin(); it != end; ++it)
-                    it->replace(projectDir, targetDir);
+                const FilePaths::Iterator end = filesToOpen.end();
+                for (FilePaths::Iterator it = filesToOpen.begin(); it != end; ++it) {
+                    const FilePath relativePath = it->relativeChildPath(projectDir);
+                    *it = targetDir.resolvePath(relativePath);
+                }
 
-                for (const QString &dependency : dependencies) {
-                    const FilePath targetFile = FilePath::fromString(targetDir)
-                            .pathAppended(QDir(dependency).dirName());
-                    result = FilePath::fromString(dependency).copyRecursively(targetFile);
+                for (const FilePath &dependency : dependencies) {
+                    const FilePath targetFile = targetDir.pathAppended(dependency.fileName());
+                    result = dependency.copyRecursively(targetFile);
                     if (!result) {
                         QMessageBox::warning(ICore::dialogParent(),
                                              Tr::tr("Cannot Copy Project"),
@@ -148,7 +148,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                     }
                 }
 
-                return targetDir + QLatin1Char('/') + proFileInfo.fileName();
+                return targetDir / proFile.fileName();
             } else {
                 QMessageBox::warning(ICore::dialogParent(),
                                      Tr::tr("Cannot Copy Project"),
@@ -157,46 +157,43 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
         }
     }
     if (code == Keep)
-        return proFileInfo.absoluteFilePath();
-    return QString();
+        return proFile.absoluteFilePath();
+    return {};
 }
 
 void ExamplesWelcomePage::openProject(const ExampleItem *item)
 {
     using namespace ProjectExplorer;
-    QString proFile = item->projectPath;
+    FilePath proFile = item->projectPath;
     if (proFile.isEmpty())
         return;
 
-    QStringList filesToOpen = item->filesToOpen;
+    FilePaths filesToOpen = item->filesToOpen;
     if (!item->mainFile.isEmpty()) {
         // ensure that the main file is opened on top (i.e. opened last)
         filesToOpen.removeAll(item->mainFile);
         filesToOpen.append(item->mainFile);
     }
 
-    QFileInfo proFileInfo(proFile);
-    if (!proFileInfo.exists())
+    if (!proFile.exists())
         return;
 
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
     // Same if it is installed in non-writable location for other reasons
-    const bool needsCopy = withNtfsPermissions<bool>([proFileInfo] {
-        QFileInfo pathInfo(proFileInfo.path());
-        return !proFileInfo.isWritable()
-                || !pathInfo.isWritable() /* path of .pro file */
-                || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */;
+    const bool needsCopy = withNtfsPermissions<bool>([proFile] {
+        return !proFile.isWritableFile()
+               || !proFile.parentDir().isWritableDir() /* path of project file */
+               || !proFile.parentDir().parentDir().isWritableDir() /* shadow build directory */;
     });
     if (needsCopy)
-        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, item->dependencies);
+        proFile = copyToAlternativeLocation(proFile, filesToOpen, item->dependencies);
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
         return;
-    ProjectExplorerPlugin::OpenProjectResult result =
-            ProjectExplorerPlugin::openProject(FilePath::fromString(proFile));
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
     if (result) {
-        ICore::openFiles(FileUtils::toFilePathList(filesToOpen));
+        ICore::openFiles(filesToOpen);
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
         QUrl docUrl = QUrl::fromUserInput(item->docUrl);
         if (docUrl.isValid())

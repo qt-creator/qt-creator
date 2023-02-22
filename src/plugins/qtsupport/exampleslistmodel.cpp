@@ -298,14 +298,15 @@ static bool isValidExampleOrDemo(ExampleItem *item)
                                                                     doesn't have any namespace */
     QString reason;
     bool ok = true;
-    if (!item->hasSourceCode || !QFileInfo::exists(item->projectPath)) {
+    if (!item->hasSourceCode || !item->projectPath.exists()) {
         ok = false;
-        reason = QString::fromLatin1("projectPath \"%1\" empty or does not exist").arg(item->projectPath);
+        reason = QString::fromLatin1("projectPath \"%1\" empty or does not exist")
+                     .arg(item->projectPath.toUserOutput());
     } else if (item->imageUrl.startsWith(invalidPrefix) || !QUrl(item->imageUrl).isValid()) {
         ok = false;
         reason = QString::fromLatin1("imageUrl \"%1\" not valid").arg(item->imageUrl);
     } else if (!item->docUrl.isEmpty()
-             && (item->docUrl.startsWith(invalidPrefix) || !QUrl(item->docUrl).isValid())) {
+               && (item->docUrl.startsWith(invalidPrefix) || !QUrl(item->docUrl).isValid())) {
         ok = false;
         reason = QString::fromLatin1("docUrl \"%1\" non-empty but not valid").arg(item->docUrl);
     }
@@ -331,13 +332,17 @@ void ExamplesViewController::updateExamples()
 
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
+        const auto manifest = FilePath::fromUserInput(exampleSource);
         if (debugExamples()) {
             qWarning() << QString::fromLatin1("Reading file \"%1\"...")
-                              .arg(QFileInfo(exampleSource).absoluteFilePath());
+                              .arg(manifest.absoluteFilePath().toUserOutput());
         }
 
         const expected_str<QList<ExampleItem *>> result
-            = parseExamples(exampleSource, examplesInstallPath, demosInstallPath, m_isExamples);
+            = parseExamples(manifest,
+                            FilePath::fromUserInput(examplesInstallPath),
+                            FilePath::fromUserInput(demosInstallPath),
+                            m_isExamples);
         if (!result) {
             if (debugExamples()) {
                 qWarning() << "ERROR: Could not read examples from" << exampleSource << ":"
