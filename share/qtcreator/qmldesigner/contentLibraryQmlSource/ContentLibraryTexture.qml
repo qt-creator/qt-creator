@@ -23,6 +23,8 @@ Item {
     property alias progressValue: progressBar.value
     property alias progressText: progressLabel.text
 
+    visible: root.delegateVisible
+
     signal showContextMenu()
 
     function statusText()
