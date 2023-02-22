@@ -9,9 +9,7 @@ import StudioTheme 1.0 as StudioTheme
 Column {
     width: parent.width
 
-    ItemDelegateSection {
-        caption: qsTr("Radio Delegate")
-    }
+    ItemDelegateSection {}
 
     AbstractButtonSection {}
 
