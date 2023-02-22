@@ -106,6 +106,22 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.DropArea"
+        icon: ":/qtquickplugin/images/drop-area-16px.png"
+
+        ItemLibraryEntry {
+            name: "Drop Area"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: ":/qtquickplugin/drop-area-24px.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("Sets an area that serves as a drag target.")
+    }
+}
+
+    Type {
         name: "QtQuick.Image"
         icon: ":/qtquickplugin/images/image-icon16.png"
 
