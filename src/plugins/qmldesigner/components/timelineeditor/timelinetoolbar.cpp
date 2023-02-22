@@ -95,9 +95,6 @@ TimelineToolBar::TimelineToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
 {
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
-
     setContentsMargins(0, 0, 0, 0);
     setFixedHeight(Theme::toolbarSize());
     createLeftControls();

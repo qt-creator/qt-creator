@@ -8,7 +8,6 @@
 #include "coreplugin/actionmanager/actionmanager.h"
 #include "coreplugin/icontext.h"
 #include "theme.h"
-#include "utils/fileutils.h"
 #include "utils/id.h"
 
 #include <QAction>
@@ -64,9 +63,6 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     setFloatable(false);
     setFixedHeight(Theme::toolbarSize());
     setContentsMargins(0, 0, 0, 0);
-
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
     addSpace(5);
 
