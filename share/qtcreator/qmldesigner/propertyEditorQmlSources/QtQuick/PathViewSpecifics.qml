@@ -117,7 +117,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Range")
-                tooltip: qsTr("Highlight range")
+                tooltip: qsTr("Sets the highlight range mode.")
             }
 
             SecondColumnLayout {
@@ -135,7 +135,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Move duration")
-                tooltip: qsTr("Move animation duration of the highlight delegate.")
+                tooltip: qsTr("Sets the animation duration of the highlight delegate when\n"
+                            + "it is moved.")
             }
 
             SecondColumnLayout {
@@ -153,7 +154,9 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Preferred begin")
-                tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.")
+                tooltip: qsTr("Sets the preferred highlight beginning. It must be smaller than\n"
+                            + "the <b>Preferred end</b>. Note that the user has to add\n"
+                            + "a highlight component.")
             }
 
             SecondColumnLayout {
@@ -172,7 +175,9 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Preferred end")
-                tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.")
+                tooltip: qsTr("Sets the preferred highlight end. It must be larger than\n"
+                            + "the <b>Preferred begin</b>. Note that the user has to add\n"
+                            + "a highlight component.")
             }
 
             SecondColumnLayout {
