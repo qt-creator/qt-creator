@@ -3472,18 +3472,22 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QPointer")
             << Data("#include <QPointer>\n"
-                    "#include <QTimer>\n",
+                    "#include <QTimer>\n"
+                    "struct MyClass : public QObject { int val = 44; };\n",
 
                     "QTimer timer;\n"
                     "QPointer<QTimer> ptr0;\n"
-                    "QPointer<QTimer> ptr1(&timer);",
+                    "QPointer<QTimer> ptr1(&timer);"
+                    "QPointer<MyClass> ptr2(new MyClass());",
 
-                    "&timer, &ptr0, &ptr1")
+                    "&timer, &ptr0, &ptr1, &ptr2")
 
                + CoreProfile()
 
                + Check("ptr0", "(null)", "@QPointer<@QTimer>")
-               + Check("ptr1", "", "@QPointer<@QTimer>");
+               + Check("ptr1", "", "@QPointer<@QTimer>")
+               + Check("ptr2.data", "", "MyClass") % NoLldbEngine
+               + Check("ptr2.data.val", "44", "int") % NoLldbEngine;
 
 
     QTest::newRow("QScopedPointer")
