@@ -37,7 +37,7 @@ private:
     static const bool kIncludeHiddenDefault = true;
     bool m_includeHidden = kIncludeHiddenDefault;
     bool m_currentIncludeHidden = kIncludeHiddenDefault;
-    QString m_currentDocumentDirectory;
+    Utils::FilePath m_currentDocumentDirectory;
 };
 
 } // namespace Internal
