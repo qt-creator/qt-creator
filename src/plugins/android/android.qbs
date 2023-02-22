@@ -124,7 +124,7 @@ Project {
                 "androidsdkmanager_test.cpp",
                 "androidsdkmanager_test.h",
                 "sdkmanageroutputparser_test.cpp",
-                "sdkmanageroutputparser_test.h,
+                "sdkmanageroutputparser_test.h",
             ]
         }
     }
