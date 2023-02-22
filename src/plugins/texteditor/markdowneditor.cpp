@@ -68,7 +68,7 @@ public:
 
         connect(m_document->document(), &QTextDocument::contentsChanged, this, [this, browser] {
             QHash<QScrollBar *, int> positions;
-            const auto scrollBars = findChildren<QScrollBar *>();
+            const auto scrollBars = browser->findChildren<QScrollBar *>();
 
             // save scroll positions
             for (QScrollBar *scrollBar : scrollBars)
