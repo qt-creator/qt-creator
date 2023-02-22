@@ -45,6 +45,7 @@ Project {
                 "codestylesettingspropertiespage.cpp", "codestylesettingspropertiespage.h",
                 "compileoutputwindow.cpp", "compileoutputwindow.h",
                 "configtaskhandler.cpp", "configtaskhandler.h",
+                "copystep.cpp", "copystep.h",
                 "copytaskhandler.cpp", "copytaskhandler.h",
                 "currentprojectfilter.cpp", "currentprojectfilter.h",
                 "currentprojectfind.cpp", "currentprojectfind.h",
