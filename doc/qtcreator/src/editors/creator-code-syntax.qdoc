@@ -729,8 +729,16 @@
     To automatically format QML/JS files upon saving, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
     \uicontrol {Enable auto format on file save}.
+    To only format files that belong to the current project, select
+    \uicontrol {Restrict to files contained in the current project}.
 
-    \image qtcreator-qml-js-editing.png "QML/JS Editing preferences"
+    To use an external tool, such as \l {qmlformat}, which automatically
+    formats QML files according to QML coding conventions, select
+    \uicontrol {Use custom command instead of built-in formatter}. In
+    the \uicontrol Command field, enter the path to the tool. In the
+    \uicontrol Arguments field, enter options for running the tool.
+
+    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
     \if defined(qtcreator)
     \section1 Inspecting Preprocessed C++ Code

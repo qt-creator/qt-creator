@@ -26,7 +26,7 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
     \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
 
-    \image qtcreator-qml-js-editing.png "QML/JS Editing preferences"
+    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
     Drag the toolbar to pin it to another location. Select
     \inlineimage icons/pin.png
