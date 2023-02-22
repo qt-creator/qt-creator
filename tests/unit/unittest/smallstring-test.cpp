@@ -1535,6 +1535,11 @@ TEST(SmallString, LongPathStringMoveConstuctor)
             "text"));
 }
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+#endif
+
 TEST(SmallString, ShortSmallStringMoveConstuctorToSelf)
 {
     SmallString text("text");
@@ -1579,6 +1584,10 @@ TEST(SmallString, LongPathStringMoveConstuctorToSelf)
             "very very very very very very very very very very very very very very very very long "
             "text"));
 }
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 TEST(SmallString, ShortSmallStringCopyAssignment)
 {
