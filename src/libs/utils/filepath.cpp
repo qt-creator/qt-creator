@@ -233,6 +233,9 @@ QString FilePath::toString() const
     if (!needsDevice())
         return path();
 
+    if (pathView().isEmpty())
+        return scheme() + "://" + encodedHost();
+
     if (isRelativePath())
         return scheme() + "://" + encodedHost() + "/./" + pathView();
     return scheme() + "://" + encodedHost() + pathView();
@@ -254,6 +257,9 @@ QString FilePath::toFSPathString() const
 {
     if (scheme().isEmpty())
         return path();
+
+    if (pathView().isEmpty())
+        return specialRootPath() + '/' + scheme() + '/' + encodedHost();
 
     if (isRelativePath())
         return specialRootPath() + '/' + scheme() + '/' + encodedHost() + "/./" + pathView();

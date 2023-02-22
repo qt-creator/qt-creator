@@ -473,8 +473,16 @@ void tst_fileutils::toString_data()
     QTest::addColumn<QString>("userResult");
 
     QTest::newRow("empty") << "" << "" << "" << "" << "";
-    QTest::newRow("scheme") << "http" << "" << "" << "http:///./" << "http:///./";
-    QTest::newRow("scheme-and-host") << "http" << "127.0.0.1" << "" << "http://127.0.0.1/./" << "http://127.0.0.1/./";
+    QTest::newRow("scheme") << "http"
+                            << ""
+                            << ""
+                            << "http://"
+                            << "http://";
+    QTest::newRow("scheme-and-host") << "http"
+                                     << "127.0.0.1"
+                                     << ""
+                                     << "http://127.0.0.1"
+                                     << "http://127.0.0.1";
     QTest::newRow("root") << "http" << "127.0.0.1" << "/" << "http://127.0.0.1/" << "http://127.0.0.1/";
 
     QTest::newRow("root-folder") << "" << "" << "/" << "/" << "/";
@@ -483,7 +491,11 @@ void tst_fileutils::toString_data()
     QTest::newRow("qtc-dev-type-root-folder-linux") << "" << "" << "/__qtc_devices__/docker" << "/__qtc_devices__/docker" << "/__qtc_devices__/docker";
     QTest::newRow("qtc-dev-type-root-folder-win") << "" << "" << "c:/__qtc_devices__/docker" << "c:/__qtc_devices__/docker" << "c:/__qtc_devices__/docker";
     QTest::newRow("qtc-root-folder") << "docker" << "alpine:latest" << "/" << "docker://alpine:latest/" << "docker://alpine:latest/";
-    QTest::newRow("qtc-root-folder-rel") << "docker" << "alpine:latest" << "" << "docker://alpine:latest/./" << "docker://alpine:latest/./";
+    QTest::newRow("qtc-root-folder-rel") << "docker"
+                                         << "alpine:latest"
+                                         << ""
+                                         << "docker://alpine:latest"
+                                         << "docker://alpine:latest";
 }
 
 void tst_fileutils::toString()
@@ -509,15 +521,25 @@ void tst_fileutils::toFSPathString_data()
     QTest::addColumn<QString>("userResult");
 
     QTest::newRow("empty") << "" << "" << "" << "" << "";
-    QTest::newRow("scheme") << "http" << "" << "" << QDir::rootPath() + "__qtc_devices__/http//./" << "http:///./";
-    QTest::newRow("scheme-and-host") << "http" << "127.0.0.1" << "" << QDir::rootPath() + "__qtc_devices__/http/127.0.0.1/./" << "http://127.0.0.1/./";
+    QTest::newRow("scheme") << "http"
+                            << ""
+                            << "" << QDir::rootPath() + "__qtc_devices__/http/"
+                            << "http://";
+    QTest::newRow("scheme-and-host") << "http"
+                                     << "127.0.0.1"
+                                     << "" << QDir::rootPath() + "__qtc_devices__/http/127.0.0.1"
+                                     << "http://127.0.0.1";
     QTest::newRow("root") << "http" << "127.0.0.1" << "/" << QDir::rootPath() + "__qtc_devices__/http/127.0.0.1/" << "http://127.0.0.1/";
 
     QTest::newRow("root-folder") << "" << "" << "/" << "/" << "/";
     QTest::newRow("qtc-dev-root-folder") << "" << "" << QDir::rootPath() + "__qtc_devices__" << QDir::rootPath() + "__qtc_devices__" << QDir::rootPath() + "__qtc_devices__";
     QTest::newRow("qtc-dev-type-root-folder") << "" << "" << QDir::rootPath() + "__qtc_devices__/docker" << QDir::rootPath() + "__qtc_devices__/docker" << QDir::rootPath() + "__qtc_devices__/docker";
     QTest::newRow("qtc-root-folder") << "docker" << "alpine:latest" << "/" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest/" << "docker://alpine:latest/";
-    QTest::newRow("qtc-root-folder-rel") << "docker" << "alpine:latest" << "" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest/./" << "docker://alpine:latest/./";
+    QTest::newRow("qtc-root-folder-rel")
+        << "docker"
+        << "alpine:latest"
+        << "" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest"
+        << "docker://alpine:latest";
 }
 
 void tst_fileutils::toFSPathString()

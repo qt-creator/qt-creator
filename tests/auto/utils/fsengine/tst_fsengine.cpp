@@ -93,6 +93,10 @@ void tst_fsengine::testRootPathContainsFakeDir()
     const QStringList schemeList = schemes.entryList();
     QVERIFY(schemeList.contains("device"));
 
+    QDir devices(FilePath::specialDeviceRootPath());
+    const QStringList deviceList = devices.entryList();
+    QVERIFY(deviceList.contains("test"));
+
     QDir deviceRoot(FilePath::specialDeviceRootPath() + "/test" + startWithSlash(QDir::rootPath()));
     const QStringList deviceRootList = deviceRoot.entryList();
     QVERIFY(!deviceRootList.isEmpty());
