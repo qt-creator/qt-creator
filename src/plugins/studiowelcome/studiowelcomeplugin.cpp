@@ -98,7 +98,7 @@ QPointer<QQuickView> s_viewWindow = nullptr;
 QPointer<QQuickWidget> s_viewWidget = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
-static Utils::FilePath getMainUiFile()
+static Utils::FilePath getMainUiFileWithFallback()
 {
     auto project = ProjectExplorer::SessionManager::startupProject();
     if (!project)
@@ -109,7 +109,18 @@ static Utils::FilePath getMainUiFile()
 
     auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
         project->activeTarget()->buildSystem());
-    return qmlBuildSystem->mainUiFilePath();
+
+    auto mainUiFile = qmlBuildSystem->mainUiFilePath();
+    if (mainUiFile.exists())
+        return mainUiFile;
+
+    const Utils::FilePaths uiFiles = project->files([&](const ProjectExplorer::Node *node) {
+        return node->filePath().completeSuffix() == "ui.qml";
+    });
+    if (!uiFiles.isEmpty())
+        return uiFiles.first();
+
+    return {};
 }
 
 std::unique_ptr<QSettings> makeUserFeedbackSettings()
@@ -243,7 +254,7 @@ public:
             const ProjectExplorerPlugin::OpenProjectResult result
                 = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFile);
             if (!result && !result.alreadyOpen().isEmpty()) {
-                const auto mainUiFile = getMainUiFile();
+                const auto mainUiFile = getMainUiFileWithFallback();
                 if (mainUiFile.exists())
                     Core::EditorManager::openEditor(mainUiFile, Utils::Id());
             };
