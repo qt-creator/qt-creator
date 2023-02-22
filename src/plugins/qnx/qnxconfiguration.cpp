@@ -391,6 +391,10 @@ void QnxConfiguration::setDefaultConfiguration(const FilePath &envScript)
     if (qccPath.exists())
         m_qccCompiler = qccPath;
 
+    // Some fall back in case the qconfig dir with .xml files is not found later
+    if (m_configName.isEmpty())
+        m_configName = QString("%1 - %2").arg(m_qnxHost.fileName(), m_qnxTarget.fileName());
+
     updateTargets();
     assignDebuggersToTargets();
 
