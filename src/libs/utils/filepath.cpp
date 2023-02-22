@@ -1038,10 +1038,10 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
 */
 FilePath FilePath::fromUserInput(const QString &filePath)
 {
-    QString clean = doCleanPath(filePath);
-    if (clean.startsWith(QLatin1String("~/")))
-        return FileUtils::homePath().pathAppended(clean.mid(2));
-    return FilePath::fromString(clean);
+    const QString expandedPath = filePath.startsWith("~/")
+                                     ? (QDir::homePath() + "/" + filePath.mid(2))
+                                     : filePath;
+    return FilePath::fromString(doCleanPath(expandedPath));
 }
 
 /*!
