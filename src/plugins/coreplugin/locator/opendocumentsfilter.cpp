@@ -3,8 +3,8 @@
 
 #include "opendocumentsfilter.h"
 
-#include "basefilefilter.h"
 #include "../coreplugintr.h"
+#include "../editormanager/editormanager.h"
 
 #include <utils/filepath.h>
 #include <utils/link.h>
@@ -123,7 +123,7 @@ void OpenDocumentsFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    BaseFileFilter::openEditorAt(selection);
+    EditorManager::openEditor(selection);
 }
 
 } // Core::Internal

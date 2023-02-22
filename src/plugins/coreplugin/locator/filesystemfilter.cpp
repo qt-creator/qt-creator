@@ -3,7 +3,6 @@
 
 #include "filesystemfilter.h"
 
-#include "basefilefilter.h"
 #include "../coreplugintr.h"
 #include "../documentmanager.h"
 #include "../editormanager/editormanager.h"
@@ -192,7 +191,7 @@ void FileSystemFilter::accept(const LocatorFilterEntry &selection,
                 file.close();
                 VcsManager::promptToAdd(selection.filePath.absolutePath(), {selection.filePath});
             }
-            BaseFileFilter::openEditorAt(selection);
+            EditorManager::openEditor(selection);
         }, Qt::QueuedConnection);
     }
 }

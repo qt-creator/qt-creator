@@ -28,6 +28,7 @@
 #include "../findplaceholder.h"
 #include "../icore.h"
 #include "../iversioncontrol.h"
+#include "../locator/ilocatorfilter.h"
 #include "../modemanager.h"
 #include "../outputpane.h"
 #include "../outputpanemanager.h"
@@ -3156,6 +3157,17 @@ IEditor *EditorManager::openEditorAt(const Link &link,
                                               flags,
                                               newEditor);
 }
+
+IEditor *EditorManager::openEditor(const LocatorFilterEntry &entry)
+{
+    const OpenEditorFlags defaultFlags = EditorManager::AllowExternalEditor;
+    if (entry.linkForEditor)
+        return EditorManager::openEditorAt(*entry.linkForEditor, {}, defaultFlags);
+    else if (!entry.filePath.isEmpty())
+        return EditorManager::openEditor(entry.filePath, {}, defaultFlags);
+    return nullptr;
+}
+
 
 /*!
     Opens the document at the position of the search result \a item using the

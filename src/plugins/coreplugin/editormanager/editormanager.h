@@ -18,15 +18,16 @@
 
 #include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QMenu)
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
 
-namespace Utils {
-class MimeType;
-}
+namespace Utils { class MimeType; }
 
 namespace Core {
 
 class IDocument;
+class LocatorFilterEntry;
 class SearchResultItem;
 
 namespace Internal {
@@ -76,6 +77,7 @@ public:
                                  Utils::Id editorId = {},
                                  OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = nullptr);
+    static IEditor *openEditor(const LocatorFilterEntry &entry);
 
     static void openEditorAtSearchResult(const SearchResultItem &item,
                                          Utils::Id editorId = {},

@@ -201,16 +201,7 @@ void BaseFileFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    openEditorAt(selection);
-}
-
-void BaseFileFilter::openEditorAt(const LocatorFilterEntry &entry)
-{
-    if (entry.linkForEditor) {
-        EditorManager::openEditorAt(*entry.linkForEditor, {}, EditorManager::AllowExternalEditor);
-        return;
-    }
-    EditorManager::openEditor(entry.filePath, {}, EditorManager::AllowExternalEditor);
+    EditorManager::openEditor(selection);
 }
 
 /*!

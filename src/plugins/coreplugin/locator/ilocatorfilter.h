@@ -21,8 +21,9 @@ namespace Core {
 
 class ILocatorFilter;
 
-struct LocatorFilterEntry
+class LocatorFilterEntry
 {
+public:
     struct HighlightInfo {
         enum DataType {
             DisplayName,
