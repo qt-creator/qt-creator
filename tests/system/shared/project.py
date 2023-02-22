@@ -188,7 +188,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             item = Targets.getStringForTarget(currentItem)
         found = versionFinder.search(item)
         if found:
-            if Qt5Path.toVersionTuple(found.group(1)) < Qt5Path.toVersionTuple(requiredQt):
+            if QtPath.toVersionTuple(found.group(1)) < QtPath.toVersionTuple(requiredQt):
                 available.discard(currentItem)
         elif currentItem.endswith(" (invalid)"):
             available.discard(currentItem)

@@ -8,7 +8,7 @@ outline = ":Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView"
 treebase = "keyinteraction.Resources.keyinteraction\\.qrc./keyinteraction.focus."
 
 def main():
-    sourceExample = os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
+    sourceExample = os.path.join(QtPath.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
                                  "quick", "keyinteraction")
     proFile = "keyinteraction.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):

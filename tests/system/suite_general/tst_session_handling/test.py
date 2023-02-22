@@ -45,9 +45,9 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def prepareTestExamples():
-    examples = [os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
+    examples = [os.path.join(QtPath.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
                              "quick", "animation", "animation.pro"),
-                os.path.join(Qt5Path.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
+                os.path.join(QtPath.examplesPath(Targets.DESKTOP_5_14_1_DEFAULT),
                              "quick", "keyinteraction", "keyinteraction.pro")
                 ]
     projects = []

@@ -75,7 +75,7 @@ class LibType:
             return "Qt Plugin"
         return None
 
-class Qt5Path:
+class QtPath:
     DOCS = 0
     EXAMPLES = 1
 
@@ -84,10 +84,10 @@ class Qt5Path:
         qt5targets = [Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT]
         if platform.system() != 'Darwin':
             qt5targets.append(Targets.DESKTOP_5_4_1_GCC)
-        if pathSpec == Qt5Path.DOCS:
-            return map(lambda target: Qt5Path.docsPath(target), qt5targets)
-        elif pathSpec == Qt5Path.EXAMPLES:
-            return map(lambda target: Qt5Path.examplesPath(target), qt5targets)
+        if pathSpec == QtPath.DOCS:
+            return map(lambda target: QtPath.docsPath(target), qt5targets)
+        elif pathSpec == QtPath.EXAMPLES:
+            return map(lambda target: QtPath.examplesPath(target), qt5targets)
         else:
             test.fatal("Unknown pathSpec given: %s" % str(pathSpec))
             return []
@@ -116,29 +116,29 @@ class Qt5Path:
 
     @staticmethod
     def getQtMinorAndPatchVersion(target):
-        qtVersionStr = Qt5Path.__preCheckAndExtractQtVersionStr__(target)
-        versionTuple = Qt5Path.toVersionTuple(qtVersionStr)
+        qtVersionStr = QtPath.__preCheckAndExtractQtVersionStr__(target)
+        versionTuple = QtPath.toVersionTuple(qtVersionStr)
         return versionTuple[1], versionTuple[2]
 
     @staticmethod
     def examplesPath(target):
-        qtMinorVersion, qtPatchVersion = Qt5Path.getQtMinorAndPatchVersion(target)
+        qtMinorVersion, qtPatchVersion = QtPath.getQtMinorAndPatchVersion(target)
         if qtMinorVersion < 10:
             path = "Examples/Qt-5.%d" % qtMinorVersion
         else:
             path = "Examples/Qt-5.%d.%d" % (qtMinorVersion, qtPatchVersion)
 
-        return os.path.join(Qt5Path.__createPlatformQtPath__(qtMinorVersion), path)
+        return os.path.join(QtPath.__createPlatformQtPath__(qtMinorVersion), path)
 
     @staticmethod
     def docsPath(target):
-        qtMinorVersion, qtPatchVersion = Qt5Path.getQtMinorAndPatchVersion(target)
+        qtMinorVersion, qtPatchVersion = QtPath.getQtMinorAndPatchVersion(target)
         if qtMinorVersion < 10:
             path = "Docs/Qt-5.%d" % qtMinorVersion
         else:
             path = "Docs/Qt-5.%d.%d" % (qtMinorVersion, qtPatchVersion)
 
-        return os.path.join(Qt5Path.__createPlatformQtPath__(qtMinorVersion), path)
+        return os.path.join(QtPath.__createPlatformQtPath__(qtMinorVersion), path)
 
 class TestSection:
     def __init__(self, description):
