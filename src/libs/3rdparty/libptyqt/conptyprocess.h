@@ -23,6 +23,8 @@ typedef VOID* HPCON;
 #define TOO_OLD_WINSDK
 #endif
 
+class QWinEventNotifier;
+
 template <typename T>
 std::vector<T> vectorFromString(const std::basic_string<T> &str)
 {
@@ -160,7 +162,7 @@ private:
     PtyBuffer m_buffer;
     bool m_aboutToDestruct{false};
     PROCESS_INFORMATION m_shellProcessInformation{};
-    HANDLE m_shellCloseWaitHandle{INVALID_HANDLE_VALUE};
+    QWinEventNotifier* m_shellCloseWaitNotifier;
     STARTUPINFOEX m_shellStartupInfo{};
 };
 

@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QMutexLocker>
 #include <QCoreApplication>
+#include <QWinEventNotifier>
 
 #include <qt_windows.h>
 
@@ -179,21 +180,19 @@ bool ConPtyProcess::startProcess(const QString &executable,
     m_pid = m_shellProcessInformation.dwProcessId;
 
     // Notify when the shell process has been terminated
-    RegisterWaitForSingleObject(
-        &m_shellCloseWaitHandle,
-        m_shellProcessInformation.hProcess,
-        [](PVOID data, BOOLEAN) {
-            auto self = static_cast<ConPtyProcess *>(data);
-            DWORD exitCode = 0;
-            GetExitCodeProcess(self->m_shellProcessInformation.hProcess, &exitCode);
-            self->m_exitCode = exitCode;
-            // Do not respawn if the object is about to be destructed
-            if (!self->m_aboutToDestruct)
-                emit self->notifier()->aboutToClose();
-        },
-        this,
-        INFINITE,
-        WT_EXECUTEONLYONCE);
+    m_shellCloseWaitNotifier = new QWinEventNotifier(m_shellProcessInformation.hProcess, notifier());
+    QObject::connect(m_shellCloseWaitNotifier,
+            &QWinEventNotifier::activated,
+            notifier(),
+            [this](HANDLE hEvent) {
+                DWORD exitCode = 0;
+                GetExitCodeProcess(hEvent, &exitCode);
+                m_exitCode = exitCode;
+                // Do not respawn if the object is about to be destructed
+                if (!m_aboutToDestruct)
+                    emit notifier()->aboutToClose();
+                m_shellCloseWaitNotifier->setEnabled(false);
+            });
 
     //this code runned in separate thread
     m_readThread = QThread::create([this]()
@@ -220,6 +219,8 @@ bool ConPtyProcess::startProcess(const QString &executable,
             if (QThread::currentThread()->isInterruptionRequested() || brokenPipe)
                 break;
         }
+
+        CancelIoEx(m_hPipeIn, nullptr);
     });
 
     //start read thread
@@ -269,6 +270,9 @@ bool ConPtyProcess::kill()
         m_readThread->deleteLater();
         m_readThread = nullptr;
 
+        delete m_shellCloseWaitNotifier;
+        m_shellCloseWaitNotifier = nullptr;
+
         m_pid = 0;
         m_ptyHandler = INVALID_HANDLE_VALUE;
         m_hPipeIn = INVALID_HANDLE_VALUE;
@@ -276,7 +280,6 @@ bool ConPtyProcess::kill()
 
         CloseHandle(m_shellProcessInformation.hThread);
         CloseHandle(m_shellProcessInformation.hProcess);
-        UnregisterWait(m_shellCloseWaitHandle);
 
         // Cleanup attribute list
         if (m_shellStartupInfo.lpAttributeList) {

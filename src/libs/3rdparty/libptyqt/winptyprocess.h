@@ -4,7 +4,8 @@
 #include "iptyprocess.h"
 #include "winpty.h"
 
-#include <QLocalSocket>
+class QLocalSocket;
+class QWinEventNotifier;
 
 class WinPtyProcess : public IPtyProcess
 {
@@ -36,7 +37,7 @@ private:
     QLocalSocket *m_inSocket;
     QLocalSocket *m_outSocket;
     bool m_aboutToDestruct{false};
-    HANDLE m_shellCloseWaitHandle{INVALID_HANDLE_VALUE};
+    QWinEventNotifier* m_shellCloseWaitNotifier;
 };
 
 #endif // WINPTYPROCESS_H

@@ -3,6 +3,8 @@
 #include <QFileInfo>
 #include <sstream>
 #include <QCoreApplication>
+#include <QLocalSocket>
+#include <QWinEventNotifier>
 
 #define DEBUG_VAR_LEGACY "WINPTYDBG"
 #define DEBUG_VAR_ACTUAL "WINPTY_DEBUG"
@@ -132,22 +134,22 @@ bool WinPtyProcess::startProcess(const QString &executable,
 
     m_pid = (int)GetProcessId(m_innerHandle);
 
+    m_outSocket = new QLocalSocket();
+
     // Notify when the shell process has been terminated
-    RegisterWaitForSingleObject(
-        &m_shellCloseWaitHandle,
-        m_innerHandle,
-        [](PVOID data, BOOLEAN) {
-            auto self = static_cast<WinPtyProcess *>(data);
-            // Do not respawn if the object is about to be destructed
-            DWORD exitCode = 0;
-            GetExitCodeProcess(self->m_innerHandle, &exitCode);
-            self->m_exitCode = exitCode;
-            if (!self->m_aboutToDestruct)
-                emit self->notifier()->aboutToClose();
-        },
-        this,
-        INFINITE,
-        WT_EXECUTEONLYONCE);
+    m_shellCloseWaitNotifier = new QWinEventNotifier(m_innerHandle, notifier());
+    QObject::connect(m_shellCloseWaitNotifier,
+                     &QWinEventNotifier::activated,
+                     notifier(),
+                     [this](HANDLE hEvent) {
+                         DWORD exitCode = 0;
+                         GetExitCodeProcess(hEvent, &exitCode);
+                         m_exitCode = exitCode;
+                         // Do not respawn if the object is about to be destructed
+                         if (!m_aboutToDestruct)
+                             emit notifier()->aboutToClose();
+                         m_shellCloseWaitNotifier->setEnabled(false);
+                     });
 
     //get pipe names
     LPCWSTR conInPipeName = winpty_conin_name(m_ptyHandler);
@@ -158,7 +160,6 @@ bool WinPtyProcess::startProcess(const QString &executable,
 
     LPCWSTR conOutPipeName = winpty_conout_name(m_ptyHandler);
     m_conOutName = QString::fromStdWString(std::wstring(conOutPipeName));
-    m_outSocket = new QLocalSocket();
     m_outSocket->connectToServer(m_conOutName, QIODevice::ReadOnly);
     m_outSocket->waitForConnected();
 
@@ -214,7 +215,8 @@ bool WinPtyProcess::kill()
         winpty_free(m_ptyHandler);
         exitCode = CloseHandle(m_innerHandle);
 
-        UnregisterWait(m_shellCloseWaitHandle);
+        delete m_shellCloseWaitNotifier;
+        m_shellCloseWaitNotifier = nullptr;
 
         m_ptyHandler = nullptr;
         m_innerHandle = nullptr;
