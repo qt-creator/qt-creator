@@ -4,6 +4,7 @@
 #include "dockmanager.h"
 
 #include "ads_globals.h"
+#include "ads_globals_p.h"
 #include "dockareawidget.h"
 #include "dockfocuscontroller.h"
 #include "dockingstatereader.h"
@@ -38,7 +39,7 @@
 #include <QVariant>
 #include <QXmlStreamWriter>
 
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg);
+Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg);
 
 using namespace Utils;
 
