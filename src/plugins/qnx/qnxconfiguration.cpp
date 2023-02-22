@@ -217,13 +217,12 @@ void QnxConfiguration::createTools(const Target &target)
 
 QVariant QnxConfiguration::createDebugger(const Target &target)
 {
-    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+    Environment sysEnv = m_qnxHost.deviceEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
 
     Debugger::DebuggerItem debugger;
     debugger.setCommand(target.m_debuggerPath);
     debugger.reinitializeFromFile(nullptr, &sysEnv);
-    debugger.setAutoDetected(true);
     debugger.setUnexpandedDisplayName(Tr::tr("Debugger for %1 (%2)")
                 .arg(displayName())
                 .arg(target.shortDescription()));
