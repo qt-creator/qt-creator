@@ -33,7 +33,7 @@ def main():
                 checkCompile()
             else:
                 appOutput = logApplicationOutput()
-                test.verify(not ("main.qml" in appOutput or "MainForm.ui.qml" in appOutput),
+                test.verify(not ("Main.qml" in appOutput or "MainForm.ui.qml" in appOutput),
                             "Does the Application Output indicate QML errors?")
         invokeMenuItem("File", "Close All Projects and Editors")
 
