@@ -4,11 +4,9 @@
 #include "examplesparser.h"
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/stylehelper.h>
 
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
 #include <QPixmapCache>
 #include <QXmlStreamReader>
 
@@ -16,16 +14,15 @@ using namespace Utils;
 
 namespace QtSupport::Internal {
 
-static QString relativeOrInstallPath(const QString &path,
-                                     const QString &manifestPath,
-                                     const QString &installPath)
+static FilePath relativeOrInstallPath(const FilePath &path,
+                                      const FilePath &manifestPath,
+                                      const FilePath &installPath)
 {
-    const QChar slash = QLatin1Char('/');
-    const QString relativeResolvedPath = manifestPath + slash + path;
-    const QString installResolvedPath = installPath + slash + path;
-    if (QFile::exists(relativeResolvedPath))
+    const FilePath relativeResolvedPath = manifestPath.resolvePath(path);
+    const FilePath installResolvedPath = installPath.resolvePath(path);
+    if (relativeResolvedPath.exists())
         return relativeResolvedPath;
-    if (QFile::exists(installResolvedPath))
+    if (installResolvedPath.exists())
         return installResolvedPath;
     // doesn't exist, just return relative
     return relativeResolvedPath;
@@ -47,12 +44,11 @@ static QStringList trimStringList(const QStringList &stringlist)
 }
 
 static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
-                                          const QString &projectsOffset,
-                                          const QString &examplesInstallPath)
+                                          const FilePath &projectsOffset,
+                                          const FilePath &examplesInstallPath)
 {
     QList<ExampleItem *> result;
     std::unique_ptr<ExampleItem> item;
-    const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
@@ -61,7 +57,8 @@ static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
                 item->type = Example;
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
-                item->projectPath = attributes.value(QLatin1String("projectPath")).toString();
+                item->projectPath = FilePath::fromUserInput(
+                    attributes.value(QLatin1String("projectPath")).toString());
                 item->hasSourceCode = !item->projectPath.isEmpty();
                 item->projectPath = relativeOrInstallPath(item->projectPath,
                                                           projectsOffset,
@@ -75,9 +72,9 @@ static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 const QString mainFileAttribute
                     = reader->attributes().value(QLatin1String("mainFile")).toString();
-                const QString filePath
-                    = relativeOrInstallPath(reader->readElementText(
-                                                QXmlStreamReader::ErrorOnUnexpectedElement),
+                const FilePath filePath
+                    = relativeOrInstallPath(FilePath::fromUserInput(reader->readElementText(
+                                                QXmlStreamReader::ErrorOnUnexpectedElement)),
                                             projectsOffset,
                                             examplesInstallPath);
                 item->filesToOpen.append(filePath);
@@ -88,8 +85,8 @@ static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
                     reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
                 item->dependencies.append(
-                    projectsOffset + slash
-                    + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                    projectsOffset
+                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
                 item->tags = trimStringList(
                     reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
@@ -115,12 +112,11 @@ static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
 }
 
 static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
-                                       const QString &projectsOffset,
-                                       const QString &demosInstallPath)
+                                       const FilePath &projectsOffset,
+                                       const FilePath &demosInstallPath)
 {
     QList<ExampleItem *> result;
     std::unique_ptr<ExampleItem> item;
-    const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
@@ -129,7 +125,8 @@ static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
                 item->type = Demo;
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
-                item->projectPath = attributes.value(QLatin1String("projectPath")).toString();
+                item->projectPath = FilePath::fromUserInput(
+                    attributes.value(QLatin1String("projectPath")).toString());
                 item->hasSourceCode = !item->projectPath.isEmpty();
                 item->projectPath = relativeOrInstallPath(item->projectPath,
                                                           projectsOffset,
@@ -141,8 +138,8 @@ static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
                                       == QLatin1String("true");
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item->filesToOpen.append(
-                    relativeOrInstallPath(reader->readElementText(
-                                              QXmlStreamReader::ErrorOnUnexpectedElement),
+                    relativeOrInstallPath(FilePath::fromUserInput(reader->readElementText(
+                                              QXmlStreamReader::ErrorOnUnexpectedElement)),
                                           projectsOffset,
                                           demosInstallPath));
             } else if (reader->name() == QLatin1String("description")) {
@@ -150,8 +147,8 @@ static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
                     reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
                 item->dependencies.append(
-                    projectsOffset + slash
-                    + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                    projectsOffset
+                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
                 item->tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
                                  .split(QLatin1Char(','));
@@ -171,11 +168,10 @@ static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
     return result;
 }
 
-static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
+static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const FilePath &projectsOffset)
 {
     QList<ExampleItem *> result;
     std::unique_ptr<ExampleItem> item = std::make_unique<ExampleItem>();
-    const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
@@ -184,10 +180,9 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const QStri
                 item->type = Tutorial;
                 QXmlStreamAttributes attributes = reader->attributes();
                 item->name = attributes.value(QLatin1String("name")).toString();
-                item->projectPath = attributes.value(QLatin1String("projectPath")).toString();
+                item->projectPath = projectsOffset
+                                    / attributes.value(QLatin1String("projectPath")).toString();
                 item->hasSourceCode = !item->projectPath.isEmpty();
-                item->projectPath.prepend(slash);
-                item->projectPath.prepend(projectsOffset);
                 item->imageUrl = Utils::StyleHelper::dpiSpecificImageFile(
                     attributes.value(QLatin1String("imageUrl")).toString());
                 QPixmapCache::remove(item->imageUrl);
@@ -198,15 +193,15 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const QStri
                 item->videoLength = attributes.value(QLatin1String("videoLength")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item->filesToOpen.append(
-                    projectsOffset + slash
-                    + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                    projectsOffset
+                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
                 item->description = fixStringForTags(
                     reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
                 item->dependencies.append(
-                    projectsOffset + slash
-                    + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                    projectsOffset
+                    / reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
                 item->tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
                                  .split(QLatin1Char(','));
@@ -225,31 +220,28 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const QStri
     return result;
 }
 
-expected_str<QList<ExampleItem *>> parseExamples(const QString &manifest,
-                                                 const QString &examplesInstallPath,
-                                                 const QString &demosInstallPath,
+expected_str<QList<ExampleItem *>> parseExamples(const FilePath &manifest,
+                                                 const FilePath &examplesInstallPath,
+                                                 const FilePath &demosInstallPath,
                                                  const bool examples)
 {
-    QFile exampleFile(manifest);
-    if (!exampleFile.open(QIODevice::ReadOnly))
-        return make_unexpected(QString("Could not open file \"%1\"").arg(manifest));
+    const expected_str<QByteArray> contents = manifest.fileContents();
+    if (!contents)
+        return make_unexpected(contents.error());
 
-    QFileInfo fi(manifest);
-    QString offsetPath = fi.path();
-    QDir examplesDir(offsetPath);
-    QDir demosDir(offsetPath);
+    const FilePath path = manifest.parentDir();
 
     QList<ExampleItem *> items;
-    QXmlStreamReader reader(&exampleFile);
+    QXmlStreamReader reader(*contents);
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
             if (examples && reader.name() == QLatin1String("examples"))
-                items += parseExamples(&reader, examplesDir.path(), examplesInstallPath);
+                items += parseExamples(&reader, path, examplesInstallPath);
             else if (examples && reader.name() == QLatin1String("demos"))
-                items += parseDemos(&reader, demosDir.path(), demosInstallPath);
+                items += parseDemos(&reader, path, demosInstallPath);
             else if (!examples && reader.name() == QLatin1String("tutorials"))
-                items += parseTutorials(&reader, examplesDir.path());
+                items += parseTutorials(&reader, path);
             break;
         default: // nothing
             break;
@@ -259,7 +251,7 @@ expected_str<QList<ExampleItem *>> parseExamples(const QString &manifest,
     if (reader.hasError()) {
         qDeleteAll(items);
         return make_unexpected(QString("Could not parse file \"%1\" as XML document: %2:%3: %4")
-                                   .arg(manifest)
+                                   .arg(manifest.toUserOutput())
                                    .arg(reader.lineNumber())
                                    .arg(reader.columnNumber())
                                    .arg(reader.errorString()));
