@@ -94,7 +94,7 @@ void SdkManagerOutputParserTest::testParseBuildToolsPackage()
 
     BuildTools *actualBuildTools = m_parser->parseBuildToolsPackage(output);
 
-    QCOMPARE_NE(actualBuildTools, nullptr);
+    QVERIFY(actualBuildTools != nullptr);
     QCOMPARE(actualBuildTools->descriptionText(), description);
     QCOMPARE(actualBuildTools->displayText(), displayText);
     QCOMPARE(actualBuildTools->revision(), revision);
@@ -104,7 +104,7 @@ void SdkManagerOutputParserTest::testParseBuildToolsPackageEmpty()
 {
     BuildTools *actualBuildTools = m_parser->parseBuildToolsPackage({""});
 
-    QCOMPARE_EQ(actualBuildTools, nullptr);
+    QVERIFY(actualBuildTools == nullptr);
 }
 
 // SdkTools
@@ -140,7 +140,7 @@ void SdkManagerOutputParserTest::testParseSdkToolsPackage()
 
     std::unique_ptr<SdkTools> actualSdkTool(m_parser->parseSdkToolsPackage(output));
 
-    QCOMPARE_NE(actualSdkTool, nullptr);
+    QVERIFY(actualSdkTool != nullptr);
     QCOMPARE(actualSdkTool->descriptionText(), description);
     QCOMPARE(actualSdkTool->displayText(), displayText);
     QCOMPARE(actualSdkTool->revision(), revision);
@@ -150,7 +150,7 @@ void SdkManagerOutputParserTest::testParseSdkToolsPackageEmpty()
 {
     std::unique_ptr<SdkTools> actualSdkTool(m_parser->parseSdkToolsPackage({""}));
 
-    QCOMPARE_EQ(actualSdkTool, nullptr);
+    QVERIFY(actualSdkTool == nullptr);
 }
 
 // PlatformTools
@@ -180,7 +180,7 @@ void SdkManagerOutputParserTest::testParsePlatformToolsPackage()
     std::unique_ptr<PlatformTools> actualPlatformTool(
         m_parser->parsePlatformToolsPackage(output));
 
-    QCOMPARE_NE(actualPlatformTool, nullptr);
+    QVERIFY(actualPlatformTool != nullptr);
     QCOMPARE(actualPlatformTool->descriptionText(), description);
     QCOMPARE(actualPlatformTool->displayText(), displayText);
     QCOMPARE(actualPlatformTool->revision(), revision);
@@ -191,7 +191,7 @@ void SdkManagerOutputParserTest::testParsePlatformToolsPackageEmpty()
     std::unique_ptr<PlatformTools> actualPlatformTool(
         m_parser->parsePlatformToolsPackage({""}));
 
-    QCOMPARE_EQ(actualPlatformTool, nullptr);
+    QVERIFY(actualPlatformTool == nullptr);
 }
 
 // EmulatorTools
@@ -219,7 +219,7 @@ void SdkManagerOutputParserTest::testParseEmulatorToolsPackage()
     std::unique_ptr<EmulatorTools> actualEmulatorTools(
         m_parser->parseEmulatorToolsPackage(output));
 
-    QCOMPARE_NE(actualEmulatorTools, nullptr);
+    QVERIFY(actualEmulatorTools != nullptr);
     QCOMPARE(actualEmulatorTools->descriptionText(), description);
     QCOMPARE(actualEmulatorTools->displayText(), displayText);
     QCOMPARE(actualEmulatorTools->revision(), revision);
@@ -230,7 +230,7 @@ void SdkManagerOutputParserTest::testParseEmulatorToolsPackageEmpty()
     std::unique_ptr<EmulatorTools> actualEmulatorTools(
         m_parser->parseEmulatorToolsPackage({""}));
 
-    QCOMPARE_EQ(actualEmulatorTools, nullptr);
+    QVERIFY(actualEmulatorTools == nullptr);
 }
 
 // NDK
@@ -258,7 +258,7 @@ void SdkManagerOutputParserTest::testParseNdkPackage()
 
     std::unique_ptr<Ndk> actualNdkPackage(m_parser->parseNdkPackage(output));
 
-    QCOMPARE_NE(actualNdkPackage, nullptr);
+    QVERIFY(actualNdkPackage != nullptr);
     QCOMPARE(actualNdkPackage->descriptionText(), description);
     QCOMPARE(actualNdkPackage->displayText(), displayText);
     QCOMPARE(actualNdkPackage->revision(), revision);
@@ -268,7 +268,7 @@ void SdkManagerOutputParserTest::testParseNdkPackageEmpty()
 {
     std::unique_ptr<Ndk> actualNdkPackage(m_parser->parseNdkPackage({""}));
 
-    QCOMPARE_EQ(actualNdkPackage, nullptr);
+    QVERIFY(actualNdkPackage == nullptr);
 }
 
 // ExtraTools
@@ -301,7 +301,7 @@ void SdkManagerOutputParserTest::testParseExtraToolsPackage()
     std::unique_ptr<ExtraTools> actualExtraTools(
         m_parser->parseExtraToolsPackage(output));
 
-    QCOMPARE_NE(actualExtraTools, nullptr);
+    QVERIFY(actualExtraTools != nullptr);
     QCOMPARE(actualExtraTools->descriptionText(), description);
     QCOMPARE(actualExtraTools->displayText(), displayText);
     QCOMPARE(actualExtraTools->revision(), revision);
@@ -312,7 +312,7 @@ void SdkManagerOutputParserTest::testParseExtraToolsPackageEmpty()
     std::unique_ptr<ExtraTools> actualExtraTools(
         m_parser->parseExtraToolsPackage({""}));
 
-    QCOMPARE_EQ(actualExtraTools, nullptr);
+    QVERIFY(actualExtraTools == nullptr);
 }
 
 // GenericTools
@@ -342,7 +342,7 @@ void SdkManagerOutputParserTest::testParseGenericToolsPackage()
     std::unique_ptr<GenericSdkPackage> actualGenericTools(
         m_parser->parseGenericTools(output));
 
-    QCOMPARE_NE(actualGenericTools, nullptr);
+    QVERIFY(actualGenericTools != nullptr);
     QCOMPARE(actualGenericTools->descriptionText(), description);
     QCOMPARE(actualGenericTools->displayText(), displayText);
     QCOMPARE(actualGenericTools->revision(), revision);
@@ -353,7 +353,7 @@ void SdkManagerOutputParserTest::testParseGenericToolsPackageEmpty()
     std::unique_ptr<GenericSdkPackage> actualGenericTools(
         m_parser->parseGenericTools({""}));
 
-    QCOMPARE_EQ(actualGenericTools, nullptr);
+    QVERIFY(actualGenericTools == nullptr);
 }
 
 // Platform
@@ -393,7 +393,7 @@ void SdkManagerOutputParserTest::testParsePlatformPackage()
 
     std::unique_ptr<AndroidSdkPackage> actualPlatform(m_parser->parsePlatform(output));
 
-    QCOMPARE_NE(actualPlatform, nullptr);
+    QVERIFY(actualPlatform != nullptr);
     QCOMPARE(actualPlatform->descriptionText(), description);
     QCOMPARE(actualPlatform->installedLocation().path(), installLocation);
     QCOMPARE(actualPlatform->revision(), revision);
@@ -404,7 +404,7 @@ void SdkManagerOutputParserTest::testParsePlatformPackageEmpty()
 {
     std::unique_ptr<AndroidSdkPackage> actualPlatform(m_parser->parsePlatform({""}));
 
-    QCOMPARE_EQ(actualPlatform, nullptr);
+    QVERIFY(actualPlatform == nullptr);
 }
 
 // SystemImage
@@ -438,7 +438,7 @@ void SdkManagerOutputParserTest::testParseSystemImagePackage()
 
     SystemImage *actualSystemImage = actualSystemImagePair.first;
 
-    QCOMPARE_NE(actualSystemImage, nullptr);
+    QVERIFY(actualSystemImage != nullptr);
     QCOMPARE(actualSystemImage->descriptionText(), description);
     QCOMPARE(actualSystemImage->installedLocation().path(), installLocation);
     QCOMPARE(actualSystemImage->revision(), revision);
@@ -450,7 +450,7 @@ void SdkManagerOutputParserTest::testParseSystemImagePackageEmpty()
     QPair<SystemImage *, int> actualSystemImagePair(m_parser->parseSystemImage({""}));
     SystemImage *actualSystemImage = actualSystemImagePair.first;
 
-    QCOMPARE_EQ(actualSystemImage, nullptr);
+    QVERIFY(actualSystemImage == nullptr);
     delete actualSystemImage;
 }
 void SdkManagerOutputParserTest::testParsePackageListing()
