@@ -28,6 +28,7 @@ Item {
 
     Column {
         id: col
+        anchors.fill: parent
         spacing: 5
 
         Rectangle {
