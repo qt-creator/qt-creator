@@ -1,7 +1,7 @@
 add_qtc_plugin(QmlProjectManager
   CONDITION TARGET Qt5::QuickWidgets
   PLUGIN_CLASS QmlProjectPlugin
-  DEPENDS QmlJS Qt5::QuickWidgets Utils
+  DEPENDS QmlJS Qt5::QuickWidgets Utils McuSupport CMakeProjectManager
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesignerBase
   SOURCES
     qmlprojectgen/qmlprojectgenerator.cpp qmlprojectgen/qmlprojectgenerator.h
@@ -21,6 +21,7 @@ add_qtc_plugin(QmlProjectManager
     qmlprojectplugin.cpp qmlprojectplugin.h
     qmlprojectrunconfiguration.cpp qmlprojectrunconfiguration.h
     buildsystem/qmlbuildsystem.cpp buildsystem/qmlbuildsystem.h
+    mcubuildstep.cpp mcubuildstep.h
 
     "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"
 )

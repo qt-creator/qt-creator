@@ -3,6 +3,7 @@
 
 #include "qmlbuildsystem.h"
 #include "qmlprojectconstants.h"
+#include "mcubuildstep.h"
 
 #include <QtCore5Compat/qtextcodec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -49,7 +50,11 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     updateDeploymentData();
     registerMenuButtons();
 
-    connect(target->project(), &Project::activeTargetChanged, [this]() { refresh(RefreshOptions::NoFileRefresh); });
+    connect(target->project(), &Project::activeTargetChanged, [this](Target *target) {
+        refresh(RefreshOptions::NoFileRefresh);
+        if (qtForMCUs())
+            MCUBuildStepFactory::attachToTarget(target);
+    });
     connect(target->project(), &Project::projectFileIsDirty, [this]() {
         refresh(RefreshOptions::Project);
     });
