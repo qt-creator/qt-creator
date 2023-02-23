@@ -120,7 +120,7 @@ add_qtc_executable(sdktool
     main.cpp
 )
 
-if (MSVC AND TARGET sdktool AND Qt5_VERSION VERSION_LESS 6.0.0)
+if (MSVC AND TARGET sdktool AND TARGET Qt5::Core)
   # find out if Qt is static and set /MT if so
   get_target_property(_input_type Qt5::Core TYPE)
   if (${_input_type} STREQUAL "STATIC_LIBRARY")
