@@ -311,6 +311,8 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
 
     if (!complexFilePathStrings.empty())
         addResources(complexFilePathStrings);
+
+    emit endDrag();
 }
 
 QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)

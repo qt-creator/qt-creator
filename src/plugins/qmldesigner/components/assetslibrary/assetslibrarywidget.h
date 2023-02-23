@@ -108,6 +108,7 @@ signals:
     void hasMaterialLibraryUpdateRequested();
     void hasMaterialLibraryChanged();
     void isDraggingChanged();
+    void endDrag();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
