@@ -172,7 +172,7 @@ void tst_fileutils::filePathInfoFromTriple()
     QFETCH(QString, statoutput);
     QFETCH(FilePathInfo, expected);
 
-    const FilePathInfo result = FileUtils::filePathInfoFromTriple(statoutput);
+    const FilePathInfo result = FileUtils::filePathInfoFromTriple(statoutput, 16);
 
     QCOMPARE(result, expected);
 }

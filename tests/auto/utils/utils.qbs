@@ -22,5 +22,6 @@ Project {
         "tasktree/tasktree.qbs",
         "templateengine/templateengine.qbs",
         "treemodel/treemodel.qbs",
+        "unixdevicefileaccess/unixdevicefileaccess.qbs",
     ]
 }

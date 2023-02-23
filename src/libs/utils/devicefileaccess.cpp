@@ -8,6 +8,7 @@
 #include "environment.h"
 #include "expected.h"
 #include "hostosinfo.h"
+#include "osspecificaspects.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 
@@ -820,7 +821,7 @@ QByteArray DesktopDeviceFileAccess::fileId(const FilePath &filePath) const
 
 OsType DesktopDeviceFileAccess::osType(const FilePath &filePath) const
 {
-    Q_UNUSED(filePath);
+    Q_UNUSED(filePath)
     return HostOsInfo::hostOs();
 }
 
@@ -1054,10 +1055,28 @@ expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &file
     return newPath;
 }
 
+OsType UnixDeviceFileAccess::osType() const
+{
+    if (m_osType)
+        return *m_osType;
+
+    const RunResult result = runInShell({"uname", {"-s"}, OsType::OsTypeLinux});
+    QTC_ASSERT(result.exitCode == 0, return OsTypeLinux);
+    const QString osName = QString::fromUtf8(result.stdOut).trimmed();
+    if (osName == "Darwin")
+        m_osType = OsTypeMac;
+    else if (osName == "Linux")
+        m_osType = OsTypeLinux;
+    else
+        m_osType = OsTypeOtherUnix;
+
+    return *m_osType;
+}
+
 OsType UnixDeviceFileAccess::osType(const FilePath &filePath) const
 {
-    Q_UNUSED(filePath)
-    return OsTypeLinux;
+    Q_UNUSED(filePath);
+    return osType();
 }
 
 QDateTime UnixDeviceFileAccess::lastModified(const FilePath &filePath) const
@@ -1069,10 +1088,19 @@ QDateTime UnixDeviceFileAccess::lastModified(const FilePath &filePath) const
     return dt;
 }
 
+QStringList UnixDeviceFileAccess::statArgs(const FilePath &filePath,
+                                           const QString &linuxFormat,
+                                           const QString &macFormat) const
+{
+    return (osType() == OsTypeMac ? QStringList{"-f", macFormat} : QStringList{"-c", linuxFormat})
+           << "-L" << filePath.path();
+}
+
 QFile::Permissions UnixDeviceFileAccess::permissions(const FilePath &filePath) const
 {
-    const RunResult result = runInShell(
-        {"stat", {"-L", "-c", "%a", filePath.path()}, OsType::OsTypeLinux});
+    QStringList args = statArgs(filePath, "%a", "%p");
+
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
     const uint bits = result.stdOut.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
 #define BIT(n, p) \
@@ -1100,8 +1128,8 @@ bool UnixDeviceFileAccess::setPermissions(const FilePath &filePath, QFile::Permi
 
 qint64 UnixDeviceFileAccess::fileSize(const FilePath &filePath) const
 {
-    const RunResult result = runInShell(
-        {"stat", {"-L", "-c", "%s", filePath.path()}, OsType::OsTypeLinux});
+    const QStringList args = statArgs(filePath, "%s", "%z");
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
     return result.stdOut.toLongLong();
 }
 
@@ -1113,8 +1141,9 @@ qint64 UnixDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
 
 QByteArray UnixDeviceFileAccess::fileId(const FilePath &filePath) const
 {
-    const RunResult result = runInShell(
-        {"stat", {"-L", "-c", "%D:%i", filePath.path()}, OsType::OsTypeLinux});
+    const QStringList args = statArgs(filePath, "%D:%i", "%d:%i");
+
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
     if (result.exitCode != 0)
         return {};
 
@@ -1136,9 +1165,12 @@ FilePathInfo UnixDeviceFileAccess::filePathInfo(const FilePath &filePath) const
 
         return r;
     }
-    const RunResult stat = runInShell(
-        {"stat", {"-L", "-c", "%f %Y %s", filePath.path()}, OsType::OsTypeLinux});
-    return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));
+
+    const QStringList args = statArgs(filePath, "%f %Y %s", "%p %m %z");
+
+    const RunResult stat = runInShell({"stat", args, OsType::OsTypeLinux});
+    return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut),
+                                             osType() != OsTypeMac);
 }
 
 // returns whether 'find' could be used.
@@ -1152,8 +1184,13 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
 
     // TODO: Using stat -L will always return the link target, not the link itself.
     // We may wan't to add the information that it is a link at some point.
+
+    const QString statFormat = osType() == OsTypeMac
+        ? QLatin1String("-f \"%p %m %z\"") : QLatin1String("-c \"%f %Y %s\"");
+
     if (callBack.index() == 1)
-        cmdLine.addArgs(R"(-exec echo -n \"{}\"" " \; -exec stat -L -c "%f %Y %s" "{}" \;)",
+        cmdLine.addArgs(QString(R"(-exec echo -n \"{}\"" " \; -exec stat -L %1 "{}" \;)")
+                            .arg(statFormat),
                         CommandLine::Raw);
 
     const RunResult result = runInShell(cmdLine);
@@ -1175,23 +1212,26 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
     if (entries.isEmpty())
         return true;
 
-    const auto toFilePath = [&filePath, &callBack](const QString &entry) {
-        if (callBack.index() == 0)
-            return std::get<0>(callBack)(filePath.withNewPath(entry));
+    const int modeBase = osType() == OsTypeMac ? 8 : 16;
 
-        const QString fileName = entry.mid(1, entry.lastIndexOf('\"') - 1);
-        const QString infos = entry.mid(fileName.length() + 3);
+    const auto toFilePath =
+        [&filePath, &callBack, modeBase](const QString &entry) {
+            if (callBack.index() == 0)
+                return std::get<0>(callBack)(filePath.withNewPath(entry));
 
-        const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos);
-        if (!fi.fileFlags)
-            return IterationPolicy::Continue;
+            const QString fileName = entry.mid(1, entry.lastIndexOf('\"') - 1);
+            const QString infos = entry.mid(fileName.length() + 3);
 
-        const FilePath fp = filePath.withNewPath(fileName);
-        // Do not return the entry for the directory we are searching in.
-        if (fp.path() == filePath.path())
-            return IterationPolicy::Continue;
-        return std::get<1>(callBack)(fp, fi);
-    };
+            const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos, modeBase);
+            if (!fi.fileFlags)
+                return IterationPolicy::Continue;
+
+            const FilePath fp = filePath.withNewPath(fileName);
+            // Do not return the entry for the directory we are searching in.
+            if (fp.path() == filePath.path())
+                return IterationPolicy::Continue;
+            return std::get<1>(callBack)(fp, fi);
+        };
 
     // Remove the first line, this can be the directory we are searching in.
     // as long as we do not specify "mindepth > 0"

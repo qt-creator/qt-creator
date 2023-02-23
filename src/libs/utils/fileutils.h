@@ -83,7 +83,7 @@ public:
 
     static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
 
-    static FilePathInfo filePathInfoFromTriple(const QString &infos);
+    static FilePathInfo filePathInfoFromTriple(const QString &infos, int modeBase);
 
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);

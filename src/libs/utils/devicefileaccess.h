@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include "hostosinfo.h"
 #include "utils_global.h"
 
 #include "fileutils.h"
+
+class tst_unixdevicefileaccess; // For testing.
 
 namespace Utils {
 
@@ -19,6 +22,7 @@ public:
 
 protected:
     friend class FilePath;
+    friend class ::tst_unixdevicefileaccess; // For testing.
 
     virtual QString mapToDevicePath(const QString &hostPath) const;
 
@@ -204,8 +208,14 @@ private:
             const FileFilter &filter,
             QStringList *found) const;
 
+    Utils::OsType osType() const;
+    QStringList statArgs(const FilePath &filePath,
+                         const QString &linuxFormat,
+                         const QString &macFormat) const;
+
     mutable bool m_tryUseFind = true;
     mutable std::optional<bool> m_hasMkTemp;
+    mutable std::optional<Utils::OsType> m_osType;
 };
 
 } // Utils
