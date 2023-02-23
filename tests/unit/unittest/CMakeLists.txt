@@ -311,15 +311,6 @@ endif()
 extend_qtc_test(unittest DEPENDS Utils CPlusPlus)
 
 extend_qtc_test(unittest
-  SOURCES_PREFIX ../../../src/plugins/coreplugin
-  DEFINES CORE_STATIC_LIBRARY
-  SOURCES
-    coreicons.cpp coreicons.h
-    find/ifindfilter.cpp find/ifindfilter.h
-    locator/ilocatorfilter.cpp locator/ilocatorfilter.h
-)
-
-extend_qtc_test(unittest
   CONDITION TARGET qmldomlib
   DEPENDS qmldomlib
   SOURCES
