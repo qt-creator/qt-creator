@@ -480,6 +480,11 @@ Item {
                 }
             },
             State {
+                name: "pressedButNotHovered"
+                when: doubleButton.enabled && !mouseArea.containsMouse && mouseArea.pressed
+                extend: "hover"
+            },
+            State {
                 name: "disable"
                 when: !doubleButton.enabled
                 PropertyChanges {
