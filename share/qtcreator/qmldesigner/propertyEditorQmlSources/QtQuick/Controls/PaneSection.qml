@@ -14,7 +14,8 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Content size")
-            tooltip: qsTr("Content width and height used for calculating the total implicit size.")
+            tooltip: qsTr("Sets the size of the pane. This is used to calculate\n"
+                        + "the total implicit size.")
         }
 
         SecondColumnLayout {

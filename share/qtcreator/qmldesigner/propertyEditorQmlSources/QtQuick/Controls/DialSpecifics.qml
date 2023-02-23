@@ -17,7 +17,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Value")
-                tooltip: qsTr("The current value of the dial and whether it provides live value updates.")
+                tooltip: qsTr("Sets the value of the dial.")
             }
 
             SecondColumnLayout {
@@ -46,7 +46,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("From")
-                tooltip: qsTr("The starting value of the dial range.")
+                tooltip: qsTr("Sets the minimum value of the dial.")
             }
 
             SecondColumnLayout {
@@ -66,7 +66,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("To")
-                tooltip: qsTr("The ending value of the dial range.")
+                tooltip: qsTr("Sets the maximum value of the dial.")
             }
 
             SecondColumnLayout {
@@ -86,7 +86,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Step size")
-                tooltip: qsTr("The step size of the dial.")
+                tooltip: qsTr("Sets the number by which the dial value changes.")
             }
 
             SecondColumnLayout {
@@ -106,7 +106,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Snap mode")
-                tooltip: qsTr("The snap mode of the dial.")
+                tooltip: qsTr("Sets how the dial's handle snaps to the steps\n"
+                            + "defined in <b>Step size</b>.")
             }
 
             SecondColumnLayout {
@@ -124,7 +125,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Input mode")
-                tooltip: qsTr("How the dial tracks movement.")
+                tooltip: qsTr("Sets how the user can interact with the dial.")
             }
 
             SecondColumnLayout {
@@ -142,7 +143,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Wrap")
-                tooltip: qsTr("Whether the dial wraps when dragged.")
+                tooltip: qsTr("Toggles if the dial wraps around when it reaches the start or end.")
             }
 
             SecondColumnLayout {

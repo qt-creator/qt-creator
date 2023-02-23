@@ -144,7 +144,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Range")
-                tooltip: qsTr("Highlight range.")
+                tooltip: qsTr("Sets the highlight range mode.")
                 blockedByTemplate: !backendValues.highlightRangeMode.isAvailable
             }
 
@@ -164,7 +164,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Move duration")
-                tooltip: qsTr("Move animation duration of the highlight delegate.")
+                tooltip: qsTr("Sets the animation duration of the highlight delegate when\n"
+                            + "it is moved.")
                 blockedByTemplate: !backendValues.highlightMoveDuration.isAvailable
             }
 
@@ -184,7 +185,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Move velocity")
-                tooltip: qsTr("Move animation velocity of the highlight delegate.")
+                tooltip: qsTr("Sets the animation velocity of the highlight delegate when\n"
+                            + "it is moved.")
                 blockedByTemplate: !backendValues.highlightMoveVelocity.isAvailable
             }
 
@@ -204,7 +206,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Resize duration")
-                tooltip: qsTr("Resize animation duration of the highlight delegate.")
+                tooltip: qsTr("Sets the animation duration of the highlight delegate when\n"
+                            + "it is resized.")
                 blockedByTemplate: !backendValues.highlightResizeDuration.isAvailable
             }
 
@@ -224,7 +227,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Resize velocity")
-                tooltip: qsTr("Resize animation velocity of the highlight delegate.")
+                tooltip: qsTr("Sets the animation velocity of the highlight delegate when\n"
+                            + "it is resized.")
                 blockedByTemplate: !backendValues.highlightResizeVelocity.isAvailable
             }
 
@@ -244,7 +248,9 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Preferred begin")
-                tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
+                tooltip: qsTr("Sets the preferred highlight beginning. It must be smaller than\n"
+                            + "the <b>Preferred end</b>. Note that the user has to add\n"
+                            + "a highlight component.")
                 blockedByTemplate: !backendValues.preferredHighlightBegin.isAvailable
             }
 
@@ -264,7 +270,9 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Preferred end")
-                tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
+                tooltip: qsTr("Sets the preferred highlight end. It must be larger than\n"
+                            + "the <b>Preferred begin</b>. Note that the user has to add\n"
+                            + "a highlight component.")
                 blockedByTemplate: !backendValues.preferredHighlightEnd.isAvailable
             }
 
@@ -284,7 +292,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Follows current")
-                tooltip: qsTr("Whether the highlight is managed by the view.")
+                tooltip: qsTr("Toggles if the view manages the highlight.")
                 blockedByTemplate: !backendValues.highlightFollowsCurrentItem.isAvailable
             }
 

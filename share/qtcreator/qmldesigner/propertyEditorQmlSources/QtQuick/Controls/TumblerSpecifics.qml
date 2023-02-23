@@ -16,7 +16,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Visible count")
-                tooltip: qsTr("The count of visible items.")
+                tooltip: qsTr("Sets the number of items in the model.")
             }
 
             SecondColumnLayout {
@@ -34,7 +34,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Current index")
-                tooltip: qsTr("The index of the current item.")
+                tooltip: qsTr("Sets the index of the current item.")
             }
 
             SecondColumnLayout {
@@ -52,7 +52,8 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Wrap")
-                tooltip: qsTr("Whether the tumbler values wrap.")
+                tooltip: qsTr("Toggles if the tumbler wraps around when it reaches the\n"
+                            + "top or bottom.")
             }
 
             SecondColumnLayout {
