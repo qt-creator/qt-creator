@@ -19,6 +19,9 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
@@ -60,6 +63,22 @@ QmlPreviewWidgetPlugin::QmlPreviewWidgetPlugin()
     designerActionManager.addDesignerAction(separator);
 
     m_previewToggleAction = previewAction->action();
+
+    Core::Context globalContext;
+    auto registerCommand = [&globalContext](ActionInterface *action){
+        const QString id = QStringLiteral("QmlPreview.%1").arg(QString::fromLatin1(action->menuId()));
+        Core::Command *cmd = Core::ActionManager::registerAction(action->action(),
+                                                                 id.toLatin1().constData(),
+                                                                 globalContext);
+
+        cmd->setDefaultKeySequence(action->action()->shortcut());
+        cmd->setDescription(action->action()->toolTip());
+
+        action->action()->setToolTip(cmd->action()->toolTip());
+        action->action()->setShortcut(cmd->action()->shortcut());
+    };
+    // Only register previewAction as others don't have keyboard shortcuts for them
+    registerCommand(previewAction);
 
     if (s_previewPlugin) {
         auto fpsAction = new FpsAction;
