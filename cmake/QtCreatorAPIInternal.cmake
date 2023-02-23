@@ -413,6 +413,7 @@ function(enable_pch target)
             CXX_VISIBILITY_PRESET hidden
             VISIBILITY_INLINES_HIDDEN ON
             CXX_EXTENSIONS OFF
+            POSITION_INDEPENDENT_CODE ON
           )
           target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
         endif()
