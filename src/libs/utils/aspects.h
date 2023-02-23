@@ -31,6 +31,7 @@ namespace Internal {
 class AspectContainerPrivate;
 class BaseAspectPrivate;
 class BoolAspectPrivate;
+class ColorAspectPrivate;
 class DoubleAspectPrivate;
 class IntegerAspectPrivate;
 class MultiSelectionAspectPrivate;
@@ -243,6 +244,31 @@ signals:
 
 private:
     std::unique_ptr<Internal::BoolAspectPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT ColorAspect : public BaseAspect
+{
+    Q_OBJECT
+
+public:
+    explicit ColorAspect(const QString &settingsKey = QString());
+    ~ColorAspect() override;
+
+    struct Data : BaseAspect::Data
+    {
+        QColor value;
+    };
+
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
+
+    QColor value() const;
+    void setValue(const QColor &val);
+
+    QVariant volatileValue() const override;
+    void setVolatileValue(const QVariant &val) override;
+
+private:
+    std::unique_ptr<Internal::ColorAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT SelectionAspect : public BaseAspect

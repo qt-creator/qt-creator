@@ -193,6 +193,9 @@ public:
     bool canOpenTerminal() const;
     void openTerminal(const Utils::Environment &env, const Utils::FilePath &workingDir) const;
 
+    virtual std::optional<Utils::CommandLine> terminalCommand(const Utils::FilePath &workDir,
+                                                              const Utils::Environment &env) const;
+
     bool isEmptyCommandAllowed() const;
     void setAllowEmptyCommand(bool allow);
 

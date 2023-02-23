@@ -160,9 +160,11 @@ public:
     Environment environment();
 
     CommandLine withDockerExecCmd(const CommandLine &cmd,
-                                  Environment *env = nullptr,
-                                  FilePath *workDir = nullptr,
-                                  bool interactive = false);
+                                  const std::optional<Environment> &env = std::nullopt,
+                                  const std::optional<FilePath> &workDir = std::nullopt,
+                                  bool interactive = false,
+                                  bool includeMarker = true,
+                                  bool withPty = false);
 
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
@@ -294,11 +296,11 @@ void DockerProcessImpl::start()
     const bool interactive = m_setup.m_processMode == ProcessMode::Writer
                              || !m_setup.m_writeData.isEmpty();
 
-    const CommandLine fullCommandLine = m_devicePrivate
-                                            ->withDockerExecCmd(m_setup.m_commandLine,
-                                                                &m_setup.m_environment,
-                                                                &m_setup.m_workingDirectory,
-                                                                interactive);
+    const CommandLine fullCommandLine
+        = m_devicePrivate->withDockerExecCmd(m_setup.m_commandLine,
+                                             m_setup.m_environment,
+                                             m_setup.m_workingDirectory,
+                                             interactive);
 
     m_process.setCommand(fullCommandLine);
     m_process.start();
@@ -446,9 +448,11 @@ void DockerDevice::updateContainerAccess() const
 }
 
 CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
-                                                   Environment *env,
-                                                   FilePath *workDir,
-                                                   bool interactive)
+                                                   const std::optional<Environment> &env,
+                                                   const std::optional<FilePath> &workDir,
+                                                   bool interactive,
+                                                   bool includeMarker,
+                                                   bool withPty)
 {
     if (!m_settings)
         return {};
@@ -460,6 +464,9 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
     if (interactive)
         dockerCmd.addArg("-i");
 
+    if (withPty)
+        dockerCmd.addArg("-t");
+
     if (env) {
         for (auto it = env->constBegin(); it != env->constEnd(); ++it) {
             dockerCmd.addArg("-e");
@@ -468,19 +475,24 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
     }
 
     if (workDir && !workDir->isEmpty())
-        dockerCmd.addArgs({"-w", workDir->path()});
+        dockerCmd.addArgs({"-w", workDir->onDevice(q->rootPath()).nativePath()});
 
     dockerCmd.addArg(m_container);
-    dockerCmd.addArgs({"/bin/sh", "-c"});
 
-    CommandLine exec("exec");
-    exec.addCommandLineAsArgs(cmd);
+    if (includeMarker) {
+        dockerCmd.addArgs({"/bin/sh", "-c"});
 
-    CommandLine echo("echo");
-    echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
-    echo.addCommandLineWithAnd(exec);
+        CommandLine exec("exec");
+        exec.addCommandLineAsArgs(cmd);
 
-    dockerCmd.addCommandLineAsSingleArg(echo);
+        CommandLine echo("echo");
+        echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
+        echo.addCommandLineWithAnd(exec);
+
+        dockerCmd.addCommandLineAsSingleArg(echo);
+    } else {
+        dockerCmd.addCommandLineAsArgs(cmd);
+    }
 
     return dockerCmd;
 }
@@ -1220,6 +1232,18 @@ bool DockerDevice::prepareForBuild(const Target *target)
 std::optional<FilePath> DockerDevice::clangdExecutable() const
 {
     return d->clangdExecutable();
+}
+
+std::optional<Utils::CommandLine> DockerDevice::terminalCommand(const FilePath &workDir,
+                                                                const Environment &env) const
+{
+    const QString shell = d->environment().value_or("SHELL", "/bin/sh");
+    return d->withDockerExecCmd({FilePath::fromUserInput(shell), {}},
+                                std::nullopt,
+                                workDir,
+                                true,
+                                false,
+                                true);
 }
 
 } // namespace Docker::Internal

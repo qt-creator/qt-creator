@@ -127,6 +127,7 @@
 #include <utils/qtcassert.h>
 #include <utils/removefiledialog.h>
 #include <utils/stringutils.h>
+#include <utils/terminalhooks.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
@@ -3794,6 +3795,13 @@ void ProjectExplorerPluginPrivate::showInFileSystemPane()
     Core::FileUtils::showInFileSystemView(currentNode->filePath());
 }
 
+static BuildConfiguration *activeBuildConfiguration(Project *project)
+{
+    if (!project || !project->activeTarget() || !project->activeTarget()->activeBuildConfiguration())
+        return {};
+    return project->activeTarget()->activeBuildConfiguration();
+}
+
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
 {
     const Node *currentNode = ProjectTree::currentNode();
@@ -3803,7 +3811,21 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     if (!environment)
         return;
 
-    Core::FileUtils::openTerminal(currentNode->directory(), environment.value());
+    BuildConfiguration *bc = activeBuildConfiguration(ProjectTree::projectForNode(currentNode));
+    if (!bc)
+        Terminal::Hooks::instance().openTerminalHook()({{}, currentNode->directory(), environment});
+
+    IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(bc->target()->kit());
+
+    if (!buildDevice)
+        return;
+
+    FilePath workingDir = currentNode->directory();
+    if (!buildDevice->ensureReachable(workingDir))
+        workingDir.clear();
+
+    const auto cmd = buildDevice->terminalCommand(workingDir, *environment);
+    Terminal::Hooks::instance().openTerminalHook()({cmd, workingDir, environment});
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3824,9 +3846,12 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     if (!device)
         device = DeviceKitAspect::device(target->kit());
     QTC_ASSERT(device && device->canOpenTerminal(), return);
+
     const FilePath workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
             ? currentNode->directory() : runnable.workingDirectory;
-    device->openTerminal(runnable.environment, workingDir);
+
+    const auto cmd = device->terminalCommand(workingDir, runnable.environment);
+    Terminal::Hooks::instance().openTerminalHook()({cmd, workingDir, runnable.environment});
 }
 
 void ProjectExplorerPluginPrivate::removeFile()

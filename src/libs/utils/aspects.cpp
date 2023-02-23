@@ -9,6 +9,7 @@
 #include "layoutbuilder.h"
 #include "pathchooser.h"
 #include "qtcassert.h"
+#include "qtcolorbutton.h"
 #include "qtcsettings.h"
 #include "utilstr.h"
 #include "variablechooser.h"
@@ -577,6 +578,12 @@ public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
     QPointer<QGroupBox> m_groupBox; // For BoolAspects handling GroupBox check boxes
+};
+
+class ColorAspectPrivate
+{
+public:
+    QPointer<QtColorButton> m_colorButton; // Owned by configuration widget
 };
 
 class SelectionAspectPrivate
@@ -1285,6 +1292,70 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
     connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::checkedChanged);
 
     update();
+}
+
+/*!
+    \class Utils::ColorAspect
+    \inmodule QtCreator
+
+    \brief A color aspect is a color property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting.
+
+    The color aspect is displayed using a QtColorButton.
+*/
+
+ColorAspect::ColorAspect(const QString &settingsKey)
+    : d(new Internal::ColorAspectPrivate)
+{
+    setDefaultValue(QColor::fromRgb(0, 0, 0));
+    setSettingsKey(settingsKey);
+    setSpan(1, 1);
+
+    addDataExtractor(this, &ColorAspect::value, &Data::value);
+}
+
+ColorAspect::~ColorAspect() = default;
+
+void ColorAspect::addToLayout(Layouting::LayoutBuilder &builder)
+{
+    QTC_CHECK(!d->m_colorButton);
+    d->m_colorButton = createSubWidget<QtColorButton>();
+    builder.addItem(d->m_colorButton.data());
+    d->m_colorButton->setColor(value());
+    if (isAutoApply()) {
+        connect(d->m_colorButton.data(),
+                &QtColorButton::colorChanged,
+                this,
+                [this](const QColor &color) { setValue(color); });
+    }
+}
+
+QColor ColorAspect::value() const
+{
+    return BaseAspect::value().value<QColor>();
+}
+
+void ColorAspect::setValue(const QColor &value)
+{
+    if (BaseAspect::setValueQuietly(value))
+        emit changed();
+}
+
+QVariant ColorAspect::volatileValue() const
+{
+    QTC_CHECK(!isAutoApply());
+    if (d->m_colorButton)
+        return d->m_colorButton->color();
+    QTC_CHECK(false);
+    return {};
+}
+
+void ColorAspect::setVolatileValue(const QVariant &val)
+{
+    QTC_CHECK(!isAutoApply());
+    if (d->m_colorButton)
+        d->m_colorButton->setColor(val.value<QColor>());
 }
 
 /*!

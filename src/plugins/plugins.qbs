@@ -79,6 +79,7 @@ Project {
         "squish/squish.qbs",
         "studiowelcome/studiowelcome.qbs",
         "subversion/subversion.qbs",
+        "terminal/terminal.qbs",
         "texteditor/texteditor.qbs",
         "todo/todo.qbs",
         "updateinfo/updateinfo.qbs",

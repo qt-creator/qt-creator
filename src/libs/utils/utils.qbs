@@ -307,6 +307,8 @@ Project {
             "temporaryfile.h",
             "terminalcommand.cpp",
             "terminalcommand.h",
+            "terminalhooks.cpp",
+            "terminalhooks.h",
             "terminalprocess.cpp",
             "terminalprocess_p.h",
             "textfieldcheckbox.cpp",

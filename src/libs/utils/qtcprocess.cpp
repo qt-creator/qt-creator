@@ -12,6 +12,7 @@
 #include "processreaper.h"
 #include "processutils.h"
 #include "stringutils.h"
+#include "terminalhooks.h"
 #include "terminalprocess_p.h"
 #include "threadutils.h"
 #include "utilstr.h"
@@ -630,7 +631,7 @@ public:
     ProcessInterface *createProcessInterface()
     {
         if (m_setup.m_terminalMode != TerminalMode::Off)
-            return new TerminalImpl();
+            return Terminal::Hooks::instance().createTerminalProcessInterfaceHook()();
 
         const ProcessImpl impl = m_setup.m_processImpl == ProcessImpl::Default
                                ? defaultProcessImpl() : m_setup.m_processImpl;

@@ -19,6 +19,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/terminalcommand.h>
+#include <utils/terminalhooks.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
 
@@ -104,8 +105,7 @@ void FileUtils::showInFileSystemView(const FilePath &path)
 
 void FileUtils::openTerminal(const FilePath &path, const Environment &env)
 {
-    QTC_ASSERT(DeviceFileHooks::instance().openTerminal, return);
-    DeviceFileHooks::instance().openTerminal(path, env);
+    Terminal::Hooks::instance().openTerminalHook()({std::nullopt, path, env});
 }
 
 QString FileUtils::msgFindInDirectory()
