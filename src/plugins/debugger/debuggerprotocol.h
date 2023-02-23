@@ -118,7 +118,7 @@ public:
     QString readCString();
     QString readString(const std::function<bool(char)> &isValidChar);
 
-    QString buffer() const { return QString(from, to - from); }
+    QStringView buffer() const { return QStringView(from, to - from); }
     int remainingChars() const { return int(to - from); }
 
     void skipCommas();
