@@ -76,6 +76,7 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
     auto fileInfo = targetFolder().toFileInfo();
     m_birthTime = fileInfo.lastModified();
     m_exists = fileInfo.exists();
+    m_fileDownloader.setProbeUrl(true);
 
     connect(&m_fileDownloader,
             &QmlDesigner::FileDownloader::progressChanged,
