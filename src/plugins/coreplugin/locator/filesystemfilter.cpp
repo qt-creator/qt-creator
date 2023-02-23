@@ -11,12 +11,14 @@
 #include "../vcsmanager.h"
 
 #include <utils/asynctask.h>
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
 
+#include <QApplication>
 #include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -26,11 +28,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QStyle>
 
 using namespace Utils;
 
 namespace Core {
 namespace Internal {
+
+Q_GLOBAL_STATIC(QIcon, sDeviceRootIcon);
 
 static const char kAlwaysCreate[] = "Locator/FileSystemFilter/AlwaysCreate";
 
@@ -79,6 +84,20 @@ static void createAndOpen(const FilePath &filePath)
     EditorManager::openEditor(filePath);
 }
 
+static FilePaths deviceRoots()
+{
+    const QString rootPath = FilePath::specialRootPath();
+    const QStringList roots = QDir(rootPath).entryList();
+    FilePaths devices;
+    for (const QString &root : roots) {
+        const QString prefix = rootPath + '/' + root;
+        devices += Utils::transform(QDir(prefix).entryList(), [prefix](const QString &s) {
+            return FilePath::fromString(prefix + '/' + s);
+        });
+    }
+    return devices;
+}
+
 FileSystemFilter::FileSystemFilter()
 {
     setId("Files in file system");
@@ -88,6 +107,7 @@ FileSystemFilter::FileSystemFilter()
                       "file if it does not exist yet."));
     setDefaultShortcutString("f");
     setDefaultIncludedByDefault(false);
+    *sDeviceRootIcon = qApp->style()->standardIcon(QStyle::SP_DriveHDIcon);
 }
 
 template<typename Promise>
@@ -102,8 +122,12 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
     const Environment env = Environment::systemEnvironment();
     const QString expandedEntry = env.expandVariables(input);
     const auto expandedEntryPath = FilePath::fromUserInput(expandedEntry);
-    const auto absoluteEntryPath = currentDocumentDir.isEmpty() ? expandedEntryPath
-                                 : currentDocumentDir.resolvePath(expandedEntryPath);
+    const FilePath absoluteEntryPath = currentDocumentDir.isEmpty()
+                                           ? expandedEntryPath
+                                           : currentDocumentDir.resolvePath(expandedEntryPath);
+    // The case of e.g. "ssh://", "ssh://*p", etc
+    const bool isPartOfDeviceRoot = expandedEntryPath.needsDevice()
+                                    && expandedEntryPath.path().isEmpty();
 
     // Consider the entered path a directory if it ends with slash/backslash.
     // If it is a dir but doesn't end with a backslash, we want to still show all (other) matching
@@ -123,57 +147,92 @@ static LocatorFilterEntries matchesImpl(Promise &promise,
     // use only 'name' for case sensitivity decision, because we need to make the path
     // match the case on the file system for case-sensitive file systems
     const Qt::CaseSensitivity caseSensitivity = ILocatorFilter::caseSensitivity(entryFileName);
-    const FilePaths dirs = FilePaths({directory / ".."})
-                           + directory.dirEntries({{}, dirFilter},
-                                                  QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
-    const FilePaths files = directory.dirEntries({{}, fileFilter},
-                                                 QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
+    const FilePaths dirs = isPartOfDeviceRoot
+                               ? FilePaths()
+                               : FilePaths({directory / ".."})
+                                     + directory.dirEntries({{}, dirFilter},
+                                                            QDir::Name | QDir::IgnoreCase
+                                                                | QDir::LocaleAware);
+    const FilePaths files = isPartOfDeviceRoot ? FilePaths()
+                                               : directory.dirEntries({{}, fileFilter},
+                                                                      QDir::Name | QDir::IgnoreCase
+                                                                          | QDir::LocaleAware);
 
+    // directories
     QRegularExpression regExp = ILocatorFilter::createRegExp(entryFileName, caseSensitivity);
-    if (!regExp.isValid())
-        return {};
+    if (regExp.isValid()) {
+        for (const FilePath &dir : dirs) {
+            if (promise.isCanceled())
+                return {};
 
-    for (const FilePath &dir : dirs) {
-        if (promise.isCanceled())
-            return {};
+            const QString dirString = dir.relativeChildPath(directory).nativePath();
+            const QRegularExpressionMatch match = regExp.match(dirString);
+            if (match.hasMatch()) {
+                const ILocatorFilter::MatchLevel level = matchLevelFor(match, dirString);
+                LocatorFilterEntry filterEntry;
+                filterEntry.displayName = dirString;
+                filterEntry.acceptor = [shortcutString, dir] {
+                    const QString value
+                        = shortcutString + ' '
+                          + dir.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
+                    return AcceptResult{value, int(value.length())};
+                };
+                filterEntry.filePath = dir;
+                filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
 
-        const QString dirString = dir.relativeChildPath(directory).nativePath();
-        const QRegularExpressionMatch match = regExp.match(dirString);
-        if (match.hasMatch()) {
-            const ILocatorFilter::MatchLevel level = matchLevelFor(match, dirString);
-            LocatorFilterEntry filterEntry;
-            filterEntry.displayName = dirString;
-            filterEntry.acceptor = [shortcutString, dir] {
-                const QString value = shortcutString + ' '
-                    + dir.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
-                return AcceptResult{value, int(value.length())};
-            };
-            filterEntry.filePath = dir;
-            filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
-
-            entries[int(level)].append(filterEntry);
+                entries[int(level)].append(filterEntry);
+            }
         }
     }
     // file names can match with +linenumber or :linenumber
     const Link link = Link::fromString(entryFileName, true);
     regExp = ILocatorFilter::createRegExp(link.targetFilePath.toString(), caseSensitivity);
-    if (!regExp.isValid())
-        return {};
-    for (const FilePath &file : files) {
-        if (promise.isCanceled())
-            return {};
+    if (regExp.isValid()) {
+        for (const FilePath &file : files) {
+            if (promise.isCanceled())
+                return {};
 
-        const QString fileString = file.relativeChildPath(directory).nativePath();
-        const QRegularExpressionMatch match = regExp.match(fileString);
-        if (match.hasMatch()) {
-            const ILocatorFilter::MatchLevel level = matchLevelFor(match, fileString);
-            LocatorFilterEntry filterEntry;
-            filterEntry.displayName = fileString;
-            filterEntry.filePath = file;
-            filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
-            filterEntry.linkForEditor = Link(filterEntry.filePath, link.targetLine,
-                                             link.targetColumn);
-            entries[int(level)].append(filterEntry);
+            const QString fileString = file.relativeChildPath(directory).nativePath();
+            const QRegularExpressionMatch match = regExp.match(fileString);
+            if (match.hasMatch()) {
+                const ILocatorFilter::MatchLevel level = matchLevelFor(match, fileString);
+                LocatorFilterEntry filterEntry;
+                filterEntry.displayName = fileString;
+                filterEntry.filePath = file;
+                filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
+                filterEntry.linkForEditor = Link(filterEntry.filePath,
+                                                 link.targetLine,
+                                                 link.targetColumn);
+                entries[int(level)].append(filterEntry);
+            }
+        }
+    }
+    // device roots
+    // check against full search text
+    regExp = ILocatorFilter::createRegExp(expandedEntryPath.toUserOutput(), caseSensitivity);
+    if (regExp.isValid()) {
+        const FilePaths roots = deviceRoots();
+        for (const FilePath &root : roots) {
+            if (promise.isCanceled())
+                return {};
+
+            const QString displayString = root.toUserOutput();
+            const QRegularExpressionMatch match = regExp.match(displayString);
+            if (match.hasMatch()) {
+                LocatorFilterEntry filterEntry;
+                filterEntry.displayName = displayString;
+                filterEntry.acceptor = [shortcutString, root] {
+                    const QString value
+                        = shortcutString + ' '
+                          + root.absoluteFilePath().cleanPath().pathAppended("/").toUserOutput();
+                    return AcceptResult{value, int(value.length())};
+                };
+                filterEntry.filePath = root;
+                filterEntry.displayIcon = *sDeviceRootIcon;
+                filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
+
+                entries[int(ILocatorFilter::MatchLevel::Normal)].append(filterEntry);
+            }
         }
     }
 
