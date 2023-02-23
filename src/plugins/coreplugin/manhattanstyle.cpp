@@ -189,6 +189,12 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
     int retval = 0;
     retval = QProxyStyle::pixelMetric(metric, option, widget);
     switch (metric) {
+#ifdef Q_OS_MACOS
+    case PM_MenuButtonIndicator:
+        if (widget && option->type == QStyleOption::SO_ToolButton)
+            return 12;
+        break;
+#endif
     case PM_SplitterWidth:
         if (widget && widget->property("minisplitter").toBool())
             retval = 1;

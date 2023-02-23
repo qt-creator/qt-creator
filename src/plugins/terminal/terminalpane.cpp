@@ -9,9 +9,70 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icontext.h>
 
+#include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/utilsicons.h>
 
+#include <QFileIconProvider>
+#include <QMenu>
+#include <QStandardPaths>
+
 namespace Terminal {
+
+using namespace Utils;
+
+FilePaths availableShells()
+{
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        FilePaths shells;
+
+        FilePath comspec = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
+        shells << comspec;
+
+        if (comspec.fileName() != "cmd.exe") {
+            FilePath cmd = FilePath::fromUserInput(QStandardPaths::findExecutable("cmd.exe"));
+            shells << cmd;
+        }
+
+        FilePath powershell = FilePath::fromUserInput(
+            QStandardPaths::findExecutable("powershell.exe"));
+        if (powershell.exists())
+            shells << powershell;
+
+        FilePath bash = FilePath::fromUserInput(QStandardPaths::findExecutable("bash.exe"));
+        if (bash.exists())
+            shells << bash;
+
+        FilePath git_bash = FilePath::fromUserInput(QStandardPaths::findExecutable("git.exe"));
+        if (git_bash.exists())
+            shells << git_bash.parentDir().parentDir().pathAppended("usr/bin/bash.exe");
+
+        FilePath msys2_bash = FilePath::fromUserInput(QStandardPaths::findExecutable("msys2.exe"));
+        if (msys2_bash.exists())
+            shells << msys2_bash.parentDir().pathAppended("usr/bin/bash.exe");
+
+        return shells;
+    } else {
+        FilePath shellsFile = FilePath::fromString("/etc/shells");
+        const auto shellFileContent = shellsFile.fileContents();
+        QTC_ASSERT_EXPECTED(shellFileContent, return {});
+
+        QString shellFileContentString = QString::fromUtf8(*shellFileContent);
+
+        // Filter out comments ...
+        const QStringList lines
+            = Utils::filtered(shellFileContentString.split('\n', Qt::SkipEmptyParts),
+                              [](const QString &line) { return !line.trimmed().startsWith('#'); });
+
+        // Convert lines to file paths ...
+        const FilePaths shells = Utils::transform(lines, [](const QString &line) {
+            return FilePath::fromUserInput(line.trimmed());
+        });
+
+        // ... and filter out non-existing shells.
+        return Utils::filtered(shells, [](const FilePath &shell) { return shell.exists(); });
+    }
+}
 
 TerminalPane::TerminalPane(QObject *parent)
     : Core::IOutputPane(parent)
@@ -21,13 +82,7 @@ TerminalPane::TerminalPane(QObject *parent)
     m_newTerminal.setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
     m_newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
 
-    connect(&m_newTerminal, &QAction::triggered, this, [this] {
-        m_tabWidget->setCurrentIndex(
-            m_tabWidget->addTab(new TerminalWidget(m_tabWidget), Tr::tr("Terminal")));
-
-        m_closeTerminal.setEnabled(m_tabWidget->count() > 1);
-        emit navigateStateUpdate();
-    });
+    connect(&m_newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
 
     m_closeTerminal.setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     m_closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
@@ -41,6 +96,30 @@ TerminalPane::TerminalPane(QObject *parent)
     //cmd->setDescription(m_newTerminal->toolTip());
 
     m_newTerminalButton = new QToolButton();
+
+    QMenu *shellMenu = new QMenu(m_newTerminalButton);
+
+    const FilePaths shells = availableShells();
+
+    QFileIconProvider iconProvider;
+
+    // Create an action for each available shell ...
+    for (const FilePath &shell : shells) {
+        const QIcon icon = iconProvider.icon(shell.toFileInfo());
+
+        QAction *action = new QAction(icon, shell.toUserOutput(), shellMenu);
+        action->setData(shell.toVariant());
+        shellMenu->addAction(action);
+    }
+    connect(shellMenu, &QMenu::triggered, this, [this](QAction *action) {
+        openTerminal(
+                    Utils::Terminal::OpenTerminalParameters{CommandLine{FilePath::fromVariant(action->data()), {}},
+                                                            std::nullopt,
+                                                            std::nullopt,
+                                                            Utils::Terminal::ExitBehavior::Close});
+    });
+    m_newTerminal.setMenu(shellMenu);
+
     m_newTerminalButton->setDefaultAction(&m_newTerminal);
 
     m_closeTerminalButton = new QToolButton();

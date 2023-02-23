@@ -92,11 +92,12 @@ void TerminalWidget::setupPty()
     m_ptyProcess.reset(PtyQt::createPtyProcess(IPtyProcess::PtyType::AutoPty));
 
     Environment env = m_openParameters.environment.value_or(Environment::systemEnvironment());
-    // Why?
-    env.appendOrSetPath(TerminalSettings::instance().shell.filePath().parentDir());
 
     CommandLine shellCommand = m_openParameters.shellCommand.value_or(
         CommandLine{TerminalSettings::instance().shell.filePath(), {}});
+
+    // For git bash on Windows
+    env.prependOrSetPath(shellCommand.executable().parentDir());
 
     QStringList envList = filtered(env.toStringList(), [](const QString &envPair) {
         return envPair != "CLINK_NOAUTORUN=1";
