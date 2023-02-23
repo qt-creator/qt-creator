@@ -132,6 +132,8 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->setHasQuick3DImport(m_hasQuick3DImport);
 
     m_sceneId = model->active3DSceneId();
+
+    m_widget->clearSearchFilter();
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)
