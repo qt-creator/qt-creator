@@ -24,7 +24,10 @@ Project {
         "utils/process_stub.qbs",
         "utils/process_ctrlc_stub.qbs",
         "utils/utils.qbs",
+        "3rdparty/libptyqt/ptyqt.qbs",
+        "3rdparty/libvterm/vterm.qbs",
         "3rdparty/syntax-highlighting/syntax-highlighting.qbs",
+        "3rdparty/winpty/winpty.qbs",
         "3rdparty/yaml-cpp/yaml-cpp.qbs",
     ].concat(qlitehtml).concat(project.additionalLibs)
 }
