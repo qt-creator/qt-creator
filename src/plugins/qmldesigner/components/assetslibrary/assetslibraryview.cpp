@@ -70,9 +70,14 @@ WidgetInfo AssetsLibraryView::widgetInfo()
             });
         });
 
-        connect(m_widget, &AssetsLibraryWidget::hasMaterialLibraryUpdateRequested, this, [&] () {
+        connect(m_widget, &AssetsLibraryWidget::hasMaterialLibraryUpdateRequested, this, [&]() {
             m_widget->setHasMaterialLibrary(model() && materialLibraryNode().isValid()
                                             && model()->hasImport("QtQuick3D"));
+        });
+
+        connect(m_widget, &AssetsLibraryWidget::endDrag, this, [&]() {
+            if (model())
+                model()->endDrag();
         });
     }
 

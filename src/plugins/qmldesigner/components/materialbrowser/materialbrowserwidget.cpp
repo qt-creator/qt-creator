@@ -267,11 +267,15 @@ void MaterialBrowserWidget::startDragTexture(int index, const QPointF &mousePos)
 void MaterialBrowserWidget::acceptBundleMaterialDrop()
 {
     m_materialBrowserView->emitCustomNotification("drop_bundle_material", {}, {}); // To ContentLibraryView
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
 }
 
 void MaterialBrowserWidget::acceptBundleTextureDrop()
 {
     m_materialBrowserView->emitCustomNotification("drop_bundle_texture", {}, {}); // To ContentLibraryView
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
 }
 
 void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QString &texId)
