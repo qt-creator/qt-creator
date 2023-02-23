@@ -34,6 +34,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/styledbar.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -584,8 +585,13 @@ public:
         innerLayout->setSpacing(10);
         innerLayout->setContentsMargins(PanelsWidget::PanelVMargin, innerLayout->spacing(),
                                         PanelsWidget::PanelVMargin, 0);
-        innerLayout->addWidget(m_manageKits);
-        innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
+
+        QStringList list = Core::ICore::settings()->value("HideOptionCategories").toStringList();
+        if (!list.contains("Kit")) {
+            innerLayout->addWidget(m_manageKits);
+            innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
+        }
+
         innerLayout->addWidget(activeLabel);
         innerLayout->addWidget(m_projectSelection);
         innerLayout->addWidget(m_importBuild);
