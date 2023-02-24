@@ -469,6 +469,7 @@ public:
 
     QSet<QString> m_expandedINames;
     QTimer m_requestUpdateTimer;
+    QTimer m_localsWindowsTimer;
 
     QHash<QString, TypeInfo> m_reportedTypeInfo;
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
@@ -514,6 +515,14 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     m_requestUpdateTimer.setSingleShot(true);
     connect(&m_requestUpdateTimer, &QTimer::timeout,
         this, &WatchModel::updateStarted);
+
+    m_localsWindowsTimer.setSingleShot(true);
+    m_localsWindowsTimer.setInterval(50);
+    connect(&m_localsWindowsTimer, &QTimer::timeout, this, [this] {
+        // Force show/hide of return view.
+        const bool showReturn = m_returnRoot->childCount() != 0;
+        m_engine->updateLocalsWindow(showReturn);
+    });
 
     DebuggerSettings &s = *debuggerSettings();
     connect(&s.sortStructMembers, &BaseAspect::changed,
@@ -2559,9 +2568,7 @@ void WatchModel::clearWatches()
 
 void WatchHandler::updateLocalsWindow()
 {
-    // Force show/hide of return view.
-    bool showReturn = m_model->m_returnRoot->childCount() != 0;
-    m_engine->updateLocalsWindow(showReturn);
+    m_model->m_localsWindowsTimer.start();
 }
 
 QStringList WatchHandler::watchedExpressions()
