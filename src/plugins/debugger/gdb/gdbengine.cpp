@@ -246,7 +246,7 @@ void GdbEngine::handleResponse(const QString &buff)
         case '*':
         case '+':
         case '=': {
-            const QString asyncClass = parser.readString(isNameChar);
+            const QStringView asyncClass = parser.readString(isNameChar);
             GdbMi result;
             while (!parser.isAtEnd()) {
                 GdbMi data;
@@ -365,17 +365,17 @@ void GdbEngine::handleResponse(const QString &buff)
 
             response.token = token;
 
-            QString resultClass = parser.readString(isNameChar);
+            const QStringView resultClass = parser.readString(isNameChar);
 
-            if (resultClass == "done")
+            if (resultClass == u"done")
                 response.resultClass = ResultDone;
-            else if (resultClass == "running")
+            else if (resultClass == u"running")
                 response.resultClass = ResultRunning;
-            else if (resultClass == "connected")
+            else if (resultClass == u"connected")
                 response.resultClass = ResultConnected;
-            else if (resultClass == "error")
+            else if (resultClass == u"error")
                 response.resultClass = ResultError;
-            else if (resultClass == "exit")
+            else if (resultClass == u"exit")
                 response.resultClass = ResultExit;
             else
                 response.resultClass = ResultUnknown;
@@ -412,9 +412,9 @@ void GdbEngine::handleResponse(const QString &buff)
     }
 }
 
-void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result)
+void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &result)
 {
-    if (asyncClass == "stopped") {
+    if (asyncClass == u"stopped") {
         if (m_inUpdateLocals) {
             showMessage("UNEXPECTED *stopped NOTIFICATION IGNORED", LogWarning);
         } else {
@@ -422,7 +422,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
             m_pendingLogStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
         }
-    } else if (asyncClass == "running") {
+    } else if (asyncClass == u"running") {
         if (m_inUpdateLocals) {
             showMessage("UNEXPECTED *running NOTIFICATION IGNORED", LogWarning);
         } else {
@@ -443,7 +443,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
                 notifyInferiorRunOk();
             }
         }
-    } else if (asyncClass == "library-loaded") {
+    } else if (asyncClass == u"library-loaded") {
         // Archer has 'id="/usr/lib/libdrm.so.2",
         // target-name="/usr/lib/libdrm.so.2",
         // host-name="/usr/lib/libdrm.so.2",
@@ -464,7 +464,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         module.modulePath = result["target-name"].data();
         module.moduleName = QFileInfo(module.hostPath).baseName();
         modulesHandler()->updateModule(module);
-    } else if (asyncClass == "library-unloaded") {
+    } else if (asyncClass == u"library-unloaded") {
         // Archer has 'id="/usr/lib/libdrm.so.2",
         // target-name="/usr/lib/libdrm.so.2",
         // host-name="/usr/lib/libdrm.so.2"
@@ -472,9 +472,9 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         modulesHandler()->removeModule(result["target-name"].data());
         progressPing();
         showStatusMessage(Tr::tr("Library %1 unloaded.").arg(id), 1000);
-    } else if (asyncClass == "thread-group-added") {
+    } else if (asyncClass == u"thread-group-added") {
         // 7.1-symbianelf has "{id="i1"}"
-    } else if (asyncClass == "thread-group-started") {
+    } else if (asyncClass == u"thread-group-started") {
         // Archer had only "{id="28902"}" at some point of 6.8.x.
         // *-started seems to be standard in 7.1, but in early
         // 7.0.x, there was a *-created instead.
@@ -484,7 +484,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         showStatusMessage(Tr::tr("Thread group %1 created.").arg(id), 1000);
         notifyInferiorPid(result["pid"].toProcessHandle());
         handleThreadGroupCreated(result);
-    } else if (asyncClass == "thread-created") {
+    } else if (asyncClass == u"thread-created") {
         //"{id="1",group-id="28902"}"
         QString id = result["id"].data();
         showStatusMessage(Tr::tr("Thread %1 created.").arg(id), 1000);
@@ -492,23 +492,23 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         thread.id = id;
         thread.groupId = result["group-id"].data();
         threadsHandler()->updateThread(thread);
-    } else if (asyncClass == "thread-group-exited") {
+    } else if (asyncClass == u"thread-group-exited") {
         // Archer has "{id="28902"}"
         QString id = result["id"].data();
         showStatusMessage(Tr::tr("Thread group %1 exited.").arg(id), 1000);
         handleThreadGroupExited(result);
-    } else if (asyncClass == "thread-exited") {
+    } else if (asyncClass == u"thread-exited") {
         //"{id="1",group-id="28902"}"
         QString id = result["id"].data();
         QString groupid = result["group-id"].data();
         showStatusMessage(Tr::tr("Thread %1 in group %2 exited.")
                           .arg(id).arg(groupid), 1000);
         threadsHandler()->removeThread(id);
-    } else if (asyncClass == "thread-selected") {
+    } else if (asyncClass == u"thread-selected") {
         QString id = result["id"].data();
         showStatusMessage(Tr::tr("Thread %1 selected.").arg(id), 1000);
         //"{id="2"}"
-    } else if (asyncClass == "breakpoint-modified") {
+    } else if (asyncClass == u"breakpoint-modified") {
         // New in FSF gdb since 2011-04-27.
         // "{bkpt={number="3",type="breakpoint",disp="keep",
         // enabled="y",addr="<MULTIPLE>",times="1",
@@ -547,7 +547,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         }
         if (bp)
             bp->adjustMarker();
-    } else if (asyncClass == "breakpoint-created") {
+    } else if (asyncClass == u"breakpoint-created") {
         // "{bkpt={number="1",type="breakpoint",disp="del",enabled="y",
         //  addr="<PENDING>",pending="main",times="0",
         //  original-location="main"}}" -- or --
@@ -561,7 +561,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
             br.updateFromGdbOutput(bkpt);
             handler->handleAlienBreakpoint(nr, br);
         }
-    } else if (asyncClass == "breakpoint-deleted") {
+    } else if (asyncClass == u"breakpoint-deleted") {
         // "breakpoint-deleted" "{id="1"}"
         // New in FSF gdb since 2011-04-27.
         const QString nr = result["id"].data();
@@ -571,15 +571,15 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         // if (!bp.isOneShot()) ... is not sufficient.
         // It keeps temporary "Jump" breakpoints alive.
         breakHandler()->removeAlienBreakpoint(nr);
-    } else if (asyncClass == "cmd-param-changed") {
+    } else if (asyncClass == u"cmd-param-changed") {
         // New since 2012-08-09
         //  "{param="debug remote",value="1"}"
-    } else if (asyncClass == "memory-changed") {
+    } else if (asyncClass == u"memory-changed") {
         // New since 2013
         //   "{thread-group="i1",addr="0x0918a7a8",len="0x10"}"
-    } else if (asyncClass == "tsv-created") {
+    } else if (asyncClass == u"tsv-created") {
         // New since 2013-02-06
-    } else if (asyncClass == "tsv-modified") {
+    } else if (asyncClass == u"tsv-modified") {
         // New since 2013-02-06
     } else {
         qDebug() << "IGNORED ASYNC OUTPUT"

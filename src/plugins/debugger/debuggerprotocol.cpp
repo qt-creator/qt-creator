@@ -47,12 +47,12 @@ void DebuggerOutputParser::skipSpaces()
         ++from;
 }
 
-QString DebuggerOutputParser::readString(const std::function<bool(char)> &isValidChar)
+QStringView DebuggerOutputParser::readString(const std::function<bool(char)> &isValidChar)
 {
-    QString res;
+    const QChar *oldFrom = from;
     while (from < to && isValidChar(from->unicode()))
-        res += *from++;
-    return res;
+        ++from;
+    return {oldFrom, from};
 }
 
 int DebuggerOutputParser::readInt()
@@ -96,7 +96,7 @@ void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
         return;
     }
 
-    m_name = parser.readString(isNameChar);
+    m_name = parser.readString(isNameChar).toString();
 
     if (!parser.isAtEnd() && parser.isCurrent('=')) {
         parser.advance();

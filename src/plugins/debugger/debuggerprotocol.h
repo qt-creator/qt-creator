@@ -116,7 +116,7 @@ public:
     int readInt();
     QChar readChar();
     QString readCString();
-    QString readString(const std::function<bool(char)> &isValidChar);
+    QStringView readString(const std::function<bool(char)> &isValidChar);
 
     QStringView buffer() const { return QStringView(from, to - from); }
     int remainingChars() const { return int(to - from); }
