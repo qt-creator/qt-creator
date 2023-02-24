@@ -40,6 +40,8 @@ SecondColumnLayout {
 
     property bool __block: false
 
+    property string caption // Legacy Qt5 specifics sheets compatibility
+
     function resetShapeColor() {
         colorEditor.backendValue.resetValue()
     }
