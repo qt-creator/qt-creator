@@ -20,27 +20,23 @@ ToolBox::ToolBox(QWidget *parentWidget)
 {
     setProperty("panelwidget", false);
 
-    QPalette pal = palette();
-    pal.setColor(QPalette::Window, Theme::getColor(Theme::DStoolbarBackground));
-    setAutoFillBackground(true);
-    setPalette(pal);
-
     m_leftToolBar->setFloatable(true);
     m_leftToolBar->setMovable(true);
     m_leftToolBar->setOrientation(Qt::Horizontal);
 
     auto horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->setContentsMargins(9, 5, 9, 5);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
 
     setFixedHeight(Theme::toolbarSize());
 
-
     m_leftToolBar->setProperty("panelwidget", false);
     m_leftToolBar->setProperty("panelwidget_singlerow", false);
+    m_leftToolBar->setFixedHeight(Theme::toolbarSize());
 
     m_rightToolBar->setProperty("panelwidget", false);
     m_rightToolBar->setProperty("panelwidget_singlerow", false);
+    m_rightToolBar->setFixedHeight(Theme::toolbarSize());
     m_rightToolBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 
     auto stretchToolbar = new QToolBar(this);
