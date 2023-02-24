@@ -2293,7 +2293,7 @@ void WatchHandler::notifyUpdateFinished()
 
     m_model->forAllItems([this](WatchItem *item) {
         if (item->wantsChildren && isExpandedIName(item->iname)) {
-            m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
+            // m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
             item->wantsChildren = false;
         }
     });
