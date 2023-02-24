@@ -1274,9 +1274,15 @@ void CdbEngine::showScriptMessages(const QString &message) const
 {
     GdbMi gdmiMessage;
     gdmiMessage.fromString(message);
-    if (!gdmiMessage.isValid())
+    if (gdmiMessage.isValid())
+        showScriptMessages(gdmiMessage);
+    else
         showMessage(message, LogMisc);
-    for (const GdbMi &msg : gdmiMessage["msg"]) {
+}
+
+void CdbEngine::showScriptMessages(const GdbMi &message) const
+{
+    for (const GdbMi &msg : message["msg"]) {
         if (msg.name() == "bridgemessage")
             showMessage(msg["msg"].data(), LogMisc);
         else
@@ -2085,11 +2091,11 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
         if (t == 'R') {
             response.resultClass = ResultDone;
             response.data.fromString(message);
-            if (!response.data.isValid()) {
+            if (response.data.isValid()) {
+                showScriptMessages(response.data);
+            } else {
                 response.data.m_data = message;
                 response.data.m_type = GdbMi::Tuple;
-            } else {
-                showScriptMessages(message);
             }
         } else {
             response.resultClass = ResultError;
