@@ -105,7 +105,7 @@ void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
 }
 
 // Reads one \ooo entity.
-static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, QByteArray &buffer)
+static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, DebuggerOutputParser::Buffer &buffer)
 {
     if (parser.remainingChars() < 4)
         return false;
@@ -121,7 +121,7 @@ static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, QByteArray &bu
     return true;
 }
 
-static bool parseHexEscapedHelper(DebuggerOutputParser &parser, QByteArray &buffer)
+static bool parseHexEscapedHelper(DebuggerOutputParser &parser, DebuggerOutputParser::Buffer &buffer)
 {
     if (parser.remainingChars() < 4)
         return false;
@@ -138,7 +138,7 @@ static bool parseHexEscapedHelper(DebuggerOutputParser &parser, QByteArray &buff
     return true;
 }
 
-static void parseSimpleEscape(DebuggerOutputParser &parser, QByteArray &result)
+static void parseSimpleEscape(DebuggerOutputParser &parser, DebuggerOutputParser::Buffer &buffer)
 {
     if (parser.isAtEnd()) {
         qDebug() << "MI Parse Error, unterminated backslash escape";
@@ -148,60 +148,64 @@ static void parseSimpleEscape(DebuggerOutputParser &parser, QByteArray &result)
     const QChar c = parser.current();
     parser.advance();
     switch (c.unicode()) {
-    case 'a': result += '\a'; break;
-    case 'b': result += '\b'; break;
-    case 'f': result += '\f'; break;
-    case 'n': result += '\n'; break;
-    case 'r': result += '\r'; break;
-    case 't': result += '\t'; break;
-    case 'v': result += '\v'; break;
-    case '"': result += '"'; break;
-    case '\'': result += '\''; break;
-    case '\\': result += '\\'; break;
-    default:
-        qDebug() << "MI Parse Error, unrecognized backslash escape";
+        case 'a': buffer += '\a'; break;
+        case 'b': buffer += '\b'; break;
+        case 'f': buffer += '\f'; break;
+        case 'n': buffer += '\n'; break;
+        case 'r': buffer += '\r'; break;
+        case 't': buffer += '\t'; break;
+        case 'v': buffer += '\v'; break;
+        case '"': buffer += '"'; break;
+        case '\'': buffer += '\''; break;
+        case '\\': buffer += '\\'; break;
+        default:
+            qDebug() << "MI Parse Error, unrecognized backslash escape";
     }
 }
 
 // Reads one \123 or \x12 entity, *or* one escaped char, *or* one unescaped char.
-static void parseCharOrEscape(DebuggerOutputParser &parser, QByteArray &result)
+static void parseCharOrEscape(DebuggerOutputParser &parser, DebuggerOutputParser::Buffer &buffer)
 {
     if (parser.isCurrent('\\')) {
-        if (parseOctalEscapedHelper(parser, result))
+        if (parseOctalEscapedHelper(parser, buffer))
             return;
-        if (parseHexEscapedHelper(parser, result))
+        if (parseHexEscapedHelper(parser, buffer))
             return;
         parser.advance();
-        parseSimpleEscape(parser, result);
+        parseSimpleEscape(parser, buffer);
     } else {
-        result += char(parser.readChar().unicode());
+        buffer += char(parser.readChar().unicode());
     }
 }
 
-QString DebuggerOutputParser::readCString()
+void DebuggerOutputParser::readCStringData(Buffer &buffer)
 {
     if (isAtEnd())
-        return QString();
+        return;
 
     if (*from != '"') {
         qDebug() << "MI Parse Error, double quote expected";
         ++from; // So we don't hang
-        return QString();
+        return;
     }
 
     ++from; // Skip initial quote.
-    QByteArray result;
-    result.reserve(30);
     while (from < to) {
         if (*from == '"') {
             ++from;
-            return QString::fromUtf8(result);
+            return;
         }
-        parseCharOrEscape(*this, result);
+        parseCharOrEscape(*this, buffer);
     }
 
     qDebug() << "MI Parse Error, unfinished string";
-    return QString();
+}
+
+QString DebuggerOutputParser::readCString()
+{
+    Buffer buffer;
+    readCStringData(buffer);
+    return QString::fromUtf8(buffer);
 }
 
 void GdbMi::parseValue(DebuggerOutputParser &parser)

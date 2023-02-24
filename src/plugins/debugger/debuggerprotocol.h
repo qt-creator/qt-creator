@@ -8,6 +8,7 @@
 #include <QString>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QVarLengthArray>
 #include <QVector>
 
 #include <utils/filepath.h>
@@ -105,6 +106,8 @@ class DebuggerOutputParser
 public:
     explicit DebuggerOutputParser(const QString &output);
 
+    using Buffer = QVarLengthArray<char, 30>;
+
     QChar current() const { return *from; }
     bool isCurrent(QChar c) const { return *from == c; }
     bool isAtEnd() const { return from >= to; }
@@ -116,6 +119,8 @@ public:
     int readInt();
     QChar readChar();
     QString readCString();
+    void readCStringData(Buffer &buffer);
+
     QStringView readString(const std::function<bool(char)> &isValidChar);
 
     QStringView buffer() const { return QStringView(from, to - from); }
