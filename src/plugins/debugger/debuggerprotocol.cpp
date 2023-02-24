@@ -200,7 +200,7 @@ QString DebuggerOutputParser::readCString()
 
     ++from; // Skip initial quote.
     QString result;
-    result.reserve(to - from);
+    result.reserve(30);
     while (from < to) {
         if (*from == '"') {
             ++from;
