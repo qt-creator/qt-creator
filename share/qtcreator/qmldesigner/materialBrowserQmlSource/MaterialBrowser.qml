@@ -639,7 +639,8 @@ Item {
                             if (expanded) {
                                 if (root.visibleItemCount(materialBrowserModel) > 0)
                                     rootView.focusMaterialSection(true)
-                                scrollView.forceActiveFocus()
+                                if (!searchBox.activeFocus)
+                                    scrollView.forceActiveFocus()
                             } else {
                                 root.startDelayedEnsureTimer(300) // wait for section collapse animation
                                 rootView.focusMaterialSection(false)
@@ -728,7 +729,8 @@ Item {
                             if (expanded) {
                                 if (root.visibleItemCount(materialBrowserTexturesModel) > 0)
                                     rootView.focusMaterialSection(false)
-                                scrollView.forceActiveFocus()
+                                if (!searchBox.activeFocus)
+                                    scrollView.forceActiveFocus()
                             } else {
                                 root.startDelayedEnsureTimer(300) // wait for section collapse animation
                                 rootView.focusMaterialSection(true)
