@@ -5,7 +5,7 @@
 
 #include "authwidget.h"
 #include "copilotsettings.h"
-#include "copilotsettings.h"
+#include "copilottr.h"
 
 #include <coreplugin/icore.h>
 
@@ -27,11 +27,30 @@ public:
 
         auto authWidget = new AuthWidget();
 
+        QLabel *helpLabel = new QLabel();
+        helpLabel->setTextFormat(Qt::MarkdownText);
+        helpLabel->setWordWrap(true);
+        helpLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse
+                                           | Qt::LinksAccessibleByKeyboard);
+        helpLabel->setOpenExternalLinks(true);
+
         // clang-format off
+        helpLabel->setText(Tr::tr(R"(
+The Copilot plugin requires node.js and the Copilot neovim plugin.
+If you install the neovim plugin as described in the
+[README.md](https://github.com/github/copilot.vim),
+the plugin will find the agent.js file automatically.
+
+Otherwise you need to specify the path to the
+[agent.js](https://github.com/github/copilot.vim/tree/release/copilot/dist)
+file from the Copilot neovim plugin.
+        )", "Markdown text for the copilot instruction label"));
+
         Column {
             authWidget, br,
             CopilotSettings::instance().nodeJsPath, br,
             CopilotSettings::instance().distPath, br,
+            helpLabel, br,
             st
         }.attachTo(this);
         // clang-format on
