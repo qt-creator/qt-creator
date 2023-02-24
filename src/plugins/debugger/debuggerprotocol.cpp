@@ -109,8 +109,6 @@ static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, QByteArray &bu
 {
     if (parser.remainingChars() < 4)
         return false;
-    if (!parser.isCurrent('\\'))
-        return false;
 
     const char c1 = parser.lookAhead(1).unicode();
     const char c2 = parser.lookAhead(2).unicode();
@@ -127,8 +125,6 @@ static bool parseHexEscapedHelper(DebuggerOutputParser &parser, QByteArray &buff
 {
     if (parser.remainingChars() < 4)
         return false;
-    if (!parser.isCurrent('\\'))
-        return false;
     if (parser.lookAhead(1) != 'x')
         return false;
 
@@ -142,7 +138,7 @@ static bool parseHexEscapedHelper(DebuggerOutputParser &parser, QByteArray &buff
     return true;
 }
 
-static void parseSimpleEscape(DebuggerOutputParser &parser, QString &result)
+static void parseSimpleEscape(DebuggerOutputParser &parser, QByteArray &result)
 {
     if (parser.isAtEnd()) {
         qDebug() << "MI Parse Error, unterminated backslash escape";
@@ -167,23 +163,18 @@ static void parseSimpleEscape(DebuggerOutputParser &parser, QString &result)
     }
 }
 
-// Reads subsequent \123 or \x12 entities and converts to Utf8,
-// *or* one escaped char, *or* one unescaped char.
-static void parseCharOrEscape(DebuggerOutputParser &parser, QString &result)
+// Reads one \123 or \x12 entity, *or* one escaped char, *or* one unescaped char.
+static void parseCharOrEscape(DebuggerOutputParser &parser, QByteArray &result)
 {
-    QByteArray buffer;
-    while (parseOctalEscapedHelper(parser, buffer))
-        ;
-    while (parseHexEscapedHelper(parser, buffer))
-        ;
-
-    if (!buffer.isEmpty()) {
-        result.append(QString::fromUtf8(buffer));
-    } else if (parser.isCurrent('\\')) {
+    if (parser.isCurrent('\\')) {
+        if (parseOctalEscapedHelper(parser, result))
+            return;
+        if (parseHexEscapedHelper(parser, result))
+            return;
         parser.advance();
         parseSimpleEscape(parser, result);
     } else {
-        result += parser.readChar();
+        result += char(parser.readChar().unicode());
     }
 }
 
@@ -199,12 +190,12 @@ QString DebuggerOutputParser::readCString()
     }
 
     ++from; // Skip initial quote.
-    QString result;
+    QByteArray result;
     result.reserve(30);
     while (from < to) {
         if (*from == '"') {
             ++from;
-            return result;
+            return QString::fromUtf8(result);
         }
         parseCharOrEscape(*this, result);
     }
