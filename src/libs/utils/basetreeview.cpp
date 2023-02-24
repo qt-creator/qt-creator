@@ -159,10 +159,11 @@ public:
         a = a.sibling(a.row(), column);
         QFontMetrics fm = q->fontMetrics();
         const int ind = q->indentation();
+        const int avg = fm.averageCharWidth();
         QAbstractItemModel *m = q->model();
         for (int i = 0; i < 100 && a.isValid(); ++i) {
             const QString s = m->data(a).toString();
-            int w = fm.horizontalAdvance(s) + 10;
+            int w = avg * s.size() + 20;
             if (column == 0) {
                 for (QModelIndex b = a.parent(); b.isValid(); b = b.parent())
                     w += ind;
