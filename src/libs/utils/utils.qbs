@@ -127,6 +127,8 @@ Project {
             "filepath.h",
             "filesearch.cpp",
             "filesearch.h",
+            "filestreamer.cpp",
+            "filestreamer.h",
             "filesystemmodel.cpp",
             "filesystemmodel.h",
             "filesystemwatcher.cpp",

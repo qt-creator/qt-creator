@@ -24,13 +24,18 @@ class QTCREATOR_UTILS_EXPORT AsyncTaskBase : public QObject
 signals:
     void started();
     void done();
+    void resultReadyAt(int index);
 };
 
 template <typename ResultType>
 class AsyncTask : public AsyncTaskBase
 {
 public:
-    AsyncTask() { connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncTaskBase::done); }
+    AsyncTask() {
+        connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncTaskBase::done);
+        connect(&m_watcher, &QFutureWatcherBase::resultReadyAt,
+                this, &AsyncTaskBase::resultReadyAt);
+    }
     ~AsyncTask()
     {
         if (isDone())
@@ -72,6 +77,7 @@ public:
 
     QFuture<ResultType> future() const { return m_watcher.future(); }
     ResultType result() const { return m_watcher.result(); }
+    ResultType resultAt(int index) const { return m_watcher.resultAt(index); }
     QList<ResultType> results() const { return future().results(); }
     bool isResultAvailable() const { return future().resultCount(); }
 
