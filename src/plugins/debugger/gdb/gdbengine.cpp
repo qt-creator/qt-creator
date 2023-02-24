@@ -410,6 +410,9 @@ void GdbEngine::handleResponse(const QString &buff)
             break;
         }
     }
+
+    if (debuggerSettings()->logTimeStamps.value())
+        showMessage(QString("Output handled"));
 }
 
 void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &result)
