@@ -929,15 +929,22 @@ static QString displayName(const WatchItem *item)
     return result;
 }
 
-static QString displayValue(const WatchItem *item)
+
+void WatchItem::updateValueCache() const
 {
-    QString result = truncateValue(formattedValue(item));
-    result = watchModel(item)->removeNamespaces(result);
-    if (result.isEmpty() && item->address)
-        result += QString::fromLatin1("@0x" + QByteArray::number(item->address, 16));
+    valueCache = truncateValue(formattedValue(this));
+    valueCache = watchModel(this)->removeNamespaces(valueCache);
+    if (valueCache.isEmpty() && this->address)
+        valueCache += QString::fromLatin1("@0x" + QByteArray::number(this->address, 16));
 //    if (origaddr)
 //        result += QString::fromLatin1(" (0x" + QByteArray::number(origaddr, 16) + ')');
-    return result;
+}
+
+static QString displayValue(const WatchItem *item)
+{
+    if (item->valueCache.isEmpty())
+        item->updateValueCache();
+    return item->valueCache;
 }
 
 static QString displayType(const WatchItem *item)
