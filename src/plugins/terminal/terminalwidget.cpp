@@ -617,11 +617,10 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
         }
 
         if (!m_preEditString.isEmpty()) {
-            // TODO: Use QTextLayout::setPreeditArea() instead ?
             QTextLine cursorLine = m_textLayout.lineAt(m_cursor.row);
             if (cursorLine.isValid()) {
                 int pos = cursorLine.textStart() + m_cursor.col;
-                QPointF displayPos = QPointF{cursorLine.cursorToX(pos), cursorLine.y()};
+                QPointF displayPos = QPointF{cursorLine.cursorToX(pos), cursorLine.y() + y};
 
                 p.fillRect(QRectF{displayPos.toPoint(), m_cellSize}, QColor::fromRgb(0, 0, 0));
                 p.setPen(Qt::white);
