@@ -56,14 +56,14 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
 
     setCursor(Qt::IBeamCursor);
 
+    setViewportMargins(1, 1, 1, 1);
+
     m_textLayout.setCacheEnabled(true);
 
     setFocus();
     setFocusPolicy(Qt::StrongFocus);
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    //    setFrameStyle(QFrame::NoFrame);
-    setAttribute(Qt::WA_OpaquePaintEvent);
 
     m_readDelayTimer.setSingleShot(true);
     m_readDelayTimer.setInterval(10);
@@ -296,7 +296,7 @@ void TerminalWidget::setFont(const QFont &font)
         return qfm.averageCharWidth();
     }();
 
-    qCInfo(terminalLog) << font.family() << font.pointSize() << w << size();
+    qCInfo(terminalLog) << font.family() << font.pointSize() << w << viewport()->size();
 
     m_cellSize = {w, qfm.height()};
     m_cellBaseline = qfm.ascent();
@@ -485,7 +485,7 @@ void TerminalWidget::createTextLayout()
 
 qreal TerminalWidget::topMargin() const
 {
-    return size().height() - (m_vtermSize.height() * m_lineSpacing);
+    return (qreal) viewport()->size().height() - ((qreal) m_vtermSize.height() * m_lineSpacing);
 }
 
 std::optional<QTextLayout::FormatRange> TerminalWidget::selectionToFormatRange(
@@ -601,7 +601,8 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
                         const qreal br = fm.horizontalAdvance(QString::fromUcs4(&ch, 1));
                         const qreal xCursor = cursorLine.cursorToX(cPos);
                         const double yCursor = cursorLine.y() + y;
-                        const QRectF cursorRect = QRectF{xCursor, yCursor, br, m_lineSpacing};
+                        const QRectF cursorRect
+                            = QRectF{xCursor, yCursor + 1, br, m_lineSpacing - 2};
                         if (hasFocus()) {
                             QPainter::CompositionMode oldMode = p.compositionMode();
                             p.setCompositionMode(QPainter::RasterOp_NotDestination);
@@ -692,8 +693,8 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
 void TerminalWidget::applySizeChange()
 {
     m_vtermSize = {
-        qFloor((qreal) size().width() / (qreal) m_cellSize.width()),
-        qFloor((qreal) size().height() / m_lineSpacing),
+        qFloor((qreal) (viewport()->size().width()) / (qreal) m_cellSize.width()),
+        qFloor((qreal) (viewport()->size().height()) / m_lineSpacing),
     };
 
     if (m_vtermSize.height() <= 0)
@@ -888,6 +889,13 @@ bool TerminalWidget::event(QEvent *event)
     if (event->type() == QEvent::KeyRelease) {
         QKeyEvent *k = (QKeyEvent *) event;
         keyReleaseEvent(k);
+        return true;
+    }
+
+    if (event->type() == QEvent::Paint) {
+        QPainter p(this);
+        p.fillRect(QRect(QPoint(0, 0), size()),
+                   TerminalSettings::instance().backgroundColor.value());
         return true;
     }
 
