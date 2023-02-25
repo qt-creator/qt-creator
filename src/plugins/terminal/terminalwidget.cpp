@@ -511,7 +511,7 @@ std::optional<QTextLayout::FormatRange> TerminalWidget::selectionToFormatRange(
         QTextLayout::FormatRange range;
         range.start = startPos;
         range.length = endPos - startPos;
-        range.format.setBackground(QColor::fromRgbF(1.0, 1.0, 1.0, 0.5));
+        range.format.setBackground(TerminalSettings::instance().selectionColor.value());
         return range;
     }
 

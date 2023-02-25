@@ -81,6 +81,7 @@ TerminalSettings::TerminalSettings()
 
     setupColor(foregroundColor, "Foreground", QColor::fromRgb(0xff, 0xff, 0xff));
     setupColor(backgroundColor, "Background", QColor::fromRgb(0x0, 0x0, 0x0));
+    setupColor(selectionColor, "Selection", QColor::fromRgb(0xFF, 0xFF, 0xFF, 0x7F));
 
     setupColor(colors[0], "0", QColor::fromRgb(0x00, 0x00, 0x00));
     setupColor(colors[8], "8", QColor::fromRgb(102, 102, 102));
