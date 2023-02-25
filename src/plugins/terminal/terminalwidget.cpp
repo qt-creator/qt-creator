@@ -681,6 +681,12 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         // ctrl modifier.  This helps with ncurses applications which otherwise
         // do not recognize ctrl+<key> and in the shell for getting common control characters
         // like ctrl+i for tab or ctrl+j for newline.
+
+        // Workaround for "ALT+SHIFT+/" (\ on german mac keyboards)
+        if (mod == (VTERM_MOD_SHIFT | VTERM_MOD_ALT) && event->key() == Qt::Key_Slash) {
+            mod = VTERM_MOD_NONE;
+        }
+
         vterm_keyboard_unichar(m_vterm.get(),
                                event->text().toUcs4()[0],
                                static_cast<VTermModifier>(mod & ~VTERM_MOD_CTRL));
