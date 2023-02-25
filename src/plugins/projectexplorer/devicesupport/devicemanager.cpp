@@ -17,6 +17,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/terminalhooks.h>
 
 #include <QHash>
 #include <QMutex>
@@ -457,6 +458,19 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     };
 
     QtcProcess::setRemoteProcessHooks(processHooks);
+
+    Terminal::Hooks::instance().getTerminalCommandsForDevicesHook().set(
+        [this]() -> QList<Terminal::NameAndCommandLine> {
+            QList<Terminal::NameAndCommandLine> result;
+            for (const IDevice::ConstPtr device : d->devices) {
+                if (device->type() == Constants::DESKTOP_DEVICE_TYPE)
+                    continue;
+                const std::optional<CommandLine> terminalCommand = device->terminalCommand({}, {});
+                if (terminalCommand)
+                    result << Terminal::NameAndCommandLine{device->displayName(), *terminalCommand};
+            }
+            return result;
+        });
 }
 
 DeviceManager::~DeviceManager()

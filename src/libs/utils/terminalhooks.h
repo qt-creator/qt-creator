@@ -48,19 +48,27 @@ struct OpenTerminalParameters
     ExitBehavior m_exitBehavior{ExitBehavior::Close};
 };
 
+struct NameAndCommandLine
+{
+    QString name;
+    CommandLine commandLine;
+};
+
 class QTCREATOR_UTILS_EXPORT Hooks
 {
 public:
     using OpenTerminalHook = Hook<void, const OpenTerminalParameters &>;
     using CreateTerminalProcessInterfaceHook = Hook<ProcessInterface *>;
+    using GetTerminalCommandsForDevicesHook = Hook<QList<NameAndCommandLine>>;
 
 public:
     static Hooks &instance();
+    ~Hooks();
 
     OpenTerminalHook &openTerminalHook();
     CreateTerminalProcessInterfaceHook &createTerminalProcessInterfaceHook();
+    GetTerminalCommandsForDevicesHook &getTerminalCommandsForDevicesHook();
 
-    ~Hooks();
 private:
     Hooks();
     std::unique_ptr<HooksPrivate> d;

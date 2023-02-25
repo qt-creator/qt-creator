@@ -18,10 +18,12 @@ struct HooksPrivate
         })
         , m_createTerminalProcessInterfaceHook(
               []() -> ProcessInterface * { return new Internal::TerminalImpl(); })
+        , m_getTerminalCommandsForDevicesHook([]() -> QList<NameAndCommandLine> { return {}; })
     {}
 
     Hooks::OpenTerminalHook m_openTerminalHook;
     Hooks::CreateTerminalProcessInterfaceHook m_createTerminalProcessInterfaceHook;
+    Hooks::GetTerminalCommandsForDevicesHook m_getTerminalCommandsForDevicesHook;
 };
 
 Hooks &Hooks::instance()
@@ -40,9 +42,15 @@ Hooks::OpenTerminalHook &Hooks::openTerminalHook()
 {
     return d->m_openTerminalHook;
 }
+
 Hooks::CreateTerminalProcessInterfaceHook &Hooks::createTerminalProcessInterfaceHook()
 {
     return d->m_createTerminalProcessInterfaceHook;
+}
+
+Hooks::GetTerminalCommandsForDevicesHook &Hooks::getTerminalCommandsForDevicesHook()
+{
+    return d->m_getTerminalCommandsForDevicesHook;
 }
 
 } // namespace Utils::Terminal

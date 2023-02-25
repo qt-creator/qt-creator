@@ -1,6 +1,5 @@
 
 add_qtc_plugin(Terminal
-  SKIP_TRANSLATION
   PLUGIN_DEPENDS Core
   DEPENDS libvterm ptyqt
   SOURCES
@@ -13,5 +12,6 @@ add_qtc_plugin(Terminal
     terminalsettings.cpp terminalsettings.h
     terminalsettingspage.cpp terminalsettingspage.h
     scrollback.h scrollback.cpp
+    shellmodel.cpp shellmodel.h
     keys.cpp keys.h
 )
