@@ -776,10 +776,7 @@ int TerminalWidget::sb_clear()
 
 void TerminalWidget::wheelEvent(QWheelEvent *event)
 {
-    event->accept();
-
-    QPoint delta = event->angleDelta();
-    scrollContentsBy(0, delta.y() / 24);
+    verticalScrollBar()->event(event);
 }
 
 void TerminalWidget::focusInEvent(QFocusEvent *)
