@@ -12,5 +12,8 @@
         <true/>
         <key>com.apple.security.automation.apple-events</key>
         <true/>
+        <!-- RTA needs Squish to inject itself via DYLD_* -->
+        <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+        <true/>
 </dict>
 </plist>
