@@ -26,15 +26,13 @@ void checkSessionChangeSetCreation(int resultCode)
 void checkIteratorCreation(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throw Sqlite::CannotCreateChangeSetIterator{
-            "SessionChangeSet: Cannot create iterator from blob."};
+        throw Sqlite::CannotCreateChangeSetIterator{};
 }
 
 void checkIteratorOperation(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throw Sqlite::CannotGetChangeSetOperation{
-            "SessionChangeSet: Cannot create iterator from blob."};
+        throw Sqlite::CannotGetChangeSetOperation{};
 }
 
 void checkChangeSetValue(int resultCode)
@@ -43,14 +41,12 @@ void checkChangeSetValue(int resultCode)
     case SQLITE_OK:
         return;
     case SQLITE_RANGE:
-        throw Sqlite::ChangeSetTupleIsOutOfRange{
-            "SessionChangeSet: You tried to access a non existing column."};
+        throw Sqlite::ChangeSetTupleIsOutOfRange{};
     case SQLITE_MISUSE:
-        throw Sqlite::ChangeSetIsMisused{
-            "SessionChangeSet: Some misuse happened as you tried to access."};
+        throw Sqlite::ChangeSetIsMisused{};
     }
 
-    throw Sqlite::UnknownError{"SessionChangeSet: Some unknown error happened."};
+    throw Sqlite::UnknownError{};
 }
 
 ValueView convertSqliteValue(sqlite3_value *value)

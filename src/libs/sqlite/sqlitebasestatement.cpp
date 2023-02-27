@@ -79,7 +79,7 @@ void BaseStatement::waitForUnlockNotify() const
                                            &unlockNotification);
 
     if (resultCode == SQLITE_LOCKED)
-        throw DeadLock("SqliteStatement::waitForUnlockNotify: database is in a dead lock!");
+        throw DeadLock();
 
     unlockNotification.wait();
 }
@@ -490,13 +490,13 @@ void BaseStatement::checkForBindingError(int resultCode) const
 void BaseStatement::checkBindingParameterCount(int bindingParameterCount) const
 {
     if (bindingParameterCount != sqlite3_bind_parameter_count(m_compiledStatement.get()))
-        throw WrongBindingParameterCount{"Sqlite: wrong binding parameter count!"};
+        throw WrongBindingParameterCount{};
 }
 
 void BaseStatement::checkColumnCount(int columnCount) const
 {
     if (columnCount != sqlite3_column_count(m_compiledStatement.get()))
-        throw WrongColumnCount{"Sqlite: wrong column count!"};
+        throw WrongColumnCount{};
 }
 
 bool BaseStatement::isReadOnlyStatement() const
@@ -504,102 +504,102 @@ bool BaseStatement::isReadOnlyStatement() const
     return sqlite3_stmt_readonly(m_compiledStatement.get());
 }
 
-void BaseStatement::throwStatementIsBusy(const char *whatHasHappened) const
+void BaseStatement::throwStatementIsBusy(const char *) const
 {
-    throw StatementIsBusy(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+    throw StatementIsBusy(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
-void BaseStatement::throwStatementHasError(const char *whatHasHappened) const
+void BaseStatement::throwStatementHasError(const char *) const
 {
-    throw StatementHasError(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+    throw StatementHasError(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
-void BaseStatement::throwStatementIsMisused(const char *whatHasHappened) const
+void BaseStatement::throwStatementIsMisused(const char *) const
 {
-    throw StatementIsMisused(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+    throw StatementIsMisused(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
-void BaseStatement::throwInputOutputError(const char *whatHasHappened) const
+void BaseStatement::throwInputOutputError(const char *) const
 {
-    throw InputOutputError(whatHasHappened);
+    throw InputOutputError();
 }
 
-void BaseStatement::throwConstraintPreventsModification(const char *whatHasHappened) const
+void BaseStatement::throwConstraintPreventsModification(const char *) const
 {
-    throw ConstraintPreventsModification(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+    throw ConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
-void BaseStatement::throwNoValuesToFetch(const char *whatHasHappened) const
+void BaseStatement::throwNoValuesToFetch(const char *) const
 {
-    throw NoValuesToFetch(whatHasHappened);
+    throw NoValuesToFetch();
 }
 
-void BaseStatement::throwBindingIndexIsOutOfRange(const char *whatHasHappened) const
+void BaseStatement::throwBindingIndexIsOutOfRange(const char *) const
 {
-    throw BindingIndexIsOutOfRange(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+    throw BindingIndexIsOutOfRange(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
 void BaseStatement::throwUnknowError(const char *whatHasHappened) const
 {
     if (sqliteDatabaseHandle())
-        throw UnknowError(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+        throw UnknowError(sqlite3_errmsg(sqliteDatabaseHandle()));
     else
         throw UnknowError(whatHasHappened);
 }
 
-void BaseStatement::throwBingingTooBig(const char *whatHasHappened) const
+void BaseStatement::throwBingingTooBig(const char *) const
 {
-    throw BindingTooBig(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+    throw BindingTooBig(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
-void BaseStatement::throwTooBig(const char *whatHasHappened) const
+void BaseStatement::throwTooBig(const char *) const
 {
-    throw TooBig{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+    throw TooBig{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
-void BaseStatement::throwSchemaChangeError(const char *whatHasHappened) const
+void BaseStatement::throwSchemaChangeError(const char *) const
 {
-    throw SchemeChangeError{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+    throw SchemeChangeError{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
-void BaseStatement::throwCannotWriteToReadOnlyConnection(const char *whatHasHappened) const
+void BaseStatement::throwCannotWriteToReadOnlyConnection(const char *) const
 {
-    throw CannotWriteToReadOnlyConnection{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+    throw CannotWriteToReadOnlyConnection{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
-void BaseStatement::throwProtocolError(const char *whatHasHappened) const
+void BaseStatement::throwProtocolError(const char *) const
 {
-    throw ProtocolError{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+    throw ProtocolError{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
-void BaseStatement::throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const
+void BaseStatement::throwDatabaseExceedsMaximumFileSize(const char *) const
 {
-    throw DatabaseExceedsMaximumFileSize{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+    throw DatabaseExceedsMaximumFileSize{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
-void BaseStatement::throwDataTypeMismatch(const char *whatHasHappened) const
+void BaseStatement::throwDataTypeMismatch(const char *) const
 {
-    throw DataTypeMismatch{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+    throw DataTypeMismatch{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
-void BaseStatement::throwConnectionIsLocked(const char *whatHasHappened) const
+void BaseStatement::throwConnectionIsLocked(const char *) const
 {
-    throw ConnectionIsLocked{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+    throw ConnectionIsLocked{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
-void BaseStatement::throwExecutionInterrupted(const char *whatHasHappened) const
+void BaseStatement::throwExecutionInterrupted(const char *) const
 {
-    throw ExecutionInterrupted{whatHasHappened};
+    throw ExecutionInterrupted{};
 }
 
-void BaseStatement::throwDatabaseIsCorrupt(const char *whatHasHappened) const
+void BaseStatement::throwDatabaseIsCorrupt(const char *) const
 {
-    throw DatabaseIsCorrupt{whatHasHappened};
+    throw DatabaseIsCorrupt{};
 }
 
-void BaseStatement::throwCannotOpen(const char *whatHasHappened) const
+void BaseStatement::throwCannotOpen(const char *) const
 {
-    throw CannotOpen{whatHasHappened};
+    throw CannotOpen{};
 }
 
 QString BaseStatement::columnName(int column) const

@@ -417,7 +417,7 @@ private:
             : statement(statement)
         {
             if (statement && !statement->database().isLocked())
-                throw DatabaseIsNotLocked{"Database connection is not locked!"};
+                throw DatabaseIsNotLocked{};
         }
 
         Resetter(Resetter &) = delete;

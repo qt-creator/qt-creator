@@ -15,293 +15,407 @@ namespace Sqlite {
 class SQLITE_EXPORT Exception : public std::exception
 {
 public:
-    Exception(const char *whatErrorHasHappen)
-        : m_whatErrorHasHappen(whatErrorHasHappen)
-    {}
-
+    Exception() = default;
     const char *what() const noexcept override;
-
-private:
-    const char *m_whatErrorHasHappen;
 };
 
 class SQLITE_EXPORT ExceptionWithMessage : public Exception
 {
 public:
-    ExceptionWithMessage(const char *whatErrorHasHappen,
-                         Utils::SmallString &&sqliteErrorMessage = Utils::SmallString{})
-        : Exception{whatErrorHasHappen}
-        , m_sqliteErrorMessage(std::move(sqliteErrorMessage))
+    ExceptionWithMessage(Utils::SmallString &&sqliteErrorMessage = Utils::SmallString{})
+        : m_sqliteErrorMessage(std::move(sqliteErrorMessage))
     {}
 
+    const char *what() const noexcept override;
     void printWarning() const;
 
 private:
     Utils::SmallString m_sqliteErrorMessage;
 };
 
-class StatementIsBusy : public ExceptionWithMessage
+class SQLITE_EXPORT StatementIsBusy : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class DatabaseIsBusy : public Exception
+class SQLITE_EXPORT DatabaseIsBusy : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class StatementHasError : public ExceptionWithMessage
+class SQLITE_EXPORT StatementHasError : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class StatementIsMisused : public ExceptionWithMessage
+class SQLITE_EXPORT StatementIsMisused : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class InputOutputError : public Exception
+class SQLITE_EXPORT InputOutputError : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class ConstraintPreventsModification : public ExceptionWithMessage
+class SQLITE_EXPORT ConstraintPreventsModification : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class NoValuesToFetch : public Exception
+class SQLITE_EXPORT NoValuesToFetch : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class BindingIndexIsOutOfRange : public ExceptionWithMessage
+class SQLITE_EXPORT BindingIndexIsOutOfRange : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class WrongBindingName : public Exception
+class SQLITE_EXPORT WrongBindingName : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class DatabaseIsNotOpen : public Exception
+class SQLITE_EXPORT DatabaseIsNotOpen : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class DatabaseCannotBeOpened : public ExceptionWithMessage
+class SQLITE_EXPORT DatabaseCannotBeOpened : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class DatabaseFilePathIsEmpty : public DatabaseCannotBeOpened
+class SQLITE_EXPORT DatabaseFilePathIsEmpty : public DatabaseCannotBeOpened
 {
 public:
     using DatabaseCannotBeOpened::DatabaseCannotBeOpened;
+    const char *what() const noexcept override;
 };
 
-class DatabaseIsAlreadyOpen : public DatabaseCannotBeOpened
+class SQLITE_EXPORT DatabaseIsAlreadyOpen : public DatabaseCannotBeOpened
 {
 public:
     using DatabaseCannotBeOpened::DatabaseCannotBeOpened;
+    const char *what() const noexcept override;
 };
 
-class DatabaseCannotBeClosed : public Exception
+class SQLITE_EXPORT DatabaseCannotBeClosed : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class DatabaseIsAlreadyClosed : public DatabaseCannotBeClosed
+class SQLITE_EXPORT DatabaseIsAlreadyClosed : public DatabaseCannotBeClosed
 {
 public:
     using DatabaseCannotBeClosed::DatabaseCannotBeClosed;
+    const char *what() const noexcept override;
 };
 
-class WrongFilePath : public ExceptionWithMessage
+class SQLITE_EXPORT WrongFilePath : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class PragmaValueNotSet : public Exception
+class SQLITE_EXPORT PragmaValueNotSet : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class NotReadOnlySqlStatement : public Exception
+class SQLITE_EXPORT PragmaValueCannotBeTransformed : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class NotWriteSqlStatement : public Exception
+class SQLITE_EXPORT NotReadOnlySqlStatement : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class DeadLock : public Exception
+class SQLITE_EXPORT NotWriteSqlStatement : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class UnknowError : public ExceptionWithMessage
+class SQLITE_EXPORT DeadLock : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT UnknowError : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class BindingTooBig : public ExceptionWithMessage
+class SQLITE_EXPORT BindingTooBig : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class TooBig : public ExceptionWithMessage
+class SQLITE_EXPORT TooBig : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class CannotConvert : public Exception
+class SQLITE_EXPORT CannotConvert : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class ForeignKeyColumnIsNotUnique : public Exception
+class SQLITE_EXPORT ForeignKeyColumnIsNotUnique : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class CannotApplyChangeSet : public Exception
+class SQLITE_EXPORT CannotApplyChangeSet : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class ChangeSetIsMisused : public Exception
+class SQLITE_EXPORT ChangeSetIsMisused : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class SchemeChangeError : public ExceptionWithMessage
+class SQLITE_EXPORT SchemeChangeError : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class CannotWriteToReadOnlyConnection : public ExceptionWithMessage
+class SQLITE_EXPORT CannotWriteToReadOnlyConnection : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class ProtocolError : public ExceptionWithMessage
+class SQLITE_EXPORT ProtocolError : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class DatabaseExceedsMaximumFileSize : public ExceptionWithMessage
+class SQLITE_EXPORT DatabaseExceedsMaximumFileSize : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class DataTypeMismatch : public ExceptionWithMessage
+class SQLITE_EXPORT DataTypeMismatch : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class ConnectionIsLocked : public ExceptionWithMessage
+class SQLITE_EXPORT ConnectionIsLocked : public ExceptionWithMessage
 {
 public:
     using ExceptionWithMessage::ExceptionWithMessage;
+    const char *what() const noexcept override;
 };
 
-class ExecutionInterrupted : public ExceptionWithMessage
-{
-public:
-    using ExceptionWithMessage::ExceptionWithMessage;
-};
-
-class DatabaseIsCorrupt : public ExceptionWithMessage
-{
-public:
-    using ExceptionWithMessage::ExceptionWithMessage;
-};
-
-class CannotOpen : public ExceptionWithMessage
-{
-public:
-    using ExceptionWithMessage::ExceptionWithMessage;
-};
-
-class CannotCreateChangeSetIterator : public Exception
+class SQLITE_EXPORT ExecutionInterrupted : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class CannotGetChangeSetOperation : public Exception
+class SQLITE_EXPORT DatabaseIsCorrupt : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class ChangeSetTupleIsOutOfRange : public Exception
+class SQLITE_EXPORT CannotOpen : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class ChangeSetTupleIsMisused : public Exception
+class SQLITE_EXPORT CannotCreateChangeSetIterator : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class UnknownError : public Exception
+class SQLITE_EXPORT CannotGetChangeSetOperation : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class DatabaseIsNotLocked : public Exception
+class SQLITE_EXPORT ChangeSetTupleIsOutOfRange : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class WrongBindingParameterCount : public Exception
+class SQLITE_EXPORT ChangeSetTupleIsMisused : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
-class WrongColumnCount : public Exception
+class SQLITE_EXPORT UnknownError : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DatabaseIsNotLocked : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT WrongBindingParameterCount : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT WrongColumnCount : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT IndexHasNoTableName : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT IndexHasNoColumns : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT MultiTheadingCannotBeActivated : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT LoggingCannotBeActivated : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT MemoryMappingCannotBeChanged : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT LibraryCannotBeInitialized : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT LibraryCannotBeShutdown : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT LogCannotBeCheckpointed : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT BusyTimerCannotBeSet : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CheckpointIsMisused : public Exception
+{
+public:
+    using Exception::Exception;
+    const char *what() const noexcept override;
 };
 
 } // namespace Sqlite

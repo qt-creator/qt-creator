@@ -108,11 +108,6 @@ protected:
     static Utils::SmallStringView journalModeToPragma(JournalMode journalMode);
     static JournalMode pragmaToJournalMode(Utils::SmallStringView pragma);
 
-    Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
-    [[noreturn]] void throwException(const char *whatHasHappens) const;
-    [[noreturn]] void throwUnknowError(const char *whatHasHappens) const;
-    [[noreturn]] void throwDatabaseIsNotOpen(const char *whatHasHappens) const;
-
 private:
     Database &m_database;
     sqlite3 *m_databaseHandle;

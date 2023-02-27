@@ -55,13 +55,13 @@ public:
     void checkTableName() const
     {
         if (m_tableName.isEmpty())
-            throw Exception("SqliteIndex has not table name!");
+            throw IndexHasNoTableName();
     }
 
     void checkColumns() const
     {
         if (m_columnNames.empty())
-            throw Exception("SqliteIndex has no columns!");
+            throw IndexHasNoColumns();
     }
 
 private:

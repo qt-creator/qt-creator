@@ -347,7 +347,7 @@ private:
         case QVariant::ByteArray:
             return VariantType{Blob{value.toByteArray()}};
         default:
-            throw CannotConvert("Cannot convert this QVariant to a ValueBase");
+            throw CannotConvert();
         }
     }
 
@@ -365,7 +365,7 @@ private:
         case ValueType::Blob:
             return VariantType{view.toBlobView()};
         default:
-            throw CannotConvert("Cannot convert this QVariant to a ValueBase");
+            throw CannotConvert();
         }
     }
 };

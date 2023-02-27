@@ -11,12 +11,292 @@ namespace Sqlite {
 
 const char *Exception::what() const noexcept
 {
-    return m_whatErrorHasHappen;
+    return "Sqlite::Exception";
+}
+
+const char *ExceptionWithMessage::what() const noexcept
+{
+    return "Sqlite::ExceptionWithMessage";
 }
 
 void ExceptionWithMessage::printWarning() const
 {
     qWarning() << what() << m_sqliteErrorMessage;
+}
+
+const char *StatementIsBusy::what() const noexcept
+{
+    return "Sqlite::StatementIsBusy";
+}
+
+const char *DatabaseIsBusy::what() const noexcept
+{
+    return "Sqlite::DatabaseIsBusy";
+}
+
+const char *StatementHasError::what() const noexcept
+{
+    return "Sqlite::StatementHasError";
+}
+
+const char *StatementIsMisused::what() const noexcept
+{
+    return "Sqlite::StatementIsMisused";
+}
+
+const char *InputOutputError::what() const noexcept
+{
+    return "Sqlite::InputOutputError";
+}
+
+const char *ConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::ConstraintPreventsModification";
+}
+
+const char *NoValuesToFetch::what() const noexcept
+{
+    return "Sqlite::NoValuesToFetch";
+}
+
+const char *BindingIndexIsOutOfRange::what() const noexcept
+{
+    return "Sqlite::BindingIndexIsOutOfRange";
+}
+
+const char *WrongBindingName::what() const noexcept
+{
+    return "Sqlite::WrongBindingName";
+}
+
+const char *DatabaseIsNotOpen::what() const noexcept
+{
+    return "Sqlite::DatabaseIsNotOpen";
+}
+
+const char *DatabaseCannotBeOpened::what() const noexcept
+{
+    return "Sqlite::DatabaseCannotBeOpened";
+}
+
+const char *DatabaseFilePathIsEmpty::what() const noexcept
+{
+    return "Sqlite::DatabaseFilePathIsEmpty";
+}
+
+const char *DatabaseIsAlreadyOpen::what() const noexcept
+{
+    return "Sqlite::DatabaseIsAlreadyOpen";
+}
+
+const char *DatabaseCannotBeClosed::what() const noexcept
+{
+    return "Sqlite::DatabaseCannotBeClosed";
+}
+
+const char *DatabaseIsAlreadyClosed::what() const noexcept
+{
+    return "Sqlite::DatabaseIsAlreadyClosed";
+}
+
+const char *WrongFilePath::what() const noexcept
+{
+    return "Sqlite::WrongFilePath";
+}
+
+const char *PragmaValueNotSet::what() const noexcept
+{
+    return "Sqlite::PragmaValueNotSet";
+}
+
+const char *NotReadOnlySqlStatement::what() const noexcept
+{
+    return "Sqlite::NotReadOnlySqlStatement";
+}
+
+const char *NotWriteSqlStatement::what() const noexcept
+{
+    return "Sqlite::NotWriteSqlStatement";
+}
+
+const char *DeadLock::what() const noexcept
+{
+    return "Sqlite::DeadLock";
+}
+
+const char *UnknowError::what() const noexcept
+{
+    return "Sqlite::UnknowError";
+}
+
+const char *BindingTooBig::what() const noexcept
+{
+    return "Sqlite::BindingTooBig";
+}
+
+const char *TooBig::what() const noexcept
+{
+    return "Sqlite::TooBig";
+}
+
+const char *CannotConvert::what() const noexcept
+{
+    return "Sqlite::CannotConvert";
+}
+
+const char *ForeignKeyColumnIsNotUnique::what() const noexcept
+{
+    return "Sqlite::ForeignKeyColumnIsNotUnique";
+}
+
+const char *CannotApplyChangeSet::what() const noexcept
+{
+    return "Sqlite::CannotApplyChangeSet";
+}
+
+const char *ChangeSetIsMisused::what() const noexcept
+{
+    return "Sqlite::ChangeSetIsMisused";
+}
+
+const char *SchemeChangeError::what() const noexcept
+{
+    return "Sqlite::SchemeChangeError";
+}
+
+const char *CannotWriteToReadOnlyConnection::what() const noexcept
+{
+    return "Sqlite::CannotWriteToReadOnlyConnection";
+}
+
+const char *ProtocolError::what() const noexcept
+{
+    return "Sqlite::ProtocolError";
+}
+
+const char *DatabaseExceedsMaximumFileSize::what() const noexcept
+{
+    return "Sqlite::DatabaseExceedsMaximumFileSize";
+}
+
+const char *DataTypeMismatch::what() const noexcept
+{
+    return "Sqlite::DataTypeMismatch";
+}
+
+const char *ConnectionIsLocked::what() const noexcept
+{
+    return "Sqlite::ConnectionIsLocked";
+}
+
+const char *ExecutionInterrupted::what() const noexcept
+{
+    return "Sqlite::ExecutionInterrupted";
+}
+
+const char *DatabaseIsCorrupt::what() const noexcept
+{
+    return "Sqlite::DatabaseIsCorrupt";
+}
+
+const char *CannotOpen::what() const noexcept
+{
+    return "Sqlite::CannotOpen";
+}
+
+const char *CannotCreateChangeSetIterator::what() const noexcept
+{
+    return "Sqlite::CannotCreateChangeSetIterator";
+}
+
+const char *CannotGetChangeSetOperation::what() const noexcept
+{
+    return "Sqlite::CannotGetChangeSetOperation";
+}
+
+const char *ChangeSetTupleIsOutOfRange::what() const noexcept
+{
+    return "Sqlite::ChangeSetTupleIsOutOfRange";
+}
+
+const char *ChangeSetTupleIsMisused::what() const noexcept
+{
+    return "Sqlite::ChangeSetTupleIsMisused";
+}
+
+const char *UnknownError::what() const noexcept
+{
+    return "Sqlite::UnknownError";
+}
+
+const char *DatabaseIsNotLocked::what() const noexcept
+{
+    return "Sqlite::DatabaseIsNotLocked";
+}
+
+const char *WrongBindingParameterCount::what() const noexcept
+{
+    return "Sqlite::WrongBindingParameterCount";
+}
+
+const char *WrongColumnCount::what() const noexcept
+{
+    return "Sqlite::WrongColumnCount";
+}
+
+const char *IndexHasNoTableName::what() const noexcept
+{
+    return "Sqlite::IndexHasNoTableName";
+}
+
+const char *IndexHasNoColumns::what() const noexcept
+{
+    return "Sqlite::IndexHasNoColumns";
+}
+
+const char *MultiTheadingCannotBeActivated::what() const noexcept
+{
+    return "Sqlite::MultiTheadingCannotBeActivated";
+}
+
+const char *LoggingCannotBeActivated::what() const noexcept
+{
+    return "Sqlite::LoggingCannotBeActivated";
+}
+
+const char *MemoryMappingCannotBeChanged::what() const noexcept
+{
+    return "Sqlite::MemoryMappingCannotBeChanged";
+}
+
+const char *LibraryCannotBeInitialized::what() const noexcept
+{
+    return "Sqlite::LibraryCannotBeInitialized";
+}
+
+const char *LibraryCannotBeShutdown::what() const noexcept
+{
+    return "Sqlite::LibraryCannotBeShutdown";
+}
+
+const char *LogCannotBeCheckpointed::what() const noexcept
+{
+    return "Sqlite::LogCannotBeCheckPointed";
+}
+
+const char *BusyTimerCannotBeSet::what() const noexcept
+{
+    return "Sqlite::BusyTimerCannotBeSet";
+}
+
+const char *PragmaValueCannotBeTransformed::what() const noexcept
+{
+    return "Sqlite::PragmaValueCannotBeTransformed";
+}
+
+const char *CheckpointIsMisused::what() const noexcept
+{
+    return "Sqlite::CheckpointIsMisused";
 }
 
 } // namespace Sqlite
