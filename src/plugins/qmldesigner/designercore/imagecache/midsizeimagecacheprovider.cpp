@@ -32,6 +32,7 @@ QQuickImageResponse *MidSizeImageCacheProvider::requestImageResponse(const QStri
                 [response, abortReason] {
                     switch (abortReason) {
                     case ImageCache::AbortReason::Failed:
+                    case ImageCache::AbortReason::NoEntry:
                         if (response)
                             response->abort();
                         break;

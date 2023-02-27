@@ -54,9 +54,14 @@ ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
     return {};
 }
 
-QString defaultImagePath()
+QString previewDefaultImagePath()
 {
     return Core::ICore::resourcePath("qmldesigner/welcomepage/images/newThumbnail.png").toString();
+}
+
+QString previewBrokenImagePath()
+{
+    return Core::ICore::resourcePath("qmldesigner/welcomepage/images/newPreview.png").toString();
 }
 
 ::QmlProjectManager::QmlBuildSystem *getQmlBuildSystem(::ProjectExplorer::Target *target)
@@ -147,7 +152,7 @@ public:
                     QSize{300, 300},
                     QSize{1000, 1000},
                     externalDependencies,
-                    ImageCacheCollectorNullImageHandling::DontCaptureNullImage}
+                    ImageCacheCollectorNullImageHandling::CaptureNullImage}
     {
         timer.setSingleShot(true);
     }
@@ -260,8 +265,10 @@ QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
 
 void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine) const
 {
-    auto imageProvider = std::make_unique<ExplicitImageCacheImageProvider>(m_previewImageCacheData->cache,
-                                                                           QImage{defaultImagePath()});
+    auto imageProvider = std::make_unique<ExplicitImageCacheImageProvider>(
+        m_previewImageCacheData->cache,
+        QImage{previewDefaultImagePath()},
+        QImage{previewBrokenImagePath()});
 
     engine->addImageProvider("project_preview", imageProvider.release());
 }

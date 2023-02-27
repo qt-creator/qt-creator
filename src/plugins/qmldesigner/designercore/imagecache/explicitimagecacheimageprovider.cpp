@@ -27,15 +27,19 @@ QQuickImageResponse *ExplicitImageCacheImageProvider::requestImageResponse(const
                 },
                 Qt::QueuedConnection);
         },
-        [response = QPointer<ImageCacheImageResponse>(response.get())](
-            ImageCache::AbortReason abortReason) {
+        [response = QPointer<ImageCacheImageResponse>(response.get()),
+         failedImage = m_failedImage](ImageCache::AbortReason abortReason) {
             QMetaObject::invokeMethod(
                 response,
-                [response, abortReason] {
+                [response, abortReason, failedImage] {
                     switch (abortReason) {
-                    case ImageCache::AbortReason::Failed:
+                    case ImageCache::AbortReason::NoEntry:
                         if (response)
                             response->abort();
+                        break;
+                    case ImageCache::AbortReason::Failed:
+                        if (response)
+                            response->setImage(failedImage);
                         break;
                     case ImageCache::AbortReason::Abort:
                         response->cancel();

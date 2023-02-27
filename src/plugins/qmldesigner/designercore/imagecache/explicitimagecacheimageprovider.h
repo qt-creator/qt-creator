@@ -14,9 +14,11 @@ class ExplicitImageCacheImageProvider : public QQuickAsyncImageProvider
 {
 public:
     ExplicitImageCacheImageProvider(AsynchronousExplicitImageCache &imageCache,
-                                    const QImage &defaultImage)
+                                    const QImage &defaultImage,
+                                    const QImage &failedImage)
         : m_cache(imageCache)
         , m_defaultImage(defaultImage)
+        , m_failedImage(failedImage)
     {}
 
     QQuickImageResponse *requestImageResponse(const QString &id, const QSize &requestedSize) override;
@@ -24,6 +26,7 @@ public:
 private:
     AsynchronousExplicitImageCache &m_cache;
     QImage m_defaultImage;
+    QImage m_failedImage;
 };
 
 } // namespace QmlDesigner

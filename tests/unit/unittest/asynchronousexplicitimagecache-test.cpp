@@ -74,7 +74,7 @@ TEST_F(AsynchronousExplicitImageCache, RequestImageCallsAbortCallbackWithoutEntr
     ON_CALL(mockStorage, fetchImage(Eq("/path/to/Component.qml"), _))
         .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{}));
 
-    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::NoEntry)))
         .WillRepeatedly([&](auto) { notification.notify(); });
 
     cache.requestImage("/path/to/Component.qml",
@@ -131,7 +131,7 @@ TEST_F(AsynchronousExplicitImageCache, RequestMidSizeImageCallsAbortCallbackWith
     ON_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), _))
         .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{}));
 
-    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::NoEntry)))
         .WillRepeatedly([&](auto) { notification.notify(); });
 
     cache.requestMidSizeImage("/path/to/Component.qml",
@@ -188,7 +188,7 @@ TEST_F(AsynchronousExplicitImageCache, RequestSmallImageCallsAbortCallbackWithou
     ON_CALL(mockStorage, fetchSmallImage(Eq("/path/to/Component.qml"), _))
         .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{}));
 
-    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::NoEntry)))
         .WillRepeatedly([&](auto) { notification.notify(); });
 
     cache.requestSmallImage("/path/to/Component.qml",

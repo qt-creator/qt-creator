@@ -60,10 +60,14 @@ void AsynchronousExplicitImageCache::request(Utils::SmallStringView name,
     };
     const auto entry = requestImageFromStorage(requestType);
 
-    if (entry && !entry->isNull())
-        captureCallback(*entry);
-    else
-        abortCallback(ImageCache::AbortReason::Failed);
+    if (entry) {
+        if (entry->isNull())
+            abortCallback(ImageCache::AbortReason::Failed);
+        else
+            captureCallback(*entry);
+    } else {
+        abortCallback(ImageCache::AbortReason::NoEntry);
+    }
 }
 
 void AsynchronousExplicitImageCache::wait()

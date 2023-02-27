@@ -37,6 +37,7 @@ QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QS
                 [response, abortReason] {
                     switch (abortReason) {
                     case ImageCache::AbortReason::Failed:
+                    case ImageCache::AbortReason::NoEntry:
                         if (response)
                             response->abort();
                         break;
