@@ -14,11 +14,21 @@ using namespace Utils;
 namespace Copilot {
 namespace Internal {
 
+CopilotPlugin::~CopilotPlugin()
+{
+    if (m_client)
+        m_client->shutdown();
+
+    m_client = nullptr;
+}
+
 void CopilotPlugin::initialize()
 {
     CopilotSettings::instance().readSettings(Core::ICore::settings());
 
     m_client = new CopilotClient();
+
+    connect(m_client, &CopilotClient::finished, this, [this]() { m_client = nullptr; });
 
     connect(&CopilotSettings::instance(), &CopilotSettings::applied, this, [this]() {
         if (m_client)

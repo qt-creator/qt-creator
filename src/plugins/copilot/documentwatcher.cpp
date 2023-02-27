@@ -37,12 +37,16 @@ DocumentWatcher::DocumentWatcher(CopilotClient *client, TextDocument *textDocume
 
 void DocumentWatcher::getSuggestion()
 {
-    auto editor = Core::EditorManager::instance()->activateEditorForDocument(m_textDocument);
-    auto textEditorWidget = qobject_cast<TextEditor::TextEditorWidget *>(editor->widget());
-    if (!editor || !textEditorWidget)
+    Core::IEditor *editor = Core::EditorManager::instance()->activateEditorForDocument(
+        m_textDocument);
+    if (!editor)
+        return;
+    TextEditor::TextEditorWidget *textEditorWidget = qobject_cast<TextEditor::TextEditorWidget *>(
+        editor->widget());
+    if (!textEditorWidget)
         return;
 
-    auto cursor = textEditorWidget->multiTextCursor();
+    Utils::MultiTextCursor cursor = textEditorWidget->multiTextCursor();
     if (cursor.hasMultipleCursors() || cursor.hasSelection())
         return;
 
@@ -61,31 +65,24 @@ void DocumentWatcher::getSuggestion()
             const std::optional<GetCompletionResponse> result = response.result();
             QTC_ASSERT(result, return);
 
-            const auto list = result->completions().toList();
+            const QList<Completion> list = result->completions().toList();
 
             if (list.isEmpty())
                 return;
 
-            auto cursor = textEditorWidget->multiTextCursor();
+            Utils::MultiTextCursor cursor = textEditorWidget->multiTextCursor();
             if (cursor.hasMultipleCursors() || cursor.hasSelection())
                 return;
             if (cursor.cursors().first().position() != currentCursorPos)
                 return;
 
-            const auto firstCompletion = list.first();
+            const Completion firstCompletion = list.first();
             const QString content = firstCompletion.text().mid(
                 firstCompletion.position().character());
 
             m_isEditing = true;
             textEditorWidget->insertSuggestion(content);
             m_isEditing = false;
-            /*
-            m_isEditing = true;
-            const auto &block = m_textDocument->document()->findBlockByLineNumber(
-                firstCompletion.position().line());
-            m_textDocument->insertSuggestion(content, block);
-            m_isEditing = false;
-            */
         });
 }
 

@@ -16,14 +16,13 @@ class CopilotPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Copilot.json")
 
 public:
-    CopilotPlugin() {}
-    ~CopilotPlugin() override {}
+    ~CopilotPlugin();
 
     void initialize() override;
     void extensionsInitialized() override;
 
 private:
-    CopilotClient *m_client;
+    CopilotClient *m_client{nullptr};
 };
 
 } // namespace Internal
