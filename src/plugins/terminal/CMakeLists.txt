@@ -4,6 +4,7 @@ add_qtc_plugin(Terminal
   DEPENDS libvterm ptyqt
   SOURCES
     celllayout.cpp celllayout.h
+    terminal.qrc
     terminalplugin.cpp terminalplugin.h
     terminaltr.h
     terminalpane.cpp terminalpane.h

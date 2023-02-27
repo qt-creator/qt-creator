@@ -24,9 +24,7 @@ TerminalSettingsPage::TerminalSettingsPage()
     setCategory("ZY.Terminal");
     setDisplayCategory("Terminal");
     setSettings(&TerminalSettings::instance());
-
-    // TODO: Add real icon!
-    setCategoryIconPath(":/texteditor/images/settingscategory_texteditor.png");
+    setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
 }
 
 void TerminalSettingsPage::init() {}

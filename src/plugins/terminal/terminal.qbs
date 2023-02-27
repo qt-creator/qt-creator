@@ -14,6 +14,7 @@ QtcPlugin {
         "keys.h",
         "scrollback.cpp",
         "scrollback.h",
+        "terminal.qrc",
         "terminalpane.cpp",
         "terminalpane.h",
         "terminalplugin.cpp",
