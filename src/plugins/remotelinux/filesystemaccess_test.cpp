@@ -10,6 +10,7 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <utils/filepath.h>
 #include <utils/filestreamer.h>
+#include <utils/filestreamermanager.h>
 #include <utils/processinterface.h>
 
 #include <QDebug>
@@ -88,7 +89,8 @@ void FileSystemAccessTest::initTestCase()
     QVERIFY(filePath.createDir());
     QVERIFY(filePath.exists());
 
-    const QString streamerDir("streamerDir");
+    const QString streamerLocalDir("streamerLocalDir");
+    const QString streamerRemoteDir("streamerRemoteDir");
     const QString sourceDir("source");
     const QString destDir("dest");
     const QString localDir("local");
@@ -97,8 +99,8 @@ void FileSystemAccessTest::initTestCase()
     const FilePath remoteRoot = m_device->rootPath();
     const FilePath localTempDir = *localRoot.tmpDir();
     const FilePath remoteTempDir = *remoteRoot.tmpDir();
-    m_localStreamerDir = localTempDir / streamerDir;
-    m_remoteStreamerDir = remoteTempDir / streamerDir;
+    m_localStreamerDir = localTempDir / streamerLocalDir;
+    m_remoteStreamerDir = remoteTempDir / streamerRemoteDir;
     m_localSourceDir = m_localStreamerDir / sourceDir;
     m_remoteSourceDir = m_remoteStreamerDir / sourceDir;
     m_localDestDir = m_localStreamerDir / destDir;
@@ -139,6 +141,8 @@ void FileSystemAccessTest::cleanupTestCase()
 
     QVERIFY(!m_localStreamerDir.exists());
     QVERIFY(!m_remoteStreamerDir.exists());
+
+    FileStreamerManager::stopAll();
 }
 
 void FileSystemAccessTest::testCreateRemoteFile_data()
@@ -517,6 +521,120 @@ void FileSystemAccessTest::testFileStreamer()
     QCOMPARE(*localData, data);
     QVERIFY(remoteData);
     QCOMPARE(*remoteData, data);
+
+    QVERIFY(localLocalData);
+    QCOMPARE(*localLocalData, data);
+    QVERIFY(localRemoteData);
+    QCOMPARE(*localRemoteData, data);
+    QVERIFY(remoteLocalData);
+    QCOMPARE(*remoteLocalData, data);
+    QVERIFY(remoteRemoteData);
+    QCOMPARE(*remoteRemoteData, data);
+
+    qDebug() << "Elapsed time:" << timer.elapsed() << "ms.";
+}
+
+void FileSystemAccessTest::testFileStreamerManager_data()
+{
+    testFileStreamer_data();
+}
+
+void FileSystemAccessTest::testFileStreamerManager()
+{
+    QElapsedTimer timer;
+    timer.start();
+
+    QFETCH(QString, fileName);
+    QFETCH(QByteArray, data);
+
+    const FilePath localSourcePath = m_localSourceDir / fileName;
+    const FilePath remoteSourcePath = m_remoteSourceDir / fileName;
+    const FilePath localLocalDestPath = m_localDestDir / "local" / fileName;
+    const FilePath localRemoteDestPath = m_localDestDir / "remote" / fileName;
+    const FilePath remoteLocalDestPath = m_remoteDestDir / "local" / fileName;
+    const FilePath remoteRemoteDestPath = m_remoteDestDir / "remote" / fileName;
+
+    localSourcePath.removeFile();
+    remoteSourcePath.removeFile();
+    localLocalDestPath.removeFile();
+    localRemoteDestPath.removeFile();
+    remoteLocalDestPath.removeFile();
+    remoteRemoteDestPath.removeFile();
+
+    QVERIFY(!localSourcePath.exists());
+    QVERIFY(!remoteSourcePath.exists());
+    QVERIFY(!localLocalDestPath.exists());
+    QVERIFY(!localRemoteDestPath.exists());
+    QVERIFY(!remoteLocalDestPath.exists());
+    QVERIFY(!remoteRemoteDestPath.exists());
+
+    std::optional<QByteArray> localData;
+    std::optional<QByteArray> remoteData;
+    std::optional<QByteArray> localLocalData;
+    std::optional<QByteArray> localRemoteData;
+    std::optional<QByteArray> remoteLocalData;
+    std::optional<QByteArray> remoteRemoteData;
+
+    QEventLoop eventLoop1;
+    QEventLoop *loop = &eventLoop1;
+    int counter = 0;
+    int *hitCount = &counter;
+
+    const auto writeAndRead = [hitCount, loop, data](const FilePath &destination,
+                                                     std::optional<QByteArray> *result) {
+        const auto onWrite = [hitCount, loop, destination, result]
+            (const expected_str<qint64> &writeResult) {
+            QVERIFY(writeResult);
+            const auto onRead = [hitCount, loop, result]
+                (const expected_str<QByteArray> &readResult) {
+                QVERIFY(readResult);
+                *result = *readResult;
+                ++(*hitCount);
+                if (*hitCount == 2)
+                    loop->quit();
+            };
+            FileStreamerManager::read(destination, onRead);
+        };
+        FileStreamerManager::write(destination, data, onWrite);
+    };
+
+    writeAndRead(localSourcePath, &localData);
+    writeAndRead(remoteSourcePath, &remoteData);
+    loop->exec();
+
+    QVERIFY(localData);
+    QCOMPARE(*localData, data);
+    QVERIFY(remoteData);
+    QCOMPARE(*remoteData, data);
+
+    QEventLoop eventLoop2;
+    loop = &eventLoop2;
+    counter = 0;
+
+    const auto transferAndRead = [hitCount, loop, data](const FilePath &source,
+                                                        const FilePath &destination,
+                                                        std::optional<QByteArray> *result) {
+        const auto onTransfer = [hitCount, loop, destination, result]
+            (const expected_str<void> &transferResult) {
+                QVERIFY(transferResult);
+                const auto onRead = [hitCount, loop, result]
+                    (const expected_str<QByteArray> &readResult) {
+                    QVERIFY(readResult);
+                    *result = *readResult;
+                    ++(*hitCount);
+                    if (*hitCount == 4)
+                        loop->quit();
+                };
+                FileStreamerManager::read(destination, onRead);
+            };
+        FileStreamerManager::copy(source, destination, onTransfer);
+    };
+
+    transferAndRead(localSourcePath, localLocalDestPath, &localLocalData);
+    transferAndRead(remoteSourcePath, localRemoteDestPath, &localRemoteData);
+    transferAndRead(localSourcePath, remoteLocalDestPath, &remoteLocalData);
+    transferAndRead(remoteSourcePath, remoteRemoteDestPath, &remoteRemoteData);
+    loop->exec();
 
     QVERIFY(localLocalData);
     QCOMPARE(*localLocalData, data);

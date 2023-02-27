@@ -56,6 +56,7 @@ add_qtc_library(Utils
     filepathinfo.h
     filesearch.cpp filesearch.h
     filestreamer.cpp filestreamer.h
+    filestreamermanager.cpp filestreamermanager.h
     filesystemmodel.cpp filesystemmodel.h
     filesystemwatcher.cpp filesystemwatcher.h
     fileutils.cpp fileutils.h
