@@ -9,6 +9,11 @@
 
 namespace Sqlite {
 
+const char *Exception::what() const noexcept
+{
+    return m_whatErrorHasHappen;
+}
+
 void ExceptionWithMessage::printWarning() const
 {
     qWarning() << what() << m_sqliteErrorMessage;

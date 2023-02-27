@@ -19,7 +19,7 @@ public:
         : m_whatErrorHasHappen(whatErrorHasHappen)
     {}
 
-    const char *what() const noexcept override { return m_whatErrorHasHappen; }
+    const char *what() const noexcept override;
 
 private:
     const char *m_whatErrorHasHappen;
