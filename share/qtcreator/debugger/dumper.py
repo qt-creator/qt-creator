@@ -167,6 +167,7 @@ class DumperBase():
         self.isGdb = False
         self.isLldb = False
         self.isCli = False
+        self.isDebugBuild = None
 
         # Later set, or not set:
         self.stringCutOff = 10000
