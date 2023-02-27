@@ -298,16 +298,16 @@ class Dumper(DumperBase):
         coreModuleName = self.qtCoreModuleName()
         if coreModuleName is not None:
             qstrdupSymbolName = '%s!%s' % (coreModuleName, qstrdupSymbolName)
-        resolved = cdbext.resolveSymbol(qstrdupSymbolName)
-        if resolved:
-            name = resolved[0].split('!')[1]
-            namespaceIndex = name.find('::')
-            if namespaceIndex > 0:
-                namespace = name[:namespaceIndex + 2]
+            resolved = cdbext.resolveSymbol(qstrdupSymbolName)
+            if resolved:
+                name = resolved[0].split('!')[1]
+                namespaceIndex = name.find('::')
+                if namespaceIndex > 0:
+                    namespace = name[:namespaceIndex + 2]
+            self.qtCustomEventFunc = self.parseAndEvaluate(
+                '%s!%sQObject::customEvent' %
+                (self.qtCoreModuleName(), namespace)).address()
         self.qtNamespace = lambda: namespace
-        self.qtCustomEventFunc = self.parseAndEvaluate(
-            '%s!%sQObject::customEvent' %
-            (self.qtCoreModuleName(), namespace)).address()
         return namespace
 
     def qtVersion(self):
