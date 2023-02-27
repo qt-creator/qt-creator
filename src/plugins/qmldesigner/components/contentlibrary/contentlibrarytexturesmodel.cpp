@@ -28,7 +28,7 @@ ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &bundleSu
 
     static const QString baseDownloadPath =
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-        + "/QtDesignStudio/Downloaded";
+        + "/QtDesignStudio/bundles";
 
     m_downloadPath = baseDownloadPath + "/" + bundleSubpath;
 }
