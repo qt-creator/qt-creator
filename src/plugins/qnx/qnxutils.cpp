@@ -4,16 +4,11 @@
 #include "qnxutils.h"
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
 #include <QDebug>
-#include <QDir>
-#include <QDirIterator>
-#include <QDomDocument>
-#include <QStandardPaths>
 #include <QApplication>
 
 using namespace ProjectExplorer;
@@ -125,7 +120,7 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     return items;
 }
 
-FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
+EnvironmentItems QnxUtils::qnxEnvironment(const FilePath &sdpPath)
 {
     FilePaths entries;
     if (sdpPath.osType() == OsTypeWindows)
@@ -133,68 +128,10 @@ FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
     else
         entries = sdpPath.dirEntries({{"*-env.sh"}});
 
-    if (!entries.isEmpty())
-        return entries.first();
+    if (entries.isEmpty())
+        return {};
 
-    return {};
-}
-
-QString QnxUtils::defaultTargetVersion(const QString &sdpPath)
-{
-    const QList<ConfigInstallInformation> configs = installedConfigs();
-    for (const ConfigInstallInformation &sdpInfo : configs) {
-        if (!sdpInfo.path.compare(sdpPath, HostOsInfo::fileNameCaseSensitivity()))
-            return sdpInfo.version;
-    }
-
-    return QString();
-}
-
-QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &configPath)
-{
-    QList<ConfigInstallInformation> sdpList;
-    QString sdpConfigPath = configPath;
-
-    if (!QDir(sdpConfigPath).exists())
-        return sdpList;
-
-    const QFileInfoList sdpfileList
-        = QDir(sdpConfigPath).entryInfoList(QStringList{"*.xml"}, QDir::Files, QDir::Time);
-    for (const QFileInfo &sdpFile : sdpfileList) {
-        QFile xmlFile(sdpFile.absoluteFilePath());
-        if (!xmlFile.open(QIODevice::ReadOnly))
-            continue;
-
-        QDomDocument doc;
-        if (!doc.setContent(&xmlFile))  // Skip error message
-            continue;
-
-        QDomElement docElt = doc.documentElement();
-        if (docElt.tagName() != QLatin1String("qnxSystemDefinition"))
-            continue;
-
-        QDomElement childElt = docElt.firstChildElement(QLatin1String("installation"));
-        // The file contains only one installation node
-        if (!childElt.isNull()) {
-            // The file contains only one base node
-            ConfigInstallInformation sdpInfo;
-            sdpInfo.path = childElt.firstChildElement(QLatin1String("base")).text();
-            sdpInfo.name = childElt.firstChildElement(QLatin1String("name")).text();
-            sdpInfo.host = childElt.firstChildElement(QLatin1String("host")).text();
-            sdpInfo.target = childElt.firstChildElement(QLatin1String("target")).text();
-            sdpInfo.version = childElt.firstChildElement(QLatin1String("version")).text();
-            sdpInfo.installationXmlFilePath = sdpFile.absoluteFilePath();
-
-            sdpList.append(sdpInfo);
-        }
-    }
-
-    return sdpList;
-}
-
-EnvironmentItems QnxUtils::qnxEnvironment(const FilePath &sdpPath)
-{
-    return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
+    return qnxEnvironmentFromEnvFile(entries.first());
 }
 
 QList<QnxTarget> QnxUtils::findTargets(const FilePath &basePath)

@@ -15,6 +15,10 @@
 
 namespace Debugger::Internal {
 
+const QStringView inameLocal = u"local.";
+const QStringView inameWatch = u"watch.";
+const QStringView inameInspect = u"inspect.";
+
 bool isPointerType(const QStringView type)
 {
     return type.endsWith('*') || type.endsWith(u"* const");
@@ -316,7 +320,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
     if (mi.isValid()) {
         address = mi.toAddress();
         if (exp.isEmpty()) {
-            if (iname.startsWith("local.") && iname.count('.') == 1)
+            if (iname.startsWith(inameLocal) && iname.count('.') == 1)
                 // Solve one common case of adding 'class' in
                 // *(class X*)0xdeadbeef for gdb.
                 exp = name;
@@ -519,7 +523,7 @@ bool WatchItem::isLocal() const
     if (arrayIndex >= 0)
         if (const WatchItem *p = parent())
             return p->isLocal();
-    return iname.startsWith("local.");
+    return iname.startsWith(inameLocal);
 }
 
 bool WatchItem::isWatcher() const
@@ -527,7 +531,7 @@ bool WatchItem::isWatcher() const
     if (arrayIndex >= 0)
         if (const WatchItem *p = parent())
             return p->isWatcher();
-    return iname.startsWith("watch.");
+    return iname.startsWith(inameWatch);
 }
 
 bool WatchItem::isInspect() const
@@ -535,7 +539,7 @@ bool WatchItem::isInspect() const
     if (arrayIndex >= 0)
         if (const WatchItem *p = parent())
             return p->isInspect();
-    return iname.startsWith("inspect.");
+    return iname.startsWith(inameInspect);
 }
 
 QString WatchItem::internalName() const

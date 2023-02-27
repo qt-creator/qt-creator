@@ -1878,7 +1878,7 @@ expected_str<FilePath> FilePath::localSource() const
         return *this;
 
     QTC_ASSERT(s_deviceHooks.localSource,
-               return make_unexpected(Tr::tr("No 'localSource' device hook set.")));
+               return make_unexpected(Tr::tr("No \"localSource\" device hook set.")));
     return s_deviceHooks.localSource(*this);
 }
 

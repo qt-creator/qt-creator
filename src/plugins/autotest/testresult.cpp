@@ -19,7 +19,7 @@ TestResult::TestResult(const QString &id, const QString &name, const ResultHooks
 
 bool TestResult::isValid() const
 {
-    return !m_id.isEmpty();
+    return m_id.has_value();
 }
 
 const QString TestResult::outputString(bool selected) const
@@ -28,7 +28,7 @@ const QString TestResult::outputString(bool selected) const
         return m_hooks.outputString(*this, selected);
 
     if (m_result == ResultType::Application)
-        return m_id;
+        return id();
     return selected ? m_description : m_description.split('\n').first();
 }
 
@@ -166,7 +166,7 @@ QColor TestResult::colorForType(const ResultType type)
 bool TestResult::isDirectParentOf(const TestResult &other, bool *needsIntermediate) const
 {
     QTC_ASSERT(other.isValid(), return false);
-    const bool ret = !m_id.isEmpty() && m_id == other.m_id && m_name == other.m_name;
+    const bool ret = m_id && m_id == other.m_id && m_name == other.m_name;
     if (!ret)
         return false;
     if (m_hooks.directParent)
@@ -179,14 +179,14 @@ bool TestResult::isIntermediateFor(const TestResult &other) const
     QTC_ASSERT(other.isValid(), return false);
     if (m_hooks.intermediate)
         return m_hooks.intermediate(*this, other);
-    return !m_id.isEmpty() && m_id == other.m_id && m_name == other.m_name;
+    return m_id && m_id == other.m_id && m_name == other.m_name;
 }
 
 TestResult TestResult::intermediateResult() const
 {
     if (m_hooks.createResult)
         return m_hooks.createResult(*this);
-    return {m_id, m_name};
+    return {id(), m_name};
 }
 
 } // namespace Autotest

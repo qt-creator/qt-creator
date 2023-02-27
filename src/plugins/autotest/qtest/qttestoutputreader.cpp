@@ -464,7 +464,7 @@ void QtTestOutputReader::sendCompleteInformation()
 
 void QtTestOutputReader::sendMessageCurrentTest()
 {
-    QtTestResult result("internal", {}, m_projectFile, m_testType);
+    QtTestResult result({}, {}, m_projectFile, m_testType);
     result.setResult(ResultType::MessageCurrentTest);
     result.setDescription(Tr::tr("Entering test function %1::%2").arg(m_className, m_testCase));
     reportResult(result);

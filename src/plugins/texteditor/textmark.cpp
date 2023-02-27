@@ -286,7 +286,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
         const bool isHidden = TextDocument::marksAnnotationHidden(m_category.id);
         visibilityAction->setIcon(Utils::Icons::EYE_OPEN_TOOLBAR.icon());
         const QString tooltip = (isHidden ? Tr::tr("Show inline annotations for %1")
-                                          : Tr::tr("Temporary hide inline annotations for %1"))
+                                          : Tr::tr("Temporarily hide inline annotations for %1"))
                                     .arg(m_category.displayName);
         visibilityAction->setToolTip(tooltip);
         auto callback = [id = m_category.id, isHidden] {

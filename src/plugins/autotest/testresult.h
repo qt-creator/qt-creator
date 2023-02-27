@@ -9,6 +9,8 @@
 
 #include <QColor>
 
+#include <optional>
+
 namespace Autotest {
 
 class ITestTreeItem;
@@ -65,9 +67,9 @@ struct ResultHooks
     using IntermediateHook = std::function<bool(const TestResult &, const TestResult &)>;
     using CreateResultHook = std::function<TestResult(const TestResult &)>;
     QVariant extraData;
-    OutputStringHook outputString;
-    FindTestItemHook findTestItem;
-    DirectParentHook directParent;
+    OutputStringHook outputString = {};
+    FindTestItemHook findTestItem = {};
+    DirectParentHook directParent = {};
     IntermediateHook intermediate = {};
     CreateResultHook createResult = {};
 };
@@ -83,7 +85,7 @@ public:
     const QString outputString(bool selected) const;
     const ITestTreeItem *findTestTreeItem() const;
 
-    QString id() const { return m_id; }
+    QString id() const { return m_id.value_or(QString()); }
     QString name() const { return m_name; }
     ResultType result() const { return m_result; }
     QString description() const { return m_description; }
@@ -106,13 +108,13 @@ public:
     TestResult intermediateResult() const;
 
 private:
-    QString m_id;
+    std::optional<QString> m_id = {};
     QString m_name;
     ResultType m_result = ResultType::Invalid;  // the real result..
     QString m_description;
     Utils::FilePath m_file;
     int m_line = 0;
-    ResultHooks m_hooks;
+    ResultHooks m_hooks = {};
 };
 
 } // namespace Autotest

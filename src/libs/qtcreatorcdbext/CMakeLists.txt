@@ -54,6 +54,7 @@ qtc_library_enabled(_library_enabled qtcreatorcdbext)
 if (_library_enabled)
   # statically link MSVC runtime
   set_property(TARGET qtcreatorcdbext PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  target_compile_options(qtcreatorcdbext PUBLIC /EHsc)
 
   find_package(Python3 3.8 COMPONENTS Development)
 

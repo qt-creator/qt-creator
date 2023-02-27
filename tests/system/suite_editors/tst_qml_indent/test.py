@@ -15,8 +15,8 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():
-    if not openDocument("untitled.untitled.qml\\.qrc./.main\\.qml"):
-        test.fatal("Could not open main.qml")
+    if not openDocument("untitled.appuntitled.Main\\.qml"):
+        test.fatal("Could not open Main.qml")
         return None
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     isDarwin = platform.system() == 'Darwin'

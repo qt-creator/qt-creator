@@ -533,15 +533,7 @@ bool AndroidBuildApkStep::init()
 
     m_openPackageLocationForRun = m_openPackageLocation;
     const FilePath outputDir = AndroidManager::androidBuildDirectory(target());
-
-    if (m_buildAAB) {
-        const QString bt = buildType() == BuildConfiguration::Release ? QLatin1String("release")
-                                                                      : QLatin1String("debug");
-        m_packagePath = outputDir.pathAppended(
-            QString("build/outputs/bundle/%1/android-build-%1.aab").arg(bt));
-    } else {
-        m_packagePath = AndroidManager::apkPath(target());
-    }
+    m_packagePath = AndroidManager::packagePath(target());
 
     qCDebug(buildapkstepLog).noquote() << "APK or AAB path:" << m_packagePath.toUserOutput();
 

@@ -175,6 +175,7 @@ public:
         ~RuntimeData();
 
         static QList<int> createStorages(const TaskContainer::ConstData &constData);
+        void callStorageDoneHandlers();
         bool updateSuccessBit(bool success);
         int currentLimit() const;
 
@@ -384,6 +385,15 @@ QList<int> TaskContainer::RuntimeData::createStorages(const TaskContainer::Const
     return storageIdList;
 }
 
+void TaskContainer::RuntimeData::callStorageDoneHandlers()
+{
+    for (int i = m_constData.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
+        const TreeStorageBase storage = m_constData.m_storageList[i];
+        const int storageId = m_storageIdList.value(i);
+        m_constData.m_taskTreePrivate->callDoneHandler(storage, storageId);
+    }
+}
+
 TaskContainer::RuntimeData::RuntimeData(const ConstData &constData)
     : m_constData(constData)
     , m_storageIdList(createStorages(constData))
@@ -397,7 +407,6 @@ TaskContainer::RuntimeData::~RuntimeData()
     for (int i = m_constData.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
         const TreeStorageBase storage = m_constData.m_storageList[i];
         const int storageId = m_storageIdList.value(i);
-        m_constData.m_taskTreePrivate->callDoneHandler(storage, storageId);
         storage.deleteStorage(storageId);
     }
 }
@@ -527,6 +536,7 @@ void TaskContainer::invokeEndHandler()
         invokeHandler(this, groupHandler.m_doneHandler);
     else if (!m_runtimeData->m_successBit && groupHandler.m_errorHandler)
         invokeHandler(this, groupHandler.m_errorHandler);
+    m_runtimeData->callStorageDoneHandlers();
     m_runtimeData.reset();
 }
 

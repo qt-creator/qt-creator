@@ -99,7 +99,6 @@ void QnxConfigurationManager::saveConfigs()
         ++count;
     }
 
-
     data.insert(QLatin1String(QNXConfigCountKey), count);
     m_writer->save(data, Core::ICore::dialogParent());
 }

@@ -472,6 +472,7 @@ public:
     QSet<QString> m_expandedINames;
     QHash<QString, int> m_maxArrayCount;
     QTimer m_requestUpdateTimer;
+    QTimer m_localsWindowsTimer;
 
     QHash<QString, TypeInfo> m_reportedTypeInfo;
     QHash<QString, DisplayFormats> m_reportedTypeFormats; // Type name -> Dumper Formats
@@ -517,6 +518,14 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     m_requestUpdateTimer.setSingleShot(true);
     connect(&m_requestUpdateTimer, &QTimer::timeout,
         this, &WatchModel::updateStarted);
+
+    m_localsWindowsTimer.setSingleShot(true);
+    m_localsWindowsTimer.setInterval(50);
+    connect(&m_localsWindowsTimer, &QTimer::timeout, this, [this] {
+        // Force show/hide of return view.
+        const bool showReturn = m_returnRoot->childCount() != 0;
+        m_engine->updateLocalsWindow(showReturn);
+    });
 
     DebuggerSettings &s = *debuggerSettings();
     connect(&s.sortStructMembers, &BaseAspect::changed,
@@ -932,15 +941,22 @@ static QString displayName(const WatchItem *item)
     return result;
 }
 
-static QString displayValue(const WatchItem *item)
+
+void WatchItem::updateValueCache() const
 {
-    QString result = truncateValue(formattedValue(item));
-    result = watchModel(item)->removeNamespaces(result);
-    if (result.isEmpty() && item->address)
-        result += QString::fromLatin1("@0x" + QByteArray::number(item->address, 16));
+    valueCache = truncateValue(formattedValue(this));
+    valueCache = watchModel(this)->removeNamespaces(valueCache);
+    if (valueCache.isEmpty() && this->address)
+        valueCache += QString::fromLatin1("@0x" + QByteArray::number(this->address, 16));
 //    if (origaddr)
 //        result += QString::fromLatin1(" (0x" + QByteArray::number(origaddr, 16) + ')');
-    return result;
+}
+
+static QString displayValue(const WatchItem *item)
+{
+    if (item->valueCache.isEmpty())
+        item->updateValueCache();
+    return item->valueCache;
 }
 
 static QString displayType(const WatchItem *item)
@@ -2311,7 +2327,7 @@ void WatchHandler::notifyUpdateFinished()
     m_model->forAllItems([this](WatchItem *item) {
         if (item->wantsChildren && isExpandedIName(item->iname)
             && item->name != WatchItem::loadMoreName) {
-            m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
+            // m_model->m_engine->showMessage(QString("ADJUSTING CHILD EXPECTATION FOR " + item->iname));
             item->wantsChildren = false;
         }
     });
@@ -2570,9 +2586,7 @@ void WatchModel::clearWatches()
 
 void WatchHandler::updateLocalsWindow()
 {
-    // Force show/hide of return view.
-    bool showReturn = m_model->m_returnRoot->childCount() != 0;
-    m_engine->updateLocalsWindow(showReturn);
+    m_model->m_localsWindowsTimer.start();
 }
 
 QStringList WatchHandler::watchedExpressions()

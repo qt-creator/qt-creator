@@ -48,7 +48,7 @@ def main():
     if not startedWithoutPluginError():
         return
     docFiles = ["qtdoc.qch", "qtsql.qch"]
-    docFiles = [os.path.join(Qt5Path.docsPath(Targets.DESKTOP_5_14_1_DEFAULT), file) for file in docFiles]
+    docFiles = [os.path.join(QtPath.docsPath(Targets.DESKTOP_5_14_1_DEFAULT), file) for file in docFiles]
     addHelpDocumentation(docFiles)
     # switch to help mode
     switchViewTo(ViewConstants.HELP)

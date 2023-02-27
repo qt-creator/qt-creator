@@ -3,29 +3,13 @@
 
 #pragma once
 
-#include "qnxconstants.h"
-
 #include <projectexplorer/abi.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Qnx::Internal {
-
-class ConfigInstallInformation
-{
-public:
-    QString path;
-    QString name;
-    QString host;
-    QString target;
-    QString version;
-    QString installationXmlFilePath;
-
-    bool isValid() { return !path.isEmpty() && !name.isEmpty() && !host.isEmpty()
-                && !target.isEmpty() && !version.isEmpty() && !installationXmlFilePath.isEmpty(); }
-};
 
 class QnxTarget
 {
@@ -38,19 +22,14 @@ public:
     ProjectExplorer::Abi m_abi;
 };
 
-class QnxUtils
-{
-public:
-    static QString cpuDirFromAbi(const ProjectExplorer::Abi &abi);
-    static QString cpuDirShortDescription(const QString &cpuDir);
-    static Utils::EnvironmentItems qnxEnvironmentFromEnvFile(const Utils::FilePath &filePath);
-    static Utils::FilePath envFilePath(const Utils::FilePath &sdpPath);
-    static QString defaultTargetVersion(const QString &sdpPath);
-    static QList<ConfigInstallInformation> installedConfigs(const QString &configPath = QString());
-    static Utils::EnvironmentItems qnxEnvironment(const Utils::FilePath &sdpPath);
-    static QList<QnxTarget> findTargets(const Utils::FilePath &basePath);
-    static ProjectExplorer::Abi convertAbi(const ProjectExplorer::Abi &abi);
-    static ProjectExplorer::Abis convertAbis(const ProjectExplorer::Abis &abis);
-};
+namespace QnxUtils {
+QString cpuDirFromAbi(const ProjectExplorer::Abi &abi);
+QString cpuDirShortDescription(const QString &cpuDir);
+Utils::EnvironmentItems qnxEnvironmentFromEnvFile(const Utils::FilePath &filePath);
+Utils::EnvironmentItems qnxEnvironment(const Utils::FilePath &sdpPath);
+QList<QnxTarget> findTargets(const Utils::FilePath &basePath);
+ProjectExplorer::Abi convertAbi(const ProjectExplorer::Abi &abi);
+ProjectExplorer::Abis convertAbis(const ProjectExplorer::Abis &abis);
+}
 
 } // Qnx::Internal

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "androidconstants.h"
 #include "androidsdkpackage.h"
 
 #include <utils/filepath.h>
@@ -74,6 +73,7 @@ private:
 
     MarkerTag m_currentSection = MarkerTag::None;
     QHash<AndroidSdkPackage *, int> m_systemImages;
+    friend class SdkManagerOutputParserTest;
 };
 } // namespace Internal
 } // namespace Android

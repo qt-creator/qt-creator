@@ -27,13 +27,11 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>
 
-#include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 
 #include <QDebug>
-#include <QDir>
+#include <QDomDocument>
 #include <QMessageBox>
-#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -178,15 +176,6 @@ bool QnxConfiguration::isActive() const
     return hasToolChain && hasDebugger;
 }
 
-bool QnxConfiguration::canCreateKits() const
-{
-    if (!isValid())
-        return false;
-
-    return Utils::anyOf(m_targets,
-                        [this](const Target &target) -> bool { return qnxQtVersion(target); });
-}
-
 FilePath QnxConfiguration::sdpPath() const
 {
     return envFile().parentDir();
@@ -194,7 +183,7 @@ FilePath QnxConfiguration::sdpPath() const
 
 QnxQtVersion *QnxConfiguration::qnxQtVersion(const Target &target) const
 {
-    const QtVersions versions = QtVersionManager::instance()->versions(
+    const QtVersions versions = QtVersionManager::versions(
                 Utils::equal(&QtVersion::type, QString::fromLatin1(Constants::QNX_QNX_QT)));
     for (QtVersion *version : versions) {
         auto qnxQt = dynamic_cast<QnxQtVersion *>(version);
@@ -228,13 +217,12 @@ void QnxConfiguration::createTools(const Target &target)
 
 QVariant QnxConfiguration::createDebugger(const Target &target)
 {
-    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+    Environment sysEnv = m_qnxHost.deviceEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
 
     Debugger::DebuggerItem debugger;
     debugger.setCommand(target.m_debuggerPath);
     debugger.reinitializeFromFile(nullptr, &sysEnv);
-    debugger.setAutoDetected(true);
     debugger.setUnexpandedDisplayName(Tr::tr("Debugger for %1 (%2)")
                 .arg(displayName())
                 .arg(target.shortDescription()));
@@ -278,10 +266,7 @@ QList<ToolChain *> QnxConfiguration::findToolChain(const QList<ToolChain *> &alr
 void QnxConfiguration::createKit(const Target &target, const QnxToolChainMap &toolChainMap,
                                  const QVariant &debugger)
 {
-    QnxQtVersion *qnxQt = qnxQtVersion(target);
-    // Do not create incomplete kits if no qt qnx version found
-    if (!qnxQt)
-        return;
+    QnxQtVersion *qnxQt = qnxQtVersion(target); // nullptr is ok.
 
     const auto init = [&](Kit *k) {
         QtKitAspect::setQtVersion(k, qnxQt);
@@ -336,19 +321,43 @@ void QnxConfiguration::setVersion(const QnxVersionNumber &version)
 
 void QnxConfiguration::readInformation()
 {
-    const QString qConfigPath = m_qnxConfiguration.pathAppended("qconfig").toString();
-    const QList <ConfigInstallInformation> installInfoList = QnxUtils::installedConfigs(qConfigPath);
-    if (installInfoList.isEmpty())
+    const FilePath configPath = m_qnxConfiguration / "qconfig";
+    if (!configPath.isDir())
         return;
 
-    for (const ConfigInstallInformation &info : installInfoList) {
-        if (m_qnxHost == FilePath::fromString(info.host).canonicalPath()
-                && m_qnxTarget == FilePath::fromString(info.target).canonicalPath()) {
-            m_configName = info.name;
-            setVersion(QnxVersionNumber(info.version));
-            break;
-        }
-    }
+    configPath.iterateDirectory([this, configPath](const FilePath &sdpFile) {
+        QFile xmlFile(sdpFile.toFSPathString());
+        if (!xmlFile.open(QIODevice::ReadOnly))
+            return IterationPolicy::Continue;
+
+        QDomDocument doc;
+        if (!doc.setContent(&xmlFile))  // Skip error message
+            return IterationPolicy::Continue;
+
+        QDomElement docElt = doc.documentElement();
+        if (docElt.tagName() != QLatin1String("qnxSystemDefinition"))
+            return IterationPolicy::Continue;
+
+        QDomElement childElt = docElt.firstChildElement(QLatin1String("installation"));
+        // The file contains only one installation node
+        if (childElt.isNull()) // The file contains only one base node
+            return IterationPolicy::Continue;
+
+        FilePath host = configPath.withNewPath(
+            childElt.firstChildElement(QLatin1String("host")).text()).canonicalPath();
+        if (m_qnxHost != host)
+            return IterationPolicy::Continue;
+
+        FilePath target = configPath.withNewPath(
+            childElt.firstChildElement(QLatin1String("target")).text()).canonicalPath();
+        if (m_qnxTarget != target)
+            return IterationPolicy::Continue;
+
+        m_configName = childElt.firstChildElement(QLatin1String("name")).text();
+        QString version = childElt.firstChildElement(QLatin1String("version")).text();
+        setVersion(QnxVersionNumber(version));
+        return IterationPolicy::Stop;
+    }, {{"*.xml"}, QDir::Files});
 }
 
 void QnxConfiguration::setDefaultConfiguration(const FilePath &envScript)
@@ -368,6 +377,10 @@ void QnxConfiguration::setDefaultConfiguration(const FilePath &envScript)
     const FilePath qccPath = m_qnxHost.pathAppended("usr/bin/qcc").withExecutableSuffix();
     if (qccPath.exists())
         m_qccCompiler = qccPath;
+
+    // Some fall back in case the qconfig dir with .xml files is not found later
+    if (m_configName.isEmpty())
+        m_configName = QString("%1 - %2").arg(m_qnxHost.fileName(), m_qnxTarget.fileName());
 
     updateTargets();
     assignDebuggersToTargets();

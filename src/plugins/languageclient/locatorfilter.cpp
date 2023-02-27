@@ -171,7 +171,7 @@ void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
     QMutexLocker locker(&m_mutex);
     if (m_symbolCache && !m_currentSymbols.has_value()) {
         locker.unlock();
-        m_symbolCache->requestSymbols(m_currentUri, Schedule::Delayed);
+        m_symbolCache->requestSymbols(m_currentUri, Schedule::Now);
     }
 }
 

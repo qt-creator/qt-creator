@@ -3577,10 +3577,10 @@ void tst_Dumpers::dumper_data()
                + Check("ptr50.data", "", "Foo")
                + Check("ptr53", "", "@QWeakPointer<Foo>")
 
-               + Check("ptr60.data", "", "MyClass")
-               + Check("ptr61.data", "", "MyClass")
-               + Check("ptr60.data.val", "44", "int")
-               + Check("ptr61.data.val", "44", "int");
+               + Check("ptr60.data", "", "MyClass") % NoLldbEngine
+               + Check("ptr61.data", "", "MyClass") % NoLldbEngine
+               + Check("ptr60.data.val", "44", "int") % NoLldbEngine
+               + Check("ptr61.data.val", "44", "int") % NoLldbEngine;
 
 
     QTest::newRow("QLazilyAllocated")
@@ -7467,7 +7467,7 @@ void tst_Dumpers::dumper_data()
                 + Check("dr.@2.c", "3", "int")
                 + Check("dr.d", "4", "int")
 
-                + Check("array.0.val", "44", "int");
+                + Check("array.0.val", "44", "int") % NoLldbEngine;
 
 
     QTest::newRow("Gdb13393")

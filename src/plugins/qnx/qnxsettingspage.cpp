@@ -130,8 +130,7 @@ void QnxSettingsWidget::addConfiguration()
         return;
 
     QnxConfiguration *config = new QnxConfiguration(envFile);
-    if (m_qnxConfigManager->configurations().contains(config)
-            || !config->isValid()) {
+    if (m_qnxConfigManager->configurations().contains(config) || !config->isValid()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              Tr::tr("Warning"),
                              Tr::tr("Configuration already exists or is invalid."));
@@ -184,7 +183,7 @@ void QnxSettingsWidget::updateInformation()
             m_configsCombo->itemData(currentIndex).value<void*>());
 
     // update the checkbox
-    m_generateKitsCheckBox->setEnabled(config ? config->canCreateKits() : false);
+    m_generateKitsCheckBox->setEnabled(config ? config->isValid() : false);
     m_generateKitsCheckBox->setChecked(config ? config->isActive() : false);
 
     // update information
