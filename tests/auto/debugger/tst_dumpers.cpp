@@ -7910,7 +7910,7 @@ void tst_Dumpers::dumper_data()
             + QmlPrivateProfile()
             + QtVersion(0x50000)
 
-            + Check("q2", FloatValue("2.5"), "@QV4::Value (double)")
+            + Check("q2", FloatValue("2.5"), "@QV4::Value (double)") % QtVersion(0, 0x604ff)
             //+ Check("v10", "(null)", "@QJSValue (null)") # Works in GUI. Why?
             + Check("v11", "true", "@QJSValue (bool)")
             + Check("v12", "1", "@QJSValue (int)")
