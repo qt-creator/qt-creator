@@ -22,7 +22,7 @@ OptionsPage::OptionsPage()
     setDisplayName(Tr::tr("General"));
     setCategory("J.Z.Haskell");
     setDisplayCategory(Tr::tr("Haskell"));
-    setCategoryIcon(Utils::Icon(":/haskell/images/category_haskell.png"));
+    setCategoryIconPath(":/haskell/images/settingscategory_haskell.png");
 }
 
 QWidget *OptionsPage::widget()
