@@ -1,5 +1,4 @@
 add_qtc_plugin(Copilot
-  SKIP_TRANSLATION
   PLUGIN_DEPENDS Core LanguageClient
   SOURCES
     authwidget.cpp authwidget.h
