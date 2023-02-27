@@ -5047,8 +5047,8 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <translation>Розіменовувати вказівники автоматично</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation>&lt;p&gt;Вмикає автоматичне розіменування вказівників у перегляді локальних змінних та виразів. Цим зберігається один рівень у відображенні деревом, однак втрачаються дані з проміжного рівня, що тепер буде відсутнім.</translation>
+        <source>This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation>Вмикає автоматичне розіменування вказівників у перегляді локальних змінних та виразів. Цим зберігається один рівень у відображенні деревом, однак втрачаються дані з проміжного рівня, що тепер буде відсутнім.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -5167,24 +5167,24 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <translation>Показувати простір імен &quot;std::&quot; в типах</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation>&lt;p&gt;Показувати префікс &quot;std::&quot; для типів зі стандартної бібліотеки.</translation>
+        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
+        <translation>Показувати префікс &quot;std::&quot; для типів зі стандартної бібліотеки.</translation>
     </message>
     <message>
         <source>Show Qt&apos;s namespace in types</source>
         <translation>Показувати простір імен Qt в типах</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation>&lt;p&gt;Показувати префікс простору імен Qt для типів Qt. Це має сенс, якщо Qt було сконфігуровано з &apos;-qtnamespace&apos;.</translation>
+        <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
+        <translation>Показувати префікс простору імен Qt для типів Qt. Це має сенс, якщо Qt було сконфігуровано з &apos;-qtnamespace&apos;.</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
         <translation>Показувати назви QObject-ів, якщо можливо</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>&lt;p&gt;Відображення властивості objectName елементів, що походять від QObject. Майте на увазі, що це може мати негативний вплив на швидкодію зневаджувача, навіть якщо QObject-и відсутні.</translation>
+        <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
+        <translation>Відображення властивості objectName елементів, що походять від QObject. Майте на увазі, що це може мати негативний вплив на швидкодію зневаджувача, навіть якщо QObject-и відсутні.</translation>
     </message>
     <message>
         <source>Sort members of classes and structs alphabetically</source>
@@ -5195,20 +5195,20 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <translation>Використовувати модель коду</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>&lt;p&gt;Вмикання призводить до запитів до моделі коду C++ за інформацією про область видимості змінної. Це може призвести до дещо швидшого зневадження, але може не спрацьовувати для оптимізованого коду.</translation>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <translation>Вмикання призводить до запитів до моделі коду C++ за інформацією про область видимості змінної. Це може призвести до дещо швидшого зневадження, але може не спрацьовувати для оптимізованого коду.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays names of QThread based threads.</source>
-        <translation>&lt;p&gt;Показувати назви ниток, що базуються на QThread.</translation>
+        <source>Displays names of QThread based threads.</source>
+        <translation>Показувати назви ниток, що базуються на QThread.</translation>
     </message>
     <message>
         <source>Display thread names</source>
         <translation>Показувати імена ниток</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;Не всі рядки тексту програми створюють виконуваний код. Встановлення точки перепину на такому рядку фактично встановить її на наступному рядку, що генерує код. В таких випадках вибір &apos;Підправляти розташування точок перепину&apos; зміщує червоні позначки точок перепину до справжнього розташування точок перепину.</translation>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>Не всі рядки тексту програми створюють виконуваний код. Встановлення точки перепину на такому рядку фактично встановить її на наступному рядку, що генерує код. В таких випадках вибір &apos;Підправляти розташування точок перепину&apos; зміщує червоні позначки точок перепину до справжнього розташування точок перепину.</translation>
     </message>
     <message>
         <source>Break on &quot;throw&quot;</source>
@@ -5243,12 +5243,12 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <translation>&lt;p&gt;Вмикає відображення стовпця з інформацією про адресу в перегляді стека під час зневадження.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Максимальна довжина рядка елементу в панелі &quot;Локальні змінні та вирази&quot;. Довші рядки будуть обрізані та відображені з трикрапкою.</translation>
+        <source>The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
+        <translation>Максимальна довжина рядка елементу в панелі &quot;Локальні змінні та вирази&quot;. Довші рядки будуть обрізані та відображені з трикрапкою.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Максимальна довжина рядків в відокремлених вікнах. Довші рядки будуть обрізані та відображені з трикрапкою.</translation>
+        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
+        <translation>Максимальна довжина рядків в відокремлених вікнах. Довші рядки будуть обрізані та відображені з трикрапкою.</translation>
     </message>
     <message>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>

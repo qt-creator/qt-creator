@@ -15668,7 +15668,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <source>This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15708,7 +15708,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
+        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15716,7 +15716,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
+        <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15724,7 +15724,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
+        <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15732,15 +15732,15 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays names of QThread based threads.</source>
+        <source>Displays names of QThread based threads.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15836,7 +15836,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows simple variable values as annotations in the main editor during debugging.</source>
+        <source>Shows simple variable values as annotations in the main editor during debugging.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15856,15 +15856,15 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
+        <source>Enables tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips in the locals view during debugging.</source>
+        <source>Enables tooltips in the locals view during debugging.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips in the breakpoints view during debugging.</source>
+        <source>Enables tooltips in the breakpoints view during debugging.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15872,7 +15872,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips in the stack view during debugging.</source>
+        <source>Enables tooltips in the stack view during debugging.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15892,7 +15892,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
+        <source>The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15900,7 +15900,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
+        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -14462,8 +14462,8 @@ Affected are breakpoints %1</source>
         <translation>Автоматически разыменовывать указатели</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation>&lt;p&gt;Переключает обзоры Переменных и выражений в режим автоматического разыменовывания указателей. Позволяет сократить размер дерева, но при этом теряются данные промежуточного уровня.</translation>
+        <source>This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation>Переключает обзоры Переменных и выражений в режим автоматического разыменовывания указателей. Позволяет сократить размер дерева, но при этом теряются данные промежуточного уровня.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -14474,8 +14474,8 @@ Affected are breakpoints %1</source>
         <translation>Показывать пространство имён «std::» в типах</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation>&lt;p&gt;Отображение приставки «std::» для типов стандартной библиотеки.</translation>
+        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
+        <translation>Отображение приставки «std::» для типов стандартной библиотеки.</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
@@ -14486,16 +14486,16 @@ Affected are breakpoints %1</source>
         <translation>Показывать пространство имён Qt в типах</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation>&lt;p&gt;Отображать приставку пространства имён Qt для типов Qt. Имеет смысл только тогда, когда Qt собран с параметром «-qtnamespace».</translation>
+        <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
+        <translation>Отображать приставку пространства имён Qt для типов Qt. Имеет смысл только тогда, когда Qt собран с параметром «-qtnamespace».</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
         <translation>Показывать доступные имена QObject</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>&lt;p&gt;Отображает свойство objectName производных от QObject объектов. Может негативно сказаться на скорости работы отладчика, даже если нет подобных объектов.</translation>
+        <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
+        <translation>Отображает свойство objectName производных от QObject объектов. Может негативно сказаться на скорости работы отладчика, даже если нет подобных объектов.</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -14514,28 +14514,28 @@ Affected are breakpoints %1</source>
         <translation>Использовать модель кода</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>&lt;p&gt;Включение приведёт к запросам модели кода C++ об области видимости переменной. Это может немного ускорить работу отладчика, но может и сбоить на оптимизированном коде.</translation>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <translation>Включение приведёт к запросам модели кода C++ об области видимости переменной. Это может немного ускорить работу отладчика, но может и сбоить на оптимизированном коде.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays names of QThread based threads.</source>
-        <translation>&lt;p&gt;Отображать названия потоков, основанных на QThread.</translation>
+        <source>Displays names of QThread based threads.</source>
+        <translation>Отображать названия потоков, основанных на QThread.</translation>
     </message>
     <message>
         <source>Display thread names</source>
         <translation>Отображать названия потоков</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;Не все строки исходника приводят к созданию кода. Размещение на такой строке точки останова фактически приведёт к установке её на ближайшую последующую строку, создавшую код. Выбор «Подстраивать размещение точек останова» сдвинет красные метки на строки, где они фактически сработают.</translation>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>Не все строки исходника приводят к созданию кода. Размещение на такой строке точки останова фактически приведёт к установке её на ближайшую последующую строку, создавшую код. Выбор «Подстраивать размещение точек останова» сдвинет красные метки на строки, где они фактически сработают.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Checking this will enable tooltips in the stack view during debugging.</source>
         <translation>&lt;p&gt;Включает на время отладки всплывающие подсказки в обзоре стека.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Максимальная длина строки в отдельных окнах. Более длинные строки обрезаются и завершаются многоточием.</translation>
+        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
+        <translation>Максимальная длина строки в отдельных окнах. Более длинные строки обрезаются и завершаются многоточием.</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
@@ -14602,8 +14602,8 @@ Affected are breakpoints %1</source>
         <translation>Зарегистрировать системным отладчиком</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Максимальная длина строковых значений в обзорах переменных и выражений. Более длинные строки обрезаются и завершаются многоточием.</translation>
+        <source>The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
+        <translation>Максимальная длина строковых значений в обзорах переменных и выражений. Более длинные строки обрезаются и завершаются многоточием.</translation>
     </message>
     <message>
         <source>Reload Full Stack</source>

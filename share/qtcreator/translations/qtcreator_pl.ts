@@ -3590,8 +3590,8 @@ Kontynuować?</translation>
         <translation>Pokazuj przestrzeń nazw &quot;std::&quot; w widoku typów</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation>&lt;p&gt;Pokazuje przedrostek &quot;std::&quot; dla typów z biblioteki standardowej.</translation>
+        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
+        <translation>Pokazuje przedrostek &quot;std::&quot; dla typów z biblioteki standardowej.</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
@@ -3602,8 +3602,8 @@ Kontynuować?</translation>
         <translation>Pokazuj przestrzeń nazw Qt w widoku typów</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation>&lt;p&gt;Pokazuje przestrzeń nazw Qt dla typów Qt. To ma zastosowanie jedynie dla Qt skonfigurowanego z &quot;-qtnamespace&quot;.</translation>
+        <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
+        <translation>Pokazuje przestrzeń nazw Qt dla typów Qt. To ma zastosowanie jedynie dla Qt skonfigurowanego z &quot;-qtnamespace&quot;.</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -3618,8 +3618,8 @@ Kontynuować?</translation>
         <translation>Używaj programów pomocniczych debuggera</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje, że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny.
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje, że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny.
 &quot;Poprawiaj położenie pułapek&quot; przesuwa czerwone znaczniki pułapek w miejsca prawdziwych pułapek w takich przypadkach.</translation>
     </message>
     <message>
@@ -3643,12 +3643,12 @@ Kontynuować?</translation>
         <translation>&lt;p&gt;Zaznaczenie tej opcji spowoduje pokazanie kolumny z adresami w widoku stosu podczas debugowania.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Maksymalna długość ciągów znakowych w widoku &quot;Zmienne lokalne i wyrażenia&quot;. Dłuższe ciągi będą odcinane i zakańczane wielokropkiem.</translation>
+        <source>The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
+        <translation>Maksymalna długość ciągów znakowych w widoku &quot;Zmienne lokalne i wyrażenia&quot;. Dłuższe ciągi będą odcinane i zakańczane wielokropkiem.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Maksymalna długość ciągów znakowych w oddzielnych oknach. Dłuższe ciągi będą odcinane i zakańczane wielokropkiem.</translation>
+        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
+        <translation>Maksymalna długość ciągów znakowych w oddzielnych oknach. Dłuższe ciągi będą odcinane i zakańczane wielokropkiem.</translation>
     </message>
     <message>
         <source>Configure Debugger...</source>
@@ -3667,28 +3667,28 @@ Kontynuować?</translation>
         <translation>Rozmiar czcionki debuggera wzięty z głównego edytora</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation>&lt;p&gt;Włącza automatyczne wyłuskiwanie wskaźników w widoku ze zmiennymi lokalnymi i obserwowanymi. Brak jednego poziomu w widoku upraszcza go, ale jednocześnie powoduje utratę danych w brakującym poziomie pośrednim.</translation>
+        <source>This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation>Włącza automatyczne wyłuskiwanie wskaźników w widoku ze zmiennymi lokalnymi i obserwowanymi. Brak jednego poziomu w widoku upraszcza go, ale jednocześnie powoduje utratę danych w brakującym poziomie pośrednim.</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
         <translation>Pokazuj dostępne nazwy QObject&apos;ów</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>&lt;p&gt;Pokazuje wartość właściwości &quot;objectName&quot; obiektów dziedziczących z QObject. Może to negatywnie wpłynąć na wydajność debuggera, nawet gdy żadne obiekty nie będą wyświetlane.</translation>
+        <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
+        <translation>Pokazuje wartość właściwości &quot;objectName&quot; obiektów dziedziczących z QObject. Może to negatywnie wpłynąć na wydajność debuggera, nawet gdy żadne obiekty nie będą wyświetlane.</translation>
     </message>
     <message>
         <source>Use code model</source>
         <translation>Używaj modelu kodu</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>&lt;p&gt;Wybranie tej opcji spowoduje pobieranie informacji o zakresie zmiennych z modelu kodu C++. Może to przyspieszyć działanie debuggera, lecz również może to spowodować niepoprawne działanie dla zoptymalizowanego kodu.</translation>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <translation>Wybranie tej opcji spowoduje pobieranie informacji o zakresie zmiennych z modelu kodu C++. Może to przyspieszyć działanie debuggera, lecz również może to spowodować niepoprawne działanie dla zoptymalizowanego kodu.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays names of QThread based threads.</source>
-        <translation>&lt;p&gt;Wyświetla nazwy wątków dziedziczących z QThread.</translation>
+        <source>Displays names of QThread based threads.</source>
+        <translation>Wyświetla nazwy wątków dziedziczących z QThread.</translation>
     </message>
     <message>
         <source>Display thread names</source>

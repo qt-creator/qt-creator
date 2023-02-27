@@ -16000,8 +16000,8 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>自動的にポインタを逆参照する</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation>&lt;p&gt;ローカル変数と式ビューでポインタを自動的に逆参照するかどうかを切り替えます。ツリービューの階層を減らすことができますが、表示されない中間レベルのデータが失われます。</translation>
+        <source>This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation>ローカル変数と式ビューでポインタを自動的に逆参照するかどうかを切り替えます。ツリービューの階層を減らすことができますが、表示されない中間レベルのデータが失われます。</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -16012,8 +16012,8 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>型情報に &quot;std::&quot; 名前空間を表示する</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation>&lt;p&gt;標準ライブラリ内の型には &quot;std::&quot; プレフィックスを表示します。</translation>
+        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
+        <translation>標準ライブラリ内の型には &quot;std::&quot; プレフィックスを表示します。</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
@@ -16024,16 +16024,16 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>型情報に Qt の名前空間を表示する</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation>&lt;p&gt;Qt の型には Qt の名前空間を表示します。Qt が &apos;-qtnamespace&apos; オプション付きで configure されている場合のみ有効です。</translation>
+        <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
+        <translation>Qt の型には Qt の名前空間を表示します。Qt が &apos;-qtnamespace&apos; オプション付きで configure されている場合のみ有効です。</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
         <translation>可能であれば QObject の名前を表示する</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>&lt;p&gt;QObject ベースのクラスでは objectName プロパティを表示します。注意: QObject クラスが使用されていない場合でもデバッガのパフォーマンスが悪化する可能性があります。</translation>
+        <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
+        <translation>QObject ベースのクラスでは objectName プロパティを表示します。注意: QObject クラスが使用されていない場合でもデバッガのパフォーマンスが悪化する可能性があります。</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -16048,12 +16048,12 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>デバッグヘルパを使用する</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>&lt;p&gt;このオプションを有効にすると C++ コードモデルを用いて変数スコープ情報を取得します。これにより若干デバッグが速くなりますが、最適化されたコードでは失敗する事もあります。</translation>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <translation>このオプションを有効にすると C++ コードモデルを用いて変数スコープ情報を取得します。これにより若干デバッグが速くなりますが、最適化されたコードでは失敗する事もあります。</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays names of QThread based threads.</source>
-        <translation>&lt;p&gt;QThread ベースのスレッド名を表示します。</translation>
+        <source>Displays names of QThread based threads.</source>
+        <translation>QThread ベースのスレッド名を表示します。</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
@@ -16064,8 +16064,8 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>ブレークポイントの位置を調節する</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;ソースコードのすべての行に対して実行可能コードが生成されるわけではありません。その為、コードが生成されない行にブレークポイントを設定した場合、次の行にブレークポイントが設定されているかのように動作します。&apos;ブレークポイントの位置を調節する&apos; を有効にすると、そのような場合に実際のブレークポイントの位置に赤いブレークポイントのマーカーを設定します。</translation>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>ソースコードのすべての行に対して実行可能コードが生成されるわけではありません。その為、コードが生成されない行にブレークポイントを設定した場合、次の行にブレークポイントが設定されているかのように動作します。&apos;ブレークポイントの位置を調節する&apos; を有効にすると、そのような場合に実際のブレークポイントの位置に赤いブレークポイントのマーカーを設定します。</translation>
     </message>
     <message>
         <source>Break on &quot;throw&quot;</source>
@@ -16136,8 +16136,8 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>&lt;p&gt;デバッグ中、スタックビューでツールチップを有効にします。</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;ローカル変数と式ビューに表示する文字列の最大長です。この値よりも長い文字列は省略記号を付けて途中までを表示します。</translation>
+        <source>The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
+        <translation>ローカル変数と式ビューに表示する文字列の最大長です。この値よりも長い文字列は省略記号を付けて途中までを表示します。</translation>
     </message>
     <message>
         <source>Show Address Data in Breakpoints View when Debugging</source>
@@ -16172,8 +16172,8 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>&lt;p&gt;ローカル変数と式ペインに表示する文字列の最大長です。この値よりも長い文字列は省略記号を付けて途中までを表示します。</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;別ウィンドウに表示する文字列の最大長です。この値よりも長い文字列は省略記号を付けて途中までを表示します。</translation>
+        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
+        <translation>別ウィンドウに表示する文字列の最大長です。この値よりも長い文字列は省略記号を付けて途中までを表示します。</translation>
     </message>
     <message>
         <source>Reload Full Stack</source>
@@ -16192,8 +16192,8 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <translation>&lt;p&gt;デバッガを命令指向の操作モードに切り替えます。この操作モードにするとステップ操作は1命令毎に実行され、ソース位置ビューでは逆アセンブル結果を表示します。</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation>&lt;p&gt;ローカル変数と式ビューでポインタを自動的に逆参照するかどうかを切り替えます。ツリービューの階層を減らすことができますが、表示されない中間レベルのデータが失われます。</translation>
+        <source>This switches the Locals and Expressions view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation>ローカル変数と式ビューでポインタを自動的に逆参照するかどうかを切り替えます。ツリービューの階層を減らすことができますが、表示されない中間レベルのデータが失われます。</translation>
     </message>
     <message>
         <source>Display thread names</source>
