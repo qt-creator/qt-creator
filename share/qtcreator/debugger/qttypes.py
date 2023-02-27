@@ -2123,7 +2123,7 @@ def qdumpHelper__QVariant6(d, value):
         d.split('HHIIIpp', metaTypeInterface)
 
     # Well-known simple type.
-    if variantType <= 6:
+    if variantType >= 1 and variantType <= 6:
         qdumpHelper_QVariants_A[variantType](d, value)
         return None
 
