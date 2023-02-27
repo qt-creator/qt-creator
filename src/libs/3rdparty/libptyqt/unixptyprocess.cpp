@@ -343,15 +343,16 @@ void ShellProcess::configChildProcess()
     struct utmpx utmpxInfo;
     memset(&utmpxInfo, 0, sizeof(utmpxInfo));
 
-    strncpy(utmpxInfo.ut_user, qgetenv("USER"), sizeof(utmpxInfo.ut_user));
+    strncpy(utmpxInfo.ut_user, qgetenv("USER"), sizeof(utmpxInfo.ut_user) - 1);
 
     QString device(m_handleSlaveName);
     if (device.startsWith("/dev/"))
         device = device.mid(5);
 
-    const char *d = device.toLatin1().constData();
+    const auto deviceAsLatin1 = device.toLatin1();
+    const char *d = deviceAsLatin1.constData();
 
-    strncpy(utmpxInfo.ut_line, d, sizeof(utmpxInfo.ut_line));
+    strncpy(utmpxInfo.ut_line, d, sizeof(utmpxInfo.ut_line) - 1);
 
     strncpy(utmpxInfo.ut_id, d + strlen(d) - sizeof(utmpxInfo.ut_id), sizeof(utmpxInfo.ut_id));
 

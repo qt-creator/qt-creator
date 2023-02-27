@@ -1842,7 +1842,7 @@ static void request_status_string(VTermState *state, VTermStringFragment frag)
 
     case ' '|('q'<<8): {
       // Query DECSCUSR
-      int reply;
+      int reply = 2;
       switch(state->mode.cursor_shape) {
         case VTERM_PROP_CURSORSHAPE_BLOCK:     reply = 2; break;
         case VTERM_PROP_CURSORSHAPE_UNDERLINE: reply = 4; break;

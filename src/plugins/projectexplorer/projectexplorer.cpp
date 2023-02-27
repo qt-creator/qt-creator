@@ -3813,8 +3813,10 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
         return;
 
     BuildConfiguration *bc = activeBuildConfiguration(ProjectTree::projectForNode(currentNode));
-    if (!bc)
+    if (!bc) {
         Terminal::Hooks::instance().openTerminalHook()({{}, currentNode->directory(), environment});
+        return;
+    }
 
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(bc->target()->kit());
 

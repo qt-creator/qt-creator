@@ -162,7 +162,7 @@ void TerminalPane::setFocus()
 bool TerminalPane::hasFocus() const
 {
     if (const auto t = currentTerminal())
-        t->hasFocus();
+        return t->hasFocus();
 
     return false;
 }
