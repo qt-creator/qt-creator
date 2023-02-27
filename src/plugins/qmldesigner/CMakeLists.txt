@@ -375,6 +375,7 @@ extend_qtc_library(QmlDesignerCore
     filestatus.h
     filestatuscache.cpp filestatuscache.h
     nonlockingmutex.h
+    projectstorageexceptions.cpp projectstorageexceptions.h
     projectstorageinterface.h
     projectstoragefwd.h
     projectstorageinfotypes.h
