@@ -11,6 +11,7 @@ QtcPlugin {
     files: [
         "authwidget.cpp",
         "authwidget.h",
+        "copilot.qrc",
         "copilotplugin.cpp",
         "copilotplugin.h",
         "copilotclient.cpp",

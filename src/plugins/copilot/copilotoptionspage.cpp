@@ -44,8 +44,7 @@ CopilotOptionsPage::CopilotOptionsPage()
     setDisplayName("Copilot");
     setCategory("ZY.Copilot");
     setDisplayCategory("Copilot");
-
-    setCategoryIconPath(":/languageclient/images/settingscategory_languageclient.png");
+    setCategoryIconPath(":/copilot/images/settingscategory_copilot.png");
 }
 
 CopilotOptionsPage::~CopilotOptionsPage() {}
