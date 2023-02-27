@@ -153,7 +153,8 @@ public:
 
         Grid limits {
             s.maximalStringLength, br,
-            s.displayStringLimit
+            s.displayStringLimit, br,
+            s.defaultArraySize
         };
 
         Column {

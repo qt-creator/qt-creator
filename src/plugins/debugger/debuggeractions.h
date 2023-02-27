@@ -146,6 +146,7 @@ public:
     Utils::BoolAspect autoDerefPointers;
     Utils::IntegerAspect maximalStringLength;
     Utils::IntegerAspect displayStringLimit;
+    Utils::IntegerAspect defaultArraySize;
     Utils::BoolAspect sortStructMembers;
     Utils::BoolAspect useToolTipsInLocalsView;
 

@@ -402,7 +402,6 @@ public:
     WatchModel(WatchHandler *handler, DebuggerEngine *engine);
 
     static QString nameForFormat(int format);
-    constexpr static int defaultMaxArrayCount = 100;
 
     QVariant data(const QModelIndex &idx, int role) const override;
     bool setData(const QModelIndex &idx, const QVariant &value, int role) override;
@@ -1350,7 +1349,8 @@ void WatchModel::expand(WatchItem *item, bool requestEngineUpdate)
         return;
     if (item->isLoadMore()) {
         item = item->parent();
-        m_maxArrayCount[item->iname] = m_maxArrayCount.value(item->iname, defaultMaxArrayCount) * 10;
+        m_maxArrayCount[item->iname]
+            = m_maxArrayCount.value(item->iname, debuggerSettings()->defaultArraySize.value()) * 10;
         if (requestEngineUpdate)
             m_engine->updateItem(item->iname);
     } else {
@@ -2848,7 +2848,7 @@ QSet<QString> WatchHandler::expandedINames() const
 
 int WatchHandler::maxArrayCount(const QString &iname) const
 {
-    return m_model->m_maxArrayCount.value(iname, WatchModel::defaultMaxArrayCount);
+    return m_model->m_maxArrayCount.value(iname, debuggerSettings()->defaultArraySize.value());
 }
 
 void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)

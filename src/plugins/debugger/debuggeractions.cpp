@@ -531,6 +531,15 @@ DebuggerSettings::DebuggerSettings()
         + Tr::tr("The maximum length for strings in separated windows. "
                  "Longer strings are cut off and displayed with an ellipsis attached."));
 
+    defaultArraySize.setSettingsKey(debugModeGroup, "DefaultArraySize");
+    defaultArraySize.setDefaultValue(100);
+    defaultArraySize.setRange(10, 1000000000);
+    defaultArraySize.setSingleStep(100);
+    defaultArraySize.setLabelText(Tr::tr("Default array size:"));
+    defaultArraySize.setToolTip("<p>"
+                                + Tr::tr("The number of array elements requested when expanding "
+                                         "entries in the Locals and Expressions views."));
+
     expandStack.setLabelText(Tr::tr("Reload Full Stack"));
 
     createFullBacktrace.setLabelText(Tr::tr("Create Full Backtrace"));
@@ -610,6 +619,7 @@ DebuggerSettings::DebuggerSettings()
     page4.registerAspect(&showQObjectNames);
     page4.registerAspect(&displayStringLimit);
     page4.registerAspect(&maximalStringLength);
+    page4.registerAspect(&defaultArraySize);
 
     // Page 5
     page5.registerAspect(&cdbAdditionalArguments);
