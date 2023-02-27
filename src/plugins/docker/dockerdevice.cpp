@@ -1237,6 +1237,7 @@ std::optional<FilePath> DockerDevice::clangdExecutable() const
 std::optional<Utils::CommandLine> DockerDevice::terminalCommand(const FilePath &workDir,
                                                                 const Environment &env) const
 {
+    Q_UNUSED(env)
     const QString shell = d->environment().value_or("SHELL", "/bin/sh");
     return d->withDockerExecCmd({FilePath::fromUserInput(shell), {}},
                                 std::nullopt,
