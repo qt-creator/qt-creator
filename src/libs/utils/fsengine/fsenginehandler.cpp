@@ -29,7 +29,8 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
                   return rootFilePath.pathAppended(scheme);
               });
 
-        return new FixedListFSEngine(rootFilePath, paths);
+        // We need to use fromString() here so the path is not cleaned
+        return new FixedListFSEngine(FilePath::fromString(fileName), paths);
     }
 
     if (fixedFileName.startsWith(rootPath)) {
@@ -41,17 +42,19 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
                                                                     return root.scheme() == scheme;
                                                                 });
 
-                return new FixedListFSEngine(rootFilePath.pathAppended(scheme), filteredRoots);
+                // We need to use fromString() here so the path is not cleaned
+                return new FixedListFSEngine(FilePath::fromString(fileName), filteredRoots);
             }
         }
 
-        FilePath filePath = FilePath::fromString(fixedFileName);
+        // We need to use fromString() here so the path is not cleaned
+        FilePath filePath = FilePath::fromString(fileName);
         if (filePath.needsDevice())
             return new FSEngineImpl(filePath);
     }
 
     if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
-        return new RootInjectFSEngine(fixedFileName);
+        return new RootInjectFSEngine(fileName);
 
     return nullptr;
 }

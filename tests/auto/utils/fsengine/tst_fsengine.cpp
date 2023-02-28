@@ -31,6 +31,7 @@ private slots:
     void testBrokenWindowsPath();
     void testRead();
     void testWrite();
+    void testRootFromDotDot();
 
 private:
     QString makeTestPath(QString path, bool asUrl = false);
@@ -211,6 +212,35 @@ void tst_fsengine::testWrite()
     QFile f(path);
     QVERIFY(f.open(QIODevice::ReadOnly));
     QCOMPARE(f.readAll(), data);
+}
+
+void tst_fsengine::testRootFromDotDot()
+{
+    const QString path = QDir::rootPath() + "some-folder/..";
+    QFileInfo fInfo(path);
+
+    QCOMPARE(fInfo.fileName(), QString(".."));
+
+    QDir dRoot(path);
+    const auto dRootEntryList = dRoot.entryList();
+    QVERIFY(dRootEntryList.contains(FilePath::specialRootName()));
+
+    QFileInfo fInfo2(FilePath::specialRootPath() + "/xyz/..");
+    QCOMPARE(fInfo2.fileName(), "..");
+
+    QDir schemesWithDotDot(FilePath::specialRootPath() + "/xyz/..");
+    const QStringList schemeWithDotDotList = schemesWithDotDot.entryList();
+    QVERIFY(schemeWithDotDotList.contains("device"));
+
+    QFileInfo fInfo3(FilePath::specialDeviceRootPath() + "/xyz/..");
+    QCOMPARE(fInfo3.fileName(), "..");
+
+    QDir devicesWithDotDot(FilePath::specialDeviceRootPath() + "/test/..");
+    const QStringList deviceListWithDotDot = devicesWithDotDot.entryList();
+    QVERIFY(deviceListWithDotDot.contains("test"));
+
+    QFileInfo fInfo4(FilePath::specialDeviceRootPath() + "/test/tmp/..");
+    QCOMPARE(fInfo4.fileName(), "..");
 }
 
 QTEST_GUILESS_MAIN(tst_fsengine)

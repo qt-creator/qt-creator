@@ -93,7 +93,10 @@ private:
     void setPath() const
     {
         if (!m_hasSetPath) {
-            const QString p = path();
+            // path() can be "/somedir/.." so we need to clean it first.
+            // We only need QDir::cleanPath here, as the path is always
+            // a fs engine path and will not contain scheme:// etc.
+            const QString p = QDir::cleanPath(path());
             if (p.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
                 m_status = State::IteratingRoot;
 
