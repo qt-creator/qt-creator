@@ -35,6 +35,12 @@ const QStringList &Asset::supportedFragmentShaderSuffixes()
     return retList;
 }
 
+const QStringList &Asset::supportedVertexShaderSuffixes()
+{
+    static const QStringList retList {"*.vert", "*.glsl", "*.glslv", "*.vsh"};
+    return retList;
+}
+
 const QStringList &Asset::supportedShaderSuffixes()
 {
     static const QStringList retList {"*.frag", "*.vert",
@@ -114,9 +120,14 @@ bool Asset::isFragmentShader() const
     return m_type == Asset::Type::FragmentShader;
 }
 
+bool Asset::isVertexShader() const
+{
+    return m_type == Asset::Type::VertexShader;
+}
+
 bool Asset::isShader() const
 {
-    return m_type == Asset::Type::Shader;
+    return isFragmentShader() || isVertexShader();
 }
 
 bool Asset::isFont() const
@@ -178,8 +189,8 @@ void Asset::resolveType()
         m_type = Asset::Type::Image;
     else if (supportedFragmentShaderSuffixes().contains(m_suffix))
         m_type = Asset::Type::FragmentShader;
-    else if (supportedShaderSuffixes().contains(m_suffix))
-        m_type = Asset::Type::Shader;
+    else if (supportedVertexShaderSuffixes().contains(m_suffix))
+        m_type = Asset::Type::VertexShader;
     else if (supportedFontSuffixes().contains(m_suffix))
         m_type = Asset::Type::Font;
     else if (supportedAudioSuffixes().contains(m_suffix))

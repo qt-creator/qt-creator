@@ -14,17 +14,18 @@ public:
                 Image,
                 MissingImage,
                 FragmentShader,
+                VertexShader,
                 Font,
                 Audio,
                 Video,
                 Texture3D,
-                Effect,
-                Shader };
+                Effect };
 
     Asset(const QString &filePath);
 
     static const QStringList &supportedImageSuffixes();
     static const QStringList &supportedFragmentShaderSuffixes();
+    static const QStringList &supportedVertexShaderSuffixes();
     static const QStringList &supportedShaderSuffixes();
     static const QStringList &supportedFontSuffixes();
     static const QStringList &supportedAudioSuffixes();
@@ -41,6 +42,7 @@ public:
     Type type() const;
     bool isImage() const;
     bool isFragmentShader() const;
+    bool isVertexShader() const;
     bool isShader() const;
     bool isFont() const;
     bool isAudio() const;
