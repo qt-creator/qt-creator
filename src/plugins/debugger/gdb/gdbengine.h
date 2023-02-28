@@ -130,6 +130,7 @@ private: ////////// General Interface //////////
 
     bool m_rerunPending = false;
     bool m_ignoreNextTrap = false;
+    bool m_detectTargetIncompat = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 
