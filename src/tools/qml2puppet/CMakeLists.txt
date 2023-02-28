@@ -27,7 +27,7 @@ find_package(Qt5
 )
 
 if (NOT TARGET QmlPuppetCommunication)
-include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
+  include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
 endif()
 
 add_qtc_executable(qml2puppet
@@ -193,7 +193,7 @@ extend_qtc_executable(qml2puppet
     qmlprivategate.cpp qmlprivategate.h
 )
 
-if(DEFINED MULTILANGUAGE_SUPPORT_SUBDIRECTORY AND Qt6_VERSION VERSION_GREATER_EQUAL 6.2.1)
+if (DEFINED MULTILANGUAGE_SUPPORT_SUBDIRECTORY AND Qt6_VERSION VERSION_GREATER_EQUAL 6.2.1)
   add_subdirectory(${MULTILANGUAGE_SUPPORT_SUBDIRECTORY} multilanguagesupport_static_build)
 endif()
 
@@ -244,3 +244,27 @@ extend_qtc_executable(qml2puppet
     ENABLE_CRASHPAD
   DEPENDS Crashpad::Crashpad
 )
+
+# add application icon
+if (TARGET qml2puppet)
+    if (WIN32)
+      set(RC_APPLICATION_NAME "${IDE_DISPLAY_NAME}")
+      set(RC_VERSION "${IDE_VERSION}.0")
+      set(RC_VERSION_STRING "${IDE_VERSION_DISPLAY}")
+      set(RC_COPYRIGHT "2008-${IDE_COPYRIGHT_YEAR} The Qt Company Ltd")
+
+      string(REPLACE " " "\\x20" RC_APPLICATION_NAME "${RC_APPLICATION_NAME}")
+      string(REPLACE " " "\\x20" RC_COPYRIGHT "${RC_COPYRIGHT}")
+      string(REPLACE "." "," RC_VERSION "${RC_VERSION}")
+
+      target_compile_definitions(qml2puppet PRIVATE
+        RC_APPLICATION_NAME=${RC_APPLICATION_NAME}
+        RC_VERSION=${RC_VERSION}
+        RC_VERSION_STRING=${RC_VERSION_STRING}
+        RC_COPYRIGHT=${RC_COPYRIGHT}
+        RC_ICON_PATH=${IDE_ICON_PATH}
+      )
+
+      target_sources(qml2puppet PRIVATE windows_application_icon/qml2puppet.rc)
+    endif()
+endif()
