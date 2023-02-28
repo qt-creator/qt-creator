@@ -116,7 +116,7 @@ Project {
                 "projectfilewizardextension.cpp", "projectfilewizardextension.h",
                 "projectimporter.cpp", "projectimporter.h",
                 "projectmacro.cpp", "projectmacro.h",
-                "projectmanager.h",
+                "projectexplorer.cpp", "projectmanager.h"
                 "projectmodels.cpp", "projectmodels.h",
                 "projectnodes.cpp", "projectnodes.h",
                 "projectpanelfactory.cpp", "projectpanelfactory.h",
@@ -134,7 +134,7 @@ Project {
                 "runsettingspropertiespage.cpp", "runsettingspropertiespage.h",
                 "sanitizerparser.cpp", "sanitizerparser.h",
                 "selectablefilesmodel.cpp", "selectablefilesmodel.h",
-                "session.cpp", "session.h",
+                "session.cpp", "session.h", "session_p.h",
                 "sessionmodel.cpp", "sessionmodel.h",
                 "sessionview.cpp", "sessionview.h",
                 "sessiondialog.cpp", "sessiondialog.h",

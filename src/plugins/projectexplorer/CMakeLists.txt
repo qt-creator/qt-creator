@@ -140,7 +140,7 @@ add_qtc_plugin(ProjectExplorer
     projectfilewizardextension.cpp projectfilewizardextension.h
     projectimporter.cpp projectimporter.h
     projectmacro.cpp projectmacro.h
-    projectmanager.h
+    projectmanager.cpp projectmanager.h
     projectmodels.cpp projectmodels.h
     projectnodes.cpp projectnodes.h
     projectpanelfactory.cpp projectpanelfactory.h
@@ -158,7 +158,7 @@ add_qtc_plugin(ProjectExplorer
     runsettingspropertiespage.cpp runsettingspropertiespage.h
     sanitizerparser.cpp sanitizerparser.h
     selectablefilesmodel.cpp selectablefilesmodel.h
-    session.cpp session.h
+    session.cpp session.h session_p.h
     sessiondialog.cpp sessiondialog.h
     sessionmodel.cpp sessionmodel.h
     sessionview.cpp sessionview.h
