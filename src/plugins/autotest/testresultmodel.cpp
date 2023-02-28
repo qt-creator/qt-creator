@@ -197,6 +197,23 @@ QString TestResultItem::resultString() const
     return m_summaryResult->failed ? QString("FAIL") : QString("PASS");
 }
 
+//! \return true if descendant types have changed, false otherwise
+bool TestResultItem::updateDescendantTypes(ResultType t)
+{
+    if (t == ResultType::TestStart || t == ResultType::TestEnd) // these are special
+        return false;
+
+    if (m_descendantsTypes.contains(t))
+        return false;
+    m_descendantsTypes.insert(t);
+    return true;
+}
+
+bool TestResultItem::descendantTypesContainsAnyOf(const QSet<ResultType> &types) const
+{
+    return !m_descendantsTypes.isEmpty() && m_descendantsTypes.intersects(types);
+}
+
 /********************************* TestResultModel *****************************************/
 
 TestResultModel::TestResultModel(QObject *parent)
@@ -217,7 +234,8 @@ void TestResultModel::updateParent(const TestResultItem *item)
         return;
     bool changed = false;
     parentItem->updateResult(changed, item->testResult().result(), item->summaryResult());
-    if (!changed)
+    bool changedType = parentItem->updateDescendantTypes(item->testResult().result());
+    if (!changed && !changedType)
         return;
     emit dataChanged(parentItem->index(), parentItem->index());
     updateParent(parentItem);
@@ -426,10 +444,6 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
 {
     setSourceModel(sourceModel);
     enableAllResultTypes(true);
-
-    // instead of using invalidate() from results pane when adding a new result ( QTBUG-103952 )
-    connect(sourceModel, &QAbstractItemModel::rowsInserted,
-            this, &TestResultFilterModel::invalidateFilter);
 }
 
 void TestResultFilterModel::enableAllResultTypes(bool enabled)
@@ -441,7 +455,7 @@ void TestResultFilterModel::enableAllResultTypes(bool enabled)
                   << ResultType::MessageFatal << ResultType::Invalid << ResultType::BlacklistedPass
                   << ResultType::BlacklistedFail << ResultType::BlacklistedXFail << ResultType::BlacklistedXPass
                   << ResultType::Benchmark
-                  << ResultType::MessageCurrentTest << ResultType::TestStart << ResultType::TestEnd
+                  << ResultType::MessageCurrentTest
                   << ResultType::MessageInfo << ResultType::MessageSystem << ResultType::Application
                   << ResultType::MessageError;
     } else {
@@ -499,33 +513,20 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     QModelIndex index = m_sourceModel->index(sourceRow, 0, sourceParent);
     if (!index.isValid())
         return false;
+
     const ResultType resultType = m_sourceModel->testResult(index).result();
     if (resultType == ResultType::TestStart) {
-        TestResultItem *item = m_sourceModel->itemForIndex(index);
-        QTC_ASSERT(item, return false);
-        if (!item->summaryResult())
-            return true;
-        return acceptTestCaseResult(index);
+        auto item = m_sourceModel->itemForIndex(index);
+        return item && item->descendantTypesContainsAnyOf(m_enabled);
+    } else if (resultType == ResultType::TestEnd) {
+        auto item = m_sourceModel->itemForIndex(index);
+        if (!item)
+            return false;
+        auto parent = item->parent();
+        return parent && parent->descendantTypesContainsAnyOf(m_enabled);
     }
+
     return m_enabled.contains(resultType);
-}
-
-bool TestResultFilterModel::acceptTestCaseResult(const QModelIndex &srcIndex) const
-{
-    for (int row = 0, count = m_sourceModel->rowCount(srcIndex); row < count; ++row) {
-        const QModelIndex &child = m_sourceModel->index(row, 0, srcIndex);
-        TestResultItem *item = m_sourceModel->itemForIndex(child);
-        const ResultType type = item->testResult().result();
-
-        if (type == ResultType::TestStart) {
-            if (!item->summaryResult())
-                return true;
-            if (acceptTestCaseResult(child))
-                return true;
-        } else if (m_enabled.contains(type))
-            return true;
-    }
-    return false;
 }
 
 } // namespace Internal
