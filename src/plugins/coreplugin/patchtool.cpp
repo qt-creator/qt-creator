@@ -24,8 +24,17 @@ FilePath PatchTool::patchCommand()
     QSettings *s = ICore::settings();
 
     s->beginGroup(settingsGroupC);
-    const FilePath command = FilePath::fromSettings(s->value(patchCommandKeyC, patchCommandDefaultC));
+    FilePath command = FilePath::fromSettings(s->value(patchCommandKeyC, patchCommandDefaultC));
     s->endGroup();
+
+    if (HostOsInfo::isWindowsHost() && command.path() == patchCommandDefaultC) {
+        const QSettings settings(R"(HKEY_LOCAL_MACHINE\SOFTWARE\GitForWindows)",
+                                 QSettings::NativeFormat);
+        const FilePath gitInstall = FilePath::fromUserInput(settings.value("InstallPath").toString());
+        if (gitInstall.exists())
+            command = command.searchInPath({gitInstall.pathAppended("usr/bin")},
+                                           Utils::FilePath::PrependToPath);
+    }
 
     return command;
 }
