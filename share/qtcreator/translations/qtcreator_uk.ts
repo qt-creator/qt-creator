@@ -5067,10 +5067,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <translation type="vanished">Використовувати модель коду</translation>
     </message>
     <message>
-        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation type="vanished">Вмикання призводить до запитів до моделі коду C++ за інформацією про область видимості змінної. Це може призвести до дещо швидшого зневадження, але може не спрацьовувати для оптимізованого коду.</translation>
-    </message>
-    <message>
         <source>Break on &quot;abort&quot;</source>
         <translation>Перепиняти на &quot;abort&quot;</translation>
     </message>
@@ -5149,10 +5145,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
     <message>
         <source>Adjust Breakpoint Locations</source>
         <translation>Підправляти розташування точок перепину</translation>
-    </message>
-    <message>
-        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation type="vanished">Не всі рядки тексту програми створюють виконуваний код. Встановлення точки перепину на такому рядку фактично встановить її на наступному рядку, що генерує код. В таких випадках вибір &apos;Підправляти розташування точок перепину&apos; зміщує червоні позначки точок перепину до справжнього розташування точок перепину.</translation>
     </message>
     <message>
         <source>&lt;p&gt;This switches the debugger to native-mixed operation mode. In this mode, stepping and data display will be handled by the native debugger backend (GDB, LLDB or CDB) for C++, QML and JS sources.</source>
@@ -5293,14 +5285,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
     <message>
         <source>Register For Post-Mortem Debugging</source>
         <translation>Зареєструвати для посмертного зневадження</translation>
-    </message>
-    <message>
-        <source>The maximum length of string entries in the Locals and Expressions pane. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation type="vanished">Максимальна довжина рядка елементу в панелі &quot;Локальні змінні та вирази&quot;. Довші рядки будуть обрізані та відображені з трикрапкою.</translation>
-    </message>
-    <message>
-        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation type="vanished">Максимальна довжина рядків в відокремлених вікнах. Довші рядки будуть обрізані та відображені з трикрапкою.</translation>
     </message>
     <message>
         <source>Reload Full Stack</source>
@@ -35713,14 +35697,6 @@ Install an SDK of at least API version %1.</source>
     <message>
         <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
         <translation type="vanished">Вмикає використання моделі коду Qt Creator для з&apos;ясування того, чи змінній вже було присвоєно значення в момент зупинки зневаджувача.</translation>
-    </message>
-    <message>
-        <source>Displays names of QThread based threads.</source>
-        <translation type="vanished">Показувати назви ниток, що базуються на QThread.</translation>
-    </message>
-    <message>
-        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation type="vanished">Показувати префікс &quot;std::&quot; для типів зі стандартної бібліотеки.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; namespace for types</source>
