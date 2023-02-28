@@ -140,10 +140,31 @@ public:
         ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
             .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 2, 421}));
 
-        ON_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId)))
-            .WillByDefault(Return(FileStatus{directoryPathSourceId, 2, 421}));
-        ON_CALL(projectStorageMock, fetchFileStatus(Eq(directoryPathSourceId)))
-            .WillByDefault(Return(FileStatus{directoryPathSourceId, 2, 421}));
+        {
+            auto sourceIds = {directoryPathSourceId,
+                              path1SourceId,
+                              path2SourceId,
+                              path3SourceId,
+                              firstSourceId,
+                              secondSourceId,
+                              thirdSourceId,
+                              qmltypes1SourceId,
+                              qmltypes2SourceId};
+
+            for (auto sourceId : sourceIds) {
+                ON_CALL(fileSystemMock, fileStatus(Eq(sourceId)))
+                    .WillByDefault(Return(FileStatus{sourceId, 2, 421}));
+                ON_CALL(projectStorageMock, fetchFileStatus(Eq(sourceId)))
+                    .WillByDefault(Return(FileStatus{sourceId, 2, 421}));
+            }
+        }
+
+        ON_CALL(fileSystemMock, fileStatus(Eq(qmldir1SourceId)))
+            .WillByDefault(Return(FileStatus{qmldir1SourceId, 2, 421}));
+        ON_CALL(fileSystemMock, fileStatus(Eq(qmldir2SourceId)))
+            .WillByDefault(Return(FileStatus{qmldir2SourceId, 2, 421}));
+        ON_CALL(fileSystemMock, fileStatus(Eq(qmldir3SourceId)))
+            .WillByDefault(Return(FileStatus{qmldir3SourceId, 2, 421}));
 
         ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir"))))
             .WillByDefault(Return(qmldirContent));
@@ -284,6 +305,20 @@ protected:
     QString qmltypes1{"Module {\ndependencies: [module1]}"};
     QString qmltypes2{"Module {\ndependencies: [module2]}"};
     QStringList directories = {"/path"};
+    QStringList directories2 = {"/path/one", "/path/two"};
+    QStringList directories3 = {"/path/one", "/path/two", "/path/three"};
+    QmlDesigner::ProjectPartId projectPartId = QmlDesigner::ProjectPartId::create(1);
+    SourceId path1SourceId = sourcePathCache.sourceId("/path/one/.");
+    SourceId path2SourceId = sourcePathCache.sourceId("/path/two/.");
+    SourceId path3SourceId = sourcePathCache.sourceId("/path/three/.");
+    SourceId qmldir1SourceId = sourcePathCache.sourceId("/path/one/qmldir");
+    SourceId qmldir2SourceId = sourcePathCache.sourceId("/path/two/qmldir");
+    SourceId qmldir3SourceId = sourcePathCache.sourceId("/path/three/qmldir");
+    SourceId firstSourceId = sourcePathCache.sourceId("/path/one/First.qml");
+    SourceId secondSourceId = sourcePathCache.sourceId("/path/one/Second.qml");
+    SourceId thirdSourceId = sourcePathCache.sourceId("/path/two/Third.qml");
+    SourceId qmltypes1SourceId = sourcePathCache.sourceId("/path/one/example.qmltypes");
+    SourceId qmltypes2SourceId = sourcePathCache.sourceId("/path/two/example2.qmltypes");
 };
 
 TEST_F(ProjectStorageUpdater, GetContentForQmlDirPathsIfFileStatusIsDifferent)
@@ -345,20 +380,6 @@ TEST_F(ProjectStorageUpdater, GetContentForQmlTypesIfProjectStorageFileStatusIsI
         .WillByDefault(Return(FileStatus{}));
 
     EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes"))));
-
-    updater.update(directories, {});
-}
-
-TEST_F(ProjectStorageUpdater, DontGetContentForQmlTypesIfFileSystemFileStatusIsInvalid)
-{
-    QString qmldir{R"(module Example
-                      typeinfo example.qmltypes)"};
-    ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path")))).WillByDefault(Return(QStringList{}));
-    EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/qmldir"))))
-        .WillRepeatedly(Return(qmldir));
-    ON_CALL(fileSystemMock, fileStatus(Eq(qmltypesPathSourceId))).WillByDefault(Return(FileStatus{}));
-
-    EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/example.qmltypes")))).Times(0);
 
     updater.update(directories, {});
 }
@@ -434,6 +455,16 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
                                 UnorderedElementsAre(qmlDirPathSourceId)))));
 
     updater.update(directories, {});
+}
+
+TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesThrowsIfQmltpesDoesNotExists)
+{
+    Storage::Synchronization::Import import{qmlModuleId,
+                                            Storage::Synchronization::Version{2, 3},
+                                            qmltypesPathSourceId};
+    ON_CALL(fileSystemMock, fileStatus(Eq(qmltypesPathSourceId))).WillByDefault(Return(FileStatus{}));
+
+    ASSERT_THROW(updater.update(directories, {}), QmlDesigner::CannotParseQmlTypesFile);
 }
 
 TEST_F(ProjectStorageUpdater, SynchronizeQmlTypesAreEmptyIfFileDoesNotChanged)
@@ -1504,6 +1535,119 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmldirOptionalImports)
             Field(&SynchronizationPackage::updatedModuleIds, ElementsAre(exampleModuleId)))));
 
     updater.update(directories, {});
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherDirectories)
+{
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::Directory,
+                                               {path1SourceId, path2SourceId, path3SourceId}})));
+
+    updater.update(directories3, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherDirectoryDoesNotExists)
+{
+    ON_CALL(fileSystemMock, fileStatus(Eq(path2SourceId))).WillByDefault(Return(FileStatus{}));
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::Directory,
+                                               {path1SourceId, path3SourceId}})));
+
+    updater.update(directories3, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmldirs)
+{
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlDir,
+                                               {qmldir1SourceId, qmldir2SourceId, qmldir3SourceId}})));
+
+    updater.update(directories3, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmldirDoesNotExists)
+{
+    ON_CALL(fileSystemMock, fileStatus(Eq(qmldir2SourceId))).WillByDefault(Return(FileStatus{}));
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlDir,
+                                               {qmldir1SourceId, qmldir3SourceId}})));
+
+    updater.update(directories3, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmlFiles)
+{
+    QString qmldir1{R"(module Example
+                      FirstType 1.0 First.qml
+                      Second 1.0 Second.qml)"};
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/qmldir"))))
+        .WillByDefault(Return(qmldir1));
+    ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path/one"))))
+        .WillByDefault(Return(QStringList{"First.qml", "Second.qml"}));
+    ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path/two"))))
+        .WillByDefault(Return(QStringList{"Third.qml"}));
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/First.qml"))))
+        .WillByDefault(Return(qmlDocument1));
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/Second.qml"))))
+        .WillByDefault(Return(qmlDocument2));
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/two/Third.qml"))))
+        .WillByDefault(Return(qmlDocument3));
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::Qml,
+                                               {firstSourceId, secondSourceId, thirdSourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmltypesFilesInQmldirFiles)
+{
+    QString qmldir1{R"(module Example
+                      typeinfo example.qmltypes)"};
+    QString qmldir2{R"(module Example2
+                      typeinfo example2.qmltypes)"};
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/qmldir"))))
+        .WillByDefault(Return(qmldir1));
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/two/qmldir"))))
+        .WillByDefault(Return(qmldir2));
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/example.qmltypes"))))
+        .WillByDefault(Return(qmltypes1));
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/two/example2.qmltypes"))))
+        .WillByDefault(Return(qmltypes2));
+    SourceId qmltypes1SourceId = sourcePathCache.sourceId("/path/one/example.qmltypes");
+    SourceId qmltypes2SourceId = sourcePathCache.sourceId("/path/two/example2.qmltypes");
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlTypes,
+                                               {qmltypes1SourceId, qmltypes2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherBuiltinQmltypesFiles)
+{
+    QString builtinQmltyplesPath1{"/path/one/example.qmltypes"};
+    QString builtinQmltyplesPath2{"/path/two/example2.qmltypes"};
+    ON_CALL(fileSystemMock, contentAsQString(Eq(builtinQmltyplesPath1))).WillByDefault(Return(qmltypes1));
+    ON_CALL(fileSystemMock, contentAsQString(Eq(QString(builtinQmltyplesPath2))))
+        .WillByDefault(Return(qmltypes2));
+    SourceId qmltypes1SourceId = sourcePathCache.sourceId("/path/one/example.qmltypes");
+    SourceId qmltypes2SourceId = sourcePathCache.sourceId("/path/two/example2.qmltypes");
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlTypes,
+                                               {qmltypes1SourceId, qmltypes2SourceId}})));
+
+    updater.update({}, {builtinQmltyplesPath1, builtinQmltyplesPath2}, projectPartId);
 }
 
 } // namespace
