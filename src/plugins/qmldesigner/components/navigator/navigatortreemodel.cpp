@@ -558,7 +558,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             QByteArray filePath = mimeData->data(Constants::MIME_TYPE_BUNDLE_TEXTURE);
             ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.metaInfo().isQtQuick3DModel())
-                m_view->emitCustomNotification("apply_bundle_texture_to_model3D", {targetNode}, {filePath}); // To MaterialBrowserView
+                m_view->emitCustomNotification("apply_asset_to_model3D", {targetNode}, {filePath}); // To MaterialBrowserView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
             ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.isValid())
@@ -635,6 +635,9 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             handleInternalDrop(mimeData, rowNumber, dropModelIndex);
         }
     }
+
+    if (m_view && m_view->model())
+        m_view->model()->endDrag();
 
     return true;
 }
@@ -1119,6 +1122,16 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
     } else if (targetNode.metaInfo().isQtQuick3DTexture()) {
         // if dropping an image on an existing texture, set the source
         targetNode.variantProperty("source").setValue(imagePath);
+        return true;
+    } else if (targetNode.metaInfo().isQtQuick3DModel()) {
+        QTimer::singleShot(0, this, [this, targetNode, imagePath]() {
+            if (m_view && targetNode.isValid()) {
+                // To MaterialBrowserView. Done async to avoid custom notification in transaction
+                m_view->emitCustomNotification(
+                            "apply_asset_to_model3D", {targetNode},
+                            {DocumentManager::currentFilePath().absolutePath().pathAppended(imagePath).cleanPath().toString()});
+            }
+        });
         return true;
     }
 

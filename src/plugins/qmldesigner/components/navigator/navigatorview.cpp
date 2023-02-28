@@ -288,6 +288,12 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
                 // specific type
                 m_widget->setDragType(Storage::Info::EffectMaker);
                 m_widget->update();
+            } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_TEXTURE3D);
+                m_widget->update();
+            } else if (assetType == Constants::MIME_TYPE_ASSET_IMAGE) {
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_IMAGE);
+                m_widget->update();
             }
         }
     }

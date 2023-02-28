@@ -330,7 +330,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
             setSelectedModelNode(createdNode);
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MaterialDrop) {
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-        if (m_droppedModelNode.isValid() && modelNode.isValid() && isModel) {
+        if (m_droppedModelNode.isValid() && isModel) {
             executeInTransaction(__FUNCTION__, [&] {
                 assignMaterialTo3dModel(modelNode, m_droppedModelNode);
             });
@@ -339,9 +339,14 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
         emitCustomNotification("drop_bundle_material", {modelNode}); // To ContentLibraryView
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::TextureDrop) {
         emitCustomNotification("apply_texture_to_model3D", {modelNode, m_droppedModelNode});
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::AssetDrop) {
+        bool isModel = modelNode.metaInfo().isQtQuick3DModel();
+        if (!m_droppedFile.isEmpty() && isModel)
+            emitCustomNotification("apply_asset_to_model3D", {modelNode}, {m_droppedFile}); // To MaterialBrowserView
     }
 
     m_droppedModelNode = {};
+    m_droppedFile.clear();
     m_nodeAtPosReqType = NodeAtPosReqType::None;
 }
 
@@ -924,6 +929,13 @@ void Edit3DView::dropComponent(const ItemLibraryEntry &entry, const QPointF &pos
         emitView3DAction(View3DActionType::GetNodeAtPos, pos);
     else
         nodeAtPosReady({}, {}); // No need to actually resolve position for non-node items
+}
+
+void Edit3DView::dropAsset(const QString &file, const QPointF &pos)
+{
+    m_nodeAtPosReqType = NodeAtPosReqType::AssetDrop;
+    m_droppedFile = file;
+    emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 
 } // namespace QmlDesigner

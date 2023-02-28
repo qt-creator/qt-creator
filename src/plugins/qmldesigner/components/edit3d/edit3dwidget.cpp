@@ -28,6 +28,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <toolbox.h>
+#include <utils/asset.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -498,10 +499,18 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
-    if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+    if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
+        const auto urls = dragEnterEvent->mimeData()->urls();
+        if (!urls.isEmpty()) {
+            Asset asset(urls.first().toLocalFile());
+            if (asset.isTexture3D() || asset.isImage())
+                dragEnterEvent->acceptProposedAction();
+        }
+    } else if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         dragEnterEvent->acceptProposedAction();
     } else if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         QByteArray data = dragEnterEvent->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
@@ -548,6 +557,14 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         if (!m_draggedEntry.name().isEmpty())
             m_view->dropComponent(m_draggedEntry, pos);
+        m_view->model()->endDrag();
+        return;
+    }
+
+    // handle dropping image assets
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)
+        || dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
+        m_view->dropAsset(dropEvent->mimeData()->urls().first().toLocalFile(), pos);
         m_view->model()->endDrag();
         return;
     }

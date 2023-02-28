@@ -36,7 +36,7 @@ class CreateTextures : public CreateTexture
 {
 public:
     using CreateTexture::CreateTexture;
-    void execute(const QStringList &filePaths, AddTextureMode mode, int sceneId)
+    void execute(const QStringList &filePaths, AddTextureMode mode, int sceneId = -1)
     {
         for (const QString &path : filePaths)
             CreateTexture::execute(path, mode, sceneId);

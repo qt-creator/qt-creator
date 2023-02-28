@@ -64,6 +64,7 @@ public:
     void dropBundleMaterial(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
     void dropComponent(const ItemLibraryEntry &entry, const QPointF &pos);
+    void dropAsset(const QString &file, const QPointF &pos);
 
 private slots:
     void onEntriesChanged();
@@ -75,6 +76,7 @@ private:
         MaterialDrop,
         TextureDrop,
         ContextMenu,
+        AssetDrop,
         None
     };
 
@@ -124,6 +126,7 @@ private:
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedModelNode;
     ItemLibraryEntry m_droppedEntry;
+    QString m_droppedFile;
     NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPos;
     QTimer m_compressionTimer;

@@ -21,6 +21,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -517,7 +520,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         });
     } else if (identifier == "delete_selected_material") {
         m_widget->deleteSelectedItem();
-    } else if (identifier == "apply_bundle_texture_to_model3D") {
+    } else if (identifier == "apply_asset_to_model3D") {
         m_appliedTexturePath = data.at(0).toString();
         applyTextureToModel3D(nodeList.at(0));
     } else if (identifier == "apply_texture_to_model3D") {
@@ -645,7 +648,16 @@ void MaterialBrowserView::applyTextureToProperty(const QString &matId, const QSt
 {
     executeInTransaction(__FUNCTION__, [&] {
         if (m_appliedTextureId.isEmpty() && !m_appliedTexturePath.isEmpty()) {
-            auto texCreator = new CreateTexture(this, true);
+            bool import = true;
+            using namespace ProjectExplorer;
+
+            if (Project *proj = ProjectTree::currentProject()) {
+                Utils::FilePath projDir = proj->projectFilePath().parentDir().pathAppended("content");
+                if (m_appliedTexturePath.startsWith(projDir.toString()))
+                    import = false;
+            }
+
+            auto texCreator = new CreateTexture(this, import);
             ModelNode tex = texCreator->execute(m_appliedTexturePath, AddTextureMode::Texture);
             m_appliedTextureId = tex.id();
             m_appliedTexturePath.clear();
