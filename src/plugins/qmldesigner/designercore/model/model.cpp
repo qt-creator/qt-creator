@@ -1959,6 +1959,16 @@ NodeMetaInfo Model::qtQuick3DDefaultMaterialMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DPrincipledMaterialMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, PrincipledMaterial>();
+    } else {
+        return metaInfo("QtQuick3D.PrincipledMaterial");
+    }
+}
+
 NodeMetaInfo Model::qtQuickTimelineTimelineMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

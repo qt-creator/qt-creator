@@ -430,9 +430,10 @@ void MaterialEditorView::handleToolBarAction(int action)
             if (!matLib.isValid())
                 return;
 
-            NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.DefaultMaterial");
-            ModelNode newMatNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
-                                                                                metaInfo.minorVersion());
+            NodeMetaInfo metaInfo = model()->qtQuick3DPrincipledMaterialMetaInfo();
+            ModelNode newMatNode = createModelNode("QtQuick3D.PrincipledMaterial",
+                                                   metaInfo.majorVersion(),
+                                                   metaInfo.minorVersion());
             renameMaterial(newMatNode, "New Material");
             matLib.defaultNodeListProperty().reparentHere(newMatNode);
         });

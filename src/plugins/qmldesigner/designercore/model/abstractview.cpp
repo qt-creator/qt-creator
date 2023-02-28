@@ -910,8 +910,9 @@ void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const Mod
 
         // if no valid material, create a new default material
         if (!newMaterialNode.isValid()) {
-            NodeMetaInfo metaInfo = model()->qtQuick3DDefaultMaterialMetaInfo();
-            newMaterialNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
+            NodeMetaInfo metaInfo = model()->qtQuick3DPrincipledMaterialMetaInfo();
+            newMaterialNode = createModelNode("QtQuick3D.PrincipledMaterial",
+                                              metaInfo.majorVersion(),
                                               metaInfo.minorVersion());
             newMaterialNode.validId();
         }

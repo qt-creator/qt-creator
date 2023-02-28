@@ -91,6 +91,7 @@ public:
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DModelMetaInfo() const;
     NodeMetaInfo qtQuick3DNodeMetaInfo() const;
+    NodeMetaInfo qtQuick3DPrincipledMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DTextureMetaInfo() const;
     NodeMetaInfo qtQuickConnectionsMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
