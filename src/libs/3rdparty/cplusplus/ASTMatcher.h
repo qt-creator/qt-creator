@@ -158,6 +158,7 @@ public:
     virtual bool match(QualifiedNameAST *node, QualifiedNameAST *pattern);
     virtual bool match(RangeBasedForStatementAST *node, RangeBasedForStatementAST *pattern);
     virtual bool match(ReferenceAST *node, ReferenceAST *pattern);
+    virtual bool match(RequiresClauseAST *node, RequiresClauseAST *pattern);
     virtual bool match(RequiresExpressionAST *node, RequiresExpressionAST *pattern);
     virtual bool match(ReturnStatementAST *node, ReturnStatementAST *pattern);
     virtual bool match(SimpleDeclarationAST *node, SimpleDeclarationAST *pattern);

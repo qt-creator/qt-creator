@@ -926,6 +926,13 @@ bool RequiresExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool RequiresClauseAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (const auto other = pattern->asRequiresClause())
+        return matcher->match(this, other);
+    return false;
+}
+
 bool ThrowExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (ThrowExpressionAST *_other = pattern->asThrowExpression())

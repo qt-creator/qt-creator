@@ -201,6 +201,7 @@ public:
     virtual bool visit(RangeBasedForStatementAST *) { return true; }
     virtual bool visit(ReferenceAST *) { return true; }
     virtual bool visit(RequiresExpressionAST *) { return true; }
+    virtual bool visit(RequiresClauseAST *) { return true; }
     virtual bool visit(ReturnStatementAST *) { return true; }
     virtual bool visit(SimpleDeclarationAST *) { return true; }
     virtual bool visit(SimpleNameAST *) { return true; }
@@ -359,6 +360,7 @@ public:
     virtual void endVisit(RangeBasedForStatementAST *) {}
     virtual void endVisit(ReferenceAST *) {}
     virtual void endVisit(RequiresExpressionAST *) {}
+    virtual void endVisit(RequiresClauseAST *) {}
     virtual void endVisit(ReturnStatementAST *) {}
     virtual void endVisit(SimpleDeclarationAST *) {}
     virtual void endVisit(SimpleNameAST *) {}

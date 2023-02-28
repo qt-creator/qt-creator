@@ -911,6 +911,8 @@ int DeclaratorAST::lastToken() const
             return candidate;
     if (equal_token)
         return equal_token + 1;
+    if (requiresClause)
+        return requiresClause->lastToken();
     if (post_attribute_list)
         if (int candidate = post_attribute_list->lastToken())
             return candidate;

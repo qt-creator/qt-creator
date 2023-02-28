@@ -1305,6 +1305,8 @@ TemplateDeclarationAST *TemplateDeclarationAST::clone(MemoryPool *pool) const
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) DeclarationListAST((iter->value) ? iter->value->clone(pool) : nullptr);
     ast->greater_token = greater_token;
+    if (requiresClause)
+        ast->requiresClause = requiresClause->clone(pool);
     if (declaration)
         ast->declaration = declaration->clone(pool);
     return ast;
@@ -1335,6 +1337,15 @@ RequiresExpressionAST *RequiresExpressionAST::clone(MemoryPool *pool) const
     ast->rparen_token = rparen_token;
     ast->lbrace_token = lbrace_token;
     ast->rbrace_token = rbrace_token;
+    return ast;
+}
+
+RequiresClauseAST *RequiresClauseAST::clone(MemoryPool *pool) const
+{
+    const auto ast = new (pool) RequiresClauseAST;
+    ast->requires_token = requires_token;
+    if (constraint)
+        ast->constraint = constraint->clone(pool);
     return ast;
 }
 

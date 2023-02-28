@@ -340,6 +340,7 @@ public:
     virtual TypeofSpecifierAST *asTypeofSpecifier() { return nullptr; }
     virtual UnaryExpressionAST *asUnaryExpression() { return nullptr; }
     virtual RequiresExpressionAST *asRequiresExpression() { return nullptr; }
+    virtual RequiresClauseAST *asRequiresClause() { return nullptr; }
     virtual UsingAST *asUsing() { return nullptr; }
     virtual UsingDirectiveAST *asUsingDirective() { return nullptr; }
     virtual WhileStatementAST *asWhileStatement() { return nullptr; }
@@ -693,6 +694,7 @@ public:
     SpecifierListAST *post_attribute_list = nullptr;
     int equal_token = 0;
     ExpressionAST *initializer = nullptr;
+    RequiresClauseAST *requiresClause = nullptr;
 
 public:
     DeclaratorAST *asDeclarator() override { return this; }
@@ -2763,6 +2765,7 @@ public:
     int less_token = 0;
     DeclarationListAST *template_parameter_list = nullptr;
     int greater_token = 0;
+    RequiresClauseAST *requiresClause = nullptr;
     DeclarationAST *declaration = nullptr;
 
 public: // annotations
@@ -3014,6 +3017,25 @@ public:
     int lastToken() const override { return rbrace_token + 1; }
 
     RequiresExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT RequiresClauseAST: public AST
+{
+public:
+    int requires_token = 0;
+    ExpressionAST *constraint = nullptr;
+
+public:
+    RequiresClauseAST *asRequiresClause() override { return this; }
+
+    int firstToken() const override { return requires_token; }
+    int lastToken() const override { return constraint->lastToken(); }
+
+    RequiresClauseAST *clone(MemoryPool *pool) const override;
 
 protected:
     void accept0(ASTVisitor *visitor) override;

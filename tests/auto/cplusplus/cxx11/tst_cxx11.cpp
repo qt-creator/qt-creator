@@ -147,6 +147,7 @@ private Q_SLOTS:
     void lambdaType();
 
     void concepts();
+    void requiresClause();
 };
 
 
@@ -308,6 +309,28 @@ void *func2(IsPointer auto p)
 {
     return p;
 }
+)";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug() << errors;
+    QVERIFY(!hasErrors);
+}
+
+void tst_cxx11::requiresClause()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = features.cxx14Enabled = features.cxx20Enabled = true;
+
+    const QString source = R"(
+template<class T> constexpr bool is_meowable = true;
+template<class T> constexpr bool is_purrable() { return true; }
+template<class T> void f(T) requires is_meowable<T>;
+template<class T> requires is_meowable<T> void g(T) ;
+template<class T> void h(T) requires (is_purrable<T>());
 )";
     QByteArray errors;
     Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));

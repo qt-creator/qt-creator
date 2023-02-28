@@ -1247,6 +1247,8 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
         ast->less_token = consumeToken();
         if (maybeSplitGreaterGreaterToken() || LA() == T_GREATER || parseTemplateParameterList(ast->template_parameter_list))
             match(T_GREATER, &ast->greater_token);
+        if (!parseRequiresClauseOpt(ast->requiresClause))
+            return false;
     }
 
     while (LA()) {
@@ -1399,6 +1401,20 @@ bool Parser::parseRequirement()
     if (LA() != T_SEMICOLON)
         return false;
     consumeToken();
+    return true;
+}
+
+bool Parser::parseRequiresClauseOpt(RequiresClauseAST *&node)
+{
+    if (!_languageFeatures.cxx20Enabled)
+        return true;
+    if (LA() != T_REQUIRES)
+        return true;
+    const auto ast = new (_pool) RequiresClauseAST;
+    ast->requires_token = consumeToken();
+    if (!parseLogicalOrExpression(ast->constraint))
+        return false;
+    node = ast;
     return true;
 }
 
@@ -2998,6 +3014,8 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
         parseInitializer(node->initializer, &node->equal_token);
     } else if (node->core_declarator && node->core_declarator->asDecompositionDeclarator()) {
         error(cursor(), "structured binding needs initializer");
+        return false;
+    } else if (!parseRequiresClauseOpt(node->requiresClause)) {
         return false;
     }
     return true;

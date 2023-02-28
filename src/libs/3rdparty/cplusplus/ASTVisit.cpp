@@ -958,6 +958,7 @@ void TemplateDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(template_parameter_list, visitor);
+        accept(requiresClause, visitor);
         accept(declaration, visitor);
     }
     visitor->endVisit(this);
@@ -977,6 +978,13 @@ void RequiresExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this))
         accept(parameters, visitor);
+    visitor->endVisit(this);
+}
+
+void RequiresClauseAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(constraint, visitor);
     visitor->endVisit(this);
 }
 

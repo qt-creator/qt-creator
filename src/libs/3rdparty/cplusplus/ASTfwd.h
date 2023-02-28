@@ -167,6 +167,7 @@ class QtPropertyDeclarationItemAST;
 class QualifiedNameAST;
 class RangeBasedForStatementAST;
 class ReferenceAST;
+class RequiresClauseAST;
 class RequiresExpressionAST;
 class ReturnStatementAST;
 class SimpleDeclarationAST;

@@ -2205,6 +2205,11 @@ bool ASTMatcher::match(TemplateDeclarationAST *node, TemplateDeclarationAST *pat
 
     pattern->greater_token = node->greater_token;
 
+    if (! pattern->requiresClause)
+        pattern->requiresClause = node->requiresClause;
+    else if (! AST::match(node->requiresClause, pattern->requiresClause, this))
+        return false;
+
     if (! pattern->declaration)
         pattern->declaration = node->declaration;
     else if (! AST::match(node->declaration, pattern->declaration, this))
@@ -2244,6 +2249,16 @@ bool ASTMatcher::match(RequiresExpressionAST *node, RequiresExpressionAST *patte
     else if (!AST::match(node->parameters, pattern->parameters, this))
         return false;
 
+    return true;
+}
+
+bool ASTMatcher::match(RequiresClauseAST *node, RequiresClauseAST *pattern)
+{
+    pattern->requires_token = node->requires_token;
+    if (!pattern->constraint)
+        pattern->constraint = node->constraint;
+    else if (!AST::match(node->constraint, pattern->constraint, this))
+        return false;
     return true;
 }
 

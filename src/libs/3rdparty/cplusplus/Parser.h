@@ -147,6 +147,7 @@ public:
     bool parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node);
     bool parseTypeConstraint(TypeConstraintAST *&node);
     bool parseRequirement();
+    bool parseRequiresClauseOpt(RequiresClauseAST *&node);
     bool parseRequiresExpression(ExpressionAST *&node);
     bool parseTemplateParameter(DeclarationAST *&node);
     bool parseTemplateParameterList(DeclarationListAST *&node);
