@@ -92,8 +92,8 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
         return {pixmap, size};
     } else if (asset.isKtxFile()) {
         qint64 size = QFileInfo(id).size();
-        // TODO: Return ktx specific default image once available (QDS-9140)
-        return {{}, size};
+        QString filePath = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/asset_ktx.png");
+        return {QPixmap{filePath}, size};
     } else {
         QString type;
         if (asset.isShader())

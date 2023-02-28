@@ -124,6 +124,8 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                     const QString suffix = iconPath.split('.').last().toLower();
                     if (suffix == "hdr")
                         pixmap = HdrImage{iconPath}.toPixmap();
+                    else if (suffix == "ktx")
+                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_ktx.png");
                     else
                         pixmap = Utils::StyleHelper::dpiSpecificImageFile(iconPath);
                     if (pixmap.isNull())
