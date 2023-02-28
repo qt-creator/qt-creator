@@ -32,6 +32,7 @@ private slots:
     void testRead();
     void testWrite();
     void testRootFromDotDot();
+    void testDirtyPaths();
 
 private:
     QString makeTestPath(QString path, bool asUrl = false);
@@ -134,7 +135,8 @@ QString tst_fsengine::makeTestPath(QString path, bool asUrl)
         return QString("device://test%1/tst_fsengine/%2").arg(tempFolder, path);
 
     return QString(FilePath::specialDeviceRootPath() + "/test%1/tst_fsengine/%2")
-        .arg(startWithSlash(tempFolder), path);
+        .arg(startWithSlash(tempFolder))
+        .arg(path);
 }
 
 void tst_fsengine::testListDir()
@@ -241,6 +243,21 @@ void tst_fsengine::testRootFromDotDot()
 
     QFileInfo fInfo4(FilePath::specialDeviceRootPath() + "/test/tmp/..");
     QCOMPARE(fInfo4.fileName(), "..");
+}
+
+void tst_fsengine::testDirtyPaths()
+{
+    // "//__qtc_devices"
+    QVERIFY(QFileInfo("/" + FilePath::specialRootPath()).exists());
+
+    // "///__qtc_devices/device"
+    QVERIFY(QFileInfo("//" + FilePath::specialDeviceRootPath()).exists());
+
+    // "////__qtc_devices/device////test"
+    QVERIFY(QFileInfo("///" + FilePath::specialDeviceRootPath() + "////test").exists());
+
+    // "/////__qtc_devices/device/test/..."
+    QVERIFY(QFileInfo("////" + makeTestPath("")).exists());
 }
 
 QTEST_GUILESS_MAIN(tst_fsengine)
