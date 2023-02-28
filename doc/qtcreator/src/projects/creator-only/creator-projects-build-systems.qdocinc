@@ -35,6 +35,16 @@
     the commands in the low-level build graph (like make does). For more
     information, see \l{Setting Up Qbs}.
 
+    To export a project to some other build system, such as Microsoft Visual
+    Studio, select \uicontrol Build > \uicontrol {Run Generator}, and select
+    a generator in the list. \QC generates the build files, such as .vcxproj,
+    in the project's build directory. The tool that you use to build the project
+    (qmake or CMake) provides the generators. Their availability depends on the
+    version of the build tool, host platform, and properties of the host system.
+    Also, a JSON compilation database generator is available if the
+    \l{Parsing C++ Files with the Clang Code Model}{Clang Code Model plugin}
+    is enabled (default).
+
     To change the location of the project directory, and to specify settings
     for building and running projects, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General.
