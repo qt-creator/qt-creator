@@ -48,12 +48,12 @@ static void connectTarget(Project *project, Target *target)
     if (!ConanPlugin::conanFilePath(project).isEmpty()) {
         const QList<BuildConfiguration *> buildConfigurations = target->buildConfigurations();
         for (BuildConfiguration *buildConfiguration : buildConfigurations)
-            buildConfiguration->buildSteps()->appendStep(Constants::INSTALL_STEP);
+            buildConfiguration->buildSteps()->insertStep(0, Constants::INSTALL_STEP);
     }
     QObject::connect(target, &Target::addedBuildConfiguration,
                      target, [project] (BuildConfiguration *buildConfiguration) {
         if (!ConanPlugin::conanFilePath(project).isEmpty())
-            buildConfiguration->buildSteps()->appendStep(Constants::INSTALL_STEP);
+            buildConfiguration->buildSteps()->insertStep(0, Constants::INSTALL_STEP);
     });
 }
 
