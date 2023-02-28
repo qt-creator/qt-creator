@@ -363,11 +363,15 @@ static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
     const QVersionNumber version = Utils::clangdVersion(clangdFilePath);
     QTC_ASSERT(!version.isNull(), return {});
     static const QStringList libDirs{"lib", "lib64"};
+    const QStringList versionStrings{QString::number(version.majorVersion()), version.toString()};
     for (const QString &libDir : libDirs) {
-        const FilePath includePath = clangdFilePath.absolutePath().parentDir().pathAppended(libDir)
-                .pathAppended("clang").pathAppended(version.toString()).pathAppended("include");
-        if (includePath.exists())
-            return includePath;
+        for (const QString &versionString : versionStrings) {
+            const FilePath includePath = clangdFilePath.absolutePath().parentDir()
+                                             .pathAppended(libDir).pathAppended("clang")
+                                             .pathAppended(versionString).pathAppended("include");
+            if (includePath.exists())
+                return includePath;
+        }
     }
     QTC_CHECK(false);
     return {};
