@@ -2279,6 +2279,19 @@ void CdbEngine::parseOutputLine(QString line)
     while (isCdbPrompt(line))
         line.remove(0, CdbPromptLength);
     // An extension notification (potentially consisting of several chunks)
+    if (!m_initialSessionIdleHandled && line.startsWith("SECURE: File not allowed to be loaded")
+        && line.endsWith("qtcreatorcdbext.dll")) {
+        CheckableMessageBox::doNotShowAgainInformation(
+            Core::ICore::dialogParent(),
+            Tr::tr("Debugger Start Failed"),
+            Tr::tr("The system prevents loading of %1 which is required for debugging. "
+                   "Make sure that your antivirus solution is up to date and if that does not work "
+                   "consider to add an exception for %1.")
+                .arg(m_extensionFileName),
+            Core::ICore::settings(),
+            "SecureInfoCdbextCannotBeLoaded");
+        notifyEngineSetupFailed();
+    }
     static const QString creatorExtPrefix = "<qtcreatorcdbext>|";
     if (line.startsWith(creatorExtPrefix)) {
         // "<qtcreatorcdbext>|type_char|token|remainingChunks|serviceName|message"
