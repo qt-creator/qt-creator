@@ -6,7 +6,6 @@
 @PLUGIN_CLASS@::@PLUGIN_CLASS@(QObject *parent)
     : QObject(parent)
 {
-    m_initialized = false;
 }
 
 void @PLUGIN_CLASS@::initialize(QDesignerFormEditorInterface * /* core */)

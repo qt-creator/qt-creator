@@ -12,7 +12,7 @@ class @WIDGET_CLASS@ : public @WIDGET_BASE_CLASS@
     Q_OBJECT
 
 public:
-    @WIDGET_CLASS@(QWidget *parent = 0);
+    explicit @WIDGET_CLASS@(QWidget *parent = nullptr);
 };
 
 @if ! '%{Cpp:PragmaOnce}'
