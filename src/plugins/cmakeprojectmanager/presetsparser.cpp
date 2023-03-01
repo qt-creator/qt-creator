@@ -456,9 +456,9 @@ static QHash<QString, QString> merge(const QHash<QString, QString> &first,
 static Utils::Environment merge(const Utils::Environment &first, const Utils::Environment &second)
 {
     Utils::Environment result = first;
-    for (auto it = second.constBegin(); it != second.constEnd(); ++it) {
-        result.set(it.key().name, it.value().first);
-    }
+    second.forEachEntry([&](const QString &key, const QString &value, bool) {
+        result.set(key, value);
+    });
 
     return result;
 }
