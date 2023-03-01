@@ -60,7 +60,7 @@ bool @PLUGIN_CLASS@::isContainer() const
 
 QString @PLUGIN_CLASS@::domXml() const
 {
-    return QLatin1String("@WIDGET_DOMXML@");
+    return QLatin1String(@WIDGET_DOMXML@);
 }
 
 QString @PLUGIN_CLASS@::includeFile() const

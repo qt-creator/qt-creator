@@ -114,7 +114,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         sm.insert(QLatin1String("WIDGET_TOOLTIP"), cStringQuote(wo.toolTip));
         sm.insert(QLatin1String("WIDGET_WHATSTHIS"), cStringQuote(wo.whatsThis));
         sm.insert(QLatin1String("WIDGET_ISCONTAINER"), wo.isContainer ? QLatin1String("true") : QLatin1String("false"));
-        sm.insert(QLatin1String("WIDGET_DOMXML"), cStringQuote(wo.domXml));
+        sm.insert(QLatin1String("WIDGET_DOMXML"), QLatin1String("R\"(")
+                                + wo.domXml.trimmed() + QLatin1String(")\""));
 
         const QString pluginSourceContents = processTemplate(p.templatePath + QLatin1String("/tpl_single.cpp"), sm, errorMessage);
         if (pluginSourceContents.isEmpty())
