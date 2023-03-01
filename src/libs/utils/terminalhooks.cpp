@@ -8,6 +8,24 @@
 
 namespace Utils::Terminal {
 
+FilePath defaultShellForDevice(const FilePath &deviceRoot)
+{
+    if (!deviceRoot.needsDevice())
+        return {};
+
+    // TODO: Windows ?
+    const Environment env = deviceRoot.deviceEnvironment();
+    FilePath shell = FilePath::fromUserInput(env.value_or("SHELL", "/bin/sh"));
+
+    if (!shell.isAbsolutePath())
+        shell = env.searchInPath(shell.nativePath());
+
+    if (shell.isEmpty())
+        return shell;
+
+    return shell.onDevice(deviceRoot);
+}
+
 struct HooksPrivate
 {
     HooksPrivate()

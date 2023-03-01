@@ -101,9 +101,6 @@ public:
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
     std::optional<Utils::FilePath> clangdExecutable() const override;
 
-    std::optional<Utils::CommandLine> terminalCommand(const Utils::FilePath &workDir,
-                                                      const Utils::Environment &env) const override;
-
 protected:
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;

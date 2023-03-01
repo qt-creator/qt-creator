@@ -465,9 +465,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
             for (const IDevice::ConstPtr device : d->devices) {
                 if (device->type() == Constants::DESKTOP_DEVICE_TYPE)
                     continue;
-                const std::optional<CommandLine> terminalCommand = device->terminalCommand({}, {});
-                if (terminalCommand)
-                    result << Terminal::NameAndCommandLine{device->displayName(), *terminalCommand};
+
+                const FilePath shell = Terminal::defaultShellForDevice(device->rootPath());
+
+                if (!shell.isEmpty())
+                    result << Terminal::NameAndCommandLine{device->displayName(),
+                                                           CommandLine{shell, {}}};
             }
             return result;
         });

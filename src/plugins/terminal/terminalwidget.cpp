@@ -105,8 +105,8 @@ void TerminalWidget::setupPty()
     m_process->setProcessMode(ProcessMode::Writer);
     m_process->setTerminalMode(TerminalMode::Pty);
     m_process->setCommand(shellCommand);
-    m_process->setWorkingDirectory(
-        m_openParameters.workingDirectory.value_or(FilePath::fromString(QDir::homePath())));
+    if (m_openParameters.workingDirectory.has_value())
+        m_process->setWorkingDirectory(*m_openParameters.workingDirectory);
     m_process->setEnvironment(env);
 
     connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
@@ -122,8 +122,6 @@ void TerminalWidget::setupPty()
     connect(m_process.get(), &QtcProcess::done, this, [this] {
         m_cursor.visible = false;
         if (m_process) {
-            onReadyRead();
-
             if (m_process->exitCode() != 0) {
                 QByteArray msg = QString("\r\n\033[31mProcess exited with code: %1")
                                      .arg(m_process->exitCode())

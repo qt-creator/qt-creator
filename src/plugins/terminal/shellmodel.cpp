@@ -99,11 +99,10 @@ QList<ShellModelItem> ShellModel::remote() const
 {
     const auto deviceCmds = Utils::Terminal::Hooks::instance().getTerminalCommandsForDevicesHook()();
 
-    const QList<ShellModelItem> deviceItems
-        = Utils::transform(deviceCmds,
-                           [](const Utils::Terminal::NameAndCommandLine &item) -> ShellModelItem {
-                               return ShellModelItem{item.name, {}, {item.commandLine, {}, {}}};
-                           });
+    const QList<ShellModelItem> deviceItems = Utils::transform(
+        deviceCmds, [](const Utils::Terminal::NameAndCommandLine &item) -> ShellModelItem {
+            return ShellModelItem{item.name, {}, {item.commandLine, std::nullopt, std::nullopt}};
+        });
 
     return deviceItems;
 }

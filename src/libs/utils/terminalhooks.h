@@ -54,6 +54,8 @@ struct NameAndCommandLine
     CommandLine commandLine;
 };
 
+QTCREATOR_UTILS_EXPORT FilePath defaultShellForDevice(const FilePath &deviceRoot);
+
 class QTCREATOR_UTILS_EXPORT Hooks
 {
 public:

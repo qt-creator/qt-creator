@@ -181,14 +181,6 @@ void IDevice::openTerminal(const Environment &env, const FilePath &workingDir) c
     d->openTerminal(env, workingDir);
 }
 
-std::optional<Utils::CommandLine> IDevice::terminalCommand(const FilePath &workDir, const Environment &env) const
-{
-    Q_UNUSED(workDir);
-    Q_UNUSED(env);
-
-    return std::nullopt;
-}
-
 bool IDevice::isEmptyCommandAllowed() const
 {
     return d->emptyCommandAllowed;

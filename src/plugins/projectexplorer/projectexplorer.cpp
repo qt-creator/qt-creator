@@ -3825,11 +3825,18 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
         return;
 
     FilePath workingDir = currentNode->directory();
-    if (!buildDevice->ensureReachable(workingDir))
+    if (!buildDevice->filePath(workingDir.path()).exists()
+        && !buildDevice->ensureReachable(workingDir))
         workingDir.clear();
 
-    const auto cmd = buildDevice->terminalCommand(workingDir, *environment);
-    Terminal::Hooks::instance().openTerminalHook()({cmd, workingDir, environment});
+    const FilePath shell = Terminal::defaultShellForDevice(buildDevice->rootPath());
+
+    if (!shell.isEmpty() && buildDevice->rootPath().needsDevice()) {
+        Terminal::Hooks::instance().openTerminalHook()(
+            {CommandLine{shell, {}}, workingDir, environment});
+    } else {
+        Terminal::Hooks::instance().openTerminalHook()({std::nullopt, workingDir, environment});
+    }
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3851,11 +3858,21 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
         device = DeviceKitAspect::device(target->kit());
     QTC_ASSERT(device && device->canOpenTerminal(), return);
 
-    const FilePath workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
-            ? currentNode->directory() : runnable.workingDirectory;
+    FilePath workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
+                              ? currentNode->directory()
+                              : runnable.workingDirectory;
 
-    const auto cmd = device->terminalCommand(workingDir, runnable.environment);
-    Terminal::Hooks::instance().openTerminalHook()({cmd, workingDir, runnable.environment});
+    if (!device->filePath(workingDir.path()).exists() && !device->ensureReachable(workingDir))
+        workingDir.clear();
+
+    const FilePath shell = Terminal::defaultShellForDevice(device->rootPath());
+    if (!shell.isEmpty() && device->rootPath().needsDevice()) {
+        Terminal::Hooks::instance().openTerminalHook()(
+            {CommandLine{shell, {}}, workingDir, runnable.environment});
+    } else {
+        Terminal::Hooks::instance().openTerminalHook()(
+            {std::nullopt, workingDir, runnable.environment});
+    }
 }
 
 void ProjectExplorerPluginPrivate::removeFile()
