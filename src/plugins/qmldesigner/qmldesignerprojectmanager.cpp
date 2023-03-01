@@ -61,7 +61,7 @@ QString previewDefaultImagePath()
 
 QString previewBrokenImagePath()
 {
-    return Core::ICore::resourcePath("qmldesigner/welcomepage/images/newPreview.png").toString();
+    return Core::ICore::resourcePath("qmldesigner/welcomepage/images/noPreview.png").toString();
 }
 
 ::QmlProjectManager::QmlBuildSystem *getQmlBuildSystem(::ProjectExplorer::Target *target)
