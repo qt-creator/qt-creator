@@ -711,6 +711,13 @@ void AndroidBuildApkStep::doRun()
         return;
     }
 
+    if (AndroidManager::skipInstallationAndPackageSteps(target())) {
+        reportWarningOrError(Tr::tr("Product type is not an application, not building an APK."),
+                             Task::Warning);
+        emit finished(true);
+        return;
+    }
+
     auto setup = [this] {
         const auto androidAbis = AndroidManager::applicationAbis(target());
         const QString buildKey = target()->activeBuildKey();

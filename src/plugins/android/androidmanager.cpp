@@ -359,6 +359,21 @@ Abi AndroidManager::androidAbi2Abi(const QString &androidAbi)
     }
 }
 
+bool AndroidManager::skipInstallationAndPackageSteps(const Target *target)
+{
+    const Project *p = target->project();
+
+    const Core::Context cmakeCtx = Core::Context(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+    const bool isCmakeProject = p->projectContext() == cmakeCtx;
+    if (isCmakeProject)
+        return false; // CMake reports ProductType::Other for Android Apps
+
+    const ProjectNode *n = p->rootProjectNode()->findProjectNode([] (const ProjectNode *n) {
+        return n->productType() == ProductType::App;
+    });
+    return n == nullptr; // If no Application target found, then skip steps
+}
+
 FilePath AndroidManager::manifestSourcePath(const Target *target)
 {
     if (const ProjectNode *node = currentProjectNode(target)) {
