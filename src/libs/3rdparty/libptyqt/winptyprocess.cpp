@@ -60,6 +60,7 @@ bool WinPtyProcess::startProcess(const QString &executable,
     }
 
     m_shellPath = executable;
+    m_shellPath.replace('/', '\\');
     m_size = QPair<qint16, qint16>(cols, rows);
 
 #ifdef PTYQT_DEBUG

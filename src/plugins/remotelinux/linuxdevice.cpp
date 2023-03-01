@@ -656,9 +656,15 @@ void LinuxProcessInterface::handleReadyReadStandardOutput(const QByteArray &outp
     m_output.append(outputData);
 
     static const QByteArray endMarker = s_pidMarker + '\n';
-    const int endMarkerOffset = m_output.indexOf(endMarker);
-    if (endMarkerOffset == -1)
-        return;
+    int endMarkerLength = endMarker.length();
+    int endMarkerOffset = m_output.indexOf(endMarker);
+    if (endMarkerOffset == -1) {
+        static const QByteArray endMarker = s_pidMarker + "\r\n";
+        endMarkerOffset = m_output.indexOf(endMarker);
+        endMarkerLength = endMarker.length();
+        if (endMarkerOffset == -1)
+            return;
+    }
     const int startMarkerOffset = m_output.indexOf(s_pidMarker);
     if (startMarkerOffset == endMarkerOffset) // Only theoretically possible.
         return;
@@ -668,7 +674,7 @@ void LinuxProcessInterface::handleReadyReadStandardOutput(const QByteArray &outp
     const qint64 processId = pidString.toLongLong();
 
     // We don't want to show output from e.g. /etc/profile.
-    m_output = m_output.mid(endMarkerOffset + endMarker.length());
+    m_output = m_output.mid(endMarkerOffset + endMarkerLength);
 
     emitStarted(processId);
 

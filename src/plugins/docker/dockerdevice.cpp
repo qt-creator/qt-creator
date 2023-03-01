@@ -241,7 +241,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
         if (!m_hasReceivedFirstOutput) {
             QByteArray output = m_process.readAllRawStandardOutput();
             qsizetype idx = output.indexOf('\n');
-            QByteArray firstLine = output.left(idx);
+            QByteArray firstLine = output.left(idx).trimmed();
             QByteArray rest = output.mid(idx + 1);
             qCDebug(dockerDeviceLog)
                 << "Process first line received:" << m_process.commandLine() << firstLine;
@@ -301,7 +301,9 @@ void DockerProcessImpl::start()
         = m_devicePrivate->withDockerExecCmd(m_setup.m_commandLine,
                                              m_setup.m_environment,
                                              m_setup.m_workingDirectory,
-                                             interactive);
+                                             interactive,
+                                             true,
+                                             m_setup.m_terminalMode == TerminalMode::Pty);
 
     m_process.setCommand(fullCommandLine);
     m_process.start();

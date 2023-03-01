@@ -5,6 +5,7 @@
 
 #include "scrollback.h"
 
+#include <utils/qtcprocess.h>
 #include <utils/terminalhooks.h>
 
 #include <QAbstractScrollArea>
@@ -12,7 +13,6 @@
 #include <QTextLayout>
 #include <QTimer>
 
-#include <iptyprocess.h>
 #include <vterm.h>
 
 #include <memory>
@@ -111,7 +111,7 @@ protected:
     void updateScrollBars();
 
 private:
-    std::unique_ptr<IPtyProcess> m_ptyProcess;
+    std::unique_ptr<Utils::QtcProcess> m_process;
 
     std::unique_ptr<VTerm, void (*)(VTerm *)> m_vterm;
     VTermScreen *m_vtermScreen;

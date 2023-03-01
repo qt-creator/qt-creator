@@ -46,7 +46,6 @@ set(shared_sources
 #
 
 add_qtc_executable(winpty-agent
-  DESTINATION ${IDE_PLUGIN_PATH}
   INCLUDES
     include ${CMAKE_BINARY_DIR}
   DEFINES WINPTY_AGENT_ASSERT

@@ -123,6 +123,7 @@ bool ConPtyProcess::startProcess(const QString &executable,
     }
 
     m_shellPath = executable;
+    m_shellPath.replace('/', '\\');
     m_size = QPair<qint16, qint16>(cols, rows);
 
     //env
@@ -134,6 +135,7 @@ bool ConPtyProcess::startProcess(const QString &executable,
     envBlock << L'\0';
     std::wstring env = envBlock.str();
     LPWSTR envArg = env.empty() ? nullptr : env.data();
+    LPCWSTR workingDirPointer = workingDir.isEmpty() ? nullptr : workingDir.toStdWString().c_str();
 
     QStringList exeAndArgs = arguments;
     exeAndArgs.prepend(m_shellPath);
@@ -165,7 +167,7 @@ bool ConPtyProcess::startProcess(const QString &executable,
                        FALSE,         // Inherit handles
                        EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT, // Creation flags
                        envArg,                            // Environment block
-                       workingDir.toStdWString().c_str(), // Use parent's starting directory
+                       workingDirPointer, // Use parent's starting directory
                        &m_shellStartupInfo.StartupInfo,   // Pointer to STARTUPINFO
                        &m_shellProcessInformation)        // Pointer to PROCESS_INFORMATION
              ? S_OK
@@ -264,11 +266,13 @@ bool ConPtyProcess::kill()
         if (INVALID_HANDLE_VALUE != m_hPipeIn)
             CloseHandle(m_hPipeIn);
 
-        m_readThread->requestInterruption();
-        if (!m_readThread->wait(1000))
-            m_readThread->terminate();
-        m_readThread->deleteLater();
-        m_readThread = nullptr;
+        if (m_readThread) {
+            m_readThread->requestInterruption();
+            if (!m_readThread->wait(1000))
+                m_readThread->terminate();
+            m_readThread->deleteLater();
+            m_readThread = nullptr;
+        }
 
         delete m_shellCloseWaitNotifier;
         m_shellCloseWaitNotifier = nullptr;

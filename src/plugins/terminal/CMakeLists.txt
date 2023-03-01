@@ -1,7 +1,7 @@
 
 add_qtc_plugin(Terminal
   PLUGIN_DEPENDS Core
-  DEPENDS libvterm ptyqt
+  DEPENDS libvterm
   SOURCES
     celllayout.cpp celllayout.h
     terminal.qrc

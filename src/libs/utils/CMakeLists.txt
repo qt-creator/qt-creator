@@ -257,7 +257,7 @@ extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
 
 extend_qtc_library(Utils
   CONDITION TARGET Qt::CorePrivate
-  DEPENDS Qt::CorePrivate
+  DEPENDS Qt::CorePrivate ptyqt
   DEFINES QTC_UTILS_WITH_FSENGINE
   SOURCES fsengine/fsengine_impl.cpp
           fsengine/fsengine_impl.h

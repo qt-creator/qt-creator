@@ -24,6 +24,7 @@ enum class ProcessImpl {
 
 enum class TerminalMode {
     Off,
+    Pty,
     Run,
     Debug,
     Suspend,

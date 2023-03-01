@@ -182,6 +182,7 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
     QObject::connect(&m_shellProcess, &QProcess::finished, &m_shellProcess, [this](int exitCode) {
         m_exitCode = exitCode;
         emit m_shellProcess.aboutToClose();
+        m_readMasterNotify->disconnect();
     });
 
     QStringList defaultVars;
@@ -216,7 +217,8 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
     m_shellProcess.setProcessEnvironment(envFormat);
     m_shellProcess.setReadChannel(QProcess::StandardOutput);
     m_shellProcess.start(m_shellPath, arguments);
-    m_shellProcess.waitForStarted();
+    if (!m_shellProcess.waitForStarted())
+        return false;
 
     m_pid = m_shellProcess.processId();
 

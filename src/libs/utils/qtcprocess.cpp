@@ -16,6 +16,9 @@
 #include "threadutils.h"
 #include "utilstr.h"
 
+#include <iptyprocess.h>
+#include <ptyqt.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -302,6 +305,99 @@ private:
     }
 
     QProcess *m_process = nullptr;
+};
+
+class PtyProcessImpl final : public DefaultImpl
+{
+public:
+    ~PtyProcessImpl() { m_setup.m_ptyData.setResizeHandler({}); }
+
+    qint64 write(const QByteArray &data) final
+    {
+        if (m_ptyProcess)
+            return m_ptyProcess->write(data);
+        return -1;
+    }
+
+    void sendControlSignal(ControlSignal controlSignal) final
+    {
+        if (!m_ptyProcess)
+            return;
+
+        switch (controlSignal) {
+        case ControlSignal::Terminate:
+            m_ptyProcess.reset();
+            break;
+        case ControlSignal::Kill:
+            m_ptyProcess->kill();
+            break;
+        default:
+            QTC_CHECK(false);
+        }
+    }
+
+    void doDefaultStart(const QString &program, const QStringList &arguments) final
+    {
+        m_setup.m_ptyData.setResizeHandler([this](const QSize &size) {
+            if (m_ptyProcess)
+                m_ptyProcess->resize(size.width(), size.height());
+        });
+        m_ptyProcess.reset(PtyQt::createPtyProcess(IPtyProcess::AutoPty));
+        if (!m_ptyProcess) {
+            const ProcessResultData result = {-1,
+                                              QProcess::CrashExit,
+                                              QProcess::FailedToStart,
+                                              "Failed to create pty process"};
+            emit done(result);
+            return;
+        }
+
+        bool startResult
+            = m_ptyProcess->startProcess(program,
+                                         arguments,
+                                         m_setup.m_workingDirectory.path(),
+                                         m_setup.m_environment.toProcessEnvironment().toStringList(),
+                                         m_setup.m_ptyData.size().width(),
+                                         m_setup.m_ptyData.size().height());
+
+        if (!startResult) {
+            const ProcessResultData result = {-1,
+                                              QProcess::CrashExit,
+                                              QProcess::FailedToStart,
+                                              "Failed to start pty process: "
+                                                  + m_ptyProcess->lastError()};
+            emit done(result);
+            return;
+        }
+
+        if (!m_ptyProcess->lastError().isEmpty()) {
+            const ProcessResultData result
+                = {-1, QProcess::CrashExit, QProcess::FailedToStart, m_ptyProcess->lastError()};
+            emit done(result);
+            return;
+        }
+
+        connect(m_ptyProcess->notifier(), &QIODevice::readyRead, this, [this] {
+            emit readyRead(m_ptyProcess->readAll(), {});
+        });
+
+        connect(m_ptyProcess->notifier(), &QIODevice::aboutToClose, this, [this] {
+            if (m_ptyProcess) {
+                const ProcessResultData result
+                    = {m_ptyProcess->exitCode(), QProcess::NormalExit, QProcess::UnknownError, {}};
+                emit done(result);
+                return;
+            }
+
+            const ProcessResultData result = {0, QProcess::NormalExit, QProcess::UnknownError, {}};
+            emit done(result);
+        });
+
+        emit started(m_ptyProcess->pid());
+    }
+
+private:
+    std::unique_ptr<IPtyProcess> m_ptyProcess;
 };
 
 class QProcessImpl final : public DefaultImpl
@@ -629,6 +725,8 @@ public:
 
     ProcessInterface *createProcessInterface()
     {
+        if (m_setup.m_terminalMode == TerminalMode::Pty)
+            return new PtyProcessImpl();
         if (m_setup.m_terminalMode != TerminalMode::Off)
             return Terminal::Hooks::instance().createTerminalProcessInterfaceHook()();
 
