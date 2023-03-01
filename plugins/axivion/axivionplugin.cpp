@@ -15,14 +15,18 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/session.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
+
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -134,8 +138,8 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
         return new AxivionProjectSettingsWidget(project);
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged,
             dd, &AxivionPluginPrivate::onStartupProjectChanged);
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
             dd, &AxivionPluginPrivate::onDocumentOpened);
@@ -198,7 +202,7 @@ AxivionProjectSettings *AxivionPluginPrivate::projectSettings(ProjectExplorer::P
 
 void AxivionPluginPrivate::onStartupProjectChanged()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project) {
         clearAllMarks();
         m_currentProjectInfo = ProjectInfo();
@@ -255,14 +259,14 @@ void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
 
 void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
 {
-    if (project && ProjectExplorer::SessionManager::startupProject() != project)
+    if (project && ProjectExplorer::ProjectManager::startupProject() != project)
         return;
     const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
     for (Core::IDocument *doc : openDocuments)
         onDocumentOpened(doc);
     if (project)
-        disconnect(ProjectExplorer::SessionManager::instance(),
-                   &ProjectExplorer::SessionManager::projectFinishedParsing,
+        disconnect(ProjectExplorer::ProjectManager::instance(),
+                   &ProjectExplorer::ProjectManager::projectFinishedParsing,
                    this, &AxivionPluginPrivate::handleOpenedDocs);
 }
 
@@ -288,12 +292,12 @@ void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
         return;
 
     // handle already opened documents
-    if (auto buildSystem = ProjectExplorer::SessionManager::startupBuildSystem();
+    if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
             !buildSystem || !buildSystem->isParsing()) {
         handleOpenedDocs(nullptr);
     } else {
-        connect(ProjectExplorer::SessionManager::instance(),
-                &ProjectExplorer::SessionManager::projectFinishedParsing,
+        connect(ProjectExplorer::ProjectManager::instance(),
+                &ProjectExplorer::ProjectManager::projectFinishedParsing,
                 this, &AxivionPluginPrivate::handleOpenedDocs);
     }
 }
@@ -303,7 +307,7 @@ void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
     if (m_currentProjectInfo.name.isEmpty()) // we do not have a project info (yet)
         return;
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!doc || !project->isKnownFile(doc->filePath()))
         return;
 
@@ -337,7 +341,7 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
     if (issues.issues.isEmpty())
         return;
 
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return;
 
