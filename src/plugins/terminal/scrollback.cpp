@@ -20,7 +20,6 @@ Scrollback::Line::Line(int cols, const VTermScreenCell *cells, VTermState *vts)
         vterm_state_convert_color_to_rgb(vts, &m_cells[i].fg);
         vterm_state_convert_color_to_rgb(vts, &m_cells[i].bg);
     }
-    m_layout = std::make_unique<QTextLayout>();
 }
 
 const VTermScreenCell *Scrollback::Line::cell(int i) const
@@ -31,6 +30,9 @@ const VTermScreenCell *Scrollback::Line::cell(int i) const
 
 const QTextLayout &Scrollback::Line::layout(int version, const QFont &font, qreal lineSpacing) const
 {
+    if (!m_layout)
+        m_layout = std::make_unique<QTextLayout>();
+
     if (m_layoutVersion != version) {
         QString text;
         VTermColor defaultBg;

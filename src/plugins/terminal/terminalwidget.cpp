@@ -29,12 +29,19 @@
 #include <QScrollBar>
 #include <QTextLayout>
 
+#include <chrono>
+
 Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
 
 using namespace Utils;
 using namespace Utils::Terminal;
 
 namespace Terminal {
+
+using namespace std::chrono_literals;
+
+// Minimum time between two refreshes.
+static const auto minRefreshInterval = 16ms;
 
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : QAbstractScrollArea(parent)
@@ -47,6 +54,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     , m_zoomInAction(Tr::tr("Zoom In"))
     , m_zoomOutAction(Tr::tr("Zoom Out"))
     , m_openParameters(openParameters)
+    , m_lastFlush(QDateTime::currentDateTime())
 {
     setupVTerm();
     setupFont();
@@ -66,13 +74,10 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-    m_readDelayTimer.setSingleShot(true);
-    m_readDelayTimer.setInterval(10);
+    m_flushDelayTimer.setSingleShot(true);
+    m_flushDelayTimer.setInterval(minRefreshInterval);
 
-    connect(&m_readDelayTimer, &QTimer::timeout, this, [this] {
-        m_readDelayRestarts = 0;
-        onReadyRead();
-    });
+    connect(&m_flushDelayTimer, &QTimer::timeout, this, [this]() { flushVTerm(true); });
 
     connect(&m_copyAction, &QAction::triggered, this, &TerminalWidget::copyToClipboard);
     connect(&m_pasteAction, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
@@ -109,14 +114,8 @@ void TerminalWidget::setupPty()
         m_process->setWorkingDirectory(*m_openParameters.workingDirectory);
     m_process->setEnvironment(env);
 
-    connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
-        if (m_readDelayTimer.isActive())
-            m_readDelayRestarts++;
-
-        if (m_readDelayRestarts > 100)
-            return;
-
-        m_readDelayTimer.start();
+    connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this]() {
+        onReadyRead(false);
     });
 
     connect(m_process.get(), &QtcProcess::done, this, [this] {
@@ -138,7 +137,9 @@ void TerminalWidget::setupPty()
         }
 
         if (m_openParameters.m_exitBehavior == ExitBehavior::Restart) {
-            QMetaObject::invokeMethod(this, [this] {
+            QMetaObject::invokeMethod(
+                this,
+                [this] {
                     m_process.reset();
                     setupPty();
                 },
@@ -411,17 +412,29 @@ void TerminalWidget::clearContents()
     // Fake a scrollback clearing
     QByteArray data{"\x1b[3J"};
     vterm_input_write(m_vterm.get(), data.constData(), data.size());
-    vterm_screen_flush_damage(m_vtermScreen);
 
     // Send Ctrl+L which will clear the screen
     writeToPty(QByteArray("\f"));
 }
 
-void TerminalWidget::onReadyRead()
+void TerminalWidget::onReadyRead(bool forceFlush)
 {
     QByteArray data = m_process->readAllRawStandardOutput();
     vterm_input_write(m_vterm.get(), data.constData(), data.size());
-    vterm_screen_flush_damage(m_vtermScreen);
+
+    flushVTerm(forceFlush);
+}
+
+void TerminalWidget::flushVTerm(bool force)
+{
+    if (force || QDateTime::currentDateTime() - m_lastFlush > minRefreshInterval) {
+        m_lastFlush = QDateTime::currentDateTime();
+        vterm_screen_flush_damage(m_vtermScreen);
+        return;
+    }
+
+    if (!m_flushDelayTimer.isActive())
+        m_flushDelayTimer.start();
 }
 
 const VTermScreenCell *TerminalWidget::fetchCell(int x, int y) const
@@ -707,7 +720,7 @@ void TerminalWidget::applySizeChange()
         m_process->ptyData().resize(m_vtermSize);
 
     vterm_set_size(m_vterm.get(), m_vtermSize.height(), m_vtermSize.width());
-    vterm_screen_flush_damage(m_vtermScreen);
+    flushVTerm(true);
 }
 
 void TerminalWidget::updateScrollBars()

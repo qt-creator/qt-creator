@@ -33,7 +33,7 @@ public:
     private:
         int m_cols;
         std::unique_ptr<VTermScreenCell[]> m_cells;
-        std::unique_ptr<QTextLayout> m_layout;
+        mutable std::unique_ptr<QTextLayout> m_layout;
         mutable int m_layoutVersion{-1};
     };
 

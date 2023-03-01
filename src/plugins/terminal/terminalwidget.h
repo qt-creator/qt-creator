@@ -76,7 +76,7 @@ protected:
     bool event(QEvent *event) override;
 
 protected:
-    void onReadyRead();
+    void onReadyRead(bool forceFlush);
     void setupVTerm();
     void setupFont();
     void setupPty();
@@ -109,6 +109,8 @@ protected:
     void applySizeChange();
 
     void updateScrollBars();
+
+    void flushVTerm(bool force);
 
 private:
     std::unique_ptr<Utils::QtcProcess> m_process;
@@ -151,14 +153,15 @@ private:
     QAction m_zoomInAction;
     QAction m_zoomOutAction;
 
-    QTimer m_readDelayTimer;
-    int m_readDelayRestarts{0};
+    QTimer m_flushDelayTimer;
 
     int m_layoutVersion{0};
 
     std::array<QColor, 18> m_currentColors;
 
     Utils::Terminal::OpenTerminalParameters m_openParameters;
+
+    QDateTime m_lastFlush;
 };
 
 } // namespace Terminal
