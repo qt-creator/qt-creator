@@ -162,6 +162,10 @@ private:
     Utils::Terminal::OpenTerminalParameters m_openParameters;
 
     QDateTime m_lastFlush;
+    QDateTime m_lastDoubleClick;
+    bool m_selectLineMode{false};
+
+    std::u32string m_currentLiveText;
 };
 
 } // namespace Terminal

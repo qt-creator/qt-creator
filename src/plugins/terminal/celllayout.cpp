@@ -12,8 +12,27 @@ QColor toQColor(const VTermColor &c)
     return QColor(qRgb(c.rgb.red, c.rgb.green, c.rgb.blue));
 };
 
+std::u32string cellToString(const VTermScreenCell &cell)
+{
+    if (cell.chars[0] != 0xFFFFFFFF) {
+        QString ch = QString::fromUcs4(cell.chars);
+        if (ch.size() > 1)
+            ch = ch.normalized(QString::NormalizationForm_C);
+        QList<uint> asUcs4 = ch.toUcs4();
+
+        std::u32string chUcs = std::u32string(asUcs4.begin(), asUcs4.end());
+        if (chUcs.size() > 0) {
+            if (chUcs[0] == 0)
+                chUcs[0] = 0x00a0;
+
+            return chUcs;
+        }
+    }
+    return std::u32string(1, (char32_t) 0x00a0);
+}
+
 void createTextLayout(QTextLayout &textLayout,
-                      QString &resultText,
+                      std::u32string *resultText,
                       VTermColor defaultBg,
                       QRect cellRect,
                       qreal lineSpacing,
@@ -26,22 +45,24 @@ void createTextLayout(QTextLayout &textLayout,
     currentFormat.setForeground(QColor(0xff, 0xff, 0xff));
     currentFormat.clearBackground();
 
-    resultText.clear();
+    QString layoutText;
+    if (resultText)
+        resultText->clear();
 
     for (int y = cellRect.y(); y < cellRect.bottom() + 1; y++) {
         QTextCharFormat format;
 
-        const auto setNewFormat = [&formats, &currentFormatStart, &resultText, &currentFormat](
+        const auto setNewFormat = [&formats, &currentFormatStart, &layoutText, &currentFormat](
                                       const QTextCharFormat &format) {
-            if (resultText.size() != currentFormatStart) {
+            if (layoutText.size() != currentFormatStart) {
                 QTextLayout::FormatRange fr;
                 fr.start = currentFormatStart;
-                fr.length = resultText.size() - currentFormatStart;
+                fr.length = layoutText.size() - currentFormatStart;
                 fr.format = currentFormat;
                 formats.append(fr);
 
                 currentFormat = format;
-                currentFormatStart = resultText.size();
+                currentFormatStart = layoutText.size();
             } else {
                 currentFormat = format;
             }
@@ -81,24 +102,27 @@ void createTextLayout(QTextLayout &textLayout,
             if (cell->chars[0] != 0xFFFFFFFF) {
                 QString ch = QString::fromUcs4(cell->chars);
                 if (ch.size() > 0) {
-                    resultText += ch;
+                    layoutText += ch;
                 } else {
-                    resultText += QChar::Nbsp;
+                    layoutText += QChar::Nbsp;
                 }
             }
+
+            if (resultText)
+                *resultText += cellToString(*cell);
         } // for x
         setNewFormat(format);
         if (y != cellRect.bottom())
-            resultText.append(QChar::LineSeparator);
+            layoutText.append(QChar::LineSeparator);
     } // for y
 
     QTextLayout::FormatRange fr;
     fr.start = currentFormatStart;
-    fr.length = (resultText.size() - 1) - currentFormatStart;
+    fr.length = (layoutText.size() - 1) - currentFormatStart;
     fr.format = currentFormat;
     formats.append(fr);
 
-    textLayout.setText(resultText);
+    textLayout.setText(layoutText);
     textLayout.setFormats(formats);
 
     qreal height = 0;

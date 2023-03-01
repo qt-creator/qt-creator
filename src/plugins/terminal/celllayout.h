@@ -18,10 +18,12 @@ namespace Terminal::Internal {
 QColor toQColor(const VTermColor &c);
 
 void createTextLayout(QTextLayout &textLayout,
-                      QString &resultText,
+                      std::u32string *resultText,
                       VTermColor defaultBg,
                       QRect cellRect,
                       qreal lineSpacing,
                       std::function<const VTermScreenCell *(int x, int y)> fetchCell);
+
+std::u32string cellToString(const VTermScreenCell &cell);
 
 } // namespace Terminal::Internal

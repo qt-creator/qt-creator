@@ -34,13 +34,12 @@ const QTextLayout &Scrollback::Line::layout(int version, const QFont &font, qrea
         m_layout = std::make_unique<QTextLayout>();
 
     if (m_layoutVersion != version) {
-        QString text;
         VTermColor defaultBg;
         defaultBg.type = VTERM_COLOR_DEFAULT_BG;
         m_layout->clearLayout();
         m_layout->setFont(font);
         createTextLayout(*m_layout,
-                         text,
+                         nullptr,
                          defaultBg,
                          QRect(0, 0, m_cols, 1),
                          lineSpacing,
@@ -57,8 +56,14 @@ Scrollback::Scrollback(size_t capacity)
 void Scrollback::emplace(int cols, const VTermScreenCell *cells, VTermState *vts)
 {
     m_deque.emplace_front(cols, cells, vts);
-    while (m_deque.size() > m_capacity)
+    while (m_deque.size() > m_capacity) {
+        m_currentText = m_currentText.substr(m_deque.back().cols());
         m_deque.pop_back();
+    }
+
+    for (int i = 0; i < cols; i++) {
+        m_currentText += cellToString(cells[i]);
+    }
 }
 
 void Scrollback::popto(int cols, VTermScreenCell *cells)
@@ -77,6 +82,7 @@ void Scrollback::popto(int cols, VTermScreenCell *cells)
     }
 
     m_deque.pop_front();
+    m_currentText.resize(m_currentText.size() - cols);
 }
 
 size_t Scrollback::scroll(int delta)
@@ -90,6 +96,12 @@ void Scrollback::clear()
 {
     m_offset = 0;
     m_deque.clear();
+    m_currentText.clear();
+}
+
+std::u32string Scrollback::currentText()
+{
+    return m_currentText;
 }
 
 } // namespace Terminal::Internal

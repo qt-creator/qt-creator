@@ -40,8 +40,8 @@ namespace Terminal {
 
 using namespace std::chrono_literals;
 
-// Minimum time between two refreshes.
-static const auto minRefreshInterval = 16ms;
+// Minimum time between two refreshes. (30fps)
+static const auto minRefreshInterval = 1s / 30;
 
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : QAbstractScrollArea(parent)
@@ -55,6 +55,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     , m_zoomOutAction(Tr::tr("Zoom Out"))
     , m_openParameters(openParameters)
     , m_lastFlush(QDateTime::currentDateTime())
+    , m_lastDoubleClick(QDateTime::currentDateTime())
 {
     setupVTerm();
     setupFont();
@@ -479,10 +480,8 @@ void TerminalWidget::createTextLayout()
 
     m_textLayout.clearLayout();
 
-    QString allText;
-
     Internal::createTextLayout(m_textLayout,
-                               allText,
+                               &m_currentLiveText,
                                defaultBg,
                                QRect({0, 0}, m_vtermSize),
                                m_lineSpacing,
@@ -812,11 +811,19 @@ void TerminalWidget::inputMethodEvent(QInputMethodEvent *event)
 
 void TerminalWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
-        m_selectionStartPos = event->pos();
+    m_selectionStartPos = event->pos();
 
-        QPoint pos = viewportToGlobal(event->pos());
-        m_selection = Selection{pos, pos};
+    if (event->button() == Qt::LeftButton) {
+        if (QDateTime::currentDateTime() - m_lastDoubleClick < 500ms) {
+            m_selectLineMode = true;
+            m_selection->start.setX(0);
+            m_selection->end.setX(viewport()->width());
+        } else {
+            m_selectLineMode = false;
+            QPoint pos = viewportToGlobal(event->pos());
+            m_selection = Selection{pos, pos};
+        }
+
         viewport()->update();
     }
 }
@@ -828,6 +835,11 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
 
         if (start.y() > newEnd.y() || (start.y() == newEnd.y() && start.x() > newEnd.x()))
             std::swap(start, newEnd);
+
+        if (m_selectLineMode) {
+            start.setX(0);
+            newEnd.setX(viewport()->width());
+        }
 
         m_selection->start = start;
         m_selection->end = newEnd;
@@ -848,9 +860,47 @@ void TerminalWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    // TODO :(
-    Q_UNUSED(event);
+    std::u32string text = m_scrollback->currentText() + m_currentLiveText;
+
+    const QPoint clickPos = viewportToGlobal(event->pos());
+
+    const QPoint clickPosInGrid = QPoint(clickPos.x() / m_cellSize.width(),
+                                         clickPos.y() / m_cellSize.height());
+
+    std::u32string::size_type chIdx = (clickPosInGrid.x())
+                                      + (clickPosInGrid.y()) * m_vtermSize.width();
+
+    if (chIdx >= text.length() || chIdx < 0)
+        return;
+
+    std::u32string whiteSpaces = U" \t\x00a0";
+
+    const bool inverted = whiteSpaces.find(text[chIdx]) != std::u32string::npos;
+
+    const std::u32string::size_type leftEnd = inverted
+                                                  ? text.find_last_not_of(whiteSpaces, chIdx) + 1
+                                                  : text.find_last_of(whiteSpaces, chIdx) + 1;
+    std::u32string::size_type rightEnd = inverted ? text.find_first_not_of(whiteSpaces, chIdx)
+                                                  : text.find_first_of(whiteSpaces, chIdx);
+    if (rightEnd == std::u32string::npos)
+        rightEnd = text.length();
+
+    const auto found = text.substr(leftEnd, rightEnd - leftEnd);
+
+    const QPoint selectionStart((leftEnd % m_vtermSize.width()) * m_cellSize.width()
+                                    + (m_cellSize.width() / 4),
+                                (leftEnd / m_vtermSize.width()) * m_cellSize.height()
+                                    + (m_cellSize.height() / 4));
+    const QPoint selectionEnd((rightEnd % m_vtermSize.width()) * m_cellSize.width(),
+                              (rightEnd / m_vtermSize.width()) * m_cellSize.height()
+                                  + m_cellSize.height());
+
+    m_selection = Selection{selectionStart, selectionEnd};
+
+    m_lastDoubleClick = QDateTime::currentDateTime();
+
     viewport()->update();
+    event->accept();
 }
 
 void TerminalWidget::scrollContentsBy(int dx, int dy)

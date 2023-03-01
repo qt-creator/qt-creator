@@ -57,10 +57,14 @@ public:
 
     void clear();
 
+    std::u32string currentText();
+
 private:
     size_t m_capacity;
     size_t m_offset{0};
     std::deque<Line> m_deque;
+
+    std::u32string m_currentText;
 };
 
 } // namespace Terminal::Internal
