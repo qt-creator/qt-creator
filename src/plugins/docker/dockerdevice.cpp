@@ -1208,6 +1208,9 @@ bool DockerDevicePrivate::ensureReachable(const FilePath &other)
             return true;
     }
 
+    if (q->filePath(other.path()).exists())
+        return false;
+
     addTemporaryMount(other, other);
     return true;
 }
