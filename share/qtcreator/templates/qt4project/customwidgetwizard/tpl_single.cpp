@@ -68,4 +68,3 @@ QString @PLUGIN_CLASS@::includeFile() const
 {
     return QLatin1String("@WIDGET_HEADER@");
 }
-@SINGLE_PLUGIN_EXPORT@
