@@ -118,6 +118,7 @@ class Dumper(DumperBase):
         val.isBaseClass = val.name == val._type.name
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
+        val.lbitsize = nativeValue.bitsize()
         return val
 
     def nativeTypeId(self, nativeType):
