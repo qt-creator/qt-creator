@@ -93,7 +93,7 @@
     Use the \uicontrol Brightness handle of the light gizmo (1) to adjust the
     \uicontrol Brightness property of any of the light components.
 
-    \image studio-3d-directional-light.png "Models lit by a directional light."
+    \image studio-3d-directional-light.webp "Models lit by a directional light."
 
     If the \uicontrol {Casts shadow} property is enabled, shadows are positioned
     parallel to the light direction. A directional light has infinite range and
@@ -118,7 +118,7 @@
     strength in all directions from the center of the light. This is similar
     to the way a light bulb emits light.
 
-    \image studio-3d-point-light.png "Models lit by a point light."
+    \image studio-3d-point-light.webp "Models lit by a point light."
 
     Lighting is applied outwards from the center of a point light, becoming
     increasingly dim away from the center. Moving a point light changes the
@@ -158,7 +158,7 @@
     \uicontrol {Inner cone angle} (4), and \uicontrol {Quadratic fade} (5)
     properties.
 
-    \image studio-3d-spot-light.png "A model lit by a spot light."
+    \image studio-3d-spot-light.webp "A model lit by a spot light."
 
     Inside the inner cone angle, the spot light behaves similarly to the point
     light. There the light intensity diminishes according to inverse-square-law.
@@ -176,7 +176,7 @@
     gizmo or the \uicontrol Properties view to set the \uicontrol Width (6)
     and \uicontrol Height (7) properties to determine the size of the area light.
 
-   \image studio-3d-area-light.png "A model lit by two area lights."
+   \image studio-3d-area-light.webp "A model lit by two area lights."
 
     Aside from the size, an area light has the same properties as a directional
     light.
