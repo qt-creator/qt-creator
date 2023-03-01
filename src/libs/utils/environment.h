@@ -93,6 +93,8 @@ public:
     const_iterator constEnd() const { return m_dict.constEnd(); } // FIXME: avoid
     const_iterator constFind(const QString &name) const { return m_dict.constFind(name); } // FIXME: avoid
 
+    void forEachEntry(const std::function<void (const QString &, const QString &, bool)> &callBack) const;
+
     friend bool operator!=(const Environment &first, const Environment &second)
     {
         return first.m_dict != second.m_dict;
