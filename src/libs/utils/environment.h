@@ -41,7 +41,6 @@ public:
     void modify(const NameValueItems &items) { m_dict.modify(items); }
 
     bool hasChanges() const;
-    void clear() { return m_dict.clear(); }
 
     QStringList toStringList() const { return m_dict.toStringList(); }
     QProcessEnvironment toProcessEnvironment() const;
@@ -76,7 +75,6 @@ public:
     QStringList expandVariables(const QStringList &input) const;
 
     OsType osType() const { return m_dict.osType(); }
-    QString userName() const;
 
     using const_iterator = NameValueMap::const_iterator; // FIXME: avoid
     NameValueDictionary toDictionary() const { return m_dict; } // FIXME: avoid
