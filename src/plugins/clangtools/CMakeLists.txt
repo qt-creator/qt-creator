@@ -8,6 +8,7 @@ add_qtc_plugin(ClangTools
   PLUGIN_DEPENDS Core Debugger CppEditor
   PLUGIN_RECOMMENDS CppEditor
   PLUGIN_TEST_DEPENDS QmakeProjectManager QbsProjectManager
+  SKIP_PCH
   DEFINES
     CLANG_VERSION="${CLANG_VERSION}"
     CLANG_INCLUDE_DIR="${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
