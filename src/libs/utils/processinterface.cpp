@@ -7,6 +7,17 @@
 
 namespace Utils {
 
+namespace Pty {
+
+void Data::resize(const QSize &size)
+{
+    m_size = size;
+    if (m_data->m_handler)
+        m_data->m_handler(size);
+}
+
+} // namespace Pty
+
 /*!
  * \brief controlSignalToInt
  * \param controlSignal

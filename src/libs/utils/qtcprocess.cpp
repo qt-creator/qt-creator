@@ -13,7 +13,6 @@
 #include "processutils.h"
 #include "stringutils.h"
 #include "terminalhooks.h"
-#include "terminalprocess_p.h"
 #include "threadutils.h"
 #include "utilstr.h"
 
@@ -1024,6 +1023,16 @@ QtcProcess::~QtcProcess()
 void QtcProcess::setProcessImpl(ProcessImpl processImpl)
 {
     d->m_setup.m_processImpl = processImpl;
+}
+
+void QtcProcess::setPtyData(const Pty::Data &data)
+{
+    d->m_setup.m_ptyData = data;
+}
+
+Pty::Data QtcProcess::ptyData() const
+{
+    return d->m_setup.m_ptyData;
 }
 
 ProcessMode QtcProcess::processMode() const

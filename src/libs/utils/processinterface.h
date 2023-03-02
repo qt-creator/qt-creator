@@ -10,10 +10,38 @@
 #include "processenums.h"
 
 #include <QProcess>
+#include <QSize>
 
 namespace Utils {
 
 namespace Internal { class QtcProcessPrivate; }
+
+namespace Pty {
+
+using ResizeHandler = std::function<void(const QSize &)>;
+
+class QTCREATOR_UTILS_EXPORT SharedData
+{
+public:
+    ResizeHandler m_handler;
+};
+
+class QTCREATOR_UTILS_EXPORT Data
+{
+public:
+    Data() : m_data(new SharedData) {}
+
+    void setResizeHandler(const ResizeHandler &handler) { m_data->m_handler = handler; }
+
+    QSize size() const { return m_size; }
+    void resize(const QSize &size);
+
+private:
+    QSize m_size{80, 60};
+    QSharedPointer<SharedData> m_data;
+};
+
+} // namespace Pty
 
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {
@@ -22,6 +50,7 @@ public:
     ProcessMode m_processMode = ProcessMode::Reader;
     TerminalMode m_terminalMode = TerminalMode::Off;
 
+    Pty::Data m_ptyData;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;

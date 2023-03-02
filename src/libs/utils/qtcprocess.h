@@ -21,6 +21,7 @@ class tst_QtcProcess;
 namespace Utils {
 
 namespace Internal { class QtcProcessPrivate; }
+namespace Pty { class Data; }
 
 class Environment;
 class DeviceProcessHooks;
@@ -75,6 +76,9 @@ public:
     // ProcessSetupData related
 
     void setProcessImpl(ProcessImpl processImpl);
+
+    void setPtyData(const Pty::Data &data);
+    Pty::Data ptyData() const;
 
     void setTerminalMode(TerminalMode mode);
     TerminalMode terminalMode() const;

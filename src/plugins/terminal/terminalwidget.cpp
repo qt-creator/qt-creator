@@ -12,6 +12,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/processinterface.h>
 #include <utils/stringutils.h>
 
 #include <ptyqt.h>
