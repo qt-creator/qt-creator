@@ -81,6 +81,7 @@ protected:
     void setupFont();
     void setupPty();
     void setupColors();
+    void setupActions();
 
     void writeToPty(const QByteArray &data);
 
@@ -112,6 +113,8 @@ protected:
     void updateScrollBars();
 
     void flushVTerm(bool force);
+
+    void setSelection(const std::optional<Selection> &selection);
 
 private:
     std::unique_ptr<Utils::QtcProcess> m_process;

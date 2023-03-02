@@ -60,6 +60,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     setupVTerm();
     setupFont();
     setupColors();
+    setupActions();
 
     setAttribute(Qt::WA_InputMethodEnabled);
     setAttribute(Qt::WA_MouseTracking);
@@ -221,6 +222,23 @@ void TerminalWidget::setupColors()
     vterm_state_set_default_colors(vts, &fg, &bg);
 
     clearContents();
+}
+
+void TerminalWidget::setupActions()
+{
+    m_copyAction.setShortcuts(
+        {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+C")
+                                              : QLatin1String("Ctrl+Shift+C")),
+         QKeySequence(Qt::Key_Return)});
+    m_pasteAction.setShortcut(QKeySequence(
+        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+V") : QLatin1String("Ctrl+Shift+V")));
+
+    m_clearSelectionAction.setShortcut(QKeySequence("Esc"));
+
+    m_zoomInAction.setShortcuts({QKeySequence("Ctrl++"), QKeySequence("Ctrl+Shift++")});
+    m_zoomOutAction.setShortcut(QKeySequence("Ctrl+-"));
+
+    addActions({&m_copyAction, &m_pasteAction, &m_clearSelectionAction, &m_zoomInAction, &m_zoomOutAction});
 }
 
 void TerminalWidget::writeToPty(const QByteArray &data)
@@ -392,8 +410,9 @@ void TerminalWidget::pasteFromClipboard()
 
 void TerminalWidget::clearSelection()
 {
-    m_selection.reset();
-    update();
+    setSelection(std::nullopt);
+    viewport()->update();
+    vterm_keyboard_key(m_vterm.get(), VTERM_KEY_ESCAPE, VTERM_MOD_NONE);
 }
 void TerminalWidget::zoomIn()
 {
@@ -436,6 +455,12 @@ void TerminalWidget::flushVTerm(bool force)
 
     if (!m_flushDelayTimer.isActive())
         m_flushDelayTimer.start();
+}
+
+void TerminalWidget::setSelection(const std::optional<Selection> &selection)
+{
+    m_copyAction.setEnabled(selection.has_value());
+    m_selection = selection;
 }
 
 const VTermScreenCell *TerminalWidget::fetchCell(int x, int y) const
@@ -647,32 +672,31 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
 
 void TerminalWidget::keyPressEvent(QKeyEvent *event)
 {
+    bool actionTriggered = false;
+    for (const auto &action : actions()) {
+        if (!action->isEnabled())
+            continue;
+
+        for (const auto &shortcut : action->shortcuts()) {
+            const auto result = shortcut.matches(QKeySequence(event->keyCombination()));
+            if (result == QKeySequence::ExactMatch) {
+                action->trigger();
+                actionTriggered = true;
+                break;
+            }
+        }
+
+        if (actionTriggered)
+            break;
+    }
+
+    if (actionTriggered) {
+        setSelection(std::nullopt);
+        viewport()->update();
+        return;
+    }
+
     event->accept();
-
-    if (event->modifiers() == Qt::NoModifier && event->key() == Qt::Key_Escape && m_selection) {
-        clearSelectionAction().trigger();
-        return;
-    }
-
-    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Plus) {
-        zoomInAction().trigger();
-        return;
-    }
-
-    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_Minus) {
-        zoomOutAction().trigger();
-        return;
-    }
-
-    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_C) {
-        copyAction().trigger();
-        return;
-    }
-
-    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_V) {
-        pasteAction().trigger();
-        return;
-    }
 
     bool keypad = event->modifiers() & Qt::KeypadModifier;
     VTermModifier mod = Internal::qtModifierToVTerm(event->modifiers());
@@ -702,6 +726,8 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         vterm_keyboard_unichar(m_vterm.get(),
                                event->text().toUcs4()[0],
                                static_cast<VTermModifier>(mod & ~VTERM_MOD_CTRL));
+
+        setSelection(std::nullopt);
     } else if (mod != VTERM_MOD_NONE && event->key() == Qt::Key_C) {
         vterm_keyboard_unichar(m_vterm.get(), 'c', mod);
     }
@@ -745,7 +771,7 @@ void TerminalWidget::resizeEvent(QResizeEvent *event)
 
     applySizeChange();
 
-    m_selection.reset();
+    setSelection(std::nullopt);
     m_ignoreScroll = false;
 }
 
@@ -826,10 +852,18 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
         } else {
             m_selectLineMode = false;
             QPoint pos = viewportToGlobal(event->pos());
-            m_selection = Selection{pos, pos};
+            setSelection(Selection{pos, pos});
         }
 
         viewport()->update();
+    } else if (event->button() == Qt::RightButton) {
+        if (m_selection) {
+            m_copyAction.trigger();
+            setSelection(std::nullopt);
+            viewport()->update();
+        } else {
+            m_pasteAction.trigger();
+        }
     }
 }
 void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
@@ -863,7 +897,7 @@ void TerminalWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_selection && event->button() != Qt::LeftButton) {
         if ((m_selectionStartPos - event->pos()).manhattanLength() < 2) {
-            m_selection.reset();
+            setSelection(std::nullopt);
             viewport()->update();
         }
     }
@@ -904,7 +938,7 @@ void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
                               (rightEnd / m_vtermSize.width()) * m_cellSize.height()
                                   + m_cellSize.height());
 
-    m_selection = Selection{selectionStart, selectionEnd};
+    setSelection(Selection{selectionStart, selectionEnd});
 
     m_lastDoubleClick = QDateTime::currentDateTime();
 
@@ -992,7 +1026,7 @@ int TerminalWidget::setTerminalProperties(VTermProp prop, VTermValue *val)
         break;
     case VTERM_PROP_ALTSCREEN:
         m_altscreen = val->boolean;
-        m_selection.reset();
+        setSelection(std::nullopt);
         break;
     case VTERM_PROP_MOUSE:
         qCDebug(terminalLog) << "Ignoring VTERM_PROP_MOUSE" << val->number;
