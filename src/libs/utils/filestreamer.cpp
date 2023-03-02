@@ -304,7 +304,21 @@ QTC_DECLARE_CUSTOM_TASK(Writer, Utils::FileStreamWriterAdapter);
 
 namespace Utils {
 
-static Group interDeviceTransfer(const FilePath &source, const FilePath &destination)
+static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath &destination)
+{
+    QTC_CHECK(source.needsDevice());
+    QTC_CHECK(destination.needsDevice());
+    QTC_CHECK(source.isSameDevice(destination));
+
+    const auto setup = [source, destination](QtcProcess &process) {
+        const QStringList args = {source.path(), destination.path()};
+        const FilePath cp = source.withNewPath("cp");
+        process.setCommand({cp, args, OsType::OsTypeLinux});
+    };
+    return {Process(setup)};
+}
+
+static Group interDeviceTransferTask(const FilePath &source, const FilePath &destination)
 {
     struct TransferStorage { QPointer<FileStreamWriter> writer; };
     Condition condition;
@@ -342,12 +356,19 @@ static Group interDeviceTransfer(const FilePath &source, const FilePath &destina
     return root;
 }
 
+static Group transferTask(const FilePath &source, const FilePath &destination)
+{
+    if (source.needsDevice() && destination.needsDevice() && source.isSameDevice(destination))
+        return sameRemoteDeviceTransferTask(source, destination);
+    return interDeviceTransferTask(source, destination);
+}
+
 static void transfer(QPromise<void> &promise, const FilePath &source, const FilePath &destination)
 {
     if (promise.isCanceled())
         return;
 
-    std::unique_ptr<TaskTree> taskTree(new TaskTree(interDeviceTransfer(source, destination)));
+    std::unique_ptr<TaskTree> taskTree(new TaskTree(transferTask(source, destination)));
 
     QEventLoop eventLoop;
     bool finalized = false;
