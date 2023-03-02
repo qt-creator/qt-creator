@@ -99,7 +99,7 @@
         \li Action
         \li Read More
     \row
-        \li \inlineimage icons/animation.png
+        \li \inlineimage icons/settings.png
         \li Opens the \uicontrol {Timeline Settings} dialog for editing
             timeline settings.
         \li \l{Creating a Timeline}
@@ -150,7 +150,7 @@
             determines the duration of the animation.
         \li \l{Creating a Timeline}
     \row
-        \li \inlineimage icons/zoom_small.png
+        \li \inlineimage icons/zoomOut.png
         \li \uicontrol {Zoom Out} (\key Ctrl+-) zooms out of the view.
         \li \l{Zooming in Timeline}
     \row
@@ -158,7 +158,7 @@
         \li Sets the zooming level.
         \li \l{Zooming in Timeline}
     \row
-        \li \inlineimage icons/zoom_big.png
+        \li \inlineimage icons/zoomIn.png
         \li \uicontrol {Zoom In} (\key Ctrl++) zooms into the view.
         \li \l{Zooming in Timeline}
     \row

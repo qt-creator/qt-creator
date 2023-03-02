@@ -35,7 +35,7 @@
     To apply a texture to a material, first select the material in the
     \uicontrol {Material Browser} view and then:
     \list 1
-      \li Select \inlineimage icons/apply-material.png
+      \li Select \inlineimage icons/apply.png
       .
       \li Select the material and property that you want to add the texture to.
       \image select-material-property.png

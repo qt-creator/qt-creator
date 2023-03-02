@@ -39,7 +39,7 @@
         \li Action
         \li Read More
     \row
-        \li \inlineimage icons/animation.png
+        \li \inlineimage icons/settings.png
         \li Opens \uicontrol {Transition Settings} dialog for editing
             transition settings.
         \li \l{Specifying Transition Settings}
@@ -54,7 +54,7 @@
             curve to the selected transition.
         \li \l{Editing Easing Curves}
     \row
-        \li \inlineimage icons/zoom_small.png
+        \li \inlineimage icons/zoomOut.png
         \li \uicontrol {Zoom Out} (\key Ctrl+-): zooms out of the view.
         \li \l{Zooming in Transitions}
     \row
@@ -62,7 +62,7 @@
         \li Sets the zooming level.
         \li \l{Zooming in Transitions}
     \row
-        \li \inlineimage icons/zoom_big.png
+        \li \inlineimage icons/zoomIn.png
         \li \uicontrol {Zoom In} (\key Ctrl++): zooms into the view.
         \li \l{Zooming in Transitions}
     \row
@@ -94,7 +94,7 @@
 
     \section1 Specifying Transition Settings
 
-    To modify transition settings, select the \inlineimage icons/animation.png
+    To modify transition settings, select the \inlineimage icons/settings.png
     (\uicontrol {Transition Settings (S)}) button in
     \uicontrol {Transition Editor}.
 

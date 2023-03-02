@@ -36,24 +36,6 @@
         \li Tooltip
         \li Read More
     \row
-        \li \inlineimage icons/no_snapping.png
-        \li Disables snapping.
-        \li \l{Snapping to Parent and Sibling Components}
-    \row
-        \li \inlineimage icons/snapping_and_anchoring.png
-        \li Anchors the component instance to the component instances that it
-            is snapped to.
-        \li \l{Snapping to Parent and Sibling Components}
-    \row
-        \li \inlineimage icons/snapping.png
-        \li Snaps component instances to their parent or siblings when you
-            align them.
-        \li \l{Snapping to Parent and Sibling Components}
-    \row
-        \li \inlineimage icons/boundingrect.png
-        \li Hides and shows component instance boundaries.
-        \li \l{Hiding Component Boundaries}
-    \row
         \li \uicontrol {Override Width}
         \li Shows a preview of the component using the specified width.
         \li \l{Previewing Component Size}

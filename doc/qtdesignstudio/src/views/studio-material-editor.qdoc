@@ -55,7 +55,7 @@
       to the object, you can select whether to replace the material or to add
       another material to the object.
       \li In \uicontrol {Material Editor}, select
-      \inlineimage icons/apply-material.png
+      \inlineimage icons/apply.png
       . This replaces any material already assigned to the object.
     \endlist
 
