@@ -34,7 +34,7 @@ IPtyProcess *PtyQt::createPtyProcess(IPtyProcess::PtyType ptyType)
     }
 
 #ifdef Q_OS_WIN
-    if (ConPtyProcess().isAvailable())
+    if (ConPtyProcess().isAvailable() && qgetenv("QTC_USE_WINPTY").isEmpty())
         return new ConPtyProcess();
     else
         return new WinPtyProcess();
