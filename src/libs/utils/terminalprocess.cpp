@@ -44,13 +44,15 @@ namespace Internal {
 static QString modeOption(TerminalMode m)
 {
     switch (m) {
-        case TerminalMode::Run:
-        return QLatin1String("run");
-        case TerminalMode::Debug:
-        return QLatin1String("debug");
-        case TerminalMode::Suspend:
-        return QLatin1String("suspend");
-        case TerminalMode::Off:
+    case TerminalMode::Pty:
+        return "pty";
+    case TerminalMode::Run:
+        return "run";
+    case TerminalMode::Debug:
+        return "debug";
+    case TerminalMode::Suspend:
+        return "suspend";
+    case TerminalMode::Off:
         QTC_CHECK(false);
         break;
     }
