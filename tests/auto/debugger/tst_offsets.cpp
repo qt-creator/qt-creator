@@ -19,6 +19,7 @@
 #include <QLibraryInfo>
 
 #include <private/qdatetime_p.h>
+#include <private/qdir_p.h>
 #include <private/qfile_p.h>
 #include <private/qfileinfo_p.h>
 #include <private/qobject_p.h>
@@ -51,6 +52,23 @@ OFFSET_ACCESS(QString, QFilePrivate, fileName);
 OFFSET_ACCESS(QString, QFileSystemEntry, m_filePath);
 OFFSET_ACCESS(QFileSystemEntry, QFileInfoPrivate, fileEntry);
 OFFSET_ACCESS(QObjectPrivate::ExtraData*, QObjectPrivate, extraData);
+
+#if QT_VERSION >= 0x60000
+OFFSET_ACCESS(QFileSystemEntry, QDirPrivate, dirEntry);
+
+#if QT_VERSION < 0x60600
+OFFSET_ACCESS(QStringList, QDirPrivate, files);
+OFFSET_ACCESS(QFileInfoList, QDirPrivate, fileInfos);
+OFFSET_ACCESS(QFileSystemEntry, QDirPrivate, absoluteDirEntry);
+#else
+using FileCache = QDirPrivate::FileCache;
+
+OFFSET_ACCESS(QDirPrivate::FileCache, QDirPrivate, fileCache);
+OFFSET_ACCESS(QStringList, FileCache, files);
+OFFSET_ACCESS(QFileInfoList, FileCache, fileInfos);
+OFFSET_ACCESS(QFileSystemEntry, FileCache, absoluteDirEntry);
+#endif
+#endif
 
 #if QT_VERSION < 0x50000
 OFFSET_ACCESS(QString, QObjectPrivate, objectName);
@@ -288,6 +306,21 @@ void tst_offsets::offsets_data()
         OFFSET_TEST(QDateTimePrivate, m_status) << 4 << 4;
         OFFSET_TEST(QDateTimePrivate, m_offsetFromUtc) << 16 << 16;
         OFFSET_TEST(QDateTimePrivate, m_timeZone) << 20 << 24;
+#endif
+
+#if QT_VERSION >= 0x60000
+#if QT_VERSION < 0x60600
+        OFFSET_TEST(QDirPrivate, dirEntry) << 40 << 96;
+        OFFSET_TEST(QDirPrivate, files) << 4 << 8;
+        OFFSET_TEST(QDirPrivate, fileInfos) << 16 << 32;
+        OFFSET_TEST(QDirPrivate, absoluteDirEntry) << 72 << 152;
+#else
+        OFFSET_TEST(QDirPrivate, fileCache) << 52 << 104;
+        OFFSET_TEST(QDirPrivate, dirEntry) << 24 << 48;
+        OFFSET_TEST(FileCache, files) << 4 << 8;
+        OFFSET_TEST(FileCache, fileInfos) << 16 << 32;
+        OFFSET_TEST(FileCache, absoluteDirEntry) << 32 << 64;
+#endif
 #endif
 
 #ifdef HAS_BOOST
