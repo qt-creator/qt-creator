@@ -67,10 +67,10 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
     request.insert("override-build-graph-data", true);
     static const auto envToJson = [](const Environment &env) {
         QJsonObject envObj;
-        for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
-            if (env.isEnabled(it))
-                envObj.insert(env.key(it), env.value(it));
-        }
+        env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+            if (enabled)
+                envObj.insert(key, value);
+        });
         return envObj;
     };
     request.insert("environment", envToJson(env));
