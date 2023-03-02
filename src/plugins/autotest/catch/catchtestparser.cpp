@@ -11,6 +11,7 @@
 #include <cppeditor/projectpart.h>
 #include <utils/qtcassert.h>
 
+#include <QPromise>
 #include <QRegularExpression>
 
 using namespace Utils;

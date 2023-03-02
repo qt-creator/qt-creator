@@ -10,6 +10,7 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <utils/algorithm.h>
 
+#include <QPromise>
 #include <QRegularExpressionMatchIterator>
 
 using namespace Utils;

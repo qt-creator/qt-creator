@@ -10,6 +10,7 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
 
+#include <QPromise>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 

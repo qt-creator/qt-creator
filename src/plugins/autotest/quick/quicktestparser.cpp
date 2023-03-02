@@ -23,6 +23,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QPromise>
+
 using namespace QmlJS;
 using namespace Utils;
 
