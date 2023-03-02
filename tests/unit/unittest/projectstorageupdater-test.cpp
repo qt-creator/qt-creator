@@ -349,9 +349,9 @@ TEST_F(ProjectStorageUpdater, GetContentForQmlDirPathsIfFileStatusIsDifferent)
 
 TEST_F(ProjectStorageUpdater, RequestFileStatusFromFileSystem)
 {
-    EXPECT_CALL(fileSystemMock, fileStatus(Ne(qmlDirPathSourceId))).Times(AnyNumber());
+    EXPECT_CALL(fileSystemMock, fileStatus(Ne(directoryPathSourceId))).Times(AnyNumber());
 
-    EXPECT_CALL(fileSystemMock, fileStatus(Eq(qmlDirPathSourceId)));
+    EXPECT_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId)));
 
     updater.update(directories, {});
 }
@@ -447,12 +447,12 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlTypes)
                                 UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
                                                      IsFileStatus(qmltypesPathSourceId, 21, 421))),
                           Field(&SynchronizationPackage::projectDatas,
-                                UnorderedElementsAre(IsProjectData(qmlDirPathSourceId,
+                                UnorderedElementsAre(IsProjectData(directoryPathSourceId,
                                                                    qmltypesPathSourceId,
                                                                    exampleCppNativeModuleId,
                                                                    FileType::QmlTypes))),
                           Field(&SynchronizationPackage::updatedProjectSourceIds,
-                                UnorderedElementsAre(qmlDirPathSourceId)))));
+                                UnorderedElementsAre(directoryPathSourceId)))));
 
     updater.update(directories, {});
 }
@@ -599,15 +599,20 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocuments)
                                        IsFileStatus(qmlDocumentSourceId2, 22, 13),
                                        IsFileStatus(qmlDocumentSourceId3, 22, 14))),
             Field(&SynchronizationPackage::updatedProjectSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId)),
+                  UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::projectDatas,
-                  UnorderedElementsAre(
-                      IsProjectData(qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument),
-                      IsProjectData(qmlDirPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument),
-                      IsProjectData(qmlDirPathSourceId,
-                                    qmlDocumentSourceId3,
-                                    ModuleId{},
-                                    FileType::QmlDocument))))));
+                  UnorderedElementsAre(IsProjectData(directoryPathSourceId,
+                                                     qmlDocumentSourceId1,
+                                                     ModuleId{},
+                                                     FileType::QmlDocument),
+                                       IsProjectData(directoryPathSourceId,
+                                                     qmlDocumentSourceId2,
+                                                     ModuleId{},
+                                                     FileType::QmlDocument),
+                                       IsProjectData(directoryPathSourceId,
+                                                     qmlDocumentSourceId3,
+                                                     ModuleId{},
+                                                     FileType::QmlDocument))))));
 
     updater.update(directories, {});
 }
@@ -621,6 +626,10 @@ TEST_F(ProjectStorageUpdater, SynchronizeAddOnlyQmlDocumentInDirectory)
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId1, 22, 2}));
     ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path"))))
         .WillByDefault(Return(QStringList{"First.qml", "First2.qml"}));
+    ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
+        .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 21, 421}));
+    ON_CALL(projectStorageMock, fetchFileStatus(Eq(directoryPathSourceId)))
+        .WillByDefault(Return(FileStatus{directoryPathSourceId, 21, 421}));
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(AllOf(
@@ -643,24 +652,25 @@ TEST_F(ProjectStorageUpdater, SynchronizeAddOnlyQmlDocumentInDirectory)
                                                   Storage::Synchronization::ChangeLevel::Full),
                                     Field(&Storage::Synchronization::Type::exportedTypes,
                                           UnorderedElementsAre(
-                                              IsExportedType(pathModuleId, "First2", -1, -1))))))/*,
+                                              IsExportedType(pathModuleId, "First2", -1, -1)))))),
                     Field(&SynchronizationPackage::updatedSourceIds,
                           UnorderedElementsAre(qmlDocumentSourceId1, qmlDocumentSourceId2)),
                     Field(&SynchronizationPackage::updatedFileStatusSourceIds,
-                          UnorderedElementsAre(qmlDocumentSourceId2)),
+                          UnorderedElementsAre(directoryPathSourceId, qmlDocumentSourceId2)),
                     Field(&SynchronizationPackage::fileStatuses,
-                          UnorderedElementsAre(IsFileStatus(qmlDocumentSourceId2, 22, 13))),
+                          UnorderedElementsAre(IsFileStatus(qmlDocumentSourceId2, 22, 13),
+                                               IsFileStatus(directoryPathSourceId, 2, 421))),
                     Field(&SynchronizationPackage::updatedProjectSourceIds,
-                          UnorderedElementsAre(qmlDirPathSourceId)),
+                          UnorderedElementsAre(directoryPathSourceId)),
                     Field(&SynchronizationPackage::projectDatas,
-                          UnorderedElementsAre(IsProjectData(qmlDirPathSourceId,
+                          UnorderedElementsAre(IsProjectData(directoryPathSourceId,
                                                              qmlDocumentSourceId1,
                                                              ModuleId{},
                                                              FileType::QmlDocument),
-                                               IsProjectData(qmlDirPathSourceId,
+                                               IsProjectData(directoryPathSourceId,
                                                              qmlDocumentSourceId2,
                                                              ModuleId{},
-                                                             FileType::QmlDocument)))*/)));
+                                                             FileType::QmlDocument))))));
 
     updater.update(directories, {});
 }
@@ -680,11 +690,11 @@ TEST_F(ProjectStorageUpdater, SynchronizeRemovesQmlDocument)
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId2, 22, 2}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmlDocumentSourceId3)))
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId3, -1, -1}));
-    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(directoryPathSourceId)))
         .WillByDefault(Return(QmlDesigner::Storage::Synchronization::ProjectDatas{
-            {qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
-            {qmlDirPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument},
-            {qmlDirPathSourceId, qmlDocumentSourceId3, ModuleId{}, FileType::QmlDocument}}));
+            {directoryPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
+            {directoryPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument},
+            {directoryPathSourceId, qmlDocumentSourceId3, ModuleId{}, FileType::QmlDocument}}));
     ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path"))))
         .WillByDefault(Return(QStringList{"First.qml", "First2.qml"}));
 
@@ -721,13 +731,13 @@ TEST_F(ProjectStorageUpdater, SynchronizeRemovesQmlDocument)
                     Field(&SynchronizationPackage::fileStatuses,
                           UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 422))),
                     Field(&SynchronizationPackage::updatedProjectSourceIds,
-                          UnorderedElementsAre(qmlDirPathSourceId)),
+                          UnorderedElementsAre(directoryPathSourceId)),
                     Field(&SynchronizationPackage::projectDatas,
-                          UnorderedElementsAre(IsProjectData(qmlDirPathSourceId,
+                          UnorderedElementsAre(IsProjectData(directoryPathSourceId,
                                                              qmlDocumentSourceId1,
                                                              ModuleId{},
                                                              FileType::QmlDocument),
-                                               IsProjectData(qmlDirPathSourceId,
+                                               IsProjectData(directoryPathSourceId,
                                                              qmlDocumentSourceId2,
                                                              ModuleId{},
                                                              FileType::QmlDocument))))));
@@ -747,10 +757,10 @@ TEST_F(ProjectStorageUpdater, SynchronizeRemovesQmlDocumentInQmldirOnly)
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId1, 22, 2}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmlDocumentSourceId2)))
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId2, 22, 2}));
-    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(directoryPathSourceId)))
         .WillByDefault(Return(QmlDesigner::Storage::Synchronization::ProjectDatas{
-            {qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
-            {qmlDirPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument}}));
+            {directoryPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
+            {directoryPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument}}));
     ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path"))))
         .WillByDefault(Return(QStringList{"First.qml", "First2.qml"}));
 
@@ -782,13 +792,13 @@ TEST_F(ProjectStorageUpdater, SynchronizeRemovesQmlDocumentInQmldirOnly)
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 422))),
             Field(&SynchronizationPackage::updatedProjectSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId)),
+                  UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::projectDatas,
-                  UnorderedElementsAre(IsProjectData(qmlDirPathSourceId,
+                  UnorderedElementsAre(IsProjectData(directoryPathSourceId,
                                                      qmlDocumentSourceId1,
                                                      ModuleId{},
                                                      FileType::QmlDocument),
-                                       IsProjectData(qmlDirPathSourceId,
+                                       IsProjectData(directoryPathSourceId,
                                                      qmlDocumentSourceId2,
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
@@ -809,10 +819,10 @@ TEST_F(ProjectStorageUpdater, SynchronizeAddQmlDocumentToQmldir)
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId1, 22, 2}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmlDocumentSourceId2)))
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId2, 22, 2}));
-    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(directoryPathSourceId)))
         .WillByDefault(Return(QmlDesigner::Storage::Synchronization::ProjectDatas{
-            {qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
-            {qmlDirPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument}}));
+            {directoryPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
+            {directoryPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument}}));
     ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path"))))
         .WillByDefault(Return(QStringList{"First.qml", "First2.qml"}));
 
@@ -846,13 +856,13 @@ TEST_F(ProjectStorageUpdater, SynchronizeAddQmlDocumentToQmldir)
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 422))),
             Field(&SynchronizationPackage::updatedProjectSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId)),
+                  UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::projectDatas,
-                  UnorderedElementsAre(IsProjectData(qmlDirPathSourceId,
+                  UnorderedElementsAre(IsProjectData(directoryPathSourceId,
                                                      qmlDocumentSourceId1,
                                                      ModuleId{},
                                                      FileType::QmlDocument),
-                                       IsProjectData(qmlDirPathSourceId,
+                                       IsProjectData(directoryPathSourceId,
                                                      qmlDocumentSourceId2,
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
@@ -872,10 +882,10 @@ TEST_F(ProjectStorageUpdater, SynchronizeAddQmlDocumentToDirectory)
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId1, 22, 2}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmlDocumentSourceId2)))
         .WillByDefault(Return(FileStatus{qmlDocumentSourceId2, 22, 2}));
-    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(directoryPathSourceId)))
         .WillByDefault(Return(QmlDesigner::Storage::Synchronization::ProjectDatas{
-            {qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
-            {qmlDirPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument}}));
+            {directoryPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument},
+            {directoryPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument}}));
     ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path"))))
         .WillByDefault(Return(QStringList{"First.qml", "First2.qml"}));
 
@@ -907,13 +917,13 @@ TEST_F(ProjectStorageUpdater, SynchronizeAddQmlDocumentToDirectory)
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 422))),
             Field(&SynchronizationPackage::updatedProjectSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId)),
+                  UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::projectDatas,
-                  UnorderedElementsAre(IsProjectData(qmlDirPathSourceId,
+                  UnorderedElementsAre(IsProjectData(directoryPathSourceId,
                                                      qmlDocumentSourceId1,
                                                      ModuleId{},
                                                      FileType::QmlDocument),
-                                       IsProjectData(qmlDirPathSourceId,
+                                       IsProjectData(directoryPathSourceId,
                                                      qmlDocumentSourceId2,
                                                      ModuleId{},
                                                      FileType::QmlDocument))))));
@@ -974,15 +984,20 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsDontUpdateIfUpToDate)
             Field(&SynchronizationPackage::updatedFileStatusSourceIds,
                   UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2)),
             Field(&SynchronizationPackage::updatedProjectSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId)),
+                  UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::projectDatas,
-                  UnorderedElementsAre(
-                      IsProjectData(qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument),
-                      IsProjectData(qmlDirPathSourceId, qmlDocumentSourceId2, ModuleId{}, FileType::QmlDocument),
-                      IsProjectData(qmlDirPathSourceId,
-                                    qmlDocumentSourceId3,
-                                    ModuleId{},
-                                    FileType::QmlDocument))))));
+                  UnorderedElementsAre(IsProjectData(directoryPathSourceId,
+                                                     qmlDocumentSourceId1,
+                                                     ModuleId{},
+                                                     FileType::QmlDocument),
+                                       IsProjectData(directoryPathSourceId,
+                                                     qmlDocumentSourceId2,
+                                                     ModuleId{},
+                                                     FileType::QmlDocument),
+                                       IsProjectData(directoryPathSourceId,
+                                                     qmlDocumentSourceId3,
+                                                     ModuleId{},
+                                                     FileType::QmlDocument))))));
 
     updater.update(directories, {});
 }
@@ -1002,10 +1017,10 @@ TEST_F(ProjectStorageUpdater, UpdateQmldirDocuments)
 
 TEST_F(ProjectStorageUpdater, AddSourceIdForForInvalidDirectoryFileStatus)
 {
-    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(directoryPathSourceId)))
         .WillByDefault(Return(QmlDesigner::Storage::Synchronization::ProjectDatas{
-            {qmlDirPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
-            {qmlDirPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}}));
+            {directoryPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
+            {directoryPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}}));
     ON_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId))).WillByDefault(Return(FileStatus{}));
     ON_CALL(fileSystemMock, fileStatus(Eq(qmlDirPathSourceId))).WillByDefault(Return(FileStatus{}));
 
@@ -1024,12 +1039,12 @@ TEST_F(ProjectStorageUpdater, AddSourceIdForForInvalidDirectoryFileStatus)
 
 TEST_F(ProjectStorageUpdater, SynchronizIfQmldirFileHasNotChanged)
 {
-    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(directoryPathSourceId)))
         .WillByDefault(Return(QmlDesigner::Storage::Synchronization::ProjectDatas{
-            {qmlDirPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
-            {qmlDirPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes},
-            {qmlDirPathSourceId, qmlDocumentSourceId1, exampleModuleId, FileType::QmlDocument},
-            {qmlDirPathSourceId, qmlDocumentSourceId2, exampleModuleId, FileType::QmlDocument}}));
+            {directoryPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
+            {directoryPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes},
+            {directoryPathSourceId, qmlDocumentSourceId1, exampleModuleId, FileType::QmlDocument},
+            {directoryPathSourceId, qmlDocumentSourceId2, exampleModuleId, FileType::QmlDocument}}));
     ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
         .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 21, 421}));
 
@@ -1076,12 +1091,12 @@ TEST_F(ProjectStorageUpdater, SynchronizIfQmldirFileHasNotChanged)
 
 TEST_F(ProjectStorageUpdater, SynchronizIfQmldirFileHasNotChangedAndSomeUpdatedFiles)
 {
-    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(qmlDirPathSourceId)))
+    ON_CALL(projectStorageMock, fetchProjectDatas(Eq(directoryPathSourceId)))
         .WillByDefault(Return(QmlDesigner::Storage::Synchronization::ProjectDatas{
-            {qmlDirPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
-            {qmlDirPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes},
-            {qmlDirPathSourceId, qmlDocumentSourceId1, exampleModuleId, FileType::QmlDocument},
-            {qmlDirPathSourceId, qmlDocumentSourceId2, exampleModuleId, FileType::QmlDocument}}));
+            {directoryPathSourceId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
+            {directoryPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes},
+            {directoryPathSourceId, qmlDocumentSourceId1, exampleModuleId, FileType::QmlDocument},
+            {directoryPathSourceId, qmlDocumentSourceId2, exampleModuleId, FileType::QmlDocument}}));
     ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmlDirPathSourceId)))
         .WillByDefault(Return(FileStatus{qmlDirPathSourceId, 21, 421}));
     ON_CALL(projectStorageMock, fetchFileStatus(Eq(qmltypes2PathSourceId)))
@@ -1191,34 +1206,36 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsWithDifferentVersionButSame
     ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path"))))
         .WillByDefault(Return(QStringList{"First.qml"}));
 
-    EXPECT_CALL(
-        projectStorageMock,
-        synchronize(AllOf(
-            Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1)),
-            Field(&SynchronizationPackage::types,
-                  UnorderedElementsAre(AllOf(
-                      IsStorageType("First.qml",
-                                    Storage::Synchronization::ImportedType{"Object"},
-                                    TypeTraits::Reference,
-                                    qmlDocumentSourceId1,
-                                    Storage::Synchronization::ChangeLevel::Full),
-                      Field(&Storage::Synchronization::Type::exportedTypes,
-                            UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
-                                                 IsExportedType(exampleModuleId, "FirstType", 1, 1),
-                                                 IsExportedType(exampleModuleId, "FirstType", 6, 0),
-                                                 IsExportedType(pathModuleId, "First", -1, -1)))))),
-            Field(&SynchronizationPackage::updatedSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field(&SynchronizationPackage::updatedFileStatusSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field(&SynchronizationPackage::fileStatuses,
-                  UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
-                                       IsFileStatus(qmlDocumentSourceId1, 22, 12))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId)),
-            Field(&SynchronizationPackage::projectDatas,
-                  UnorderedElementsAre(IsProjectData(
-                      qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument))))));
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1)),
+                          Field(&SynchronizationPackage::types,
+                                UnorderedElementsAre(AllOf(
+                                    IsStorageType("First.qml",
+                                                  Storage::Synchronization::ImportedType{"Object"},
+                                                  TypeTraits::Reference,
+                                                  qmlDocumentSourceId1,
+                                                  Storage::Synchronization::ChangeLevel::Full),
+                                    Field(&Storage::Synchronization::Type::exportedTypes,
+                                          UnorderedElementsAre(
+                                              IsExportedType(exampleModuleId, "FirstType", 1, 0),
+                                              IsExportedType(exampleModuleId, "FirstType", 1, 1),
+                                              IsExportedType(exampleModuleId, "FirstType", 6, 0),
+                                              IsExportedType(pathModuleId, "First", -1, -1)))))),
+                          Field(&SynchronizationPackage::updatedSourceIds,
+                                UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
+                          Field(&SynchronizationPackage::updatedFileStatusSourceIds,
+                                UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
+                          Field(&SynchronizationPackage::fileStatuses,
+                                UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
+                                                     IsFileStatus(qmlDocumentSourceId1, 22, 12))),
+                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                                UnorderedElementsAre(directoryPathSourceId)),
+                          Field(&SynchronizationPackage::projectDatas,
+                                UnorderedElementsAre(IsProjectData(directoryPathSourceId,
+                                                                   qmlDocumentSourceId1,
+                                                                   ModuleId{},
+                                                                   FileType::QmlDocument))))));
 
     updater.update(directories, {});
 }
@@ -1232,33 +1249,35 @@ TEST_F(ProjectStorageUpdater, SynchronizeQmlDocumentsWithDifferentTypeNameButSam
     ON_CALL(fileSystemMock, qmlFileNames(Eq(QString("/path"))))
         .WillByDefault(Return(QStringList{"First.qml"}));
 
-    EXPECT_CALL(
-        projectStorageMock,
-        synchronize(AllOf(
-            Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1)),
-            Field(&SynchronizationPackage::types,
-                  UnorderedElementsAre(AllOf(
-                      IsStorageType("First.qml",
-                                    Storage::Synchronization::ImportedType{"Object"},
-                                    TypeTraits::Reference,
-                                    qmlDocumentSourceId1,
-                                    Storage::Synchronization::ChangeLevel::Full),
-                      Field(&Storage::Synchronization::Type::exportedTypes,
-                            UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
-                                                 IsExportedType(exampleModuleId, "FirstType2", 1, 0),
-                                                 IsExportedType(pathModuleId, "First", -1, -1)))))),
-            Field(&SynchronizationPackage::updatedSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field(&SynchronizationPackage::updatedFileStatusSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field(&SynchronizationPackage::fileStatuses,
-                  UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
-                                       IsFileStatus(qmlDocumentSourceId1, 22, 12))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId)),
-            Field(&SynchronizationPackage::projectDatas,
-                  UnorderedElementsAre(IsProjectData(
-                      qmlDirPathSourceId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument))))));
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1)),
+                          Field(&SynchronizationPackage::types,
+                                UnorderedElementsAre(AllOf(
+                                    IsStorageType("First.qml",
+                                                  Storage::Synchronization::ImportedType{"Object"},
+                                                  TypeTraits::Reference,
+                                                  qmlDocumentSourceId1,
+                                                  Storage::Synchronization::ChangeLevel::Full),
+                                    Field(&Storage::Synchronization::Type::exportedTypes,
+                                          UnorderedElementsAre(
+                                              IsExportedType(exampleModuleId, "FirstType", 1, 0),
+                                              IsExportedType(exampleModuleId, "FirstType2", 1, 0),
+                                              IsExportedType(pathModuleId, "First", -1, -1)))))),
+                          Field(&SynchronizationPackage::updatedSourceIds,
+                                UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
+                          Field(&SynchronizationPackage::updatedFileStatusSourceIds,
+                                UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
+                          Field(&SynchronizationPackage::fileStatuses,
+                                UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 21, 421),
+                                                     IsFileStatus(qmlDocumentSourceId1, 22, 12))),
+                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                                UnorderedElementsAre(directoryPathSourceId)),
+                          Field(&SynchronizationPackage::projectDatas,
+                                UnorderedElementsAre(IsProjectData(directoryPathSourceId,
+                                                                   qmlDocumentSourceId1,
+                                                                   ModuleId{},
+                                                                   FileType::QmlDocument))))));
 
     updater.update(directories, {});
 }
