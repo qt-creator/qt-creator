@@ -468,10 +468,10 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
         dockerCmd.addArg("-t");
 
     if (env) {
-        for (auto it = env->constBegin(); it != env->constEnd(); ++it) {
+        env->forEachEntry([&](const QString &key, const QString &, bool) {
             dockerCmd.addArg("-e");
-            dockerCmd.addArg(env->key(it) + "=" + env->expandedValueForKey(env->key(it)));
-        }
+            dockerCmd.addArg(key + "=" + env->expandedValueForKey(key));
+        });
     }
 
     if (workDir && !workDir->isEmpty())
