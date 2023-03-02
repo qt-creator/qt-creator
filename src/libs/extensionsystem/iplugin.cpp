@@ -161,11 +161,46 @@
 namespace ExtensionSystem {
 namespace Internal {
 
+class ObjectInitializer
+{
+public:
+    ObjectCreator creator;
+    ObjectDestructor destructor;
+    ObjectCreationPolicy policy;
+};
+
 class IPluginPrivate
 {
 public:
+    void tryCreateObjects();
+
     QList<TestCreator> testCreators;
+
+    QList<ObjectInitializer> objectInitializers;
+    QList<std::function<void()>> objectDestructors;
+
+    // For debugging purposes:
+    QList<void *> createdObjects; // Not owned.
 };
+
+void IPluginPrivate::tryCreateObjects()
+{
+    QList<ObjectInitializer> unhandledObjectInitializers;
+
+    for (const ObjectInitializer &initializer : std::as_const(objectInitializers)) {
+        if (!initializer.policy.dependsOn.isEmpty()) {
+            qWarning("Initialization dependencies are not supported yet");
+            unhandledObjectInitializers.append(initializer);
+            continue;
+        }
+
+        void *object = initializer.creator();
+        createdObjects.append(object);
+        objectDestructors.append([initializer, object] { initializer.destructor(object); });
+    }
+
+    objectInitializers = unhandledObjectInitializers;
+}
 
 } // Internal
 
@@ -182,8 +217,18 @@ IPlugin::IPlugin()
 */
 IPlugin::~IPlugin()
 {
+    for (const std::function<void()> &dtor : std::as_const(d->objectDestructors))
+        dtor();
+
     delete d;
     d = nullptr;
+}
+
+void IPlugin::addManagedHelper(const ObjectCreator &creator,
+                               const ObjectDestructor &destructor,
+                               const ObjectCreationPolicy &policy)
+{
+    d->objectInitializers.append({creator, destructor, policy});
 }
 
 bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -192,6 +237,14 @@ bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
     Q_UNUSED(errorString)
     initialize();
     return true;
+}
+
+/*!
+    \internal
+*/
+void IPlugin::tryCreateObjects()
+{
+    d->tryCreateObjects();
 }
 
 /*!
