@@ -8,8 +8,12 @@
 #include "copilotsettings.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
+
+#include <texteditor/texteditor.h>
 
 using namespace Utils;
+using namespace Core;
 
 namespace Copilot {
 namespace Internal {
@@ -24,7 +28,7 @@ CopilotPlugin::~CopilotPlugin()
 
 void CopilotPlugin::initialize()
 {
-    CopilotSettings::instance().readSettings(Core::ICore::settings());
+    CopilotSettings::instance().readSettings(ICore::settings());
 
     m_client = new CopilotClient();
 

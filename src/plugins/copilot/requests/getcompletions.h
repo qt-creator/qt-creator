@@ -42,7 +42,6 @@ class GetCompletionParams : public LanguageServerProtocol::JsonObject
 public:
     static constexpr char16_t docKey[] = u"doc";
 
-    GetCompletionParams();
     GetCompletionParams(const LanguageServerProtocol::TextDocumentIdentifier &document,
                         int version,
                         const LanguageServerProtocol::Position &position)
@@ -110,7 +109,7 @@ class GetCompletionRequest
     : public LanguageServerProtocol::Request<GetCompletionResponse, std::nullptr_t, GetCompletionParams>
 {
 public:
-    explicit GetCompletionRequest(const GetCompletionParams &params)
+    explicit GetCompletionRequest(const GetCompletionParams &params = {})
         : Request(methodName, params)
     {}
     using Request::Request;

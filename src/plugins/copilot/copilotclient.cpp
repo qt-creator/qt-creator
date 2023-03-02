@@ -4,7 +4,6 @@
 #include "copilotclient.h"
 
 #include "copilotsettings.h"
-#include "documentwatcher.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -14,6 +13,14 @@
 
 #include <utils/filepath.h>
 
+#include <texteditor/texteditor.h>
+
+#include <languageserverprotocol/lsptypes.h>
+
+#include <QTimer>
+
+using namespace LanguageServerProtocol;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace Copilot::Internal {
@@ -48,49 +55,117 @@ CopilotClient::CopilotClient()
     setSupportedLanguage(langFilter);
     start();
 
-    connect(Core::EditorManager::instance(),
-            &Core::EditorManager::documentOpened,
-            this,
-            [this](Core::IDocument *document) {
-                TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(
-                    document);
-                if (!textDocument)
-                    return;
+    auto openDoc = [this](Core::IDocument *document) {
+        if (auto *textDocument = qobject_cast<TextDocument *>(document))
+            openDocument(textDocument);
+    };
 
-                openDocument(textDocument);
-
-                m_documentWatchers.emplace(textDocument->filePath(),
-                                           std::make_unique<DocumentWatcher>(this, textDocument));
-            });
-
+    connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened, this, openDoc);
     connect(Core::EditorManager::instance(),
             &Core::EditorManager::documentClosed,
             this,
             [this](Core::IDocument *document) {
-                auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-                if (!textDocument)
-                    return;
-
-                closeDocument(textDocument);
-                m_documentWatchers.erase(textDocument->filePath());
+                if (auto textDocument = qobject_cast<TextDocument *>(document))
+                    closeDocument(textDocument);
             });
 
+    for (Core::IDocument *doc : Core::DocumentModel::openedDocuments())
+        openDoc(doc);
     currentInstance = this;
 }
 
-void CopilotClient::requestCompletion(
-    const Utils::FilePath &path,
-    int version,
-    LanguageServerProtocol::Position position,
-    std::function<void(const GetCompletionRequest::Response &response)> callback)
+void CopilotClient::openDocument(TextDocument *document)
 {
-    GetCompletionRequest request{
-        {LanguageServerProtocol::TextDocumentIdentifier(hostPathToServerUri(path)),
-         version,
-         position}};
-    request.setResponseCallback(callback);
+    Client::openDocument(document);
+    connect(document,
+            &TextDocument::contentsChangedWithPosition,
+            this,
+            [this, document](int position, int charsRemoved, int charsAdded) {
+                auto textEditor = BaseTextEditor::currentTextEditor();
+                if (!textEditor || textEditor->document() != document)
+                    return;
+                TextEditorWidget *widget = textEditor->editorWidget();
+                if (widget->multiTextCursor().hasMultipleCursors())
+                    return;
+                if (widget->textCursor().position() != (position + charsAdded))
+                    return;
+                scheduleRequest(textEditor->editorWidget());
+            });
+}
 
+void CopilotClient::scheduleRequest(TextEditorWidget *editor)
+{
+    cancelRunningRequest(editor);
+
+    if (!m_scheduledRequests.contains(editor)) {
+        auto timer = new QTimer(this);
+        timer->setSingleShot(true);
+        connect(timer, &QTimer::timeout, this, [this, editor]() { requestCompletions(editor); });
+        connect(editor, &TextEditorWidget::destroyed, this, [this, editor]() {
+            m_scheduledRequests.remove(editor);
+        });
+        connect(editor, &TextEditorWidget::cursorPositionChanged, this, [this, editor] {
+            cancelRunningRequest(editor);
+        });
+        m_scheduledRequests.insert(editor, {editor->textCursor().position(), timer});
+    } else {
+        m_scheduledRequests[editor].cursorPosition = editor->textCursor().position();
+    }
+    m_scheduledRequests[editor].timer->start(500);
+}
+
+void CopilotClient::requestCompletions(TextEditorWidget *editor)
+{
+    Utils::MultiTextCursor cursor = editor->multiTextCursor();
+    if (cursor.hasMultipleCursors() || cursor.hasSelection())
+        return;
+
+    if (m_scheduledRequests[editor].cursorPosition != cursor.mainCursor().position())
+        return;
+
+    const Utils::FilePath filePath = editor->textDocument()->filePath();
+    GetCompletionRequest request{
+        {TextDocumentIdentifier(hostPathToServerUri(filePath)),
+         documentVersion(filePath),
+         Position(cursor.mainCursor())}};
+    request.setResponseCallback([this, editor = QPointer<TextEditorWidget>(editor)](
+                                    const GetCompletionRequest::Response &response) {
+        if (editor)
+            handleCompletions(response, editor);
+    });
+    m_runningRequests[editor] = request;
     sendMessage(request);
+}
+
+void CopilotClient::handleCompletions(const GetCompletionRequest::Response &response,
+                                      TextEditorWidget *editor)
+{
+    if (response.error())
+        log(*response.error());
+
+    Utils::MultiTextCursor cursor = editor->multiTextCursor();
+    if (cursor.hasMultipleCursors() || cursor.hasSelection())
+        return;
+
+    if (const std::optional<GetCompletionResponse> result = response.result()) {
+        LanguageClientArray<Completion> completions = result->completions();
+        if (completions.isNull() || completions.toList().isEmpty())
+            return;
+
+        const Completion firstCompletion = completions.toList().first();
+        const QString content = firstCompletion.text().mid(firstCompletion.position().character());
+
+        editor->insertSuggestion(content);
+    }
+}
+
+void CopilotClient::cancelRunningRequest(TextEditor::TextEditorWidget *editor)
+{
+    auto it = m_runningRequests.find(editor);
+    if (it == m_runningRequests.end())
+        return;
+    cancelRequest(it->id());
+    m_runningRequests.erase(it);
 }
 
 void CopilotClient::requestCheckStatus(

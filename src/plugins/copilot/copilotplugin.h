@@ -7,6 +7,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace TextEditor { class TextEditorWidget; }
+
 namespace Copilot {
 namespace Internal {
 

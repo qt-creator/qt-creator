@@ -27,11 +27,13 @@ public:
 
     static CopilotClient *instance();
 
-    void requestCompletion(
-        const Utils::FilePath &path,
-        int version,
-        LanguageServerProtocol::Position position,
-        std::function<void(const GetCompletionRequest::Response &response)> callback);
+    void openDocument(TextEditor::TextDocument *document) override;
+
+    void scheduleRequest(TextEditor::TextEditorWidget *editor);
+    void requestCompletions(TextEditor::TextEditorWidget *editor);
+    void handleCompletions(const GetCompletionRequest::Response &response,
+                           TextEditor::TextEditorWidget *editor);
+    void cancelRunningRequest(TextEditor::TextEditorWidget *editor);
 
     void requestCheckStatus(
         bool localChecksOnly,
@@ -47,7 +49,13 @@ public:
         std::function<void(const SignInConfirmRequest::Response &response)> callback);
 
 private:
-    std::map<Utils::FilePath, std::unique_ptr<DocumentWatcher>> m_documentWatchers;
+    QMap<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
+    struct ScheduleData
+    {
+        int cursorPosition = -1;
+        QTimer *timer = nullptr;
+    };
+    QMap<TextEditor::TextEditorWidget *, ScheduleData> m_scheduledRequests;
 };
 
 } // namespace Copilot::Internal
