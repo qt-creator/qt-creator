@@ -48,7 +48,7 @@ QProcessEnvironment Environment::toProcessEnvironment() const
     QProcessEnvironment result;
     for (auto it = m_dict.m_values.constBegin(); it != m_dict.m_values.constEnd(); ++it) {
         if (it.value().second)
-            result.insert(it.key().name, expandedValueForKey(key(it)));
+            result.insert(it.key().name, expandedValueForKey(m_dict.key(it)));
     }
     return result;
 }

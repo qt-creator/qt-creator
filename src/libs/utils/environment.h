@@ -76,19 +76,11 @@ public:
 
     OsType osType() const { return m_dict.osType(); }
 
-    using const_iterator = NameValueMap::const_iterator; // FIXME: avoid
     NameValueDictionary toDictionary() const { return m_dict; } // FIXME: avoid
     NameValueItems diff(const Environment &other, bool checkAppendPrepend = false) const; // FIXME: avoid
 
-    QString key(const_iterator it) const { return m_dict.key(it); } // FIXME: avoid
-    QString value(const_iterator it) const { return m_dict.value(it); } // FIXME: avoid
-    bool isEnabled(const_iterator it) const { return m_dict.isEnabled(it); } // FIXME: avoid
-
     void setCombineWithDeviceEnvironment(bool combine) { m_combineWithDeviceEnvironment = combine; }
     bool combineWithDeviceEnvironment() const { return m_combineWithDeviceEnvironment; }
-
-    const_iterator constBegin() const { return m_dict.constBegin(); } // FIXME: avoid
-    const_iterator constEnd() const { return m_dict.constEnd(); } // FIXME: avoid
 
     struct Entry { QString key; QString value; bool enabled; };
     using FindResult = std::optional<Entry>;
