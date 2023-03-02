@@ -872,9 +872,9 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
                                        rootProFileName,
                                        deviceRoot());
 
-        Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
-        for (; eit != eend; ++eit)
-            m_qmakeGlobals->environment.insert(env.key(eit), env.expandedValueForKey(env.key(eit)));
+        env.forEachEntry([&](const QString &key, const QString &, bool) {
+            m_qmakeGlobals->environment.insert(key, env.expandedValueForKey(key));
+        });
 
         m_qmakeGlobals->setCommandLineArguments(rootProFileName, qmakeArgs);
         m_qmakeGlobals->runSystemFunction = bc->runSystemFunction();
