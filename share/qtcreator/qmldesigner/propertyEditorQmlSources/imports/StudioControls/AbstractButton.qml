@@ -142,6 +142,10 @@ T.AbstractButton {
                 color: control.style.background.hover
                 border.color: control.style.border.hover
             }
+            PropertyChanges {
+                target: control
+                z: 100
+            }
         },
         State {
             name: "hoverCheck"
@@ -152,6 +156,10 @@ T.AbstractButton {
                                                : control.style.background.hover
                 border.color: control.checkedInverted ? control.style.interactionHover
                                                       : control.style.border.hover
+            }
+            PropertyChanges {
+                target: control
+                z: 100
             }
         },
         State {
