@@ -37,12 +37,13 @@ DocumentWatcher::DocumentWatcher(CopilotClient *client, TextDocument *textDocume
 
 void DocumentWatcher::getSuggestion()
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->activateEditorForDocument(
-        m_textDocument);
-    if (!editor)
-        return;
-    TextEditor::TextEditorWidget *textEditorWidget = qobject_cast<TextEditor::TextEditorWidget *>(
-        editor->widget());
+    TextEditorWidget *textEditorWidget = nullptr;
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(m_textDocument)) {
+        textEditorWidget = qobject_cast<TextEditorWidget *>(editor->widget());
+        if (textEditorWidget)
+            break;
+    }
+
     if (!textEditorWidget)
         return;
 
@@ -50,12 +51,12 @@ void DocumentWatcher::getSuggestion()
     if (cursor.hasMultipleCursors() || cursor.hasSelection())
         return;
 
-    const int currentCursorPos = cursor.cursors().first().position();
+    const int currentCursorPos = cursor.mainCursor().position();
 
     m_client->requestCompletion(
         m_textDocument->filePath(),
         m_client->documentVersion(m_textDocument->filePath()),
-        Position(editor->currentLine() - 1, editor->currentColumn() - 1),
+        Position(cursor.mainCursor()),
         [this, textEditorWidget, currentCursorPos](const GetCompletionRequest::Response &response) {
             if (response.error()) {
                 qDebug() << "ERROR:" << *response.error();
