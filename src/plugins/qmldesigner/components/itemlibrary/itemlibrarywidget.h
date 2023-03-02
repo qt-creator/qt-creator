@@ -6,6 +6,8 @@
 #include "itemlibraryinfo.h"
 #include "import.h"
 
+#include <studioquickwidget.h>
+
 #include <utils/fancylineedit.h>
 #include <utils/dropsupport.h>
 #include <previewtooltip/previewtooltipbackend.h>
@@ -14,7 +16,6 @@
 #include <QFrame>
 #include <QPointF>
 #include <QQmlPropertyMap>
-#include <QQuickWidget>
 #include <QTimer>
 #include <QToolButton>
 
@@ -102,7 +103,7 @@ private:
     QPointer<ItemLibraryModel> m_itemLibraryModel;
     QPointer<ItemLibraryAddImportModel> m_addModuleModel;
 
-    QScopedPointer<QQuickWidget> m_itemsWidget;
+    QScopedPointer<StudioQuickWidget> m_itemsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_previewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut;

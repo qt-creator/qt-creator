@@ -6,6 +6,7 @@ import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
+import ItemLibraryBackend
 
 Column {
     id: root
@@ -43,7 +44,7 @@ Column {
             spacing: 2
 
             Repeater {
-                model: addModuleModel
+                model: ItemLibraryBackend.addModuleModel
 
                 delegate: Rectangle {
                     id: itemBackground
@@ -67,7 +68,7 @@ Column {
                         id: mouseArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: rootView.handleAddImport(index)
+                        onClicked: ItemLibraryBackend.rootView.handleAddImport(index)
                         enabled: !isSeparator
                     }
 

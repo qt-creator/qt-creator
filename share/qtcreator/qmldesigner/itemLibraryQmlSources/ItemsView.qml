@@ -6,6 +6,7 @@ import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import ItemLibraryBackend
 /* The view displaying the item grid.
 The following Qml context properties have to be set:
 - ItemLibraryModel  itemLibraryModel
@@ -52,6 +53,9 @@ Item {
     property var currentImport: null
     property bool isHorizontalView: false
     property bool isAddModuleView: false
+
+    property var tooltipBackend: ItemLibraryBackend.tooltipBackend
+
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
@@ -66,10 +70,10 @@ Item {
     // Called also from C++
     function switchToComponentsView()
     {
-        isAddModuleView = false
+        ItemLibraryBackend.isAddModuleView = false
     }
     onWidthChanged: {
-        itemsView.isHorizontalView = itemsView.width > widthLimit
+        itemsView.isHorizontalView = itemsView.width > ItemLibraryBackend.widthLimit
     }
     onIsHorizontalViewChanged: closeContextMenu()
     Item {
@@ -81,7 +85,7 @@ Item {
         property int cellVerticalMargin: 4
         // the following depend on the actual shape of the item delegate
         property int cellWidth: styleConstants.textWidth + 2 * styleConstants.cellHorizontalMargin
-        property int cellHeight: itemLibraryIconHeight + styleConstants.textHeight +
+        property int cellHeight: ItemLibraryBackend.itemLibraryIconHeight + styleConstants.textHeight +
                                  2 * styleConstants.cellVerticalMargin + styleConstants.cellVerticalSpacing
         StudioControls.Menu {
             id: moduleContextMenu
@@ -89,34 +93,34 @@ Item {
                 text: qsTr("Remove Module")
                 visible: itemsView.currentCategory === null
                 height: visible ? implicitHeight : 0
-                enabled: itemsView.importToRemove && !rootView.subCompEditMode
-                onTriggered: rootView.removeImport(itemsView.importToRemove)
+                enabled: itemsView.importToRemove && !ItemLibraryBackend.rootView.subCompEditMode
+                onTriggered: ItemLibraryBackend.rootView.removeImport(itemsView.importToRemove)
             }
             StudioControls.MenuSeparator {
-                visible: itemsView.currentCategory === null && !rootView.searchActive
+                visible: itemsView.currentCategory === null && !ItemLibraryBackend.rootView.searchActive
                 height: visible ? StudioTheme.Values.border : 0
             }
             StudioControls.MenuItem {
                 text: qsTr("Expand All")
-                visible: itemsView.currentCategory === null && !rootView.searchActive
+                visible: itemsView.currentCategory === null && !ItemLibraryBackend.rootView.searchActive
                 height: visible ? implicitHeight : 0
-                onTriggered: itemLibraryModel.expandAll()
+                onTriggered: ItemLibraryBackend.itemLibraryModel.expandAll()
             }
             StudioControls.MenuItem {
                 text: qsTr("Collapse All")
-                visible: itemsView.currentCategory === null && !rootView.searchActive
+                visible: itemsView.currentCategory === null && !ItemLibraryBackend.rootView.searchActive
                 height: visible ? implicitHeight : 0
-                onTriggered: itemLibraryModel.collapseAll()
+                onTriggered: ItemLibraryBackend.itemLibraryModel.collapseAll()
             }
             StudioControls.MenuSeparator {
-                visible: itemsView.currentCategory === null && !rootView.searchActive
+                visible: itemsView.currentCategory === null && !ItemLibraryBackend.rootView.searchActive
                 height: visible ? StudioTheme.Values.border : 0
             }
             StudioControls.MenuItem {
                 text: qsTr("Hide Category")
                 visible: itemsView.currentCategory
                 height: visible ? implicitHeight : 0
-                onTriggered: itemLibraryModel.hideCategory(itemsView.currentImport.importUrl,
+                onTriggered: ItemLibraryBackend.itemLibraryModel.hideCategory(itemsView.currentImport.importUrl,
                                                            itemsView.currentCategory.categoryName)
             }
             StudioControls.MenuSeparator {
@@ -125,17 +129,17 @@ Item {
             }
             StudioControls.MenuItem {
                 text: qsTr("Show Module Hidden Categories")
-                visible: !rootView.searchActive
+                visible: !ItemLibraryBackend.rootView.searchActive
                 enabled: itemsView.currentImport && !itemsView.currentImport.allCategoriesVisible
                 height: visible ? implicitHeight : 0
-                onTriggered: itemLibraryModel.showImportHiddenCategories(itemsView.currentImport.importUrl)
+                onTriggered: ItemLibraryBackend.itemLibraryModel.showImportHiddenCategories(itemsView.currentImport.importUrl)
             }
             StudioControls.MenuItem {
                 text: qsTr("Show All Hidden Categories")
-                visible: !rootView.searchActive
-                enabled: itemLibraryModel.isAnyCategoryHidden
+                visible: !ItemLibraryBackend.rootView.searchActive
+                enabled: ItemLibraryBackend.itemLibraryModel.isAnyCategoryHidden
                 height: visible ? implicitHeight : 0
-                onTriggered: itemLibraryModel.showAllHiddenCategories()
+                onTriggered: ItemLibraryBackend.itemLibraryModel.showAllHiddenCategories()
             }
         }
         StudioControls.Menu {
@@ -147,14 +151,14 @@ Item {
                 text: qsTr("Add Module: ") + itemsView.importToAdd
                 visible: itemsView.importToAdd
                 height: visible ? implicitHeight : 0
-                onTriggered: rootView.addImportForItem(itemsView.importToAdd)
+                onTriggered: ItemLibraryBackend.rootView.addImportForItem(itemsView.importToAdd)
             }
             StudioControls.MenuItem {
                 id: openSourceItem
                 text: qsTr("Edit Component")
                 visible: itemsView.componentSource
                 height: visible ? implicitHeight : 0
-                onTriggered: rootView.goIntoComponent(itemsView.componentSource)
+                onTriggered: ItemLibraryBackend.rootView.goIntoComponent(itemsView.componentSource)
             }
         }
     }
@@ -182,7 +186,7 @@ Item {
                     width: parent.width
                     style: StudioTheme.Values.searchControlStyle
 
-                    onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
+                    onSearchChanged: (searchText) => ItemLibraryBackend.rootView.handleSearchFilterChanged(searchText)
                 }
 
                 Row {
@@ -215,7 +219,7 @@ Item {
             id: verticalScrollView
             anchors.fill: parent
             clip: true
-            interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !rootView.isDragging
+            interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !ItemLibraryBackend.rootView.isDragging
             onContentHeightChanged: {
                 var maxPosition = Math.max(contentHeight - verticalScrollView.height, 0)
                 if (contentY > maxPosition)
@@ -224,7 +228,7 @@ Item {
             Column {
                 spacing: 2
                 Repeater {
-                    model: itemLibraryModel  // to be set in Qml context
+                    model: ItemLibraryBackend.itemLibraryModel  // to be set in Qml context
                     delegate: HelperWidgets.Section {
                         width: itemsView.width -
                                (verticalScrollView.verticalScrollBarVisible
@@ -274,7 +278,7 @@ Item {
                                     onToggleExpand: categoryExpanded = !categoryExpanded
                                     useDefaulContextMenu: false
                                     onShowContextMenu: {
-                                        if (!rootView.searchActive) {
+                                        if (!ItemLibraryBackend.rootView.searchActive) {
                                             itemsView.currentCategory = model
                                             itemsView.currentImport = parent.currentImportModel
                                             moduleContextMenu.popup()
@@ -322,7 +326,7 @@ Item {
                 width: 270
                 height: parent.height
                 clip: true
-                interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !rootView.isDragging
+                interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !ItemLibraryBackend.rootView.isDragging
 
                 onContentHeightChanged: {
                     var maxPosition = Math.max(contentHeight - horizontalScrollView.height, 0)
@@ -333,7 +337,7 @@ Item {
                     width: parent.width
                     spacing: 2
                     Repeater {
-                        model: itemLibraryModel  // to be set in Qml context
+                        model: ItemLibraryBackend.itemLibraryModel  // to be set in Qml context
                         delegate: HelperWidgets.Section {
                             width: 265 -
                                    (horizontalScrollView.verticalScrollBarVisible
@@ -392,10 +396,10 @@ Item {
                                             hoverEnabled: true
                                             acceptedButtons: Qt.LeftButton | Qt.RightButton
                                             onClicked: (mouse) => {
-                                                itemLibraryModel.selectImportCategory(parent.parent.currentImportModel.importUrl, model.index)
+                                                ItemLibraryBackend.itemLibraryModel.selectImportCategory(parent.parent.currentImportModel.importUrl, model.index)
                                                 if (mouse.button === Qt.RightButton
                                                     && categoryModel.rowCount() !== 1
-                                                    && !rootView.searchActive) {
+                                                    && !ItemLibraryBackend.rootView.searchActive) {
                                                     itemsView.currentCategory = model
                                                     itemsView.currentImport = parent.parent.currentImportModel
                                                     moduleContextMenu.popup()
@@ -419,7 +423,7 @@ Item {
                 id: itemScrollView
                 width: itemsView.width - 275
                 height: itemsView.height
-                interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !rootView.isDragging
+                interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !ItemLibraryBackend.rootView.isDragging
 
                 onContentHeightChanged: {
                     var maxPosition = Math.max(contentHeight - itemScrollView.height, 0)
@@ -435,10 +439,10 @@ Item {
                     columns: hItemGrid.actualWidth / styleConstants.cellWidth
                     rowSpacing: 7
                     Repeater {
-                        model: itemLibraryModel.itemsModel
+                        model: ItemLibraryBackend.itemLibraryModel.itemsModel
                         delegate: ItemDelegate {
                             visible: itemVisible
-                            textColor: itemLibraryModel.importUnimportedSelected
+                            textColor: ItemLibraryBackend.itemLibraryModel.importUnimportedSelected
                                        ? StudioTheme.Values.themeUnimportedModuleColor : StudioTheme.Values.themeTextColor
                             width: styleConstants.cellWidth
                             height: styleConstants.cellHeight
