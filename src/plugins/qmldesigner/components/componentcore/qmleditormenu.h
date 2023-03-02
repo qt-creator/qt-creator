@@ -17,7 +17,7 @@ class QmlEditorMenu : public QMenu
     Q_OBJECT
 
     Q_PROPERTY(bool qmlEditorMenu READ qmlEditorMenu CONSTANT)
-    Q_PROPERTY(bool iconsVisible READ iconsVisible WRITE setIconsVisible CONSTANT)
+    Q_PROPERTY(bool iconsVisible READ iconsVisible WRITE setIconsVisible NOTIFY iconVisibilityChanged)
 
 public:
     explicit QmlEditorMenu(QWidget *parent = nullptr);
@@ -28,6 +28,9 @@ public:
 
     bool iconsVisible() const;
     void setIconsVisible(bool visible);
+
+signals:
+    void iconVisibilityChanged(bool);
 
 protected:
     virtual void initStyleOption(QStyleOptionMenuItem *option, const QAction *action) const override;

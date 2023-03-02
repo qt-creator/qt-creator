@@ -66,6 +66,8 @@ void QmlEditorMenu::setIconsVisible(bool visible)
         return;
 
     d->iconVisibility = visible;
+    emit iconVisibilityChanged(visible);
+
     if (isVisible()) {
         style()->unpolish(this);
         style()->polish(this);
