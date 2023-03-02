@@ -74,8 +74,9 @@ TerminalPane::TerminalPane(QObject *parent)
 void TerminalPane::openTerminal(const Utils::Terminal::OpenTerminalParameters &parameters)
 {
     showPage(0);
-    m_tabWidget->setCurrentIndex(
-        m_tabWidget->addTab(new TerminalWidget(m_tabWidget, parameters), Tr::tr("Terminal")));
+    auto terminalWidget = new TerminalWidget(m_tabWidget, parameters);
+    m_tabWidget->setCurrentIndex(m_tabWidget->addTab(terminalWidget, Tr::tr("Terminal")));
+    setupTerminalWidget(terminalWidget);
 
     m_tabWidget->currentWidget()->setFocus();
 
@@ -87,6 +88,7 @@ void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
 {
     showPage(0);
     m_tabWidget->setCurrentIndex(m_tabWidget->addTab(terminal, title));
+    setupTerminalWidget(terminal);
 
     m_closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
@@ -106,7 +108,10 @@ QWidget *TerminalPane::outputWidget(QWidget *parent)
             removeTab(index);
         });
 
-        m_tabWidget->addTab(new TerminalWidget(parent), Tr::tr("Terminal"));
+        auto terminalWidget = new TerminalWidget(parent);
+        m_tabWidget->addTab(terminalWidget, Tr::tr("Terminal"));
+        setupTerminalWidget(terminalWidget);
+
     }
 
     return m_tabWidget;
@@ -125,6 +130,24 @@ void TerminalPane::removeTab(int index)
 
     m_closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
+}
+
+void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
+{
+    if (!terminal)
+        return;
+
+    auto setTabText = [this](TerminalWidget * terminal) {
+        auto index = m_tabWidget->indexOf(terminal);
+        m_tabWidget->setTabText(index, terminal->shellName());
+    };
+
+    connect(terminal, &TerminalWidget::started, [setTabText, terminal](qint64 /*pid*/) {
+        setTabText(terminal);
+    });
+
+    if (!terminal->shellName().isEmpty())
+        setTabText(terminal);
 }
 
 QList<QWidget *> TerminalPane::toolBarWidgets() const

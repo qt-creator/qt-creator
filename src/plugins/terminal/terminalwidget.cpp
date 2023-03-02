@@ -162,6 +162,10 @@ void TerminalWidget::setupPty()
     });
 
     connect(m_process.get(), &QtcProcess::started, this, [this] {
+        m_shellName = m_process->commandLine().executable().fileName();
+        if (HostOsInfo::isWindowsHost() && m_shellName.endsWith(QTC_WIN_EXE_SUFFIX))
+            m_shellName.chop(QStringLiteral(QTC_WIN_EXE_SUFFIX).size());
+
         applySizeChange();
         emit started(m_process->processId());
     });
@@ -461,6 +465,11 @@ void TerminalWidget::setSelection(const std::optional<Selection> &selection)
 {
     m_copyAction.setEnabled(selection.has_value());
     m_selection = selection;
+}
+
+QString TerminalWidget::shellName() const
+{
+    return m_shellName;
 }
 
 const VTermScreenCell *TerminalWidget::fetchCell(int x, int y) const

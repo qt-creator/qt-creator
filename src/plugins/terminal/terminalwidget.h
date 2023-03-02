@@ -52,6 +52,8 @@ public:
         QPoint end;
     };
 
+    QString shellName() const;
+
 signals:
     void started(qint64 pid);
 
@@ -118,6 +120,8 @@ protected:
 
 private:
     std::unique_ptr<Utils::QtcProcess> m_process;
+
+    QString m_shellName;
 
     std::unique_ptr<VTerm, void (*)(VTerm *)> m_vterm;
     VTermScreen *m_vtermScreen;

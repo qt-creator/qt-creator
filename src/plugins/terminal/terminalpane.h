@@ -43,6 +43,7 @@ private:
     TerminalWidget *currentTerminal() const;
 
     void removeTab(int index);
+    void setupTerminalWidget(TerminalWidget *terminal);
 
 private:
     QTabWidget *m_tabWidget{nullptr};
