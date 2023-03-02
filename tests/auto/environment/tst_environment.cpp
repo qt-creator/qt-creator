@@ -270,8 +270,9 @@ void tst_Environment::incrementalChanges()
     newEnv.modify(changes);
     QVERIFY(!newEnv.hasKey("VAR1"));
     QCOMPARE(newEnv.value("VAR2"), QString());
-    QCOMPARE(newEnv.constFind("VAR2")->first, "VALUE2");
-    QVERIFY(!newEnv.isEnabled(newEnv.constFind("VAR2")));
+    Environment::FindResult res = newEnv.find("VAR2");
+    QCOMPARE(res->value, "VALUE2");
+    QVERIFY(!res->enabled);
     const QChar sep = HostOsInfo::pathListSeparator();
     QCOMPARE(newEnv.value("PATH"),
              QString("/tmp").append(sep).append("/usr/bin").append(sep).append("/usr/local/bin"));
@@ -317,13 +318,12 @@ void tst_Environment::find()
 
     Environment env(QStringList({"Foo=bar", "Hi=HO"}), osType);
 
-    auto end = env.constEnd();
-    auto it = env.constFind(variable);
+    Environment::FindResult res = env.find(variable);
 
-    QCOMPARE((end != it), contains);
+    QCOMPARE(bool(res), contains);
 
     if (contains)
-        QCOMPARE(env.value(it), QString("bar"));
+        QCOMPARE(res->value, QString("bar"));
 
 }
 

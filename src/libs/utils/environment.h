@@ -91,7 +91,10 @@ public:
 
     const_iterator constBegin() const { return m_dict.constBegin(); } // FIXME: avoid
     const_iterator constEnd() const { return m_dict.constEnd(); } // FIXME: avoid
-    const_iterator constFind(const QString &name) const { return m_dict.constFind(name); } // FIXME: avoid
+
+    struct Entry { QString key; QString value; bool enabled; };
+    using FindResult = std::optional<Entry>;
+    FindResult find(const QString &name) const; // Note res->key may differ in case from name.
 
     void forEachEntry(const std::function<void (const QString &, const QString &, bool)> &callBack) const;
 

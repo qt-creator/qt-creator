@@ -362,12 +362,12 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                         if (var == pwdName && pwd && !pwd->isEmpty()) {
                             cret += *pwd;
                         } else {
-                            Environment::const_iterator vit = env->constFind(var);
-                            if (vit == env->constEnd()) {
+                            const Environment::FindResult res = env->find(var);
+                            if (!res) {
                                 if (abortOnMeta)
                                     goto metaerr; // Assume this is a shell builtin
                             } else {
-                                cret += env->expandedValueForKey(env->key(vit));
+                                cret += env->expandedValueForKey(res->key);
                             }
                         }
                         if (!braced)
@@ -412,12 +412,12 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                 if (var == pwdName && pwd && !pwd->isEmpty()) {
                     val = *pwd;
                 } else {
-                    Environment::const_iterator vit = env->constFind(var);
-                    if (vit == env->constEnd()) {
+                    const Environment::FindResult res = env->find(var);
+                    if (!res) {
                         if (abortOnMeta)
                             goto metaerr; // Assume this is a shell builtin
                     } else {
-                        val = env->expandedValueForKey(env->key(vit));
+                        val = env->expandedValueForKey(res->key);
                     }
                 }
                 for (int i = 0; i < val.length(); i++) {

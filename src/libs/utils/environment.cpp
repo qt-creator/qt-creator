@@ -24,6 +24,14 @@ NameValueItems Environment::diff(const Environment &other, bool checkAppendPrepe
     return m_dict.diff(other.m_dict, checkAppendPrepend);
 }
 
+Environment::FindResult Environment::find(const QString &name) const
+{
+    const auto it = m_dict.constFind(name);
+    if (it == m_dict.constEnd())
+        return {};
+     return Entry{it.key().name, it.value().first, it.value().second};
+}
+
 void Environment::forEachEntry(const std::function<void(const QString &, const QString &, bool)> &callBack) const
 {
     for (auto it = m_dict.m_values.constBegin(); it != m_dict.m_values.constEnd(); ++it)
@@ -356,28 +364,30 @@ QString Environment::expandVariables(const QString &input) const
                 }
             } else if (state == BRACEDVARIABLE) {
                 if (c == '}') {
-                    const_iterator it = constFind(result.mid(vStart, i - 1 - vStart));
-                    if (it != constEnd()) {
-                        result.replace(vStart - 2, i - vStart + 2, it->first);
-                        i = vStart - 2 + it->first.length();
+                    const QString key = result.mid(vStart, i - 1 - vStart);
+                    const Environment::FindResult res = find(key);
+                    if (res) {
+                        result.replace(vStart - 2, i - vStart + 2, res->value);
+                        i = vStart - 2 + res->value.length();
                     }
                     state = BASE;
                 }
             } else if (state == VARIABLE) {
                 if (!c.isLetterOrNumber() && c != '_') {
-                    const_iterator it = constFind(result.mid(vStart, i - vStart - 1));
-                    if (it != constEnd()) {
-                        result.replace(vStart - 1, i - vStart, it->first);
-                        i = vStart - 1 + it->first.length();
+                    const QString key = result.mid(vStart, i - vStart - 1);
+                    const Environment::FindResult res = find(key);
+                    if (res) {
+                        result.replace(vStart - 1, i - vStart, res->value);
+                        i = vStart - 1 + res->value.length();
                     }
                     state = BASE;
                 }
             }
         }
         if (state == VARIABLE) {
-            const_iterator it = constFind(result.mid(vStart));
-            if (it != constEnd())
-                result.replace(vStart - 1, result.length() - vStart + 1, it->first);
+            const Environment::FindResult res = find(result.mid(vStart));
+            if (res)
+                result.replace(vStart - 1, result.length() - vStart + 1, res->value);
         }
     }
     return result;
