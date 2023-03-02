@@ -114,6 +114,7 @@ struct TracepointCaptureData
 };
 
 const char tracepointCapturePropertyName[] = "GDB.TracepointCapture";
+const char notCompatibleMessage[] = "is not compatible with target architecture";
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -346,8 +347,13 @@ void GdbEngine::handleResponse(const QString &buff)
             // version and/or OS version used.
             if (data.startsWith("warning:")) {
                 showMessage(data.mid(9), AppStuff); // Cut "warning: "
-                if (data.contains("is not compatible with target architecture"))
+                if (data.contains(notCompatibleMessage))
                     m_ignoreNextTrap = true;
+            } else if (data.startsWith("Error while mapping")) {
+                m_detectTargetIncompat = true;
+            } else if (m_detectTargetIncompat && data.contains(notCompatibleMessage)) {
+                m_detectTargetIncompat = false;
+                m_ignoreNextTrap = true;
             }
 
             m_pendingLogStreamOutput += data;

@@ -502,6 +502,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
         updateInitialCMakeArguments();
     });
 
+    connect(m_buildSystem->target()->project(), &Project::aboutToSaveSettings, this, [this] {
+        updateInitialCMakeArguments();
+    });
+
     connect(bc->aspect<InitialCMakeArgumentsAspect>(),
             &Utils::BaseAspect::labelLinkActivated,
             this,

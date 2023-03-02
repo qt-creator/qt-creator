@@ -2123,7 +2123,7 @@ def qdumpHelper__QVariant6(d, value):
         d.split('HHIIIpp', metaTypeInterface)
 
     # Well-known simple type.
-    if variantType <= 6:
+    if variantType >= 1 and variantType <= 6:
         qdumpHelper_QVariants_A[variantType](d, value)
         return None
 
@@ -2854,43 +2854,82 @@ def qdump_32__QJSValue(d, value):
 
 def qdump_64__QJSValue_6(d, value):
     dd = value.split('Q')[0]
-    typ = dd >> 47
-
     if dd == 0:
         d.putValue('(undefined)')
         d.putType(value.type.name + ' (undefined)')
-    elif typ == 5:
-        d.putValue('(null)')
-        d.putType(value.type.name + ' (null)')
-    elif typ == 6:
-        d.putValue('true' if dd & 1 else 'false')
-        d.putType(value.type.name + ' (bool)')
-    elif typ == 7:
-        d.putValue(dd & 0xfffffffff)
-        d.putType(value.type.name + ' (int)')
-    elif typ > 7:
-        val = d.Value(d)
-        val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
-        val._type = d.createType('double')
-        d.putItem(val)
-        d.putType(value.type.name + ' (double)')
-    elif typ <= 3: # Heap
-        if dd & 1: # String
+    if d.qtVersion() < 0x60500:
+        typ = dd >> 47
+        if typ == 5:
+            d.putValue('(null)')
+            d.putType(value.type.name + ' (null)')
+        elif typ == 6:
+            d.putValue('true' if dd & 1 else 'false')
+            d.putType(value.type.name + ' (bool)')
+        elif typ == 7:
+            d.putValue(dd & 0xfffffffff)
+            d.putType(value.type.name + ' (int)')
+        elif typ > 7:
             val = d.Value(d)
-            val.ldata = struct.pack('q', dd & ~1)
-            val._type = d.createType('@QString*')
+            val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
+            val._type = d.createType('double')
             d.putItem(val)
-            d.putType(value.type.name + ' (QString)')
+            d.putType(value.type.name + ' (double)')
+        elif typ <= 3: # Heap
+            if dd & 1: # String
+                val = d.Value(d)
+                val.ldata = struct.pack('q', dd & ~1)
+                val._type = d.createType('@QString*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (QString)')
+            else:
+                # FIXME: Arrays, Objects missing.
+                val = d.split('{@QV4::Managed*}', value)[0]
+                d.putItem(val)
+                d.putItemCount(1)
         else:
-            # FIXME: Arrays, Objects missing.
-            val = d.split('{@QV4::Managed*}', value)[0]
-            d.putItem(val)
+            d.putEmptyValue()
             d.putItemCount(1)
+            d.putPlainChildren(value)
+            return
+
     else:
-        d.putEmptyValue()
-        d.putItemCount(1)
-        d.putPlainChildren(value)
-        return
+        typ = dd & 7
+        isPointer = typ & 1
+        if typ == 0:
+            d.putValue('(undefined)')
+            d.putType(value.type.name + ' (undefined)')
+        elif typ == 2:
+            d.putValue('(null)')
+            d.putType(value.type.name + ' (null)')
+        elif typ == 4:
+            d.putValue(dd >> 32)
+            d.putType(value.type.name + ' (int)')
+        elif typ == 6:
+            d.putValue('true' if dd >> 32 & 1 else 'false')
+            d.putType(value.type.name + ' (bool)')
+        elif isPointer:
+            pointer = dd >> 3
+            pointer = pointer << 3
+            val = d.Value(d)
+            val.ldata = struct.pack('q', pointer)
+            if typ == 1:
+                val._type = d.createType('double*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (double)')
+            elif typ == 3:
+                val._type = d.createType('@QV4::Value*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (QV4::Value)')
+            elif typ == 5:
+                val._type = d.createType('@QString*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (QString)')
+
+        else:
+            d.putEmptyValue()
+            d.putItemCount(1)
+            d.putPlainChildren(value)
+            return
 
     if d.isExpanded():
         with Children(d):

@@ -309,6 +309,7 @@ void SubmitEditorWidget::wrapDescription()
     e.setVisible(false);
     e.setMinimumWidth(1000);
     e.setFontPointSize(1.0);
+    e.setFontFamily({}); // QTBUG-111466
     e.setLineWrapColumnOrWidth(d->description->lineWrapColumnOrWidth());
     e.setLineWrapMode(d->description->lineWrapMode());
     e.setWordWrapMode(d->description->wordWrapMode());

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "example_global.h"
-
 #include <extensionsystem/iplugin.h>
 
 //! [namespaces]

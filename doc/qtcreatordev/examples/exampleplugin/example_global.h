@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <qglobal.h>
+
 #if defined(EXAMPLE_LIBRARY)
 #  define EXAMPLE_EXPORT Q_DECL_EXPORT
 #else

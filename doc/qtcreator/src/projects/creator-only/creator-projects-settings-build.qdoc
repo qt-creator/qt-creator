@@ -72,6 +72,19 @@
     For more information about debugging Qt Quick projects, see
     \l{Setting Up QML Debugging}.
 
+    \section1 Building on Remote Devices
+
+    You can build applications on \l{Connecting Remote Linux Devices}
+    {remote Linux} or \l{Adding Docker Devices}{Docker} devices if you
+    have kits that specify the devices and toolchains to use. When the
+    build device of the kit is a remote device, such as a remote Linux or
+    Docker device, the \uicontrol Browse button next to the
+    \uicontrol {Build directory} field shows options for selecting remote
+    directories.
+
+    Also, the \uicontrol {Open Terminal} button in the
+    \uicontrol {Use build environment} section opens a terminal on the device.
+
     \section1 Starting External Processes
 
     \QC executes external processes to accomplish tasks such as building

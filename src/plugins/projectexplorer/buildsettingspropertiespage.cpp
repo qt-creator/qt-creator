@@ -276,6 +276,9 @@ void BuildSettingsWidget::cloneConfiguration()
     if (name.isEmpty())
         return;
 
+    // Save the current build configuration settings, so that the clone gets all the settings
+    m_target->project()->saveSettings();
+
     BuildConfiguration *bc = BuildConfigurationFactory::clone(m_target, m_buildConfiguration);
     if (!bc)
         return;

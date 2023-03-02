@@ -283,7 +283,7 @@ void QnxConfiguration::createKit(const Target &target, const QnxToolChainMap &to
                     .arg(displayName())
                     .arg(target.shortDescription()));
 
-        k->setAutoDetected(true);
+        k->setAutoDetected(false);
         k->setAutoDetectionSource(envFile().toString());
         k->setMutable(DeviceKitAspect::id(), true);
 

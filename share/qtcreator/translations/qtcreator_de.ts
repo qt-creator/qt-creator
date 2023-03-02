@@ -2556,8 +2556,8 @@ Trotzdem fortfahren?</translation>
         <translation>Zeiger automatisch dereferenzieren</translation>
     </message>
     <message>
-        <source>&lt;p&gt;This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation>&lt;p&gt;Weist den Debugger an, automatisch dereferenzierte Zeiger anzuzeigen. Dadurch ist die Baumansicht flacher, aber weniger detailreich.</translation>
+        <source>This switches the Locals and Expressions views to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation>Weist den Debugger an, automatisch dereferenzierte Zeiger anzuzeigen. Dadurch ist die Baumansicht flacher, aber weniger detailreich.</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -2584,8 +2584,8 @@ Trotzdem fortfahren?</translation>
         <translation>&quot;std::&quot;-Namensraum in Typnamen anzeigen</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows &quot;std::&quot; prefix for types from the standard library.</source>
-        <translation>&lt;p&gt;Zeigt das &quot;std::&quot;-Präfix für Datentypen aus der Standardbibliothek an.</translation>
+        <source>Shows &quot;std::&quot; prefix for types from the standard library.</source>
+        <translation>Zeigt das &quot;std::&quot;-Präfix für Datentypen aus der Standardbibliothek an.</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
@@ -2596,16 +2596,16 @@ Trotzdem fortfahren?</translation>
         <translation>Qt-Namensraum in Typnamen anzeigen</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
-        <translation>&lt;p&gt;Qt-Namensraum bei Datentypen aus Qt anzeigen. Das ist nur relevant, wenn Qt mit &apos;-qtnamespace&apos; konfiguriert wurde.</translation>
+        <source>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with &quot;-qtnamespace&quot;.</source>
+        <translation>Qt-Namensraum bei Datentypen aus Qt anzeigen. Das ist nur relevant, wenn Qt mit &apos;-qtnamespace&apos; konfiguriert wurde.</translation>
     </message>
     <message>
         <source>Show QObject names if available</source>
         <translation>Falls möglich QObject-Namen anzeigen</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>&lt;p&gt;Zeigt die objectName-Eigenschaft von QObject basierten Elementen an. Dies kann die Debugger-Geschwindigkeit verschlechtern, selbst wenn keine QObjects benutzt werden.</translation>
+        <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
+        <translation>Zeigt die objectName-Eigenschaft von QObject basierten Elementen an. Dies kann die Debugger-Geschwindigkeit verschlechtern, selbst wenn keine QObjects benutzt werden.</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -2624,24 +2624,24 @@ Trotzdem fortfahren?</translation>
         <translation>Codemodell verwenden</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>&lt;p&gt;Benutzt das Codemodell, um Informationen bezüglich des Gültigkeitsbereiches von Variablen zu erhalten. Dies kann eine etwas schnellere Anzeige der Werte bewirken, aber bei optimiertem Code auch fehlschlagen.</translation>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <translation>Benutzt das Codemodell, um Informationen bezüglich des Gültigkeitsbereiches von Variablen zu erhalten. Dies kann eine etwas schnellere Anzeige der Werte bewirken, aber bei optimiertem Code auch fehlschlagen.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Displays names of QThread based threads.</source>
-        <translation>&lt;p&gt;Zeigt Namen der Threads an, die auf QThread basieren.</translation>
+        <source>Displays names of QThread based threads.</source>
+        <translation>Zeigt Namen der Threads an, die auf QThread basieren.</translation>
     </message>
     <message>
         <source>Display thread names</source>
         <translation>Namen von Threads anzeigen</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>&lt;p&gt;Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man auf solche Zeilen einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
+        <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
+        <translation>Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man auf solche Zeilen einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Die maximale Länge von Zeichenketten in separaten Fenstern. Längere Ausdrücke werden abgeschnitten und mit Auslassungspunkten angezeigt.</translation>
+        <source>The maximum length for strings in separated windows. Longer strings are cut off and displayed with an ellipsis attached.</source>
+        <translation>Die maximale Länge von Zeichenketten in separaten Fenstern. Längere Ausdrücke werden abgeschnitten und mit Auslassungspunkten angezeigt.</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
@@ -2700,8 +2700,8 @@ Trotzdem fortfahren?</translation>
         <translation>Rückwärts Debuggen aktivieren</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
-        <translation>&lt;p&gt;Die maximale Länge von Zeichenketten in &quot;Lokale Variablen&quot; und &quot;Ausdrücke&quot;. Längere Ausdrücke werden abgeschnitten und mit Auslassungspunkten angezeigt.</translation>
+        <source>The maximum length of string entries in the Locals and Expressions views. Longer than that are cut off and displayed with an ellipsis attached.</source>
+        <translation>Die maximale Länge von Zeichenketten in &quot;Lokale Variablen&quot; und &quot;Ausdrücke&quot;. Längere Ausdrücke werden abgeschnitten und mit Auslassungspunkten angezeigt.</translation>
     </message>
     <message>
         <source>Reload Full Stack</source>
@@ -6044,8 +6044,8 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Annotationen im Haupt-Editor beim Debuggen benutzen</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Shows simple variable values as annotations in the main editor during debugging.</source>
-        <translation>&lt;p&gt;Zeigt Werte von einfachen Variablen als Annotation im Haupt-Editor beim Debuggen.</translation>
+        <source>Shows simple variable values as annotations in the main editor during debugging.</source>
+        <translation>Zeigt Werte von einfachen Variablen als Annotation im Haupt-Editor beim Debuggen.</translation>
     </message>
     <message>
         <source>Use pseudo message tracepoints</source>
@@ -6064,20 +6064,20 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>GDB kann automatisch eine Kopie seines Symbolindexes in einem Cache auf der Festplatte erstellen und ihn von dort wiederherstellen, wenn derselbe Binärcode in der Zukunft geladen wird.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation>&lt;p&gt;Aktiviert Tooltips für Variablenwerte beim Debuggen. Da dies das Debuggen verlangsamen kann und wegen der fehlenden Gültigkeitsinformationen nicht zuverlässig ist, ist es standardmäßig deaktiviert.</translation>
+        <source>Enables tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
+        <translation>Aktiviert Tooltips für Variablenwerte beim Debuggen. Da dies das Debuggen verlangsamen kann und wegen der fehlenden Gültigkeitsinformationen nicht zuverlässig ist, ist es standardmäßig deaktiviert.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips in the locals view during debugging.</source>
-        <translation>&lt;p&gt;Aktiviert Tooltips für die Anzeige &amp;quot;Lokale Variablen&amp;quot; beim Debuggen.</translation>
+        <source>Enables tooltips in the locals view during debugging.</source>
+        <translation>Aktiviert Tooltips für die Anzeige &amp;quot;Lokale Variablen&amp;quot; beim Debuggen.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips in the breakpoints view during debugging.</source>
-        <translation>&lt;p&gt;Aktiviert Tooltips für die Anzeige &amp;quot;Haltepunkte&amp;quot; beim Debuggen.</translation>
+        <source>Enables tooltips in the breakpoints view during debugging.</source>
+        <translation>Aktiviert Tooltips für die Anzeige &amp;quot;Haltepunkte&amp;quot; beim Debuggen.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Enables tooltips in the stack view during debugging.</source>
-        <translation>&lt;p&gt;Aktiviert Tooltips für die Anzeige &amp;quot;Stack&amp;quot; beim Debuggen.</translation>
+        <source>Enables tooltips in the stack view during debugging.</source>
+        <translation>Aktiviert Tooltips für die Anzeige &amp;quot;Stack&amp;quot; beim Debuggen.</translation>
     </message>
     <message>
         <source>Shows QML object tree in Locals and Expressions when connected and not stepping.</source>

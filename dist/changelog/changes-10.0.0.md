@@ -29,6 +29,7 @@ Editing
 
 ### C++
 
+* Updated LLVM to version 16.0.0
 * Added renaming of includes when renaming `.ui` files (QTCREATORBUG-14259)
 * Added automatic refactoring of C++ code when forms in `.ui` files are renamed
   (QTCREATORBUG-1179)
@@ -78,6 +79,7 @@ Editing
 Projects
 --------
 
+* Moved the preference page for `Devices` to below `Kits`
 * Added `Build > Run Generator` for exporting projects to other build systems
   (QTCREATORBUG-28149)
 * Added the option to browse remote file systems for remote builds and targets
@@ -92,6 +94,8 @@ Projects
 * Added the option to use `cmake-format` for CMake files
   ([cmake-format Documentation](https://cmake-format.readthedocs.io/en/latest/))
 * Added the option to show advanced configure items by default
+* Added support for the `external` strategy for the architecture and toolset of
+  presets (QTCREATORBUG-28693)
 * Moved `Autorun CMake` to global settings
 * Changed the environment for running CMake to be based on the build environment
   by default (QTCREATORBUG-28513)
@@ -121,6 +125,15 @@ Debugging
   (QTCREATORBUG-25865)
 * Fixed highlighting in the `Disassembler` view
 * Fixed skipping `std::function` details when stepping
+* Fixed an out of memory issue when debugging long lists (QTCREATORBUG-26416)
+* CDB
+    * Fixed the printing of addresses of pointers with multiple base classes
+      (QTCREATORBUG-28337)
+
+### Python
+
+* Fixed that the debugger always interrupted at the first line in Python scripts
+  (QTCREATORBUG-28732)
 
 Analyzer
 --------
@@ -165,11 +178,7 @@ Platforms
 ### Android
 
 * Removed service management from the manifest editor (QTCREATORBUG-28024)
-
-### Remote Linux
-
-* Fixed that opening a file dialog unnecessarily asks for passwords for
-  remote devices
+* Fixed `Open package location after build` (QTCREATORBUG-28791)
 
 ### Docker
 

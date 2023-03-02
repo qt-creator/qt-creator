@@ -21,6 +21,7 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/devicesupport/devicecheckbuildstep.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -90,7 +91,7 @@ public:
     QAction *m_debugSeparator = nullptr;
     QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
 
-    QnxConfigurationManager configurationFactory;
+    QnxConfigurationManager configurationManager;
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
@@ -122,6 +123,10 @@ private:
 
 void QnxPlugin::extensionsInitialized()
 {
+    // Can't do yet as not all devices are around.
+    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+            &d->configurationManager, &QnxConfigurationManager::restoreConfigurations);
+
     // Attach support
     connect(&d->m_attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
 
