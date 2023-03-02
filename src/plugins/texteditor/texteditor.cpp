@@ -4849,6 +4849,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         if (blockData.boundingRect.bottom() >= data.eventRect.top()
                 && blockData.boundingRect.top() <= data.eventRect.bottom()) {
 
+            data.documentLayout->ensureBlockLayout(data.block);
             d->setupBlockLayout(data, painter, blockData);
             blockData.position = data.block.position();
             blockData.length = data.block.length();
