@@ -3,6 +3,7 @@
 
 #include "studioquickwidget.h"
 
+#include <QQuickItem>
 #include <QVBoxLayout>
 #include <QtQml/QQmlEngine>
 
@@ -57,4 +58,27 @@ void StudioQuickWidget::setClearColor(const QColor &color)
 QList<QQmlError> StudioQuickWidget::errors() const
 {
     return m_quickWidget->errors();
+}
+
+StudioPropertyMap *StudioQuickWidget::registerPropertyMap(const QByteArray &name)
+{
+    StudioPropertyMap *map = new StudioPropertyMap(this);
+    [[maybe_unused]] const int typeIndex = qmlRegisterSingletonType<StudioPropertyMap>(
+        name.data(), 1, 0, name.data(), [map](QQmlEngine *, QJSEngine *) { return map; });
+    return map;
+}
+
+QQuickWidget *StudioQuickWidget::quickWidget() const
+{
+    return m_quickWidget;
+}
+
+StudioPropertyMap::StudioPropertyMap(QObject *parent)
+    : QQmlPropertyMap(parent)
+{}
+
+void StudioPropertyMap::setProperties(const QList<PropertyPair> &properties)
+{
+    for (const PropertyPair &pair : properties)
+        insert(pair.name, pair.value);
 }

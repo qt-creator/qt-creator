@@ -6,7 +6,22 @@
 #include "../qmldesignerbase_global.h"
 
 #include <QObject>
+#include <QQmlPropertyMap>
 #include <QtQuickWidgets/QQuickWidget>
+
+class QMLDESIGNERBASE_EXPORT StudioPropertyMap : public QQmlPropertyMap
+{
+public:
+    struct PropertyPair
+    {
+        QString name;
+        QVariant value;
+    };
+
+    explicit StudioPropertyMap(QObject *parent = 0);
+
+    void setProperties(const QList<PropertyPair> &properties);
+};
 
 class QMLDESIGNERBASE_EXPORT StudioQuickWidget : public QWidget
 {
@@ -28,6 +43,9 @@ public:
     void setClearColor(const QColor &color);
 
     QList<QQmlError> errors() const;
+
+    StudioPropertyMap *registerPropertyMap(const QByteArray &name);
+    QQuickWidget *quickWidget() const;
 
 private:
     QQuickWidget *m_quickWidget = nullptr;
