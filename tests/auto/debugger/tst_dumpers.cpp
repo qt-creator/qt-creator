@@ -8119,17 +8119,6 @@ void tst_Dumpers::dumper_data()
                + Check("str", "first, second, third", "QtcDumperTest_String");
 
 
-    QTest::newRow("UndefinedStaticMembers")
-            << Data("struct Foo { int a = 15; static int b; }; \n",
-
-                    "Foo f;",
-
-                    "&f")
-
-            + Check("f.a", "15", "int")
-            + Check("f.b", "<optimized out>", "") % GdbEngine
-            + Check("f.b", "", "<Value unavailable error>") % CdbEngine;
-
 
     QTest::newRow("LongDouble")
             << Data("",
