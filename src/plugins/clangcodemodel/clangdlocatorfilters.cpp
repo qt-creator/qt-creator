@@ -221,8 +221,9 @@ public:
     }
 
 private:
-    void prepareSearch(const QString &) override
+    void prepareSearch(const QString &entry) override
     {
+        DocumentLocatorFilter::prepareSearch(entry);
         m_content = TextEditor::TextDocument::currentTextDocument()->plainText();
     }
 
