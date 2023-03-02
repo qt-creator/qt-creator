@@ -40,6 +40,7 @@ PluginDialog::PluginDialog(QWidget *parent)
     auto filterLayout = new QHBoxLayout;
     vl->addLayout(filterLayout);
     auto filterEdit = new Utils::FancyLineEdit(this);
+    filterEdit->setFocus();
     filterEdit->setFiltering(true);
     connect(filterEdit, &Utils::FancyLineEdit::filterChanged,
             m_view, &ExtensionSystem::PluginView::setFilter);
