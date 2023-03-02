@@ -99,6 +99,7 @@ protected:
     qreal topMargin() const;
 
     QPoint viewportToGlobal(QPoint p) const;
+    QPoint globalToGrid(QPoint p) const;
 
     int textLineFromPixel(int y) const;
     std::optional<int> textPosFromPoint(const QTextLayout &textLayout, QPoint p) const;

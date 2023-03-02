@@ -460,6 +460,11 @@ QPoint TerminalWidget::viewportToGlobal(QPoint p) const
     return {p.x(), y};
 }
 
+QPoint TerminalWidget::globalToGrid(QPoint p) const
+{
+    return QPoint(p.x() / m_cellSize.width(), p.y() / m_cellSize.height());
+}
+
 void TerminalWidget::createTextLayout()
 {
     QElapsedTimer t;
@@ -830,6 +835,9 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
 void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_selection && event->buttons() & Qt::LeftButton) {
+        const std::array<QPoint, 2> oldGrid = {globalToGrid(m_selection->start),
+                                               globalToGrid(m_selection->end)};
+
         QPoint start = viewportToGlobal(m_selectionStartPos);
         QPoint newEnd = viewportToGlobal(event->pos());
 
@@ -844,7 +852,10 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
         m_selection->start = start;
         m_selection->end = newEnd;
 
-        viewport()->update();
+        const std::array<QPoint, 2> newGrid = {globalToGrid(m_selection->start),
+                                               globalToGrid(m_selection->end)};
+        if (newGrid != oldGrid)
+            viewport()->update();
     }
 }
 
@@ -863,9 +874,7 @@ void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
     std::u32string text = m_scrollback->currentText() + m_currentLiveText;
 
     const QPoint clickPos = viewportToGlobal(event->pos());
-
-    const QPoint clickPosInGrid = QPoint(clickPos.x() / m_cellSize.width(),
-                                         clickPos.y() / m_cellSize.height());
+    const QPoint clickPosInGrid = globalToGrid(clickPos);
 
     std::u32string::size_type chIdx = (clickPosInGrid.x())
                                       + (clickPosInGrid.y()) * m_vtermSize.width();
