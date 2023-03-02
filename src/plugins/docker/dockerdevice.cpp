@@ -471,9 +471,9 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
         dockerCmd.addArg("-t");
 
     if (env) {
-        env->forEachEntry([&](const QString &key, const QString &, bool) {
+        env->forEachEntry([&](const QString &key, const QString &value, bool) {
             dockerCmd.addArg("-e");
-            dockerCmd.addArg(key + "=" + env->expandedValueForKey(key));
+            dockerCmd.addArg(key + "=" + env->expandVariables(value));
         });
     }
 

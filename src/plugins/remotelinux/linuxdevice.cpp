@@ -613,8 +613,8 @@ QString LinuxProcessInterface::fullCommandLine(const CommandLine &commandLine) c
         cmd.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
 
     const Environment &env = m_setup.m_environment;
-    env.forEachEntry([&](const QString &key, const QString &, bool) {
-        cmd.addArgs(key + "='" + env.expandedValueForKey(key) + '\'', CommandLine::Raw);
+    env.forEachEntry([&](const QString &key, const QString &value, bool) {
+        cmd.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
     });
 
     if (m_setup.m_terminalMode == TerminalMode::Off)

@@ -172,9 +172,9 @@ bool MakeInstallStep::init()
     const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootDir);
     if (cmd.environment.hasChanges()) {
         Environment env = processParameters()->environment();
-        cmd.environment.forEachEntry([&](const QString &key, const QString &, bool enabled) {
+        cmd.environment.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
             if (enabled)
-                env.set(key, cmd.environment.expandedValueForKey(key));
+                env.set(key, cmd.environment.expandVariables(value));
         });
         processParameters()->setEnvironment(env);
     }

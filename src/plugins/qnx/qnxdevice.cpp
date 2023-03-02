@@ -61,8 +61,8 @@ QString QnxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
             ProcessArgs::quoteArg(m_setup.m_workingDirectory.toString()));
 
     const Environment env = m_setup.m_environment;
-    env.forEachEntry([&](const QString &key, const QString &, bool) {
-        fullCommandLine += QString("%1='%2' ").arg(key).arg(env.expandedValueForKey(key));
+    env.forEachEntry([&](const QString &key, const QString &value, bool) {
+        fullCommandLine += QString("%1='%2' ").arg(key).arg(env.expandVariables(value));
     });
 
     fullCommandLine += QString::fromLatin1("%1 & echo $! > %2").arg(cmd).arg(m_pidFile);
