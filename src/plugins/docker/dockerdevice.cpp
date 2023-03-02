@@ -238,8 +238,8 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
     });
 
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        QByteArray output = m_process.readAllRawStandardOutput();
         if (!m_hasReceivedFirstOutput) {
-            QByteArray output = m_process.readAllRawStandardOutput();
             qsizetype idx = output.indexOf('\n');
             QByteArray firstLine = output.left(idx).trimmed();
             QByteArray rest = output.mid(idx + 1);
@@ -259,7 +259,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
                 return;
             }
         }
-        emit readyRead(m_process.readAllRawStandardOutput(), {});
+        emit readyRead(output, {});
     });
 
     connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
