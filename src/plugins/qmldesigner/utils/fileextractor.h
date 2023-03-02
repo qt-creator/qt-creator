@@ -36,8 +36,8 @@ public:
 
     QString targetPath() const;
     void setTargetPath(const QString &path);
-    void setSourceFile(QString &sourceFilePath);
-    void setArchiveName(QString &filePath);
+    void setSourceFile(const QString &sourceFilePath);
+    void setArchiveName(const QString &filePath);
     const QString detailedText() const;
     bool finished() const;
     QString currentFile() const;

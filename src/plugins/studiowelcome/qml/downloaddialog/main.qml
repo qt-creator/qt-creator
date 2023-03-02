@@ -40,7 +40,7 @@ Rectangle {
         FileExtractor {
             id: fileExtractor
             archiveName: root.completeBaseName.length === 0 ? downloader.completeBaseName : root.completeBaseName
-            sourceFile: root.tempFile.length === 0 ? downloader.tempFile : root.tempFile
+            sourceFile: root.tempFile.length === 0 ? downloader.outputFile : root.tempFile
         }
 
         FileDownloader {

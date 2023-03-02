@@ -4,6 +4,7 @@
 
 #include <private/qqmldata_p.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/filepath.h>
 
 #include <QDir>
 #include <QQmlEngine>
@@ -12,33 +13,52 @@ namespace QmlDesigner {
 
 FileDownloader::FileDownloader(QObject *parent)
     : QObject(parent)
-{}
+{
+    QObject::connect(this, &FileDownloader::downloadFailed, this, [this]() {
+        if (m_outputFile.exists())
+            m_outputFile.remove();
+    });
+
+    QObject::connect(this, &FileDownloader::downloadCanceled, this, [this]() {
+        if (m_outputFile.exists())
+            m_outputFile.remove();
+    });
+}
 
 FileDownloader::~FileDownloader()
 {
-    if (m_tempFile.exists())
-        m_tempFile.remove();
+    // Delete the temp file only if a target Path was set (i.e. file will be moved)
+    if (deleteFileAtTheEnd() && m_outputFile.exists())
+        m_outputFile.remove();
+}
+
+bool FileDownloader::deleteFileAtTheEnd() const
+{
+    return m_targetFilePath.isEmpty();
 }
 
 void FileDownloader::start()
 {
     emit downloadStarting();
 
-    m_tempFile.setFileName(QDir::tempPath() + "/" + name() + ".XXXXXX" + ".zip");
-    m_tempFile.open(QIODevice::WriteOnly);
+    QString tempFileName = QDir::tempPath() + "/.qds_download_" + url().fileName();
+
+    m_outputFile.setFileName(tempFileName);
+    m_outputFile.open(QIODevice::WriteOnly);
 
     auto request = QNetworkRequest(m_url);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                          QNetworkRequest::UserVerifiedRedirectPolicy);
-    m_reply = Utils::NetworkAccessManager::instance()->get(request);
+    QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
+    m_reply = reply;
 
-    QNetworkReply::connect(m_reply, &QNetworkReply::readyRead, this, [this]() {
+    QNetworkReply::connect(reply, &QNetworkReply::readyRead, this, [this, reply]() {
         bool isDownloadingFile = false;
         QString contentType;
-        if (!m_reply->hasRawHeader("Content-Type")) {
+        if (!reply->hasRawHeader("Content-Type")) {
             isDownloadingFile = true;
         } else {
-            contentType = QString::fromUtf8(m_reply->rawHeader("Content-Type"));
+            contentType = QString::fromUtf8(reply->rawHeader("Content-Type"));
 
             if (contentType.startsWith("application/")
                 || contentType.startsWith("image/")
@@ -50,12 +70,12 @@ void FileDownloader::start()
         }
 
         if (isDownloadingFile)
-            m_tempFile.write(m_reply->readAll());
+            m_outputFile.write(reply->readAll());
         else
-            m_reply->close();
+            reply->close();
     });
 
-    QNetworkReply::connect(m_reply,
+    QNetworkReply::connect(reply,
                            &QNetworkReply::downloadProgress,
                            this,
                            [this](qint64 current, qint64 max) {
@@ -66,33 +86,44 @@ void FileDownloader::start()
                                }
 
                                m_progress = current * 100 / max;
-
                                emit progressChanged();
                            });
 
-    QNetworkReply::connect(m_reply, &QNetworkReply::redirected, [this](const QUrl &) {
-        emit m_reply->redirectAllowed();
+    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &) {
+        emit reply->redirectAllowed();
     });
 
-    QNetworkReply::connect(m_reply, &QNetworkReply::finished, this, [this]() {
-        if (m_reply->error()) {
-            if (m_tempFile.exists())
-                m_tempFile.remove();
-
-            if (m_reply->error() != QNetworkReply::OperationCanceledError) {
-                qWarning() << Q_FUNC_INFO << m_url << m_reply->errorString();
+    QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error()) {
+            if (reply->error() != QNetworkReply::OperationCanceledError) {
+                qWarning() << Q_FUNC_INFO << m_url << reply->errorString();
                 emit downloadFailed();
             } else {
                 emit downloadCanceled();
             }
         } else {
-            m_tempFile.flush();
-            m_tempFile.close();
+            m_outputFile.flush();
+            m_outputFile.close();
+
+            QString dirPath = QFileInfo(m_targetFilePath).dir().absolutePath();
+            if (!deleteFileAtTheEnd()) {
+                if (!QDir{}.mkpath(dirPath)) {
+                    emit downloadFailed();
+                    return;
+                }
+
+                if (!QFileInfo().exists(m_targetFilePath) && !m_outputFile.rename(m_targetFilePath)) {
+                    emit downloadFailed();
+                    return;
+                }
+            }
+
             m_finished = true;
-            emit tempFileChanged();
+            emit outputFileChanged();
             emit finishedChanged();
         }
 
+        reply->deleteLater();
         m_reply = nullptr;
     });
 }
@@ -176,9 +207,9 @@ int FileDownloader::progress() const
     return m_progress;
 }
 
-QString FileDownloader::tempFile() const
+QString FileDownloader::outputFile() const
 {
-    return QFileInfo(m_tempFile).canonicalFilePath();
+    return QFileInfo(m_outputFile).canonicalFilePath();
 }
 
 QDateTime FileDownloader::lastModified() const
@@ -240,6 +271,16 @@ void FileDownloader::doProbeUrl()
                                m_available = false;
                                emit availableChanged();
                            });
+}
+
+void FileDownloader::setTargetFilePath(const QString &path)
+{
+    m_targetFilePath = path;
+}
+
+QString FileDownloader::targetFilePath() const
+{
+    return m_targetFilePath;
 }
 
 } // namespace QmlDesigner

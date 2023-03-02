@@ -117,7 +117,7 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
 
         if (m_fileDownloader.finished()) {
             const Utils::FilePath archiveFile = Utils::FilePath::fromString(
-                m_fileDownloader.tempFile());
+                m_fileDownloader.outputFile());
             QTC_ASSERT(Utils::Archive::supportsFile(archiveFile), return );
             auto archive = new Utils::Archive(archiveFile, tempFilePath());
             QTC_ASSERT(archive->isValid(), delete archive; return );

@@ -232,7 +232,7 @@ Item {
     FileExtractor {
         id: extractor
         archiveName: downloader.completeBaseName
-        sourceFile: downloader.tempFile
+        sourceFile: downloader.outputFile
         targetPath: modelData.textureParentPath
         alwaysCreateDir: false
         clearTargetPathContents: false

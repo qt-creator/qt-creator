@@ -7,7 +7,11 @@
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarywidget.h"
+#include "filedownloader.h"
+#include "fileextractor.h"
+#include "multifiledownloader.h"
 #include "qmldesignerconstants.h"
+#include "qmldesignerplugin.h"
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -16,6 +20,8 @@
 #include <QCoreApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QQmlEngine>
+#include <QStandardPaths>
 #include <QUrl>
 
 namespace QmlDesigner {
@@ -24,7 +30,19 @@ ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(ContentLibraryWidget 
     : QAbstractListModel(parent)
     , m_widget(parent)
 {
-    loadMaterialBundle();
+    m_downloadPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+                     + "/QtDesignStudio/bundles/Materials";
+
+    m_baseUrl = QmlDesignerPlugin::settings()
+                    .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL)
+                    .toString() + "/materials/v1";
+
+    qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
+    qmlRegisterType<QmlDesigner::MultiFileDownloader>("WebFetcher", 1, 0, "MultiFileDownloader");
+
+    QDir bundleDir{m_downloadPath};
+    if (fetchBundleMetadata(bundleDir) && fetchBundleIcons(bundleDir))
+        loadMaterialBundle(bundleDir);
 }
 
 int ContentLibraryMaterialsModel::rowCount(const QModelIndex &) const
@@ -91,29 +109,126 @@ QHash<int, QByteArray> ContentLibraryMaterialsModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryMaterialsModel::loadMaterialBundle()
+bool ContentLibraryMaterialsModel::fetchBundleIcons(const QDir &bundleDir)
 {
-    if (m_matBundleExists || m_probeMatBundleDir)
+    QString iconsPath = bundleDir.filePath("icons");
+
+    QDir iconsDir(iconsPath);
+    if (iconsDir.exists() && iconsDir.entryList().length() > 0)
+        return true;
+
+    QString zipFileUrl = m_baseUrl + "/icons.zip";
+
+    FileDownloader *downloader = new FileDownloader(this);
+    downloader->setUrl(zipFileUrl);
+    downloader->setProbeUrl(false);
+    downloader->setDownloadEnabled(true);
+
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+        FileExtractor *extractor = new FileExtractor(this);
+        extractor->setArchiveName(downloader->completeBaseName());
+        extractor->setSourceFile(downloader->outputFile());
+        extractor->setTargetPath(bundleDir.absolutePath());
+        extractor->setAlwaysCreateDir(false);
+        extractor->setClearTargetPathContents(false);
+
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+            downloader->deleteLater();
+            extractor->deleteLater();
+
+            loadMaterialBundle(bundleDir);
+        });
+
+        extractor->extract();
+    });
+
+    downloader->start();
+    return false;
+}
+
+bool ContentLibraryMaterialsModel::fetchBundleMetadata(const QDir &bundleDir)
+{
+    QString matBundlePath = bundleDir.filePath("material_bundle.json");
+
+    QFileInfo fi(matBundlePath);
+    if (fi.exists() && fi.size() > 0)
+        return true;
+
+    QString metaFileUrl = m_baseUrl + "/material_bundle.json";
+    FileDownloader *downloader = new FileDownloader(this);
+    downloader->setUrl(metaFileUrl);
+    downloader->setProbeUrl(false);
+    downloader->setDownloadEnabled(true);
+    downloader->setTargetFilePath(matBundlePath);
+
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+        if (fetchBundleIcons(bundleDir))
+            loadMaterialBundle(bundleDir);
+
+        downloader->deleteLater();
+    });
+
+    downloader->start();
+    return false;
+}
+
+void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, const QStringList &files)
+{
+    QString metaFileUrl = m_baseUrl + "/shared_files.zip";
+    FileDownloader *downloader = new FileDownloader(this);
+    downloader->setUrl(metaFileUrl);
+    downloader->setProbeUrl(false);
+    downloader->setDownloadEnabled(true);
+
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+        FileExtractor *extractor = new FileExtractor(this);
+        extractor->setArchiveName(downloader->completeBaseName());
+        extractor->setSourceFile(downloader->outputFile());
+        extractor->setTargetPath(targetDir.absolutePath());
+        extractor->setAlwaysCreateDir(false);
+        extractor->setClearTargetPathContents(false);
+
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [this, downloader, extractor]() {
+            downloader->deleteLater();
+            extractor->deleteLater();
+
+            createImporter(m_importerBundlePath, m_importerBundleId, m_importerSharedFiles);
+        });
+
+        extractor->extract();
+    });
+
+    downloader->start();
+}
+
+void ContentLibraryMaterialsModel::createImporter(const QString &bundlePath, const QString &bundleId,
+                                                  const QStringList &sharedFiles)
+{
+    m_importer = new Internal::ContentLibraryBundleImporter(bundlePath, bundleId, sharedFiles);
+    connect(m_importer, &Internal::ContentLibraryBundleImporter::importFinished, this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
+                m_importerRunning = false;
+                emit importerRunningChanged();
+                if (metaInfo.isValid())
+                    emit bundleMaterialImported(metaInfo);
+            });
+
+    connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
+                Q_UNUSED(metaInfo)
+                m_importerRunning = false;
+                emit importerRunningChanged();
+                emit bundleMaterialUnimported(metaInfo);
+            });
+
+    resetModel();
+    updateIsEmpty();
+}
+
+void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
+{
+    if (m_matBundleExists)
         return;
-
-    QDir matBundleDir;
-
-    if (!qEnvironmentVariable("MATERIAL_BUNDLE_PATH").isEmpty())
-        matBundleDir.setPath(qEnvironmentVariable("MATERIAL_BUNDLE_PATH"));
-    else if (Utils::HostOsInfo::isMacHost())
-        matBundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/material_bundle");
-
-    // search for matBundleDir from exec dir and up
-    if (matBundleDir.dirName() == ".") {
-        m_probeMatBundleDir = true; // probe only once
-
-        matBundleDir.setPath(QCoreApplication::applicationDirPath());
-        while (!matBundleDir.cd("material_bundle") && matBundleDir.cdUp())
-            ; // do nothing
-
-        if (matBundleDir.dirName() != "material_bundle") // bundlePathDir not found
-            return;
-    }
 
     QString matBundlePath = matBundleDir.filePath("material_bundle.json");
 
@@ -160,7 +275,8 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
                                     bundleId,
                                     qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleMat = new ContentLibraryMaterial(category, mat, qml, type, icon, files);
+            auto bundleMat = new ContentLibraryMaterial(category, mat, qml, type, icon, files,
+                                                        m_downloadPath, m_baseUrl);
 
             category->addBundleMaterial(bundleMat);
         }
@@ -172,24 +288,22 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
     for (const auto /*QJson{Const,}ValueRef*/ &file : sharedFilesArr)
         sharedFiles.append(file.toString());
 
-    m_importer = new Internal::ContentLibraryBundleImporter(matBundleDir.path(), bundleId, sharedFiles);
-    connect(m_importer, &Internal::ContentLibraryBundleImporter::importFinished, this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-        m_importerRunning = false;
-        emit importerRunningChanged();
-        if (metaInfo.isValid())
-            emit bundleMaterialImported(metaInfo);
-    });
+    QStringList missingSharedFiles;
+    for (const QString &s : std::as_const(sharedFiles)) {
+        const QString fullSharedFilePath = matBundleDir.filePath(s);
 
-    connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-        Q_UNUSED(metaInfo)
-        m_importerRunning = false;
-        emit importerRunningChanged();
-        emit bundleMaterialUnimported(metaInfo);
-    });
+        if (!QFile::exists(fullSharedFilePath))
+            missingSharedFiles.push_back(s);
+    }
 
-    updateIsEmpty();
+    if (missingSharedFiles.length() > 0) {
+        m_importerBundlePath = matBundleDir.path();
+        m_importerBundleId = bundleId;
+        m_importerSharedFiles = sharedFiles;
+        downloadSharedFiles(matBundleDir, missingSharedFiles);
+    } else {
+        createImporter(matBundleDir.path(), bundleId, sharedFiles);
+    }
 }
 
 bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const

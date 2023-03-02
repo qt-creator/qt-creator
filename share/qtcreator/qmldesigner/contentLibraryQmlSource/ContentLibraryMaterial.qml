@@ -10,25 +10,34 @@ import QtQuick.Controls
 import StudioTheme 1.0 as StudioTheme
 import ContentLibraryBackend
 
+import WebFetcher 1.0
+
 Item {
     id: root
 
     signal showContextMenu()
+
+    // Download states: "" (ie default, not downloaded), "unavailable", "downloading", "downloaded",
+    //                  "failed"
+    property string downloadState: modelData.isDownloaded() ? "downloaded" : ""
 
     visible: modelData.bundleMaterialVisible
 
     MouseArea {
         id: mouseArea
 
+        enabled: root.downloadState !== "downloading"
         hoverEnabled: true
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            if (mouse.button === Qt.LeftButton && !materialsModel.importerRunning)
-                ContentLibraryBackend.rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
-            else if (mouse.button === Qt.RightButton)
+            if (mouse.button === Qt.LeftButton && !materialsModel.importerRunning) {
+                if (root.downloadState === "downloaded")
+                    ContentLibraryBackend.rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
+            } else if (mouse.button === Qt.RightButton && root.downloadState === "downloaded") {
                 root.showContextMenu()
+            }
         }
     }
 
@@ -38,6 +47,15 @@ Item {
 
         Item { width: 1; height: 5 } // spacer
 
+        DownloadPane {
+            id: downloadPane
+            width: root.width - 10
+            height: img.width
+            visible: root.downloadState === "downloading"
+
+            onRequestCancel: downloader.cancel()
+        }
+
         Image {
             id: img
 
@@ -46,6 +64,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             source: modelData.bundleMaterialIcon
             cache: false
+            visible: root.downloadState != "downloading"
 
             Rectangle { // circular indicator for imported bundle materials
                 width: 10
@@ -83,13 +102,52 @@ Item {
                 anchors.right: img.right
                 anchors.bottom: img.bottom
                 enabled: !ContentLibraryBackend.materialsModel.importerRunning
-                visible: containsMouse || mouseArea.containsMouse
+                visible: root.downloadState === "downloaded"
+                         && (containsMouse || mouseArea.containsMouse)
 
                 onClicked: {
                     ContentLibraryBackend.materialsModel.addToProject(modelData)
                 }
+            } // IconButton
+
+            Text { // download icon
+                color: root.downloadState === "unavailable" || root.downloadState === "failed"
+                       ? StudioTheme.Values.themeRedLight
+                       : StudioTheme.Values.themeTextColor
+
+                font.family: StudioTheme.Constants.iconFont.family
+                text: root.downloadState === "unavailable"
+                      ? StudioTheme.Constants.downloadUnavailable
+                      : StudioTheme.Constants.download
+
+                font.pixelSize: 22
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                anchors.bottomMargin: 0
+
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                style: Text.Outline
+                styleColor: "black"
+
+                visible: root.downloadState !== "downloaded"
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton
+
+                    onClicked: (mouse) => {
+                        if (root.downloadState !== "" && root.downloadState !== "failed")
+                            return
+
+                        downloadPane.beginDownload(Qt.binding(function() { return downloader.progress }))
+
+                        root.downloadState = ""
+                        downloader.start()
+                    }
+                }
             }
-        }
+        } // Image
 
         TextInput {
             id: matName
@@ -110,5 +168,44 @@ Item {
             selectionColor: StudioTheme.Values.themeTextSelectionColor
             selectedTextColor: StudioTheme.Values.themeTextSelectedTextColor
         }
-    }
+    } // Column
+
+    MultiFileDownloader {
+        id: downloader
+
+        baseUrl: modelData.bundleMaterialBaseWebUrl
+        files: modelData.bundleMaterialFiles
+
+        targetDirPath: modelData.bundleMaterialParentPath
+
+        onDownloadStarting: {
+            root.downloadState = "downloading"
+        }
+
+        onFinishedChanged: {
+            downloadPane.endDownload()
+
+            root.downloadState = "downloaded"
+        }
+
+        onDownloadCanceled: {
+            downloadPane.endDownload()
+
+            root.downloadState = ""
+        }
+
+        onDownloadFailed: {
+            downloadPane.endDownload()
+
+            root.downloadState = "failed"
+        }
+
+        downloader: FileDownloader {
+            id: fileDownloader
+            url: downloader.nextUrl
+            probeUrl: false
+            downloadEnabled: true
+            targetFilePath: downloader.nextTargetPath
+        } // FileDownloader
+    } // MultiFileDownloader
 }

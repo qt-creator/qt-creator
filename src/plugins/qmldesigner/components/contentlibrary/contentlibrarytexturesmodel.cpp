@@ -116,7 +116,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, c
 
     QString remoteBaseUrl = QmlDesignerPlugin::settings()
                                 .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
-                            + '/' + m_category;
+                            + "/textures/" + m_category;
 
     const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {

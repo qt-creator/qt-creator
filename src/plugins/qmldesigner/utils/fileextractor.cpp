@@ -104,13 +104,13 @@ void FileExtractor::browse()
     emit targetFolderExistsChanged();
 }
 
-void FileExtractor::setSourceFile(QString &sourceFilePath)
+void FileExtractor::setSourceFile(const QString &sourceFilePath)
 {
     m_sourceFile = Utils::FilePath::fromString(sourceFilePath);
     emit targetFolderExistsChanged();
 }
 
-void FileExtractor::setArchiveName(QString &filePath)
+void FileExtractor::setArchiveName(const QString &filePath)
 {
     m_archiveName = filePath;
     emit targetFolderExistsChanged();
