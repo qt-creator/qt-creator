@@ -2,20 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmldesignerplugin.h"
+
 #include "coreplugin/iwizardfactory.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
 #include "dynamiclicensecheck.h"
 #include "exception.h"
 #include "generateresource.h"
-#include "nodeinstanceview.h"
 #include "openuiqmlfiledialog.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerexternaldependencies.h"
 #include "qmldesignerprojectmanager.h"
 #include "quick2propertyeditorview.h"
 #include "settingspage.h"
-#include <toolbar.h>
+#include "shortcutmanager.h"
+#include "toolbar.h"
 
 #include <colortool/colortool.h>
 #include <connectionview.h>

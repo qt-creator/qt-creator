@@ -55,7 +55,7 @@ Item {
                                 && ContentLibraryBackend.rootView.hasMaterialLibrary
                                 && ContentLibraryBackend.materialsModel.hasRequiredQuick3DImport
                         } else { // Textures / Environments tabs
-                            texturesModel.texBundleExists
+                            ContentLibraryBackend.texturesModel.texBundleExists
                         }
                     }
 
@@ -106,7 +106,7 @@ Item {
                 id: texturesView
 
                 width: root.width
-                model: texturesModel
+                model: ContentLibraryBackend.texturesModel
 
                 searchBox: searchBox
             }
@@ -115,7 +115,7 @@ Item {
                 id: environmentsView
 
                 width: root.width
-                model: environmentsModel
+                model: ContentLibraryBackend.environmentsModel
 
                 searchBox: searchBox
             }

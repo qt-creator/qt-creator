@@ -4,36 +4,34 @@
 #include "contentlibrarytexturesmodel.h"
 
 #include "contentlibrarytexturescategory.h"
+#include "qmldesignerplugin.h"
 
-#include "utils/algorithm.h"
-#include "utils/qtcassert.h"
+#include "utils/filedownloader.h"
+#include "utils/fileextractor.h"
 
-#include <qmldesigner/utils/fileextractor.h>
-#include <qmldesigner/utils/filedownloader.h>
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QUrl>
 #include <QQmlEngine>
 #include <QSize>
 #include <QStandardPaths>
+#include <QUrl>
 
 namespace QmlDesigner {
 
-ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &bundleSubPath, QObject *parent)
+ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &category, QObject *parent)
     : QAbstractListModel(parent)
-    , m_bundleSubPath(bundleSubPath)
 {
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
 
-    static const QString baseDownloadPath =
-        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
-        + "/QtDesignStudio/bundles";
-
-    m_downloadPath = baseDownloadPath + '/' + bundleSubPath;
+    m_category = category; // textures main category (ex: Textures, Environments)
 }
 
 int ContentLibraryTexturesModel::rowCount(const QModelIndex &) const
@@ -99,39 +97,50 @@ QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, const QString &baseUrl,
-                                                    const QVariantMap &metaData)
+/**
+ * @brief Load the bundle categorized icons. Actual textures are downloaded on demand
+ *
+ * @param bundlePath local path to the bundle folder and icons
+ * @param metaData bundle textures metadata
+ */
+void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, const QVariantMap &metaData)
 {
-    QDir bundleDir = QDir(bundlePath);
+    if (!m_bundleCategories.isEmpty())
+        return;
+
+    QDir bundleDir = QString("%1/%2").arg(bundlePath, m_category);
     if (!bundleDir.exists()) {
         qWarning() << __FUNCTION__ << "textures bundle folder doesn't exist." << bundlePath;
         return;
     }
 
-    if (!m_bundleCategories.isEmpty())
-        return;
+    QString remoteBaseUrl = QmlDesignerPlugin::settings()
+                                .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
+                            + '/' + m_category;
 
     const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
         const QFileInfoList texFiles = QDir(dir.filePath() + "/icon").entryInfoList(QDir::Files);
         for (const QFileInfo &tex : texFiles) {
-            QString zipPath = '/' + dir.fileName() + '/' + tex.baseName() + ".zip";
-            QString urlPath = baseUrl + zipPath;
-            QString downloadPath = m_downloadPath + '/' + dir.fileName();
-            QString fullZipPath = m_bundleSubPath + zipPath;
+
+            QString fullRemoteUrl = QString("%1/%2/%3.zip").arg(remoteBaseUrl, dir.fileName(),
+                                                                tex.baseName());
+            QString localDownloadPath = QString("%1/%2/%3").arg(QmlDesignerBasePlugin::bundlesPathSetting(),
+                                                                m_category, dir.fileName());
+            QString key = QString("%1/%2/%3.zip").arg(m_category, dir.fileName(), tex.baseName());
             QString fileExt;
             QSize dimensions;
             qint64 sizeInBytes = -1;
 
-            if (metaData.contains(fullZipPath)) {
-                QVariantMap dataMap = metaData[fullZipPath].toMap();
+            if (metaData.contains(key)) {
+                QVariantMap dataMap = metaData[key].toMap();
                 fileExt = '.' + dataMap.value("format").toString();
                 dimensions = QSize(dataMap.value("width").toInt(), dataMap.value("height").toInt());
                 sizeInBytes = dataMap.value("size").toLongLong();
             }
 
-            category->addTexture(tex, downloadPath, urlPath, fileExt, dimensions, sizeInBytes);
+            category->addTexture(tex, localDownloadPath, fullRemoteUrl, fileExt, dimensions, sizeInBytes);
         }
         m_bundleCategories.append(category);
     }

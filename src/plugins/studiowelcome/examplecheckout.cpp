@@ -7,6 +7,8 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
+
 #include <utils/archive.h>
 #include <utils/algorithm.h>
 #include <utils/networkaccessmanager.h>
@@ -60,7 +62,7 @@ bool DataModelDownloader::downloadEnabled() const
 
 QString DataModelDownloader::targetPath() const
 {
-    return StudioWelcome::Internal::StudioWelcomePlugin::examplesPathSetting();
+    return QmlDesigner::QmlDesignerBasePlugin::examplesPathSetting();
 }
 
 static Utils::FilePath tempFilePath()
@@ -104,8 +106,8 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
     auto studioWelcomePlugin = qobject_cast<StudioWelcome::Internal::StudioWelcomePlugin *>(plugin);
 
     if (studioWelcomePlugin) {
-        QObject::connect(studioWelcomePlugin,
-                         &StudioWelcome::Internal::StudioWelcomePlugin::examplesDownloadPathChanged,
+        QObject::connect(QmlDesigner::QmlDesignerBasePlugin::instance(),
+                         &QmlDesigner::QmlDesignerBasePlugin::examplesDownloadPathChanged,
                          this,
                          &DataModelDownloader::targetPathMustChange);
     }

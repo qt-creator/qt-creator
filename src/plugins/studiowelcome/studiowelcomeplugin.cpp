@@ -4,15 +4,14 @@
 #include "studiowelcomeplugin.h"
 #include "examplecheckout.h"
 
-#include "projectexplorer/target.h"
 #include "qdsnewdialog.h"
 
 #include <app/app_version.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -20,8 +19,8 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include "projectexplorer/target.h"
 
 #include <qmlprojectmanager/projectfilecontenttools.h>
 #include <qmlprojectmanager/qmlproject.h>
@@ -40,14 +39,11 @@
 
 #include <QAbstractListModel>
 #include <QApplication>
-#include <QCheckBox>
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QGroupBox>
 #include <QMainWindow>
 #include <QPointer>
-#include <QPushButton>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -91,8 +87,6 @@ const char DETAILED_USAGE_STATISTICS[] = "DetailedUsageStatistics";
 const char STATISTICS_COLLECTION_MODE[] = "StatisticsCollectionMode";
 const char NO_TELEMETRY[] = "NoTelemetry";
 const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
-
-const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
 
 QPointer<QQuickView> s_viewWindow = nullptr;
 QPointer<QQuickWidget> s_viewWidget = nullptr;
@@ -647,23 +641,6 @@ bool StudioWelcomePlugin::delayedInitialize()
     return true;
 }
 
-Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()
-{
-    QStandardPaths::StandardLocation location = Utils::HostOsInfo::isMacHost()
-                                                    ? QStandardPaths::HomeLocation
-                                                    : QStandardPaths::DocumentsLocation;
-
-    return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
-        .pathAppended("QtDesignStudio/examples");
-}
-
-QString StudioWelcomePlugin::examplesPathSetting()
-{
-    return Core::ICore::settings()
-        ->value(EXAMPLES_DOWNLOAD_PATH, defaultExamplesPath().toString())
-        .toString();
-}
-
 WelcomeMode::WelcomeMode()
 {
     setDisplayName(tr("Welcome"));
@@ -748,41 +725,6 @@ WelcomeMode::WelcomeMode()
                                 [](const QString &path) { return QFileInfo::exists(path); }));
 }
 
-static bool hideBuildMenuSetting()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_BUILD, false)
-        .toBool();
-}
-
-static bool hideDebugMenuSetting()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_DEBUG, false)
-        .toBool();
-}
-
-static bool hideAnalyzeMenuSetting()
-{
-    return Core::ICore::settings()
-        ->value(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE, false)
-        .toBool();
-}
-
-static bool hideToolsMenuSetting()
-{
-    return Core::ICore::settings()->value(Core::Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
-}
-
-void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
-{
-    QSettings *s = Core::ICore::settings();
-    if (s->value(key, false).toBool() != value) {
-        dirty = true;
-        s->setValue(key, value);
-    }
-}
-
 WelcomeMode::~WelcomeMode()
 {
     delete m_modeWidget;
@@ -834,114 +776,6 @@ void WelcomeMode::createQuickWidget()
     QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_quickWidget->engine());
 
     m_quickWidget->engine()->setOutputWarningsToStandardError(false);
-}
-
-StudioSettingsPage::StudioSettingsPage()
-    : m_buildCheckBox(new QCheckBox(tr("Build")))
-    , m_debugCheckBox(new QCheckBox(tr("Debug")))
-    , m_analyzeCheckBox(new QCheckBox(tr("Analyze")))
-    , m_toolsCheckBox(new QCheckBox(tr("Tools")))
-    , m_pathChooser(new Utils::PathChooser())
-{
-    const QString toolTip = tr(
-        "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
-        "generally not required in the context of Qt Design Studio. <b>Debug</b> and "
-        "<b>Analyze</b> "
-        "are only required for debugging and profiling. <b>Tools</b> can be useful for bookmarks "
-        "and git integration.");
-
-    QVBoxLayout *boxLayout = new QVBoxLayout();
-    setLayout(boxLayout);
-    auto groupBox = new QGroupBox(tr("Hide Menu"));
-    groupBox->setToolTip(toolTip);
-    boxLayout->addWidget(groupBox);
-
-    auto verticalLayout = new QVBoxLayout();
-    groupBox->setLayout(verticalLayout);
-
-    m_buildCheckBox->setToolTip(toolTip);
-    m_debugCheckBox->setToolTip(toolTip);
-    m_analyzeCheckBox->setToolTip(toolTip);
-    m_toolsCheckBox->setToolTip(toolTip);
-
-    verticalLayout->addWidget(m_buildCheckBox);
-    verticalLayout->addWidget(m_debugCheckBox);
-    verticalLayout->addWidget(m_analyzeCheckBox);
-    verticalLayout->addWidget(m_toolsCheckBox);
-
-    verticalLayout->addSpacerItem(
-        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
-    m_buildCheckBox->setChecked(hideBuildMenuSetting());
-    m_debugCheckBox->setChecked(hideDebugMenuSetting());
-    m_analyzeCheckBox->setChecked(hideAnalyzeMenuSetting());
-    m_toolsCheckBox->setChecked(hideToolsMenuSetting());
-
-    auto examplesGroupBox = new QGroupBox(tr("Examples"));
-    boxLayout->addWidget(examplesGroupBox);
-
-    auto horizontalLayout = new QHBoxLayout();
-    examplesGroupBox->setLayout(horizontalLayout);
-
-    auto label = new QLabel(tr("Examples path:"));
-    m_pathChooser->setFilePath(
-        Utils::FilePath::fromString(StudioWelcomePlugin::examplesPathSetting()));
-    auto resetButton = new QPushButton(tr("Reset Path"));
-
-    connect(resetButton, &QPushButton::clicked, this, [this]() {
-        m_pathChooser->setFilePath(StudioWelcomePlugin::defaultExamplesPath());
-    });
-
-    horizontalLayout->addWidget(label);
-    horizontalLayout->addWidget(m_pathChooser);
-    horizontalLayout->addWidget(resetButton);
-
-
-    boxLayout->addSpacerItem(
-        new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Expanding));
-}
-
-void StudioSettingsPage::apply()
-{
-    bool dirty = false;
-
-    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_BUILD,
-                          m_buildCheckBox->isChecked(),
-                          dirty);
-
-    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_DEBUG,
-                          m_debugCheckBox->isChecked(),
-                          dirty);
-
-    setSettingIfDifferent(ProjectExplorer::Constants::SETTINGS_MENU_HIDE_ANALYZE,
-                          m_analyzeCheckBox->isChecked(),
-                          dirty);
-
-    setSettingIfDifferent(Core::Constants::SETTINGS_MENU_HIDE_TOOLS,
-                          m_toolsCheckBox->isChecked(),
-                          dirty);
-
-    if (dirty) {
-        const QString restartText = tr("The menu visibility change will take effect after restart.");
-        Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
-        restartDialog.exec();
-    }
-
-    QSettings *s = Core::ICore::settings();
-    const QString value = m_pathChooser->filePath().toString();
-
-    if (s->value(EXAMPLES_DOWNLOAD_PATH, false).toString() != value) {
-        s->setValue(EXAMPLES_DOWNLOAD_PATH, value);
-        emit s_pluginInstance->examplesDownloadPathChanged(value);
-    }
-}
-
-StudioWelcomeSettingsPage::StudioWelcomeSettingsPage()
-{
-    setId("Z.StudioWelcome.Settings");
-    setDisplayName(tr("Qt Design Studio Configuration"));
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setWidgetCreator([] { return new StudioSettingsPage; });
 }
 
 } // namespace Internal

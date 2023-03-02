@@ -106,19 +106,14 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
     QString textureBundlePath = findTextureBundlePath();
-    QString baseUrl = QmlDesignerPlugin::settings()
-                          .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL)
-                          .toString();
 
     QVariantMap metaData;
     QFile jsonFile(textureBundlePath + "/texture_bundle.json");
     if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
         metaData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
 
-    m_texturesModel->loadTextureBundle(textureBundlePath + "/Textures",
-                                       baseUrl + "/Textures", metaData);
-    m_environmentsModel->loadTextureBundle(textureBundlePath + "/Environments",
-                                           baseUrl + "/Environments", metaData);
+    m_texturesModel->loadTextureBundle(textureBundlePath, metaData);
+    m_environmentsModel->loadTextureBundle(textureBundlePath, metaData);
 
     Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->quickWidget()->installEventFilter(this);

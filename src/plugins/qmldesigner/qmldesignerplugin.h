@@ -5,7 +5,6 @@
 
 #include "documentmanager.h"
 #include "qmldesigner_global.h"
-#include "shortcutmanager.h"
 
 #include <designersettings.h>
 #include <viewmanager.h>
@@ -13,6 +12,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
 
 #include <QElapsedTimer>
 
@@ -114,6 +114,7 @@ private: // variables
     QmlDesignerPluginPrivate *d = nullptr;
     static QmlDesignerPlugin *m_instance;
     QElapsedTimer m_usageTimer;
+    StudioConfigSettingsPage m_settingsPage;
 };
 
 } // namespace QmlDesigner
