@@ -5,12 +5,13 @@ import QtQuick
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ContentLibraryBackend
 
 HelperWidgets.ScrollView {
     id: root
 
     clip: true
-    interactive: !ctxMenu.opened && !rootView.isDragging
+    interactive: !ctxMenu.opened && !ContentLibraryBackend.rootView.isDragging
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 100

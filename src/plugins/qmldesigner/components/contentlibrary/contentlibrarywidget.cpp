@@ -12,6 +12,7 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
+#include <studioquickwidget.h>
 #include <theme.h>
 
 #include <utils/algorithm.h>
@@ -91,7 +92,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 ContentLibraryWidget::ContentLibraryWidget()
-    : m_quickWidget(new QQuickWidget(this))
+    : m_quickWidget(new StudioQuickWidget(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
@@ -119,15 +120,8 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_environmentsModel->loadTextureBundle(textureBundlePath + "/Environments",
                                            baseUrl + "/Environments", metaData);
 
-    m_quickWidget->rootContext()->setContextProperties({
-        {"rootView",          QVariant::fromValue(this)},
-        {"materialsModel",    QVariant::fromValue(m_materialsModel.data())},
-        {"texturesModel",     QVariant::fromValue(m_texturesModel.data())},
-        {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())},
-    });
-
     Theme::setupTheme(m_quickWidget->engine());
-    m_quickWidget->installEventFilter(this);
+    m_quickWidget->quickWidget()->installEventFilter(this);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
@@ -143,6 +137,13 @@ ContentLibraryWidget::ContentLibraryWidget()
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ContentLibraryWidget::reloadQmlSource);
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_CONTENTLIBRARY_TIME);
+
+    auto map = m_quickWidget->registerPropertyMap("ContentLibraryBackend");
+
+    map->setProperties({{"rootView", QVariant::fromValue(this)},
+                        {"materialsModel", QVariant::fromValue(m_materialsModel.data())},
+                        {"texturesModel", QVariant::fromValue(m_texturesModel.data())},
+                        {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())}});
 
     reloadQmlSource();
 }
@@ -218,7 +219,6 @@ void ContentLibraryWidget::reloadQmlSource()
 
     QTC_ASSERT(QFileInfo::exists(materialBrowserQmlPath), return);
 
-    m_quickWidget->engine()->clearComponentCache();
     m_quickWidget->setSource(QUrl::fromLocalFile(materialBrowserQmlPath));
 }
 

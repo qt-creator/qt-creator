@@ -11,8 +11,9 @@
 QT_BEGIN_NAMESPACE
 class QShortcut;
 class QToolButton;
-class QQuickWidget;
 QT_END_NAMESPACE
+
+class StudioQuickWidget;
 
 namespace QmlDesigner {
 
@@ -80,7 +81,7 @@ private:
     void setIsDragging(bool val);
     QString findTextureBundlePath();
 
-    QScopedPointer<QQuickWidget> m_quickWidget;
+    QScopedPointer<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
     QPointer<ContentLibraryTexturesModel> m_environmentsModel;

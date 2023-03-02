@@ -5,18 +5,20 @@ import QtQuick
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import ContentLibraryBackend
 
 HelperWidgets.ScrollView {
     id: root
 
     clip: true
-    interactive: !ctxMenu.opened && !rootView.isDragging
+    interactive: !ctxMenu.opened && !ContentLibraryBackend.rootView.isDragging
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 120
 
     property var currMaterialItem: null
     property var rootItem: null
+    property var materialsModel: ContentLibraryBackend.materialsModel
 
     required property var searchBox
 
@@ -94,11 +96,11 @@ HelperWidgets.ScrollView {
             text: {
                 if (!materialsModel.matBundleExists)
                     qsTr("<b>Content Library</b> materials are not installed.")
-                else if (!rootView.hasQuick3DImport)
+                else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
                     qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
                 else if (!materialsModel.hasRequiredQuick3DImport)
                     qsTr("To use <b>Content Library</b>, version 6.3 or later of the QtQuick3D module is required.")
-                else if (!rootView.hasMaterialLibrary)
+                else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                 else if (!searchBox.isEmpty())
                     qsTr("No match found.")

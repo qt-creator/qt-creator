@@ -5,6 +5,7 @@ import QtQuick 2.15
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import ContentLibraryBackend
 
 StudioControls.Menu {
     id: root
@@ -12,12 +13,12 @@ StudioControls.Menu {
     property var targetTexture: null
     property bool hasSceneEnv: false
 
-    property bool canUse3D: targetTexture && rootView.hasQuick3DImport && rootView.hasMaterialLibrary
+    property bool canUse3D: targetTexture && ContentLibraryBackend.rootView.hasQuick3DImport && ContentLibraryBackend.rootView.hasMaterialLibrary
 
     function popupMenu(targetTexture = null)
     {
         this.targetTexture = targetTexture
-        rootView.updateSceneEnvState();
+        ContentLibraryBackend.rootView.updateSceneEnvState();
         popup()
     }
 
@@ -26,18 +27,18 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         text: qsTr("Add image")
         enabled: root.targetTexture
-        onTriggered: rootView.addImage(root.targetTexture)
+        onTriggered: ContentLibraryBackend.rootView.addImage(root.targetTexture)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Add texture")
         enabled: canUse3D
-        onTriggered: rootView.addTexture(root.targetTexture)
+        onTriggered: ContentLibraryBackend.rootView.addTexture(root.targetTexture)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Add light probe")
         enabled: root.hasSceneEnv && canUse3D
-        onTriggered: rootView.addLightProbe(root.targetTexture)
+        onTriggered: ContentLibraryBackend.rootView.addLightProbe(root.targetTexture)
     }
 }

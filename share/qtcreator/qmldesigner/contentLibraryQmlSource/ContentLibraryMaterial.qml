@@ -8,6 +8,7 @@ import HelperWidgets 2.0
 import QtQuick.Controls
 
 import StudioTheme 1.0 as StudioTheme
+import ContentLibraryBackend
 
 Item {
     id: root
@@ -25,7 +26,7 @@ Item {
 
         onPressed: (mouse) => {
             if (mouse.button === Qt.LeftButton && !materialsModel.importerRunning)
-                rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
+                ContentLibraryBackend.rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
@@ -81,11 +82,11 @@ Item {
                 pressColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .4)
                 anchors.right: img.right
                 anchors.bottom: img.bottom
-                enabled: !materialsModel.importerRunning
+                enabled: !ContentLibraryBackend.materialsModel.importerRunning
                 visible: containsMouse || mouseArea.containsMouse
 
                 onClicked: {
-                    materialsModel.addToProject(modelData)
+                    ContentLibraryBackend.materialsModel.addToProject(modelData)
                 }
             }
         }

@@ -8,6 +8,7 @@ import QtQuickDesignerTheme
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import ContentLibraryBackend
 
 Item {
     id: root
@@ -50,16 +51,16 @@ Item {
                     style: StudioTheme.Values.searchControlStyle
                     enabled: {
                         if (tabBar.currIndex === 0) { // Materials tab
-                            materialsModel.matBundleExists
-                                && rootView.hasMaterialLibrary
-                                && materialsModel.hasRequiredQuick3DImport
+                            ContentLibraryBackend.materialsModel.matBundleExists
+                                && ContentLibraryBackend.rootView.hasMaterialLibrary
+                                && ContentLibraryBackend.materialsModel.hasRequiredQuick3DImport
                         } else { // Textures / Environments tabs
                             texturesModel.texBundleExists
                         }
                     }
 
                     onSearchChanged: (searchText) => {
-                        rootView.handleSearchFilterChanged(searchText)
+                        ContentLibraryBackend.rootView.handleSearchFilterChanged(searchText)
 
                         // make sure categories with matches are expanded
                         materialsView.expandVisibleSections()

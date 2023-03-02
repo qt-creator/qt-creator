@@ -10,6 +10,7 @@ import QtQuick.Controls
 import StudioTheme 1.0 as StudioTheme
 
 import WebFetcher 1.0
+import ContentLibraryBackend
 
 Item {
     id: root
@@ -161,7 +162,7 @@ Item {
         onPressed: (mouse) => {
             if (mouse.button === Qt.LeftButton) {
                 if (root.downloadState === "downloaded")
-                    rootView.startDragTexture(modelData, mapToGlobal(mouse.x, mouse.y))
+                    ContentLibraryBackend.rootView.startDragTexture(modelData, mapToGlobal(mouse.x, mouse.y))
             } else if (mouse.button === Qt.RightButton && root.downloadState === "downloaded") {
                 root.showContextMenu()
             }
@@ -174,7 +175,7 @@ Item {
             if (root.downloadState !== "" && root.downloadState !== "failed")
                 return
 
-            if (!rootView.markTextureDownloading())
+            if (!ContentLibraryBackend.rootView.markTextureDownloading())
                 return
 
             progressBar.visible = true
@@ -216,7 +217,7 @@ Item {
             root.downloadStateChanged()
             mouseArea.enabled = true
 
-            rootView.markNoTextureDownloading()
+            ContentLibraryBackend.rootView.markNoTextureDownloading()
         }
 
         onDownloadFailed: {
@@ -224,7 +225,7 @@ Item {
             root.downloadStateChanged()
             mouseArea.enabled = true
 
-            rootView.markNoTextureDownloading()
+            ContentLibraryBackend.rootView.markNoTextureDownloading()
         }
     }
 
@@ -241,7 +242,7 @@ Item {
             root.downloadState = modelData.isDownloaded() ? "downloaded" : "failed"
             root.downloadStateChanged()
 
-            rootView.markNoTextureDownloading()
+            ContentLibraryBackend.rootView.markNoTextureDownloading()
         }
     }
 }
