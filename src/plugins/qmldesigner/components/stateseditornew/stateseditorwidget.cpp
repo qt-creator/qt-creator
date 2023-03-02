@@ -163,7 +163,6 @@ void StatesEditorWidget::reloadQmlSource()
 {
     QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/Main.qml");
     QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return );
-    engine()->clearComponentCache();
     setSource(QUrl::fromLocalFile(statesListQmlFilePath));
 
     if (!rootObject()) {
