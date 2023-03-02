@@ -64,11 +64,28 @@ TerminalPane::TerminalPane(QObject *parent)
     });
 
     m_newTerminal.setMenu(shellMenu);
+    m_newTerminal.setShortcut(QKeySequence(
+        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T")));
 
     m_newTerminalButton->setDefaultAction(&m_newTerminal);
 
     m_closeTerminalButton = new QToolButton();
     m_closeTerminalButton->setDefaultAction(&m_closeTerminal);
+
+    m_nextTerminal.setShortcut(QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
+                                                                    : QLatin1String("Ctrl+PgUp")));
+    m_prevTerminal.setShortcut(QKeySequence(HostOsInfo::isMacHost()
+                                                ? QLatin1String("Ctrl+Shift+]")
+                                                : QLatin1String("Ctrl+PgDown")));
+
+    connect(&m_nextTerminal, &QAction::triggered, this, [this] {
+        if (canNavigate())
+            goToNext();
+    });
+    connect(&m_prevTerminal, &QAction::triggered, this, [this] {
+        if (canPrevious())
+            goToPrev();
+    });
 }
 
 void TerminalPane::openTerminal(const Utils::Terminal::OpenTerminalParameters &parameters)
@@ -148,6 +165,8 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
 
     if (!terminal->shellName().isEmpty())
         setTabText(terminal);
+
+    terminal->addActions({&m_newTerminal, &m_nextTerminal, &m_prevTerminal});
 }
 
 QList<QWidget *> TerminalPane::toolBarWidgets() const
@@ -202,23 +221,31 @@ bool TerminalPane::canNavigate() const
 
 bool TerminalPane::canNext() const
 {
-    return m_tabWidget->count() > 1 && m_tabWidget->currentIndex() < m_tabWidget->count() - 1;
+    return m_tabWidget->count() > 1;
 }
 
 bool TerminalPane::canPrevious() const
 {
-    return m_tabWidget->count() > 1 && m_tabWidget->currentIndex() > 0;
+    return m_tabWidget->count() > 1;
 }
 
 void TerminalPane::goToNext()
 {
-    m_tabWidget->setCurrentIndex(m_tabWidget->currentIndex() + 1);
+    int nextIndex = m_tabWidget->currentIndex() + 1;
+    if (nextIndex >= m_tabWidget->count())
+        nextIndex = 0;
+
+    m_tabWidget->setCurrentIndex(nextIndex);
     emit navigateStateUpdate();
 }
 
 void TerminalPane::goToPrev()
 {
-    m_tabWidget->setCurrentIndex(m_tabWidget->currentIndex() - 1);
+    int prevIndex = m_tabWidget->currentIndex() - 1;
+    if (prevIndex < 0)
+        prevIndex = m_tabWidget->count() - 1;
+
+    m_tabWidget->setCurrentIndex(prevIndex);
     emit navigateStateUpdate();
 }
 

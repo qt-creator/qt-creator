@@ -53,6 +53,8 @@ private:
 
     QAction m_newTerminal;
     QAction m_closeTerminal;
+    QAction m_nextTerminal;
+    QAction m_prevTerminal;
 };
 
 } // namespace Terminal
