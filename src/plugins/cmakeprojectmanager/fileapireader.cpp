@@ -5,7 +5,6 @@
 
 #include "cmakeprocess.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
@@ -15,6 +14,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -235,11 +235,11 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
 
     m_lastReplyTimestamp = replyFilePath.lastModified();
 
-    m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
+    m_future = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
                         [replyFilePath, sourceDirectory, buildDirectory, cmakeBuildType](
-                            QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi) {
+                            QPromise<std::shared_ptr<FileApiQtcData>> &promise) {
                             auto result = std::make_shared<FileApiQtcData>();
-                            FileApiData data = FileApiParser::parseData(fi,
+                            FileApiData data = FileApiParser::parseData(promise,
                                                                         replyFilePath,
                                                                         cmakeBuildType,
                                                                         result->errorMessage);
@@ -248,7 +248,7 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                             else
                                 qWarning() << result->errorMessage;
 
-                            fi.reportResult(result);
+                            promise.addResult(result);
                         });
     onResultReady(m_future.value(),
                   this,
