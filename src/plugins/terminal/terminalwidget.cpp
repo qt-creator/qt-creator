@@ -770,13 +770,11 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
             mod = VTERM_MOD_NONE;
         }
 
-        vterm_keyboard_unichar(m_vterm.get(),
-                               event->text().toUcs4()[0],
-                               static_cast<VTermModifier>(mod & ~VTERM_MOD_CTRL));
+        vterm_keyboard_unichar(m_vterm.get(), event->text().toUcs4()[0], VTERM_MOD_NONE);
 
         setSelection(std::nullopt);
-    } else if (mod != VTERM_MOD_NONE && event->key() == Qt::Key_C) {
-        vterm_keyboard_unichar(m_vterm.get(), 'c', mod);
+    } else if (mod == VTERM_MOD_CTRL && event->key() >= Qt::Key_A && event->key() < Qt::Key_Z) {
+        vterm_keyboard_unichar(m_vterm.get(), 'a' + (event->key() - Qt::Key_A), mod);
     }
 }
 
