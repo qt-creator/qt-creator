@@ -112,7 +112,7 @@ protected:
 private:
     void reloadQmlSource();
 
-    void addResources(const QStringList &files);
+    void addResources(const QStringList &files, bool showDialog = true);
     void updateSearch();
     void setIsDragging(bool val);
 

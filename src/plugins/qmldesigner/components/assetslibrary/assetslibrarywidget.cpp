@@ -288,15 +288,16 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
     auto toLocalFile = [](const QUrl &url) { return url.toLocalFile(); };
 
     QStringList simpleFilePathStrings = Utils::transform<QStringList>(simpleFilePaths, toLocalFile);
-    QStringList complexFilePathStrings = Utils::transform<QStringList>(complexFilePaths,
-                                                                       toLocalFile);
+    QStringList complexFilePathStrings = Utils::transform<QStringList>(complexFilePaths, toLocalFile);
 
     if (!simpleFilePathStrings.isEmpty()) {
         if (targetDirPath.isEmpty()) {
             addResources(simpleFilePathStrings);
         } else {
+            bool isDropOnRoot = m_assetsModel->rootPath() == targetDirPath;
             AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilePathStrings,
-                                                                           targetDirPath);
+                                                                           targetDirPath,
+                                                                           isDropOnRoot);
             if (result.status() == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")
@@ -432,7 +433,7 @@ static QHash<QByteArray, QStringList> allImageFormats()
     return imageFormats;
 }
 
-void AssetsLibraryWidget::addResources(const QStringList &files)
+void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog)
 {
     clearSearchFilter();
 
@@ -506,7 +507,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files)
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
         if (operation) {
             AddFilesResult result = operation(fileNames,
-                                              document->fileName().parentDir().toString(), true);
+                                              document->fileName().parentDir().toString(), showDialog);
             if (result.status() == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")
