@@ -4,12 +4,9 @@
 #include "addcmakeoperation.h"
 
 #include "addkeysoperation.h"
-#include "findkeyoperation.h"
 #include "findvalueoperation.h"
 #include "getoperation.h"
 #include "rmkeysoperation.h"
-
-#include "settings.h"
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -205,7 +202,7 @@ QVariantMap AddCMakeData::addCMake(const QVariantMap &map) const
     data << KeyValuePair({cm, ID_KEY}, QVariant(m_id));
     data << KeyValuePair({cm, DISPLAYNAME_KEY}, QVariant(m_displayName));
     data << KeyValuePair({cm, AUTODETECTED_KEY}, QVariant(true));
-    data << KeyValuePair({cm, PATH_KEY}, Utils::FilePath::fromUserInput(m_path).toVariant());
+    data << KeyValuePair({cm, PATH_KEY}, QVariant(m_path));
     KeyValuePairList extraList;
     for (const KeyValuePair &pair : std::as_const(m_extra))
         extraList << KeyValuePair(QStringList({cm}) << pair.key, pair.value);

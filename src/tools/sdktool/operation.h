@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
-
 #include <QStringList>
 #include <QVariant>
 

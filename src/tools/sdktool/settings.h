@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <QString>
 
 class Operation;
 
@@ -13,8 +13,8 @@ public:
     Settings();
     static Settings *instance();
 
-    Utils::FilePath getPath(const QString &file);
+    QString getPath(const QString &file);
 
-    Utils::FilePath sdkPath;
+    QString sdkPath;
     Operation *operation = nullptr;
 };

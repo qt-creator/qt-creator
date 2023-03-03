@@ -11,8 +11,6 @@
 
 #include "settings.h"
 
-#include <utils/filepath.h>
-
 #ifdef WITH_TESTS
 #include <QTest>
 #endif
@@ -21,8 +19,6 @@
 #include <QRegularExpression>
 
 Q_LOGGING_CATEGORY(log, "qtc.sdktool.operations.addqt", QtWarningMsg)
-
-using namespace Utils;
 
 // Qt version file stuff:
 const char PREFIX[] = "QtVersion.";
@@ -282,7 +278,7 @@ QVariantMap AddQtData::addQt(const QVariantMap &map) const
     const QString qt = QString::fromLatin1(PREFIX) + QString::number(versionCount);
 
     // Sanitize qmake path:
-    FilePath saneQmake = FilePath::fromUserInput(m_qmake).cleanPath();
+    QString saneQmake = QDir::cleanPath(m_qmake);
 
     // insert data:
     KeyValuePairList data;
@@ -291,7 +287,7 @@ QVariantMap AddQtData::addQt(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(sdkId));
 
-    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), saneQmake.toSettings());
+    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), QVariant(saneQmake));
     data << KeyValuePair(QStringList() << qt << QLatin1String(TYPE), QVariant(m_type));
     data << KeyValuePair(QStringList() << qt << ABIS, QVariant(m_abis));
 

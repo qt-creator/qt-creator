@@ -4,12 +4,9 @@
 #include "addtoolchainoperation.h"
 
 #include "addkeysoperation.h"
-#include "findkeyoperation.h"
 #include "findvalueoperation.h"
 #include "getoperation.h"
 #include "rmkeysoperation.h"
-
-#include "settings.h"
 
 #include <iostream>
 
@@ -283,7 +280,7 @@ QVariantMap AddToolChainData::addToolChain(const QVariantMap &map) const
     data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
     data << KeyValuePair({tc, DISPLAYNAME}, QVariant(m_displayName));
     data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
-    data << KeyValuePair({tc, PATH}, Utils::FilePath::fromUserInput(m_path).toSettings());
+    data << KeyValuePair({tc, PATH}, QVariant(m_path));
     data << KeyValuePair({tc, TARGET_ABI}, QVariant(m_targetAbi));
     QVariantList abis;
     const QStringList abiStrings = m_supportedAbis.split(',');
