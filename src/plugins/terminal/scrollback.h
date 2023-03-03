@@ -7,6 +7,7 @@
 #include <vterm.h>
 
 #include <deque>
+#include <future>
 #include <memory>
 
 #include <QFont>
@@ -29,12 +30,15 @@ public:
         const VTermScreenCell *cells() const { return &m_cells[0]; };
 
         const QTextLayout &layout(int version, const QFont &font, qreal lineSpacing) const;
+        const std::u32string &text() const;
 
     private:
         int m_cols;
         std::unique_ptr<VTermScreenCell[]> m_cells;
         mutable std::unique_ptr<QTextLayout> m_layout;
         mutable int m_layoutVersion{-1};
+        mutable std::optional<std::u32string> m_text;
+        mutable std::future<std::u32string> m_textFuture;
     };
 
 public:
@@ -63,8 +67,6 @@ private:
     size_t m_capacity;
     size_t m_offset{0};
     std::deque<Line> m_deque;
-
-    std::u32string m_currentText;
 };
 
 } // namespace Terminal::Internal

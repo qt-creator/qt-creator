@@ -7,14 +7,23 @@
 
 #include <cassert>
 #include <cstring>
+#include <future>
 
 namespace Terminal::Internal {
 
 Scrollback::Line::Line(int cols, const VTermScreenCell *cells, VTermState *vts)
     : m_cols(cols)
     , m_cells(std::make_unique<VTermScreenCell[]>(cols))
-
 {
+    m_textFuture = std::async(std::launch::async, [this, cols] {
+        std::u32string text;
+        text.reserve(cols);
+        for (int i = 0; i < cols; ++i) {
+            text += cellToString(m_cells[i]);
+        }
+        return text;
+    });
+
     memcpy(m_cells.get(), cells, cols * sizeof(cells[0]));
     for (int i = 0; i < cols; ++i) {
         vterm_state_convert_color_to_rgb(vts, &m_cells[i].fg);
@@ -49,6 +58,13 @@ const QTextLayout &Scrollback::Line::layout(int version, const QFont &font, qrea
     return *m_layout;
 }
 
+const std::u32string &Scrollback::Line::text() const
+{
+    if (!m_text)
+        m_text = m_textFuture.get();
+    return *m_text;
+}
+
 Scrollback::Scrollback(size_t capacity)
     : m_capacity(capacity)
 {}
@@ -57,12 +73,7 @@ void Scrollback::emplace(int cols, const VTermScreenCell *cells, VTermState *vts
 {
     m_deque.emplace_front(cols, cells, vts);
     while (m_deque.size() > m_capacity) {
-        m_currentText = m_currentText.substr(m_deque.back().cols());
         m_deque.pop_back();
-    }
-
-    for (int i = 0; i < cols; i++) {
-        m_currentText += cellToString(cells[i]);
     }
 }
 
@@ -82,7 +93,6 @@ void Scrollback::popto(int cols, VTermScreenCell *cells)
     }
 
     m_deque.pop_front();
-    m_currentText.resize(m_currentText.size() - cols);
 }
 
 size_t Scrollback::scroll(int delta)
@@ -96,12 +106,15 @@ void Scrollback::clear()
 {
     m_offset = 0;
     m_deque.clear();
-    m_currentText.clear();
 }
 
 std::u32string Scrollback::currentText()
 {
-    return m_currentText;
+    std::u32string currentText;
+    for (auto it = m_deque.rbegin(); it != m_deque.rend(); ++it) {
+        currentText += it->text();
+    }
+    return currentText;
 }
 
 } // namespace Terminal::Internal
