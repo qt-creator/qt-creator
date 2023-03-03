@@ -19,8 +19,6 @@ def parse_arguments():
     parser.add_argument('source_directory', help='directory with the Qt Creator sources')
     parser.add_argument('binary_directory', help='directory that contains the Qt Creator.app')
     parser.add_argument('--dmg-size', default='1500m', required=False)
-    parser.add_argument('--ignore-codesign-paths', default=None, required=False, help='A list of paths separated by "," relative from the binary_directory. ' + 
-                       'example ignore-codesign-paths for content that is already signed: "installed/Qt DesignStudio.app/Resources/qt6_design_studio_reduced_version"')
     return parser.parse_args()
 
 def main():
@@ -31,10 +29,7 @@ def main():
         common.copytree(arguments.binary_directory, tempdir, symlinks=True, ignore=common.is_debug)
         if common.is_mac_platform():
             app_path = [app for app in os.listdir(tempdir) if app.endswith('.app')][0]
-            if arguments.ignore_codesign_paths:
-                ignore_codesign_paths = arguments.ignore_codesign_paths.split(',')
-                ignore_codesign_paths = [os.path.join(tempdir_base, path) for path in ignore_codesign_paths]
-            common.codesign(os.path.join(tempdir, app_path), ignore_codesign_paths)
+            common.codesign(os.path.join(tempdir, app_path))
         os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
         shutil.copy(os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT'), tempdir)
         dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,

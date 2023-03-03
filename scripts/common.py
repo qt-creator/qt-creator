@@ -228,22 +228,16 @@ def conditional_sign_recursive(path, filter):
     if is_mac_platform():
         os_walk(path, filter, lambda fp: codesign_executable(fp))
 
-def is_filtered(path, ignore_paths):
-    for ignore_path in ignore_paths:
-        if path.startswith(ignore_path):
-            return True
-    return False
-
-def codesign(app_path, filter_paths):
+def codesign(app_path):
     codesign = codesign_call()
     if not codesign or not is_mac_platform():
         return
     # sign all executables in Resources
     conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Resources'),
-                               lambda ff: os.access(ff, os.X_OK) and not is_filtered(ff, filter_paths))
+                               lambda ff: os.access(ff, os.X_OK))
     # sign all libraries in Imports
     conditional_sign_recursive(os.path.join(app_path, 'Contents', 'Imports'),
-                               lambda ff: ff.endswith('.dylib') and not is_filtered(ff, filter_paths))
+                               lambda ff: ff.endswith('.dylib'))
 
     # sign the whole bundle
     entitlements_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'dist',
