@@ -1170,7 +1170,7 @@ FilePathInfo UnixDeviceFileAccess::filePathInfo(const FilePath &filePath) const
 
     const RunResult stat = runInShell({"stat", args, OsType::OsTypeLinux});
     return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut),
-                                             osType() != OsTypeMac);
+                                             osType() == OsTypeMac ? 8 : 16);
 }
 
 // returns whether 'find' could be used.
