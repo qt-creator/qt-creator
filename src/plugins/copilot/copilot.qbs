@@ -20,8 +20,6 @@ QtcPlugin {
         "copilotsettings.h",
         "copilotoptionspage.cpp",
         "copilotoptionspage.h",
-        "documentwatcher.cpp",
-        "documentwatcher.h",
         "requests/getcompletions.h",
         "requests/checkstatus.h",
         "requests/signout.h",
