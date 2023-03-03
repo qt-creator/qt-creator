@@ -390,6 +390,8 @@ void TerminalWidget::copyToClipboard() const
                                         .trimmed());
         }
 
+        selectedText.replace(QChar::Nbsp, QChar::Space);
+
         setClipboardAndSelection(selectedText);
     }
 }

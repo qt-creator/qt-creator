@@ -101,6 +101,8 @@ void createTextLayout(QTextLayout &textLayout,
 
             if (cell->chars[0] != 0xFFFFFFFF) {
                 QString ch = QString::fromUcs4(cell->chars);
+                if (ch == ' ')
+                    ch = QChar::Nbsp;
                 if (ch.size() > 0) {
                     layoutText += ch;
                 } else {
