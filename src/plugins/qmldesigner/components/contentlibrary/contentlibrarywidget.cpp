@@ -18,6 +18,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QJsonDocument>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QQmlContext>
@@ -69,10 +70,11 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20
                 && m_textureToDrag->isDownloaded()) {
                 QMimeData *mimeData = new QMimeData;
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, {m_textureToDrag->realTexturePath().toUtf8()});
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE,
+                                  {m_textureToDrag->downloadedTexturePath().toUtf8()});
 
                 // Allows standard file drag-n-drop. As of now needed to drop on Assets view
-                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->realTexturePath())});
+                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->downloadedTexturePath())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
                 model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
@@ -106,8 +108,16 @@ ContentLibraryWidget::ContentLibraryWidget()
     QString baseUrl = QmlDesignerPlugin::settings()
                           .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL)
                           .toString();
-    m_texturesModel->loadTextureBundle(textureBundlePath + "/Textures", baseUrl + "/Textures");
-    m_environmentsModel->loadTextureBundle(textureBundlePath + "/Environments", baseUrl + "/Environments");
+
+    QVariantMap metaData;
+    QFile jsonFile(textureBundlePath + "/texture_bundle.json");
+    if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        metaData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
+
+    m_texturesModel->loadTextureBundle(textureBundlePath + "/Textures",
+                                       baseUrl + "/Textures", metaData);
+    m_environmentsModel->loadTextureBundle(textureBundlePath + "/Environments",
+                                           baseUrl + "/Environments", metaData);
 
     m_quickWidget->rootContext()->setContextProperties({
         {"rootView",          QVariant::fromValue(this)},
@@ -271,7 +281,7 @@ void ContentLibraryWidget::addImage(ContentLibraryTexture *tex)
     if (!tex->isDownloaded())
         return;
 
-    emit addTextureRequested(tex->realTexturePath(), AddTextureMode::Image);
+    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::Image);
 }
 
 void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
@@ -279,7 +289,7 @@ void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
     if (!tex->isDownloaded())
         return;
 
-    emit addTextureRequested(tex->realTexturePath(), AddTextureMode::Texture);
+    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::Texture);
 }
 
 void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
@@ -287,7 +297,7 @@ void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
     if (!tex->isDownloaded())
         return;
 
-    emit addTextureRequested(tex->realTexturePath(), AddTextureMode::LightProbe);
+    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::LightProbe);
 }
 
 void ContentLibraryWidget::updateSceneEnvState()

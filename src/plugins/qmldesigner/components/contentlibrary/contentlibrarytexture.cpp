@@ -12,16 +12,20 @@
 namespace QmlDesigner {
 
 ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
-    const QString &downloadPath, const QUrl &icon, const QString &webUrl)
+                                             const QString &downloadPath, const QUrl &icon,
+                                             const QString &webUrl, const QString &fileExt,
+                                             const QSize &dimensions, const qint64 sizeInBytes)
     : QObject(parent)
     , m_iconPath(iconFileInfo.filePath())
     , m_downloadPath(downloadPath)
     , m_webUrl(webUrl)
     , m_baseName{iconFileInfo.baseName()}
+    , m_fileExt(fileExt)
     , m_icon(icon)
+    , m_dimensions(dimensions)
+    , m_sizeInBytes(sizeInBytes)
 {
-    m_fileExt = resolveFileExt();
-    m_toolTip = resolveToolTipText();
+    doSetDownloaded();
 }
 
 bool ContentLibraryTexture::filter(const QString &searchText)
@@ -61,49 +65,56 @@ QString ContentLibraryTexture::resolveFileExt()
                       });
     }
 
-    return QString{"."} + textureFiles.at(0).completeSuffix();
+    return '.' + textureFiles.at(0).completeSuffix();
 }
 
 QString ContentLibraryTexture::resolveToolTipText()
 {
-    QString fileName;
-    QString imageInfo;
-
     if (m_fileExt.isEmpty()) {
-        imageInfo = ImageUtils::imageInfo(m_iconPath, false);
-        fileName = m_baseName + m_defaultExt;
-    } else {
-        fileName = m_baseName + m_fileExt;
-        QString fullDownloadPath = m_downloadPath + "/" + fileName;
-        imageInfo = ImageUtils::imageInfo(fullDownloadPath, true);
+        // No supplied or resolved extension means we have just the icon and no other data
+        return m_baseName;
     }
 
-    return QLatin1String("%1\n%2").arg(fileName, imageInfo);
+    QString fileName = m_baseName + m_fileExt;
+    QString imageInfo;
+
+    if (!m_isDownloaded && m_sizeInBytes > 0 && !m_dimensions.isNull()) {
+        imageInfo = ImageUtils::imageInfo(m_dimensions, m_sizeInBytes);
+    } else {
+        QString fullDownloadPath = m_downloadPath + '/' + fileName;
+        imageInfo = ImageUtils::imageInfo(fullDownloadPath);
+    }
+
+    return QStringLiteral("%1\n%2").arg(fileName, imageInfo);
 }
 
 bool ContentLibraryTexture::isDownloaded() const
 {
-    if (m_fileExt.isEmpty())
-        return false;
-
-    QString fullPath = realTexturePath();
-    return QFileInfo(fullPath).isFile();
+    return m_isDownloaded;
 }
 
-QString ContentLibraryTexture::realTexturePath() const
+QString ContentLibraryTexture::downloadedTexturePath() const
 {
-    return m_downloadPath + "/" + m_baseName + m_fileExt;
+    return m_downloadPath + '/' + m_baseName + m_fileExt;
 }
 
 void ContentLibraryTexture::setDownloaded()
 {
-    m_fileExt = resolveFileExt();
-    QString toolTip = resolveToolTipText();
+    QString toolTip = m_toolTip;
 
-    if (toolTip != m_toolTip) {
-        m_toolTip = toolTip;
+    doSetDownloaded();
+
+    if (toolTip != m_toolTip)
         emit textureToolTipChanged();
-    }
+}
+
+void ContentLibraryTexture::doSetDownloaded()
+{
+    if (m_fileExt.isEmpty())
+        m_fileExt = resolveFileExt();
+
+    m_isDownloaded = QFileInfo::exists(downloadedTexturePath());
+    m_toolTip = resolveToolTipText();
 }
 
 QString ContentLibraryTexture::parentDirPath() const

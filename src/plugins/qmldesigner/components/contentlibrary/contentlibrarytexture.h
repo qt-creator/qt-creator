@@ -5,6 +5,7 @@
 
 #include <QFileInfo>
 #include <QObject>
+#include <QSize>
 #include <QUrl>
 
 namespace QmlDesigner {
@@ -22,7 +23,8 @@ class ContentLibraryTexture : public QObject
 
 public:
     ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
-                          const QString &downloadPath, const QUrl &icon, const QString &webUrl);
+                          const QString &downloadPath, const QUrl &icon, const QString &webUrl,
+                          const QString &fileExt, const QSize &dimensions, const qint64 sizeInBytes);
 
     Q_INVOKABLE bool isDownloaded() const;
     Q_INVOKABLE void setDownloaded();
@@ -31,7 +33,7 @@ public:
 
     QUrl icon() const;
     QString iconPath() const;
-    QString realTexturePath() const;
+    QString downloadedTexturePath() const;
     QString parentDirPath() const;
 
 signals:
@@ -39,9 +41,9 @@ signals:
     void textureToolTipChanged();
 
 private:
-    inline static const QString m_defaultExt = ".png";
     QString resolveFileExt();
     QString resolveToolTipText();
+    void doSetDownloaded();
 
     QString m_iconPath;
     QString m_downloadPath;
@@ -50,6 +52,9 @@ private:
     QString m_baseName;
     QString m_fileExt;
     QUrl m_icon;
+    QSize m_dimensions;
+    qint64 m_sizeInBytes = -1;
+    bool m_isDownloaded = false;
 
     bool m_visible = true;
 };

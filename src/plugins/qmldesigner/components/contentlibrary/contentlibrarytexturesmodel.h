@@ -33,7 +33,8 @@ public:
     void setHasSceneEnv(bool b);
 
     void resetModel();
-    void loadTextureBundle(const QString &bundlePath, const QString &baseUrl);
+    void loadTextureBundle(const QString &bundlePath, const QString &baseUrl,
+                           const QVariantMap &metaData);
 
 signals:
     void isEmptyChanged();
@@ -46,6 +47,7 @@ private:
 
     QString m_searchText;
     QString m_downloadPath;
+    QString m_bundleSubPath;
     QList<ContentLibraryTexturesCategory *> m_bundleCategories;
 
     bool m_isEmpty = true;

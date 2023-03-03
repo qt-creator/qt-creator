@@ -11,14 +11,20 @@
 
 namespace QmlDesigner {
 
-QString QmlDesigner::ImageUtils::imageInfo(const QString &path, bool fetchSizeInfo)
+QString ImageUtils::imageInfo(const QSize &dimensions, qint64 sizeInBytes)
+{
+    return QLatin1String("%1 x %2\n%3")
+            .arg(QString::number(dimensions.width()),
+                 QString::number(dimensions.height()),
+                 QLocale::system().formattedDataSize(
+                     sizeInBytes, 2, QLocale::DataSizeTraditionalFormat));
+}
+
+QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
 {
     QFileInfo info(path);
     if (!info.exists())
         return {};
-
-    if (!fetchSizeInfo)
-        return QLatin1String("(%1)").arg(info.suffix());
 
     int width = 0;
     int height = 0;
@@ -43,14 +49,10 @@ QString QmlDesigner::ImageUtils::imageInfo(const QString &path, bool fetchSizeIn
         height = size.height();
     }
 
-    if (width == 0 && height == 0)
+    if (width <= 0 || height <= 0)
         return {};
 
-    return QLatin1String("%1 x %2\n%3 (%4)")
-            .arg(QString::number(width),
-                 QString::number(height),
-                 QLocale::system().formattedDataSize(info.size(), 2, QLocale::DataSizeTraditionalFormat),
-                 info.suffix());
+    return imageInfo(QSize(width, height), info.size());
 }
 
 } // namespace QmlDesigner

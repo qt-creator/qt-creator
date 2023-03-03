@@ -13,11 +13,13 @@ ContentLibraryTexturesCategory::ContentLibraryTexturesCategory(QObject *parent, 
     : QObject(parent), m_name(name) {}
 
 void ContentLibraryTexturesCategory::addTexture(const QFileInfo &tex, const QString &downloadPath,
-                                                const QString &webUrl)
+                                                const QString &webUrl, const QString &fileExt,
+                                                const QSize &dimensions, const qint64 sizeInBytes)
 {
     QUrl icon = QUrl::fromLocalFile(tex.absoluteFilePath());
 
-    m_categoryTextures.append(new ContentLibraryTexture(this, tex, downloadPath, icon, webUrl));
+    m_categoryTextures.append(new ContentLibraryTexture(this, tex, downloadPath, icon, webUrl,
+                                                        fileExt, dimensions, sizeInBytes));
 }
 
 bool ContentLibraryTexturesCategory::filter(const QString &searchText)

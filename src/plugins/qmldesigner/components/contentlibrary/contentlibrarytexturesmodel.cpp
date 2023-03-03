@@ -13,15 +13,18 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QUrl>
 #include <QQmlEngine>
+#include <QSize>
 #include <QStandardPaths>
 
 namespace QmlDesigner {
 
-ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &bundleSubpath, QObject *parent)
+ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &bundleSubPath, QObject *parent)
     : QAbstractListModel(parent)
+    , m_bundleSubPath(bundleSubPath)
 {
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
@@ -30,7 +33,7 @@ ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &bundleSu
         QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
         + "/QtDesignStudio/bundles";
 
-    m_downloadPath = baseDownloadPath + "/" + bundleSubpath;
+    m_downloadPath = baseDownloadPath + '/' + bundleSubPath;
 }
 
 int ContentLibraryTexturesModel::rowCount(const QModelIndex &) const
@@ -96,7 +99,8 @@ QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, const QString &baseUrl)
+void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, const QString &baseUrl,
+                                                    const QVariantMap &metaData)
 {
     QDir bundleDir = QDir(bundlePath);
     if (!bundleDir.exists()) {
@@ -112,9 +116,22 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, c
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
         const QFileInfoList texFiles = QDir(dir.filePath() + "/icon").entryInfoList(QDir::Files);
         for (const QFileInfo &tex : texFiles) {
-            QString urlPath = baseUrl + "/" + dir.fileName() + "/" + tex.baseName() + ".zip";
-            QString downloadPath = m_downloadPath + "/" + dir.fileName();
-            category->addTexture(tex, downloadPath, urlPath);
+            QString zipPath = '/' + dir.fileName() + '/' + tex.baseName() + ".zip";
+            QString urlPath = baseUrl + zipPath;
+            QString downloadPath = m_downloadPath + '/' + dir.fileName();
+            QString fullZipPath = m_bundleSubPath + zipPath;
+            QString fileExt;
+            QSize dimensions;
+            qint64 sizeInBytes = -1;
+
+            if (metaData.contains(fullZipPath)) {
+                QVariantMap dataMap = metaData[fullZipPath].toMap();
+                fileExt = '.' + dataMap.value("format").toString();
+                dimensions = QSize(dataMap.value("width").toInt(), dataMap.value("height").toInt());
+                sizeInBytes = dataMap.value("size").toLongLong();
+            }
+
+            category->addTexture(tex, downloadPath, urlPath, fileExt, dimensions, sizeInBytes);
         }
         m_bundleCategories.append(category);
     }

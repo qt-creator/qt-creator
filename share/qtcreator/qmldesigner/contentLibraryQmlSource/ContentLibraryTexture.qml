@@ -238,7 +238,7 @@ Item {
         onFinishedChanged: {
             mouseArea.enabled = true
             modelData.setDownloaded()
-            root.downloadState = "downloaded"
+            root.downloadState = modelData.isDownloaded() ? "downloaded" : "failed"
             root.downloadStateChanged()
 
             rootView.markNoTextureDownloading()
