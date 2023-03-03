@@ -5,6 +5,7 @@ Project {
 
         Depends { name: "cpp" }
         cpp.includePaths: base.concat("include")
+        cpp.warningLevel: "none"
 
         Group {
             prefix: "src/"
