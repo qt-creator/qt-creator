@@ -21,9 +21,9 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <utils/asynctask.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QRegularExpression>
@@ -232,7 +232,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     // handle the rest in a thread
     m_watcher.reset(new QFutureWatcher<QSharedPointer<FunctionDeclDefLink> >());
     connect(m_watcher.data(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
-    m_watcher->setFuture(Utils::runAsync(findLinkHelper, result, refactoringChanges));
+    m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
 }
 
 bool FunctionDeclDefLink::isValid() const

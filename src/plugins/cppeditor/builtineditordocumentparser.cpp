@@ -42,7 +42,7 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const FilePath &filePat
     qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
-void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &future,
+void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
                                              const UpdateParams &updateParams)
 {
     if (filePath().isEmpty())
@@ -180,7 +180,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
                 doc->releaseSourceAndAST();
         });
         sourceProcessor.setFileSizeLimitInMb(m_fileSizeLimitInMb);
-        sourceProcessor.setCancelChecker([future]() { return future.isCanceled(); });
+        sourceProcessor.setCancelChecker([&promise] { return promise.isCanceled(); });
 
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(filePath());

@@ -18,9 +18,9 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <utils/textutils.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
+#include <utils/textutils.h>
 
 #include <QLoggingCategory>
 #include <QTextBlock>
@@ -180,10 +180,8 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 void BuiltinEditorDocumentProcessor::runImpl(
         const BaseEditorDocumentParser::UpdateParams &updateParams)
 {
-    m_parserFuture = Utils::runAsync(CppModelManager::instance()->sharedThreadPool(),
-                                     runParser,
-                                     parser(),
-                                     updateParams);
+    m_parserFuture = Utils::asyncRun(CppModelManager::instance()->sharedThreadPool(),
+                                     runParser, parser(), updateParams);
 }
 
 BaseEditorDocumentParser::Ptr BuiltinEditorDocumentProcessor::parser()

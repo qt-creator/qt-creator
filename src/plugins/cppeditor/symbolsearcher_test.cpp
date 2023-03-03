@@ -4,13 +4,13 @@
 #include "symbolsearcher_test.h"
 
 #include "cppindexingsupport.h"
-#include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 #include "searchsymbols.h"
 
 #include <coreplugin/testdatadir.h>
 #include <coreplugin/find/searchresultwindow.h>
-#include <utils/runextensions.h>
+
+#include <utils/asynctask.h>
 
 #include <QtTest>
 
@@ -78,7 +78,7 @@ public:
         const QScopedPointer<SymbolSearcher> symbolSearcher(
             new SymbolSearcher(searchParameters, QSet<QString>{testFile}));
         QFuture<Core::SearchResultItem> search
-            = Utils::runAsync(&SymbolSearcher::runSearch, symbolSearcher.data());
+            = Utils::asyncRun(&SymbolSearcher::runSearch, symbolSearcher.data());
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
         QCOMPARE(results, expectedResults);

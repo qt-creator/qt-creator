@@ -15,8 +15,8 @@
 
 #include <cplusplus/LookupContext.h>
 
+#include <utils/asynctask.h>
 #include <utils/filepath.h>
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
@@ -116,8 +116,7 @@ void classifyFiles(const QSet<QString> &files, QStringList *headers, QStringList
     }
 }
 
-void indexFindErrors(QFutureInterface<void> &indexingFuture,
-                     const ParseParams params)
+void indexFindErrors(QPromise<void> &promise, const ParseParams params)
 {
     QStringList sources, headers;
     classifyFiles(params.sourceFiles, &headers, &sources);
@@ -130,7 +129,7 @@ void indexFindErrors(QFutureInterface<void> &indexingFuture,
     timer.start();
 
     for (int i = 0, end = files.size(); i < end ; ++i) {
-        if (indexingFuture.isCanceled())
+        if (promise.isCanceled())
             break;
 
         const QString file = files.at(i);
@@ -153,15 +152,14 @@ void indexFindErrors(QFutureInterface<void> &indexingFuture,
 
         document->releaseSourceAndAST();
 
-        indexingFuture.setProgressValue(i + 1);
+        promise.setProgressValue(i + 1);
     }
 
     const QString elapsedTime = Utils::formatElapsedTime(timer.elapsed());
     qDebug("FindErrorsIndexing: %s", qPrintable(elapsedTime));
 }
 
-void index(QFutureInterface<void> &indexingFuture,
-           const ParseParams params)
+void index(QPromise<void> &promise, const ParseParams params)
 {
     QScopedPointer<Internal::CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
     sourceProcessor->setFileSizeLimitInMb(params.indexerFileSizeLimitInMb);
@@ -190,7 +188,7 @@ void index(QFutureInterface<void> &indexingFuture,
 
     qCDebug(indexerLog) << "About to index" << files.size() << "files.";
     for (int i = 0; i < files.size(); ++i) {
-        if (indexingFuture.isCanceled())
+        if (promise.isCanceled())
             break;
 
         const QString fileName = files.at(i);
@@ -216,7 +214,7 @@ void index(QFutureInterface<void> &indexingFuture,
         sourceProcessor->setHeaderPaths(headerPaths);
         sourceProcessor->run(FilePath::fromString(fileName));
 
-        indexingFuture.setProgressValue(files.size() - sourceProcessor->todo().size());
+        promise.setProgressValue(files.size() - sourceProcessor->todo().size());
 
         if (isSourceFile)
             sourceProcessor->resetEnvironment();
@@ -224,29 +222,29 @@ void index(QFutureInterface<void> &indexingFuture,
     qCDebug(indexerLog) << "Indexing finished.";
 }
 
-void parse(QFutureInterface<void> &indexingFuture, const ParseParams params)
+void parse(QPromise<void> &promise, const ParseParams params)
 {
     const QSet<QString> &files = params.sourceFiles;
     if (files.isEmpty())
         return;
 
-    indexingFuture.setProgressRange(0, files.size());
+    promise.setProgressRange(0, files.size());
 
     if (CppIndexingSupport::isFindErrorsIndexingActive())
-        indexFindErrors(indexingFuture, params);
+        indexFindErrors(promise, params);
     else
-        index(indexingFuture, params);
+        index(promise, params);
 
-    indexingFuture.setProgressValue(files.size());
+    promise.setProgressValue(files.size());
     CppModelManager::instance()->finishedRefreshingSourceFiles(files);
 }
 
 } // anonymous namespace
 
-void SymbolSearcher::runSearch(QFutureInterface<Core::SearchResultItem> &future)
+void SymbolSearcher::runSearch(QPromise<Core::SearchResultItem> &promise)
 {
-    future.setProgressRange(0, m_snapshot.size());
-    future.setProgressValue(0);
+    promise.setProgressRange(0, m_snapshot.size());
+    promise.setProgressValue(0);
     int progress = 0;
 
     SearchSymbols search;
@@ -262,9 +260,8 @@ void SymbolSearcher::runSearch(QFutureInterface<Core::SearchResultItem> &future)
                                                 : QRegularExpression::CaseInsensitiveOption));
     matcher.optimize();
     while (it != m_snapshot.end()) {
-        if (future.isPaused())
-            future.waitForResume();
-        if (future.isCanceled())
+        promise.suspendIfRequested();
+        if (promise.isCanceled())
             break;
         if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->filePath().path())) {
             QVector<Core::SearchResultItem> resultItems;
@@ -291,15 +288,14 @@ void SymbolSearcher::runSearch(QFutureInterface<Core::SearchResultItem> &future)
                 return IndexItem::Recurse;
             };
             search(it.value())->visitAllChildren(filter);
-            if (!resultItems.isEmpty())
-                future.reportResults(resultItems);
+            for (const Core::SearchResultItem &item : std::as_const(resultItems))
+                promise.addResult(item);
         }
         ++it;
         ++progress;
-        future.setProgressValue(progress);
+        promise.setProgressValue(progress);
     }
-    if (future.isPaused())
-        future.waitForResume();
+    promise.suspendIfRequested();
 }
 
 CppIndexingSupport::CppIndexingSupport()
@@ -325,7 +321,7 @@ QFuture<void> CppIndexingSupport::refreshSourceFiles(const QSet<QString> &source
     params.workingCopy = mgr->workingCopy();
     params.sourceFiles = sourceFiles;
 
-    QFuture<void> result = Utils::runAsync(mgr->sharedThreadPool(), parse, params);
+    QFuture<void> result = Utils::asyncRun(mgr->sharedThreadPool(), parse, params);
     m_synchronizer.addFuture(result);
 
     if (mode == CppModelManager::ForcedProgressNotification || sourceFiles.count() > 1) {

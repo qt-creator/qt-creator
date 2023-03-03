@@ -59,15 +59,15 @@ void BaseEditorDocumentParser::setConfiguration(const Configuration &configurati
 
 void BaseEditorDocumentParser::update(const UpdateParams &updateParams)
 {
-    QFutureInterface<void> dummy;
+    QPromise<void> dummy;
     update(dummy, updateParams);
 }
 
-void BaseEditorDocumentParser::update(const QFutureInterface<void> &future,
+void BaseEditorDocumentParser::update(const QPromise<void> &promise,
                                       const UpdateParams &updateParams)
 {
     QMutexLocker locker(&m_updateIsRunning);
-    updateImpl(future, updateParams);
+    updateImpl(promise, updateParams);
 }
 
 BaseEditorDocumentParser::State BaseEditorDocumentParser::state() const

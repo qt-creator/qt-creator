@@ -3,11 +3,10 @@
 
 #include "cppsemanticinfoupdater.h"
 
-#include "cpplocalsymbols.h"
 #include "cppmodelmanager.h"
 
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <cplusplus/Control.h>
 #include <cplusplus/CppDocument.h>
@@ -29,11 +28,11 @@ public:
     class FuturizedTopLevelDeclarationProcessor: public TopLevelDeclarationProcessor
     {
     public:
-        explicit FuturizedTopLevelDeclarationProcessor(QFutureInterface<void> &future): m_future(future) {}
+        explicit FuturizedTopLevelDeclarationProcessor(QPromise<void> &promise): m_promise(promise) {}
         bool processDeclaration(DeclarationAST *) override { return !isCanceled(); }
-        bool isCanceled() { return m_future.isCanceled(); }
+        bool isCanceled() { return m_promise.isCanceled(); }
     private:
-        QFutureInterface<void> m_future;
+        QPromise<void> &m_promise;
     };
 
 public:
@@ -49,7 +48,7 @@ public:
 
     bool reuseCurrentSemanticInfo(const SemanticInfo::Source &source, bool emitSignalWhenFinished);
 
-    void update_helper(QFutureInterface<void> &future, const SemanticInfo::Source &source);
+    void update_helper(QPromise<void> &promise, const SemanticInfo::Source &source);
 
 public:
     SemanticInfoUpdater *q;
@@ -136,10 +135,10 @@ bool SemanticInfoUpdaterPrivate::reuseCurrentSemanticInfo(const SemanticInfo::So
     return false;
 }
 
-void SemanticInfoUpdaterPrivate::update_helper(QFutureInterface<void> &future,
+void SemanticInfoUpdaterPrivate::update_helper(QPromise<void> &promise,
                                                const SemanticInfo::Source &source)
 {
-    FuturizedTopLevelDeclarationProcessor processor(future);
+    FuturizedTopLevelDeclarationProcessor processor(promise);
     update(source, true, &processor);
 }
 
@@ -179,7 +178,7 @@ void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source &source)
         return;
     }
 
-    d->m_future = Utils::runAsync(CppModelManager::instance()->sharedThreadPool(),
+    d->m_future = Utils::asyncRun(CppModelManager::instance()->sharedThreadPool(),
                                   &SemanticInfoUpdaterPrivate::update_helper, d.data(), source);
 }
 

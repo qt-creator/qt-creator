@@ -6,13 +6,16 @@
 #include "cppeditor_global.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
-#include "projectpart.h"
 
 #include <projectexplorer/project.h>
 
-#include <QFutureInterface>
 #include <QObject>
 #include <QMutex>
+
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QPromise;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
@@ -66,7 +69,7 @@ public:
     void setConfiguration(const Configuration &configuration);
 
     void update(const UpdateParams &updateParams);
-    void update(const QFutureInterface<void> &future, const UpdateParams &updateParams);
+    void update(const QPromise<void> &promise, const UpdateParams &updateParams);
 
     ProjectPartInfo projectPartInfo() const;
 
@@ -91,7 +94,7 @@ protected:
     mutable QMutex m_stateAndConfigurationMutex;
 
 private:
-    virtual void updateImpl(const QFutureInterface<void> &future,
+    virtual void updateImpl(const QPromise<void> &promise,
                             const UpdateParams &updateParams) = 0;
 
     const Utils::FilePath m_filePath;

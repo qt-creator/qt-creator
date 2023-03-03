@@ -59,20 +59,20 @@ void BaseEditorDocumentProcessor::setParserConfig(
     parser()->setConfiguration(config);
 }
 
-void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
+void BaseEditorDocumentProcessor::runParser(QPromise<void> &promise,
                                             BaseEditorDocumentParser::Ptr parser,
                                             BaseEditorDocumentParser::UpdateParams updateParams)
 {
-    future.setProgressRange(0, 1);
-    if (future.isCanceled()) {
-        future.setProgressValue(1);
+    promise.setProgressRange(0, 1);
+    if (promise.isCanceled()) {
+        promise.setProgressValue(1);
         return;
     }
 
-    parser->update(future, updateParams);
+    parser->update(promise, updateParams);
     CppModelManager::instance()->finishedRefreshingSourceFiles({parser->filePath().toString()});
 
-    future.setProgressValue(1);
+    promise.setProgressValue(1);
 }
 
 } // namespace CppEditor

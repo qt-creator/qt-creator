@@ -18,13 +18,13 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/runextensions.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 
-#include <QSet>
+#include <QButtonGroup>
 #include <QGridLayout>
 #include <QLabel>
-#include <QButtonGroup>
+#include <QSet>
 
 using namespace Core;
 using namespace Utils;
@@ -121,7 +121,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher *symbolSearcher = new SymbolSearcher(parameters, projectFileNames);
     connect(watcher, &QFutureWatcherBase::finished,
             symbolSearcher, &QObject::deleteLater);
-    watcher->setFuture(Utils::runAsync(m_manager->sharedThreadPool(),
+    watcher->setFuture(Utils::asyncRun(m_manager->sharedThreadPool(),
                                        &SymbolSearcher::runSearch, symbolSearcher));
     FutureProgress *progress = ProgressManager::addTask(watcher->future(), Tr::tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);

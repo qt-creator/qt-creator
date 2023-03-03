@@ -44,7 +44,7 @@ public:
     };
 
     SymbolSearcher(const SymbolSearcher::Parameters &parameters, const QSet<QString> &fileNames);
-    void runSearch(QFutureInterface<Core::SearchResultItem> &future);
+    void runSearch(QPromise<Core::SearchResultItem> &promise);
 
 private:
     const CPlusPlus::Snapshot m_snapshot;

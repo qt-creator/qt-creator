@@ -14,9 +14,9 @@
 #include <cplusplus/Macro.h>
 #include <cplusplus/TranslationUnit.h>
 
-#include <utils/textutils.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
+#include <utils/textutils.h>
 
 #include <QTextBlock>
 
@@ -322,7 +322,7 @@ QFuture<CursorInfo> BuiltinCursorInfo::run(const CursorInfoParams &cursorInfoPar
     QString expression;
     Scope *scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);
 
-    return Utils::runAsync(&FindUses::find, document, snapshot, line, column, scope, expression);
+    return Utils::asyncRun(&FindUses::find, document, snapshot, line, column, scope, expression);
 }
 
 SemanticInfo::LocalUseMap
