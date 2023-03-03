@@ -246,7 +246,9 @@ extend_qtc_executable(qml2puppet
 )
 
 # add application icon
-if (TARGET qml2puppet)
+# IDE_LOGO_PATH in a default QtCreator build is empty, all icons are found by relative paths
+# So we can not use the icon then.
+if (TARGET qml2puppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
     if (WIN32)
       set(RC_APPLICATION_NAME "${IDE_DISPLAY_NAME}")
       set(RC_VERSION "${IDE_VERSION}.0")
