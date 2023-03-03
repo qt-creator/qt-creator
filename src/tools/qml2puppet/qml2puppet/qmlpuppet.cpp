@@ -16,6 +16,7 @@
 #include <QFileInfo>
 #include <QQmlComponent>
 #include <QQmlEngine>
+#include <QSettings>
 
 #if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
     #include <Windows.h>
@@ -75,6 +76,24 @@ void QmlPuppet::populateParser()
          {"import3dAsset", "Import 3d asset.", "sourceAsset, outDir, importOptJson"}});
 }
 
+// should be in sync with coreplugin/icore.cpp -> FilePath ICore::crashReportsPath()
+// and src\app\main.cpp
+QString crashReportsPath()
+{
+    QSettings settings(
+        QSettings::IniFormat,
+        QSettings::UserScope,
+        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+        QLatin1String(Core::Constants::IDE_CASED_ID));
+
+#if defined(Q_OS_MACOS)
+        return QFileInfo(settings.fileName()).path() + "/crashpad_reports";
+#else
+        return QCoreApplication::applicationDirPath()
+                + '/' + RELATIVE_LIBEXEC_PATH + "crashpad_reports";
+#endif
+}
+
 void QmlPuppet::initQmlRunner()
 {
     if (m_coreApp->arguments().count() < 2
@@ -117,7 +136,8 @@ void QmlPuppet::initQmlRunner()
         Import3D::import3D(sourceAsset, outDir, options);
     }
 
-    startCrashpad();
+    startCrashpad(QCoreApplication::applicationDirPath()
+                  + '/' + RELATIVE_LIBEXEC_PATH, crashReportsPath());
 
     new QmlDesigner::Qt5NodeInstanceClientProxy(m_coreApp.get());
 
