@@ -7,9 +7,9 @@
 #include "qmljsmodelmanagerinterface.h"
 #include "qmljstr.h"
 #include "qmljsutils.h"
-#include "qmljsviewercontext.h"
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -273,14 +273,13 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
             QStringList dependencies;
         };
 
-        auto future = Utils::runAsync(m_modelManager->threadPool(),
-                                      [output, libraryPath](QFutureInterface<CppQmlTypesInfo>& future)
-        {
+        auto future = Utils::asyncRun(m_modelManager->threadPool(),
+                                      [output, libraryPath](QPromise<CppQmlTypesInfo> &promise) {
             CppQmlTypesInfo infos;
-            CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList, &infos.moduleApis, &infos.dependencies,
-                                                        &infos.error, &infos.warning,
-                                                        "<dump of " + libraryPath.toUserOutput() + '>');
-            future.reportFinished(&infos);
+            CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList,
+                               &infos.moduleApis, &infos.dependencies, &infos.error, &infos.warning,
+                               "<dump of " + libraryPath.toUserOutput() + '>');
+            promise.addResult(infos);
         });
         m_modelManager->addFuture(future);
 
@@ -327,8 +326,8 @@ void PluginDumper::pluginChanged(const QString &pluginLibrary)
 
 QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(const FilePaths &paths) const
 {
-    auto future = Utils::runAsync(m_modelManager->threadPool(), [=](QFutureInterface<PluginDumper::QmlTypeDescription> &future)
-    {
+    auto future = Utils::asyncRun(m_modelManager->threadPool(),
+                                  [=](QPromise<PluginDumper::QmlTypeDescription> &promise) {
         PluginDumper::QmlTypeDescription result;
 
         for (const FilePath &p: paths) {
@@ -355,8 +354,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             if (!warning.isEmpty())
                 result.warnings += warning;
         }
-
-        future.reportFinished(&result);
+        promise.addResult(result);
     });
     m_modelManager->addFuture(future);
 

@@ -175,12 +175,11 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     m_modelManager = new QmlJS::ModelManagerInterface(this);
     QString filename = ":/qmlprofiler/tests/Test.qml";
 
-    QFutureInterface<void> result;
     QmlJS::PathsAndLanguages lPaths;
     lPaths.maybeInsert(
                 Utils::FilePath::fromString(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)),
                 QmlJS::Dialect::Qml);
-    QmlJS::ModelManagerInterface::importScan(result, QmlJS::ModelManagerInterface::workingCopy(),
+    QmlJS::ModelManagerInterface::importScan(QmlJS::ModelManagerInterface::workingCopy(),
                                              lPaths, m_modelManager, false);
 
     QFile file(filename);

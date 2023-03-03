@@ -72,12 +72,11 @@ void tst_Check::initTestCase()
         new ExtensionSystem::PluginManager;
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    QFutureInterface<void> result;
     PathsAndLanguages lPaths;
     QStringList paths(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
     for (auto p: paths)
         lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
-    ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
+    ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), lPaths,
                                       modelManager, false);
     modelManager->test_joinAllThreads();
 }

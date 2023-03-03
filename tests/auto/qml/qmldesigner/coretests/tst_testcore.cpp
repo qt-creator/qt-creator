@@ -233,12 +233,10 @@ void tst_TestCore::initTestCase()
 
     QStringList basePaths;
     basePaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
-
-    QFutureInterface<void> result;
     QmlJS::PathsAndLanguages lPaths;
 
     lPaths.maybeInsert(Utils::FilePath::fromString(basePaths.first()), QmlJS::Dialect::Qml);
-    QmlJS::ModelManagerInterface::importScan(result, QmlJS::ModelManagerInterface::workingCopy(),
+    QmlJS::ModelManagerInterface::importScan(QmlJS::ModelManagerInterface::workingCopy(),
         lPaths, QmlJS::ModelManagerInterface::instance(), false);
 
    // Load plugins

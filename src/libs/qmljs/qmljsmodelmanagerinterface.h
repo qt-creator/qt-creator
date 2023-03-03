@@ -179,10 +179,12 @@ public:
     void addFuture(const QFuture<void> &future);
 
     QmlJS::Document::Ptr ensuredGetDocumentForPath(const Utils::FilePath &filePath);
-    static void importScan(QFutureInterface<void> &future, const WorkingCopy& workingCopyInternal,
-                           const PathsAndLanguages& paths, ModelManagerInterface *modelManager,
-                           bool emitDocChangedOnDisk, bool libOnly = true,
-                           bool forceRescan = false);
+    static void importScan(const WorkingCopy &workingCopy, const PathsAndLanguages &paths,
+                           ModelManagerInterface *modelManager, bool emitDocChanged,
+                           bool libOnly = true, bool forceRescan = false);
+    static void importScanAsync(QPromise<void> &promise, const WorkingCopy& workingCopyInternal,
+                                const PathsAndLanguages& paths, ModelManagerInterface *modelManager,
+                                bool emitDocChanged, bool libOnly = true, bool forceRescan = false);
 
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);
@@ -218,16 +220,15 @@ protected:
                           QmlJS::Dialect mainLanguage,
                           bool emitDocChangedOnDisk,
                           const std::function<bool(qreal)> &reportProgress);
-    static void parse(QFutureInterface<void> &future,
+    static void parse(QPromise<void> &promise,
                       const WorkingCopy &workingCopyInternal,
                       QList<Utils::FilePath> files,
                       ModelManagerInterface *modelManager,
                       QmlJS::Dialect mainLanguage,
                       bool emitDocChangedOnDisk);
-    static void updateCppQmlTypes(
-            QFutureInterface<void> &futureInterface, ModelManagerInterface *qmlModelManager,
-            const CPlusPlus::Snapshot &snapshot,
-            const QHash<QString, QPair<CPlusPlus::Document::Ptr, bool>> &documents);
+    static void updateCppQmlTypes(QPromise<void> &promise, ModelManagerInterface *qmlModelManager,
+                const CPlusPlus::Snapshot &snapshot,
+                const QHash<QString, QPair<CPlusPlus::Document::Ptr, bool>> &documents);
 
     void maybeScan(const PathsAndLanguages &importPaths);
     void updateImportPaths();

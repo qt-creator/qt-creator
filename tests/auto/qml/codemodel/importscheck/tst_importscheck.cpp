@@ -51,10 +51,9 @@ private:
 void scanDirectory(const QString &dir)
 {
     auto dirPath = Utils::FilePath::fromString(dir);
-    QFutureInterface<void> result;
     PathsAndLanguages paths;
     paths.maybeInsert(dirPath, Dialect::Qml);
-    ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), paths,
+    ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), paths,
                                       ModelManagerInterface::instance(), false);
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
@@ -170,11 +169,10 @@ void tst_ImportCheck::test()
     const auto pathPaths = Utils::transform(paths, [](const QString &s) {
         return Utils::FilePath::fromString(s);
     });
-    QFutureInterface<void> result;
     PathsAndLanguages lPaths;
     for (const Utils::FilePath &path : pathPaths)
         lPaths.maybeInsert(path, Dialect::Qml);
-    ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
+    ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
