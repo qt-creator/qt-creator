@@ -164,19 +164,14 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
     QObject::connect(m_readMasterNotify, &QSocketNotifier::activated, [this](int socket) {
         Q_UNUSED(socket)
 
-        QByteArray buffer;
-        int size = 1025;
-        int readSize = 1024;
-        QByteArray data;
-        do {
-            char nativeBuffer[size];
-            int len = ::read(m_shellProcess.m_handleMaster, nativeBuffer, readSize);
-            data = QByteArray(nativeBuffer, len);
-            buffer.append(data);
-        } while (data.size() == readSize); //last data block always < readSize
+        const size_t maxRead = 16 * 1024;
+        static std::array<char, maxRead> buffer;
 
-        m_shellReadBuffer.append(buffer);
-        m_shellProcess.emitReadyRead();
+        int len = ::read(m_shellProcess.m_handleMaster, buffer.data(), buffer.size());
+        if (len > 0) {
+            m_shellReadBuffer.append(buffer.data(), len);
+            m_shellProcess.emitReadyRead();
+        }
     });
 
     QObject::connect(&m_shellProcess, &QProcess::finished, &m_shellProcess, [this](int exitCode) {
