@@ -30,10 +30,10 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QCheckBox>
 #include <QFileDialog>
@@ -401,16 +401,16 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
     m_askForUninstall = button == QMessageBox::Yes;
 }
 
-void AndroidDeployQtStep::runImpl(QFutureInterface<bool> &fi)
+void AndroidDeployQtStep::runImpl(QPromise<bool> &promise)
 {
     if (!m_avdName.isEmpty()) {
         const QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName,
-                                                                    QFuture<void>(fi.future()));
+                                                         QFuture<void>(promise.future()));
         qCDebug(deployStepLog) << "Deploying to AVD:" << m_avdName << serialNumber;
         if (serialNumber.isEmpty()) {
             reportWarningOrError(Tr::tr("The deployment AVD \"%1\" cannot be started.")
                                  .arg(m_avdName), Task::Error);
-            fi.reportResult(false);
+            promise.addResult(false);
             return;
         }
         m_serialNumber = serialNumber;
@@ -446,7 +446,7 @@ void AndroidDeployQtStep::runImpl(QFutureInterface<bool> &fi)
             reportWarningOrError(error, Task::Error);
         }
     }
-    fi.reportResult(returnValue == NoError);
+    promise.addResult(returnValue == NoError);
 }
 
 void AndroidDeployQtStep::gatherFilesToPull()
@@ -486,7 +486,7 @@ void AndroidDeployQtStep::doRun()
         emit finished(success);
         watcher->deleteLater();
     });
-    auto future = Utils::runAsync(&AndroidDeployQtStep::runImpl, this);
+    auto future = Utils::asyncRun(&AndroidDeployQtStep::runImpl, this);
     watcher->setFuture(future);
     m_synchronizer.addFuture(future);
 }

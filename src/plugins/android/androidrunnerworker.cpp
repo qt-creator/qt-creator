@@ -11,8 +11,8 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
@@ -20,6 +20,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/asynctask.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -77,7 +78,7 @@ static qint64 extractPID(const QString &output, const QString &packageName)
     return pid;
 }
 
-static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
+static void findProcessPID(QPromise<qint64> &promise, QStringList selector,
                            const QString &packageName, bool preNougat)
 {
     if (packageName.isEmpty())
@@ -105,11 +106,11 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
             if (!out.isEmpty())
                 processPID = out.trimmed().toLongLong();
         }
-    } while ((processPID == -1 || processPID == 0) && !isTimedOut(start) && !fi.isCanceled());
+    } while ((processPID == -1 || processPID == 0) && !isTimedOut(start) && !promise.isCanceled());
 
     qCDebug(androidRunWorkerLog) << "PID found:" << processPID << ", PreNougat:" << preNougat;
-    if (!fi.isCanceled())
-        fi.reportResult(processPID);
+    if (!promise.isCanceled())
+        promise.addResult(processPID);
 }
 
 static void deleter(QProcess *p)
@@ -683,7 +684,7 @@ void AndroidRunnerWorker::asyncStart()
 {
     asyncStartHelper();
 
-    m_pidFinder = Utils::onResultReady(Utils::runAsync(findProcessPID, selector(),
+    m_pidFinder = Utils::onResultReady(Utils::asyncRun(findProcessPID, selector(),
                                                        m_packageName, m_isPreNougat),
                                        bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
 }

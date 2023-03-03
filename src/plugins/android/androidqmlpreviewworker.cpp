@@ -27,8 +27,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/asynctask.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QDateTime>
 #include <QDeadlineTimer>
@@ -163,7 +163,7 @@ bool AndroidQmlPreviewWorker::isPreviewRunning(int lastKnownPid) const
 
 void AndroidQmlPreviewWorker::startPidWatcher()
 {
-    m_pidFutureWatcher.setFuture(runAsync([this] {
+    m_pidFutureWatcher.setFuture(Utils::asyncRun([this] {
         // wait for started
         const int sleepTimeMs = 2000;
         QDeadlineTimer deadline(20000);

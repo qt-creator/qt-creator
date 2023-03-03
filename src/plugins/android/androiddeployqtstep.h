@@ -53,7 +53,7 @@ private:
     DeployErrorCode runDeploy();
     void slotAskForUninstall(DeployErrorCode errorCode);
 
-    void runImpl(QFutureInterface<bool> &fi);
+    void runImpl(QPromise<bool> &promise);
 
     QWidget *createConfigWidget() override;
 

@@ -10,9 +10,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 #include <QMainWindow>
@@ -139,7 +139,7 @@ AndroidAvdManager::~AndroidAvdManager() = default;
 
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
-    return runAsync(&createAvdCommand, m_config, info);
+    return Utils::asyncRun(&createAvdCommand, m_config, info);
 }
 
 bool AndroidAvdManager::removeAvd(const QString &name) const
@@ -217,7 +217,7 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    return runAsync(listVirtualDevices, m_config);
+    return Utils::asyncRun(listVirtualDevices, m_config);
 }
 
 QString AndroidAvdManager::startAvd(const QString &name) const

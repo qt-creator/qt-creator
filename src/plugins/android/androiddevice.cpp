@@ -21,9 +21,9 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/url.h>
 
 #include <QEventLoop>
@@ -454,7 +454,7 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
     const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.data());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
-    runAsync([this, name, device] {
+    auto future = Utils::asyncRun([this, name, device] {
         const QString serialNumber = m_avdManager.startAvd(name);
         // Mark the AVD as ReadyToUse once we know it's started
         if (!serialNumber.isEmpty()) {
@@ -462,6 +462,7 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
             devMgr->setDeviceState(device->id(), IDevice::DeviceReadyToUse);
         }
     });
+    // TODO: use future!
 }
 
 void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
@@ -479,7 +480,7 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
         return;
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
-    m_removeAvdFutureWatcher.setFuture(runAsync([this, name, device] {
+    m_removeAvdFutureWatcher.setFuture(Utils::asyncRun([this, name, device] {
         QPair<IDevice::ConstPtr, bool> pair;
         pair.first = device;
         pair.second = false;

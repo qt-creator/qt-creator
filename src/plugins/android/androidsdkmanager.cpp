@@ -8,9 +8,9 @@
 #include "sdkmanageroutputparser.h"
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 
 #include <QFutureWatcher>
@@ -34,7 +34,7 @@ namespace Internal {
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
 
-using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutput>;
+using SdkCmdPromise = QPromise<AndroidSdkManager::OperationOutput>;
 
 static const QRegularExpression &assertionRegExp()
 {
@@ -111,7 +111,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     after the lapse of \a timeout seconds. The function blocks the calling thread.
  */
 static void sdkManagerCommand(const AndroidConfig &config, const QStringList &args,
-                              AndroidSdkManager &sdkManager, SdkCmdFutureInterface &fi,
+                              AndroidSdkManager &sdkManager, SdkCmdPromise &promise,
                               AndroidSdkManager::OperationOutput &output, double progressQuota,
                               bool interruptible = true, int timeout = sdkManagerOperationTimeoutS)
 {
@@ -120,19 +120,19 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (async):"
                                      << CommandLine(config.sdkManagerToolPath(), newArgs)
                                         .toUserOutput();
-    int offset = fi.progressValue();
+    int offset = promise.future().progressValue();
     QtcProcess proc;
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
     bool assertionFound = false;
     proc.setTimeoutS(timeout);
-    proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &fi](const QString &out) {
+    proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &promise](const QString &out) {
         int progressPercent = parseProgress(out, assertionFound);
         if (assertionFound) {
             proc.stop();
             proc.waitForFinished();
         }
         if (progressPercent != -1)
-            fi.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
+            promise.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
     });
     proc.setStdErrCallback([&output](const QString &err) {
         output.stdError = err;
@@ -168,12 +168,12 @@ public:
     const AndroidSdkPackageList &allPackages(bool forceUpdate = false);
     void refreshSdkPackages(bool forceReload = false);
 
-    void parseCommonArguments(QFutureInterface<QString> &fi);
-    void updateInstalled(SdkCmdFutureInterface &fi);
-    void update(SdkCmdFutureInterface &fi, const QStringList &install,
+    void parseCommonArguments(QPromise<QString> &promise);
+    void updateInstalled(SdkCmdPromise &fi);
+    void update(SdkCmdPromise &fi, const QStringList &install,
                 const QStringList &uninstall);
-    void checkPendingLicense(SdkCmdFutureInterface &fi);
-    void getPendingLicense(SdkCmdFutureInterface &fi);
+    void checkPendingLicense(SdkCmdPromise &fi);
+    void getPendingLicense(SdkCmdPromise &fi);
 
     void addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future);
     void setLicenseInput(bool acceptLicense);
@@ -186,7 +186,7 @@ private:
     void reloadSdkPackages();
     void clearPackages();
     bool onLicenseStdOut(const QString &output, bool notify,
-                         AndroidSdkManager::OperationOutput &result, SdkCmdFutureInterface &fi);
+                         AndroidSdkManager::OperationOutput &result, SdkCmdPromise &fi);
 
     AndroidSdkManager &m_sdkManager;
     const AndroidConfig &m_config;
@@ -308,7 +308,7 @@ bool AndroidSdkManager::packageListingSuccessful() const
 
 QFuture<QString> AndroidSdkManager::availableArguments() const
 {
-    return Utils::runAsync(&AndroidSdkManagerPrivate::parseCommonArguments, m_d.get());
+    return Utils::asyncRun(&AndroidSdkManagerPrivate::parseCommonArguments, m_d.get());
 }
 
 QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
@@ -316,7 +316,7 @@ QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
     if (isBusy()) {
         return QFuture<AndroidSdkManager::OperationOutput>();
     }
-    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::updateInstalled, m_d.get());
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::updateInstalled, m_d.get());
     m_d->addWatcher(future);
     return future;
 }
@@ -326,7 +326,7 @@ AndroidSdkManager::update(const QStringList &install, const QStringList &uninsta
 {
     if (isBusy())
         return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::update, m_d.get(), install, uninstall);
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::update, m_d.get(), install, uninstall);
     m_d->addWatcher(future);
     return future;
 }
@@ -335,7 +335,7 @@ QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::checkPendingLicen
 {
     if (isBusy())
         return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::checkPendingLicense, m_d.get());
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::checkPendingLicense, m_d.get());
     m_d->addWatcher(future);
     return future;
 }
@@ -344,7 +344,7 @@ QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::runLicenseCommand
 {
     if (isBusy())
         return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::runAsync(&AndroidSdkManagerPrivate::getPendingLicense, m_d.get());
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::getPendingLicense, m_d.get());
     m_d->addWatcher(future);
     return future;
 }
@@ -422,29 +422,29 @@ void AndroidSdkManagerPrivate::refreshSdkPackages(bool forceReload)
         reloadSdkPackages();
 }
 
-void AndroidSdkManagerPrivate::updateInstalled(SdkCmdFutureInterface &fi)
+void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
 {
-    fi.setProgressRange(0, 100);
-    fi.setProgressValue(0);
+    promise.setProgressRange(0, 100);
+    promise.setProgressValue(0);
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::UpdateAll;
     result.stdOutput = Tr::tr("Updating installed packages.");
-    fi.reportResult(result);
+    promise.addResult(result);
     QStringList args("--update");
     args << m_config.sdkManagerToolArgs();
-    if (!fi.isCanceled())
-        sdkManagerCommand(m_config, args, m_sdkManager, fi, result, 100);
+    if (!promise.isCanceled())
+        sdkManagerCommand(m_config, args, m_sdkManager, promise, result, 100);
     else
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
 
     if (result.stdError.isEmpty() && !result.success)
         result.stdError = Tr::tr("Failed.");
     result.stdOutput = Tr::tr("Done\n\n");
-    fi.reportResult(result);
-    fi.setProgressValue(100);
+    promise.addResult(result);
+    promise.setProgressValue(100);
 }
 
-void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringList &install,
+void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &install,
                                       const QStringList &uninstall)
 {
     fi.setProgressRange(0, 100);
@@ -461,7 +461,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
         result.type = AndroidSdkManager::UpdatePackage;
         result.stdOutput = QString("%1 %2").arg(isInstall ? installTag : uninstallTag)
                 .arg(packagePath);
-        fi.reportResult(result);
+        fi.addResult(result);
         if (fi.isCanceled())
             qCDebug(sdkManagerLog) << args << "Update: Operation cancelled before start";
         else
@@ -471,7 +471,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
         if (result.stdError.isEmpty() && !result.success)
             result.stdError = Tr::tr("AndroidSdkManager", "Failed");
         result.stdOutput = Tr::tr("AndroidSdkManager", "Done\n\n");
-        fi.reportResult(result);
+        fi.addResult(result);
         return fi.isCanceled();
     };
 
@@ -495,7 +495,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
     fi.setProgressValue(100);
 }
 
-void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdFutureInterface &fi)
+void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdPromise &fi)
 {
     fi.setProgressRange(0, 100);
     fi.setProgressValue(0);
@@ -509,11 +509,11 @@ void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdFutureInterface &fi)
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
     }
 
-    fi.reportResult(result);
+    fi.addResult(result);
     fi.setProgressValue(100);
 }
 
-void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
+void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
 {
     fi.setProgressRange(0, 100);
     fi.setProgressValue(0);
@@ -571,7 +571,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     result.success = licenseCommand.exitStatus() == QProcess::NormalExit;
     if (!result.success)
         result.stdError = Tr::tr("License command failed.\n\n");
-    fi.reportResult(result);
+    fi.addResult(result);
     fi.setProgressValue(100);
 }
 
@@ -595,14 +595,14 @@ void AndroidSdkManagerPrivate::clearUserInput()
 
 bool AndroidSdkManagerPrivate::onLicenseStdOut(const QString &output, bool notify,
                                                AndroidSdkManager::OperationOutput &result,
-                                               SdkCmdFutureInterface &fi)
+                                               SdkCmdPromise &fi)
 {
     m_licenseTextCache.append(output);
     const QRegularExpressionMatch assertionMatch = assertionRegExp().match(m_licenseTextCache);
     if (assertionMatch.hasMatch()) {
         if (notify) {
             result.stdOutput = m_licenseTextCache;
-            fi.reportResult(result);
+            fi.addResult(result);
         }
         // Clear the current contents. The found license text is dispatched. Continue collecting the
         // next license text.
@@ -620,7 +620,7 @@ void AndroidSdkManagerPrivate::addWatcher(const QFuture<AndroidSdkManager::Opera
     m_activeOperation->setFuture(QFuture<void>(future));
 }
 
-void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &fi)
+void AndroidSdkManagerPrivate::parseCommonArguments(QPromise<QString> &promise)
 {
     QString argumentDetails;
     QString output;
@@ -628,7 +628,7 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &f
     bool foundTag = false;
     const auto lines = output.split('\n');
     for (const QString& line : lines) {
-        if (fi.isCanceled())
+        if (promise.isCanceled())
             break;
         if (foundTag)
             argumentDetails.append(line + "\n");
@@ -636,8 +636,8 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &f
             foundTag = true;
     }
 
-    if (!fi.isCanceled())
-        fi.reportResult(argumentDetails);
+    if (!promise.isCanceled())
+        promise.addResult(argumentDetails);
 }
 
 void AndroidSdkManagerPrivate::clearPackages()
