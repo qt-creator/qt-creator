@@ -72,20 +72,6 @@ protected:
                                                    const QByteArray &data,
                                                    qint64 offset) const;
 
-    virtual void asyncFileContents(const FilePath &filePath,
-                                   const Continuation<expected_str<QByteArray>> &cont,
-                                   qint64 limit,
-                                   qint64 offset) const;
-
-    virtual void asyncWriteFileContents(const FilePath &filePath,
-                                        const Continuation<expected_str<qint64>> &cont,
-                                        const QByteArray &data,
-                                        qint64 offset) const;
-
-    virtual void asyncCopyFile(const FilePath &filePath,
-                               const Continuation<expected_str<void>> &cont,
-                               const FilePath &target) const;
-
     virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
 };
 

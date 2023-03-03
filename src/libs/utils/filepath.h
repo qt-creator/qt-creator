@@ -33,8 +33,12 @@ namespace Utils {
 class DeviceFileAccess;
 class Environment;
 class EnvironmentChange;
+enum class FileStreamHandle;
 
 template <class ...Args> using Continuation = std::function<void(Args...)>;
+using CopyContinuation = Continuation<const expected_str<void> &>;
+using ReadContinuation = Continuation<const expected_str<QByteArray> &>;
+using WriteContinuation = Continuation<const expected_str<qint64> &>;
 
 class QTCREATOR_UTILS_EXPORT FileFilter
 {
@@ -206,14 +210,9 @@ public:
     static void sort(FilePaths &files);
 
     // Asynchronous interface
-    void asyncCopyFile(const Continuation<const expected_str<void> &> &cont,
-                       const FilePath &target) const;
-    void asyncFileContents(const Continuation<const expected_str<QByteArray> &> &cont,
-                           qint64 maxSize = -1,
-                           qint64 offset = 0) const;
-    void asyncWriteFileContents(const Continuation<const expected_str<qint64> &> &cont,
-                                const QByteArray &data,
-                                qint64 offset = 0) const;
+    FileStreamHandle asyncCopy(const FilePath &target, const CopyContinuation &cont = {}) const;
+    FileStreamHandle asyncRead(const ReadContinuation &cont = {}) const;
+    FileStreamHandle asyncWrite(const QByteArray &data, const WriteContinuation &cont = {}) const;
 
     // Prefer not to use
     // Using needsDevice() in "user" code is likely to result in code that

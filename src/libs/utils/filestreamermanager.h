@@ -15,15 +15,11 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-enum FileStreamHandle : int {};
+enum class FileStreamHandle : int {};
 
 class QTCREATOR_UTILS_EXPORT FileStreamerManager
 {
 public:
-    using CopyContinuation = Continuation<const expected_str<void> &>;
-    using ReadContinuation = Continuation<const expected_str<QByteArray> &>;
-    using WriteContinuation = Continuation<const expected_str<qint64> &>;
-
     static FileStreamHandle copy(const FilePath &source, const FilePath &destination,
                                  const CopyContinuation &cont);
     static FileStreamHandle copy(const FilePath &source, const FilePath &destination,

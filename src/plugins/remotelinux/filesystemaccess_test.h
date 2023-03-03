@@ -33,8 +33,6 @@ private slots:
     void testFileStreamer();
     void testFileStreamerManager_data();
     void testFileStreamerManager();
-    void testBlockingTransfer_data();
-    void testBlockingTransfer();
 
     void cleanupTestCase();
 

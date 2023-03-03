@@ -6,6 +6,7 @@
 #include "algorithm.h"
 #include "devicefileaccess.h"
 #include "environment.h"
+#include "filestreamermanager.h"
 #include "fileutils.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
@@ -626,13 +627,6 @@ bool FilePath::ensureReachable(const FilePath &other) const
     return false;
 }
 
-void FilePath::asyncFileContents(const Continuation<const expected_str<QByteArray> &> &cont,
-                                 qint64 maxSize,
-                                 qint64 offset) const
-{
-    return fileAccess()->asyncFileContents(*this, cont, maxSize, offset);
-}
-
 expected_str<qint64> FilePath::writeFileContents(const QByteArray &data, qint64 offset) const
 {
     return fileAccess()->writeFileContents(*this, data, offset);
@@ -643,11 +637,19 @@ FilePathInfo FilePath::filePathInfo() const
     return fileAccess()->filePathInfo(*this);
 }
 
-void FilePath::asyncWriteFileContents(const Continuation<const expected_str<qint64> &> &cont,
-                                      const QByteArray &data,
-                                      qint64 offset) const
+FileStreamHandle FilePath::asyncCopy(const FilePath &target, const CopyContinuation &cont) const
 {
-    return fileAccess()->asyncWriteFileContents(*this, cont, data, offset);
+    return FileStreamerManager::copy(*this, target, cont);
+}
+
+FileStreamHandle FilePath::asyncRead(const ReadContinuation &cont) const
+{
+    return FileStreamerManager::read(*this, cont);
+}
+
+FileStreamHandle FilePath::asyncWrite(const QByteArray &data, const WriteContinuation &cont) const
+{
+    return FileStreamerManager::write(*this, data, cont);
 }
 
 bool FilePath::needsDevice() const
@@ -1612,26 +1614,6 @@ expected_str<void> FilePath::copyFile(const FilePath &target) const
         return {};
     }
     return fileAccess()->copyFile(*this, target);
-}
-
-void FilePath::asyncCopyFile(const Continuation<const expected_str<void> &> &cont,
-                             const FilePath &target) const
-{
-    if (host() != target.host()) {
-        asyncFileContents([cont, target](const expected_str<QByteArray> &contents) {
-            if (contents)
-                target.asyncWriteFileContents(
-                    [cont](const expected_str<qint64> &result) {
-                        if (result)
-                            cont({});
-                        else
-                            cont(make_unexpected(result.error()));
-                    },
-                    *contents);
-        });
-        return;
-    }
-    return fileAccess()->asyncCopyFile(*this, cont, target);
 }
 
 bool FilePath::renameFile(const FilePath &target) const

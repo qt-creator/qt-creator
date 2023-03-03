@@ -12,6 +12,7 @@
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <utils/filepath.h>
+#include <utils/filestreamermanager.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
@@ -261,7 +262,9 @@ void CallgrindToolRunner::triggerParse()
         showStatusMessage(Tr::tr("Parsing Profile Data..."));
         m_parser.parse(m_hostOutputFile);
     };
-    m_valgrindOutputFile.asyncCopyFile(afterCopy, m_hostOutputFile);
+    // TODO: Store the handle and cancel on CallgrindToolRunner destructor?
+    // TODO: Should d'tor of context object cancel the running task?
+    FileStreamerManager::copy(m_valgrindOutputFile, m_hostOutputFile, this, afterCopy);
 }
 
 void CallgrindToolRunner::cleanupTempFile()

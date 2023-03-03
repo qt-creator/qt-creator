@@ -380,29 +380,6 @@ std::optional<FilePath> DeviceFileAccess::refersToExecutableFile(
     return {};
 }
 
-void DeviceFileAccess::asyncFileContents(const FilePath &filePath,
-                                         const Continuation<expected_str<QByteArray>> &cont,
-                                         qint64 limit,
-                                         qint64 offset) const
-{
-    cont(fileContents(filePath, limit, offset));
-}
-
-void DeviceFileAccess::asyncWriteFileContents(const FilePath &filePath,
-                                              const Continuation<expected_str<qint64>> &cont,
-                                              const QByteArray &data,
-                                              qint64 offset) const
-{
-    cont(writeFileContents(filePath, data, offset));
-}
-
-void DeviceFileAccess::asyncCopyFile(const FilePath &filePath,
-                                     const Continuation<expected_str<void>> &cont,
-                                     const FilePath &target) const
-{
-    cont(copyFile(filePath, target));
-}
-
 expected_str<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
 {
     Q_UNUSED(filePath)

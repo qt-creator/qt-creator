@@ -1308,8 +1308,8 @@ void tst_filepath::asyncLocalCopy()
         QCOMPARE(dest.fileContents(), orig.fileContents());
         wasCalled = true;
     };
-    orig.asyncCopyFile(afterCopy, dest);
-    QCOMPARE(wasCalled, true);
+    orig.asyncCopy(dest, afterCopy);
+    QTRY_VERIFY(wasCalled);
 }
 
 void tst_filepath::startsWithDriveLetter_data()
