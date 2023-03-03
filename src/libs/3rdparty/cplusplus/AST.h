@@ -184,6 +184,7 @@ public:
     virtual ArrayInitializerAST *asArrayInitializer() { return nullptr; }
     virtual AsmDefinitionAST *asAsmDefinition() { return nullptr; }
     virtual AttributeSpecifierAST *asAttributeSpecifier() { return nullptr; }
+    virtual AwaitExpressionAST *asAwaitExpression() { return nullptr; }
     virtual BaseSpecifierAST *asBaseSpecifier() { return nullptr; }
     virtual BinaryExpressionAST *asBinaryExpression() { return nullptr; }
     virtual BoolLiteralAST *asBoolLiteral() { return nullptr; }
@@ -344,6 +345,7 @@ public:
     virtual UsingAST *asUsing() { return nullptr; }
     virtual UsingDirectiveAST *asUsingDirective() { return nullptr; }
     virtual WhileStatementAST *asWhileStatement() { return nullptr; }
+    virtual YieldExpressionAST *asYieldExpression() { return nullptr; }
 
 protected:
     virtual void accept0(ASTVisitor *visitor) = 0;
@@ -2826,6 +2828,44 @@ protected:
     bool match0(AST *, ASTMatcher *) override;
 };
 
+class CPLUSPLUS_EXPORT YieldExpressionAST: public ExpressionAST
+{
+public:
+    int yield_token = 0;
+    ExpressionAST *expression = nullptr;
+
+public:
+    YieldExpressionAST *asYieldExpression() override { return this; }
+
+    int firstToken() const override { return yield_token; }
+    int lastToken() const override { return expression->lastToken(); }
+
+    YieldExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT AwaitExpressionAST: public ExpressionAST
+{
+public:
+    int await_token = 0;
+    ExpressionAST *castExpression = nullptr;
+
+public:
+    AwaitExpressionAST *asAwaitExpression() override { return this; }
+
+    int firstToken() const override { return await_token; }
+    int lastToken() const override { return castExpression->lastToken(); }
+
+    AwaitExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
 class CPLUSPLUS_EXPORT NoExceptOperatorExpressionAST: public ExpressionAST
 {
 public:
@@ -2956,6 +2996,7 @@ class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
 {
 public:
     int template_token = 0;
+    TypeConstraintAST *typeConstraint = nullptr;
     int less_token = 0;
     DeclarationListAST *template_parameter_list = nullptr;
     int greater_token = 0;

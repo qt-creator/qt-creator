@@ -152,6 +152,8 @@ public:
     bool parseTemplateParameter(DeclarationAST *&node);
     bool parseTemplateParameterList(DeclarationListAST *&node);
     bool parseThrowExpression(ExpressionAST *&node);
+    bool parseYieldExpression(ExpressionAST *&node);
+    bool parseAwaitExpression(ExpressionAST *&node);
     bool parseNoExceptOperatorExpression(ExpressionAST *&node);
     bool parseTryBlockStatement(StatementAST *&node, CtorInitializerAST **placeholder);
     bool parseCatchClause(CatchClauseListAST *&node);

@@ -38,6 +38,7 @@ public:
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
     virtual bool match(ArrayDeclaratorAST *node, ArrayDeclaratorAST *pattern);
     virtual bool match(ArrayInitializerAST *node, ArrayInitializerAST *pattern);
+    virtual bool match(AwaitExpressionAST *node, AwaitExpressionAST *pattern);
     virtual bool match(AsmDefinitionAST *node, AsmDefinitionAST *pattern);
     virtual bool match(BaseSpecifierAST *node, BaseSpecifierAST *pattern);
     virtual bool match(BinaryExpressionAST *node, BinaryExpressionAST *pattern);
@@ -188,6 +189,7 @@ public:
     virtual bool match(UsingAST *node, UsingAST *pattern);
     virtual bool match(UsingDirectiveAST *node, UsingDirectiveAST *pattern);
     virtual bool match(WhileStatementAST *node, WhileStatementAST *pattern);
+    virtual bool match(YieldExpressionAST *node, YieldExpressionAST *pattern);
 };
 
 } // namespace CPlusPlus

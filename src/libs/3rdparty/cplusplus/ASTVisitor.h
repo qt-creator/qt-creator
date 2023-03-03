@@ -81,6 +81,7 @@ public:
     virtual bool visit(ArrayDeclaratorAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *) { return true; }
     virtual bool visit(AsmDefinitionAST *) { return true; }
+    virtual bool visit(AwaitExpressionAST *) { return true; }
     virtual bool visit(BaseSpecifierAST *) { return true; }
     virtual bool visit(BinaryExpressionAST *) { return true; }
     virtual bool visit(BoolLiteralAST *) { return true; }
@@ -230,6 +231,7 @@ public:
     virtual bool visit(UsingAST *) { return true; }
     virtual bool visit(UsingDirectiveAST *) { return true; }
     virtual bool visit(WhileStatementAST *) { return true; }
+    virtual bool visit(YieldExpressionAST *) { return true; }
 
     virtual void endVisit(AccessDeclarationAST *) {}
     virtual void endVisit(AliasDeclarationAST *) {}
@@ -240,6 +242,7 @@ public:
     virtual void endVisit(ArrayDeclaratorAST *) {}
     virtual void endVisit(ArrayInitializerAST *) {}
     virtual void endVisit(AsmDefinitionAST *) {}
+    virtual void endVisit(AwaitExpressionAST *) {}
     virtual void endVisit(BaseSpecifierAST *) {}
     virtual void endVisit(BinaryExpressionAST *) {}
     virtual void endVisit(BoolLiteralAST *) {}
@@ -389,6 +392,7 @@ public:
     virtual void endVisit(UsingAST *) {}
     virtual void endVisit(UsingDirectiveAST *) {}
     virtual void endVisit(WhileStatementAST *) {}
+    virtual void endVisit(YieldExpressionAST *) {}
 
 private:
    TranslationUnit *_translationUnit;

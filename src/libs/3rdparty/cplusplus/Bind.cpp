@@ -2532,6 +2532,11 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
     return false;
 }
 
+bool Bind::visit(TypeConstraintAST *)
+{
+    return false;
+}
+
 bool Bind::visit(UsingAST *ast)
 {
     int sourceLocation = location(ast->name, ast->firstToken());

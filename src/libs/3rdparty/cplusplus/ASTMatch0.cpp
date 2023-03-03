@@ -941,6 +941,20 @@ bool ThrowExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool YieldExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (const auto other = pattern->asYieldExpression())
+        return matcher->match(this, other);
+    return false;
+}
+
+bool AwaitExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (const auto other = pattern->asAwaitExpression())
+        return matcher->match(this, other);
+    return false;
+}
+
 bool NoExceptOperatorExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (NoExceptOperatorExpressionAST *_other = pattern->asNoExceptOperatorExpression())

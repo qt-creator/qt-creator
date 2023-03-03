@@ -230,6 +230,7 @@ protected:
     bool visit(TemplateDeclarationAST *ast) override;
     bool visit(TypenameTypeParameterAST *ast) override;
     bool visit(TemplateTypeParameterAST *ast) override;
+    bool visit(TypeConstraintAST *ast) override;
     bool visit(UsingAST *ast) override;
     bool visit(UsingDirectiveAST *ast) override;
     bool visit(ObjCClassForwardDeclarationAST *ast) override;

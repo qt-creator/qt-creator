@@ -40,6 +40,7 @@ class ArrayDeclaratorAST;
 class ArrayInitializerAST;
 class AsmDefinitionAST;
 class AttributeSpecifierAST;
+class AwaitExpressionAST;
 class BaseSpecifierAST;
 class BinaryExpressionAST;
 class BoolLiteralAST;
@@ -200,6 +201,7 @@ class UnaryExpressionAST;
 class UsingAST;
 class UsingDirectiveAST;
 class WhileStatementAST;
+class YieldExpressionAST;
 
 typedef List<ExpressionAST *> ExpressionListAST;
 typedef List<DeclarationAST *> DeclarationListAST;

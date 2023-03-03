@@ -924,6 +924,7 @@ bool CodeFormatter::tryStatement()
         return true;
     switch (kind) {
     case T_RETURN:
+    case T_CO_RETURN:
         enter(return_statement);
         enter(expression);
         return true;
@@ -1651,6 +1652,7 @@ void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, in
     case T_BREAK:
     case T_CONTINUE:
     case T_RETURN:
+    case T_CO_RETURN:
         if (topState.type == case_cont) {
             *indentDepth = topState.savedIndentDepth;
             if (m_styleSettings.indentControlFlowRelativeToSwitchLabels)

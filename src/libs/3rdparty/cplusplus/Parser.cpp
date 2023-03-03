@@ -413,6 +413,7 @@ bool Parser::skipUntilStatement()
             case T_BREAK:
             case T_CONTINUE:
             case T_RETURN:
+            case T_CO_RETURN:
             case T_GOTO:
             case T_TRY:
             case T_CATCH:
@@ -1329,16 +1330,20 @@ bool Parser::parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node)
 
 bool Parser::parseTypeConstraint(TypeConstraintAST *&node)
 {
+    if (!_languageFeatures.cxx20Enabled)
+        return false;
     NestedNameSpecifierListAST *nestedName = nullptr;
     parseNestedNameSpecifierOpt(nestedName, true);
     NameAST *conceptName = nullptr;
-    if (!parseUnqualifiedName(conceptName, true))
+    if (!parseUnqualifiedName(conceptName, false))
         return false;
     const auto typeConstraint = new (_pool) TypeConstraintAST;
     typeConstraint->nestedName = nestedName;
     typeConstraint->conceptName = conceptName;
-    if (LA() != T_LESS)
+    if (LA() != T_LESS) {
+        node = typeConstraint;
         return true;
+    }
     typeConstraint->lessToken = consumeToken();
     if (LA() != T_GREATER) {
         if (!parseTemplateArgumentList(typeConstraint->templateArgs))
@@ -2208,8 +2213,8 @@ bool Parser::parseTypenameTypeParameter(DeclarationAST *&node)
 bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
+    TemplateTypeParameterAST *ast = new (_pool) TemplateTypeParameterAST;
     if (LA() == T_TEMPLATE) {
-        TemplateTypeParameterAST *ast = new (_pool) TemplateTypeParameterAST;
         ast->template_token = consumeToken();
         if (LA() == T_LESS)
             ast->less_token = consumeToken();
@@ -2218,20 +2223,21 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
             ast->greater_token = consumeToken();
         if (LA() == T_CLASS)
             ast->class_token = consumeToken();
-        if (_languageFeatures.cxx11Enabled && LA() == T_DOT_DOT_DOT)
-            ast->dot_dot_dot_token = consumeToken();
-
-        // parse optional name
-        parseName(ast->name);
-
-        if (LA() == T_EQUAL) {
-            ast->equal_token = consumeToken();
-            parseTypeId(ast->type_id);
-        }
-        node = ast;
-        return true;
+    } else if (!parseTypeConstraint(ast->typeConstraint)) {
+        return false;
     }
-    return false;
+    if (_languageFeatures.cxx11Enabled && LA() == T_DOT_DOT_DOT)
+        ast->dot_dot_dot_token = consumeToken();
+
+    // parse optional name
+    parseName(ast->name);
+
+    if (LA() == T_EQUAL) {
+        ast->equal_token = consumeToken();
+        parseTypeId(ast->type_id);
+    }
+    node = ast;
+    return true;
 }
 
 bool Parser::lookAtTypeParameter()
@@ -2267,10 +2273,9 @@ bool Parser::parseTypeParameter(DeclarationAST *&node)
 
     if (lookAtTypeParameter())
         return parseTypenameTypeParameter(node);
-    else if (LA() == T_TEMPLATE)
+    if (LA() == T_TEMPLATE)
         return parseTemplateTypeParameter(node);
-    else
-        return false;
+    return parseTemplateTypeParameter(node);
 }
 
 bool Parser::parseTypeId(ExpressionAST *&node)
@@ -3556,6 +3561,7 @@ bool Parser::parseStatement(StatementAST *&node, bool blockLabeledStatement)
         return parseGotoStatement(node);
 
     case T_RETURN:
+    case T_CO_RETURN:
         return parseReturnStatement(node);
 
     case T_LBRACE:
@@ -3666,7 +3672,7 @@ bool Parser::parseGotoStatement(StatementAST *&node)
 bool Parser::parseReturnStatement(StatementAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (LA() == T_RETURN) {
+    if (LA() == T_RETURN || LA() == T_CO_RETURN) {
         ReturnStatementAST *ast = new (_pool) ReturnStatementAST;
         ast->return_token = consumeToken();
         if (_languageFeatures.cxx11Enabled && LA() == T_LBRACE)
@@ -5637,6 +5643,11 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         return parseNoExceptOperatorExpression(node);
     }
 
+    case T_CO_AWAIT:
+        if (!_languageFeatures.cxx20Enabled)
+            break;
+        return parseAwaitExpression(node);
+
     default:
         break;
     } // switch
@@ -5895,6 +5906,8 @@ bool Parser::parseAssignmentExpression(ExpressionAST *&node)
     DEBUG_THIS_RULE();
     if (LA() == T_THROW)
         return parseThrowExpression(node);
+    else if (LA() == T_CO_YIELD)
+        return parseYieldExpression(node);
     else
         PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Assignment)
 }
@@ -6017,6 +6030,34 @@ bool Parser::parseThrowExpression(ExpressionAST *&node)
         ThrowExpressionAST *ast = new (_pool) ThrowExpressionAST;
         ast->throw_token = consumeToken();
         parseAssignmentExpression(ast->expression);
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::parseYieldExpression(ExpressionAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_CO_YIELD)
+        return false;
+    const auto ast = new (_pool) YieldExpressionAST;
+    ast->yield_token = consumeToken();
+    if (parseBracedInitList0x(ast->expression) || parseAssignmentExpression(ast->expression)) {
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::parseAwaitExpression(ExpressionAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_CO_AWAIT)
+        return false;
+    const auto ast = new (_pool) AwaitExpressionAST;
+    ast->await_token = consumeToken();
+    if (parseCastExpression(ast->castExpression)) {
         node = ast;
         return true;
     }

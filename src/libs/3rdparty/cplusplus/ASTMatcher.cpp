@@ -2277,6 +2277,26 @@ bool ASTMatcher::match(ThrowExpressionAST *node, ThrowExpressionAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(YieldExpressionAST *node, YieldExpressionAST *pattern)
+{
+    pattern->yield_token = node->yield_token;
+    if (!pattern->expression)
+        pattern->expression = node->expression;
+    else if (!AST::match(node->expression, pattern->expression, this))
+        return false;
+    return true;
+}
+
+bool ASTMatcher::match(AwaitExpressionAST *node, AwaitExpressionAST *pattern)
+{
+    pattern->await_token = node->await_token;
+    if (!pattern->castExpression)
+        pattern->castExpression = node->castExpression;
+    else if (!AST::match(node->castExpression, pattern->castExpression, this))
+        return false;
+    return true;
+}
+
 bool ASTMatcher::match(NoExceptOperatorExpressionAST *node, NoExceptOperatorExpressionAST *pattern)
 {
     (void) node;
@@ -2397,6 +2417,11 @@ bool ASTMatcher::match(TemplateTypeParameterAST *node, TemplateTypeParameterAST 
     (void) pattern;
 
     pattern->template_token = node->template_token;
+
+    if (!pattern->typeConstraint)
+        pattern->typeConstraint = node->typeConstraint;
+    else if (!AST::match(node->typeConstraint, pattern->typeConstraint, this))
+        return false;
 
     pattern->less_token = node->less_token;
 

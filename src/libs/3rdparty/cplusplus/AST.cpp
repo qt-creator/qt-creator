@@ -3763,6 +3763,8 @@ int TemplateTypeParameterAST::firstToken() const
 {
     if (template_token)
         return template_token;
+    if (typeConstraint)
+        return typeConstraint->firstToken();
     if (less_token)
         return less_token;
     if (template_parameter_list)
@@ -3807,6 +3809,8 @@ int TemplateTypeParameterAST::lastToken() const
             return candidate;
     if (less_token)
         return less_token + 1;
+    if (typeConstraint)
+        return typeConstraint->lastToken();
     if (template_token)
         return template_token + 1;
     return 1;

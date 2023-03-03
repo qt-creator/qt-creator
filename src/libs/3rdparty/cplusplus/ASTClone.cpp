@@ -147,6 +147,8 @@ TypeConstraintAST *TypeConstraintAST::clone(MemoryPool *pool) const
     for (NestedNameSpecifierListAST *iter = nestedName, **ast_iter = &ast->nestedName; iter;
          iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) NestedNameSpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    if (conceptName)
+        ast->conceptName = conceptName->clone(pool);
     ast->lessToken = lessToken;
     for (ExpressionListAST *iter = templateArgs, **ast_iter = &ast->templateArgs;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
@@ -1358,6 +1360,24 @@ ThrowExpressionAST *ThrowExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+YieldExpressionAST *YieldExpressionAST::clone(MemoryPool *pool) const
+{
+    const auto ast = new (pool) YieldExpressionAST;
+    ast->yield_token = yield_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    return ast;
+}
+
+AwaitExpressionAST *AwaitExpressionAST::clone(MemoryPool *pool) const
+{
+    const auto ast = new (pool) AwaitExpressionAST;
+    ast->await_token = await_token;
+    if (castExpression)
+        ast->castExpression = castExpression->clone(pool);
+    return ast;
+}
+
 NoExceptOperatorExpressionAST *NoExceptOperatorExpressionAST::clone(MemoryPool *pool) const
 {
     NoExceptOperatorExpressionAST *ast = new (pool) NoExceptOperatorExpressionAST;
@@ -1429,6 +1449,8 @@ TemplateTypeParameterAST *TemplateTypeParameterAST::clone(MemoryPool *pool) cons
 {
     TemplateTypeParameterAST *ast = new (pool) TemplateTypeParameterAST;
     ast->template_token = template_token;
+    if (typeConstraint)
+        ast->typeConstraint = typeConstraint->clone(pool);
     ast->less_token = less_token;
     for (DeclarationListAST *iter = template_parameter_list, **ast_iter = &ast->template_parameter_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)

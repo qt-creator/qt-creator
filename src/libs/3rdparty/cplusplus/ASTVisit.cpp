@@ -996,6 +996,20 @@ void ThrowExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void YieldExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(expression, visitor);
+    visitor->endVisit(this);
+}
+
+void AwaitExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(castExpression, visitor);
+    visitor->endVisit(this);
+}
+
 void NoExceptOperatorExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1051,6 +1065,7 @@ void TypenameTypeParameterAST::accept0(ASTVisitor *visitor)
 void TemplateTypeParameterAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(typeConstraint, visitor);
         accept(template_parameter_list, visitor);
         accept(name, visitor);
         accept(type_id, visitor);
