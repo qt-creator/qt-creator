@@ -109,7 +109,7 @@
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
-            \e main.qml for editing. You can use the \l {Installing Qt}
+            \e Main.qml for editing. You can use the \l {Installing Qt}
             {Qt Maintenance Tool} to install Qt Virtual Keyboard.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
@@ -133,7 +133,7 @@
 
     \endlist
 
-    \QC creates a QML file, \e main.qml, that you can modify in the
+    \QC creates a QML file, \e Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
     \include creator-python-project.qdocinc python qml project wizards
