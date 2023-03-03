@@ -9720,10 +9720,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation type="obsolete">Zdvojit sezení</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Co je to sezení?&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Switch to session</source>
         <translation type="obsolete">Přepnout na sezení</translation>
     </message>
@@ -9748,8 +9744,8 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>&amp;Otevřít</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Co je sezení?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Co je sezení?</translation>
     </message>
     <message>
         <source>New session name</source>

@@ -903,8 +903,8 @@
         <translation>&amp;Otwórz</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Co to jest sesja?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Co to jest sesja?</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>

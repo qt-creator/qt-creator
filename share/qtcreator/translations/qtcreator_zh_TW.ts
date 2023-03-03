@@ -6500,8 +6500,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>重新命名工作階段</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;什麼是工作階段？&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>什麼是工作階段？</translation>
     </message>
     <message>
         <source>Automatically restore the last session when Qt Creator is started.</source>

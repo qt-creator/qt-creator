@@ -6772,8 +6772,8 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>&amp;Odpri</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Kaj je seja?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Kaj je seja?</translation>
     </message>
     <message>
         <source>New session name</source>

@@ -29153,8 +29153,8 @@ to project &quot;%2&quot;.</source>
         <translation>&amp;Удалить</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Что такое сессия?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Что такое сессия?</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>

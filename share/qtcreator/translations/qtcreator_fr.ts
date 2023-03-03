@@ -9880,10 +9880,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Renommer la session</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Qu&apos;est-ce qu&apos;une session?&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Automatically restore the last session when Qt Creator is started.</source>
         <translation>Restaurer automatiquement la dernière session quand Qt Creator est démarré. </translation>
     </message>
@@ -9892,8 +9888,8 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Restaurer la dernière session au démarrage</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Qu&apos;est-ce qu&apos;une session ?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Qu&apos;est-ce qu&apos;une session ?</translation>
     </message>
     <message>
         <source>Custom Process Step</source>

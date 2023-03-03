@@ -5588,8 +5588,8 @@ Greška: %5</translation>
         <translation>Vrati izvorno stanje posljednje sesije prilikom pokretanja programa</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Što je sesija?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Što je sesija?</translation>
     </message>
 </context>
 <context>

@@ -35115,8 +35115,8 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Bei Start letzte Sitzung laden</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Was ist eine Sitzung?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Was ist eine Sitzung?</translation>
     </message>
     <message>
         <source>&amp;Open</source>

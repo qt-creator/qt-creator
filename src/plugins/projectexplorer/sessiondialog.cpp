@@ -144,10 +144,8 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 
     m_openButton->setDefault(true);
 
-    // FIXME: Simplify translator's work.
-    auto whatsASessionLabel = new QLabel(
-        Tr::tr("<a href=\"qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html\">"
-           "What is a Session?</a>"));
+    auto whatsASessionLabel = new QLabel(QString("<a href=\"qthelp://org.qt-project.qtcreator/doc/"
+            "creator-project-managing-sessions.html\">%1</a>").arg(Tr::tr("What is a Session?")));
     whatsASessionLabel->setOpenExternalLinks(true);
 
     using namespace Layouting;

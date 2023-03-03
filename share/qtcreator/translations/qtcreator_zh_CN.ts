@@ -28222,8 +28222,8 @@ to project &quot;%2&quot;.</source>
         <translation>打开(&amp;S)</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;什么是会话?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>什么是会话?</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>

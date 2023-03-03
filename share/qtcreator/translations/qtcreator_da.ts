@@ -22723,8 +22723,8 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Genskab sidste session ved opstart</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Hvad er en session?&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>Hvad er en session?</translation>
     </message>
     <message>
         <source>Session</source>

@@ -4403,8 +4403,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>起動時に最後のセッションを復元する</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;セッションとは？&lt;/a&gt;</translation>
+        <source>What is a Session?</source>
+        <translation>セッションとは？</translation>
     </message>
     <message>
         <source>Automatically restores the last session when Qt Creator is started.</source>
