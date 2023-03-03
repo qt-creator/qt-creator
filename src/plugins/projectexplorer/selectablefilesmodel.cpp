@@ -9,10 +9,10 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/fancylineedit.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/pathchooser.h>
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 
 #include <QDialogButtonBox>
@@ -51,13 +51,13 @@ void SelectableFilesFromDirModel::startParsing(const Utils::FilePath &baseDir)
     m_rootForFuture->fullPath = baseDir;
     m_rootForFuture->isDir = true;
 
-    m_watcher.setFuture(Utils::runAsync(&SelectableFilesFromDirModel::run, this));
+    m_watcher.setFuture(Utils::asyncRun(&SelectableFilesFromDirModel::run, this));
 }
 
-void SelectableFilesFromDirModel::run(QFutureInterface<void> &fi)
+void SelectableFilesFromDirModel::run(QPromise<void> &promise)
 {
     m_futureCount = 0;
-    buildTree(m_baseDir, m_rootForFuture, fi, 5);
+    buildTree(m_baseDir, m_rootForFuture, promise, 5);
 }
 
 void SelectableFilesFromDirModel::buildTreeFinished()
@@ -97,7 +97,7 @@ SelectableFilesModel::FilterState SelectableFilesModel::filter(Tree *t)
 }
 
 void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree *tree,
-                                            QFutureInterface<void> &fi, int symlinkDepth)
+                                            QPromise<void> &promise, int symlinkDepth)
 {
     if (symlinkDepth == 0)
         return;
@@ -111,7 +111,7 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
         Utils::FilePath fn = Utils::FilePath::fromFileInfo(fileInfo);
         if (m_futureCount % 100) {
             emit parsingProgress(fn);
-            if (fi.isCanceled())
+            if (promise.isCanceled())
                 return;
         }
         ++m_futureCount;
@@ -121,7 +121,7 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
             t->name = fileInfo.fileName();
             t->fullPath = fn;
             t->isDir = true;
-            buildTree(fn, t, fi, symlinkDepth - fileInfo.isSymLink());
+            buildTree(fn, t, promise, symlinkDepth - fileInfo.isSymLink());
             allChecked &= t->checked == Qt::Checked;
             allUnchecked &= t->checked == Qt::Unchecked;
             tree->childDirectories.append(t);

@@ -111,9 +111,8 @@ protected:
         std::optional<QString> error;
         Utils::EnvironmentItems environmentItems;
     };
-    static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,
-                                         QString vcvarsBat,
-                                         QString varsBatArg);
+    static void environmentModifications(QPromise<GenerateEnvResult> &future,
+                                         QString vcvarsBat, QString varsBatArg);
     void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
 
 protected:

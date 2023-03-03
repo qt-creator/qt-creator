@@ -147,11 +147,9 @@ signals:
     void parsingProgress(const Utils::FilePath &fileName);
 
 private:
-    void buildTree(const Utils::FilePath &baseDir,
-                   Tree *tree,
-                   QFutureInterface<void> &fi,
+    void buildTree(const Utils::FilePath &baseDir, Tree *tree, QPromise<void> &promise,
                    int symlinkDepth);
-    void run(QFutureInterface<void> &fi);
+    void run(QPromise<void> &promise);
     void buildTreeFinished();
 
     // Used in the future thread need to all not used after calling startParsing

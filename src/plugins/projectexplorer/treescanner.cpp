@@ -9,9 +9,9 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
-#include <utils/runextensions.h>
 
 #include <memory>
 
@@ -42,9 +42,9 @@ bool TreeScanner::asyncScanForFiles(const Utils::FilePath &directory)
     if (!m_futureWatcher.isFinished())
         return false;
 
-    m_scanFuture = Utils::runAsync(
-                [directory, filter = m_filter, factory = m_factory] (FutureInterface &fi) {
-        TreeScanner::scanForFiles(fi, directory, filter, factory);
+    m_scanFuture = Utils::asyncRun(
+        [directory, filter = m_filter, factory = m_factory] (Promise &promise) {
+        TreeScanner::scanForFiles(promise, directory, filter, factory);
     });
     m_futureWatcher.setFuture(m_scanFuture);
 
@@ -139,10 +139,10 @@ static std::unique_ptr<FolderNode> createFolderNode(const Utils::FilePath &direc
     return fileSystemNode;
 }
 
-void TreeScanner::scanForFiles(FutureInterface &fi, const Utils::FilePath& directory,
+void TreeScanner::scanForFiles(Promise &promise, const Utils::FilePath& directory,
                                const FileFilter &filter, const FileTypeFactory &factory)
 {
-    QList<FileNode *> nodes = ProjectExplorer::scanForFiles(fi, directory,
+    QList<FileNode *> nodes = ProjectExplorer::scanForFiles(promise, directory,
                            [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
 
@@ -160,10 +160,10 @@ void TreeScanner::scanForFiles(FutureInterface &fi, const Utils::FilePath& direc
 
     Utils::sort(nodes, ProjectExplorer::Node::sortByPath);
 
-    fi.setProgressValue(fi.progressMaximum());
+    promise.setProgressValue(promise.future().progressMaximum());
     Result result{createFolderNode(directory, nodes), nodes};
 
-    fi.reportResult(result);
+    promise.addResult(result);
 }
 
 } // namespace ProjectExplorer

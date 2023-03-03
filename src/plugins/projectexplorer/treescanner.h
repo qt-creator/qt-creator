@@ -31,7 +31,7 @@ public:
     };
     using Future = QFuture<Result>;
     using FutureWatcher = QFutureWatcher<Result>;
-    using FutureInterface = QFutureInterface<Result>;
+    using Promise = QPromise<Result>;
 
     using FileFilter = std::function<bool(const Utils::MimeType &, const Utils::FilePath &)>;
     using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &, const Utils::FilePath &)>;
@@ -69,7 +69,7 @@ signals:
     void finished();
 
 private:
-    static void scanForFiles(FutureInterface &fi, const Utils::FilePath &directory,
+    static void scanForFiles(Promise &fi, const Utils::FilePath &directory,
                              const FileFilter &filter, const FileTypeFactory &factory);
 
 private:
