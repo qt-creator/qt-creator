@@ -62,7 +62,7 @@ public:
 private:
     void applyResults(int from, int to);
     void finished();
-    void run(QFutureInterface<Use> &futureInterface,
+    void run(QPromise<Use> &promise,
              const QmlJSTools::SemanticInfo &semanticInfo,
              const TextEditor::FontSettings &fontSettings);
 

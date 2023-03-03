@@ -20,9 +20,9 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <utils/asynctask.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QDebug>
 #include <QTextDocument>
@@ -156,11 +156,11 @@ public:
         AddMessagesHighlights,
         SkipMessagesHighlights,
     };
-    CollectionTask(QFutureInterface<SemanticHighlighter::Use> &futureInterface,
+    CollectionTask(QPromise<SemanticHighlighter::Use> &promise,
                    const QmlJSTools::SemanticInfo &semanticInfo,
                    const TextEditor::FontSettings &fontSettings,
                    Flags flags)
-        : m_futureInterface(futureInterface)
+        : m_promise(promise)
         , m_semanticInfo(semanticInfo)
         , m_fontSettings(fontSettings)
         , m_scopeChain(semanticInfo.scopeChain())
@@ -211,7 +211,7 @@ public:
 protected:
     void accept(Node *ast)
     {
-        if (m_futureInterface.isCanceled())
+        if (m_promise.isCanceled())
             return;
         if (ast)
             ast->accept(this);
@@ -219,7 +219,7 @@ protected:
 
     void scopedAccept(Node *ast, Node *child)
     {
-        if (m_futureInterface.isCanceled())
+        if (m_promise.isCanceled())
             return;
         m_scopeBuilder.push(ast);
         accept(child);
@@ -510,12 +510,13 @@ private:
             return;
 
         Utils::sort(m_uses, sortByLinePredicate);
-        m_futureInterface.reportResults(m_uses);
+        for (const SemanticHighlighter::Use &use : std::as_const(m_uses))
+            m_promise.addResult(use);
         m_uses.clear();
         m_uses.reserve(chunkSize);
     }
 
-    QFutureInterface<SemanticHighlighter::Use> &m_futureInterface;
+    QPromise<SemanticHighlighter::Use> &m_promise;
     const QmlJSTools::SemanticInfo &m_semanticInfo;
     const TextEditor::FontSettings &m_fontSettings;
     ScopeChain m_scopeChain;
@@ -549,11 +550,8 @@ void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
     m_watcher.cancel();
 
     m_startRevision = m_document->document()->revision();
-    auto future = Utils::runAsync(QThread::LowestPriority,
-                                  &SemanticHighlighter::run,
-                                  this,
-                                  semanticInfo,
-                                  TextEditor::TextEditorSettings::fontSettings());
+    auto future = Utils::asyncRun(QThread::LowestPriority, &SemanticHighlighter::run, this,
+                                  semanticInfo, TextEditor::TextEditorSettings::fontSettings());
     m_watcher.setFuture(future);
     m_futureSynchronizer.addFuture(future);
 }
@@ -590,11 +588,11 @@ void SemanticHighlighter::finished()
             m_document->syntaxHighlighter(), m_watcher.future());
 }
 
-void SemanticHighlighter::run(QFutureInterface<SemanticHighlighter::Use> &futureInterface,
+void SemanticHighlighter::run(QPromise<Use> &promise,
                               const QmlJSTools::SemanticInfo &semanticInfo,
                               const TextEditor::FontSettings &fontSettings)
 {
-    CollectionTask task(futureInterface,
+    CollectionTask task(promise,
                         semanticInfo,
                         fontSettings,
                         (m_enableWarnings ? CollectionTask::AddMessagesHighlights
