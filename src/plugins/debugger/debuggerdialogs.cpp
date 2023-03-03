@@ -212,6 +212,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->localExecutablePathChooser->setHistoryCompleter("LocalExecutable");
 
     d->arguments = new FancyLineEdit(this);
+    d->arguments->setClearButtonEnabled(true);
     d->arguments->setHistoryCompleter("CommandlineArguments");
 
     d->workingDirectory = new PathChooser(this);
