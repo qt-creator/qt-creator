@@ -3,7 +3,7 @@
 
 #include "stringtable.h"
 
-#include "runextensions.h"
+#include "asynctask.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -34,7 +34,7 @@ public:
     void cancelAndWait();
     QString insert(const QString &string);
     void startGC();
-    void GC(QFutureInterface<void> &futureInterface);
+    void GC(QPromise<void> &promise);
 
     QFuture<void> m_future;
     QMutex m_lock;
@@ -90,7 +90,7 @@ void StringTablePrivate::startGC()
 {
     QMutexLocker locker(&m_lock);
     cancelAndWait();
-    m_future = Utils::runAsync(&StringTablePrivate::GC, this);
+    m_future = Utils::asyncRun(&StringTablePrivate::GC, this);
 }
 
 QTCREATOR_UTILS_EXPORT void scheduleGC()
@@ -113,7 +113,7 @@ static inline bool isQStringInUse(const QString &string)
     return data_ptr->isShared() || !data_ptr->isMutable() /* QStringLiteral ? */;
 }
 
-void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
+void StringTablePrivate::GC(QPromise<void> &promise)
 {
     int initialSize = 0;
     bytesSaved = 0;
@@ -125,7 +125,7 @@ void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
 
     // Collect all QStrings which have refcount 1. (One reference in m_strings and nowhere else.)
     for (QSet<QString>::iterator i = m_strings.begin(); i != m_strings.end();) {
-        if (futureInterface.isCanceled())
+        if (promise.isCanceled())
             return;
 
         if (!isQStringInUse(*i))
