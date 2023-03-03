@@ -79,12 +79,6 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
 
     connect(&m_flushDelayTimer, &QTimer::timeout, this, [this]() { flushVTerm(true); });
 
-    connect(&m_copyAction, &QAction::triggered, this, &TerminalWidget::copyToClipboard);
-    connect(&m_pasteAction, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
-    connect(&m_clearSelectionAction, &QAction::triggered, this, &TerminalWidget::clearSelection);
-    connect(&m_zoomInAction, &QAction::triggered, this, &TerminalWidget::zoomIn);
-    connect(&m_zoomOutAction, &QAction::triggered, this, &TerminalWidget::zoomOut);
-
     connect(&TerminalSettings::instance(), &AspectContainer::applied, this, [this] {
         m_layoutVersion++;
         // Setup colors first, as setupFont will redraw the screen.
@@ -228,6 +222,7 @@ void TerminalWidget::setupColors()
 
 void TerminalWidget::setupActions()
 {
+    m_copyAction.setEnabled(false);
     m_copyAction.setShortcuts(
         {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+C")
                                               : QLatin1String("Ctrl+Shift+C")),
@@ -239,6 +234,12 @@ void TerminalWidget::setupActions()
 
     m_zoomInAction.setShortcuts({QKeySequence("Ctrl++"), QKeySequence("Ctrl+Shift++")});
     m_zoomOutAction.setShortcut(QKeySequence("Ctrl+-"));
+
+    connect(&m_copyAction, &QAction::triggered, this, &TerminalWidget::copyToClipboard);
+    connect(&m_pasteAction, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
+    connect(&m_clearSelectionAction, &QAction::triggered, this, &TerminalWidget::clearSelection);
+    connect(&m_zoomInAction, &QAction::triggered, this, &TerminalWidget::zoomIn);
+    connect(&m_zoomOutAction, &QAction::triggered, this, &TerminalWidget::zoomOut);
 
     addActions({&m_copyAction, &m_pasteAction, &m_clearSelectionAction, &m_zoomInAction, &m_zoomOutAction});
 }
