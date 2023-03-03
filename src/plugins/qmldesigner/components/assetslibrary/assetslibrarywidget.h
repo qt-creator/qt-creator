@@ -3,23 +3,19 @@
 
 #pragma once
 
-#include <previewtooltip/previewtooltipbackend.h>
-
-#include "assetslibrarymodel.h"
 #include "createtexture.h"
+#include "previewtooltipbackend.h"
 
-#include <QFileIconProvider>
 #include <QFrame>
-#include <QPointF>
 #include <QQmlPropertyMap>
 #include <QQuickWidget>
-#include <QTimer>
-#include <QToolButton>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
+class QPointF;
 class QShortcut;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Utils {

@@ -6,26 +6,13 @@
 #include "asset.h"
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
-
-#include <theme.h>
-
-#include <designeractionmanager.h>
+#include "designeractionmanager.h"
+#include "model.h"
 #include "modelnodeoperations.h"
-#include <model.h>
-#include <navigatorwidget.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
+#include "qmldesignerconstants.h"
+#include "qmldesignerplugin.h"
+#include "theme.h"
 
-#include <utils/algorithm.h>
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
-#include "utils/environment.h"
-#include "utils/filepath.h"
-
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -34,21 +21,22 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 
-#include <QApplication>
-#include <QDrag>
+#include <utils/algorithm.h>
+#include <utils/environment.h>
+#include <utils/filepath.h>
+#include <utils/qtcassert.h>
+
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QFileSystemModel>
-#include <QVBoxLayout>
 #include <QImageReader>
-#include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QShortcut>
-#include <QTimer>
-#include <QToolButton>
+#include <QPointF>
 #include <QQmlContext>
 #include <QQuickItem>
+#include <QShortcut>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 namespace QmlDesigner {
 
