@@ -41,7 +41,7 @@ struct VTermPen
   VTermColor fg;
   VTermColor bg;
   unsigned int bold:1;
-  unsigned int underline:2;
+  unsigned int underline:3;
   unsigned int italic:1;
   unsigned int blink:1;
   unsigned int reverse:1;

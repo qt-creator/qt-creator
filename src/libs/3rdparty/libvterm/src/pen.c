@@ -323,6 +323,12 @@ INTERNAL void vterm_state_setpen(VTermState *state, const long args[], int argco
           case 3:
             state->pen.underline = VTERM_UNDERLINE_CURLY;
             break;
+          case 4:
+            state->pen.underline = VTERM_UNDERLINE_DOTTED;
+            break;
+          case 5:
+            state->pen.underline = VTERM_UNDERLINE_DASHED;
+            break;
         }
       }
       setpenattr_int(state, VTERM_ATTR_UNDERLINE, state->pen.underline);

@@ -496,7 +496,7 @@ void vterm_state_send_selection(VTermState *state, VTermSelectionMask mask, VTer
 
 typedef struct {
     unsigned int bold      : 1;
-    unsigned int underline : 2;
+    unsigned int underline : 3;
     unsigned int italic    : 1;
     unsigned int blink     : 1;
     unsigned int reverse   : 1;
@@ -514,6 +514,8 @@ enum {
   VTERM_UNDERLINE_SINGLE,
   VTERM_UNDERLINE_DOUBLE,
   VTERM_UNDERLINE_CURLY,
+  VTERM_UNDERLINE_DOTTED,
+  VTERM_UNDERLINE_DASHED
 };
 
 enum {

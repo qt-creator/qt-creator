@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "scrollback.h"
+#include "terminalsurface.h"
 
 #include <utils/qtcprocess.h>
 #include <utils/terminalhooks.h>
@@ -13,8 +13,6 @@
 #include <QTextLayout>
 #include <QTimer>
 
-#include <vterm.h>
-
 #include <chrono>
 #include <memory>
 
@@ -22,6 +20,7 @@ namespace Terminal {
 
 class TerminalWidget : public QAbstractScrollArea
 {
+    friend class CellIterator;
     Q_OBJECT
 public:
     TerminalWidget(QWidget *parent = nullptr,
@@ -49,8 +48,23 @@ public:
 
     struct Selection
     {
-        QPoint start;
-        QPoint end;
+        int start;
+        int end;
+
+        bool operator!=(const Selection &other) const
+        {
+            return start != other.start || end != other.end;
+        }
+    };
+
+    struct LinkSelection : public Selection
+    {
+        Utils::FilePath filePath;
+
+        bool operator!=(const LinkSelection &other) const
+        {
+            return filePath != other.filePath || Selection::operator!=(other);
+        }
     };
 
     QString shellName() const;
@@ -80,7 +94,7 @@ protected:
 
 protected:
     void onReadyRead(bool forceFlush);
-    void setupVTerm();
+    void setupSurface();
     void setupFont();
     void setupPty();
     void setupColors();
@@ -88,29 +102,44 @@ protected:
 
     void writeToPty(const QByteArray &data);
 
-    void createTextLayout();
-
-    // Callbacks from vterm
-    void invalidate(VTermRect rect);
-    int sb_pushline(int cols, const VTermScreenCell *cells);
-    int sb_popline(int cols, VTermScreenCell *cells);
-    int sb_clear();
-    int setTerminalProperties(VTermProp prop, VTermValue *val);
-    int movecursor(VTermPos pos, VTermPos oldpos, int visible);
-
-    const VTermScreenCell *fetchCell(int x, int y) const;
+    int paintCell(QPainter &p,
+                  const QRectF &cellRect,
+                  QPoint gridPos,
+                  const Internal::TerminalCell &cell,
+                  QFont &f) const;
+    void paintCells(QPainter &painter, QPaintEvent *event) const;
+    void paintCursor(QPainter &painter) const;
+    void paintPreedit(QPainter &painter) const;
+    void paintSelection(QPainter &painter) const;
+    void paintDebugSelection(QPainter &painter, const Selection &selection) const;
 
     qreal topMargin() const;
 
     QPoint viewportToGlobal(QPoint p) const;
     QPoint globalToViewport(QPoint p) const;
-    QPoint globalToGrid(QPoint p) const;
+    QPoint globalToGrid(QPointF p) const;
+    QPointF gridToGlobal(QPoint p, bool bottom = false, bool right = false) const;
+    QRect gridToViewport(QRect rect) const;
+
+    void updateViewport();
+    void updateViewport(const QRect &rect);
 
     int textLineFromPixel(int y) const;
     std::optional<int> textPosFromPoint(const QTextLayout &textLayout, QPoint p) const;
 
     std::optional<QTextLayout::FormatRange> selectionToFormatRange(
         TerminalWidget::Selection selection, const QTextLayout &layout, int rowOffset) const;
+
+    void checkLinkAt(const QPoint &pos);
+
+    struct TextAndOffsets
+    {
+        int start;
+        int end;
+        std::u32string text;
+    };
+
+    TextAndOffsets textAt(const QPoint &pos) const;
 
     void applySizeChange();
 
@@ -122,38 +151,25 @@ protected:
 
 private:
     std::unique_ptr<Utils::QtcProcess> m_process;
+    std::unique_ptr<Internal::TerminalSurface> m_surface;
 
     QString m_shellName;
 
-    std::unique_ptr<VTerm, void (*)(VTerm *)> m_vterm;
-    VTermScreen *m_vtermScreen;
-    QSize m_vtermSize;
-
     QFont m_font;
     QSizeF m_cellSize;
-    qreal m_cellBaseline;
-    qreal m_lineSpacing;
 
-    bool m_altscreen{false};
     bool m_ignoreScroll{false};
 
     QString m_preEditString;
 
     std::optional<Selection> m_selection;
-    QPoint m_selectionStartPos;
-
-    std::unique_ptr<Internal::Scrollback> m_scrollback;
-
-    QTextLayout m_textLayout;
+    std::optional<LinkSelection> m_linkSelection;
 
     struct
     {
-        int row{0};
-        int col{0};
-        bool visible{false};
-    } m_cursor;
-
-    VTermScreenCallbacks m_vtermScreenCallbacks;
+        QPoint start;
+        QPoint end;
+    } m_activeMouseSelect;
 
     QAction m_copyAction;
     QAction m_pasteAction;
@@ -165,8 +181,6 @@ private:
 
     QTimer m_flushDelayTimer;
 
-    int m_layoutVersion{0};
-
     std::array<QColor, 18> m_currentColors;
 
     Utils::Terminal::OpenTerminalParameters m_openParameters;
@@ -174,8 +188,6 @@ private:
     std::chrono::system_clock::time_point m_lastFlush;
     std::chrono::system_clock::time_point m_lastDoubleClick;
     bool m_selectLineMode{false};
-
-    std::u32string m_currentLiveText;
 };
 
 } // namespace Terminal
