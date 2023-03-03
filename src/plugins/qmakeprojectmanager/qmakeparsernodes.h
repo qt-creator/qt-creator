@@ -336,7 +336,7 @@ private:
     static Internal::QmakeEvalResultPtr evaluate(const Internal::QmakeEvalInput &input);
     void applyEvaluate(const Internal::QmakeEvalResultPtr &parseResult);
 
-    void asyncEvaluate(QFutureInterface<Internal::QmakeEvalResultPtr> &fi,
+    void asyncEvaluate(QPromise<Internal::QmakeEvalResultPtr> &promise,
                        Internal::QmakeEvalInput input);
     void cleanupProFileReaders();
 

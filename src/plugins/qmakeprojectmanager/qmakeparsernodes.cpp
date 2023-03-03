@@ -30,6 +30,7 @@
 
 #include <utils/QtConcurrentTools>
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -1284,9 +1285,9 @@ void QmakeProFile::asyncUpdate()
     if (!includedInExactParse())
         m_readerExact->setExact(false);
     QmakeEvalInput input = evalInput();
-    QFuture<QmakeEvalResultPtr> future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
-                                                  QThread::LowestPriority,
-                                                  &QmakeProFile::asyncEvaluate, this, input);
+    QFuture<QmakeEvalResultPtr> future = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
+                                                         QThread::LowestPriority,
+                                                         &QmakeProFile::asyncEvaluate, this, input);
     m_parseFutureWatcher->setFuture(future);
 }
 
@@ -1630,9 +1631,9 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     return result;
 }
 
-void QmakeProFile::asyncEvaluate(QFutureInterface<QmakeEvalResultPtr> &fi, QmakeEvalInput input)
+void QmakeProFile::asyncEvaluate(QPromise<QmakeEvalResultPtr> &promise, QmakeEvalInput input)
 {
-    fi.reportResult(evaluate(input));
+    promise.addResult(evaluate(input));
 }
 
 bool sortByParserNodes(Node *a, Node *b)
