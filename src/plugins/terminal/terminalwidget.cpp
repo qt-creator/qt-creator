@@ -30,6 +30,7 @@
 #include <QTextLayout>
 
 Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
+Q_LOGGING_CATEGORY(selectionLog, "qtc.terminal.selection", QtWarningMsg)
 
 using namespace Utils;
 using namespace Utils::Terminal;
@@ -472,7 +473,10 @@ void TerminalWidget::flushVTerm(bool force)
 
 void TerminalWidget::setSelection(const std::optional<Selection> &selection)
 {
-    m_copyAction.setEnabled(selection.has_value());
+    if (selection.has_value() != m_selection.has_value()) {
+        qCDebug(selectionLog) << "Copy enabled:" << selection.has_value();
+        m_copyAction.setEnabled(selection.has_value());
+    }
     m_selection = selection;
 }
 
@@ -499,6 +503,15 @@ QPoint TerminalWidget::viewportToGlobal(QPoint p) const
     int y = p.y() - topMargin();
     const double offset = (m_scrollback->size() - m_scrollback->offset()) * m_lineSpacing;
     y += offset;
+
+    return {p.x(), y};
+}
+
+QPoint TerminalWidget::globalToViewport(QPoint p) const
+{
+    int y = p.y() + topMargin();
+    const double offset = (m_scrollback->size() - m_scrollback->offset()) * m_lineSpacing;
+    y -= offset;
 
     return {p.x(), y};
 }
@@ -686,6 +699,20 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
     }
 
     p.fillRect(QRectF{{0, 0}, QSizeF{(qreal) width(), margin}}, Internal::toQColor(defaultBg));
+
+    if (selectionLog().isDebugEnabled() && m_selection) {
+        const auto s = globalToViewport(m_selection->start);
+        const auto e = globalToViewport(m_selection->end);
+
+        p.setPen(QPen(Qt::green, 1, Qt::DashLine));
+        p.drawLine(s.x(), 0, s.x(), height());
+        p.drawLine(0, s.y(), width(), s.y());
+
+        p.setPen(QPen(Qt::red, 1, Qt::DashLine));
+
+        p.drawLine(e.x(), 0, e.x(), height());
+        p.drawLine(0, e.y(), width(), e.y());
+    }
 }
 
 void TerminalWidget::keyPressEvent(QKeyEvent *event)
@@ -872,7 +899,7 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
             QPoint pos = viewportToGlobal(event->pos());
             setSelection(Selection{pos, pos});
         }
-
+        event->accept();
         viewport()->update();
     } else if (event->button() == Qt::RightButton) {
         if (m_selection) {
@@ -893,8 +920,24 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
         QPoint start = viewportToGlobal(m_selectionStartPos);
         QPoint newEnd = viewportToGlobal(event->pos());
 
-        if (start.y() > newEnd.y() || (start.y() == newEnd.y() && start.x() > newEnd.x()))
+        const auto startInGrid = globalToGrid(start);
+        const auto endInGrid = globalToGrid(newEnd);
+
+        if (startInGrid.y() > endInGrid.y())
             std::swap(start, newEnd);
+        else if (startInGrid.y() == endInGrid.y()) {
+            if (startInGrid.x() > endInGrid.x()) {
+                const auto s = start.x();
+                start.setX(newEnd.x());
+                newEnd.setX(s);
+            }
+        }
+
+        if (start.y() > newEnd.y()) {
+            const auto s = start.y();
+            start.setY(newEnd.y());
+            newEnd.setY(s);
+        }
 
         if (m_selectLineMode) {
             start.setX(0);
@@ -906,15 +949,16 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
 
         const std::array<QPoint, 2> newGrid = {globalToGrid(m_selection->start),
                                                globalToGrid(m_selection->end)};
-        if (newGrid != oldGrid)
+
+        if (newGrid != oldGrid || selectionLog().isDebugEnabled())
             viewport()->update();
     }
 }
 
 void TerminalWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (m_selection && event->button() != Qt::LeftButton) {
-        if ((m_selectionStartPos - event->pos()).manhattanLength() < 2) {
+    if (m_selection && event->button() == Qt::LeftButton) {
+        if ((m_selection->end - m_selection->start).manhattanLength() < 2) {
             setSelection(std::nullopt);
             viewport()->update();
         }

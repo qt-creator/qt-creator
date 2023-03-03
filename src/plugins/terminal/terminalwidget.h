@@ -103,6 +103,7 @@ protected:
     qreal topMargin() const;
 
     QPoint viewportToGlobal(QPoint p) const;
+    QPoint globalToViewport(QPoint p) const;
     QPoint globalToGrid(QPoint p) const;
 
     int textLineFromPixel(int y) const;
