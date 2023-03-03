@@ -12,8 +12,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/asynctask.h>
 #include <utils/fileinprojectfinder.h>
-#include <utils/runextensions.h>
 
 #include <QStringList>
 #include <QTextStream>
@@ -197,7 +197,7 @@ QList<ProjectExplorer::BuildTargetInfo> MesonProjectParser::appsTargets() const
 
 bool MesonProjectParser::startParser()
 {
-    m_parserFutureResult = Utils::runAsync(
+    m_parserFutureResult = Utils::asyncRun(
                 ProjectExplorer::ProjectExplorerPlugin::sharedThreadPool(),
                 [processOutput = m_process.stdOut(), introType = m_introType,
                 buildDir = m_buildDir.toString(), srcDir = m_srcDir] {
