@@ -13,6 +13,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
@@ -45,7 +46,7 @@ public:
 
 class GitGrepRunner
 {
-    using FutureInterfaceType = QFutureInterface<FileSearchResultList>;
+    using PromiseType = QPromise<FileSearchResultList>;
 
 public:
     GitGrepRunner(const TextEditor::FileFindParameters &parameters)
@@ -116,7 +117,7 @@ public:
         }
     }
 
-    void read(FutureInterfaceType &fi, const QString &text)
+    void read(PromiseType &fi, const QString &text)
     {
         FileSearchResultList resultList;
         QString t = text;
@@ -124,10 +125,10 @@ public:
         while (!stream.atEnd() && !fi.isCanceled())
             processLine(stream.readLine(), &resultList);
         if (!resultList.isEmpty() && !fi.isCanceled())
-            fi.reportResult(resultList);
+            fi.addResult(resultList);
     }
 
-    void operator()(FutureInterfaceType &fi)
+    void operator()(PromiseType &promise)
     {
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
@@ -165,7 +166,7 @@ public:
         process.setEnvironment(m_environment);
         process.setCommand({m_vcsBinary, arguments});
         process.setWorkingDirectory(m_directory);
-        process.setStdOutCallback([this, &fi](const QString &text) { read(fi, text); });
+        process.setStdOutCallback([this, &promise](const QString &text) { read(promise, text); });
         process.start();
         process.waitForFinished();
 
@@ -173,7 +174,7 @@ public:
         case ProcessResult::TerminatedAbnormally:
         case ProcessResult::StartFailed:
         case ProcessResult::Hang:
-            fi.reportCanceled();
+            promise.future().cancel();
             break;
         case ProcessResult::FinishedWithSuccess:
         case ProcessResult::FinishedWithError:
@@ -275,7 +276,7 @@ void GitGrep::writeSettings(QSettings *settings) const
 QFuture<FileSearchResultList> GitGrep::executeSearch(const TextEditor::FileFindParameters &parameters,
         TextEditor::BaseFileFind * /*baseFileFind*/)
 {
-    return Utils::runAsync(GitGrepRunner(parameters));
+    return Utils::asyncRun(GitGrepRunner(parameters));
 }
 
 IEditor *GitGrep::openEditor(const SearchResultItem &item,

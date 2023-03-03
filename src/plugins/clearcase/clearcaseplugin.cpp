@@ -30,13 +30,13 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/basevcseditorfactory.h>
@@ -259,7 +259,7 @@ private:
     CommandResult runCleartool(const FilePath &workingDir, const QStringList &arguments,
                                VcsBase::RunFlags flags = VcsBase::RunFlags::None,
                                QTextCodec *codec = nullptr, int timeoutMultiplier = 1) const;
-    static void sync(QFutureInterface<void> &future, QStringList files);
+    static void sync(QPromise<void> &promise, QStringList files);
 
     void history(const FilePath &workingDir,
                  const QStringList &file = {},
@@ -1657,7 +1657,7 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
 
     if (!m_settings.disableIndexer &&
             (fi.isWritable() || vcsStatus(absPath).status == FileStatus::Unknown))
-        runAsync(sync, QStringList(absPath)).waitForFinished();
+        Utils::asyncRun(sync, QStringList(absPath)).waitForFinished();
     if (vcsStatus(absPath).status == FileStatus::CheckedOut) {
         QMessageBox::information(ICore::dialogParent(), Tr::tr("ClearCase Checkout"),
                                  Tr::tr("File is already checked out."));
@@ -2129,7 +2129,8 @@ void ClearCasePluginPrivate::updateIndex()
         return;
     m_checkInAllAction->setEnabled(false);
     m_statusMap->clear();
-    QFuture<void> result = runAsync(sync, transform(project->files(Project::SourceFiles), &FilePath::toString));
+    QFuture<void> result = Utils::asyncRun(sync, transform(project->files(Project::SourceFiles),
+                                                           &FilePath::toString));
     if (!m_settings.disableIndexer)
         ProgressManager::addTask(result, Tr::tr("Updating ClearCase Index"), ClearCase::Constants::TASK_INDEX);
 }
@@ -2261,7 +2262,7 @@ void ClearCasePluginPrivate::syncSlot()
     FilePath topLevel = state.topLevel();
     if (topLevel != state.currentProjectTopLevel())
         return;
-    runAsync(sync, QStringList());
+    Utils::asyncRun(sync, QStringList()); // TODO: make use of returned QFuture
 }
 
 void ClearCasePluginPrivate::closing()
@@ -2271,12 +2272,12 @@ void ClearCasePluginPrivate::closing()
     disconnect(qApp, &QApplication::applicationStateChanged, nullptr, nullptr);
 }
 
-void ClearCasePluginPrivate::sync(QFutureInterface<void> &future, QStringList files)
+void ClearCasePluginPrivate::sync(QPromise<void> &promise, QStringList files)
 {
     ClearCasePluginPrivate *plugin = ClearCasePluginPrivate::instance();
     ClearCaseSync ccSync(plugin->m_statusMap);
     connect(&ccSync, &ClearCaseSync::updateStreamAndView, plugin, &ClearCasePluginPrivate::updateStreamAndView);
-    ccSync.run(future, files);
+    ccSync.run(promise, files);
 }
 
 QString ClearCasePluginPrivate::displayName() const
