@@ -56,13 +56,8 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "project.qmlproject.tpl",
-                    "target": "%{ProjectDirectory}/%{QmlProjectFile}",
-                    "openInEditor": true
-                },
-                {
-                    "source": "main.qml.tpl",
-                    "target": "%{ProjectDirectory}/%{MainQmlFile}",
+                    "source": "BackendObject.h",
+                    "target": "%{ProjectDirectory}/src/%{InterfaceFile}",
                     "openInEditor": true
                 },
                 {
@@ -76,8 +71,13 @@
                     "openInEditor": true
                 },
                 {
-                    "source": "BackendObject.h",
-                    "target": "%{ProjectDirectory}/src/%{InterfaceFile}",
+                    "source": "project.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/%{QmlProjectFile}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{MainQmlFile}",
                     "openInEditor": true
                 },
                 {
@@ -98,7 +98,7 @@
                 {
                     "source": "translation.nb_NO.ts",
                     "target": "%{ProjectDirectory}/translations/%{TsFile}",
-                    "openInEditor": true
+                    "openInEditor": false
                 },
                 {
                     "source": "%{IDE:ResourcePath}/templates/wizards/projects/git.ignore",
