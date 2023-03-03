@@ -41,10 +41,10 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qtsupport/qtcppkitinfo.h>
@@ -483,7 +483,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
         if (continuation)
             continuation();
     });
-    m_treeCreationWatcher->setFuture(runAsync(ProjectExplorerPlugin::sharedThreadPool(),
+    m_treeCreationWatcher->setFuture(Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
             QThread::LowPriority, &QbsNodeTreeBuilder::buildTree,
             project()->displayName(), project()->projectFilePath(), project()->projectDirectory(),
             projectData()));
