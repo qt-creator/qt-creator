@@ -29,8 +29,6 @@
 #include <QScrollBar>
 #include <QTextLayout>
 
-#include <chrono>
-
 Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
 
 using namespace Utils;
@@ -41,7 +39,7 @@ namespace Terminal {
 using namespace std::chrono_literals;
 
 // Minimum time between two refreshes. (30fps)
-static const auto minRefreshInterval = 1s / 30;
+static constexpr std::chrono::milliseconds minRefreshInterval = 1s / 30;
 
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : QAbstractScrollArea(parent)
@@ -54,8 +52,8 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     , m_zoomInAction(Tr::tr("Zoom In"))
     , m_zoomOutAction(Tr::tr("Zoom Out"))
     , m_openParameters(openParameters)
-    , m_lastFlush(QDateTime::currentDateTime())
-    , m_lastDoubleClick(QDateTime::currentDateTime())
+    , m_lastFlush(std::chrono::system_clock::now())
+    , m_lastDoubleClick(std::chrono::system_clock::now())
 {
     setupVTerm();
     setupFont();
@@ -451,14 +449,24 @@ void TerminalWidget::onReadyRead(bool forceFlush)
 
 void TerminalWidget::flushVTerm(bool force)
 {
-    if (force || QDateTime::currentDateTime() - m_lastFlush > minRefreshInterval) {
-        m_lastFlush = QDateTime::currentDateTime();
+    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    const std::chrono::milliseconds timeSinceLastFlush
+        = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastFlush);
+
+    const bool shouldFlushImmediately = timeSinceLastFlush > minRefreshInterval;
+    if (force || shouldFlushImmediately) {
+        if (m_flushDelayTimer.isActive())
+            m_flushDelayTimer.stop();
+
+        m_lastFlush = now;
         vterm_screen_flush_damage(m_vtermScreen);
         return;
     }
 
-    if (!m_flushDelayTimer.isActive())
-        m_flushDelayTimer.start();
+    if (!m_flushDelayTimer.isActive()) {
+        const std::chrono::milliseconds timeToNextFlush = (minRefreshInterval - timeSinceLastFlush);
+        m_flushDelayTimer.start(timeToNextFlush.count());
+    }
 }
 
 void TerminalWidget::setSelection(const std::optional<Selection> &selection)
@@ -854,7 +862,7 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
     m_selectionStartPos = event->pos();
 
     if (event->button() == Qt::LeftButton) {
-        if (QDateTime::currentDateTime() - m_lastDoubleClick < 500ms) {
+        if (std::chrono::system_clock::now() - m_lastDoubleClick < 500ms) {
             m_selectLineMode = true;
             m_selection->start.setX(0);
             m_selection->end.setX(viewport()->width());
@@ -922,7 +930,7 @@ void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
     std::u32string::size_type chIdx = (clickPosInGrid.x())
                                       + (clickPosInGrid.y()) * m_vtermSize.width();
 
-    if (chIdx >= text.length() || chIdx < 0)
+    if (chIdx >= text.length())
         return;
 
     std::u32string whiteSpaces = U" \t\x00a0";
@@ -949,7 +957,7 @@ void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
 
     setSelection(Selection{selectionStart, selectionEnd});
 
-    m_lastDoubleClick = QDateTime::currentDateTime();
+    m_lastDoubleClick = std::chrono::system_clock::now();
 
     viewport()->update();
     event->accept();

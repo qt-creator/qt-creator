@@ -15,6 +15,7 @@
 
 #include <vterm.h>
 
+#include <chrono>
 #include <memory>
 
 namespace Terminal {
@@ -169,8 +170,8 @@ private:
 
     Utils::Terminal::OpenTerminalParameters m_openParameters;
 
-    QDateTime m_lastFlush;
-    QDateTime m_lastDoubleClick;
+    std::chrono::system_clock::time_point m_lastFlush;
+    std::chrono::system_clock::time_point m_lastDoubleClick;
     bool m_selectLineMode{false};
 
     std::u32string m_currentLiveText;
