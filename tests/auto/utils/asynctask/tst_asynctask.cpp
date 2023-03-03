@@ -102,16 +102,16 @@ public:
     }
 };
 
-template<typename...>
+template <typename...>
 struct FutureArgType;
 
-template<typename Arg>
+template <typename Arg>
 struct FutureArgType<QFuture<Arg>>
 {
     using Type = Arg;
 };
 
-template<typename...>
+template <typename...>
 struct ConcurrentResultType;
 
 template<typename Function, typename ...Args>
@@ -122,7 +122,7 @@ struct ConcurrentResultType<Function, Args...>
 };
 
 template <typename Function, typename ...Args,
-         typename ResultType = typename ConcurrentResultType<Function, Args...>::Type>
+          typename ResultType = typename ConcurrentResultType<Function, Args...>::Type>
 std::shared_ptr<AsyncTask<ResultType>> createAsyncTask(Function &&function, Args &&...args)
 {
     auto asyncTask = std::make_shared<AsyncTask<ResultType>>();
@@ -136,12 +136,20 @@ void tst_AsyncTask::runAsync()
     // free function pointer
     QCOMPARE(createAsyncTask(&report3)->results(),
              QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(&report3).results(),
+             QList<int>({0, 2, 1}));
     QCOMPARE(createAsyncTask(report3)->results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(report3).results(),
              QList<int>({0, 2, 1}));
 
     QCOMPARE(createAsyncTask(reportN, 4)->results(),
              QList<double>({0, 0, 0, 0}));
+    QCOMPARE(Utils::asyncRun(reportN, 4).results(),
+             QList<double>({0, 0, 0, 0}));
     QCOMPARE(createAsyncTask(reportN, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(reportN, 2).results(),
              QList<double>({0, 0}));
 
     QString s = QLatin1String("string");
@@ -150,20 +158,36 @@ void tst_AsyncTask::runAsync()
 
     QCOMPARE(createAsyncTask(reportString1, s)->results(),
              QList<QString>({s}));
+    QCOMPARE(Utils::asyncRun(reportString1, s).results(),
+             QList<QString>({s}));
     QCOMPARE(createAsyncTask(reportString1, crs)->results(),
+             QList<QString>({crs}));
+    QCOMPARE(Utils::asyncRun(reportString1, crs).results(),
              QList<QString>({crs}));
     QCOMPARE(createAsyncTask(reportString1, cs)->results(),
              QList<QString>({cs}));
+    QCOMPARE(Utils::asyncRun(reportString1, cs).results(),
+             QList<QString>({cs}));
     QCOMPARE(createAsyncTask(reportString1, QString(QLatin1String("rvalue")))->results(),
+             QList<QString>({QString(QLatin1String("rvalue"))}));
+    QCOMPARE(Utils::asyncRun(reportString1, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
     QCOMPARE(createAsyncTask(reportString2, s)->results(),
              QList<QString>({s}));
+    QCOMPARE(Utils::asyncRun(reportString2, s).results(),
+             QList<QString>({s}));
     QCOMPARE(createAsyncTask(reportString2, crs)->results(),
+             QList<QString>({crs}));
+    QCOMPARE(Utils::asyncRun(reportString2, crs).results(),
              QList<QString>({crs}));
     QCOMPARE(createAsyncTask(reportString2, cs)->results(),
              QList<QString>({cs}));
+    QCOMPARE(Utils::asyncRun(reportString2, cs).results(),
+             QList<QString>({cs}));
     QCOMPARE(createAsyncTask(reportString2, QString(QLatin1String("rvalue")))->results(),
+             QList<QString>({QString(QLatin1String("rvalue"))}));
+    QCOMPARE(Utils::asyncRun(reportString2, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
 
     // lambda
@@ -171,6 +195,11 @@ void tst_AsyncTask::runAsync()
                  for (int i = 0; i < n; ++i)
                      promise.addResult(0);
              }, 3)->results(),
+             QList<double>({0, 0, 0}));
+    QCOMPARE(Utils::asyncRun([](QPromise<double> &promise, int n) {
+                 for (int i = 0; i < n; ++i)
+                     promise.addResult(0);
+             }, 3).results(),
              QList<double>({0, 0, 0}));
 
     // std::function
@@ -180,44 +209,76 @@ void tst_AsyncTask::runAsync()
     };
     QCOMPARE(createAsyncTask(fun, 2)->results(),
              QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(fun, 2).results(),
+             QList<double>({0, 0}));
 
     // operator()
     QCOMPARE(createAsyncTask(Callable(), 3)->results(),
              QList<double>({0, 0, 0}));
+    QCOMPARE(Utils::asyncRun(Callable(), 3).results(),
+             QList<double>({0, 0, 0}));
     const Callable c{};
     QCOMPARE(createAsyncTask(c, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(c, 2).results(),
              QList<double>({0, 0}));
 
     // static member functions
     QCOMPARE(createAsyncTask(&MyObject::staticMember0)->results(),
              QList<double>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(&MyObject::staticMember0).results(),
+             QList<double>({0, 2, 1}));
     QCOMPARE(createAsyncTask(&MyObject::staticMember1, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(&MyObject::staticMember1, 2).results(),
              QList<double>({0, 0}));
 
     // member functions
     const MyObject obj{};
     QCOMPARE(createAsyncTask(&MyObject::member0, &obj)->results(),
              QList<double>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(&MyObject::member0, &obj).results(),
+             QList<double>({0, 2, 1}));
     QCOMPARE(createAsyncTask(&MyObject::member1, &obj, 4)->results(),
+             QList<double>({0, 0, 0, 0}));
+    QCOMPARE(Utils::asyncRun(&MyObject::member1, &obj, 4).results(),
              QList<double>({0, 0, 0, 0}));
     QCOMPARE(createAsyncTask(&MyObject::memberString1, &obj, s)->results(),
              QList<QString>({s}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString1, &obj, s).results(),
+             QList<QString>({s}));
     QCOMPARE(createAsyncTask(&MyObject::memberString1, &obj, crs)->results(),
+             QList<QString>({crs}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString1, &obj, crs).results(),
              QList<QString>({crs}));
     QCOMPARE(createAsyncTask(&MyObject::memberString1, &obj, cs)->results(),
              QList<QString>({cs}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString1, &obj, cs).results(),
+             QList<QString>({cs}));
     QCOMPARE(createAsyncTask(&MyObject::memberString1, &obj, QString(QLatin1String("rvalue")))->results(),
+             QList<QString>({QString(QLatin1String("rvalue"))}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString1, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
     QCOMPARE(createAsyncTask(&MyObject::memberString2, &obj, s)->results(),
              QList<QString>({s}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString2, &obj, s).results(),
+             QList<QString>({s}));
     QCOMPARE(createAsyncTask(&MyObject::memberString2, &obj, crs)->results(),
+             QList<QString>({crs}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString2, &obj, crs).results(),
              QList<QString>({crs}));
     QCOMPARE(createAsyncTask(&MyObject::memberString2, &obj, cs)->results(),
              QList<QString>({cs}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString2, &obj, cs).results(),
+             QList<QString>({cs}));
     QCOMPARE(createAsyncTask(&MyObject::memberString2, &obj, QString(QLatin1String("rvalue")))->results(),
+             QList<QString>({QString(QLatin1String("rvalue"))}));
+    QCOMPARE(Utils::asyncRun(&MyObject::memberString2, &obj, QString(QLatin1String("rvalue"))).results(),
              QList<QString>({QString(QLatin1String("rvalue"))}));
     MyObject nonConstObj{};
     QCOMPARE(createAsyncTask(&MyObject::nonConstMember, &nonConstObj)->results(),
+             QList<double>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(&MyObject::nonConstMember, &nonConstObj).results(),
              QList<double>({0, 2, 1}));
 }
 
@@ -227,6 +288,8 @@ void tst_AsyncTask::crefFunction()
     auto fun = &report3;
     QCOMPARE(createAsyncTask(std::cref(fun))->results(),
              QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(std::cref(fun)).results(),
+             QList<int>({0, 2, 1}));
 
     // lambda with promise
     auto lambda = [](QPromise<double> &promise, int n) {
@@ -234,6 +297,8 @@ void tst_AsyncTask::crefFunction()
             promise.addResult(0);
     };
     QCOMPARE(createAsyncTask(std::cref(lambda), 3)->results(),
+             QList<double>({0, 0, 0}));
+    QCOMPARE(Utils::asyncRun(std::cref(lambda), 3).results(),
              QList<double>({0, 0, 0}));
 
     // std::function with promise
@@ -243,16 +308,22 @@ void tst_AsyncTask::crefFunction()
     };
     QCOMPARE(createAsyncTask(std::cref(funObj), 2)->results(),
              QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(std::cref(funObj), 2).results(),
+             QList<double>({0, 0}));
 
     // callable with promise
     const Callable c{};
     QCOMPARE(createAsyncTask(std::cref(c), 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(std::cref(c), 2).results(),
              QList<double>({0, 0}));
 
     // member functions with promise
     auto member = &MyObject::member0;
     const MyObject obj{};
     QCOMPARE(createAsyncTask(std::cref(member), &obj)->results(),
+             QList<double>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(std::cref(member), &obj).results(),
              QList<double>({0, 2, 1}));
 }
 
