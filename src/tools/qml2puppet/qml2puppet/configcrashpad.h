@@ -17,13 +17,21 @@
 
 namespace {
 #if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
-    bool startCrashpad()
+    bool startCrashpad(const QString& libexecPath, const QString& crashReportsPath)
     {
         using namespace crashpad;
 
         // Cache directory that will store crashpad information and minidumps
-        base::FilePath database(L"crashpad_reports");
-        base::FilePath handler(L"crashpad_handler.exe");
+        QString databasePath = QDir::cleanPath(crashReportsPath);
+        QString handlerPath = QDir::cleanPath(libexecPath + "/crashpad_handler");
+    #ifdef Q_OS_WIN
+        handlerPath += ".exe";
+        base::FilePath database(databasePath.toStdWString());
+        base::FilePath handler(handlerPath.toStdWString());
+    #elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
+        base::FilePath database(databasePath.toStdString());
+        base::FilePath handler(handlerPath.toStdString());
+    #endif
 
         // URL used to submit minidumps to
         std::string url(CRASHPAD_BACKEND_URL);
@@ -58,7 +66,7 @@ namespace {
     QtSystemExceptionHandler systemExceptionHandler(libexecPath);
 #endif //#ifdef ENABLE_QT_BREAKPAD
 #else //#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
-    bool startCrashpad()
+    bool startCrashpad(const QString&, const QString&)
     {
         return false;
     }
