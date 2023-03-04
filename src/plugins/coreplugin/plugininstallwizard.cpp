@@ -11,6 +11,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/archive.h>
+#include <utils/asynctask.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
@@ -221,8 +222,8 @@ public:
                 m_label->setText(Tr::tr("There was an error while unarchiving."));
             }
         } else { // unarchiving was successful, run a check
-            m_archiveCheck = Utils::runAsync(
-                [this](QFutureInterface<ArchiveIssue> &fi) { return checkContents(fi); });
+            m_archiveCheck = Utils::asyncRun([this](QPromise<ArchiveIssue> &promise)
+                                             { return checkContents(promise); });
             Utils::onFinished(m_archiveCheck, this, [this](const QFuture<ArchiveIssue> &f) {
                 m_cancelButton->setVisible(false);
                 m_cancelButton->disconnect();
@@ -248,7 +249,7 @@ public:
     }
 
     // Async. Result is set if any issue was found.
-    void checkContents(QFutureInterface<ArchiveIssue> &fi)
+    void checkContents(QPromise<ArchiveIssue> &promise)
     {
         QTC_ASSERT(m_tempDir.get(), return );
 
@@ -260,7 +261,7 @@ public:
                         QDir::Files | QDir::NoSymLinks,
                         QDirIterator::Subdirectories);
         while (it.hasNext()) {
-            if (fi.isCanceled())
+            if (promise.isCanceled())
                 return;
             it.next();
             PluginSpec *spec = PluginSpec::read(it.filePath());
@@ -275,18 +276,18 @@ public:
                                                 });
                 if (found != dependencies.constEnd()) {
                     if (!coreplugin->provides(found->name, found->version)) {
-                        fi.reportResult({Tr::tr("Plugin requires an incompatible version of %1 (%2).")
-                                             .arg(Constants::IDE_DISPLAY_NAME)
-                                             .arg(found->version),
-                                         InfoLabel::Error});
+                        promise.addResult(ArchiveIssue{
+                            Tr::tr("Plugin requires an incompatible version of %1 (%2).")
+                                .arg(Constants::IDE_DISPLAY_NAME).arg(found->version),
+                            InfoLabel::Error});
                         return;
                     }
                 }
                 return; // successful / no error
             }
         }
-        fi.reportResult({Tr::tr("Did not find %1 plugin.").arg(Constants::IDE_DISPLAY_NAME),
-                         InfoLabel::Error});
+        promise.addResult(ArchiveIssue{Tr::tr("Did not find %1 plugin.")
+                                           .arg(Constants::IDE_DISPLAY_NAME), InfoLabel::Error});
     }
 
     void cleanupPage() final
