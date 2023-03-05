@@ -149,6 +149,8 @@ protected:
 
     void setSelection(const std::optional<Selection> &selection);
 
+    void configBlinkTimer();
+
 private:
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<Internal::TerminalSurface> m_surface;
@@ -188,6 +190,10 @@ private:
     std::chrono::system_clock::time_point m_lastFlush;
     std::chrono::system_clock::time_point m_lastDoubleClick;
     bool m_selectLineMode{false};
+
+    Internal::Cursor m_cursor;
+    QTimer m_cursorBlinkTimer;
+    bool m_cursorBlinkState{true};
 };
 
 } // namespace Terminal

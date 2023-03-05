@@ -23,6 +23,8 @@ public:
     Utils::ColorAspect selectionColor;
 
     Utils::ColorAspect colors[16];
+
+    Utils::BoolAspect allowBlinkingCursor;
 };
 
 } // namespace Terminal

@@ -55,6 +55,12 @@ QWidget *TerminalSettingsPage::widget()
             },
         },
         Group {
+            title(Tr::tr("Cursor")),
+            Row {
+                settings.allowBlinkingCursor, st,
+            },
+        },
+        Group {
             title(Tr::tr("Colors")),
             Column {
                 Row {

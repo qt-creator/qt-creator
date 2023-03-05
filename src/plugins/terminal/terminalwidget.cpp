@@ -67,6 +67,17 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     setupColors();
     setupActions();
 
+    m_cursorBlinkTimer.setInterval(750);
+    m_cursorBlinkTimer.setSingleShot(false);
+
+    connect(&m_cursorBlinkTimer, &QTimer::timeout, this, [this]() {
+        if (hasFocus())
+            m_cursorBlinkState = !m_cursorBlinkState;
+        else
+            m_cursorBlinkState = true;
+        updateViewport(gridToViewport(QRect{m_cursor.position, m_cursor.position}));
+    });
+
     setAttribute(Qt::WA_InputMethodEnabled);
     setAttribute(Qt::WA_MouseTracking);
 
@@ -88,6 +99,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
         // Setup colors first, as setupFont will redraw the screen.
         setupColors();
         setupFont();
+        configBlinkTimer();
     });
 }
 
@@ -261,7 +273,10 @@ void TerminalWidget::setupSurface()
                 if (startY > endY)
                     std::swap(startY, endY);
 
+                m_cursor = newCursor;
+
                 updateViewport(gridToViewport(QRect{QPoint{startX, startY}, QPoint{endX, endY}}));
+                configBlinkTimer();
             });
     connect(m_surface.get(), &Internal::TerminalSurface::altscreenChanged, this, [this] {
         setSelection(std::nullopt);
@@ -269,6 +284,18 @@ void TerminalWidget::setupSurface()
     connect(m_surface.get(), &Internal::TerminalSurface::unscroll, this, [this] {
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
+}
+
+void TerminalWidget::configBlinkTimer()
+{
+    bool shouldRun = m_cursor.visible && m_cursor.blink && hasFocus()
+                     && TerminalSettings::instance().allowBlinkingCursor.value();
+    if (shouldRun != m_cursorBlinkTimer.isActive()) {
+        if (shouldRun)
+            m_cursorBlinkTimer.start();
+        else
+            m_cursorBlinkTimer.stop();
+    }
 }
 
 void TerminalWidget::setFont(const QFont &font)
@@ -658,17 +685,33 @@ void TerminalWidget::paintCursor(QPainter &p) const
 {
     auto cursor = m_surface->cursor();
 
-    if (cursor.visible) {
+    const bool blinkState = !cursor.blink || m_cursorBlinkState
+                            || !TerminalSettings::instance().allowBlinkingCursor.value();
+
+    if (cursor.visible && blinkState) {
         const int cursorCellWidth = m_surface->cellWidthAt(cursor.position.x(), cursor.position.y());
 
         QRectF cursorRect = QRectF(gridToGlobal(cursor.position),
                                    gridToGlobal({cursor.position.x() + cursorCellWidth,
                                                  cursor.position.y()},
                                                 true));
+
+        cursorRect.adjust(0, 0, 0, -1);
+
         if (hasFocus()) {
             QPainter::CompositionMode oldMode = p.compositionMode();
             p.setCompositionMode(QPainter::RasterOp_NotDestination);
-            p.fillRect(cursorRect, p.pen().brush());
+            switch (cursor.shape) {
+            case Internal::Cursor::Shape::Block:
+                p.fillRect(cursorRect, p.pen().brush());
+                break;
+            case Internal::Cursor::Shape::Underline:
+                p.drawLine(cursorRect.bottomLeft(), cursorRect.bottomRight());
+                break;
+            case Internal::Cursor::Shape::LeftBar:
+                p.drawLine(cursorRect.topLeft(), cursorRect.bottomLeft());
+                break;
+            }
             p.setCompositionMode(oldMode);
         } else {
             p.drawRect(cursorRect);
@@ -809,6 +852,12 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
 
 void TerminalWidget::keyPressEvent(QKeyEvent *event)
 {
+    // Don't blink during typing
+    if (m_cursorBlinkTimer.isActive()) {
+        m_cursorBlinkTimer.start();
+        m_cursorBlinkState = true;
+    }
+
     bool actionTriggered = false;
     for (const auto &action : actions()) {
         if (!action->isEnabled())
@@ -918,10 +967,12 @@ void TerminalWidget::wheelEvent(QWheelEvent *event)
 void TerminalWidget::focusInEvent(QFocusEvent *)
 {
     updateViewport();
+    configBlinkTimer();
 }
 void TerminalWidget::focusOutEvent(QFocusEvent *)
 {
     updateViewport();
+    configBlinkTimer();
 }
 
 void TerminalWidget::inputMethodEvent(QInputMethodEvent *event)

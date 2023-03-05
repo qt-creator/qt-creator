@@ -71,6 +71,11 @@ TerminalSettings::TerminalSettings()
     fontSize.setDefaultValue(defaultFontSize());
     fontSize.setRange(1, 100);
 
+    allowBlinkingCursor.setSettingsKey("AllowBlinkingCursor");
+    allowBlinkingCursor.setLabelText(Tr::tr("Allow blinking cursor"));
+    allowBlinkingCursor.setToolTip(Tr::tr("Allow the cursor to blink."));
+    allowBlinkingCursor.setDefaultValue(false);
+
     shell.setSettingsKey("ShellPath");
     shell.setLabelText(Tr::tr("Shell path:"));
     shell.setExpectedKind(PathChooser::ExistingCommand);
@@ -110,6 +115,7 @@ TerminalSettings::TerminalSettings()
     registerAspect(&font);
     registerAspect(&fontSize);
     registerAspect(&shell);
+    registerAspect(&allowBlinkingCursor);
 
     registerAspect(&foregroundColor);
     registerAspect(&backgroundColor);

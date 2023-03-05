@@ -31,8 +31,15 @@ struct TerminalCell
 
 struct Cursor
 {
+    enum class Shape {
+        Block = 1,
+        Underline,
+        LeftBar,
+    };
     QPoint position;
     bool visible;
+    Shape shape;
+    bool blink{false};
 };
 
 class TerminalSurface : public QObject

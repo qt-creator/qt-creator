@@ -28,6 +28,9 @@ struct TerminalSurfacePrivate
         , m_vtermScreen(vterm_obtain_screen(m_vterm.get()))
         , m_scrollback(std::make_unique<Internal::Scrollback>(5000))
         , q(surface)
+    {}
+
+    void init()
     {
         vterm_set_utf8(m_vterm.get(), true);
 
@@ -193,15 +196,24 @@ struct TerminalSurfacePrivate
     int setTerminalProperties(VTermProp prop, VTermValue *val)
     {
         switch (prop) {
-        case VTERM_PROP_CURSORVISIBLE:
+        case VTERM_PROP_CURSORVISIBLE: {
+            Cursor old = q->cursor();
             m_cursor.visible = val->boolean;
+            q->cursorChanged(old, q->cursor());
             break;
-        case VTERM_PROP_CURSORBLINK:
-            qCDebug(log) << "Ignoring VTERM_PROP_CURSORBLINK" << val->boolean;
+        }
+        case VTERM_PROP_CURSORBLINK: {
+            Cursor old = q->cursor();
+            m_cursor.blink = val->boolean;
+            emit q->cursorChanged(old, q->cursor());
             break;
-        case VTERM_PROP_CURSORSHAPE:
-            qCDebug(log) << "Ignoring VTERM_PROP_CURSORSHAPE" << val->number;
+        }
+        case VTERM_PROP_CURSORSHAPE: {
+            Cursor old = q->cursor();
+            m_cursor.shape = (Cursor::Shape) val->number;
+            emit q->cursorChanged(old, q->cursor());
             break;
+        }
         case VTERM_PROP_ICONNAME:
             //emit iconTextChanged(val->string);
             break;
@@ -227,7 +239,8 @@ struct TerminalSurfacePrivate
     {
         Q_UNUSED(oldpos);
         Cursor oldCursor = q->cursor();
-        m_cursor = {{pos.col, pos.row}, visible > 0};
+        m_cursor.position = {pos.col, pos.row};
+        m_cursor.visible = visible > 0;
         q->cursorChanged(oldCursor, q->cursor());
         return 1;
     }
@@ -272,7 +285,9 @@ struct TerminalSurfacePrivate
 
 TerminalSurface::TerminalSurface(QSize initialGridSize)
     : d(std::make_unique<TerminalSurfacePrivate>(this, initialGridSize))
-{}
+{
+    d->init();
+}
 
 TerminalSurface::~TerminalSurface() = default;
 
@@ -310,7 +325,8 @@ std::u32string::value_type TerminalSurface::fetchCharAt(int x, int y) const
 
 TerminalCell TerminalSurface::fetchCell(int x, int y) const
 {
-    static TerminalCell emptyCell{1, {}, {}};
+    static TerminalCell
+        emptyCell{1, {}, {}, false, {}, std::nullopt, QTextCharFormat::NoUnderline, false};
 
     QTC_ASSERT(y >= 0, return emptyCell);
     QTC_ASSERT(y < d->liveSize().height() + d->m_scrollback->size(), return emptyCell);
