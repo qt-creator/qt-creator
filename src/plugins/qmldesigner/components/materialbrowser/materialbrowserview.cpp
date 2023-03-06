@@ -164,7 +164,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         MaterialBrowserTexturesModel *texturesModel = m_widget->materialBrowserTexturesModel().data();
         connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [&] (int idx) {
             ModelNode texNode = m_widget->materialBrowserTexturesModel()->textureAt(idx);
-            emitCustomNotification("selected_texture_changed", {texNode}, {});
+            emitCustomNotification("selected_texture_changed", {texNode});
         });
         connect(texturesModel, &MaterialBrowserTexturesModel::duplicateTextureTriggered, this,
                 [&] (const ModelNode &texture) {
@@ -499,14 +499,14 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
                                              const QList<ModelNode> &nodeList,
                                              const QList<QVariant> &data)
 {
-    if (view == this)
+    if (view == this && identifier != "select_texture")
         return;
 
-    if (identifier == "selected_material_changed") {
+    if (identifier == "select_material") {
         int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
-    } else if (identifier == "selected_texture_changed") {
+    } else if (identifier == "select_texture") {
         int idx = m_widget->materialBrowserTexturesModel()->textureIndex(nodeList.first());
         if (idx != -1) {
             m_widget->materialBrowserTexturesModel()->selectTexture(idx);

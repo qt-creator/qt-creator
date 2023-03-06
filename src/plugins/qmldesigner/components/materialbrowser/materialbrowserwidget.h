@@ -58,6 +58,7 @@ public:
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(int index, const QPointF &mousePos);
     Q_INVOKABLE void acceptBundleMaterialDrop();
+    Q_INVOKABLE bool hasAcceptableAssets(const QList<QUrl> &urls);
     Q_INVOKABLE void acceptBundleTextureDrop();
     Q_INVOKABLE void acceptAssetsDrop(const QList<QUrl> &urls);
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);

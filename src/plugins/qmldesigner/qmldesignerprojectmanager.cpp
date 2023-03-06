@@ -107,9 +107,7 @@ auto makeCollectorDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
             [](Utils::SmallStringView filePath,
                [[maybe_unused]] Utils::SmallStringView state,
                [[maybe_unused]] const QmlDesigner::ImageCache::AuxiliaryData &auxiliaryData) {
-                Asset asset {QString(filePath)};
-                Asset::Type type = asset.type();
-                return type == Asset::Type::Image || type == Asset::Type::Texture3D;
+                return Asset{QString(filePath)}.isValidTextureSource();
             },
             &textureImageCollector));
         }

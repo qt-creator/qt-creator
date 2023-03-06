@@ -180,6 +180,11 @@ bool Asset::isSupported() const
     return m_type != Asset::Type::Unknown;
 }
 
+bool Asset::isValidTextureSource()
+{
+    return isImage() || isTexture3D();
+}
+
 void Asset::resolveType()
 {
     if (m_suffix.isEmpty())

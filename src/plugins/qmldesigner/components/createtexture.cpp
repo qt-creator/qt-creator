@@ -4,6 +4,7 @@
 #include "createtexture.h"
 
 #include "abstractview.h"
+#include "asset.h"
 #include "documentmanager.h"
 #include "modelnodeoperations.h"
 #include "nodelistproperty.h"
@@ -24,7 +25,8 @@ CreateTexture::CreateTexture(AbstractView *view, bool importFile)
 
 ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sceneId)
 {
-    if (m_importFile && !addFileToProject(filePath))
+    Asset asset(filePath);
+    if (!asset.isValidTextureSource() || (m_importFile && !addFileToProject(filePath)))
         return {};
 
     ModelNode texture = createTextureFromImage(filePath, mode);
@@ -36,7 +38,7 @@ ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, i
 
     QTimer::singleShot(0, m_view, [this, texture]() {
         if (m_view->model())
-            m_view->emitCustomNotification("selected_texture_changed", {texture}, {true});
+            m_view->emitCustomNotification("select_texture", {texture}, {true});
     });
 
     return texture;

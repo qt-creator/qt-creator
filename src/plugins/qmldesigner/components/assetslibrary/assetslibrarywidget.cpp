@@ -245,10 +245,9 @@ QString AssetsLibraryWidget::assetFileSize(const QString &id)
     return QLocale::system().formattedDataSize(fileSize, 2, QLocale::DataSizeTraditionalFormat);
 }
 
-bool AssetsLibraryWidget::assetIsImage(const QString &id)
+bool AssetsLibraryWidget::assetIsImageOrTexture(const QString &id)
 {
-    Asset asset(id);
-    return asset.isImage() || asset.isTexture3D();
+    return Asset(id).isValidTextureSource();
 }
 
 QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()

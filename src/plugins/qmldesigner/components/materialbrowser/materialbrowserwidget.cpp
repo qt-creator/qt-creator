@@ -7,19 +7,19 @@
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserview.h"
 
-#include <assetimageprovider.h>
-#include <designeractionmanager.h>
-#include <designermcumanager.h>
-#include <documentmanager.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
-#include <variantproperty.h>
-
-#include <theme.h>
+#include "asset.h"
+#include "assetimageprovider.h"
+#include "designeractionmanager.h"
+#include "designermcumanager.h"
+#include "documentmanager.h"
+#include "hdrimage.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignerplugin.h"
+#include "theme.h"
+#include "variantproperty.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/hdrimage.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -273,6 +273,13 @@ void MaterialBrowserWidget::acceptBundleMaterialDrop()
         m_materialBrowserView->model()->endDrag();
 }
 
+bool MaterialBrowserWidget::hasAcceptableAssets(const QList<QUrl> &urls)
+{
+    return Utils::anyOf(urls, [](const QUrl &url) {
+        return Asset(url.toLocalFile()).isValidTextureSource();
+    });
+}
+
 void MaterialBrowserWidget::acceptBundleTextureDrop()
 {
     m_materialBrowserView->emitCustomNotification("drop_bundle_texture", {}, {}); // To ContentLibraryView
@@ -284,6 +291,8 @@ void MaterialBrowserWidget::acceptAssetsDrop(const QList<QUrl> &urls)
 {
     QStringList assetPaths = Utils::transform(urls, [](const QUrl &url) { return url.toLocalFile(); });
     m_materialBrowserView->createTextures(assetPaths);
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
 }
 
 void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QString &texId)
@@ -295,6 +304,9 @@ void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QStr
         m_materialBrowserModel->selectMaterial(matIndex);
         m_materialBrowserView->applyTextureToMaterial({mat}, tex);
     }
+
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
 }
 
 void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)

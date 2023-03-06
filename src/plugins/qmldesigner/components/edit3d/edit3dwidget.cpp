@@ -503,8 +503,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         const auto urls = dragEnterEvent->mimeData()->urls();
         if (!urls.isEmpty()) {
-            Asset asset(urls.first().toLocalFile());
-            if (asset.isTexture3D() || asset.isImage())
+            if (Asset(urls.first().toLocalFile()).isValidTextureSource())
                 dragEnterEvent->acceptProposedAction();
         }
     } else if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())

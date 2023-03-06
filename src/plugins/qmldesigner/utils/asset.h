@@ -52,6 +52,7 @@ public:
     bool isKtxFile() const;
     bool isEffect() const;
     bool isSupported() const;
+    bool isValidTextureSource();
 
 private:
     void resolveType();

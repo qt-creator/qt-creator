@@ -835,8 +835,8 @@ void editMaterial(const SelectionContext &selectionContext)
     if (material.isValid()) {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
 
-        // to MaterialEditor and MaterialBrowser...
-        view->emitCustomNotification("selected_material_changed", {material});
+        // to MaterialBrowser...
+        view->emitCustomNotification("select_material", {material});
     }
 }
 

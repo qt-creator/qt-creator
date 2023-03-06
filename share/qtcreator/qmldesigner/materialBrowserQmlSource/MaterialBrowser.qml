@@ -716,9 +716,10 @@ Item {
                         dropEnabled: true
 
                         onDropEnter: (drag) => {
-                            drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture"
-                                         || drag.formats[0] === "application/vnd.qtdesignstudio.assets"
-
+                            let accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture"
+                            if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                                accepted = rootView.hasAcceptableAssets(drag.urls)
+                            drag.accepted = accepted
                             highlight = drag.accepted
                         }
 

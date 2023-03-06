@@ -198,7 +198,7 @@ TreeViewDelegate {
                 if (root.__isDirectory)
                     return filePath
 
-                if (rootView.assetIsImage(model.filePath)) {
+                if (rootView.assetIsImageOrTexture(model.filePath)) {
                     let size = rootView.imageSize(model.filePath)
 
                     return filePath + "\n"
