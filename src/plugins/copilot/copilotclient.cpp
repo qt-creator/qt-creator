@@ -81,6 +81,7 @@ void CopilotClient::openDocument(TextDocument *document)
             &TextDocument::contentsChangedWithPosition,
             this,
             [this, document](int position, int charsRemoved, int charsAdded) {
+                Q_UNUSED(charsRemoved)
                 auto textEditor = BaseTextEditor::currentTextEditor();
                 if (!textEditor || textEditor->document() != document)
                     return;
