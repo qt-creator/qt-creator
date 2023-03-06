@@ -15,22 +15,24 @@
 #include <QMessageBox>
 
 using namespace LanguageClient;
+using namespace Copilot::Internal;
 
 namespace Copilot {
 
 bool isCopilotClient(Client *client)
 {
-    return dynamic_cast<Internal::CopilotClient *>(client) != nullptr;
+    return dynamic_cast<CopilotClient *>(client) != nullptr;
 }
 
-Internal::CopilotClient *coPilotClient(Client *client)
+CopilotClient *asCoPilotClient(Client *client)
 {
-    return static_cast<Internal::CopilotClient *>(client);
+    return static_cast<CopilotClient *>(client);
 }
 
 Internal::CopilotClient *findClient()
 {
-    return Internal::CopilotClient::instance();
+    CopilotClient *client = Internal::CopilotClient::instance();
+    return client && client->reachable() ? client : nullptr;
 }
 
 AuthWidget::AuthWidget(QWidget *parent)
@@ -38,9 +40,12 @@ AuthWidget::AuthWidget(QWidget *parent)
 {
     using namespace Utils::Layouting;
 
-    m_button = new QPushButton();
+    m_button = new QPushButton(Tr::tr("Sign in"));
+    m_button->setEnabled(false);
     m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Small);
+    m_progressIndicator->setVisible(false);
     m_statusLabel = new QLabel();
+    m_statusLabel->setVisible(false);
 
     // clang-format off
     Column {
@@ -50,8 +55,6 @@ AuthWidget::AuthWidget(QWidget *parent)
         m_statusLabel
     }.attachTo(this);
     // clang-format on
-
-    setState("Checking status ...", true);
 
     connect(LanguageClientManager::instance(),
             &LanguageClientManager::clientAdded,
@@ -65,7 +68,7 @@ AuthWidget::AuthWidget(QWidget *parent)
             signIn();
     });
 
-    auto client = findClient();
+    CopilotClient *client = findClient();
 
     if (client)
         checkStatus(client);
@@ -74,20 +77,30 @@ AuthWidget::AuthWidget(QWidget *parent)
 void AuthWidget::setState(const QString &buttonText, bool working)
 {
     m_button->setText(buttonText);
+    m_button->setVisible(true);
     m_progressIndicator->setVisible(working);
     m_statusLabel->setVisible(!m_statusLabel->text().isEmpty());
     m_button->setEnabled(!working);
 }
 
-void AuthWidget::onClientAdded(LanguageClient::Client *client)
+void AuthWidget::onClientAdded(Client *client)
 {
     if (isCopilotClient(client)) {
-        checkStatus(coPilotClient(client));
+        auto coPilotClient = asCoPilotClient(client);
+        if (coPilotClient->reachable()) {
+            checkStatus(coPilotClient);
+        } else {
+            connect(client, &Client::initialized, this, [this, coPilotClient] {
+                checkStatus(coPilotClient);
+            });
+        }
     }
 }
 
-void AuthWidget::checkStatus(Internal::CopilotClient *client)
+void AuthWidget::checkStatus(CopilotClient *client)
 {
+    setState("Checking status ...", true);
+
     client->requestCheckStatus(false, [this](const CheckStatusRequest::Response &response) {
         if (response.error()) {
             setState("failed: " + response.error()->message(), false);
