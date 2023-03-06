@@ -9,8 +9,9 @@
 #include "contentlibrarywidget.h"
 #include "qmldesignerconstants.h"
 
-#include "utils/algorithm.h"
-#include "utils/qtcassert.h"
+#include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QJsonArray>
@@ -95,7 +96,12 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
     if (m_matBundleExists || m_probeMatBundleDir)
         return;
 
-    QDir matBundleDir(qEnvironmentVariable("MATERIAL_BUNDLE_PATH"));
+    QDir matBundleDir;
+
+    if (!qEnvironmentVariable("MATERIAL_BUNDLE_PATH").isEmpty())
+        matBundleDir.setPath(qEnvironmentVariable("MATERIAL_BUNDLE_PATH"));
+    else if (Utils::HostOsInfo::isMacHost())
+        matBundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/material_bundle");
 
     // search for matBundleDir from exec dir and up
     if (matBundleDir.dirName() == ".") {
