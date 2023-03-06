@@ -380,10 +380,6 @@ public:
     void doShutdownEngine()
     {
         m_engine->setState(EngineShutdownRequested);
-        if (m_engine->isDying()) {
-            m_engine->notifyEngineShutdownFinished();
-            return;
-        }
         m_engine->startDying();
         m_engine->showMessage("CALL: SHUTDOWN ENGINE");
         m_engine->shutdownEngine();
