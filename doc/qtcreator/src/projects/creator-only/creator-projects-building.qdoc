@@ -103,7 +103,7 @@
     CMake executable to edit, and then deselect the \uicontrol {Autorun CMake}
     check box.
 
-    \image qtcreator-preferences-cmake-tools.png "Tools tab in CMake Preferences"
+    \image qtcreator-preferences-cmake-tools.webp "Tools tab in CMake Preferences"
 
     For more information, see \l {Setting Up CMake}.
 

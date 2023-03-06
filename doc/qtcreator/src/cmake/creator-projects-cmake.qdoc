@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -36,7 +36,7 @@
     a \c CMakeLists.txt configuration file in a project. Project information is
     also automatically refreshed when you build the project.
 
-    \image qtcreator-projects-view-edit.png "CMake project in Projects view"
+    \image qtcreator-projects-view-edit.png {CMake project in Projects view}
 
     If \QC cannot load the CMake project, the \l Projects view shows a
     \uicontrol {<File System>} project node to avoid scanning the file
@@ -85,7 +85,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
             \uicontrol Tools.
 
-            \image qtcreator-preferences-cmake-tools.png "Tools tab in CMake Preferences"
+            \image qtcreator-preferences-cmake-tools.webp {Tools tab in CMake Preferences}
 
         \li The \uicontrol Name field displays a name for the CMake
             installation.
@@ -120,7 +120,7 @@
     The kit also specifies the CMake generator that is used for producing
     project files for \QC and the initial configuration parameters:
 
-    \image qtcreator-kits-cmake.png
+    \image qtcreator-kits-cmake.png {Kits preferences}
 
     For more information, see \l {Adding Kits}.
 
@@ -154,6 +154,33 @@
     \endlist
 
     Warnings and errors are displayed in \l {Issues}.
+
+    \section1 Formatting CMake Files
+
+    You can use the \c {cmake-format} tool to format any text in CMake files that
+    you do not guard with a pair of fences. You must install the tool and tell
+    \QC where you installed it. For more information about the tool and how to
+    install it, see \l{https://cmake-format.readthedocs.io/en/latest/index.html}
+    {cmake language tools}.
+
+    To automatically format CMake files upon file save:
+
+    \list 1
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
+            \uicontrol Formatter.
+            \image qtcreator-preferences-cmake-formatter.webp {Formatter tab in CMake Preferences}
+        \li In \uicontrol {CMakeFormat command}, enter the path to
+            \c {cmake-format.exe}.
+        \li Select \uicontrol {Enable auto format on file save} to automatically
+            format CMake files when you save them.
+        \li In \uicontrol {Restrict to MIME types}, add the \l{Adding MIME Types}
+            {MIME types} of the files to format, separated by semicolons. The
+            default value, \c {text/x-cmake} formats CMake files. If the field is
+            empty, all files are formatted.
+        \li Select the \uicontrol {Restrict to files contained in the current
+            project} check box to only format CMake files that belong to the
+            current project.
+    \endlist
 
    \section1 Adding External Libraries to CMake Projects
 
