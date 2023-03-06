@@ -1440,15 +1440,15 @@ int WatchModel::memberVariableRecursion(WatchItem *item,
     const QString nameRoot = name.isEmpty() ? name : name + '.';
     for (int r = 0; r < rows; r++) {
         WatchItem *child = item->childAt(r);
-        const quint64 childAddress = item->address;
+        const quint64 childAddress = child->address;
         if (childAddress && childAddress >= start
-                && (childAddress + item->size) <= end) { // Non-static, within area?
+                && (childAddress + child->size) <= end) { // Non-static, within area?
             const QString childName = nameRoot + child->name;
             const quint64 childOffset = childAddress - start;
-            const QString toolTip = variableToolTip(childName, item->type, childOffset);
+            const QString toolTip = variableToolTip(childName, child->type, childOffset);
             const ColorNumberToolTip colorNumberNamePair((*colorNumberIn)++, toolTip);
             const ColorNumberToolTips::iterator begin = cnmv->begin() + childOffset;
-            std::fill(begin, begin + item->size, colorNumberNamePair);
+            std::fill(begin, begin + child->size, colorNumberNamePair);
             childCount++;
             childCount += memberVariableRecursion(child, childName, start, end, colorNumberIn, cnmv);
         }
