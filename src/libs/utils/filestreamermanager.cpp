@@ -49,7 +49,7 @@ static void deleteStreamer(FileStreamHandle handle)
 {
     QMutexLocker locker(&s_mutex);
     auto it = s_fileStreamers.find(handle);
-    if (it != s_fileStreamers.end())
+    if (it == s_fileStreamers.end())
         return;
     if (QThread::currentThread() == it->second->thread()) {
         delete it->second;
