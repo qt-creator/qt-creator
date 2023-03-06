@@ -466,6 +466,9 @@ bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
     std::map<std::string, std::string> annotations;
     annotations["app-version"] = Core::Constants::IDE_VERSION_DISPLAY;
     annotations["qt-version"] = QT_VERSION_STR;
+#ifdef IDE_REVISION
+    annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
+#endif
 
     // Optional arguments to pass to the handler
     std::vector<std::string> arguments;
