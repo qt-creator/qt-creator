@@ -4,6 +4,7 @@
 #include "sdkpersistentsettings.h"
 
 #include <QCoreApplication>
+#include <QDataStream>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>

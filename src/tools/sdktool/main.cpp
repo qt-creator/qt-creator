@@ -28,6 +28,7 @@
 #include <app/app_version.h>
 
 #include <iostream>
+#include <memory>
 
 #include <QCoreApplication>
 #include <QDir>
