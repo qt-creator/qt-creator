@@ -15,6 +15,7 @@
 #include <QTest>
 #endif
 
+#include <QDir>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 

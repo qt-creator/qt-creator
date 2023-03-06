@@ -367,7 +367,7 @@ SdkFileSaver::SdkFileSaver(const QString &filePath, QIODevice::OpenMode mode)
 {
     m_filePath = filePath;
     // Workaround an assert in Qt -- and provide a useful error message, too:
-#if Q_OS_WIN
+#ifdef Q_OS_WIN
         // Taken from: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
         static const QStringList reservedNames
                 = {"CON", "PRN", "AUX", "NUL",

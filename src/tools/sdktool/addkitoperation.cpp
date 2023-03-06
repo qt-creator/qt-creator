@@ -15,6 +15,7 @@
 
 #include "settings.h"
 
+#include <QDir>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
