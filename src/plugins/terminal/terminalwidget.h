@@ -56,6 +56,8 @@ public:
         {
             return start != other.start || end != other.end;
         }
+
+        bool operator==(const Selection &other) const { return !operator!=(other); }
     };
 
     struct LinkSelection : public Selection
@@ -111,7 +113,10 @@ protected:
     void paintCells(QPainter &painter, QPaintEvent *event) const;
     void paintCursor(QPainter &painter) const;
     void paintPreedit(QPainter &painter) const;
-    void paintSelection(QPainter &painter) const;
+    void paintSelectionOrBackground(QPainter &painter,
+                                    const Internal::TerminalCell &cell,
+                                    const QRectF &cellRect,
+                                    const QPoint gridPos) const;
     void paintDebugSelection(QPainter &painter, const Selection &selection) const;
 
     qreal topMargin() const;
@@ -148,7 +153,7 @@ protected:
 
     void flushVTerm(bool force);
 
-    void setSelection(const std::optional<Selection> &selection);
+    bool setSelection(const std::optional<Selection> &selection);
 
     void configBlinkTimer();
 

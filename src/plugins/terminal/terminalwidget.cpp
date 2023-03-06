@@ -256,7 +256,12 @@ void TerminalWidget::setupSurface()
     connect(m_surface.get(),
             &Internal::TerminalSurface::invalidated,
             this,
-            [this](const QRect &rect) { updateViewport(gridToViewport(rect)); });
+            [this](const QRect &rect) {
+                if (setSelection(std::nullopt))
+                    updateViewport();
+                else
+                    updateViewport(gridToViewport(rect));
+            });
     connect(m_surface.get(),
             &Internal::TerminalSurface::cursorChanged,
             this,
@@ -430,13 +435,20 @@ void TerminalWidget::flushVTerm(bool force)
     }
 }
 
-void TerminalWidget::setSelection(const std::optional<Selection> &selection)
+bool TerminalWidget::setSelection(const std::optional<Selection> &selection)
 {
     if (selection.has_value() != m_selection.has_value()) {
         qCDebug(selectionLog) << "Copy enabled:" << selection.has_value();
         m_copyAction.setEnabled(selection.has_value());
     }
+
+    if (selection.has_value() && m_selection.has_value()) {
+        if (*selection == *m_selection)
+            return false;
+    }
+
     m_selection = selection;
+    return true;
 }
 
 QString TerminalWidget::shellName() const
@@ -628,14 +640,31 @@ static void drawTextItemDecoration(QPainter &painter,
     painter.setBrush(oldBrush);
 }
 
+void TerminalWidget::paintSelectionOrBackground(QPainter &p,
+                                                const Internal::TerminalCell &cell,
+                                                const QRectF &cellRect,
+                                                const QPoint gridPos) const
+{
+    bool isInSelection = false;
+
+    if (m_selection) {
+        const int pos = m_surface->gridToPos(gridPos);
+        isInSelection = pos >= m_selection->start && pos < m_selection->end;
+    }
+
+    if (isInSelection)
+        p.fillRect(cellRect, TerminalSettings::instance().selectionColor.value());
+    else if (cell.background)
+        p.fillRect(cellRect, *cell.background);
+}
+
 int TerminalWidget::paintCell(QPainter &p,
                               const QRectF &cellRect,
                               QPoint gridPos,
                               const Internal::TerminalCell &cell,
                               QFont &f) const
 {
-    if (cell.background)
-        p.fillRect(cellRect, *cell.background);
+    paintSelectionOrBackground(p, cell, cellRect, gridPos);
 
     p.setPen(cell.foreground);
 
@@ -759,37 +788,6 @@ void TerminalWidget::paintCells(QPainter &p, QPaintEvent *event) const
     }
 }
 
-void TerminalWidget::paintSelection(QPainter &p) const
-{
-    if (!m_selection)
-        return;
-
-    const QPoint start = m_surface->posToGrid(m_selection->start);
-    const QPoint end = m_surface->posToGrid(m_selection->end);
-
-    const QColor selectionColor = TerminalSettings::instance().selectionColor.value();
-    const QSize liveSize = m_surface->liveSize();
-
-    if (start.y() != end.y()) {
-        QRectF firstLineRect = QRectF(gridToGlobal(start),
-                                      gridToGlobal({liveSize.width(), start.y()}, true));
-
-        p.fillRect(firstLineRect, selectionColor);
-
-        if (end.y() > start.y() + 1) {
-            QRectF middleRect = QRectF(gridToGlobal({0, (start.y() + 1)}),
-                                       gridToGlobal({liveSize.width(), end.y() - 1}, true));
-            p.fillRect(middleRect, selectionColor);
-        }
-
-        QRectF lastLineRect = QRectF(gridToGlobal({0, end.y()}), gridToGlobal(end, true));
-        p.fillRect(lastLineRect, selectionColor);
-    } else {
-        QRectF rect = QRectF(gridToGlobal(start), gridToGlobal(end, true));
-        p.fillRect(rect, selectionColor);
-    }
-}
-
 void TerminalWidget::paintDebugSelection(QPainter &p, const Selection &selection) const
 {
     auto s = globalToViewport(gridToGlobal(m_surface->posToGrid(selection.start)).toPoint());
@@ -829,7 +827,6 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
 
     p.translate(QPointF{0.0, offset + margin});
 
-    paintSelection(p);
     paintCells(p, event);
     paintCursor(p);
     paintPreedit(p);
@@ -878,8 +875,8 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
     }
 
     if (actionTriggered) {
-        setSelection(std::nullopt);
-        updateViewport();
+        if (setSelection(std::nullopt))
+            updateViewport();
         return;
     }
 

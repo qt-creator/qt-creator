@@ -459,9 +459,6 @@ void TerminalSurface::sendKey(QKeyEvent *event)
         }
 
         vterm_keyboard_unichar(d->m_vterm.get(), event->text().toUcs4()[0], VTERM_MOD_NONE);
-
-        // TODO: ??
-        //setSelection(std::nullopt);
     } else if (mod == VTERM_MOD_CTRL && event->key() >= Qt::Key_A && event->key() < Qt::Key_Z) {
         vterm_keyboard_unichar(d->m_vterm.get(), 'a' + (event->key() - Qt::Key_A), mod);
     }
