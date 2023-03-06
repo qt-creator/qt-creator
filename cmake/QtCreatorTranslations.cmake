@@ -49,7 +49,7 @@ function(_extract_ts_data_from_targets outprefix)
 endfunction()
 
 function(_create_ts_custom_target name)
-  cmake_parse_arguments(_arg "" "FILE_PREFIX;TS_TARGET_PREFIX" "LANGUAGES;SOURCES;INCLUDES" ${ARGN})
+  cmake_parse_arguments(_arg "EXCLUDE_FROM_ALL" "FILE_PREFIX;TS_TARGET_PREFIX" "SOURCES;INCLUDES" ${ARGN})
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "Invalid parameters to _create_ts_custom_target: ${_arg_UNPARSED_ARGUMENTS}.")
   endif()
@@ -58,14 +58,7 @@ function(_create_ts_custom_target name)
     set(_arg_TS_TARGET_PREFIX "ts_")
   endif()
 
-  set(ts_languages ${_arg_LANGUAGES})
-  if (NOT ts_languages)
-    set(ts_languages "${name}")
-  endif()
-
-  foreach(l IN ITEMS ${ts_languages})
-    list(APPEND ts_files "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_FILE_PREFIX}_${l}.ts")
-  endforeach()
+  set(ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_FILE_PREFIX}_${l}.ts")
 
   set(_sources "${_arg_SOURCES}")
   list(SORT _sources)
@@ -91,35 +84,46 @@ function(_create_ts_custom_target name)
   file(WRITE "${ts_file_list}" "${_sources_str}\n${_includes_str}\n")
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}"
-    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_files}
+    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_file}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generate .ts files, with obsolete translations and files and line numbers"
+    COMMENT "Generate .ts file (${name}), with obsolete translations and files and line numbers"
     DEPENDS ${_sources}
     VERBATIM)
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_no_locations"
-    COMMAND Qt::lupdate -locations none -no-ui-lines "@${ts_file_list}" -ts ${ts_files}
+    COMMAND Qt::lupdate -locations none -no-ui-lines "@${ts_file_list}" -ts ${ts_file}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generate .ts files, with obsolete translations, without files and line numbers"
+    COMMENT "Generate .ts file (${name}), with obsolete translations, without files and line numbers"
     DEPENDS ${_sources}
     VERBATIM)
 
-  # Add cleaned target only for single-ts targets
   # Uses lupdate + convert instead of just lupdate with '-locations none -no-obsolete'
   # to keep the same sorting as the non-'cleaned' target and therefore keep the diff small
-  list(LENGTH ts_files file_count)
-  if(file_count EQUAL 1)
-    # get path for lconvert...
-    get_target_property(_lupdate_binary Qt::lupdate IMPORTED_LOCATION)
-    get_filename_component(_bin_dir ${_lupdate_binary} DIRECTORY)
+  # get path for lconvert...
+  get_target_property(_lupdate_binary Qt::lupdate IMPORTED_LOCATION)
+  get_filename_component(_bin_dir ${_lupdate_binary} DIRECTORY)
 
-    add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
-      COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_files}
-      COMMAND ${_bin_dir}/lconvert -locations none -no-ui-lines -no-obsolete ${ts_files} -o ${ts_files}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-      COMMENT "Generate .ts files, remove obsolete and vanished translations, and do not add files and line number"
-      DEPENDS ${_sources}
-      VERBATIM)
+  add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
+    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_file}
+    COMMAND ${_bin_dir}/lconvert -locations none -no-ui-lines -no-obsolete ${ts_file} -o ${ts_file}
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMENT "Generate .ts file (${name}), remove obsolete and vanished translations, and do not add files and line number"
+    DEPENDS ${_sources}
+    VERBATIM)
+
+  if (NOT _arg_EXCLUDE_FROM_ALL)
+    if (NOT TARGET ts_all_cleaned)
+      add_custom_target(ts_all_cleaned
+        COMMENT "Generate .ts files, remove obsolete and vanished translations, and do not add files and line numbers")
+      add_custom_target(ts_all
+        COMMENT "Generate .ts files, with obsolete translations and files and line numbers")
+      add_custom_target(ts_all_no_locations
+        COMMENT "Generate .ts files, with obsolete translations, without files and line numbers")
+    endif()
+
+    add_dependencies(ts_all_cleaned ${_arg_TS_TARGET_PREFIX}${name}_cleaned)
+    add_dependencies(ts_all ${_arg_TS_TARGET_PREFIX}${name})
+    add_dependencies(ts_all_no_locations ${_arg_TS_TARGET_PREFIX}${name}_no_locations)
   endif()
 endfunction()
 
@@ -161,7 +165,8 @@ function(add_translation_targets file_prefix)
 
   _create_ts_custom_target(untranslated
     FILE_PREFIX "${file_prefix}" TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
-    SOURCES ${_to_process_sources} ${_arg_SOURCES} INCLUDES ${_to_process_includes} ${_arg_INCLUDES})
+    SOURCES ${_to_process_sources} ${_arg_SOURCES} INCLUDES ${_to_process_includes} ${_arg_INCLUDES}
+    EXCLUDE_FROM_ALL)
 
   if (NOT TARGET "${_arg_ALL_QM_TARGET}")
     add_custom_target("${_arg_ALL_QM_TARGET}" ALL COMMENT "Generate .qm-files")
@@ -187,12 +192,4 @@ function(add_translation_targets file_prefix)
 
     add_dependencies("${_arg_ALL_QM_TARGET}" "${_arg_QM_TARGET_PREFIX}${l}")
   endforeach()
-
-  _create_ts_custom_target(all
-    LANGUAGES ${_arg_LANGUAGES}
-    TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
-    FILE_PREFIX "${file_prefix}"
-    SOURCES ${_to_process_sources} ${_arg_SOURCES}
-    INCLUDES ${_to_process_includes} ${_arg_INCLUDES}
-  )
 endfunction()
