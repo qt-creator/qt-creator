@@ -116,7 +116,7 @@ Project {
                 "projectfilewizardextension.cpp", "projectfilewizardextension.h",
                 "projectimporter.cpp", "projectimporter.h",
                 "projectmacro.cpp", "projectmacro.h",
-                "projectexplorer.cpp", "projectmanager.h"
+                "projectmanager.cpp", "projectmanager.h",
                 "projectmodels.cpp", "projectmodels.h",
                 "projectnodes.cpp", "projectnodes.h",
                 "projectpanelfactory.cpp", "projectpanelfactory.h",

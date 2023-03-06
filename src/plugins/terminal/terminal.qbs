@@ -8,8 +8,10 @@ QtcPlugin {
     Depends { name: "ptyqt" }
 
     files: [
-        "celllayout.cpp",
-        "celllayout.h",
+        "celliterator.cpp",
+        "celliterator.h",
+        "glyphcache.cpp",
+        "glyphcache.h",
         "keys.cpp",
         "keys.h",
         "scrollback.cpp",
@@ -27,6 +29,8 @@ QtcPlugin {
         "terminalsettings.h",
         "terminalsettingspage.cpp",
         "terminalsettingspage.h",
+        "terminalsurface.cpp",
+        "terminalsurface.h",
         "terminaltr.h",
         "terminalwidget.cpp",
         "terminalwidget.h",
