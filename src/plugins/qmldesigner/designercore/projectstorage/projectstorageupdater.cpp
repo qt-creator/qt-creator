@@ -287,9 +287,10 @@ void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
         switch (combineState(directoryState, qmldirState)) {
         case FileState::Changed: {
             QmlDirParser parser;
-            parser.parse(m_fileSystem.contentAsQString(QString{qmldirSourcePath}));
+            if (qmldirState != FileState::NotExists)
+                parser.parse(m_fileSystem.contentAsQString(QString{qmldirSourcePath}));
 
-            if (qmldirState == FileState::Changed)
+            if (qmldirState != FileState::NotChanged)
                 package.updatedSourceIds.push_back(qmlDirSourceId);
 
             Utils::PathString moduleName{parser.typeNamespace()};
@@ -330,7 +331,9 @@ void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
                 directoryId,
                 package,
                 notUpdatedFileStatusSourceIds,
-                watchedQmlSourceIds);
+                notUpdatedSourceIds,
+                watchedQmlSourceIds,
+                qmldirState);
             package.updatedProjectSourceIds.push_back(directorySourceId);
             break;
         }
@@ -343,10 +346,14 @@ void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
             break;
         }
         case FileState::NotExists: {
+            package.updatedFileStatusSourceIds.push_back(directorySourceId);
+            package.updatedFileStatusSourceIds.push_back(qmlDirSourceId);
+            package.updatedProjectSourceIds.push_back(directorySourceId);
             package.updatedSourceIds.push_back(qmlDirSourceId);
             auto qmlProjectDatas = m_projectStorage.fetchProjectDatas(directorySourceId);
             for (const Storage::Synchronization::ProjectData &projectData : qmlProjectDatas) {
                 package.updatedSourceIds.push_back(projectData.sourceId);
+                package.updatedFileStatusSourceIds.push_back(projectData.sourceId);
             }
 
             break;
@@ -463,7 +470,9 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
                                               SourceId directorySourceId,
                                               Storage::Synchronization::SynchronizationPackage &package,
                                               SourceIds &notUpdatedFileStatusSourceIds,
-                                              SourceIds &watchedQmlSourceIds)
+                                              SourceIds &notUpdatedSourceIds,
+                                              SourceIds &watchedQmlSourceIds,
+                                              FileState qmldirState)
 {
     if (std::find(relativeFilePath.begin(), relativeFilePath.end(), '+') != relativeFilePath.end())
         return;
@@ -481,6 +490,15 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
 
     switch (state) {
     case FileState::NotChanged:
+        if (qmldirState == FileState::NotExists) {
+            notUpdatedSourceIds.emplace_back(sourceId);
+            package.projectDatas.emplace_back(directorySourceId,
+                                              sourceId,
+                                              ModuleId{},
+                                              Storage::Synchronization::FileType::QmlDocument);
+
+            return;
+        }
         type.changeLevel = Storage::Synchronization::ChangeLevel::Minimal;
         break;
     case FileState::NotExists:
@@ -576,7 +594,9 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                                                SourceContextId directoryId,
                                                Storage::Synchronization::SynchronizationPackage &package,
                                                SourceIds &notUpdatedFileStatusSourceIds,
-                                               SourceIds &watchedQmlSourceIds)
+                                               SourceIds &notUpdatedSourceIds,
+                                               SourceIds &watchedQmlSourceIds,
+                                               FileState qmldirState)
 {
     std::sort(components.begin(), components.end(), [](auto &&first, auto &&second) {
         return first.fileName < second.fileName;
@@ -593,7 +613,9 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                           directorySourceId,
                           package,
                           notUpdatedFileStatusSourceIds,
-                          watchedQmlSourceIds);
+                          notUpdatedSourceIds,
+                          watchedQmlSourceIds,
+                          qmldirState);
     };
 
     rangeForTheSameFileName(components, callback);
@@ -606,18 +628,20 @@ ProjectStorageUpdater::FileState ProjectStorageUpdater::fileState(SourceId sourc
 {
     auto currentFileStatus = m_fileStatusCache.find(sourceId);
 
-    if (!currentFileStatus.isValid())
+    if (!currentFileStatus.isValid()) {
+        updatedSourceIds.push_back(sourceId);
         return FileState::NotExists;
+    }
 
     auto projectStorageFileStatus = m_projectStorage.fetchFileStatus(sourceId);
 
     if (!projectStorageFileStatus.isValid() || projectStorageFileStatus != currentFileStatus) {
         fileStatuses.push_back(currentFileStatus);
-        updatedSourceIds.push_back(currentFileStatus.sourceId);
+        updatedSourceIds.push_back(sourceId);
         return FileState::Changed;
     }
 
-    notUpdatedSourceIds.push_back(currentFileStatus.sourceId);
+    notUpdatedSourceIds.push_back(sourceId);
     return FileState::NotChanged;
 }
 

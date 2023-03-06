@@ -135,14 +135,18 @@ private:
                             SourceContextId directoryId,
                             Storage::Synchronization::SynchronizationPackage &package,
                             SourceIds &notUpdatedFileStatusSourceIds,
-                            SourceIds &watchedQmlSourceIds);
+                            SourceIds &notUpdatedSourceIds,
+                            SourceIds &watchedQmlSourceIds,
+                            FileState qmldirState);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView directory,
                            Storage::Synchronization::ExportedTypes exportedTypes,
                            SourceId directorySourceId,
                            Storage::Synchronization::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds,
-                           SourceIds &watchedQmlSourceIds);
+                           SourceIds &notUpdatedSourceIds,
+                           SourceIds &watchedQmlSourceIds,
+                           FileState qmldirState);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView filePath,
                            Utils::SmallStringView directoryPath,
