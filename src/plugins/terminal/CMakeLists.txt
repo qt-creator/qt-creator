@@ -1,6 +1,6 @@
 
 add_qtc_plugin(Terminal
-  PLUGIN_DEPENDS Core
+  PLUGIN_DEPENDS Core ProjectExplorer
   DEPENDS libvterm
   SOURCES
     celliterator.cpp celliterator.h

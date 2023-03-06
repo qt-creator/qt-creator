@@ -10,6 +10,9 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icontext.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/utilsicons.h>
@@ -88,9 +91,29 @@ TerminalPane::TerminalPane(QObject *parent)
     });
 }
 
-void TerminalPane::openTerminal(const Utils::Terminal::OpenTerminalParameters &parameters)
+static std::optional<FilePath> startupProjectDirectory()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    if (!project)
+        return std::nullopt;
+
+    return project->projectDirectory();
+}
+
+void TerminalPane::openTerminal(Utils::Terminal::OpenTerminalParameters parameters)
 {
     showPage(0);
+
+    if (!parameters.workingDirectory) {
+        const std::optional<FilePath> projectDir = startupProjectDirectory();
+        if (projectDir) {
+            if (!parameters.shellCommand
+                || parameters.shellCommand->executable().ensureReachable(*projectDir)) {
+                parameters.workingDirectory = *projectDir;
+            }
+        }
+    }
+
     auto terminalWidget = new TerminalWidget(m_tabWidget, parameters);
     m_tabWidget->setCurrentIndex(m_tabWidget->addTab(terminalWidget, Tr::tr("Terminal")));
     setupTerminalWidget(terminalWidget);

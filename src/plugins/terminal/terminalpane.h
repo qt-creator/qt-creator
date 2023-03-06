@@ -36,7 +36,7 @@ public:
     virtual void goToNext();
     virtual void goToPrev();
 
-    void openTerminal(const Utils::Terminal::OpenTerminalParameters &parameters);
+    void openTerminal(Utils::Terminal::OpenTerminalParameters parameters);
     void addTerminal(TerminalWidget *terminal, const QString &title);
 
 private:
