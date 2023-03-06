@@ -15,6 +15,7 @@
 #include <theme.h>
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QMimeData>
@@ -229,7 +230,12 @@ void ContentLibraryWidget::setIsDragging(bool val)
 
 QString ContentLibraryWidget::findTextureBundlePath()
 {
-    QDir texBundleDir(qEnvironmentVariable("TEXTURE_BUNDLE_PATH"));
+    QDir texBundleDir;
+
+    if (!qEnvironmentVariable("TEXTURE_BUNDLE_PATH").isEmpty())
+        texBundleDir.setPath(qEnvironmentVariable("TEXTURE_BUNDLE_PATH"));
+    else if (Utils::HostOsInfo::isMacHost())
+        texBundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/texture_bundle");
 
     // search for matBundleDir from exec dir and up
     if (texBundleDir.dirName() == ".") {
