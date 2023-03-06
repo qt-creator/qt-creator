@@ -27,7 +27,11 @@ public:
     static Link fromString(const QString &filePathWithNumbers, bool canContainLineNumber = false);
 
     bool hasValidTarget() const
-    { return !targetFilePath.isEmpty(); }
+    {
+        if (!targetFilePath.isEmpty())
+            return true;
+        return !targetFilePath.scheme().isEmpty() || !targetFilePath.host().isEmpty();
+    }
 
     bool hasValidLinkText() const
     { return linkTextStart != linkTextEnd; }

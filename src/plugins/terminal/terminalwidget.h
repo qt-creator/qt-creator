@@ -5,6 +5,7 @@
 
 #include "terminalsurface.h"
 
+#include <utils/link.h>
 #include <utils/qtcprocess.h>
 #include <utils/terminalhooks.h>
 
@@ -59,11 +60,11 @@ public:
 
     struct LinkSelection : public Selection
     {
-        Utils::FilePath filePath;
+        Utils::Link link;
 
         bool operator!=(const LinkSelection &other) const
         {
-            return filePath != other.filePath || Selection::operator!=(other);
+            return link != other.link || Selection::operator!=(other);
         }
     };
 

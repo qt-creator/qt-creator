@@ -3,7 +3,6 @@
 
 #include "terminalwidget.h"
 #include "glyphcache.h"
-#include "keys.h"
 #include "terminalsettings.h"
 #include "terminalsurface.h"
 #include "terminaltr.h"
@@ -993,11 +992,12 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
 
     if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
         if (m_linkSelection) {
-            if (m_linkSelection->filePath.scheme().toString().startsWith("http")) {
-                QDesktopServices::openUrl(m_linkSelection->filePath.toUrl());
+            if (m_linkSelection->link.targetFilePath.scheme().toString().startsWith("http")) {
+                QDesktopServices::openUrl(m_linkSelection->link.targetFilePath.toUrl());
                 return;
             }
-            Core::EditorManager::openEditorAt(Utils::Link(m_linkSelection->filePath));
+
+            Core::EditorManager::openEditorAt(m_linkSelection->link);
         }
         return;
     }
@@ -1062,17 +1062,20 @@ void TerminalWidget::checkLinkAt(const QPoint &pos)
     const TextAndOffsets hit = textAt(pos);
 
     if (hit.text.size() > 0) {
-        QString t = QString::fromUcs4(hit.text.c_str(), hit.text.size());
+        QString t
+            = Utils::chopIfEndsWith(QString::fromUcs4(hit.text.c_str(), hit.text.size()).trimmed(),
+                                    ':');
         if (t.startsWith("~/")) {
             t = QDir::homePath() + t.mid(1);
         }
 
-        // Todo: Windows path support
-        const FilePath p = FilePath::fromString(t.trimmed());
+        Utils::Link link = Utils::Link::fromString(t, true);
 
-        if (!p.isEmpty() && (p.scheme().toString().startsWith("http") || p.exists())) {
-            const LinkSelection newSelection = LinkSelection{{hit.start, hit.end}, p};
-            if (*m_linkSelection != newSelection) {
+        if (link.hasValidTarget()
+            && (link.targetFilePath.scheme().toString().startsWith("http")
+                || link.targetFilePath.exists())) {
+            const LinkSelection newSelection = LinkSelection{{hit.start, hit.end}, link};
+            if (!m_linkSelection || *m_linkSelection != newSelection) {
                 m_linkSelection = newSelection;
                 updateViewport();
             }
