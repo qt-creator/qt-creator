@@ -76,8 +76,6 @@ void updateMCUProjectTree(ProjectExplorer::Project *p)
         const FilePath inputsJsonFile = projectBuildFolder / "CMakeFiles" / (targetName + ".dir")
                                         / "config/input.json";
 
-        printMessage("found Input json file " + inputsJsonFile.absoluteFilePath().toString(), true);
-
         if (!inputsJsonFile.exists())
             return;
 
