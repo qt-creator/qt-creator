@@ -43,6 +43,7 @@ add_qtc_library(QmlDesignerUtils STATIC
 )
 
 add_qtc_library(QmlDesignerCore STATIC
+  EXCLUDE_FROM_INSTALL
   DEPENDS
     Threads::Threads
     Qt::CorePrivate
@@ -431,7 +432,12 @@ extend_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/designercore
+    ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   PUBLIC_DEPENDS
+    QmlDesignerUtils
+    QmlPuppetCommunication
+  DEPENDS
     QmlDesignerCore
   SOURCES
     designmodecontext.cpp designmodecontext.h
