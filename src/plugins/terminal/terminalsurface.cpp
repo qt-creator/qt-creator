@@ -45,8 +45,6 @@ struct TerminalSurfacePrivate
 
         m_vtermScreenCallbacks.damage = [](VTermRect rect, void *user) {
             auto p = static_cast<TerminalSurfacePrivate *>(user);
-            rect.start_row += p->m_scrollback->size();
-            rect.end_row += p->m_scrollback->size();
             p->invalidate(rect);
             return 1;
         };
@@ -165,6 +163,11 @@ struct TerminalSurfacePrivate
     // Callbacks from vterm
     void invalidate(VTermRect rect)
     {
+        if (!m_altscreen) {
+            rect.start_row += m_scrollback->size();
+            rect.end_row += m_scrollback->size();
+        }
+
         emit q->invalidated(
             QRect{QPoint{rect.start_col, rect.start_row}, QPoint{rect.end_col, rect.end_row - 1}});
     }
@@ -215,14 +218,12 @@ struct TerminalSurfacePrivate
             break;
         }
         case VTERM_PROP_ICONNAME:
-            //emit iconTextChanged(val->string);
             break;
         case VTERM_PROP_TITLE:
             break;
         case VTERM_PROP_ALTSCREEN:
             m_altscreen = val->boolean;
             emit q->altscreenChanged(m_altscreen);
-            //setSelection(std::nullopt);
             break;
         case VTERM_PROP_MOUSE:
             qCDebug(log) << "Ignoring VTERM_PROP_MOUSE" << val->number;
@@ -248,9 +249,9 @@ struct TerminalSurfacePrivate
     const VTermScreenCell *cellAt(int x, int y)
     {
         QTC_ASSERT(y >= 0 && x >= 0, return nullptr);
-        QTC_ASSERT(y < liveSize().height() + m_scrollback->size() && x < liveSize().width(),
-                   return nullptr);
-        if (y < m_scrollback->size()) {
+        QTC_ASSERT(y < q->fullSize().height() && x < liveSize().width(), return nullptr);
+
+        if (!m_altscreen && y < m_scrollback->size()) {
             const auto &sbl = m_scrollback->line((m_scrollback->size() - 1) - y);
             if (x < sbl.cols()) {
                 return sbl.cell(x);
@@ -258,7 +259,8 @@ struct TerminalSurfacePrivate
             return nullptr;
         }
 
-        y -= m_scrollback->size();
+        if (!m_altscreen)
+            y -= m_scrollback->size();
 
         static VTermScreenCell refCell{};
         VTermPos vtp{y, x};
@@ -306,6 +308,8 @@ QSize TerminalSurface::liveSize() const
 
 QSize TerminalSurface::fullSize() const
 {
+    if (d->m_altscreen)
+        return liveSize();
     return QSize{d->liveSize().width(), d->liveSize().height() + d->m_scrollback->size()};
 }
 
@@ -329,7 +333,7 @@ TerminalCell TerminalSurface::fetchCell(int x, int y) const
         emptyCell{1, {}, {}, false, {}, std::nullopt, QTextCharFormat::NoUnderline, false};
 
     QTC_ASSERT(y >= 0, return emptyCell);
-    QTC_ASSERT(y < d->liveSize().height() + d->m_scrollback->size(), return emptyCell);
+    QTC_ASSERT(y < fullSize().height() && x < fullSize().width(), return emptyCell);
 
     const VTermScreenCell *refCell = d->cellAt(x, y);
     if (!refCell)
@@ -466,7 +470,8 @@ void TerminalSurface::sendKey(QKeyEvent *event)
 Cursor TerminalSurface::cursor() const
 {
     Cursor cursor = d->m_cursor;
-    cursor.position.setY(cursor.position.y() + d->m_scrollback->size());
+    if (!d->m_altscreen)
+        cursor.position.setY(cursor.position.y() + d->m_scrollback->size());
 
     return cursor;
 }

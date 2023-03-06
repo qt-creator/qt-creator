@@ -278,6 +278,8 @@ void TerminalWidget::setupSurface()
                 configBlinkTimer();
             });
     connect(m_surface.get(), &Internal::TerminalSurface::altscreenChanged, this, [this] {
+        updateScrollBars();
+        updateViewport();
         setSelection(std::nullopt);
     });
     connect(m_surface.get(), &Internal::TerminalSurface::unscroll, this, [this] {
