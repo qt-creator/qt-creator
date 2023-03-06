@@ -1,0 +1,9 @@
+#!/bin/sh
+
+printf "\e[1mbold\e[0m\n"
+printf "\e[3mitalic\e[0m\n"
+printf "\e[3m\e[1mbold italic\e[0m\n"
+printf "\e[4munderline (abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ)\e[0m\n"
+printf "\e[9mstrikethrough\e[0m\n"
+printf "\e[31mHello World\e[0m\n"
+printf "\x1B[31mHello World\e[0m\n"
