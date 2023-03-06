@@ -2798,6 +2798,8 @@ class DumperBase():
             return
 
         self.putAddress(value.address())
+        if value.lbitsize is not None:
+            self.putField('size', value.lbitsize // 8)
 
         if typeobj.code == TypeCode.Function:
             #DumperBase.warn('FUNCTION VALUE: %s' % value)

@@ -22,12 +22,12 @@
 
     For more examples, see \l{Qt Quick Examples and Tutorials}.
 
-    You can develop Qt Quick applications also in \QDS. For more information,
-    see \l{Qt Design Studio Manual}.
+    You can use a visual editor to develop Qt Quick applications in \QDS. For
+    more information, see \l{Qt Design Studio Manual}.
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
-    \QC generates a component file, \e main.qml, and opens it in the
+    \QC generates a component file, \e Main.qml, and opens it in the
     \uicontrol Edit mode.
 
     \section1 Deploying Applications

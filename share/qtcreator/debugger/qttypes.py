@@ -418,7 +418,24 @@ def qdump__QDir(d, value):
     d.putExpandable()
     privAddress = d.extractPointer(value)
     bit32 = d.ptrSize() == 4
-    qt5 = d.qtVersion() >= 0x050000
+
+    # change fc3942114da adds FileCache
+    # QStringList nameFilters;
+    # QDir::SortFlags sort;
+    # QDir::Filters filters;
+    # std::unique_ptr<QAbstractFileEngine> fileEngine;
+    # QFileSystemEntry dirEntry;
+    # struct FileCache
+    # {
+    #     QMutex mutex;
+    #     QStringList files;
+    #     QFileInfoList fileInfos;
+    #     std::atomic<bool> fileListsInitialized = false;
+    #     QFileSystemEntry absoluteDirEntry;
+    #     QFileSystemMetaData metaData;
+    # };
+    # mutable FileCache fileCache;
+
 
     # Change 9fc0965 reorders members again.
     #   bool fileListsInitialized
@@ -454,7 +471,9 @@ def qdump__QDir(d, value):
     #   + 2 byte padding
     fileSystemEntrySize = 2 * d.ptrSize() + 8
 
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersion() >= 0x060600:
+        case = 3
+    elif d.qtVersion() >= 0x060000:
         case = 2
     elif d.qtVersion() >= 0x050300:
         case = 1
@@ -467,7 +486,20 @@ def qdump__QDir(d, value):
         firstValue = d.extractInt(privAddress + d.ptrSize())
         case = 1 if firstValue == 0 or firstValue == 1 else 0
 
-    if case == 2:
+    if case == 3:
+        if bit32:
+            dirEntryOffset = 24
+            fileCacheOffset = 52
+            filesOffset = fileCacheOffset + 4
+            fileInfosOffset = fileCacheOffset + 16
+            absoluteDirEntryOffset = fileCacheOffset + 32
+        else:
+            dirEntryOffset = 48
+            fileCacheOffset = 104
+            filesOffset = fileCacheOffset + 8
+            fileInfosOffset = fileCacheOffset + 32
+            absoluteDirEntryOffset = fileCacheOffset + 64
+    elif case == 2:
         if bit32:
             filesOffset = 4
             fileInfosOffset = 16
@@ -507,6 +539,7 @@ def qdump__QDir(d, value):
                     d.call('int', value, 'count')  # Fill cache.
                 except:
                     pass
+
                 #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
                 #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
                 with SubItem(d, 'absolutePath'):
