@@ -34,7 +34,10 @@
 
     \QC automatically runs CMake to refresh project information when you edit
     a \c CMakeLists.txt configuration file in a project. Project information is
-    also automatically refreshed when you build the project.
+    also automatically refreshed when you build the project. To disable this
+    behavior, select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake
+    > \uicontrol General, and then deselect the \uicontrol {Autorun CMake}
+    check box.
 
     \image qtcreator-projects-view-edit.png {CMake project in Projects view}
 
@@ -95,10 +98,6 @@
 
         \li The \uicontrol {Help file} field displays the path to the
             CMake help file (.qch) that comes with CMake.
-
-        \li Deselect the \uicontrol {Autorun CMake} check box if you do not want
-            to automatically run CMake every time when you save changes to
-            \c {CMakeLists.txt} files.
 
         \li Select \uicontrol Apply to save your changes.
 

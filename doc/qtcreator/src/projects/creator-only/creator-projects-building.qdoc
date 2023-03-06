@@ -99,7 +99,7 @@
 
     \QC automatically runs CMake when you make changes to \c {CMakeLists.txt}
     files. To disable this feature, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol Tools. Select the
+    \uicontrol Preferences > \uicontrol CMake > \uicontrol General. Select the
     CMake executable to edit, and then deselect the \uicontrol {Autorun CMake}
     check box.
 
