@@ -31,16 +31,6 @@
             "data" :
             [
                 {
-                    "name": "PySideVersion",
-                    "trDisplayName": "PySide version:",
-                    "type": "ComboBox",
-                    "data":
-                    {
-                        "index": 1,
-                        "items": [ "PySide2", "PySide6" ]
-                    }
-                },
-                {
                     "name": "Class",
                     "trDisplayName": "Class name:",
                     "mandatory": true,
@@ -76,6 +66,32 @@
                     "data": { "trText": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" }
                 }
             ]
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "PythonConfiguration",
+            "data":
+            {
+                "index": 0,
+                "items":
+                [
+                    {
+                        "trKey": "PySide 6",
+                        "value":
+                        {
+                            "PySideVersion": "PySide6"
+                        }
+                    },
+                    {
+                        "trKey": "PySide 2",
+                        "value":
+                        {
+                            "PySideVersion": "PySide2"
+                        }
+                    }
+                ]
+            }
         },
         {
             "trDisplayName": "Project Management",

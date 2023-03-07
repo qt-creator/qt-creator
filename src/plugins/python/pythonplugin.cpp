@@ -6,10 +6,12 @@
 #include "pysidebuildconfiguration.h"
 #include "pythoneditor.h"
 #include "pythonproject.h"
-#include "pythonsettings.h"
 #include "pythonrunconfiguration.h"
+#include "pythonsettings.h"
+#include "pythonwizardpage.h"
 
 #include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -57,6 +59,7 @@ void PythonPlugin::initialize()
     d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
+    JsonWizardFactory::registerPageFactory(new PythonWizardPageFactory);
 }
 
 void PythonPlugin::extensionsInitialized()

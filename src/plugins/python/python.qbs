@@ -49,6 +49,8 @@ QtcPlugin {
             "pythontr.h",
             "pythonutils.cpp",
             "pythonutils.h",
+            "pythonwizardpage.cpp",
+            "pythonwizardpage.h",
         ]
     }
 }

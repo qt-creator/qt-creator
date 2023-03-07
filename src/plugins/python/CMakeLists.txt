@@ -19,4 +19,5 @@ add_qtc_plugin(Python
     pythonscanner.cpp pythonscanner.h
     pythonsettings.cpp pythonsettings.h
     pythonutils.cpp pythonutils.h
+    pythonwizardpage.cpp pythonwizardpage.h
 )
