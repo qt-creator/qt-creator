@@ -15939,7 +15939,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Save As...</source>
-        <translation>Speichern als...</translation>
+        <translation>Speichern unter...</translation>
     </message>
     <message>
         <source>&amp;Print...</source>
@@ -16555,7 +16555,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Note: The file will be saved before this operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Die Datei wird vor dieser Aktion gespeichert.</translation>
     </message>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
@@ -18196,19 +18196,19 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>KB</source>
-        <translation type="unfinished"></translation>
+        <translation>KB</translation>
     </message>
     <message>
         <source>GB</source>
-        <translation type="unfinished"></translation>
+        <translation>GB</translation>
     </message>
     <message>
         <source>TB</source>
-        <translation type="unfinished"></translation>
+        <translation>TB</translation>
     </message>
     <message>
         <source>Enable crash reporting</source>
@@ -18373,7 +18373,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>unnamed</source>
-        <translation type="unfinished">unbenannt</translation>
+        <translation>unbenannt</translation>
     </message>
     <message>
         <source>Current theme: %1</source>
@@ -18902,123 +18902,123 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Logging Category Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollansicht</translation>
     </message>
     <message>
         <source>Save Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokoll speichern</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Stop Logging</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollierung anhalten</translation>
     </message>
     <message>
         <source>Toggle Qt Internal Logging</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollierung von Qt-Interna umschalten</translation>
     </message>
     <message>
         <source>Auto Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch scrollen</translation>
     </message>
     <message>
         <source>Timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitstempel</translation>
     </message>
     <message>
         <source>Message Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachrichtentypen</translation>
     </message>
     <message>
         <source>Timestamp</source>
-        <translation type="unfinished">Zeitstempel</translation>
+        <translation>Zeitstempel</translation>
     </message>
     <message>
         <source>Category</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorie</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
         <source>Start Logging</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollierung starten</translation>
     </message>
     <message>
         <source>Copy Selected Logs</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Protokolle kopieren</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished">Alles kopieren</translation>
+        <translation>Alles kopieren</translation>
     </message>
     <message>
         <source>Save Enabled as Preset...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte als Voreinstellung speichern...</translation>
     </message>
     <message>
         <source>Update from Preset...</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreinstellung laden...</translation>
     </message>
     <message>
         <source>Uncheck All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle abwählen</translation>
     </message>
     <message>
         <source>Save Logs As</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokolle speichern als</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Failed to write logs to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreiben der Protokolle nach &quot;%1&quot; fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to open file &quot;%1&quot; for writing logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; konnte nicht zum Schreiben der Protokolle geöffnet werden.</translation>
     </message>
     <message>
         <source>Save Enabled Categories As</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Kategorien speichern unter</translation>
     </message>
     <message>
         <source>Failed to write preset file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreiben der Voreinstellung nach &quot;%1&quot; fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Load Enabled Categories From</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Kategorien laden</translation>
     </message>
     <message>
         <source>Failed to open preset file &quot;%1&quot; for reading</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; konnte nicht zum Lesen der Voreinstellung geöffnet werden</translation>
     </message>
     <message>
         <source>Failed to read preset file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Lesen der Voreinstellung aus Datei &quot;%1&quot; fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Unexpected preset file format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartetes Format der Datei.</translation>
     </message>
     <message>
         <source>Haskell Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Haskell-Editor</translation>
     </message>
     <message>
         <source>Binding Editor</source>
-        <translation type="unfinished">Binding-Editor</translation>
+        <translation>Binding-Editor</translation>
     </message>
 </context>
 <context>
