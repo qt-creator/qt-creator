@@ -82,7 +82,6 @@ extend_qtc_library(QmlDesignerCore
 
 set(UI_FILES
   ${CMAKE_CURRENT_LIST_DIR}/designercore/instances/puppetbuildprogressdialog.ui
-  ${CMAKE_CURRENT_LIST_DIR}/designercore/instances/puppetdialog.ui
 )
 qt_wrap_ui(UI_SOURCES ${UI_FILES})
 
@@ -283,8 +282,6 @@ extend_qtc_library(QmlDesignerCore
     puppetstartdata.h
     puppetstarter.cpp
     puppetstarter.h
-    puppetdialog.cpp
-    puppetdialog.h
     qprocessuniqueptr.h
 )
 
