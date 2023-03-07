@@ -4,7 +4,7 @@
 #include "terminalplugin.h"
 
 #include "terminalpane.h"
-#include "terminalprocessinterface.h"
+#include "terminalprocessimpl.h"
 #include "terminalsettings.h"
 #include "terminalsettingspage.h"
 
@@ -48,10 +48,8 @@ void TerminalPlugin::extensionsInitialized()
             m_terminalPane->openTerminal(p);
         });
 
-    /*Utils::Terminal::Hooks::instance().createTerminalProcessInterfaceHook().set(
-        [this]() -> Utils::ProcessInterface * {
-            return new TerminalProcessInterface(m_terminalPane);
-        });*/
+    Utils::Terminal::Hooks::instance().createTerminalProcessInterfaceHook().set(
+        [this] { return new TerminalProcessImpl(m_terminalPane); });
 }
 
 } // namespace Internal

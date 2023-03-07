@@ -41,3 +41,5 @@ add_subdirectory(wininterrupt) ## windows only
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/perfparser/CMakeLists.txt)
   add_subdirectory(perfparser)
 endif()
+
+add_subdirectory(process_stub)

@@ -36,8 +36,10 @@ public:
     virtual void goToNext();
     virtual void goToPrev();
 
-    void openTerminal(Utils::Terminal::OpenTerminalParameters parameters);
+    void openTerminal(const Utils::Terminal::OpenTerminalParameters &parameters);
     void addTerminal(TerminalWidget *terminal, const QString &title);
+
+    TerminalWidget *stoppedTerminalWithId(const Utils::Id &identifier) const;
 
 private:
     TerminalWidget *currentTerminal() const;

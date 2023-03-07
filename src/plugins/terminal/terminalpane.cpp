@@ -23,18 +23,19 @@
 namespace Terminal {
 
 using namespace Utils;
+using namespace Utils::Terminal;
 
 TerminalPane::TerminalPane(QObject *parent)
     : Core::IOutputPane(parent)
 {
     Core::Context context("Terminal.Window");
 
-    m_newTerminal.setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    m_newTerminal.setIcon(Icons::PLUS_TOOLBAR.icon());
     m_newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
 
     connect(&m_newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
 
-    m_closeTerminal.setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
+    m_closeTerminal.setIcon(Icons::CLOSE_TOOLBAR.icon());
     m_closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
     m_closeTerminal.setEnabled(false);
 
@@ -109,21 +110,22 @@ static std::optional<FilePath> startupProjectDirectory()
     return project->projectDirectory();
 }
 
-void TerminalPane::openTerminal(Utils::Terminal::OpenTerminalParameters parameters)
+void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 {
+    OpenTerminalParameters parametersCopy{parameters};
     showPage(0);
 
-    if (!parameters.workingDirectory) {
+    if (!parametersCopy.workingDirectory) {
         const std::optional<FilePath> projectDir = startupProjectDirectory();
         if (projectDir) {
-            if (!parameters.shellCommand
-                || parameters.shellCommand->executable().ensureReachable(*projectDir)) {
-                parameters.workingDirectory = *projectDir;
+            if (!parametersCopy.shellCommand
+                || parametersCopy.shellCommand->executable().ensureReachable(*projectDir)) {
+                parametersCopy.workingDirectory = *projectDir;
             }
         }
     }
 
-    auto terminalWidget = new TerminalWidget(m_tabWidget, parameters);
+    auto terminalWidget = new TerminalWidget(m_tabWidget, parametersCopy);
     m_tabWidget->setCurrentIndex(m_tabWidget->addTab(terminalWidget, Tr::tr("Terminal")));
     setupTerminalWidget(terminalWidget);
 
@@ -141,6 +143,19 @@ void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
 
     m_closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
+}
+
+TerminalWidget *TerminalPane::stoppedTerminalWithId(const Id &identifier) const
+{
+    QTC_ASSERT(m_tabWidget, return nullptr);
+
+    for (int i = 0; i < m_tabWidget->count(); ++i) {
+        auto terminal = qobject_cast<TerminalWidget *>(m_tabWidget->widget(i));
+        if (terminal->processState() == QProcess::NotRunning && terminal->identifier() == identifier)
+            return terminal;
+    }
+
+    return nullptr;
 }
 
 QWidget *TerminalPane::outputWidget(QWidget *parent)

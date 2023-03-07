@@ -173,7 +173,7 @@ add_qtc_library(Utils
     temporaryfile.cpp temporaryfile.h
     terminalcommand.cpp terminalcommand.h
     terminalhooks.cpp terminalhooks.h
-    terminalprocess.cpp terminalprocess_p.h
+    terminalinterface.cpp terminalinterface.h
     textfieldcheckbox.cpp textfieldcheckbox.h
     textfieldcombobox.cpp textfieldcombobox.h
     textfileformat.cpp textfileformat.h
@@ -271,21 +271,3 @@ extend_qtc_library(Utils
           fsengine/fsenginehandler.h
           fsengine/filepathinfocache.h
 )
-
-if (WIN32)
-  add_qtc_executable(qtcreator_process_stub
-    SOURCES process_stub_win.c
-    DEPENDS shell32
-    DEFINES _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS
-  )
-
-  add_qtc_executable(qtcreator_ctrlc_stub
-    DEPENDS user32 shell32
-    DEFINES _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS
-    SOURCES
-      process_ctrlc_stub.cpp
-  )
-else()
-  add_qtc_executable(qtcreator_process_stub SOURCES process_stub_unix.c)
-endif()
-

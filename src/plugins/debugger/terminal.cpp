@@ -175,8 +175,7 @@ void TerminalRunner::start()
     Runnable stub = m_stubRunnable();
 
     m_stubProc = new QtcProcess(this);
-    m_stubProc->setTerminalMode(HostOsInfo::isWindowsHost()
-            ? TerminalMode::Suspend : TerminalMode::Debug);
+    m_stubProc->setTerminalMode(TerminalMode::Debug);
 
     connect(m_stubProc, &QtcProcess::started,
             this, &TerminalRunner::stubStarted);

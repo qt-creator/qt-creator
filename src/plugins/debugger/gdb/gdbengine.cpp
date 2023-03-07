@@ -1105,9 +1105,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // Ignore trap on Windows terminals, which results in
     // spurious "* stopped" message.
     if (m_expectTerminalTrap) {
-        m_expectTerminalTrap = false;
         if ((!data.isValid() || !data["reason"].isValid())
                 && Abi::hostAbi().os() == Abi::WindowsOS) {
+            m_expectTerminalTrap = false;
             showMessage("IGNORING TERMINAL SIGTRAP", LogMisc);
             return;
         }
@@ -1421,14 +1421,19 @@ void GdbEngine::handleStop2(const GdbMi &data)
             } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
             } else {
-                showMessage("HANDLING SIGNAL " + name);
-                if (debuggerSettings()->useMessageBoxForSignals.value() && !isStopperThread)
-                    if (!showStoppedBySignalMessageBox(meaning, name)) {
-                        showMessage("SIGNAL RECEIVED WHILE SHOWING SIGNAL MESSAGE");
-                        return;
-                    }
-                if (!name.isEmpty() && !meaning.isEmpty())
-                    reasontr = msgStoppedBySignal(meaning, name);
+                if (terminal() && name == "SIGCONT" && m_expectTerminalTrap) {
+                    continueInferior();
+                    m_expectTerminalTrap = false;
+                } else {
+                    showMessage("HANDLING SIGNAL " + name);
+                    if (debuggerSettings()->useMessageBoxForSignals.value() && !isStopperThread)
+                        if (!showStoppedBySignalMessageBox(meaning, name)) {
+                            showMessage("SIGNAL RECEIVED WHILE SHOWING SIGNAL MESSAGE");
+                            return;
+                        }
+                    if (!name.isEmpty() && !meaning.isEmpty())
+                        reasontr = msgStoppedBySignal(meaning, name);
+                }
             }
         }
         if (reason.isEmpty())

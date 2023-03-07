@@ -12,7 +12,7 @@ add_qtc_plugin(Terminal
     terminal.qrc
     terminalpane.cpp terminalpane.h
     terminalplugin.cpp terminalplugin.h
-    terminalprocessinterface.cpp terminalprocessinterface.h
+    terminalprocessimpl.cpp terminalprocessimpl.h
     terminalsettings.cpp terminalsettings.h
     terminalsettingspage.cpp terminalsettingspage.h
     terminalsurface.cpp terminalsurface.h

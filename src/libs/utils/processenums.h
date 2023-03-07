@@ -26,7 +26,6 @@ enum class TerminalMode {
     Off,
     Run,
     Debug,
-    Suspend,
     On = Run // Default mode for terminal set to on
 };
 

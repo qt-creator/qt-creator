@@ -3,8 +3,12 @@
 
 #include "terminalhooks.h"
 
+#include "terminalinterface.h"
 #include "filepath.h"
-#include "terminalprocess_p.h"
+#include "qtcprocess.h"
+#include "terminalcommand.h"
+
+#include <QTemporaryFile>
 
 namespace Utils::Terminal {
 
@@ -26,6 +30,61 @@ FilePath defaultShellForDevice(const FilePath &deviceRoot)
     return shell.onDevice(deviceRoot);
 }
 
+class ExternalTerminalProcessImpl final : public TerminalInterface
+{
+    class ProcessStubCreator : public StubCreator
+    {
+    public:
+        ProcessStubCreator(ExternalTerminalProcessImpl *interface)
+            : m_interface(interface)
+        {}
+
+        void startStubProcess(const CommandLine &cmd, const ProcessSetupData &) override
+        {
+            if (HostOsInfo::isWindowsHost()) {
+                m_terminalProcess.setCommand(cmd);
+                QObject::connect(&m_terminalProcess, &QtcProcess::done, this, [this] {
+                    m_interface->onStubExited();
+                });
+                m_terminalProcess.start();
+            } else if (HostOsInfo::isMacHost()) {
+                QTemporaryFile f;
+                f.setAutoRemove(false);
+                f.open();
+                f.setPermissions(QFile::ExeUser | QFile::ReadUser | QFile::WriteUser);
+                f.write("#!/bin/sh\n");
+                f.write(QString("exec '%1' %2\n")
+                            .arg(cmd.executable().nativePath())
+                            .arg(cmd.arguments())
+                            .toUtf8());
+                f.close();
+
+                const QString path = f.fileName();
+                const QString exe
+                    = QString("tell app \"Terminal\" to do script \"'%1'; rm -f '%1'; exit\"")
+                          .arg(path);
+
+                m_terminalProcess.setCommand({"osascript", {"-e", exe}});
+                m_terminalProcess.runBlocking();
+            } else {
+                const TerminalCommand terminal = TerminalCommand::terminalEmulator();
+
+                CommandLine cmdLine = {terminal.command, {terminal.executeArgs}};
+                cmdLine.addCommandLineAsArgs(cmd, CommandLine::Raw);
+
+                m_terminalProcess.setCommand(cmdLine);
+                m_terminalProcess.start();
+            }
+        }
+
+        ExternalTerminalProcessImpl *m_interface;
+        QtcProcess m_terminalProcess;
+    };
+
+public:
+    ExternalTerminalProcessImpl() { setStubCreator(new ProcessStubCreator(this)); }
+};
+
 struct HooksPrivate
 {
     HooksPrivate()
@@ -34,9 +93,8 @@ struct HooksPrivate
                                                          FilePath{}),
                                                      parameters.environment.value_or(Environment{}));
         })
-        , m_createTerminalProcessInterfaceHook(
-              []() -> ProcessInterface * { return new Internal::TerminalImpl(); })
-        , m_getTerminalCommandsForDevicesHook([]() -> QList<NameAndCommandLine> { return {}; })
+        , m_createTerminalProcessInterfaceHook([] { return new ExternalTerminalProcessImpl(); })
+        , m_getTerminalCommandsForDevicesHook([] { return QList<NameAndCommandLine>{}; })
     {}
 
     Hooks::OpenTerminalHook m_openTerminalHook;

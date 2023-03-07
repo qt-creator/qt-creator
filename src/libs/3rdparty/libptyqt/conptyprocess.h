@@ -154,15 +154,15 @@ private:
 
 private:
     WindowsContext m_winContext;
-    HPCON m_ptyHandler;
-    HANDLE m_hPipeIn, m_hPipeOut;
+    HPCON m_ptyHandler{INVALID_HANDLE_VALUE};
+    HANDLE m_hPipeIn{INVALID_HANDLE_VALUE}, m_hPipeOut{INVALID_HANDLE_VALUE};
 
-    QThread *m_readThread;
+    QThread *m_readThread{nullptr};
     QMutex m_bufferMutex;
     PtyBuffer m_buffer;
     bool m_aboutToDestruct{false};
     PROCESS_INFORMATION m_shellProcessInformation{};
-    QWinEventNotifier* m_shellCloseWaitNotifier;
+    QWinEventNotifier *m_shellCloseWaitNotifier{nullptr};
     STARTUPINFOEX m_shellStartupInfo{};
 };
 

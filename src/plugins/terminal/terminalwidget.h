@@ -71,10 +71,15 @@ public:
         }
     };
 
+    void setShellName(const QString &shellName);
     QString shellName() const;
 
     Utils::FilePath cwd() const;
     Utils::CommandLine currentCommand() const;
+    std::optional<Utils::Id> identifier() const;
+    QProcess::ProcessState processState() const;
+
+    void restart(const Utils::Terminal::OpenTerminalParameters &openParameters);
 
 signals:
     void started(qint64 pid);
@@ -167,6 +172,7 @@ private:
     std::unique_ptr<ShellIntegration> m_shellIntegration;
 
     QString m_shellName;
+    Utils::Id m_identifier;
 
     QFont m_font;
     QSizeF m_cellSize;

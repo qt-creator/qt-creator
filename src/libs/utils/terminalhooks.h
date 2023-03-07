@@ -6,6 +6,7 @@
 #include "commandline.h"
 #include "environment.h"
 #include "filepath.h"
+#include "id.h"
 
 #include <functional>
 #include <memory>
@@ -46,6 +47,7 @@ struct OpenTerminalParameters
     std::optional<FilePath> workingDirectory;
     std::optional<Environment> environment;
     ExitBehavior m_exitBehavior{ExitBehavior::Close};
+    std::optional<Id> identifier{std::nullopt};
 };
 
 struct NameAndCommandLine
