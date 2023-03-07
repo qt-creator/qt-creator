@@ -3678,6 +3678,9 @@ class LambdaExpressionAST: public ExpressionAST
 {
 public:
     LambdaIntroducerAST *lambda_introducer = nullptr;
+    DeclarationListAST *templateParameters = nullptr;
+    RequiresClauseAST *requiresClause = nullptr;
+    SpecifierListAST *attributes = nullptr;
     LambdaDeclaratorAST *lambda_declarator = nullptr;
     StatementAST *statement = nullptr;
 
@@ -3758,6 +3761,7 @@ public:
     int mutable_token = 0;
     ExceptionSpecificationAST *exception_specification = nullptr;
     TrailingReturnTypeAST *trailing_return_type = nullptr;
+    RequiresClauseAST *requiresClause = nullptr;
 
 public: // annotations
     Function *symbol = nullptr;

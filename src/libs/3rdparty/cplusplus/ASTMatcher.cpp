@@ -3056,6 +3056,21 @@ bool ASTMatcher::match(LambdaExpressionAST *node, LambdaExpressionAST *pattern)
     else if (! AST::match(node->lambda_introducer, pattern->lambda_introducer, this))
         return false;
 
+    if (! pattern->templateParameters)
+        pattern->templateParameters = node->templateParameters;
+    else if (! AST::match(node->templateParameters, pattern->templateParameters, this))
+        return false;
+
+    if (! pattern->requiresClause)
+        pattern->requiresClause = node->requiresClause;
+    else if (! AST::match(node->requiresClause, pattern->requiresClause, this))
+        return false;
+
+    if (! pattern->attributes)
+        pattern->attributes = node->attributes;
+    else if (! AST::match(node->attributes, pattern->attributes, this))
+        return false;
+
     if (! pattern->lambda_declarator)
         pattern->lambda_declarator = node->lambda_declarator;
     else if (! AST::match(node->lambda_declarator, pattern->lambda_declarator, this))
@@ -3145,6 +3160,11 @@ bool ASTMatcher::match(LambdaDeclaratorAST *node, LambdaDeclaratorAST *pattern)
     if (! pattern->trailing_return_type)
         pattern->trailing_return_type = node->trailing_return_type;
     else if (! AST::match(node->trailing_return_type, pattern->trailing_return_type, this))
+        return false;
+
+    if (! pattern->requiresClause)
+        pattern->requiresClause = node->requiresClause;
+    else if (! AST::match(node->requiresClause, pattern->requiresClause, this))
         return false;
 
     return true;

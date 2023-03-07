@@ -1816,6 +1816,14 @@ LambdaExpressionAST *LambdaExpressionAST::clone(MemoryPool *pool) const
     LambdaExpressionAST *ast = new (pool) LambdaExpressionAST;
     if (lambda_introducer)
         ast->lambda_introducer = lambda_introducer->clone(pool);
+    for (DeclarationListAST *iter = templateParameters, **ast_iter = &ast->templateParameters;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) DeclarationListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    if (requiresClause)
+        ast->requiresClause = requiresClause->clone(pool);
+    for (SpecifierListAST *iter = attributes, **ast_iter = &ast->attributes;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);
     if (lambda_declarator)
         ast->lambda_declarator = lambda_declarator->clone(pool);
     if (statement)
@@ -1867,6 +1875,8 @@ LambdaDeclaratorAST *LambdaDeclaratorAST::clone(MemoryPool *pool) const
         ast->exception_specification = exception_specification->clone(pool);
     if (trailing_return_type)
         ast->trailing_return_type = trailing_return_type->clone(pool);
+    if (requiresClause)
+        ast->requiresClause = requiresClause->clone(pool);
     return ast;
 }
 

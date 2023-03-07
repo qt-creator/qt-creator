@@ -1417,8 +1417,22 @@ bool Parser::parseRequiresClauseOpt(RequiresClauseAST *&node)
         return true;
     const auto ast = new (_pool) RequiresClauseAST;
     ast->requires_token = consumeToken();
-    if (!parseLogicalOrExpression(ast->constraint))
+    if (!parsePrimaryExpression(ast->constraint))
         return false;
+    while (true) {
+        if (LA() != T_PIPE_PIPE && LA() != T_AMPER_AMPER)
+            break;
+        ExpressionAST *next = nullptr;
+        if (!parsePrimaryExpression(next))
+            return false;
+
+        // This won't yield the right precedence, but I don't care.
+        BinaryExpressionAST *expr = new (_pool) BinaryExpressionAST;
+        expr->left_expression = ast->constraint;
+        expr->binary_op_token = consumeToken();
+        expr->right_expression = next;
+        ast->constraint = expr;
+    }
     node = ast;
     return true;
 }
@@ -6999,6 +7013,15 @@ bool Parser::parseLambdaExpression(ExpressionAST *&node)
     if (parseLambdaIntroducer(lambda_introducer)) {
         LambdaExpressionAST *ast = new (_pool) LambdaExpressionAST;
         ast->lambda_introducer = lambda_introducer;
+        if (_languageFeatures.cxx20Enabled && LA() == T_LESS) {
+            consumeToken();
+            parseTemplateParameterList(ast->templateParameters);
+            if (LA() != T_GREATER)
+                return false;
+            consumeToken();
+            parseRequiresClauseOpt(ast->requiresClause);
+        }
+        parseOptionalAttributeSpecifierSequence(ast->attributes);
         parseLambdaDeclarator(ast->lambda_declarator);
         parseCompoundStatement(ast->statement);
         node = ast;
@@ -7023,7 +7046,9 @@ bool Parser::parseLambdaIntroducer(LambdaIntroducerAST *&node)
     if (LA() == T_RBRACKET) {
         ast->rbracket_token = consumeToken();
 
-        if (LA() == T_LPAREN || LA() == T_LBRACE) {
+        // FIXME: Attributes are also allowed ...
+        if (LA() == T_LPAREN || LA() == T_LBRACE
+            || (_languageFeatures.cxx20Enabled && LA() == T_LESS)) {
             node = ast;
             return true;
         }
@@ -7139,6 +7164,7 @@ bool Parser::parseLambdaDeclarator(LambdaDeclaratorAST *&node)
 
     parseExceptionSpecification(ast->exception_specification);
     parseTrailingReturnType(ast->trailing_return_type);
+    parseRequiresClauseOpt(ast->requiresClause);
     node = ast;
 
     return true;

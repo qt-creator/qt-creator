@@ -1317,6 +1317,9 @@ void LambdaExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(lambda_introducer, visitor);
+        accept(templateParameters, visitor);
+        accept(requiresClause, visitor);
+        accept(attributes, visitor);
         accept(lambda_declarator, visitor);
         accept(statement, visitor);
     }
@@ -1354,6 +1357,7 @@ void LambdaDeclaratorAST::accept0(ASTVisitor *visitor)
         accept(attributes, visitor);
         accept(exception_specification, visitor);
         accept(trailing_return_type, visitor);
+        accept(requiresClause, visitor);
     }
     visitor->endVisit(this);
 }
