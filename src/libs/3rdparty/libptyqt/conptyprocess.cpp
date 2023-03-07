@@ -105,8 +105,7 @@ bool ConPtyProcess::startProcess(const QString &executable,
                                  qint16 cols,
                                  qint16 rows)
 {
-    if (!isAvailable())
-    {
+    if (!isAvailable()) {
         m_lastError = m_winContext.lastError();
         return false;
     }
@@ -127,54 +126,45 @@ bool ConPtyProcess::startProcess(const QString &executable,
     m_size = QPair<qint16, qint16>(cols, rows);
 
     //env
-    std::wstringstream envBlock;
-    for (const QString &line: std::as_const(environment))
-    {
-        envBlock << line.toStdWString() << L'\0';
-    }
-    envBlock << L'\0';
-    std::wstring env = envBlock.str();
-    LPWSTR envArg = env.empty() ? nullptr : env.data();
-    LPCWSTR workingDirPointer = workingDir.isEmpty() ? nullptr : workingDir.toStdWString().c_str();
+    const QString env = environment.join(QChar(QChar::Null)) + QChar(QChar::Null);
+    LPVOID envPtr = env.isEmpty() ? nullptr : (LPVOID) env.utf16();
+
+    LPCWSTR workingDirPtr = workingDir.isEmpty() ? nullptr : (LPCWSTR) workingDir.utf16();
 
     QStringList exeAndArgs = arguments;
     exeAndArgs.prepend(m_shellPath);
+    std::wstring cmdArg{(LPCWSTR) (exeAndArgs.join(QLatin1String(" ")).utf16())};
 
-    std::wstring cmdArg = exeAndArgs.join(" ").toStdWString();
-
-    HRESULT hr{ E_UNEXPECTED };
+    HRESULT hr{E_UNEXPECTED};
 
     //  Create the Pseudo Console and pipes to it
     hr = createPseudoConsoleAndPipes(&m_ptyHandler, &m_hPipeIn, &m_hPipeOut, cols, rows);
 
-    if (S_OK != hr)
-    {
+    if (S_OK != hr) {
         m_lastError = QString("ConPty Error: CreatePseudoConsoleAndPipes fail");
         return false;
     }
 
     // Initialize the necessary startup info struct
-    if (S_OK != initializeStartupInfoAttachedToPseudoConsole(&m_shellStartupInfo, m_ptyHandler))
-    {
+    if (S_OK != initializeStartupInfoAttachedToPseudoConsole(&m_shellStartupInfo, m_ptyHandler)) {
         m_lastError = QString("ConPty Error: InitializeStartupInfoAttachedToPseudoConsole fail");
         return false;
     }
 
-    hr = CreateProcess(NULL,          // No module name - use Command Line
-                       cmdArg.data(), // Command Line
-                       NULL,          // Process handle not inheritable
-                       NULL,          // Thread handle not inheritable
-                       FALSE,         // Inherit handles
-                       EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT, // Creation flags
-                       envArg,                            // Environment block
-                       workingDirPointer, // Use parent's starting directory
-                       &m_shellStartupInfo.StartupInfo,   // Pointer to STARTUPINFO
-                       &m_shellProcessInformation)        // Pointer to PROCESS_INFORMATION
+    hr = CreateProcessW(nullptr,       // No module name - use Command Line
+                        cmdArg.data(), // Command Line
+                        nullptr,       // Process handle not inheritable
+                        nullptr,       // Thread handle not inheritable
+                        FALSE,         // Inherit handles
+                        EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT, // Creation flags
+                        envPtr,                          // Environment block
+                        workingDirPtr,                   // Use parent's starting directory
+                        &m_shellStartupInfo.StartupInfo, // Pointer to STARTUPINFO
+                        &m_shellProcessInformation)      // Pointer to PROCESS_INFORMATION
              ? S_OK
              : GetLastError();
 
-    if (S_OK != hr)
-    {
+    if (S_OK != hr) {
         m_lastError = QString("ConPty Error: Cannot create process -> %1").arg(hr);
         return false;
     }
@@ -184,27 +174,25 @@ bool ConPtyProcess::startProcess(const QString &executable,
     // Notify when the shell process has been terminated
     m_shellCloseWaitNotifier = new QWinEventNotifier(m_shellProcessInformation.hProcess, notifier());
     QObject::connect(m_shellCloseWaitNotifier,
-            &QWinEventNotifier::activated,
-            notifier(),
-            [this](HANDLE hEvent) {
-                DWORD exitCode = 0;
-                GetExitCodeProcess(hEvent, &exitCode);
-                m_exitCode = exitCode;
-                // Do not respawn if the object is about to be destructed
-                if (!m_aboutToDestruct)
-                    emit notifier()->aboutToClose();
-                m_shellCloseWaitNotifier->setEnabled(false);
-            });
+                     &QWinEventNotifier::activated,
+                     notifier(),
+                     [this](HANDLE hEvent) {
+                         DWORD exitCode = 0;
+                         GetExitCodeProcess(hEvent, &exitCode);
+                         m_exitCode = exitCode;
+                         // Do not respawn if the object is about to be destructed
+                         if (!m_aboutToDestruct)
+                             emit notifier()->aboutToClose();
+                         m_shellCloseWaitNotifier->setEnabled(false);
+                     });
 
     //this code runned in separate thread
-    m_readThread = QThread::create([this]()
-    {
+    m_readThread = QThread::create([this]() {
         //buffers
-        const DWORD BUFF_SIZE{ 1024 };
+        const DWORD BUFF_SIZE{1024};
         char szBuffer[BUFF_SIZE]{};
 
-        forever
-        {
+        forever {
             DWORD dwBytesRead{};
 
             // Read from the pipe
