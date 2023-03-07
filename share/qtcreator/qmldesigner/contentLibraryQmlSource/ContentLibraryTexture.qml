@@ -142,7 +142,7 @@ Item {
 
             Text {
                 id: helperText
-                text: modelData.textureToolTip
+                text: tooltip.text
                 visible: false
             }
         }
