@@ -61,6 +61,9 @@ const int labelMinWidth = 130;
 const int controlMinWidth = 65;
 const int columnSpacing = 16;
 
+constexpr QStringView qdsWorkaroundsKey{u"designStudioWorkarounds"};
+constexpr QStringView expandValuesKey{u"expandValueComponents"};
+
 } // namespace
 
 ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
@@ -170,6 +173,11 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
         while (optIt != supportedOpts.constEnd()) {
             QJsonObject options = QJsonObject::fromVariantMap(qvariant_cast<QVariantMap>(optIt.value()));
             m_importOptions << options.value("options").toObject();
+            if (m_importOptions.last().contains(qdsWorkaroundsKey)) {
+                QJsonObject optObj = m_importOptions.last()[qdsWorkaroundsKey].toObject();
+                optObj.insert("value", QJsonValue{true});
+                m_importOptions.last().insert(qdsWorkaroundsKey, optObj);
+            }
             auto it = defaultOpts.constBegin();
             while (it != defaultOpts.constEnd()) {
                 if (m_importOptions.last().contains(it.key())) {
@@ -475,7 +483,7 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
     QJsonObject &options = m_importOptions[optionsIndex];
     const auto optKeys = options.keys();
     for (const auto &optKey : optKeys) {
-        if (!advanced && !isSimpleOption(optKey))
+        if ((!advanced && !isSimpleOption(optKey)) || isHiddenOption(optKey))
             continue;
         QJsonObject optObj = options.value(optKey).toObject();
         const QString optName = optObj.value("name").toString();
@@ -835,6 +843,16 @@ bool ItemLibraryAssetImportDialog::isSimpleOption(const QString &id)
     };
 
     return simpleOptions.contains(id);
+}
+
+bool ItemLibraryAssetImportDialog::isHiddenOption(const QString &id)
+{
+    static QList<QStringView> hiddenOptions {
+        qdsWorkaroundsKey,
+        expandValuesKey // Hidden because qdsWorkaroundsKey we force true implies this
+    };
+
+    return hiddenOptions.contains(id);
 }
 
 void ItemLibraryAssetImportDialog::resizeEvent(QResizeEvent *event)
