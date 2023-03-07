@@ -5,9 +5,13 @@ import QtQuick
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import AssetsLibraryBackend
 
 Item {
     id: root
+
+    property var assetsModel: AssetsLibraryBackend.assetsModel
+    property var rootView: AssetsLibraryBackend.rootView
 
     // Array of supported externally dropped files that are imported as-is
     property var dropSimpleExtFiles: []

@@ -6,6 +6,7 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import StudioControls as StudioControls
+import AssetsLibraryBackend
 
 Dialog {
     id: root
@@ -61,7 +62,7 @@ Dialog {
 
                 text: qsTr("Delete")
                 onClicked: {
-                    assetsModel.deleteFiles(root.files, dontAskAgain.checked)
+                    AssetsLibraryBackend.assetsModel.deleteFiles(root.files, dontAskAgain.checked)
                     root.accept()
                 }
             }
@@ -98,7 +99,7 @@ Dialog {
 
             delegate: Text {
                 elide: Text.ElideLeft
-                text: model.modelData.replace(assetsModel.currentProjectDirPath(), "")
+                text: model.modelData.replace(AssetsLibraryBackend.assetsModel.currentProjectDirPath(), "")
                 color: StudioTheme.Values.themeTextColor
                 width: parent.width - (verticalScrollBar.scrollBarVisible ? verticalScrollBar.width : 0)
             }

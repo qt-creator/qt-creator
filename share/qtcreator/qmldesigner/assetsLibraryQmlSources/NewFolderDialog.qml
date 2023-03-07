@@ -6,6 +6,7 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import AssetsLibraryBackend
 
 Dialog {
     id: root
@@ -86,7 +87,7 @@ Dialog {
                 enabled: folderName.text !== "" && root.createdDirPath.length <= root.__maxPath
                 onClicked: {
                     root.createdDirPath = root.dirPath + '/' + folderName.text
-                    if (assetsModel.addNewFolder(root.createdDirPath))
+                    if (AssetsLibraryBackend.assetsModel.addNewFolder(root.createdDirPath))
                         root.accept()
                     else
                         creationFailedDialog.open()

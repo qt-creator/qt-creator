@@ -4,12 +4,16 @@
 import QtQuick
 import QtQuick.Controls
 import StudioTheme as StudioTheme
+import AssetsLibraryBackend
 
 TreeViewDelegate {
     id: root
 
     required property Item assetsView
     required property Item assetsRoot
+
+    property var assetsModel: AssetsLibraryBackend.assetsModel
+    property var rootView: AssetsLibraryBackend.rootView
 
     property bool hasChildWithDropHover: false
     property bool isHighlighted: false
@@ -127,11 +131,11 @@ TreeViewDelegate {
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-        onExited: tooltipBackend.hideTooltip()
+        onExited: AssetsLibraryBackend.tooltipBackend.hideTooltip()
         onEntered: mouseArea.allowTooltip = true
 
         onCanceled: {
-            tooltipBackend.hideTooltip()
+            AssetsLibraryBackend.tooltipBackend.hideTooltip()
             mouseArea.allowTooltip = true
         }
 
@@ -140,7 +144,7 @@ TreeViewDelegate {
         onPressed: (mouse) => {
             mouseArea.forceActiveFocus()
             mouseArea.allowTooltip = false
-            tooltipBackend.hideTooltip()
+            AssetsLibraryBackend.tooltipBackend.hideTooltip()
 
             if (root.__isDirectory)
                 return
@@ -154,7 +158,7 @@ TreeViewDelegate {
 
                if (root.currFileSelected) {
                    let selectedPaths = root.assetsView.selectedPathsAsList()
-                   rootView.startDragAsset(selectedPaths, mapToGlobal(mouse.x, mouse.y))
+                   AssetsLibraryBackend.rootView.startDragAsset(selectedPaths, mapToGlobal(mouse.x, mouse.y))
                }
             } else {
                if (!root.assetsView.isAssetSelected(root.__itemPath) && !ctrlDown)
@@ -178,9 +182,9 @@ TreeViewDelegate {
         onDoubleClicked: (mouse) => {
             mouseArea.forceActiveFocus()
             mouseArea.allowTooltip = false
-            tooltipBackend.hideTooltip()
+            AssetsLibraryBackend.tooltipBackend.hideTooltip()
             if (mouse.button === Qt.LeftButton && root.isEffect)
-                rootView.openEffectMaker(filePath)
+                AssetsLibraryBackend.rootView.openEffectMaker(filePath)
         }
 
         ToolTip {
@@ -222,9 +226,9 @@ TreeViewDelegate {
             running: mouseArea.containsMouse && mouseArea.allowTooltip
             onTriggered: {
                 if (root.isFont) {
-                    tooltipBackend.name = model.fileName
-                    tooltipBackend.path = model.filePath
-                    tooltipBackend.showTooltip()
+                    AssetsLibraryBackend.tooltipBackend.name = model.fileName
+                    AssetsLibraryBackend.tooltipBackend.path = model.filePath
+                    AssetsLibraryBackend.tooltipBackend.showTooltip()
                 }
             }
         }

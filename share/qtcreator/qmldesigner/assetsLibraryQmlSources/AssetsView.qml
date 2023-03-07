@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
+import AssetsLibraryBackend
 
 TreeView {
     id: root
@@ -13,6 +14,10 @@ TreeView {
     reuseItems: false
     boundsBehavior: Flickable.StopAtBounds
     rowSpacing: 5
+
+    property var assetsModel: AssetsLibraryBackend.assetsModel
+    property var rootView: AssetsLibraryBackend.rootView
+    property var tooltipBackend: AssetsLibraryBackend.tooltipBackend
 
     required property Item assetsRoot
     required property StudioControls.Menu contextMenu

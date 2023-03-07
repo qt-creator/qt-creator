@@ -6,6 +6,7 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import AssetsLibraryBackend
 
 Dialog {
     id: root
@@ -17,6 +18,8 @@ Dialog {
 
     required property string dirPath
     readonly property int __maxPath: 32
+
+    property var rootView: AssetsLibraryBackend.rootView
 
     ErrorDialog {
         id: creationFailedDialog
@@ -93,8 +96,8 @@ Dialog {
                          && effectName.length >=3
                          && effectName.text.length <= root.__maxPath
                 onClicked: {
-                    const path = rootView.getUniqueEffectPath(root.dirPath, effectName.text)
-                    if (rootView.createNewEffect(path))
+                    const path = AssetsLibraryBackend.rootView.getUniqueEffectPath(root.dirPath, effectName.text)
+                    if (AssetsLibraryBackend.rootView.createNewEffect(path))
                         root.accept()
                     else
                         creationFailedDialog.open()
@@ -109,7 +112,7 @@ Dialog {
     }
 
     onOpened: {
-        const path = rootView.getUniqueEffectPath(root.dirPath, "Effect01")
+        const path = AssetsLibraryBackend.rootView.getUniqueEffectPath(root.dirPath, "Effect01")
         effectName.text = path.split('/').pop().replace(".qep", '')
         effectName.selectAll()
         effectName.forceActiveFocus()

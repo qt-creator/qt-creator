@@ -18,6 +18,8 @@ class QShortcut;
 class QToolButton;
 QT_END_NAMESPACE
 
+class StudioQuickWidget;
+
 namespace Utils {
     class QtcProcess;
 }
@@ -123,7 +125,7 @@ private:
     AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;
     AssetsLibraryModel *m_assetsModel = nullptr;
 
-    QScopedPointer<QQuickWidget> m_assetsWidget;
+    QScopedPointer<StudioQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;

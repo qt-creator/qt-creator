@@ -5,11 +5,15 @@ import QtQuick
 import QtQuick.Controls
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import AssetsLibraryBackend
 
 StudioControls.Menu {
     id: root
 
     required property Item assetsView
+
+    property var assetsModel: AssetsLibraryBackend.assetsModel
+    property var rootView: AssetsLibraryBackend.rootView
 
     property bool __isDirectory: false
     property var __fileIndex: null
@@ -79,7 +83,7 @@ StudioControls.Menu {
         root.__selectedAssetPathsList = selectedAssetPathsList
         root.__fileIndex = fileIndex
         root.__dirIndex = dirModelIndex
-        root.__dirPath = assetsModel.filePath(dirModelIndex)
+        root.__dirPath = AssetsLibraryBackend.assetsModel.filePath(dirModelIndex)
         root.__isDirectory = false
         root.popup()
     }
@@ -120,9 +124,9 @@ StudioControls.Menu {
         id: addTexturesItem
         text: qsTr("Add Texture")
         enabled: rootView.hasMaterialLibrary
-        visible: root.__fileIndex && assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
+        visible: root.__fileIndex && AssetsLibraryBackend.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: addTexturesItem.visible ? addTexturesItem.implicitHeight : 0
-        onTriggered: rootView.addTextures(root.__selectedAssetPathsList)
+        onTriggered: AssetsLibraryBackend.rootView.addTextures(root.__selectedAssetPathsList)
     }
 
     StudioControls.MenuItem {
@@ -130,7 +134,7 @@ StudioControls.Menu {
         text: qsTr("Add Light Probe")
         enabled: rootView.hasMaterialLibrary
         visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
-                 && assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
+                 && AssetsLibraryBackend.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: addLightProbes.visible ? addLightProbes.implicitHeight : 0
         onTriggered: rootView.addLightProbe(root.__selectedAssetPathsList[0])
     }
@@ -141,7 +145,7 @@ StudioControls.Menu {
         visible: root.__fileIndex
         height: deleteFileItem.visible ? deleteFileItem.implicitHeight : 0
         onTriggered: {
-            let deleted = assetsModel.requestDeleteFiles(root.__selectedAssetPathsList)
+            let deleted = AssetsLibraryBackend.assetsModel.requestDeleteFiles(root.__selectedAssetPathsList)
             if (!deleted)
                 confirmDeleteFiles.open()
         }
@@ -178,7 +182,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Folder")
-        visible: assetsModel.haveFiles
+        visible: AssetsLibraryBackend.assetsModel.haveFiles
         height: visible ? implicitHeight : 0
 
         NewFolderDialog {
@@ -205,11 +209,11 @@ StudioControls.Menu {
         }
 
         onTriggered: {
-            if (!assetsModel.hasChildren(root.__dirIndex)) {
+            if (!AssetsLibraryBackend.assetsModel.hasChildren(root.__dirIndex)) {
                 // NOTE: the folder may still not be empty -- it doesn't have files visible to the
                 // user, but that doesn't mean that there are no other files (e.g. files of unknown
                 // types) on disk in this directory.
-                assetsModel.deleteFolderRecursively(root.__dirIndex)
+                AssetsLibraryBackend.assetsModel.deleteFolderRecursively(root.__dirIndex)
             } else {
                 confirmDeleteFolderDialog.open()
             }
