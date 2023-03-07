@@ -48,6 +48,7 @@ Rectangle {
 
         onEntered: (drag) => {
             drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.texture"
+                         || drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture"
                          || (drag.formats[0] === "application/vnd.qtdesignstudio.assets"
                              && rootView.hasAcceptableAssets(drag.urls))
         }
@@ -57,6 +58,8 @@ Rectangle {
 
             if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
                 rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
+            else if (drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture")
+                rootView.acceptBundleTextureDropOnMaterial(index, drag.urls[0])
             else if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
                 rootView.acceptAssetsDropOnMaterial(index, drag.urls)
         }

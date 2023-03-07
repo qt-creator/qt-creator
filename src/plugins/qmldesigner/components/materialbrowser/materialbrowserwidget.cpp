@@ -288,6 +288,24 @@ void MaterialBrowserWidget::acceptBundleTextureDrop()
         m_materialBrowserView->model()->endDrag();
 }
 
+void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, const QUrl &bundleTexPath)
+{
+    ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
+    QTC_ASSERT(mat.isValid(), return);
+
+    auto *creator = new CreateTexture(m_materialBrowserView, true);
+
+    m_materialBrowserView->executeInTransaction(__FUNCTION__, [&] {
+        ModelNode tex = creator->execute(bundleTexPath.toLocalFile());
+        QTC_ASSERT(tex.isValid(), return);
+
+        m_materialBrowserModel->selectMaterial(matIndex);
+        m_materialBrowserView->applyTextureToMaterial({mat}, tex);
+    });
+
+    creator->deleteLater();
+}
+
 void MaterialBrowserWidget::acceptAssetsDrop(const QList<QUrl> &urls)
 {
     QStringList assetPaths = Utils::transform(urls, [](const QUrl &url) { return url.toLocalFile(); });

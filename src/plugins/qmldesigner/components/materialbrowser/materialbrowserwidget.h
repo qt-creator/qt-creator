@@ -60,6 +60,7 @@ public:
     Q_INVOKABLE void acceptBundleMaterialDrop();
     Q_INVOKABLE bool hasAcceptableAssets(const QList<QUrl> &urls);
     Q_INVOKABLE void acceptBundleTextureDrop();
+    Q_INVOKABLE void acceptBundleTextureDropOnMaterial(int matIndex, const QUrl &bundleTexPath);
     Q_INVOKABLE void acceptAssetsDrop(const QList<QUrl> &urls);
     Q_INVOKABLE void acceptAssetsDropOnMaterial(int matIndex, const QList<QUrl> &urls);
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
