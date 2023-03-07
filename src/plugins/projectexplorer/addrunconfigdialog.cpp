@@ -118,6 +118,7 @@ AddRunConfigDialog::AddRunConfigDialog(Target *target, QWidget *parent)
     const auto proxyModel = new ProxyModel(this);
     proxyModel->setSourceModel(model);
     const auto filterEdit = new FancyLineEdit(this);
+    filterEdit->setFocus();
     filterEdit->setFiltering(true);
     filterEdit->setPlaceholderText(Tr::tr("Filter candidates by name"));
     m_view->setSelectionMode(TreeView::SingleSelection);
