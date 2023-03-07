@@ -50,6 +50,7 @@ TestCodeParser::TestCodeParser()
     m_reparseTimer.setSingleShot(true);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
     m_threadPool->setMaxThreadCount(std::max(QThread::idealThreadCount()/4, 1));
+    m_threadPool->setThreadPriority(QThread::LowestPriority);
     m_futureSynchronizer.setCancelOnWait(true);
 }
 
@@ -361,7 +362,6 @@ void TestCodeParser::scanForTests(const FilePaths &fileList, const QList<ITestPa
         const auto setup = [this, codeParsers, file](AsyncTask<TestParseResultPtr> &async) {
             async.setConcurrentCallData(parseFileForTests, codeParsers, file);
             async.setThreadPool(m_threadPool);
-            async.setPriority(QThread::LowestPriority);
             async.setFutureSynchronizer(&m_futureSynchronizer);
         };
         const auto onDone = [this](const AsyncTask<TestParseResultPtr> &async) {
