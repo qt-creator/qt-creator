@@ -48,11 +48,17 @@ Rectangle {
 
         onEntered: (drag) => {
             drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.texture"
+                         || (drag.formats[0] === "application/vnd.qtdesignstudio.assets"
+                             && rootView.hasAcceptableAssets(drag.urls))
         }
 
         onDropped: (drag) => {
             drag.accept()
-            rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
+
+            if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
+                rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
+            else if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                rootView.acceptAssetsDropOnMaterial(index, drag.urls)
         }
     }
 

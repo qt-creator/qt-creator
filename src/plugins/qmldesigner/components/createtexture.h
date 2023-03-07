@@ -19,7 +19,7 @@ class CreateTexture : public QObject
 
 public:
     CreateTexture(AbstractView *view, bool importFiles = false);
-    ModelNode execute(const QString &filePath, AddTextureMode mode, int sceneId = -1);
+    ModelNode execute(const QString &filePath, AddTextureMode mode = AddTextureMode::Texture, int sceneId = -1);
     ModelNode resolveSceneEnv(int sceneId);
     void assignTextureAsLightProbe(const ModelNode &texture, int sceneId);
 

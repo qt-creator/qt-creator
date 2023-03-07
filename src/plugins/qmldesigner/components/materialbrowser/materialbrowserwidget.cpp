@@ -3,6 +3,7 @@
 
 #include "materialbrowserwidget.h"
 
+#include "createtexture.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserview.h"
@@ -293,6 +294,28 @@ void MaterialBrowserWidget::acceptAssetsDrop(const QList<QUrl> &urls)
     m_materialBrowserView->createTextures(assetPaths);
     if (m_materialBrowserView->model())
         m_materialBrowserView->model()->endDrag();
+}
+
+void MaterialBrowserWidget::acceptAssetsDropOnMaterial(int matIndex, const QList<QUrl> &urls)
+{
+    ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
+    QTC_ASSERT(mat.isValid(), return);
+
+    auto *creator = new CreateTexture(m_materialBrowserView);
+
+    QString imageSrc = Utils::findOrDefault(urls, [] (const QUrl &url) {
+        return Asset(url.toLocalFile()).isValidTextureSource();
+    }).toLocalFile();
+
+    m_materialBrowserView->executeInTransaction(__FUNCTION__, [&] {
+        ModelNode tex = creator->execute(imageSrc);
+        QTC_ASSERT(tex.isValid(), return);
+
+        m_materialBrowserModel->selectMaterial(matIndex);
+        m_materialBrowserView->applyTextureToMaterial({mat}, tex);
+    });
+
+    creator->deleteLater();
 }
 
 void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QString &texId)

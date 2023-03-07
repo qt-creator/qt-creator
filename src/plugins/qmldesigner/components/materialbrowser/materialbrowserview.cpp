@@ -221,7 +221,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
 void MaterialBrowserView::createTextures(const QStringList &assetPaths)
 {
-    auto *create = new CreateTextures(this, false);
+    auto *create = new CreateTextures(this);
 
     executeInTransaction("MaterialBrowserView::createTextures", [&]() {
         create->execute(assetPaths, AddTextureMode::Texture, m_sceneId);
