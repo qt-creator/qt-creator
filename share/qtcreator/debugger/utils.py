@@ -4,6 +4,7 @@
 # Debugger start modes. Keep in sync with DebuggerStartMode in debuggerconstants.h
 
 
+# MT: Why does this not match (anymore?) to debuggerconstants.h : DebuggerStartMode ?
 class DebuggerStartMode():
     (
         NoStartMode,

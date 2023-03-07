@@ -870,6 +870,7 @@ class Dumper(DumperBase):
         self.startMode_ = args.get('startmode', 1)
         self.breakOnMain_ = args.get('breakonmain', 0)
         self.useTerminal_ = args.get('useterminal', 0)
+        self.firstStop_ = True
         pargs = self.hexdecode(args.get('processargs', ''))
         self.processArgs_ = pargs.split('\0') if len(pargs) else []
         self.environment_ = args.get('environment', [])
@@ -930,6 +931,8 @@ class Dumper(DumperBase):
 
         if self.startMode_ == DebuggerStartMode.AttachExternal:
             attach_info = lldb.SBAttachInfo(self.attachPid_)
+            if self.breakOnMain_:
+                self.createBreakpointAtMain()
             self.process = self.target.Attach(attach_info, error)
             if not error.Success():
                 self.reportState('enginerunfailed')
@@ -1474,6 +1477,12 @@ class Dumper(DumperBase):
                     self.reportState("inferiorstopok")
                 else:
                     self.reportState("stopped")
+                    if self.firstStop_:
+                        self.firstStop_ = False
+                        if self.useTerminal_:
+                            # When using a terminal, the process will be interrupted on startup.
+                            # We therefore need to continue it here.
+                            self.process.Continue()
             else:
                 self.reportState(self.stateName(state))
 
