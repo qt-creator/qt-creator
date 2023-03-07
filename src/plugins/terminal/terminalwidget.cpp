@@ -484,7 +484,7 @@ static QPixmap generateWavyPixmap(qreal maxRadius, const QPen &pen)
     const qreal radiusBase = qMax(qreal(1), maxRadius);
     const qreal pWidth = pen.widthF();
 
-    QString key = QLatin1StringView("WaveUnderline-") % pen.color().name()
+    QString key = QLatin1String("WaveUnderline-") % pen.color().name()
                   % QString::number(*(size_t *) &radiusBase, 16)
                   % QString::number(*(size_t *) &pWidth);
 
