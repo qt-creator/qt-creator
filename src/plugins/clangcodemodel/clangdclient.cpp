@@ -14,7 +14,6 @@
 #include "clangdquickfixes.h"
 #include "clangdsemantichighlighting.h"
 #include "clangdswitchdecldef.h"
-#include "clangmodelmanagersupport.h"
 #include "clangtextmark.h"
 #include "clangutils.h"
 #include "tasktimers.h"
@@ -58,10 +57,10 @@
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/itemviews.h>
-#include <utils/runextensions.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -1469,7 +1468,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                              clangdVersion = q->versionNumber(),
                              this] {
             try {
-                return Utils::runAsync(doSemanticHighlighting, filePath, tokens, text, ast, doc,
+                return Utils::asyncRun(doSemanticHighlighting, filePath, tokens, text, ast, doc,
                                        rev, clangdVersion, highlightingTimer);
             } catch (const std::exception &e) {
                 qWarning() << "caught" << e.what() << "in main highlighting thread";

@@ -34,9 +34,9 @@
 
 #include <texteditor/textmark.h>
 
+#include <utils/asynctask.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 
 using namespace Core;
@@ -61,7 +61,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
         baseDir = TemporaryDirectory::masterDirectoryFilePath();
 
     QFuture<GenerateCompilationDbResult> task
-            = Utils::runAsync(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
+            = Utils::asyncRun(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
                               baseDir, CompilationDbPurpose::Project,
                               warningsConfigForProject(target->project()),
                               globalClangOptions(),

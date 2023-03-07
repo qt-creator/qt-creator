@@ -41,9 +41,9 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QApplication>
 #include <QLabel>
@@ -591,7 +591,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
 
     });
     const FilePath includeDir = settings.clangdIncludePath();
-    auto future = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
+    auto future = Utils::asyncRun(&Internal::generateCompilationDB, projectInfo,
                                   jsonDbDir, CompilationDbPurpose::CodeModel,
                                   warningsConfigForProject(project),
                                   globalClangOptions(), includeDir);
