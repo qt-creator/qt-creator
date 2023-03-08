@@ -29,13 +29,13 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         text: qsTr("Apply to selected (replace)")
         enabled: root.targetAvailable && root.hasModelSelection
-        onTriggered: root.applyToSelected(root.targetMaterial, false)
+        onTriggered: materialsModel.applyToSelected(root.targetMaterial, false)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected (add)")
         enabled: root.targetAvailable && root.hasModelSelection
-        onTriggered: root.applyToSelected(root.targetMaterial, true)
+        onTriggered: materialsModel.applyToSelected(root.targetMaterial, true)
     }
 
     StudioControls.MenuSeparator {}
