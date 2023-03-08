@@ -1715,6 +1715,8 @@ void GdbEngine::handleThreadGroupExited(const GdbMi &result)
         notifyExitCode(exitCode);
         if (m_rerunPending)
             m_rerunPending = false;
+        else if (state() == EngineShutdownRequested)
+            notifyEngineShutdownFinished();
         else
             notifyInferiorExited();
     }
