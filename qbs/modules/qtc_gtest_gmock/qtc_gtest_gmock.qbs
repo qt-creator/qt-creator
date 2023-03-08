@@ -49,15 +49,15 @@ Module {
     }
 
     Properties {
-        condition: qtc_gtest_gmock.useRepo
+        condition: useRepo
         cpp.includePaths: [
-            FileInfo.joinPaths(qtc_gtest_gmock.gtestDir, "include"),
-            FileInfo.joinPaths(qtc_gtest_gmock.gmockDir, "include"),
+            FileInfo.joinPaths(gtestDir, "include"),
+            FileInfo.joinPaths(gmockDir, "include"),
         ]
     }
 
     validate: {
-        if (!qtc_gtest_gmock.externalLibsPresent && !gtestProbe.found) {
+        if (!externalLibsPresent && !gtestProbe.found) {
             console.warn("No GTest found.");
             throw new Error();
         }
