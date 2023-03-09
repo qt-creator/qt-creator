@@ -21,6 +21,7 @@ HelperWidgets.ScrollView {
 
     required property var searchBox
     required property var model
+    required property string sectionCategory
 
     signal unimport(var bundleMat);
 
@@ -57,6 +58,8 @@ HelperWidgets.ScrollView {
                 visible: bundleCategoryVisible && !root.model.isEmpty
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
+                category: root.sectionCategory
+
                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
                 onExpand: bundleCategoryExpanded = true
                 onCollapse: bundleCategoryExpanded = false

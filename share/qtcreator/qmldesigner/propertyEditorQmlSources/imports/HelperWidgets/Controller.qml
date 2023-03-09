@@ -9,6 +9,6 @@ QtObject {
 
     property Item mainScrollView
 
-    signal collapseAll()
-    signal expandAll()
+    signal collapseAll(string category)
+    signal expandAll(string category)
 }

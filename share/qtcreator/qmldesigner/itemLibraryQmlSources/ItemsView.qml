@@ -245,6 +245,8 @@ Item {
                         expanded: importExpanded
                         expandOnClick: false
                         useDefaulContextMenu: false
+                        category: "ItemsView"
+
                         onToggleExpand: {
                             if (categoryModel.rowCount() > 0)
                                 importExpanded = !importExpanded
@@ -277,6 +279,8 @@ Item {
                                     expandOnClick: false
                                     onToggleExpand: categoryExpanded = !categoryExpanded
                                     useDefaulContextMenu: false
+                                    category: "ItemsView"
+
                                     onShowContextMenu: {
                                         if (!ItemLibraryBackend.rootView.searchActive) {
                                             itemsView.currentCategory = model
@@ -354,6 +358,8 @@ Item {
                             expanded: importExpanded
                             expandOnClick: false
                             useDefaulContextMenu: false
+                            category: "ItemsView"
+
                             onToggleExpand: {
                                 if (categoryModel.rowCount() > 0)
                                     importExpanded = !importExpanded

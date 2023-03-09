@@ -62,6 +62,8 @@ HelperWidgets.ScrollView {
                 visible: bundleCategoryVisible && !materialsModel.isEmpty
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
+                category: "ContentLib_Mat"
+
                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
                 onExpand: bundleCategoryExpanded = true
                 onCollapse: bundleCategoryExpanded = false

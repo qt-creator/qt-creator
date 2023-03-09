@@ -107,6 +107,7 @@ Item {
 
                 width: root.width
                 model: ContentLibraryBackend.texturesModel
+                sectionCategory: "ContentLib_Tex"
 
                 searchBox: searchBox
             }
@@ -116,6 +117,7 @@ Item {
 
                 width: root.width
                 model: ContentLibraryBackend.environmentsModel
+                sectionCategory: "ContentLib_Env"
 
                 searchBox: searchBox
             }

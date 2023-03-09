@@ -628,6 +628,7 @@ Item {
                         width: root.width
                         caption: qsTr("Materials")
                         dropEnabled: true
+                        category: "MaterialBrowser"
 
                         onDropEnter: (drag) => {
                             drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundlematerial"
@@ -716,6 +717,7 @@ Item {
 
                         width: root.width
                         caption: qsTr("Textures")
+                        category: "MaterialBrowser"
 
                         dropEnabled: true
 
