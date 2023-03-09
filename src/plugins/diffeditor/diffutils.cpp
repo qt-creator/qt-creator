@@ -557,7 +557,7 @@ static QList<RowData> readLines(QStringView patch, bool lastChunk, bool *lastChu
     int noNewLineInDelete = -1;
     int noNewLineInInsert = -1;
 
-    const QVector<QStringView> lines = patch.split(newLine);
+    const QList<QStringView> lines = patch.split(newLine);
     int i;
     for (i = 0; i < lines.size(); i++) {
         QStringView line = lines.at(i);
@@ -795,7 +795,7 @@ static QList<ChunkData> readChunks(QStringView patch, bool *lastChunkAtTheEndOfF
     QList<ChunkData> chunkDataList;
     int position = -1;
 
-    QVector<int> startingPositions; // store starting positions of @@
+    QList<int> startingPositions; // store starting positions of @@
     if (patch.startsWith(QStringLiteral("@@ -")))
         startingPositions.append(position + 1);
 
@@ -1199,7 +1199,7 @@ static void readGitPatch(QPromise<QList<FileData>> &promise, QStringView patch)
 {
     int position = -1;
 
-    QVector<int> startingPositions; // store starting positions of git headers
+    QList<int> startingPositions; // store starting positions of git headers
     if (patch.startsWith(QStringLiteral("diff --git ")))
         startingPositions.append(position + 1);
 
@@ -1214,7 +1214,7 @@ static void readGitPatch(QPromise<QList<FileData>> &promise, QStringView patch)
 
     const QChar newLine('\n');
 
-    QVector<PatchInfo> patches;
+    QList<PatchInfo> patches;
     const int count = startingPositions.size();
     for (int i = 0; i < count; i++) {
         if (promise.isCanceled())
@@ -1239,10 +1239,12 @@ static void readGitPatch(QPromise<QList<FileData>> &promise, QStringView patch)
         patches.append(PatchInfo { remainingFileDiff, fileData });
     }
 
+    if (patches.isEmpty())
+        return;
+
     promise.setProgressRange(0, patches.size());
 
     QList<FileData> fileDataList;
-    bool readOk = false;
     int i = 0;
     for (const auto &patchInfo : std::as_const(patches)) {
         if (promise.isCanceled())
@@ -1250,6 +1252,7 @@ static void readGitPatch(QPromise<QList<FileData>> &promise, QStringView patch)
         promise.setProgressValue(i++);
 
         FileData fileData = patchInfo.fileData;
+        bool readOk = false;
         if (!patchInfo.patch.isEmpty() || fileData.fileOperation == FileData::ChangeFile)
             fileData.chunks = readChunks(patchInfo.patch, &fileData.lastChunkAtTheEndOfFile, &readOk);
         else

@@ -8,6 +8,8 @@
 #include <QFuture>
 #include <QString>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 template <class K, class T>
 class QMap;
@@ -42,7 +44,7 @@ public:
         WordMode,
         LineMode
     };
-    Differ(const QFuture<void> &future = {});
+    Differ(const std::optional<QFuture<void>> &future = {});
     QList<Diff> diff(const QString &text1, const QString &text2);
     QList<Diff> unifiedDiff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
@@ -90,7 +92,7 @@ private:
                        int subTextStart);
     DiffMode m_diffMode = Differ::LineMode;
     DiffMode m_currentDiffMode = Differ::LineMode;
-    QFuture<void> m_future;
+    std::optional<QFuture<void>> m_future;
 };
 
 } // namespace Utils

@@ -936,7 +936,7 @@ QString Diff::toString() const
 
 ///////////////
 
-Differ::Differ(const QFuture<void> &future)
+Differ::Differ(const std::optional<QFuture<void>> &future)
     : m_future(future)
 {
 }
@@ -1073,7 +1073,7 @@ QList<Diff> Differ::diffMyers(const QString &text1, const QString &text2)
     int kMinReverse = -D;
     int kMaxReverse = D;
     for (int d = 0; d <= D; d++) {
-        if (m_future.isCanceled()) {
+        if (m_future && m_future->isCanceled()) {
             delete [] forwardV;
             delete [] reverseV;
             return QList<Diff>();
@@ -1192,7 +1192,7 @@ QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
     QString lastInsert;
     QList<Diff> newDiffList;
     for (int i = 0; i <= diffList.count(); i++) {
-        if (m_future.isCanceled()) {
+        if (m_future && m_future->isCanceled()) {
             m_currentDiffMode = diffMode;
             return {};
         }
