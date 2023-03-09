@@ -19,6 +19,8 @@ def parse_arguments():
     parser.add_argument('source_directory', help='directory with the Qt Creator sources')
     parser.add_argument('binary_directory', help='directory that contains the Qt Creator.app')
     parser.add_argument('--dmg-size', default='1500m', required=False)
+    parser.add_argument('--license-replacement', default=None,
+        help='Absolute path to a license file which replaces the default LICENSE.GPL3-EXCEPT from Qt Creator source directory.')
     return parser.parse_args()
 
 def main():
@@ -31,7 +33,10 @@ def main():
             app_path = [app for app in os.listdir(tempdir) if app.endswith('.app')][0]
             common.codesign(os.path.join(tempdir, app_path))
         os.symlink('/Applications', os.path.join(tempdir, 'Applications'))
-        shutil.copy(os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT'), tempdir)
+        license_file = os.path.join(arguments.source_directory, 'LICENSE.GPL3-EXCEPT')
+        if (arguments.license_replacement):
+            license_file = arguments.license_replacement
+        shutil.copy(license_file, tempdir)
         dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,
                    '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', arguments.dmg_size, '-verbose']
         subprocess.check_call(dmg_cmd)
