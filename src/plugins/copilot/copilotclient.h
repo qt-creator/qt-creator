@@ -23,7 +23,7 @@ class DocumentWatcher;
 class CopilotClient : public LanguageClient::Client
 {
 public:
-    explicit CopilotClient();
+    explicit CopilotClient(const Utils::FilePath &nodePath, const Utils::FilePath &distPath);
 
     static CopilotClient *instance();
 

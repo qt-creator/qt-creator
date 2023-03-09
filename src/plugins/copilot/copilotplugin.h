@@ -7,6 +7,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <QPointer>
+
 namespace TextEditor { class TextEditorWidget; }
 
 namespace Copilot {
@@ -18,13 +20,12 @@ class CopilotPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Copilot.json")
 
 public:
-    ~CopilotPlugin();
-
     void initialize() override;
     void extensionsInitialized() override;
+    void restartClient();
 
 private:
-    CopilotClient *m_client{nullptr};
+    QPointer<CopilotClient> m_client;
 };
 
 } // namespace Internal

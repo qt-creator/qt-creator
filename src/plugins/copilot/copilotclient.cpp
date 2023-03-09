@@ -25,11 +25,9 @@ using namespace Utils;
 
 namespace Copilot::Internal {
 
-static LanguageClient::BaseClientInterface *clientInterface()
+static LanguageClient::BaseClientInterface *clientInterface(const FilePath &nodePath,
+                                                            const FilePath &distPath)
 {
-    const FilePath nodePath = CopilotSettings::instance().nodeJsPath.filePath();
-    const FilePath distPath = CopilotSettings::instance().distPath.filePath();
-
     CommandLine cmd{nodePath, {distPath.toFSPathString()}};
 
     const auto interface = new LanguageClient::StdIOClientInterface;
@@ -44,8 +42,8 @@ CopilotClient *CopilotClient::instance()
     return currentInstance;
 }
 
-CopilotClient::CopilotClient()
-    : LanguageClient::Client(clientInterface())
+CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
+    : LanguageClient::Client(clientInterface(nodePath, distPath))
 {
     setName("Copilot");
     LanguageClient::LanguageFilter langFilter;
