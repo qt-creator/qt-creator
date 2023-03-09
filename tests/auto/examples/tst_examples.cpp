@@ -25,6 +25,8 @@ private slots:
 tst_Examples::tst_Examples() = default;
 tst_Examples::~tst_Examples() = default;
 
+using MetaData = QHash<QString, QStringList>;
+
 static ExampleItem fetchItem()
 {
     QFETCH(QString, name);
@@ -43,6 +45,7 @@ static ExampleItem fetchItem()
     QFETCH(QString, videoUrl);
     QFETCH(QString, videoLength);
     QFETCH(QStringList, platforms);
+    QFETCH(MetaData, metaData);
     ExampleItem item;
     item.name = name;
     item.description = description;
@@ -60,6 +63,7 @@ static ExampleItem fetchItem()
     item.videoUrl = videoUrl;
     item.videoLength = videoLength;
     item.platforms = platforms;
+    item.metaData = metaData;
     return item;
 }
 
@@ -83,6 +87,7 @@ void tst_Examples::parsing_data()
     QTest::addColumn<QString>("videoUrl");
     QTest::addColumn<QString>("videoLength");
     QTest::addColumn<QStringList>("platforms");
+    QTest::addColumn<MetaData>("metaData");
 
     QTest::addRow("example")
         << QByteArray(R"raw(
@@ -115,7 +120,7 @@ void tst_Examples::parsing_data()
                          "manifest/widgets/widgets/analogclock/analogclock.cpp")}
         << FilePath::fromUserInput("manifest/widgets/widgets/analogclock/analogclock.cpp")
         << FilePaths() << Example << true << false << false << ""
-        << "" << QStringList();
+        << "" << QStringList() << MetaData({{"category", {"Graphics"}}, {"tags", {"widgets"}}});
 }
 
 void tst_Examples::parsing()
@@ -148,6 +153,7 @@ void tst_Examples::parsing()
     QCOMPARE(item.videoUrl, expected.videoUrl);
     QCOMPARE(item.videoLength, expected.videoLength);
     QCOMPARE(item.platforms, expected.platforms);
+    QCOMPARE(item.metaData, expected.metaData);
     qDeleteAll(*result);
 }
 
