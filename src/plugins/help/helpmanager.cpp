@@ -7,7 +7,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -17,6 +19,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QPromise>
 #include <QStringList>
 #include <QUrl>
 
@@ -99,7 +102,7 @@ void HelpManager::registerDocumentation(const QStringList &files)
         return;
     }
 
-    QFuture<bool> future = Utils::runAsync(&HelpManager::registerDocumentationNow, files);
+    QFuture<bool> future = Utils::asyncRun(&HelpManager::registerDocumentationNow, files);
     Utils::onResultReady(future, this, [](bool docsChanged){
         if (docsChanged) {
             d->m_helpEngine->setupData();
@@ -122,13 +125,12 @@ void HelpManager::unregisterDocumentation(const QStringList &fileNames)
     unregisterNamespaces(getNamespaces(fileNames));
 }
 
-void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterface,
-                                           const QStringList &files)
+void HelpManager::registerDocumentationNow(QPromise<bool> &promise, const QStringList &files)
 {
     QMutexLocker locker(&d->m_helpengineMutex);
 
-    futureInterface.setProgressRange(0, files.count());
-    futureInterface.setProgressValue(0);
+    promise.setProgressRange(0, files.count());
+    promise.setProgressValue(0);
 
     QHelpEngineCore helpEngine(collectionFilePath());
     helpEngine.setReadOnly(false);
@@ -136,9 +138,9 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
     bool docsChanged = false;
     QStringList nameSpaces = helpEngine.registeredDocumentations();
     for (const QString &file : files) {
-        if (futureInterface.isCanceled())
+        if (promise.isCanceled())
             break;
-        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
+        promise.setProgressValue(promise.future().progressValue() + 1);
         const QString &nameSpace = QHelpEngineCore::namespaceName(file);
         if (nameSpace.isEmpty())
             continue;
@@ -152,7 +154,7 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
             }
         }
     }
-    futureInterface.reportResult(docsChanged);
+    promise.addResult(docsChanged);
 }
 
 void HelpManager::unregisterNamespaces(const QStringList &nameSpaces)

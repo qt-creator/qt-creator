@@ -5,11 +5,15 @@
 
 #include <coreplugin/helpmanager_implementation.h>
 
-QT_FORWARD_DECLARE_CLASS(QUrl)
-
 #include <QFutureInterface>
 #include <QHelpEngineCore>
 #include <QVariant>
+
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QPromise;
+class QUrl;
+QT_END_NAMESPACE
 
 namespace Help {
 namespace Internal {
@@ -55,10 +59,9 @@ public:
         const QUrl &url,
         Core::HelpManager::HelpViewerLocation location = Core::HelpManager::HelpModeAlways) override;
 
-
     static void setupHelpManager();
-    static void registerDocumentationNow(QFutureInterface<bool> &futureInterface,
-                                         const QStringList &fileNames);
+    static void registerDocumentationNow(QPromise<bool> &promise, const QStringList &fileNames);
+
 signals:
     void collectionFileChanged();
     void helpRequested(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
