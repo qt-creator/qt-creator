@@ -12,6 +12,7 @@
 
 #include <debugger/debuggerconstants.h>
 
+#include <utils/asynctask.h>
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
@@ -63,22 +64,22 @@ class LogTailFiles : public QObject
     Q_OBJECT
 public:
 
-    void exec(QFutureInterface<void> &fi, std::shared_ptr<QTemporaryFile> stdoutFile,
-                    std::shared_ptr<QTemporaryFile> stderrFile)
+    void exec(QPromise<void> &promise, std::shared_ptr<QTemporaryFile> stdoutFile,
+              std::shared_ptr<QTemporaryFile> stderrFile)
     {
-        if (fi.isCanceled())
+        if (promise.isCanceled())
             return;
 
         // The future is canceled when app on simulator is stoped.
         QEventLoop loop;
         QFutureWatcher<void> watcher;
         connect(&watcher, &QFutureWatcher<void>::canceled, &loop, [&] { loop.quit(); });
-        watcher.setFuture(fi.future());
+        watcher.setFuture(promise.future());
 
         // Process to print the console output while app is running.
         auto logProcess = [&](QProcess *tailProcess, std::shared_ptr<QTemporaryFile> file) {
-            QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, &loop, [=] {
-                if (!fi.isCanceled())
+            QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, &loop, [&, tailProcess] {
+                if (!promise.isCanceled())
                     emit logMessage(QString::fromLocal8Bit(tailProcess->readAll()));
             });
             tailProcess->start(QStringLiteral("tail"), {"-f", file->fileName()});
@@ -931,17 +932,17 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
                         "Install Xcode 8 or later.").arg(bundleId));
     }
 
-    auto monitorPid = [this](QFutureInterface<void> &fi, qint64 pid) {
+    auto monitorPid = [this](QPromise<void> &promise, qint64 pid) {
 #ifdef Q_OS_UNIX
         do {
             // Poll every 1 sec to check whether the app is running.
             QThread::msleep(1000);
-        } while (!fi.isCanceled() && kill(pid, 0) == 0);
+        } while (!promise.isCanceled() && kill(pid, 0) == 0);
 #else
     Q_UNUSED(pid)
 #endif
         // Future is cancelled if the app is stopped from the qt creator.
-        if (!fi.isCanceled())
+        if (!promise.isCanceled())
             stop(0);
     };
 
@@ -953,9 +954,9 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             gotInferiorPid(m_bundlePath, m_deviceId, response.pID);
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Success);
             // Start monitoring app's life signs.
-            futureSynchronizer.addFuture(Utils::runAsync(monitorPid, response.pID));
+            futureSynchronizer.addFuture(Utils::asyncRun(monitorPid, response.pID));
             if (captureConsole)
-                futureSynchronizer.addFuture(Utils::runAsync(&LogTailFiles::exec, &outputLogger,
+                futureSynchronizer.addFuture(Utils::asyncRun(&LogTailFiles::exec, &outputLogger,
                                                              stdoutFile, stderrFile));
         } else {
             m_pid = -1;
