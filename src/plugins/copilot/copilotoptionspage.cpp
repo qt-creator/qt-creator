@@ -54,6 +54,24 @@ file from the Copilot neovim plugin.
             st
         }.attachTo(this);
         // clang-format on
+
+        auto updateAuthWidget = [authWidget]() {
+            authWidget->updateClient(
+                FilePath::fromUserInput(
+                    CopilotSettings::instance().nodeJsPath.volatileValue().toString()),
+                FilePath::fromUserInput(
+                    CopilotSettings::instance().distPath.volatileValue().toString()));
+        };
+
+        connect(CopilotSettings::instance().nodeJsPath.pathChooser(),
+                &PathChooser::textChanged,
+                authWidget,
+                updateAuthWidget);
+        connect(CopilotSettings::instance().distPath.pathChooser(),
+                &PathChooser::textChanged,
+                authWidget,
+                updateAuthWidget);
+        updateAuthWidget();
     }
 };
 

@@ -19,22 +19,6 @@ using namespace Copilot::Internal;
 
 namespace Copilot {
 
-bool isCopilotClient(Client *client)
-{
-    return dynamic_cast<CopilotClient *>(client) != nullptr;
-}
-
-CopilotClient *asCoPilotClient(Client *client)
-{
-    return static_cast<CopilotClient *>(client);
-}
-
-Internal::CopilotClient *findClient()
-{
-    CopilotClient *client = Internal::CopilotClient::instance();
-    return client && client->reachable() ? client : nullptr;
-}
-
 AuthWidget::AuthWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -56,22 +40,12 @@ AuthWidget::AuthWidget(QWidget *parent)
     }.attachTo(this);
     // clang-format on
 
-    connect(LanguageClientManager::instance(),
-            &LanguageClientManager::clientAdded,
-            this,
-            &AuthWidget::onClientAdded);
-
     connect(m_button, &QPushButton::clicked, this, [this]() {
         if (m_status == Status::SignedIn)
             signOut();
         else if (m_status == Status::SignedOut)
             signIn();
     });
-
-    CopilotClient *client = findClient();
-
-    if (client)
-        checkStatus(client);
 }
 
 void AuthWidget::setState(const QString &buttonText, bool working)
@@ -83,25 +57,13 @@ void AuthWidget::setState(const QString &buttonText, bool working)
     m_button->setEnabled(!working);
 }
 
-void AuthWidget::onClientAdded(Client *client)
+void AuthWidget::checkStatus()
 {
-    if (isCopilotClient(client)) {
-        auto coPilotClient = asCoPilotClient(client);
-        if (coPilotClient->reachable()) {
-            checkStatus(coPilotClient);
-        } else {
-            connect(client, &Client::initialized, this, [this, coPilotClient] {
-                checkStatus(coPilotClient);
-            });
-        }
-    }
-}
+    QTC_ASSERT(m_client && m_client->reachable(), return);
 
-void AuthWidget::checkStatus(CopilotClient *client)
-{
     setState("Checking status ...", true);
 
-    client->requestCheckStatus(false, [this](const CheckStatusRequest::Response &response) {
+    m_client->requestCheckStatus(false, [this](const CheckStatusRequest::Response &response) {
         if (response.error()) {
             setState("failed: " + response.error()->message(), false);
             return;
@@ -119,15 +81,26 @@ void AuthWidget::checkStatus(CopilotClient *client)
     });
 }
 
+void AuthWidget::updateClient(const Utils::FilePath &nodeJs, const Utils::FilePath &agent)
+{
+    LanguageClientManager::shutdownClient(m_client);
+    m_client = nullptr;
+    setState(Tr::tr("Sign in"), true);
+    if (!nodeJs.exists() || !agent.exists())
+        return;
+
+    m_client = new CopilotClient(nodeJs, agent);
+    connect(m_client, &Client::initialized, this, &AuthWidget::checkStatus);
+}
+
 void AuthWidget::signIn()
 {
     qCritical() << "Not implemented";
-    auto client = findClient();
-    QTC_ASSERT(client, return);
+    QTC_ASSERT(m_client && m_client->reachable(), return);
 
     setState("Signing in ...", true);
 
-    client->requestSignInInitiate([this, client](const SignInInitiateRequest::Response &response) {
+    m_client->requestSignInInitiate([this](const SignInInitiateRequest::Response &response) {
         QTC_ASSERT(!response.error(), return);
 
         Utils::setClipboardAndSelection(response.result()->userCode());
@@ -139,37 +112,37 @@ void AuthWidget::signIn()
                                    .arg(response.result()->userCode()));
         m_statusLabel->setVisible(true);
 
-        client->requestSignInConfirm(response.result()->userCode(),
-                                     [this](const SignInConfirmRequest::Response &response) {
-                                         m_statusLabel->setText("");
+        m_client
+            ->requestSignInConfirm(response.result()->userCode(),
+                                   [this](const SignInConfirmRequest::Response &response) {
+                                       m_statusLabel->setText("");
 
-                                         if (response.error()) {
-                                             QMessageBox::critical(this,
-                                                                   Tr::tr("Login failed"),
-                                                                   Tr::tr(
-                                                                       "The login request failed: ")
-                                                                       + response.error()->message());
-                                             setState("Sign in", false);
-                                             return;
-                                         }
+                                       if (response.error()) {
+                                           QMessageBox::critical(this,
+                                                                 Tr::tr("Login failed"),
+                                                                 Tr::tr(
+                                                                     "The login request failed: ")
+                                                                     + response.error()->message());
+                                           setState("Sign in", false);
+                                           return;
+                                       }
 
-                                         setState("Sign Out " + response.result()->user(), false);
-                                     });
+                                       setState("Sign Out " + response.result()->user(), false);
+                                   });
     });
 }
 
 void AuthWidget::signOut()
 {
-    auto client = findClient();
-    QTC_ASSERT(client, return);
+    QTC_ASSERT(m_client && m_client->reachable(), return);
 
     setState("Signing out ...", true);
 
-    client->requestSignOut([this, client](const SignOutRequest::Response &response) {
+    m_client->requestSignOut([this](const SignOutRequest::Response &response) {
         QTC_ASSERT(!response.error(), return);
         QTC_ASSERT(response.result()->status() == "NotSignedIn", return);
 
-        checkStatus(client);
+        checkStatus();
     });
 }
 

@@ -25,11 +25,12 @@ class AuthWidget : public QWidget
 
 public:
     explicit AuthWidget(QWidget *parent = nullptr);
+    void updateClient(const Utils::FilePath &nodeJs, const Utils::FilePath &agent);
 
 private:
-    void onClientAdded(LanguageClient::Client *client);
     void setState(const QString &buttonText, bool working);
-    void checkStatus(Internal::CopilotClient *client);
+    void checkStatus();
+
 
     void signIn();
     void signOut();
@@ -39,6 +40,7 @@ private:
     QPushButton *m_button = nullptr;
     QLabel *m_statusLabel = nullptr;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
+    Internal::CopilotClient *m_client = nullptr;
 };
 
 } // namespace Copilot
