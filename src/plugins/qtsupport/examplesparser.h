@@ -28,6 +28,7 @@ public:
     QString videoUrl;
     QString videoLength;
     QStringList platforms;
+    QHash<QString, QStringList> metaData;
 };
 
 QTSUPPORT_EXPORT Utils::expected_str<QList<ExampleItem *>> parseExamples(

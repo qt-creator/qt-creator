@@ -43,6 +43,35 @@ static QStringList trimStringList(const QStringList &stringlist)
     return Utils::transform(stringlist, [](const QString &str) { return str.trimmed(); });
 }
 
+static QHash<QString, QStringList> parseMeta(QXmlStreamReader *reader)
+{
+    QHash<QString, QStringList> result;
+    while (!reader->atEnd()) {
+        switch (reader->readNext()) {
+        case QXmlStreamReader::StartElement:
+            if (reader->name() == QLatin1String("entry")) {
+                const QString key = reader->attributes().value("name").toString();
+                if (key.isEmpty()) {
+                    reader->raiseError("Tag \"entry\" requires \"name\" attribute");
+                    break;
+                }
+                const QString value = reader->readElementText(
+                    QXmlStreamReader::ErrorOnUnexpectedElement);
+                if (!value.isEmpty())
+                    result[key].append(value);
+            }
+            break;
+        case QXmlStreamReader::EndElement:
+            if (reader->name() == QLatin1String("meta"))
+                return result;
+            break;
+        default:
+            break;
+        }
+    }
+    return result;
+}
+
 static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
                                           const FilePath &projectsOffset,
                                           const FilePath &examplesInstallPath)
@@ -95,6 +124,8 @@ static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
                 item->platforms = trimStringList(
                     reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement)
                         .split(QLatin1Char(','), Qt::SkipEmptyParts));
+            } else if (reader->name() == QLatin1String("meta")) {
+                item->metaData = parseMeta(reader);
             }
             break;
         case QXmlStreamReader::EndElement:
