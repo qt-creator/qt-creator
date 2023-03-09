@@ -877,7 +877,7 @@ class DumperBase():
         self.output.append(stuff)
 
     def takeOutput(self):
-        res = '\n'.join(self.output)
+        res = ''.join(self.output)
         self.output = []
         return res
 
