@@ -10,10 +10,10 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <utils/asynctask.h>
 #include <utils/differ.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 
@@ -324,7 +324,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
             checkAndApplyTask(watcher->result());
         watcher->deleteLater();
     });
-    watcher->setFuture(Utils::runAsync(&format, FormatTask(editor, doc->filePath(), sd,
+    watcher->setFuture(Utils::asyncRun(&format, FormatTask(editor, doc->filePath(), sd,
                                                            command, startPos, endPos)));
 }
 
