@@ -17,10 +17,10 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QRegularExpression>
 #include <QTextCursor>
@@ -140,8 +140,7 @@ void PySideInstaller::runPySideChecker(const FilePath &python,
                     handlePySideMissing(python, pySide, document);
                 watcher->deleteLater();
             });
-    watcher->setFuture(
-        Utils::runAsync(&missingPySideInstallation, python, pySide));
+    watcher->setFuture(Utils::asyncRun(&missingPySideInstallation, python, pySide));
 }
 
 } // Python::Internal

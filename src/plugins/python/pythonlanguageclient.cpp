@@ -29,9 +29,9 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/asynctask.h>
 #include <utils/infobar.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
@@ -341,7 +341,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                 instance()->handlePyLSState(python, watcher->result(), document);
                 watcher->deleteLater();
             });
-    watcher->setFuture(Utils::runAsync(&checkPythonLanguageServer, python));
+    watcher->setFuture(Utils::asyncRun(&checkPythonLanguageServer, python));
 }
 
 void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,

@@ -14,9 +14,9 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 using namespace Utils;
 
@@ -145,7 +145,7 @@ Pip *Pip::instance(const FilePath &python)
 
 QFuture<PipPackageInfo> Pip::info(const PipPackage &package)
 {
-    return Utils::runAsync(&Pip::infoImpl, this, package);
+    return Utils::asyncRun(&Pip::infoImpl, this, package);
 }
 
 PipPackageInfo Pip::infoImpl(const PipPackage &package)
