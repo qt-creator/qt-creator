@@ -5,6 +5,7 @@ import QtQuick
 import HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import MaterialBrowserBackend
 
 StudioControls.Menu {
     id: root
@@ -14,6 +15,8 @@ StudioControls.Menu {
     property int copiedMaterialInternalId: -1
     property var matSectionsModel: []
     property bool restoreFocusOnClose: true
+
+    property var materialBrowserModel: MaterialBrowserBackend.materialBrowserModel
 
     function popupMenu(targetItem = null, targetMaterial = null)
     {

@@ -6,6 +6,7 @@ import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import MaterialBrowserBackend
 
 Item {
     id: root
@@ -17,6 +18,9 @@ Item {
                                              && materialBrowserModel.hasQuick3DImport
 
     property var currMaterialItem: null
+    property var rootView: MaterialBrowserBackend.rootView
+    property var materialBrowserModel: MaterialBrowserBackend.materialBrowserModel
+    property var materialBrowserTexturesModel: MaterialBrowserBackend.materialBrowserTexturesModel
 
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()

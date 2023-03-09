@@ -7,6 +7,7 @@ import QtQuick.Layouts
 import QtQuickDesignerTheme
 import HelperWidgets
 import StudioTheme as StudioTheme
+import MaterialBrowserBackend
 
 Rectangle {
     id: root
@@ -14,9 +15,9 @@ Rectangle {
     visible: textureVisible
 
     color: "transparent"
-    border.width: materialBrowserTexturesModel.selectedIndex === index
-                        ? !rootView.materialSectionFocused ? 3 : 1 : 0
-    border.color: materialBrowserTexturesModel.selectedIndex === index
+    border.width: MaterialBrowserBackend.materialBrowserTexturesModel.selectedIndex === index
+                        ? !MaterialBrowserBackend.rootView.materialSectionFocused ? 3 : 1 : 0
+    border.color: MaterialBrowserBackend.materialBrowserTexturesModel.selectedIndex === index
                         ? StudioTheme.Values.themeControlOutlineInteraction
                         : "transparent"
 
@@ -30,16 +31,16 @@ Rectangle {
         hoverEnabled: true
 
         onPressed: (mouse) => {
-            materialBrowserTexturesModel.selectTexture(index)
-            rootView.focusMaterialSection(false)
+            MaterialBrowserBackend.materialBrowserTexturesModel.selectTexture(index)
+            MaterialBrowserBackend.rootView.focusMaterialSection(false)
 
             if (mouse.button === Qt.LeftButton)
-                rootView.startDragTexture(index, mapToGlobal(mouse.x, mouse.y))
+                MaterialBrowserBackend.rootView.startDragTexture(index, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
 
-        onDoubleClicked: materialBrowserTexturesModel.openTextureEditor();
+        onDoubleClicked: MaterialBrowserBackend.materialBrowserTexturesModel.openTextureEditor();
     }
 
     ToolTip {

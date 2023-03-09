@@ -16,11 +16,12 @@
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QQuickWidget;
 class QPointF;
 class QShortcut;
 class QToolButton;
 QT_END_NAMESPACE
+
+class StudioQuickWidget;
 
 namespace QmlDesigner {
 
@@ -66,7 +67,7 @@ public:
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
     Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
 
-    QQuickWidget *quickWidget() const;
+    StudioQuickWidget *quickWidget() const;
 
     void clearPreviewCache();
 
@@ -86,7 +87,7 @@ private:
     QPointer<MaterialBrowserView>  m_materialBrowserView;
     QPointer<MaterialBrowserModel> m_materialBrowserModel;
     QPointer<MaterialBrowserTexturesModel> m_materialBrowserTexturesModel;
-    QScopedPointer<QQuickWidget> m_quickWidget;
+    QScopedPointer<StudioQuickWidget> m_quickWidget;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     PreviewImageProvider *m_previewImageProvider = nullptr;
