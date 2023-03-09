@@ -202,9 +202,9 @@ QString AssetsLibraryWidget::showInGraphicalShellMsg() const
     return Core::FileUtils::msgGraphicalShellAction();
 }
 
-bool AssetsLibraryWidget::qtVersionIs6_4() const
+int AssetsLibraryWidget::qtVersion() const
 {
-    return QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 4;
+    return QT_VERSION;
 }
 
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)

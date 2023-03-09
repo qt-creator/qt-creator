@@ -308,9 +308,12 @@ TreeView {
     function __modelIndex(row)
     {
         // The modelIndex() function exists since 6.3. In Qt 6.3, this modelIndex() function was a
-        // member of the TreeView, while in Qt6.4 it was moved to TableView. In Qt6.4, the order of
-        // the arguments was changed.
-        if (assetsRoot.qtVersion6_4)
+        // member of the TreeView, while in Qt6.4 it was moved to TableView. In Qt 6.4, the order of
+        // the arguments was changed, and in Qt 6.5 the order was changed again. Due to this mess,
+        // the whole function was deprecated in Qt 6.4.3 and replaced with index() function.
+        if (assetsRoot.qtVersion >= 0x060403)
+            return root.index(row, 0)
+        else if (assetsRoot.qtVersion >= 0x060400)
             return root.modelIndex(0, row)
         else
             return root.modelIndex(row, 0)
