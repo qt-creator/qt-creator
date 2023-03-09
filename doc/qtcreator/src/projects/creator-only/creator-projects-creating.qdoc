@@ -118,10 +118,6 @@
                 you to generate a Python file from the .ui file, to import
                 it directly into your application.
         \row
-            \li Window UI - Dynamic load
-            \li Creates a Qt for Python application that has an empty
-                window with a widget-based UI.
-        \row
             \li Qt Quick Application - Empty
             \li Creates a Python project that has an empty Qt Quick
                 Application.
