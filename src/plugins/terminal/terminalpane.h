@@ -55,6 +55,7 @@ private:
     QAction m_closeTerminal;
     QAction m_nextTerminal;
     QAction m_prevTerminal;
+    QAction m_minMaxAction;
 };
 
 } // namespace Terminal

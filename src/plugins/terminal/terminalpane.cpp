@@ -89,6 +89,15 @@ TerminalPane::TerminalPane(QObject *parent)
         if (canPrevious())
             goToPrev();
     });
+
+    m_minMaxAction.setShortcut(QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Return")
+                                                                    : QLatin1String("Alt+Return")));
+
+    connect(&m_minMaxAction, &QAction::triggered, this, []() {
+        Core::Command *minMaxCommand = Core::ActionManager::command("Coreplugin.OutputPane.minmax");
+        if (minMaxCommand)
+            emit minMaxCommand->action()->triggered();
+    });
 }
 
 static std::optional<FilePath> startupProjectDirectory()
@@ -189,7 +198,7 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
     if (!terminal->shellName().isEmpty())
         setTabText(terminal);
 
-    terminal->addActions({&m_newTerminal, &m_nextTerminal, &m_prevTerminal});
+    terminal->addActions({&m_newTerminal, &m_nextTerminal, &m_prevTerminal, &m_minMaxAction});
 }
 
 QList<QWidget *> TerminalPane::toolBarWidgets() const
