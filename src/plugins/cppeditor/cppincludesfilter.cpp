@@ -15,6 +15,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/session.h>
+
 #include <utils/tasktree.h>
 
 using namespace Core;
@@ -48,8 +49,6 @@ private:
     FilePaths m_resultQueue;
     FilePath m_currentPath;
 };
-
-
 
 void CppIncludesIterator::toFront()
 {
@@ -108,6 +107,7 @@ CppIncludesFilter::CppIncludesFilter()
                "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("ai");
     setDefaultIncludedByDefault(true);
+    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));
     setPriority(ILocatorFilter::Low);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
@@ -152,13 +152,6 @@ void CppIncludesFilter::invalidateCache()
 {
     m_needsUpdate = true;
     setFileIterator(nullptr); // clean up
-}
-
-using namespace Utils::Tasking;
-
-std::optional<TaskItem> CppIncludesFilter::refreshRecipe()
-{
-    return Sync([this] { invalidateCache(); return true; });
 }
 
 } // namespace CppEditor::Internal

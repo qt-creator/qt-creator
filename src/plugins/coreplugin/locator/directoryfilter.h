@@ -38,7 +38,6 @@ private:
     void handleRemoveDirectory();
     void updateOptionButtons();
     void updateFileIterator();
-    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     Utils::FilePaths m_directories;
     QStringList m_filters;

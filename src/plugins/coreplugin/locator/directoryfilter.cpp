@@ -46,6 +46,28 @@ static QString defaultDisplayName()
     return Tr::tr("Generic Directory Filter");
 }
 
+static void refresh(QPromise<FilePaths> &promise, const FilePaths &directories,
+                    const QStringList &filters, const QStringList &exclusionFilters,
+                    const QString &displayName)
+{
+    SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
+    promise.setProgressRange(0, subDirIterator.maxProgress());
+    FilePaths files;
+    const auto end = subDirIterator.end();
+    for (auto it = subDirIterator.begin(); it != end; ++it) {
+        if (promise.isCanceled()) {
+            promise.setProgressValueAndText(subDirIterator.currentProgress(),
+                                            Tr::tr("%1 filter update: canceled").arg(displayName));
+            return;
+        }
+        files << (*it).filePath;
+        promise.setProgressValueAndText(subDirIterator.currentProgress(),
+                                        Tr::tr("%1 filter update: %n files", nullptr, files.size()).arg(displayName));
+    }
+    promise.setProgressValue(subDirIterator.maxProgress());
+    promise.addResult(files);
+}
+
 DirectoryFilter::DirectoryFilter(Id id)
     : m_filters(kFiltersDefault)
     , m_exclusionFilters(kExclusionFiltersDefault)
@@ -56,6 +78,28 @@ DirectoryFilter::DirectoryFilter(Id id)
     setDescription(Tr::tr("Matches all files from a custom set of directories. Append \"+<number>\" "
                           "or \":<number>\" to jump to the given line number. Append another "
                           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+
+    using namespace Tasking;
+    const auto groupSetup = [this] {
+        if (!m_directories.isEmpty())
+            return TaskAction::Continue; // Async task will run
+        m_files.clear();
+        updateFileIterator();
+        return TaskAction::StopWithDone; // Group stops, skips async task
+    };
+    const auto asyncSetup = [this](AsyncTask<FilePaths> &async) {
+        async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
+                                    displayName());
+    };
+    const auto asyncDone = [this](const AsyncTask<FilePaths> &async) {
+        m_files = async.isResultAvailable() ? async.result() : FilePaths();
+        updateFileIterator();
+    };
+    const Group root {
+        OnGroupSetup(groupSetup),
+        Async<FilePaths>(asyncSetup, asyncDone)
+    };
+    setRefreshRecipe(root);
 }
 
 void DirectoryFilter::saveState(QJsonObject &object) const
@@ -380,54 +424,6 @@ void DirectoryFilter::setFilters(const QStringList &filters)
 void DirectoryFilter::setExclusionFilters(const QStringList &exclusionFilters)
 {
     m_exclusionFilters = exclusionFilters;
-}
-
-static void refresh(QPromise<FilePaths> &promise, const FilePaths &directories,
-                    const QStringList &filters, const QStringList &exclusionFilters,
-                    const QString &displayName)
-{
-    SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
-    promise.setProgressRange(0, subDirIterator.maxProgress());
-    FilePaths files;
-    const auto end = subDirIterator.end();
-    for (auto it = subDirIterator.begin(); it != end; ++it) {
-        if (promise.isCanceled()) {
-            promise.setProgressValueAndText(subDirIterator.currentProgress(),
-                                           Tr::tr("%1 filter update: canceled").arg(displayName));
-            return;
-        }
-        files << (*it).filePath;
-        promise.setProgressValueAndText(subDirIterator.currentProgress(),
-                Tr::tr("%1 filter update: %n files", nullptr, files.size()).arg(displayName));
-    }
-    promise.setProgressValue(subDirIterator.maxProgress());
-    promise.addResult(files);
-}
-
-using namespace Utils::Tasking;
-
-std::optional<TaskItem> DirectoryFilter::refreshRecipe()
-{
-    const auto groupSetup = [this] {
-        if (!m_directories.isEmpty())
-            return TaskAction::Continue; // Async task will run
-        m_files.clear();
-        updateFileIterator();
-        return TaskAction::StopWithDone; // Group stops, skips async task
-    };
-    const auto asyncSetup = [this](AsyncTask<FilePaths> &async) {
-        async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
-                                    displayName());
-    };
-    const auto asyncDone = [this](const AsyncTask<FilePaths> &async) {
-        m_files = async.isResultAvailable() ? async.result() : FilePaths();
-        updateFileIterator();
-    };
-    const Group root {
-        OnGroupSetup(groupSetup),
-        Async<FilePaths>(asyncSetup, asyncDone)
-    };
-    return root;
 }
 
 } // namespace Core

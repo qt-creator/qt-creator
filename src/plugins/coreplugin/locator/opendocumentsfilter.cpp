@@ -24,6 +24,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
     setDefaultShortcutString("o");
     setPriority(High);
     setDefaultIncludedByDefault(true);
+    setRefreshRecipe(Tasking::Sync([this] { refreshInternally(); return true; }));
 
     connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
             this, &OpenDocumentsFilter::slotDataChanged);
@@ -125,13 +126,6 @@ void OpenDocumentsFilter::refreshInternally()
     // to avoid model deleting entries behind our back
     for (DocumentModel::Entry *e : documentEntries)
         m_editors.append({e->filePath(), e->displayName()});
-}
-
-using namespace Utils::Tasking;
-
-std::optional<TaskItem> OpenDocumentsFilter::refreshRecipe()
-{
-    return Sync([this] { refreshInternally(); return true; });
 }
 
 } // Core::Internal

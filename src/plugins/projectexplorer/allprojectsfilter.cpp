@@ -12,6 +12,7 @@
 #include <utils/tasktree.h>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer::Internal {
 
@@ -24,6 +25,7 @@ AllProjectsFilter::AllProjectsFilter()
                       "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("a");
     setDefaultIncludedByDefault(true);
+    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &AllProjectsFilter::invalidateCache);
@@ -33,7 +35,7 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     if (!fileIterator()) {
-        Utils::FilePaths paths;
+        FilePaths paths;
         for (Project *project : ProjectManager::projects())
             paths.append(project->files(Project::SourceFiles));
         Utils::sort(paths);
@@ -45,13 +47,6 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
 void AllProjectsFilter::invalidateCache()
 {
     setFileIterator(nullptr);
-}
-
-using namespace Utils::Tasking;
-
-std::optional<TaskItem> AllProjectsFilter::refreshRecipe()
-{
-    return Sync([this] { invalidateCache(); return true; });
 }
 
 } // ProjectExplorer::Internal

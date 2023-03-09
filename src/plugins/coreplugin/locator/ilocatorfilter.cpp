@@ -100,13 +100,22 @@ void ILocatorFilter::prepareSearch(const QString &entry)
     Q_UNUSED(entry)
 }
 
+
 /*!
-    Returns refresh recipe for refreshing cached data. By default, no recipe is returned, so
-    that the filter won't be refreshed.
+    Sets the refresh recipe for refreshing cached data.
 */
-std::optional<Tasking::TaskItem> ILocatorFilter::refreshRecipe()
+void ILocatorFilter::setRefreshRecipe(const std::optional<Utils::Tasking::TaskItem> &recipe)
 {
-    return {};
+    m_refreshRecipe = recipe;
+}
+
+/*!
+    Returns the refresh recipe for refreshing cached data. By default, the locator filter has
+    no recipe set, so that it won't be refreshed.
+*/
+std::optional<Utils::Tasking::TaskItem> ILocatorFilter::refreshRecipe() const
+{
+    return m_refreshRecipe;
 }
 
 /*!

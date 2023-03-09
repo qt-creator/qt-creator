@@ -36,7 +36,6 @@ private:
 
     QList<Entry> editors() const;
     void refreshInternally();
-    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     mutable QMutex m_mutex;
     QList<Entry> m_editors;

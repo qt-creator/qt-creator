@@ -37,7 +37,6 @@ private:
     bool updateCache(QFutureInterface<Core::LocatorFilterEntry> &future,
                      const QStringList &cache, const QString &entry);
     void invalidateCache();
-    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     QStringList m_allIndicesCache;
     QStringList m_lastIndicesCache;

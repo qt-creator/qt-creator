@@ -28,6 +28,7 @@ HelpIndexFilter::HelpIndexFilter()
     setDisplayName(Tr::tr("Help Index"));
     setDefaultIncludedByDefault(false);
     setDefaultShortcutString("?");
+    setRefreshRecipe(Utils::Tasking::Sync([this] { invalidateCache(); return true; }));
 
     m_icon = Utils::Icons::BOOKMARK.icon();
     connect(Core::HelpManager::Signals::instance(), &Core::HelpManager::Signals::setupFinished,
@@ -115,11 +116,4 @@ QStringList HelpIndexFilter::allIndices() const
 void HelpIndexFilter::invalidateCache()
 {
     m_needsUpdate = true;
-}
-
-using namespace Utils::Tasking;
-
-std::optional<TaskItem> HelpIndexFilter::refreshRecipe()
-{
-    return Sync([this] { invalidateCache(); return true; });
 }

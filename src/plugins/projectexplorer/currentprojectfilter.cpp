@@ -13,6 +13,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+using namespace Utils;
 
 CurrentProjectFilter::CurrentProjectFilter()
     : BaseFileFilter()
@@ -24,6 +25,7 @@ CurrentProjectFilter::CurrentProjectFilter()
                       "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");
     setDefaultIncludedByDefault(false);
+    setRefreshRecipe(Tasking::Sync([this] { invalidateCache(); return true; }));
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);
@@ -33,9 +35,7 @@ void CurrentProjectFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     if (!fileIterator()) {
-        Utils::FilePaths paths;
-        if (m_project)
-            paths = m_project->files(Project::SourceFiles);
+        const FilePaths paths = m_project ? m_project->files(Project::SourceFiles) : FilePaths();
         setFileIterator(new BaseFileFilter::ListIterator(paths));
     }
     BaseFileFilter::prepareSearch(entry);
@@ -61,11 +61,4 @@ void CurrentProjectFilter::currentProjectChanged()
 void CurrentProjectFilter::invalidateCache()
 {
     setFileIterator(nullptr);
-}
-
-using namespace Utils::Tasking;
-
-std::optional<TaskItem> CurrentProjectFilter::refreshRecipe()
-{
-    return Sync([this] { invalidateCache(); return true; });
 }

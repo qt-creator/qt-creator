@@ -22,7 +22,6 @@ public:
 private:
     void currentProjectChanged();
     void invalidateCache();
-    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     Project *m_project = nullptr;
 };

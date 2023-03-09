@@ -18,7 +18,6 @@ public:
 
 private:
     void invalidateCache();
-    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     bool m_needsUpdate = true;
 };

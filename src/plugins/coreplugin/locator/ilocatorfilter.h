@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "utils/tasktree.h"
 #include <coreplugin/core_global.h>
 
 #include <utils/filepath.h>
@@ -201,11 +202,13 @@ protected:
     virtual void saveState(QJsonObject &object) const;
     virtual void restoreState(const QJsonObject &object);
 
+    void setRefreshRecipe(const std::optional<Utils::Tasking::TaskItem> &recipe);
+    std::optional<Utils::Tasking::TaskItem> refreshRecipe() const;
+
     static bool isOldSetting(const QByteArray &state);
 
 private:
     friend class Internal::Locator;
-    virtual std::optional<Utils::Tasking::TaskItem> refreshRecipe();
 
     Utils::Id m_id;
     QString m_shortcut;
@@ -214,6 +217,7 @@ private:
     QString m_description;
     QString m_defaultShortcut;
     std::optional<QString> m_defaultSearchText;
+    std::optional<Utils::Tasking::TaskItem> m_refreshRecipe;
     QKeySequence m_defaultKeySequence;
     bool m_defaultIncludedByDefault = false;
     bool m_includedByDefault = m_defaultIncludedByDefault;
