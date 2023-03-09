@@ -12,6 +12,7 @@ Project {
         "debugger/debugger.qbs",
         "diff/diff.qbs",
         "environment/environment.qbs",
+        "examples/examples.qbs",
         "extensionsystem/extensionsystem.qbs",
         "externaltool/externaltool.qbs",
         "filesearch/filesearch.qbs",
