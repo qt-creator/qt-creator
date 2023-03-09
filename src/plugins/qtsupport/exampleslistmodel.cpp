@@ -320,6 +320,56 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     return ok || debugExamples();
 }
 
+static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
+{
+    if (first->isHighlighted && !second->isHighlighted)
+        return true;
+    if (!first->isHighlighted && second->isHighlighted)
+        return false;
+    return first->name.compare(second->name, Qt::CaseInsensitive) < 0;
+}
+
+static QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
+    const QList<ExampleItem *> &items)
+{
+    static const QString otherDisplayName = Tr::tr("Other", "Category for all other examples");
+    const bool useCategories = qtcEnvironmentVariableIsSet("QTC_USE_EXAMPLE_CATEGORIES");
+    QList<ExampleItem *> other;
+    QMap<QString, QList<ExampleItem *>> categoryMap;
+    if (useCategories) {
+        for (ExampleItem *item : items) {
+            const QStringList itemCategories = item->metaData.value("category");
+            for (const QString &category : itemCategories)
+                categoryMap[category].append(item);
+            if (itemCategories.isEmpty())
+                other.append(item);
+        }
+    }
+    QList<std::pair<QString, QList<ExampleItem *>>> categories;
+    if (categoryMap.isEmpty()) {
+        // The example set doesn't define categories. Consider the "highlighted" ones as "featured"
+        QList<ExampleItem *> featured;
+        QList<ExampleItem *> allOther;
+        std::tie(featured, allOther) = Utils::partition(items, [](ExampleItem *i) {
+            return i->isHighlighted;
+        });
+        if (!featured.isEmpty())
+            categories.append({Tr::tr("Featured", "Category for highlighted examples"), featured});
+        if (!allOther.isEmpty())
+            categories.append({otherDisplayName, allOther});
+    } else {
+        const auto end = categoryMap.constKeyValueEnd();
+        for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it)
+            categories.append(*it);
+        if (!other.isEmpty())
+            categories.append({otherDisplayName, other});
+    }
+    const auto end = categories.end();
+    for (auto it = categories.begin(); it != end; ++it)
+        sort(it->second, sortByHighlightedAndName);
+    return categories;
+}
+
 void ExamplesViewController::updateExamples()
 {
     QString examplesInstallPath;
@@ -363,21 +413,12 @@ void ExamplesViewController::updateExamples()
                                     [](ExampleItem *item) { return item->tags.contains("ios"); });
         }
     }
-    Utils::sort(items, [](ExampleItem *first, ExampleItem *second) {
-        return first->name.compare(second->name, Qt::CaseInsensitive) < 0;
-    });
 
-    QList<ExampleItem *> featured;
-    QList<ExampleItem *> other;
-    std::tie(featured, other) = Utils::partition(items,
-                                                 [](ExampleItem *i) { return i->isHighlighted; });
-
-    if (!featured.isEmpty()) {
-        m_view->addSection({Tr::tr("Featured", "Category for highlighted examples"), 0},
-                           static_container_cast<ListItem *>(featured));
+    const QList<std::pair<QString, QList<ExampleItem *>>> sections = getCategories(items);
+    for (int i = 0; i < sections.size(); ++i) {
+        m_view->addSection({sections.at(i).first, i},
+                           static_container_cast<ListItem *>(sections.at(i).second));
     }
-    m_view->addSection({Tr::tr("Other", "Category for all other examples"), 1},
-                       static_container_cast<ListItem *>(other));
 }
 
 void ExampleSetModel::updateQtVersionList()
