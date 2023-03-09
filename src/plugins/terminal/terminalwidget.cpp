@@ -1041,6 +1041,8 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
         if (start > newEnd) {
             std::swap(start, newEnd);
         }
+        if (start < 0)
+            start = 0;
 
         if (m_selectLineMode) {
             m_selection->start = m_surface->gridToPos({0, m_surface->posToGrid(start).y()});
