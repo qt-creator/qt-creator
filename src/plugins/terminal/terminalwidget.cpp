@@ -360,7 +360,12 @@ void TerminalWidget::copyToClipboard() const
     Internal::CellIterator end = m_surface->iteratorAt(m_selection->end);
 
     std::u32string s;
-    std::copy(it, end, std::back_inserter(s));
+    for (; it != end; ++it) {
+        if (it.gridPos().x() == 0 && !s.empty())
+            s += U'\n';
+        if (*it != 0)
+            s += *it;
+    }
 
     const QString text = QString::fromUcs4(s.data(), static_cast<int>(s.size()));
 
