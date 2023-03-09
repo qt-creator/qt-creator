@@ -637,8 +637,6 @@ SectionedGridView::SectionedGridView(QWidget *parent)
 {
     auto allItemsModel = new ListModel(this);
     allItemsModel->setPixmapFunction(m_pixmapFunction);
-    // it just "borrows" the items from the section models:
-    allItemsModel->setOwnsItems(false);
     m_filteredAllItemsModel = new Core::ListModelFilter(allItemsModel, this);
 
     auto area = new QScrollArea(this);
@@ -690,6 +688,10 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
 {
     auto model = new ListModel(this);
     model->setPixmapFunction(m_pixmapFunction);
+    // the sections only keep a weak reference to the items,
+    // they are owned by the allProducts model, since multiple sections can contain duplicates
+    // of the same item
+    model->setOwnsItems(false);
     model->appendItems(items);
 
     auto gridView = new SectionGridView(this);
@@ -716,7 +718,11 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
 
     // add the items also to the all products model to be able to search correctly
     auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
-    allProducts->appendItems(items);
+    const QSet<ListItem *> allItems = toSet(allProducts->items());
+    const QList<ListItem *> newItems = filtered(items, [&allItems](ListItem *item) {
+        return !allItems.contains(item);
+    });
+    allProducts->appendItems(newItems);
 
     // only show section label(s) if there is more than one section
     m_sectionLabels.at(0)->setVisible(m_sectionLabels.size() > 1);
