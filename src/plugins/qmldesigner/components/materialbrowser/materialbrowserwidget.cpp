@@ -3,21 +3,20 @@
 
 #include "materialbrowserwidget.h"
 
+#include "asset.h"
+#include "assetimageprovider.h"
 #include "createtexture.h"
+#include "documentmanager.h"
+#include "hdrimage.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserview.h"
-
-#include "asset.h"
-#include "assetimageprovider.h"
-#include "designeractionmanager.h"
-#include "designermcumanager.h"
-#include "documentmanager.h"
-#include "hdrimage.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "theme.h"
 #include "variantproperty.h"
+
+#include <coreplugin/icore.h>
 
 #include <studioquickwidget.h>
 
@@ -26,21 +25,12 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QQmlContext>
-#include <QQmlEngine>
 #include <QQuickImageProvider>
 #include <QQuickItem>
 #include <QShortcut>
-#include <QStackedWidget>
-#include <QTabBar>
-#include <QToolButton>
 #include <QVBoxLayout>
-#include <QWheelEvent>
 
 namespace QmlDesigner {
 

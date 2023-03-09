@@ -6,14 +6,8 @@
 #include "modelnode.h"
 
 #include <coreplugin/icontext.h>
-#include <utils/dropsupport.h>
-#include <utils/fancylineedit.h>
 
-#include <QFileIconProvider>
 #include <QFrame>
-#include <QQmlPropertyMap>
-
-#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QPointF;
