@@ -296,6 +296,14 @@
     style.
     \endif
 
+    \if defined(qtdesignstudio)
+    The mode selector is hidden by default.
+
+    To show the mode selector, go to \uicontrol Views >
+    \uicontrol {Mode Selector Style} and select \uicontrol {Icons and Text}
+    or \uicontrol {Icons Only}.
+    \endif
+
 
     You can use \QC in the following modes:
 
