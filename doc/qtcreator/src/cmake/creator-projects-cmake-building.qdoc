@@ -189,6 +189,47 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
     \uicontrol Tools.
 
+    \section2 MSVC Example
+
+    When using MSVC compilers with NMAKE Makefiles, Ninja, or Ninja
+    Multi-Config generators, you can use the \c external strategy for
+    the \c architecture and \c toolset fields. This lets \QC set up
+    the Visual C++ environment before invoking CMake.
+
+    For example:
+
+    \badcode
+    "generator": "Ninja Multi-Config",
+    "toolset": {
+      "value": "v142,host=x64",
+      "strategy": "external"
+    },
+    "architecture": {
+      "value": "x64",
+      "strategy": "external"
+    },
+    \endcode
+
+    If you use MSVC compilers with non-VS generators and have several compilers
+    in the \c PATH, you might also have to specify the compiler to use in
+    \c cacheVariables or \c environmentVariables:
+
+    \badcode
+    "generator": "Ninja Multi-Config",
+    "toolset": {
+      "value": "v142,host=x64",
+      "strategy": "external"
+    },
+    "architecture": {
+      "value": "x64",
+      "strategy": "external"
+    },
+    "cacheVariables": {
+      "CMAKE_C_COMPILER": "cl.exe",
+      "CMAKE_CXX_COMPILER": "cl.exe"
+    }
+    \endcode
+
     \section2 Using Conditions
 
     The following configure presets are used if they match \c condition. That is,
