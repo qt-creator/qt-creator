@@ -31,7 +31,8 @@
                 additional debug symbols that you need for debugging the
                 application but that you can leave out from the release version.
                 Generally, you use the debug configuration for testing and the
-                release configuration for creating the final installation file.
+                release configuration for creating the final installation
+                binary package.
 
         \row
             \li Build step
