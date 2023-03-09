@@ -576,6 +576,7 @@ void LogWindow::clearContents()
 {
     m_combinedText->clear();
     m_inputText->clear();
+    theGlobalLog->clearContents();
 }
 
 void LogWindow::setCursor(const QCursor &cursor)
