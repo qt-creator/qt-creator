@@ -404,7 +404,8 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
 void AndroidDeployQtStep::runImpl(QFutureInterface<bool> &fi)
 {
     if (!m_avdName.isEmpty()) {
-        QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, fi);
+        const QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName,
+                                                                    QFuture<void>(fi.future()));
         qCDebug(deployStepLog) << "Deploying to AVD:" << m_avdName << serialNumber;
         if (serialNumber.isEmpty()) {
             reportWarningOrError(Tr::tr("The deployment AVD \"%1\" cannot be started.")

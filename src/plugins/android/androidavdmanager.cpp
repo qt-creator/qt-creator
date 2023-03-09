@@ -14,20 +14,16 @@
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
-#include <QApplication>
 #include <QLoggingCategory>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QSettings>
 
 #include <chrono>
-#include <functional>
 
 using namespace Utils;
+using namespace std;
 
 namespace Android::Internal {
-
-using namespace std;
 
 const int avdCreateTimeoutMs = 30000;
 
@@ -228,7 +224,7 @@ QString AndroidAvdManager::startAvd(const QString &name) const
 {
     if (!findAvd(name).isEmpty() || startAvdAsync(name))
         return waitForAvd(name);
-    return QString();
+    return {};
 }
 
 static bool is32BitUserSpace()
@@ -301,21 +297,21 @@ QString AndroidAvdManager::findAvd(const QString &avdName) const
         if (device.avdName == avdName)
             return device.serialNumber;
     }
-    return QString();
+    return {};
 }
 
 QString AndroidAvdManager::waitForAvd(const QString &avdName,
-                                      const QFutureInterfaceBase &fi) const
+                                      const std::optional<QFuture<void>> &future) const
 {
     // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
     // 60 rounds of 2s sleeping, two minutes for the avd to start
     QString serialNumber;
     for (int i = 0; i < 60; ++i) {
-        if (fi.isCanceled())
+        if (future && future->isCanceled())
             return {};
         serialNumber = findAvd(avdName);
         if (!serialNumber.isEmpty())
-            return waitForBooted(serialNumber, fi) ? serialNumber : QString();
+            return waitForBooted(serialNumber, future) ? serialNumber : QString();
         QThread::sleep(2);
     }
     return {};
@@ -339,11 +335,11 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
 }
 
 bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
-                                      const QFutureInterfaceBase &fi) const
+                                      const std::optional<QFuture<void>> &future) const
 {
     // found a serial number, now wait until it's done booting...
     for (int i = 0; i < 60; ++i) {
-        if (fi.isCanceled())
+        if (future && future->isCanceled())
             return false;
         if (isAvdBooted(serialNumber))
             return true;
