@@ -6,7 +6,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
-#include <QFutureInterface>
+#include <QFuture>
 #include <QList>
 #include <QSet>
 
@@ -44,19 +44,17 @@ class TypeHierarchyBuilder
 {
 public:
     static TypeHierarchy buildDerivedTypeHierarchy(CPlusPlus::Symbol *symbol,
-                                            const CPlusPlus::Snapshot &snapshot);
-    static TypeHierarchy buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface,
-                                            CPlusPlus::Symbol *symbol,
-                                            const CPlusPlus::Snapshot &snapshot);
+                                                   const CPlusPlus::Snapshot &snapshot,
+                                                   const std::optional<QFuture<void>> &future = {});
     static CPlusPlus::LookupItem followTypedef(const CPlusPlus::LookupContext &context,
                                                const CPlusPlus::Name *symbolName,
                                                CPlusPlus::Scope *enclosingScope,
                                                std::set<const CPlusPlus::Symbol *> typedefs = {});
 private:
     TypeHierarchyBuilder() = default;
-    void buildDerived(QFutureInterfaceBase &futureInterface, TypeHierarchy *typeHierarchy,
+    void buildDerived(const std::optional<QFuture<void>> &future, TypeHierarchy *typeHierarchy,
                       const CPlusPlus::Snapshot &snapshot,
-                      QHash<QString, QHash<QString, QString> > &cache, int depth = 0);
+                      QHash<QString, QHash<QString, QString> > &cache);
 
     QSet<CPlusPlus::Symbol *> _visited;
     QHash<Utils::FilePath, QSet<QString> > _candidates;

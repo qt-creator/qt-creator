@@ -108,20 +108,12 @@ const QList<TypeHierarchy> &TypeHierarchy::hierarchy() const
 }
 
 TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(Symbol *symbol,
-                                                              const Snapshot &snapshot)
-{
-    QFutureInterfaceBase dummy;
-    return TypeHierarchyBuilder::buildDerivedTypeHierarchy(dummy, symbol, snapshot);
-}
-
-TypeHierarchy TypeHierarchyBuilder::buildDerivedTypeHierarchy(QFutureInterfaceBase &futureInterface,
-                                                              Symbol *symbol,
-                                                              const Snapshot &snapshot)
+              const Snapshot &snapshot, const std::optional<QFuture<void>> &future)
 {
     TypeHierarchy hierarchy(symbol);
     TypeHierarchyBuilder builder;
     QHash<QString, QHash<QString, QString>> cache;
-    builder.buildDerived(futureInterface, &hierarchy, snapshot, cache);
+    builder.buildDerived(future, &hierarchy, snapshot, cache);
     return hierarchy;
 }
 
@@ -172,11 +164,10 @@ static FilePaths filesDependingOn(const Snapshot &snapshot, Symbol *symbol)
     return FilePaths{file} + snapshot.filesDependingOn(file);
 }
 
-void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
+void TypeHierarchyBuilder::buildDerived(const std::optional<QFuture<void>> &future,
                                         TypeHierarchy *typeHierarchy,
                                         const Snapshot &snapshot,
-                                        QHash<QString, QHash<QString, QString>> &cache,
-                                        int depth)
+                                        QHash<QString, QHash<QString, QString>> &cache)
 {
     Symbol *symbol = typeHierarchy->_symbol;
     if (_visited.contains(symbol))
@@ -188,15 +179,10 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
     DerivedHierarchyVisitor visitor(symbolName, cache);
 
     const FilePaths dependingFiles = filesDependingOn(snapshot, symbol);
-    if (depth == 0)
-        futureInterface.setProgressRange(0, dependingFiles.size());
 
-    int i = -1;
     for (const FilePath &fileName : dependingFiles) {
-        if (futureInterface.isCanceled())
+        if (future && future->isCanceled())
             return;
-        if (depth == 0)
-            futureInterface.setProgressValue(++i);
         Document::Ptr doc = snapshot.document(fileName);
         if ((_candidates.contains(fileName) && !_candidates.value(fileName).contains(symbolName))
                 || !doc->control()->findIdentifier(symbol->identifier()->chars(),
@@ -210,8 +196,8 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
         const QList<Symbol *> &derived = visitor.derived();
         for (Symbol *s : derived) {
             TypeHierarchy derivedHierarchy(s);
-            buildDerived(futureInterface, &derivedHierarchy, snapshot, cache, depth + 1);
-            if (futureInterface.isCanceled())
+            buildDerived(future, &derivedHierarchy, snapshot, cache);
+            if (future && future->isCanceled())
                 return;
             typeHierarchy->_hierarchy.append(derivedHierarchy);
         }

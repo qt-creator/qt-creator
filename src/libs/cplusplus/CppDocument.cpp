@@ -821,16 +821,10 @@ FilePaths Snapshot::filesDependingOn(const FilePath &filePath) const
     return m_deps.filesDependingOn(filePath);
 }
 
-void Snapshot::updateDependencyTable() const
-{
-    QFutureInterfaceBase futureInterface;
-    updateDependencyTable(futureInterface);
-}
-
-void Snapshot::updateDependencyTable(QFutureInterfaceBase &futureInterface) const
+void Snapshot::updateDependencyTable(const std::optional<QFuture<void>> &future) const
 {
     if (m_deps.files.isEmpty())
-        m_deps.build(futureInterface, *this);
+        m_deps.build(future, *this);
 }
 
 bool Snapshot::operator==(const Snapshot &other) const

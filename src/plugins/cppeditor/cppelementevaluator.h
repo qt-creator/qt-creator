@@ -92,16 +92,16 @@ public:
 
     CppClass *toCppClass() final;
 
-    void lookupBases(QFutureInterfaceBase &futureInterface,
-                     CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
-    void lookupDerived(QFutureInterfaceBase &futureInterface,
-                       CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);
+    void lookupBases(const QFuture<void> &future, CPlusPlus::Symbol *declaration,
+                     const CPlusPlus::LookupContext &context);
+    void lookupDerived(const QFuture<void> &future, CPlusPlus::Symbol *declaration,
+                       const CPlusPlus::Snapshot &snapshot);
 
     QList<CppClass> bases;
     QList<CppClass> derived;
 
 private:
-    void addBaseHierarchy(QFutureInterfaceBase &futureInterface,
+    void addBaseHierarchy(const QFuture<void> &future,
                           const CPlusPlus::LookupContext &context,
                           CPlusPlus::ClassOrNamespace *hierarchy,
                           QSet<CPlusPlus::ClassOrNamespace *> *visited);

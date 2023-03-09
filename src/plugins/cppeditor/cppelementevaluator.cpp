@@ -14,7 +14,7 @@
 #include <cplusplus/Icons.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <utils/runextensions.h>
+#include <utils/asynctask.h>
 
 #include <QDir>
 #include <QQueue>
@@ -140,20 +140,20 @@ CppClass *CppClass::toCppClass()
     return this;
 }
 
-void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
-                           Symbol *declaration, const LookupContext &context)
+void CppClass::lookupBases(const QFuture<void> &future, Symbol *declaration,
+                           const LookupContext &context)
 {
     ClassOrNamespace *hierarchy = context.lookupType(declaration);
     if (!hierarchy)
         return;
     QSet<ClassOrNamespace *> visited;
-    addBaseHierarchy(futureInterface, context, hierarchy, &visited);
+    addBaseHierarchy(future, context, hierarchy, &visited);
 }
 
-void CppClass::addBaseHierarchy(QFutureInterfaceBase &futureInterface, const LookupContext &context,
+void CppClass::addBaseHierarchy(const QFuture<void> &future, const LookupContext &context,
                                 ClassOrNamespace *hierarchy, QSet<ClassOrNamespace *> *visited)
 {
-    if (futureInterface.isCanceled())
+    if (future.isCanceled())
         return;
     visited->insert(hierarchy);
     const QList<ClassOrNamespace *> &baseClasses = hierarchy->usings();
@@ -165,21 +165,21 @@ void CppClass::addBaseHierarchy(QFutureInterfaceBase &futureInterface, const Loo
             ClassOrNamespace *baseHierarchy = context.lookupType(symbol);
             if (baseHierarchy && !visited->contains(baseHierarchy)) {
                 CppClass classSymbol(symbol);
-                classSymbol.addBaseHierarchy(futureInterface, context, baseHierarchy, visited);
+                classSymbol.addBaseHierarchy(future, context, baseHierarchy, visited);
                 bases.append(classSymbol);
             }
         }
     }
 }
 
-void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
-                             Symbol *declaration, const Snapshot &snapshot)
+void CppClass::lookupDerived(const QFuture<void> &future, Symbol *declaration,
+                             const Snapshot &snapshot)
 {
-    snapshot.updateDependencyTable(futureInterface);
-    if (futureInterface.isCanceled())
+    snapshot.updateDependencyTable(future);
+    if (future.isCanceled())
         return;
     addDerivedHierarchy(TypeHierarchyBuilder::buildDerivedTypeHierarchy(
-                        futureInterface, declaration, snapshot));
+                        declaration, snapshot, future));
 }
 
 void CppClass::addDerivedHierarchy(const TypeHierarchy &hierarchy)
@@ -340,13 +340,13 @@ static Symbol *followTemplateAsClass(Symbol *symbol)
     return symbol;
 }
 
-static void createTypeHierarchy(QFutureInterface<QSharedPointer<CppElement>> &futureInterface,
+static void createTypeHierarchy(QPromise<QSharedPointer<CppElement>> &promise,
                                 const Snapshot &snapshot,
                                 const LookupItem &lookupItem,
                                 const LookupContext &context,
                                 SymbolFinder symbolFinder)
 {
-    if (futureInterface.isCanceled())
+    if (promise.isCanceled())
         return;
 
     Symbol *declaration = lookupItem.declaration();
@@ -360,16 +360,17 @@ static void createTypeHierarchy(QFutureInterface<QSharedPointer<CppElement>> &fu
     declaration = followClassDeclaration(declaration, snapshot, symbolFinder, &contextToUse);
     declaration = followTemplateAsClass(declaration);
 
-    if (futureInterface.isCanceled())
+    if (promise.isCanceled())
         return;
     QSharedPointer<CppClass> cppClass(new CppClass(declaration));
-    cppClass->lookupBases(futureInterface, declaration, contextToUse);
-    if (futureInterface.isCanceled())
+    const QFuture<void> future = QFuture<void>(promise.future());
+    cppClass->lookupBases(future, declaration, contextToUse);
+    if (promise.isCanceled())
         return;
-    cppClass->lookupDerived(futureInterface, declaration, snapshot);
-    if (futureInterface.isCanceled())
+    cppClass->lookupDerived(future, declaration, snapshot);
+    if (promise.isCanceled())
         return;
-    futureInterface.reportResult(cppClass);
+    promise.addResult(cppClass);
 }
 
 static QSharedPointer<CppElement> handleLookupItemMatch(const Snapshot &snapshot,
@@ -495,7 +496,7 @@ static QFuture<QSharedPointer<CppElement>> asyncExec(
         const CPlusPlus::Snapshot &snapshot, const CPlusPlus::LookupItem &lookupItem,
         const CPlusPlus::LookupContext &lookupContext)
 {
-    return Utils::runAsync(&createTypeHierarchy, snapshot, lookupItem, lookupContext,
+    return Utils::asyncRun(&createTypeHierarchy, snapshot, lookupItem, lookupContext,
                            *CppModelManager::instance()->symbolFinder());
 }
 
