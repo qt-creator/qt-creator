@@ -40,6 +40,8 @@ public:
                                    Utils::Id type, ProgressFlags flags = {});
     static FutureProgress *addTimedTask(const QFutureInterface<void> &fi, const QString &title,
                                         Utils::Id type, int expectedSeconds, ProgressFlags flags = {});
+    static FutureProgress *addTimedTask(const QFuture<void> &future, const QString &title,
+                                        Utils::Id type, int expectedSeconds, ProgressFlags flags = {});
     static void setApplicationLabel(const QString &text);
 
 public slots:

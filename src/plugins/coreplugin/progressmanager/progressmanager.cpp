@@ -740,6 +740,33 @@ FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futu
     return fp;
 }
 
+FutureProgress *ProgressManager::addTimedTask(const QFuture<void> &future, const QString &title,
+                                              Id type, int expectedSeconds, ProgressFlags flags)
+{
+    QFutureInterface<void> dummyFutureInterface;
+    QFuture<void> dummyFuture = dummyFutureInterface.future();
+    FutureProgress *fp = m_instance->doAddTask(dummyFuture, title, type, flags);
+    (void) new ProgressTimer(dummyFutureInterface, expectedSeconds, fp);
+
+    QFutureWatcher<void> *dummyWatcher = new QFutureWatcher<void>(fp);
+    connect(dummyWatcher, &QFutureWatcher<void>::canceled, dummyWatcher, [future] {
+        QFuture<void> mutableFuture = future;
+        mutableFuture.cancel();
+    });
+    dummyWatcher->setFuture(dummyFuture);
+
+    QFutureWatcher<void> *origWatcher = new QFutureWatcher<void>(fp);
+    connect(origWatcher, &QFutureWatcher<void>::finished, origWatcher, [future, dummyFutureInterface] {
+        QFutureInterface<void> mutableDummyFutureInterface = dummyFutureInterface;
+        if (future.isCanceled())
+            mutableDummyFutureInterface.reportCanceled();
+        mutableDummyFutureInterface.reportFinished();
+    });
+    origWatcher->setFuture(future);
+
+    return fp;
+}
+
 /*!
     Shows the given \a text in a platform dependent way in the application
     icon in the system's task bar or dock. This is used to show the number
