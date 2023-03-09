@@ -229,10 +229,18 @@ expected_str<QList<ExampleItem *>> parseExamples(const FilePath &manifest,
     if (!contents)
         return make_unexpected(contents.error());
 
-    const FilePath path = manifest.parentDir();
+    return parseExamples(*contents, manifest, examplesInstallPath, demosInstallPath, examples);
+}
 
+expected_str<QList<ExampleItem *>> parseExamples(const QByteArray &manifestData,
+                                                 const Utils::FilePath &manifestPath,
+                                                 const FilePath &examplesInstallPath,
+                                                 const FilePath &demosInstallPath,
+                                                 const bool examples)
+{
+    const FilePath path = manifestPath.parentDir();
     QList<ExampleItem *> items;
-    QXmlStreamReader reader(*contents);
+    QXmlStreamReader reader(manifestData);
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
         case QXmlStreamReader::StartElement:
@@ -251,7 +259,7 @@ expected_str<QList<ExampleItem *>> parseExamples(const FilePath &manifest,
     if (reader.hasError()) {
         qDeleteAll(items);
         return make_unexpected(QString("Could not parse file \"%1\" as XML document: %2:%3: %4")
-                                   .arg(manifest.toUserOutput())
+                                   .arg(manifestPath.toUserOutput())
                                    .arg(reader.lineNumber())
                                    .arg(reader.columnNumber())
                                    .arg(reader.errorString()));
