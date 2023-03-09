@@ -94,6 +94,15 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
 
     connect(&m_flushDelayTimer, &QTimer::timeout, this, [this]() { flushVTerm(true); });
 
+    m_scrollTimer.setSingleShot(false);
+    m_scrollTimer.setInterval(1s / 2);
+    connect(&m_scrollTimer, &QTimer::timeout, this, [this] {
+        if (m_scrollDirection < 0)
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+        else if (m_scrollDirection > 0)
+            verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+    });
+
     connect(&TerminalSettings::instance(), &AspectContainer::applied, this, [this] {
         // Setup colors first, as setupFont will redraw the screen.
         setupColors();
@@ -992,7 +1001,9 @@ void TerminalWidget::inputMethodEvent(QInputMethodEvent *event)
 
 void TerminalWidget::mousePressEvent(QMouseEvent *event)
 {
-    m_activeMouseSelect.start = event->pos();
+    m_scrollDirection = 0;
+
+    m_activeMouseSelect.start = viewportToGlobal(event->pos());
 
     if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
         if (m_linkSelection) {
@@ -1034,8 +1045,29 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_selection && event->buttons() & Qt::LeftButton) {
         const auto old = m_selection;
+        int scrollVelocity = 0;
+        if (event->pos().y() < 0) {
+            scrollVelocity = (event->pos().y());
+        } else if (event->pos().y() > viewport()->height()) {
+            scrollVelocity = (event->pos().y() - viewport()->height());
+        }
 
-        int start = m_surface->gridToPos(globalToGrid(viewportToGlobal(m_activeMouseSelect.start)));
+        if ((scrollVelocity != 0) != m_scrollTimer.isActive()) {
+            if (scrollVelocity != 0)
+                m_scrollTimer.start();
+            else
+                m_scrollTimer.stop();
+        }
+
+        m_scrollDirection = scrollVelocity;
+
+        if (m_scrollTimer.isActive() && scrollVelocity != 0) {
+            const std::chrono::milliseconds scrollInterval = 1000ms / qAbs(scrollVelocity);
+            if (m_scrollTimer.intervalAsDuration() != scrollInterval)
+                m_scrollTimer.setInterval(scrollInterval);
+        }
+
+        int start = m_surface->gridToPos(globalToGrid(m_activeMouseSelect.start));
         int newEnd = m_surface->gridToPos(globalToGrid(viewportToGlobal(event->pos())));
 
         if (start > newEnd) {
@@ -1103,6 +1135,8 @@ void TerminalWidget::checkLinkAt(const QPoint &pos)
 
 void TerminalWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    m_scrollTimer.stop();
+
     if (m_selection && event->button() == Qt::LeftButton) {
         if (m_selection->end - m_selection->start == 0) {
             setSelection(std::nullopt);
@@ -1147,28 +1181,6 @@ void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
 
     updateViewport();
     event->accept();
-}
-
-void TerminalWidget::scrollContentsBy(int dx, int dy)
-{
-    Q_UNUSED(dx);
-    Q_UNUSED(dy);
-
-    if (m_ignoreScroll)
-        return;
-    /*
-    if (m_altscreen)
-        return;
-
-    size_t orig = m_scrollback->offset();
-    size_t offset = m_scrollback->scroll(dy);
-    if (orig == offset)
-        return;
-
-    m_cursor.visible = (offset == 0);
-    */
-
-    updateViewport();
 }
 
 void TerminalWidget::showEvent(QShowEvent *event)
