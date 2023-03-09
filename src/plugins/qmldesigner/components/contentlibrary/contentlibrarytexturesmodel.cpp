@@ -128,7 +128,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, c
                                                                 tex.baseName());
             QString localDownloadPath = QString("%1/%2/%3").arg(QmlDesignerBasePlugin::bundlesPathSetting(),
                                                                 m_category, dir.fileName());
-            QString key = QString("%1/%2/%3.zip").arg(m_category, dir.fileName(), tex.baseName());
+            QString key = QString("%1/%2/%3").arg(m_category, dir.fileName(), tex.baseName());
             QString fileExt;
             QSize dimensions;
             qint64 sizeInBytes = -1;
