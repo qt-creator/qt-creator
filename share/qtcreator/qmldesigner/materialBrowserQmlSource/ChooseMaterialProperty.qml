@@ -67,7 +67,7 @@ Rectangle {
 
                             onClicked: {
                                 materialsListView.currentIndex = index
-                                MaterialBrowserBackend.rootView.updatePropsModel(id())
+                                rootView.updatePropsModel(id())
                             }
                         }
                     }
@@ -134,7 +134,7 @@ Rectangle {
                 text: qsTr("Cancel")
 
                 onClicked: {
-                    MaterialBrowserBackend.rootView.closeChooseMatPropsView()
+                    rootView.closeChooseMatPropsView()
                 }
             }
 
@@ -145,7 +145,7 @@ Rectangle {
                     let matId = materialsListView.currentItem.id()
                     let prop = propertiesListView.currentItem.propName()
 
-                    MaterialBrowserBackend.rootView.applyTextureToProperty(matId, prop)
+                    rootView.applyTextureToProperty(matId, prop)
                 }
             }
         }
