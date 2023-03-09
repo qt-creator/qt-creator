@@ -4,14 +4,13 @@
 #include "findinfilessilversearcher.h"
 
 #include <aggregation/aggregate.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <texteditor/findinfiles.h>
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include "silversearcheroutputparser.h"
 #include "silversearchertr.h"
@@ -27,8 +26,6 @@ using namespace Utils;
 
 namespace {
 const QLatin1String silverSearcherName("Silver Searcher");
-
-using FutureInterfaceType = QFutureInterface<FileSearchResultList>;
 
 const QString metacharacters = "+()^$.{}[]|\\";
 
@@ -76,9 +73,8 @@ bool isSilverSearcherAvailable()
     return false;
 }
 
-void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
+void runSilverSeacher(QPromise<FileSearchResultList> &promise, FileFindParameters parameters)
 {
-    ProgressTimer progress(fi, 5);
     const FilePath directory = FilePath::fromUserInput(parameters.additionalParameters.toString());
     QStringList arguments = {"--parallel", "--ackmate"};
 
@@ -126,9 +122,9 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
         SilverSearcher::SilverSearcherOutputParser parser(process.cleanedStdOut(), regexp);
         FileSearchResultList items = parser.parse();
         if (!items.isEmpty())
-            fi.reportResult(items);
+            promise.addResult(items);
     } else {
-        fi.reportCanceled();
+        promise.future().cancel();
     }
 }
 
@@ -196,7 +192,7 @@ void FindInFilesSilverSearcher::writeSettings(QSettings *settings) const
 QFuture<FileSearchResultList> FindInFilesSilverSearcher::executeSearch(
         const FileFindParameters &parameters, BaseFileFind * /*baseFileFind*/)
 {
-    return Utils::runAsync(runSilverSeacher, parameters);
+    return Utils::asyncRun(runSilverSeacher, parameters);
 }
 
 IEditor *FindInFilesSilverSearcher::openEditor(const SearchResultItem & /*item*/,
