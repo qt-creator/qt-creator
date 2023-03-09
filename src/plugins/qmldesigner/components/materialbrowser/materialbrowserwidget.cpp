@@ -286,7 +286,7 @@ void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, cons
     ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
     QTC_ASSERT(mat.isValid(), return);
 
-    auto *creator = new CreateTexture(m_materialBrowserView, true);
+    auto *creator = new CreateTexture(m_materialBrowserView);
 
     m_materialBrowserView->executeInTransaction(__FUNCTION__, [&] {
         ModelNode tex = creator->execute(bundleTexPath.toLocalFile());

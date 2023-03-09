@@ -30,7 +30,7 @@ namespace QmlDesigner {
 
 ContentLibraryView::ContentLibraryView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
-    , m_createTexture(this, true)
+    , m_createTexture(this)
 {}
 
 ContentLibraryView::~ContentLibraryView()

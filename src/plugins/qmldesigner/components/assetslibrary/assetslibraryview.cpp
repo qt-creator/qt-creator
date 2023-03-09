@@ -47,7 +47,7 @@ public:
 
 AssetsLibraryView::AssetsLibraryView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
-    , m_createTextures{this, false}
+    , m_createTextures{this}
 {}
 
 AssetsLibraryView::~AssetsLibraryView()

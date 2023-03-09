@@ -5,24 +5,19 @@
 
 #include "bindingproperty.h"
 #include "createtexture.h"
+#include "designmodecontext.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserwidget.h"
 #include "nodeabstractproperty.h"
+#include "nodeinstanceview.h"
 #include "nodemetainfo.h"
+#include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
-#include <designmodecontext.h>
-#include <nodeinstanceview.h>
-#include <nodelistproperty.h>
-#include <qmldesignerconstants.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-
-#include <projectexplorer/project.h>
-#include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -31,7 +26,6 @@
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickView>
-#include <QRegularExpression>
 #include <QTimer>
 
 namespace QmlDesigner {
@@ -648,16 +642,7 @@ void MaterialBrowserView::applyTextureToProperty(const QString &matId, const QSt
 {
     executeInTransaction(__FUNCTION__, [&] {
         if (m_appliedTextureId.isEmpty() && !m_appliedTexturePath.isEmpty()) {
-            bool import = true;
-            using namespace ProjectExplorer;
-
-            if (Project *proj = ProjectTree::currentProject()) {
-                Utils::FilePath projDir = proj->projectFilePath().parentDir().pathAppended("content");
-                if (m_appliedTexturePath.startsWith(projDir.toString()))
-                    import = false;
-            }
-
-            auto texCreator = new CreateTexture(this, import);
+            auto texCreator = new CreateTexture(this);
             ModelNode tex = texCreator->execute(m_appliedTexturePath, AddTextureMode::Texture);
             m_appliedTextureId = tex.id();
             m_appliedTexturePath.clear();

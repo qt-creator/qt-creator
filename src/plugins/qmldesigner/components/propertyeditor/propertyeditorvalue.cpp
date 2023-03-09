@@ -7,14 +7,10 @@
 #include "bindingproperty.h"
 #include "createtexture.h"
 #include "designermcumanager.h"
-#include "documentmanager.h"
-#include "modelnodeoperations.h"
-#include "nodelistproperty.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "qmlitemnode.h"
 #include "qmlobjectnode.h"
-#include "variantproperty.h"
 
 #include <utils/qtcassert.h>
 
@@ -506,11 +502,8 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
         m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
             QmlDesigner::ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
             if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {
-                Utils::FilePath imagePath = Utils::FilePath::fromString(dropData);
-
-                bool needsImport = !imagePath.isChildOf(QmlDesigner::DocumentManager::currentResourcePath());
-                auto texCreator = new QmlDesigner::CreateTexture(m_modelNode.view(), needsImport);
-                texture = texCreator->execute(imagePath.toString(), QmlDesigner::AddTextureMode::Texture);
+                auto texCreator = new QmlDesigner::CreateTexture(m_modelNode.view());
+                texture = texCreator->execute(dropData, QmlDesigner::AddTextureMode::Texture);
                 texCreator->deleteLater();
             }
 
