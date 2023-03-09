@@ -6,9 +6,9 @@
 #include "dockertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QLoggingCategory>
 
@@ -65,7 +65,7 @@ void DockerApi::checkCanConnect(bool async)
         m_dockerDaemonAvailable = std::nullopt;
         emit dockerDaemonAvailableChanged();
 
-        auto future = Utils::runAsync([lk = std::move(lk), this] {
+        auto future = Utils::asyncRun([lk = std::move(lk), this] {
             m_dockerDaemonAvailable = canConnect();
             emit dockerDaemonAvailableChanged();
         });
