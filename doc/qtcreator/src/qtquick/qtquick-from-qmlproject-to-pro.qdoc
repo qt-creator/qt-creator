@@ -76,8 +76,7 @@
     If you only install Qt Creator and Qt, remember to also select the
     Qt Quick Timeline module for installation. If your Qt is older than
     5.14, you must build the Qt Quick Timeline module and install it to
-    your Qt to be able to build your project. For more information, see
-    \l{Adding Qt Quick Timeline Module to Qt Installations}.
+    your Qt to be able to build your project.
 
     \section1 Converting into qmake Projects
 
