@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "viewmanager.h"
+#include "dynamiclicensecheck.h"
 #include "modelnodecontextmenu_helper.h"
 
 #include <abstractview.h>
@@ -237,12 +238,9 @@ QList<AbstractView *> ViewManager::standardViews() const
             .toBool())
         list.append(&d->debugView);
 
-#ifdef CHECK_LICENSE
+    // TODO Should be if (QmlDesigner::checkEnterpriseLicense())
     if (checkLicense() == FoundLicense::enterprise)
         list.append(&d->contentLibraryView);
-#else
-    list.append(&d->contentLibraryView);
-#endif
 
     return list;
 }
@@ -415,12 +413,9 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     else
         widgetInfoList.append(d->newStatesEditorView.widgetInfo());
 
-#ifdef CHECK_LICENSE
+    // TODO Should be if (QmlDesigner::checkEnterpriseLicense())
     if (checkLicense() == FoundLicense::enterprise)
         widgetInfoList.append(d->contentLibraryView.widgetInfo());
-#else
-    widgetInfoList.append(d->contentLibraryView.widgetInfo());
-#endif
 
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
