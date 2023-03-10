@@ -151,21 +151,7 @@ void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
 QList<LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
         QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    QList<LocatorFilterEntry> matches = m_cppFilter->matchesFor(future, entry);
-    const QList<LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
-    if (!lspMatches.isEmpty()) {
-        QSet<Link> locations;
-        for (const auto &entry : std::as_const(matches)) {
-            QTC_ASSERT(entry.linkForEditor, continue);
-            locations.insert(*entry.linkForEditor);
-        }
-        for (const auto &entry : lspMatches) {
-            QTC_ASSERT(entry.linkForEditor, continue);
-            if (!locations.contains(*entry.linkForEditor))
-                matches << entry; // TODO: Insert sorted?
-        }
-    }
-    return matches;
+    return m_cppFilter->matchesFor(future, entry) + m_lspFilter->matchesFor(future, entry);
 }
 
 ClangClassesFilter::ClangClassesFilter()
