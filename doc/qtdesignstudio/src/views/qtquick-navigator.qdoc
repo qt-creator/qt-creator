@@ -224,7 +224,7 @@
     \list
         \li In the \uicontrol {2D} or \uicontrol Navigator view,
             right-click an instance of a component and then select
-            \uicontrol {Go into Component} in the context menu or
+            \uicontrol {Edit Component} in the context menu or
             press \key F2.
         \li In \uicontrol Properties, select \uicontrol {Edit Base Component}.
     \endlist

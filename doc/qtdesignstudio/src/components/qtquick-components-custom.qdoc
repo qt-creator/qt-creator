@@ -90,7 +90,7 @@
     component instances into custom components by moving them into
     separate component files (.ui.qml). Right-click a component instance
     in \uicontrol Navigator or the \uicontrol {2D} view, and select
-    \uicontrol {Move Component into Separate File} in the context menu.
+    \uicontrol {Create Component} in the context menu.
 
     \image qtcreator-move-component-into-separate-file.png
 
