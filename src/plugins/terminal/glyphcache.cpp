@@ -34,9 +34,13 @@ const QGlyphRun *GlyphCache::get(const QFont &font, const QString &text)
     layout.endLayout();
 
     if (layout.lineCount() > 0) {
-        QGlyphRun *run = new QGlyphRun(layout.lineAt(0).glyphRuns().first());
-        insert(key, run);
-        return run;
+        const auto &line = layout.lineAt(0);
+        const auto runs = line.glyphRuns();
+        if (!runs.isEmpty()) {
+            QGlyphRun *run = new QGlyphRun(layout.lineAt(0).glyphRuns().first());
+            insert(key, run);
+            return run;
+        }
     }
     return nullptr;
 }
