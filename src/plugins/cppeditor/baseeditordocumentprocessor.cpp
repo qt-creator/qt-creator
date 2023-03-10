@@ -12,6 +12,8 @@
 
 #include <texteditor/quickfix.h>
 
+#include <QPromise>
+
 namespace CppEditor {
 
 /*!

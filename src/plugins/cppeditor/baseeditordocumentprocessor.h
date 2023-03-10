@@ -23,6 +23,11 @@
 
 #include <functional>
 
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QPromise;
+QT_END_NAMESPACE
+
 namespace TextEditor { class TextDocument; }
 
 namespace CppEditor {
