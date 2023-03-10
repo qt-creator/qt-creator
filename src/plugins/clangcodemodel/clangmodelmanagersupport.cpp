@@ -341,16 +341,10 @@ void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &curso
 
 void ClangModelManagerSupport::switchHeaderSource(const FilePath &filePath, bool inNextSplit)
 {
-    if (ClangdClient * const client = clientForFile(filePath)) {
-        // The fast, synchronous approach works most of the time, so let's try that one first.
-        const FilePath otherFile = correspondingHeaderOrSource(filePath);
-        if (!otherFile.isEmpty())
-            openEditor(otherFile, inNextSplit);
-        else
-            client->switchHeaderSource(filePath, inNextSplit);
-        return;
-    }
-    CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
+    if (ClangdClient * const client = clientForFile(filePath))
+        client->switchHeaderSource(filePath, inNextSplit);
+    else
+        CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::checkUnused(const Link &link, Core::SearchResult *search,
