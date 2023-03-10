@@ -18,7 +18,7 @@
 
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/filetransferinterface.h>
-#include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
+#include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
 
@@ -50,9 +50,6 @@ using namespace Utils;
 namespace RemoteLinux {
 
 const QByteArray s_pidMarker = "__qtc";
-
-const char Delimiter0[] = "x--";
-const char Delimiter1[] = "---";
 
 static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
 #define DEBUG(x) qCDebug(linuxDeviceLog) << x << '\n'
@@ -273,77 +270,6 @@ private:
     // as this object is alive.
     IDevice::ConstPtr m_device;
 };
-
-static QString visualizeNull(QString s)
-{
-    return s.replace(QLatin1Char('\0'), QLatin1String("<null>"));
-}
-
-class LinuxDeviceProcessList : public SshDeviceProcessList
-{
-public:
-    LinuxDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent)
-            : SshDeviceProcessList(device, parent)
-    {
-    }
-
-private:
-    QString listProcessesCommandLine() const override
-    {
-        return QString::fromLatin1(
-            "for dir in `ls -d /proc/[0123456789]*`; do "
-                "test -d $dir || continue;" // Decrease the likelihood of a race condition.
-                "echo $dir;"
-                "cat $dir/cmdline;echo;" // cmdline does not end in newline
-                "cat $dir/stat;"
-                "readlink $dir/exe;"
-                "printf '%1''%2';"
-            "done").arg(QLatin1String(Delimiter0)).arg(QLatin1String(Delimiter1));
-    }
-
-    QList<ProcessInfo> buildProcessList(const QString &listProcessesReply) const override
-    {
-        QList<ProcessInfo> processes;
-        const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
-                + QString::fromLatin1(Delimiter1), Qt::SkipEmptyParts);
-        for (const QString &line : lines) {
-            const QStringList elements = line.split(QLatin1Char('\n'));
-            if (elements.count() < 4) {
-                qDebug("%s: Expected four list elements, got %d. Line was '%s'.", Q_FUNC_INFO,
-                       int(elements.count()), qPrintable(visualizeNull(line)));
-                continue;
-            }
-            bool ok;
-            const int pid = elements.first().mid(6).toInt(&ok);
-            if (!ok) {
-                qDebug("%s: Expected number in %s. Line was '%s'.", Q_FUNC_INFO,
-                       qPrintable(elements.first()), qPrintable(visualizeNull(line)));
-                continue;
-            }
-            QString command = elements.at(1);
-            command.replace(QLatin1Char('\0'), QLatin1Char(' '));
-            if (command.isEmpty()) {
-                const QString &statString = elements.at(2);
-                const int openParenPos = statString.indexOf(QLatin1Char('('));
-                const int closedParenPos = statString.indexOf(QLatin1Char(')'), openParenPos);
-                if (openParenPos == -1 || closedParenPos == -1)
-                    continue;
-                command = QLatin1Char('[')
-                        + statString.mid(openParenPos + 1, closedParenPos - openParenPos - 1)
-                        + QLatin1Char(']');
-            }
-
-            ProcessInfo process;
-            process.processId = pid;
-            process.commandLine = command;
-            process.executable = elements.at(3);
-            processes.append(process);
-        }
-
-        return Utils::sorted(std::move(processes));
-    }
-};
-
 
 // LinuxDevicePrivate
 
@@ -1094,7 +1020,7 @@ PortsGatheringMethod LinuxDevice::portsGatheringMethod() const
 
 DeviceProcessList *LinuxDevice::createProcessListModel(QObject *parent) const
 {
-    return new LinuxDeviceProcessList(sharedFromThis(), parent);
+    return new ProcessList(sharedFromThis(), parent);
 }
 
 DeviceTester *LinuxDevice::createDeviceTester() const

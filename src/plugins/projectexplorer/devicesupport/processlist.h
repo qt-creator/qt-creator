@@ -4,16 +4,16 @@
 #pragma once
 
 #include "deviceprocesslist.h"
+#include "idevice.h"
 
 namespace ProjectExplorer {
-namespace Internal {
 
-class LocalProcessList : public DeviceProcessList
+class PROJECTEXPLORER_EXPORT ProcessList : public DeviceProcessList
 {
     Q_OBJECT
 
 public:
-    explicit LocalProcessList(const IDeviceConstPtr &device, QObject *parent = nullptr);
+    explicit ProcessList(const IDeviceConstPtr &device, QObject *parent = nullptr);
 
 private:
     void doUpdate() override;
@@ -22,7 +22,9 @@ private:
 private:
     void handleUpdate();
     void reportDelayedKillStatus(const QString &errorMessage);
+
+private:
+    DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
-} // namespace Internal
 } // namespace ProjectExplorer

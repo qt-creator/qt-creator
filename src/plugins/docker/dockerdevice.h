@@ -75,7 +75,7 @@ public:
 
     bool canAutoDetectPorts() const override;
     ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
-    bool canCreateProcessModel() const override { return false; }
+    bool canCreateProcessModel() const override { return true; }
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return false; }
     ProjectExplorer::DeviceTester *createDeviceTester() const override;

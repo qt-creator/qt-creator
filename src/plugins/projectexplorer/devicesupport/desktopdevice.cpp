@@ -3,11 +3,11 @@
 
 #include "desktopdevice.h"
 
-#include "desktopprocesssignaloperation.h"
-#include "deviceprocesslist.h"
-#include "localprocesslist.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
+#include "desktopprocesssignaloperation.h"
+#include "deviceprocesslist.h"
+#include "processlist.h"
 
 #include <coreplugin/fileutils.h>
 
@@ -137,7 +137,7 @@ bool DesktopDevice::canCreateProcessModel() const
 
 DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
 {
-    return new Internal::LocalProcessList(sharedFromThis(), parent);
+    return new ProcessList(sharedFromThis(), parent);
 }
 
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const

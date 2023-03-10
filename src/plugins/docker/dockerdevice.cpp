@@ -17,6 +17,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
+#include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -486,7 +487,7 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
         dockerCmd.addArgs({"/bin/sh", "-c"});
 
         CommandLine exec("exec");
-        exec.addCommandLineAsArgs(cmd);
+        exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
 
         CommandLine echo("echo");
         echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
@@ -494,7 +495,7 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
 
         dockerCmd.addCommandLineAsSingleArg(echo);
     } else {
-        dockerCmd.addCommandLineAsArgs(cmd);
+        dockerCmd.addCommandLineAsArgs(cmd, CommandLine::Raw);
     }
 
     return dockerCmd;
@@ -792,9 +793,9 @@ PortsGatheringMethod DockerDevice::portsGatheringMethod() const
             &Port::parseFromSedOutput};
 };
 
-DeviceProcessList *DockerDevice::createProcessListModel(QObject *) const
+DeviceProcessList *DockerDevice::createProcessListModel(QObject *parent) const
 {
-    return nullptr;
+    return new ProcessList(sharedFromThis(), parent);
 }
 
 DeviceTester *DockerDevice::createDeviceTester() const
