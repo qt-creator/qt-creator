@@ -251,11 +251,11 @@ void PythonEditorWidget::updateInterpretersSelector()
                         if (self && venvInterpreter)
                             self->setUserDefinedPython(*venvInterpreter);
                     };
-                    PythonSettings::createVirtualEnvironment(self->textDocument()
-                                                                 ->filePath()
-                                                                 .parentDir(),
-                                                             *currentInterpreter,
-                                                             callback);
+                    PythonSettings::createVirtualEnvironmentInteractive(self->textDocument()
+                                                                            ->filePath()
+                                                                            .parentDir(),
+                                                                        *currentInterpreter,
+                                                                        callback);
                 });
     }
     auto settingsAction = menu->addAction(Tr::tr("Manage Python Interpreters"));

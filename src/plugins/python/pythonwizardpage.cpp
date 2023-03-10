@@ -34,18 +34,18 @@ WizardPage *PythonWizardPageFactory::create(JsonWizard *wizard, Id typeId, const
 
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
-    auto page = new PythonWizardPage;
+    QList<QPair<QString, QVariant>> pySideAndData;
     for (const QVariant &item : data.toMap().value("items").toList()) {
         const QMap<QString, QVariant> map = item.toMap();
         const QVariant name = map.value("trKey");
         if (name.isValid())
-            page->addPySideVersions(name.toString(), map.value("value"));
+            pySideAndData.emplaceBack(QPair<QString, QVariant>{name.toString(), map.value("value")});
     }
     bool validIndex = false;
-    const int index = data.toMap().value("index").toInt(&validIndex);
-    if (validIndex)
-        page->setDefaultPySideVersions(index);
-    return page;
+    int defaultPySide = data.toMap().value("index").toInt(&validIndex);
+    if (!validIndex)
+        defaultPySide = -1;
+    return new PythonWizardPage(pySideAndData, defaultPySide);
 }
 
 static bool validItem(const QVariant &item)
@@ -82,8 +82,10 @@ bool PythonWizardPageFactory::validateData(Id typeId, const QVariant &data, QStr
     return true;
 }
 
-PythonWizardPage::PythonWizardPage()
+PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySideAndData,
+                                   const int defaultPyside)
 {
+    using namespace Utils::Layouting;
     m_interpreter.setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
     connect(PythonSettings::instance(),
             &PythonSettings::interpretersChanged,
@@ -92,27 +94,55 @@ PythonWizardPage::PythonWizardPage()
 
     m_pySideVersion.setLabelText(Tr::tr("PySide version"));
     m_pySideVersion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    for (auto [name, data] : pySideAndData)
+        m_pySideVersion.addOption(SelectionAspect::Option(name, {}, data));
+    if (defaultPyside >= 0)
+        m_pySideVersion.setDefaultValue(defaultPyside);
+
+    m_createVenv.setLabelText(Tr::tr("Create new Virtual Environment"));
+
+    m_venvPath.setLabelText(Tr::tr("Path to virtual environment"));
+    m_venvPath.setDisplayStyle(StringAspect::PathChooserDisplay);
+    m_venvPath.setEnabler(&m_createVenv);
+    m_venvPath.setExpectedKind(PathChooser::Directory);
+
+    m_stateLabel = new InfoLabel();
+    m_stateLabel->setWordWrap(true);
+    m_stateLabel->setFilled(true);
+    m_stateLabel->setType(InfoLabel::Error);
+    connect(&m_venvPath, &StringAspect::valueChanged, this, &PythonWizardPage::updateStateLabel);
+    connect(&m_createVenv, &BoolAspect::valueChanged, this, &PythonWizardPage::updateStateLabel);
+
+    Grid {
+        m_pySideVersion, br,
+        m_interpreter, br,
+        m_createVenv, br,
+        m_venvPath, br,
+        m_stateLabel, br
+    }.attachTo(this, WithoutMargins);
 }
 
 void PythonWizardPage::initializePage()
 {
-    using namespace Utils::Layouting;
-
     auto wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
+    connect(wiz, &JsonWizard::filesPolished,
+            this, &PythonWizardPage::setupProject,
+            Qt::UniqueConnection);
+
+    const FilePath projectDir = FilePath::fromString(wiz->property("ProjectDirectory").toString());
+    m_createVenv.setValue(!projectDir.isEmpty());
+    if (m_venvPath.filePath().isEmpty())
+        m_venvPath.setFilePath(projectDir.isEmpty() ? FilePath{} : projectDir / "venv");
 
     updateInterpreters();
-
-    connect(wiz, &JsonWizard::filesPolished, this, &PythonWizardPage::setupProject);
-
-    Grid {
-         m_pySideVersion, br,
-         m_interpreter, br
-    }.attachTo(this, WithoutMargins);
+    updateStateLabel();
 }
 
 bool PythonWizardPage::validatePage()
 {
+    if (m_createVenv.value() && !m_venvPath.pathChooser()->isValid())
+        return false;
     auto wiz = qobject_cast<JsonWizard *>(wizard());
     const QMap<QString, QVariant> data = m_pySideVersion.itemValue().toMap();
     for (auto it = data.begin(), end = data.end(); it != end; ++it)
@@ -120,28 +150,40 @@ bool PythonWizardPage::validatePage()
     return true;
 }
 
-void PythonWizardPage::addPySideVersions(const QString &name, const QVariant &data)
-{
-    m_pySideVersion.addOption(SelectionAspect::Option(name, {}, data));
-}
-
-void PythonWizardPage::setDefaultPySideVersions(int index)
-{
-    m_pySideVersion.setDefaultValue(index);
-}
-
 void PythonWizardPage::setupProject(const JsonWizard::GeneratorFiles &files)
 {
     for (const JsonWizard::GeneratorFile &f : files) {
         if (f.file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
+            Interpreter interpreter = m_interpreter.currentInterpreter();
             Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(f.file.filePath()),
                                                            f.file.filePath().absoluteFilePath());
+            if (m_createVenv.value()) {
+                auto openProjectWithInterpreter = [f](const std::optional<Interpreter> &interpreter) {
+                    if (!interpreter)
+                        return;
+                    Project *project = ProjectManager::projectWithProjectFilePath(f.file.filePath());
+                    if (!project)
+                        return;
+                    if (Target *target = project->activeTarget()) {
+                        if (RunConfiguration *rc = target->activeRunConfiguration()) {
+                            if (auto interpreters = rc->aspect<InterpreterAspect>())
+                                interpreters->setCurrentInterpreter(*interpreter);
+                        }
+                    }
+                };
+                PythonSettings::createVirtualEnvironment(m_venvPath.filePath(),
+                                                         interpreter,
+                                                         openProjectWithInterpreter,
+                                                         project ? project->displayName()
+                                                                 : QString{});
+            }
+
             if (project) {
                 project->addTargetForDefaultKit();
                 if (Target *target = project->activeTarget()) {
                     if (RunConfiguration *rc = target->activeRunConfiguration()) {
                         if (auto interpreters = rc->aspect<InterpreterAspect>()) {
-                            interpreters->setCurrentInterpreter(m_interpreter.currentInterpreter());
+                            interpreters->setCurrentInterpreter(interpreter);
                             project->saveSettings();
                         }
                     }
@@ -156,6 +198,21 @@ void PythonWizardPage::updateInterpreters()
 {
     m_interpreter.setDefaultInterpreter(PythonSettings::defaultInterpreter());
     m_interpreter.updateInterpreters(PythonSettings::interpreters());
+}
+
+void PythonWizardPage::updateStateLabel()
+{
+    QTC_ASSERT(m_stateLabel, return);
+    if (m_createVenv.value()) {
+        if (PathChooser *pathChooser = m_venvPath.pathChooser()) {
+            if (!pathChooser->isValid()) {
+                m_stateLabel->show();
+                m_stateLabel->setText(pathChooser->errorMessage());
+                return;
+            }
+        }
+    }
+    m_stateLabel->hide();
 }
 
 } // namespace Python::Internal

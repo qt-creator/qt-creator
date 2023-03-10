@@ -773,9 +773,11 @@ void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefau
     saveSettings();
 }
 
-Interpreter PythonSettings::addInterpreter(const FilePath &interpreterPath, bool isDefault)
+Interpreter PythonSettings::addInterpreter(const FilePath &interpreterPath,
+                                           bool isDefault,
+                                           const QString &nameSuffix)
 {
-    const Interpreter interpreter = createInterpreter(interpreterPath, {});
+    const Interpreter interpreter = createInterpreter(interpreterPath, {}, nameSuffix);
     addInterpreter(interpreter, isDefault);
     return interpreter;
 }
@@ -786,7 +788,7 @@ PythonSettings *PythonSettings::instance()
     return settingsInstance;
 }
 
-void PythonSettings::createVirtualEnvironment(
+void PythonSettings::createVirtualEnvironmentInteractive(
     const FilePath &startDirectory,
     const Interpreter &defaultInterpreter,
     const std::function<void(std::optional<Interpreter>)> &callback)
@@ -829,14 +831,23 @@ void PythonSettings::createVirtualEnvironment(
         interpreters->currentData().toString());
 
     auto venvDir = pathChooser->filePath();
-    createVenv(interpreter.command, venvDir, [venvDir, callback](bool success){
+    createVirtualEnvironment(venvDir, interpreter, callback);
+}
+
+void PythonSettings::createVirtualEnvironment(
+    const FilePath &directory,
+    const Interpreter &interpreter,
+    const std::function<void(std::optional<Interpreter>)> &callback,
+    const QString &nameSuffix)
+{
+    createVenv(interpreter.command, directory, [directory, callback, nameSuffix](bool success) {
         std::optional<Interpreter> result;
         if (success) {
-            FilePath venvPython = venvDir.osType() == Utils::OsTypeWindows ? venvDir / "Scripts"
-                                                                           : venvDir / "bin";
+            FilePath venvPython = directory.osType() == Utils::OsTypeWindows ? directory / "Scripts"
+                                                                             : directory / "bin";
             venvPython = venvPython.pathAppended("python").withExecutableSuffix();
             if (venvPython.exists())
-                result = PythonSettings::addInterpreter(venvPython);
+                result = PythonSettings::addInterpreter(venvPython, false, nameSuffix);
         }
         callback(result);
     });

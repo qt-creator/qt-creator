@@ -24,19 +24,20 @@ public:
 class PythonWizardPage : public Utils::WizardPage
 {
 public:
-    PythonWizardPage();
+    PythonWizardPage(const QList<QPair<QString, QVariant>> &pySideAndData, const int defaultPyside);
     void initializePage() override;
     bool validatePage() override;
-
-    void addPySideVersions(const QString &name, const QVariant &data);
-    void setDefaultPySideVersions(int index);
 
 private:
     void setupProject(const ProjectExplorer::JsonWizard::GeneratorFiles &files);
     void updateInterpreters();
+    void updateStateLabel();
 
     ProjectExplorer::InterpreterAspect m_interpreter;
     Utils::SelectionAspect m_pySideVersion;
+    Utils::BoolAspect m_createVenv;
+    Utils::StringAspect m_venvPath;
+    Utils::InfoLabel *m_stateLabel = nullptr;
 };
 
 } // namespace Python::Internal
