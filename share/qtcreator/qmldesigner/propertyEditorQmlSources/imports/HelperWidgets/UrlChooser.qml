@@ -88,7 +88,7 @@ Row {
         ToolTip {
             id: toolTip
             visible: comboBox.hover && toolTip.text !== ""
-            text: root.backendValue.valueToString
+            text: root.backendValue?.valueToString ?? ""
             delay: StudioTheme.Values.toolTipDelay
 
             background: Rectangle {

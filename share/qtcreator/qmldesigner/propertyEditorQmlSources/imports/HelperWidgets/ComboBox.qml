@@ -19,7 +19,7 @@ StudioControls.ComboBox {
 
     onModelChanged: colorLogic.invalidate()
 
-    hasActiveDrag: comboBox.backendValue !== undefined && comboBox.backendValue.hasActiveDrag
+    hasActiveDrag: comboBox.backendValue?.hasActiveDrag ?? false
 
     // This is available in all editors.
 
@@ -120,7 +120,7 @@ StudioControls.ComboBox {
                     break
                 case ComboBox.ValueType.Enum:
                 default:
-                    if (comboBox.backendValue === undefined)
+                    if (!comboBox.backendValue)
                         break
 
                     var enumString = comboBox.backendValue.enumeration

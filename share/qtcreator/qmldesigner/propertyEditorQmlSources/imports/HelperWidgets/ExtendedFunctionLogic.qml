@@ -11,18 +11,8 @@ Item {
     id: extendedFunctionButton
 
     property variant backendValue
-    property bool isBoundBackend: {
-        if (backendValue !== undefined && backendValue.isBound !== undefined)
-            return backendValue.isBound
-
-        return false
-    }
-    property string backendExpression: {
-        if (backendValue !== undefined && backendValue.expression !== undefined)
-            return backendValue.expression
-
-        return ""
-    }
+    property bool isBoundBackend: backendValue?.isBound ?? false
+    property string backendExpression: backendValue?.expression ?? ""
 
     property string glyph: StudioTheme.Constants.actionIcon
     property string color: StudioTheme.Values.themeTextColor
@@ -38,7 +28,7 @@ Item {
 
     function setIcon() {
         extendedFunctionButton.color = StudioTheme.Values.themeTextColor
-        if (backendValue === undefined) {
+        if (!backendValue) {
             extendedFunctionButton.glyph = StudioTheme.Constants.actionIcon
         } else if (backendValue.isBound) {
             if (backendValue.isTranslated) {
@@ -49,12 +39,8 @@ Item {
                 extendedFunctionButton.color = StudioTheme.Values.themeInteraction
             }
         } else {
-            if (backendValue.complexNode !== undefined
-                    && backendValue.complexNode.exists) {
-
-            } else {
+            if (!backendValue.complexNode || !backendValue.complexNode.exists)
                 extendedFunctionButton.glyph = StudioTheme.Constants.actionIcon
-            }
         }
     }
 
@@ -77,8 +63,8 @@ Item {
                 id: menu
 
                 onAboutToShow: {
-                    exportMenuItem.checked = backendValue.hasPropertyAlias()
-                    exportMenuItem.enabled = !backendValue.isAttachedProperty()
+                    exportMenuItem.checked = backendValue?.hasPropertyAlias() ?? false
+                    exportMenuItem.enabled = !(backendValue?.isAttachedProperty() ?? false)
                     extendedFunctionButton.menuVisible = true
                 }
                 onAboutToHide: extendedFunctionButton.menuVisible = false
