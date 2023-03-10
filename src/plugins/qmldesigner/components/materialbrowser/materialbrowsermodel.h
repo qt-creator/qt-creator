@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include "qjsonobject.h"
-#include <modelnode.h>
-#include <qmlobjectnode.h>
+#include "modelnode.h"
 
 #include <QAbstractListModel>
+#include <QJsonObject>
 #include <QObject>
 #include <QPointer>
 

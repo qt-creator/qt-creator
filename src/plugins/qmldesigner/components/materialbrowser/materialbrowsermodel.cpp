@@ -3,13 +3,13 @@
 
 #include "materialbrowsermodel.h"
 
-#include <bindingproperty.h>
-#include <designmodewidget.h>
-#include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
-#include <variantproperty.h>
-#include <qmltimelinekeyframegroup.h>
-#include "utils/qtcassert.h"
+#include "designmodewidget.h"
+#include "qmldesignerplugin.h"
+#include "qmlobjectnode.h"
+#include "variantproperty.h"
+#include "qmltimelinekeyframegroup.h"
+
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 

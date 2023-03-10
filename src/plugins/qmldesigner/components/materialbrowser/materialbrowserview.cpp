@@ -17,7 +17,6 @@
 #include "variantproperty.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
