@@ -111,14 +111,14 @@ void tst_Examples::parsing_data()
         << "The Analog Clock example shows how to draw the contents of a custom widget."
         << "qthelp://org.qt-project.qtwidgets.660/qtwidgets/images/analogclock-example.png"
         << QStringList{"ios", "widgets"}
-        << FilePath::fromUserInput("manifest/widgets/widgets/analogclock/CMakeLists.txt")
+        << FilePath::fromUserInput("examples/widgets/widgets/analogclock/CMakeLists.txt")
         << "qthelp://org.qt-project.qtwidgets.660/qtwidgets/"
            "qtwidgets-widgets-analogclock-example.html"
-        << FilePaths{FilePath::fromUserInput("manifest/widgets/widgets/analogclock/main.cpp"),
-                     FilePath::fromUserInput("manifest/widgets/widgets/analogclock/analogclock.h"),
+        << FilePaths{FilePath::fromUserInput("examples/widgets/widgets/analogclock/main.cpp"),
+                     FilePath::fromUserInput("examples/widgets/widgets/analogclock/analogclock.h"),
                      FilePath::fromUserInput(
-                         "manifest/widgets/widgets/analogclock/analogclock.cpp")}
-        << FilePath::fromUserInput("manifest/widgets/widgets/analogclock/analogclock.cpp")
+                         "examples/widgets/widgets/analogclock/analogclock.cpp")}
+        << FilePath::fromUserInput("examples/widgets/widgets/analogclock/analogclock.cpp")
         << FilePaths() << Example << true << false << false << ""
         << "" << QStringList() << MetaData({{"category", {"Graphics"}}, {"tags", {"widgets"}}});
 }

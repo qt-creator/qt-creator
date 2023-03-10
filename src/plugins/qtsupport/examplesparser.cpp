@@ -24,8 +24,8 @@ static FilePath relativeOrInstallPath(const FilePath &path,
         return relativeResolvedPath;
     if (installResolvedPath.exists())
         return installResolvedPath;
-    // doesn't exist, just return relative
-    return relativeResolvedPath;
+    // doesn't exist, return the preferred resolved install path
+    return installResolvedPath;
 }
 
 static QString fixStringForTags(const QString &string)
