@@ -65,6 +65,14 @@ DiffEditorDocument *UnifiedDiffEditorWidget::diffDocument() const
     return m_controller.document();
 }
 
+void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
+{
+    const GuardLocker locker(m_controller.m_ignoreChanges);
+    clear(Tr::tr("Waiting for data..."));
+    m_controller.m_contextFileData = diffFileList;
+    showDiff();
+}
+
 void UnifiedDiffEditorWidget::saveState()
 {
     if (!m_state.isNull())
@@ -257,14 +265,6 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
     m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
 }
 
-void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
-{
-    const GuardLocker locker(m_controller.m_ignoreChanges);
-    clear(Tr::tr("Waiting for data..."));
-    m_controller.m_contextFileData = diffFileList;
-    showDiff();
-}
-
 QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
                                   bool lastChunk, int *blockNumber, DiffSelections *selections)
 {
@@ -388,8 +388,8 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
     return diffText;
 }
 
-UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterfaceBase &fi, int progressMin,
-                                              int progressMax, const DiffEditorInput &input)
+static UnifiedDiffOutput diffOutput(QPromise<UnifiedShowResult> &promise, int progressMin,
+                                    int progressMax, const DiffEditorInput &input)
 {
     UnifiedDiffOutput output;
 
@@ -434,8 +434,8 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterfaceBase &fi, int prog
                     output.diffData.m_chunkInfo.setChunkIndex(oldBlock, blockNumber - oldBlock, j);
             }
         }
-        fi.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
-        if (fi.isCanceled())
+        promise.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
+        if (promise.isCanceled())
             return {};
     }
 
@@ -451,14 +451,14 @@ void UnifiedDiffEditorWidget::showDiff()
         return;
     }
 
-    m_asyncTask.reset(new AsyncTask<ShowResult>());
+    m_asyncTask.reset(new AsyncTask<UnifiedShowResult>());
     m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
     m_controller.setBusyShowing(true);
     connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
         if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {
             setPlainText(Tr::tr("Retrieving data failed."));
         } else {
-            const ShowResult result = m_asyncTask->result();
+            const UnifiedShowResult result = m_asyncTask->result();
             m_data = result.diffData;
             TextDocumentPtr doc(result.textDocument);
             {
@@ -478,17 +478,16 @@ void UnifiedDiffEditorWidget::showDiff()
 
     const DiffEditorInput input(&m_controller);
 
-    auto getDocument = [input](QPromise<ShowResult> &promise) {
+    auto getDocument = [input](QPromise<UnifiedShowResult> &promise) {
         const int progressMax = 100;
         const int firstPartMax = 20; // diffOutput is about 4 times quicker than filling document
         promise.setProgressRange(0, progressMax);
         promise.setProgressValue(0);
-        QFutureInterfaceBase fi = QFutureInterfaceBase::get(promise.future());
-        const UnifiedDiffOutput output = UnifiedDiffData::diffOutput(fi, 0, firstPartMax, input);
+        const UnifiedDiffOutput output = diffOutput(promise, 0, firstPartMax, input);
         if (promise.isCanceled())
             return;
 
-        const ShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
+        const UnifiedShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
                                    output.diffData, output.selections};
         // No need to store the change history
         result.textDocument->document()->setUndoRedoEnabled(false);

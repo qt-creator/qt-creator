@@ -244,8 +244,8 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
     return TextDocument::convertToPlainText(text);
 }
 
-SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterfaceBase &fi, int progressMin,
-                                              int progressMax, const DiffEditorInput &input)
+static SideBySideDiffOutput diffOutput(QPromise<SideBySideShowResults> &promise, int progressMin,
+                                       int progressMax, const DiffEditorInput &input)
 {
     SideBySideDiffOutput output;
 
@@ -365,8 +365,8 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterfaceBase &fi, int prog
         diffText[RightSide].replace('\r', ' ');
         output.side[LeftSide].diffText += diffText[LeftSide];
         output.side[RightSide].diffText += diffText[RightSide];
-        fi.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
-        if (fi.isCanceled())
+        promise.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
+        if (promise.isCanceled())
             return {};
     }
     output.side[LeftSide].selections = SelectableTextEditorWidget::polishedSelections(
@@ -868,7 +868,7 @@ void SideBySideDiffEditorWidget::restoreState()
 
 void SideBySideDiffEditorWidget::showDiff()
 {
-    m_asyncTask.reset(new AsyncTask<ShowResults>());
+    m_asyncTask.reset(new AsyncTask<SideBySideShowResults>());
     m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
     m_controller.setBusyShowing(true);
 
@@ -877,7 +877,7 @@ void SideBySideDiffEditorWidget::showDiff()
             for (SideDiffEditorWidget *editor : m_editor)
                 editor->clearAll(Tr::tr("Retrieving data failed."));
         } else {
-            const ShowResults results = m_asyncTask->result();
+            const SideBySideShowResults results = m_asyncTask->result();
             m_editor[LeftSide]->setDiffData(results[LeftSide].diffData);
             m_editor[RightSide]->setDiffData(results[RightSide].diffData);
             TextDocumentPtr leftDoc(results[LeftSide].textDocument);
@@ -913,24 +913,23 @@ void SideBySideDiffEditorWidget::showDiff()
 
     const DiffEditorInput input(&m_controller);
 
-    auto getDocument = [input](QPromise<ShowResults> &promise) {
+    auto getDocument = [input](QPromise<SideBySideShowResults> &promise) {
         const int firstPartMax = 20; // diffOutput is about 4 times quicker than filling document
         const int leftPartMax = 60;
         const int rightPartMax = 100;
         promise.setProgressRange(0, rightPartMax);
         promise.setProgressValue(0);
-        QFutureInterfaceBase fi = QFutureInterfaceBase::get(promise.future());
-        const SideBySideDiffOutput output = SideDiffData::diffOutput(fi, 0, firstPartMax, input);
+        const SideBySideDiffOutput output = diffOutput(promise, 0, firstPartMax, input);
         if (promise.isCanceled())
             return;
 
-        const ShowResult leftResult{TextDocumentPtr(new TextDocument("DiffEditor.SideDiffEditor")),
+        const SideBySideShowResult leftResult{TextDocumentPtr(new TextDocument("DiffEditor.SideDiffEditor")),
                     output.side[LeftSide].diffData, output.side[LeftSide].selections};
-        const ShowResult rightResult{TextDocumentPtr(new TextDocument("DiffEditor.SideDiffEditor")),
+        const SideBySideShowResult rightResult{TextDocumentPtr(new TextDocument("DiffEditor.SideDiffEditor")),
                     output.side[RightSide].diffData, output.side[RightSide].selections};
-        const ShowResults result{leftResult, rightResult};
+        const SideBySideShowResults result{leftResult, rightResult};
 
-        auto propagateDocument = [&output, &promise](DiffSide side, const ShowResult &result,
+        auto propagateDocument = [&output, &promise](DiffSide side, const SideBySideShowResult &result,
                                                 int progressMin, int progressMax) {
             // No need to store the change history
             result.textDocument->document()->setUndoRedoEnabled(false);

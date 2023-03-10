@@ -33,9 +33,6 @@ class UnifiedDiffOutput;
 class UnifiedDiffData
 {
 public:
-    static UnifiedDiffOutput diffOutput(QFutureInterfaceBase &fi, int progressMin, int progressMax,
-                                        const DiffEditorInput &input);
-
     DiffChunkInfo m_chunkInfo;
     // block number, visual line number.
     QMap<int, DiffFileInfoArray> m_fileInfo;
@@ -47,10 +44,10 @@ public:
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
 
-private:
-    void setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk);
     QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
                      bool lastChunk, int *blockNumber, DiffSelections *selections);
+private:
+    void setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk);
 };
 
 class UnifiedDiffOutput
@@ -62,6 +59,14 @@ public:
     // value where 1 indicates start of new file and 2 indicates a diff chunk.
     // Remaining lines (diff contents) are assigned 3.
     QHash<int, int> foldingIndent;
+    DiffSelections selections;
+};
+
+class UnifiedShowResult
+{
+public:
+    QSharedPointer<TextEditor::TextDocument> textDocument;
+    UnifiedDiffData diffData;
     DiffSelections selections;
 };
 
@@ -107,14 +112,7 @@ private:
     DiffEditorWidgetController m_controller;
     QByteArray m_state;
 
-    struct ShowResult
-    {
-        QSharedPointer<TextEditor::TextDocument> textDocument;
-        UnifiedDiffData diffData;
-        DiffSelections selections;
-    };
-
-    std::unique_ptr<Utils::AsyncTask<ShowResult>> m_asyncTask;
+    std::unique_ptr<Utils::AsyncTask<UnifiedShowResult>> m_asyncTask;
 };
 
 } // namespace Internal
