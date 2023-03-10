@@ -4,6 +4,7 @@ QtcPlugin {
     name: "Terminal"
 
     Depends { name: "Core" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "vterm" }
     Depends { name: "ptyqt" }
 
