@@ -13,5 +13,6 @@ extend_qtc_plugin(QmlDesignerBase
   SOURCES
     designersettings.cpp designersettings.h
     qmlpuppetpaths.cpp qmlpuppetpaths.h
+    studiostyle.cpp studiostyle.h
     studioquickwidget.cpp studioquickwidget.h
 )

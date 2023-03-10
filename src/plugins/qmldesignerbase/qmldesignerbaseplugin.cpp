@@ -4,6 +4,9 @@
 #include "qmldesignerbaseplugin.h"
 
 #include "utils/designersettings.h"
+#include "utils/hostosinfo.h"
+#include "utils/studiostyle.h"
+#include "utils/theme/theme.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
@@ -12,6 +15,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>
 
+#include <QApplication>
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -19,8 +23,11 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QStandardPaths>
+#include <QStyle>
+#include <QStyleFactory>
 #include <QVBoxLayout>
 
+using Utils::HostOsInfo;
 namespace QmlDesigner {
 
 const char EXAMPLES_DOWNLOAD_PATH[] = "StudioConfig/ExamplesDownloadPath";
@@ -29,7 +36,12 @@ const char BUNDLES_DOWNLOAD_PATH[] = "StudioConfig/BundlesDownloadPath";
 class QmlDesignerBasePlugin::Data
 {
 public:
-    DesignerSettings settings{Core::ICore::instance()->settings()};
+    DesignerSettings settings;
+    QScopedPointer<StudioStyle> style;
+
+    Data()
+        : settings(Core::ICore::settings())
+    {}
 };
 
 namespace {
@@ -46,12 +58,19 @@ QmlDesignerBasePlugin *QmlDesignerBasePlugin::instance()
     return global;
 };
 
-
 QmlDesignerBasePlugin::~QmlDesignerBasePlugin() = default;
 
 DesignerSettings &QmlDesignerBasePlugin::settings()
 {
     return global->d->settings;
+}
+
+QStyle *QmlDesignerBasePlugin::style()
+{
+    if (global->d->style.isNull())
+        global->d->style.reset(new StudioStyle(qApp->style()));
+
+    return global->d->style.data();
 }
 
 bool QmlDesignerBasePlugin::initialize(const QStringList &, QString *)

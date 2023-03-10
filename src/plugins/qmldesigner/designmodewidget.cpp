@@ -20,6 +20,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/modemanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
 
 #include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
@@ -39,6 +40,7 @@
 #include <utils/stylehelper.h>
 
 #include <QActionGroup>
+#include <QApplication>
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QDir>
@@ -92,6 +94,8 @@ DesignModeWidget::DesignModeWidget()
     , m_crumbleBar(new CrumbleBar(this))
 {
     setAcceptDrops(true);
+    if (Utils::StyleHelper::isQDSTheme())
+        qApp->setStyle(QmlDesignerBasePlugin::style());
 }
 
 DesignModeWidget::~DesignModeWidget()

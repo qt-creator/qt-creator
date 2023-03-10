@@ -58,6 +58,7 @@ public:
     static QString bundlesPathSetting();
 
     static class DesignerSettings &settings();
+    static QStyle *style();
 
 signals:
     void examplesDownloadPathChanged(const QString &path);
