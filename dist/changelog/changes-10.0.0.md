@@ -33,7 +33,8 @@ Editing
 * Added renaming of includes when renaming `.ui` files (QTCREATORBUG-14259)
 * Added automatic refactoring of C++ code when forms in `.ui` files are renamed
   (QTCREATORBUG-1179)
-* Added the option to ignore files for indexing (QTCREATORBUG-28313)
+* Added the option to ignore files for indexing to `Preferences > C++ >
+  Code Model` (QTCREATORBUG-28313)
 * Added `Tools > C++ > Find Unused Functions`, and `Find Unused C/C++ Functions`
   to the `Projects` view context menu (QTCREATORBUG-6772)
 * Fixed text codec when rewriting headers as part of renaming
@@ -61,9 +62,11 @@ Editing
 ### QML
 
 * Updated code model to Qt 6.5
-* Added experimental support for the QML language server
+* Added experimental support for the QML language server (qmlls) to `Edit >
+  Preferences > Qt Quick > QML/JS Editing`
 * Added a color preview tooltip (QTCREATORBUG-28446)
-* Added the option to apply `qmlformat` on file save (QTCREATORBUG-28192,
+* Added the option to apply `qmlformat` on file save to `Edit > Preferences >
+  Qt Quick > QML/JS Editing > Command` (QTCREATORBUG-28192,
   QTCREATORBUG-26602)
 * Added `Follow Symbol` for QRC paths in string literals (QTCREATORBUG-28087)
 * Adapted the Qt Quick Application wizard template to new features in Qt 6.4
@@ -79,24 +82,28 @@ Editing
 Projects
 --------
 
-* Moved the preference page for `Devices` to below `Kits`
+* Moved the `Preferences` page for `Devices` to below `Kits`
 * Added `Build > Run Generator` for exporting projects to other build systems
   (QTCREATORBUG-28149)
 * Added the option to browse remote file systems for remote builds and targets
-* Added support for opening remote terminals
+  in `Projects > Build Settings > Build directory > Browse`, for example
+* Added support for opening remote terminals from `Projects > Build Settings >
+  Build Environment > Open Terminal`
 * Fixed that wizards did not create target directories (QTCREATORBUG-28346)
 * Fixed that absolute paths could be shown when relative paths would be
   preferable (QTCREATORBUG-288)
 
 ### CMake
 
-* Added a deployment method with `cmake --install` (QTCREATORBUG-25880)
-* Added the option to use `cmake-format` for CMake files
+* Added a deployment method with `cmake --install` to `Projects > Run Settings >
+  Add Deploy Step > CMake Install` (QTCREATORBUG-25880)
+* Added the option to use `cmake-format` for CMake files to `Edit > Preferences >
+  CMake > Formatter`
   ([cmake-format Documentation](https://cmake-format.readthedocs.io/en/latest/))
-* Added the option to show advanced configure items by default
+* Added `Show advanced options by default` to `Edit > Preferences > CMake > Tools`
 * Added support for the `external` strategy for the architecture and toolset of
   presets (QTCREATORBUG-28693)
-* Moved `Autorun CMake` to global settings
+* Moved `Autorun CMake` to `Edit > Preferences > CMake > General`
 * Changed the environment for running CMake to be based on the build environment
   by default (QTCREATORBUG-28513)
 * Fixed that `Package manager auto setup` created a dependency of the project
@@ -111,10 +118,6 @@ Projects
 
 * Removed the wizard template for dynamically loaded `.ui` projects
   (QTCREATORBUG-25807)
-
-### Qt Quick UI Prototype
-
-* Added support for running on remote Linux devices
 
 Debugging
 ---------
@@ -179,6 +182,10 @@ Platforms
 
 * Removed service management from the manifest editor (QTCREATORBUG-28024)
 * Fixed `Open package location after build` (QTCREATORBUG-28791)
+
+### Boot to Qt
+
+* Fixed the deployment of Qt Quick UI Prototype projects
 
 ### Docker
 
