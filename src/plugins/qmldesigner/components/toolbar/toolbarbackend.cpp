@@ -43,6 +43,8 @@ static Internal::DesignModeWidget *designModeWidget()
 
 static DesignDocument *currentDesignDocument()
 {
+    QTC_ASSERT(QmlDesignerPlugin::instance(), return nullptr);
+
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
