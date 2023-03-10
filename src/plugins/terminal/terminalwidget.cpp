@@ -12,6 +12,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
 #include <utils/stringutils.h>
@@ -132,6 +133,10 @@ void TerminalWidget::setupPty()
         m_process->setWorkingDirectory(*m_openParameters.workingDirectory);
     m_process->setEnvironment(env);
 
+    if (m_surface->shellIntegration()) {
+        m_surface->shellIntegration()->prepareProcess(*m_process.get());
+    }
+
     connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this]() {
         onReadyRead(false);
     });
@@ -242,7 +247,8 @@ void TerminalWidget::setupActions()
     connect(&m_zoomInAction, &QAction::triggered, this, &TerminalWidget::zoomIn);
     connect(&m_zoomOutAction, &QAction::triggered, this, &TerminalWidget::zoomOut);
 
-    addActions({&m_copyAction, &m_pasteAction, &m_clearSelectionAction, &m_zoomInAction, &m_zoomOutAction});
+    addActions(
+        {&m_copyAction, &m_pasteAction, &m_clearSelectionAction, &m_zoomInAction, &m_zoomOutAction});
 }
 
 void TerminalWidget::writeToPty(const QByteArray &data)
@@ -253,7 +259,8 @@ void TerminalWidget::writeToPty(const QByteArray &data)
 
 void TerminalWidget::setupSurface()
 {
-    m_surface = std::make_unique<Internal::TerminalSurface>(QSize{80, 60});
+    m_shellIntegration.reset(new ShellIntegration());
+    m_surface = std::make_unique<Internal::TerminalSurface>(QSize{80, 60}, m_shellIntegration.get());
 
     connect(m_surface.get(),
             &Internal::TerminalSurface::writeToPty,
@@ -299,6 +306,22 @@ void TerminalWidget::setupSurface()
     connect(m_surface.get(), &Internal::TerminalSurface::unscroll, this, [this] {
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
+    if (m_shellIntegration) {
+        connect(m_shellIntegration.get(),
+                &ShellIntegration::commandChanged,
+                this,
+                [this](const CommandLine &command) {
+                    m_currentCommand = command;
+                    emit commandChanged(m_currentCommand);
+                });
+        connect(m_shellIntegration.get(),
+                &ShellIntegration::currentDirChanged,
+                this,
+                [this](const QString &currentDir) {
+                    m_cwd = FilePath::fromUserInput(currentDir);
+                    emit cwdChanged(m_cwd);
+                });
+    }
 }
 
 void TerminalWidget::configBlinkTimer()
@@ -468,6 +491,16 @@ bool TerminalWidget::setSelection(const std::optional<Selection> &selection)
 QString TerminalWidget::shellName() const
 {
     return m_shellName;
+}
+
+FilePath TerminalWidget::cwd() const
+{
+    return m_cwd;
+}
+
+CommandLine TerminalWidget::currentCommand() const
+{
+    return m_currentCommand;
 }
 
 QPoint TerminalWidget::viewportToGlobal(QPoint p) const

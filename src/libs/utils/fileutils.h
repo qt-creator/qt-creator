@@ -121,7 +121,6 @@ public:
                                       QString *selectedFilter = nullptr,
                                       QFileDialog::Options options = {});
 #endif
-
 };
 
 // for actually finding out if e.g. directories are writable on Windows

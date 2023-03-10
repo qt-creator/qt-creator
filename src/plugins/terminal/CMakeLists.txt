@@ -7,6 +7,7 @@ add_qtc_plugin(Terminal
     glyphcache.cpp glyphcache.h
     keys.cpp keys.h
     scrollback.cpp scrollback.h
+    shellintegration.cpp shellintegration.h
     shellmodel.cpp shellmodel.h
     terminal.qrc
     terminalpane.cpp terminalpane.h

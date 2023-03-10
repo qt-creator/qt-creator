@@ -23,10 +23,13 @@ QColor toQColor(const VTermColor &c)
 
 struct TerminalSurfacePrivate
 {
-    TerminalSurfacePrivate(TerminalSurface *surface, const QSize &initialGridSize)
+    TerminalSurfacePrivate(TerminalSurface *surface,
+                           const QSize &initialGridSize,
+                           ShellIntegration *shellIntegration)
         : m_vterm(vterm_new(initialGridSize.height(), initialGridSize.width()), vterm_free)
         , m_vtermScreen(vterm_obtain_screen(m_vterm.get()))
         , m_scrollback(std::make_unique<Internal::Scrollback>(5000))
+        , m_shellIntegration(shellIntegration)
         , q(surface)
     {}
 
@@ -75,7 +78,15 @@ struct TerminalSurfacePrivate
         vterm_screen_set_damage_merge(m_vtermScreen, VTERM_DAMAGE_SCROLL);
         vterm_screen_enable_altscreen(m_vtermScreen, true);
 
+        memset(&m_vtermStateFallbacks, 0, sizeof(m_vtermStateFallbacks));
+
+        m_vtermStateFallbacks.osc = [](int cmd, VTermStringFragment fragment, void *user) {
+            auto p = static_cast<TerminalSurfacePrivate *>(user);
+            return p->osc(cmd, fragment);
+        };
+
         VTermState *vts = vterm_obtain_state(m_vterm.get());
+        vterm_state_set_unrecognised_fallbacks(vts, &m_vtermStateFallbacks, this);
         vterm_state_set_bold_highbright(vts, true);
 
         vterm_screen_reset(m_vtermScreen, 1);
@@ -196,6 +207,14 @@ struct TerminalSurfacePrivate
         return 1;
     }
 
+    int osc(int cmd, const VTermStringFragment &fragment)
+    {
+        if (m_shellIntegration)
+            m_shellIntegration->onOsc(cmd, fragment);
+
+        return 1;
+    }
+
     int setTerminalProperties(VTermProp prop, VTermValue *val)
     {
         switch (prop) {
@@ -274,19 +293,23 @@ struct TerminalSurfacePrivate
     std::unique_ptr<VTerm, void (*)(VTerm *)> m_vterm;
     VTermScreen *m_vtermScreen;
     VTermScreenCallbacks m_vtermScreenCallbacks;
+    VTermStateFallbacks m_vtermStateFallbacks;
 
     QColor m_defaultBgColor;
     Cursor m_cursor;
+    QString m_currentCommand;
 
     bool m_altscreen{false};
 
     std::unique_ptr<Internal::Scrollback> m_scrollback;
 
+    ShellIntegration *m_shellIntegration{nullptr};
+
     TerminalSurface *q;
 };
 
-TerminalSurface::TerminalSurface(QSize initialGridSize)
-    : d(std::make_unique<TerminalSurfacePrivate>(this, initialGridSize))
+TerminalSurface::TerminalSurface(QSize initialGridSize, ShellIntegration *shellIntegration)
+    : d(std::make_unique<TerminalSurfacePrivate>(this, initialGridSize, shellIntegration))
 {
     d->init();
 }
@@ -476,6 +499,11 @@ Cursor TerminalSurface::cursor() const
 QColor TerminalSurface::defaultBgColor() const
 {
     return toQColor(d->defaultBgColor());
+}
+
+ShellIntegration *TerminalSurface::shellIntegration() const
+{
+    return d->m_shellIntegration;
 }
 
 CellIterator TerminalSurface::begin() const

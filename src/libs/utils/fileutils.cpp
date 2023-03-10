@@ -5,7 +5,6 @@
 #include "savefile.h"
 
 #include "algorithm.h"
-#include "hostosinfo.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 

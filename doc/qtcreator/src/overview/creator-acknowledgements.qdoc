@@ -1046,5 +1046,18 @@
 
         \include license-mit.qdocinc
 
+        \li \b terminal/shellintegrations
+
+        The Terminal plugin uses scripts to integrate with the shell. The scripts are
+        located in the Qt Creator source tree in src/plugins/terminal/shellintegrations.
+
+        \list
+            \li \l https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
      \endlist
 */

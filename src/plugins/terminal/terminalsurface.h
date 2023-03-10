@@ -4,6 +4,7 @@
 #pragma once
 
 #include "celliterator.h"
+#include "shellintegration.h"
 
 #include <QKeyEvent>
 #include <QSize>
@@ -47,7 +48,7 @@ class TerminalSurface : public QObject
     Q_OBJECT;
 
 public:
-    TerminalSurface(QSize initialGridSize);
+    TerminalSurface(QSize initialGridSize, ShellIntegration *shellIntegration);
     ~TerminalSurface();
 
 public:
@@ -94,6 +95,8 @@ public:
     Cursor cursor() const;
 
     QColor defaultBgColor() const;
+
+    ShellIntegration *shellIntegration() const;
 
 signals:
     void writeToPty(const QByteArray &data);
