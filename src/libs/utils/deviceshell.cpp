@@ -98,6 +98,7 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 
     const RunResult errorResult{-1, {}, {}};
     QTC_ASSERT(m_shellProcess, return errorResult);
+    QTC_ASSERT(m_shellProcess->isRunning(), return errorResult);
     QTC_ASSERT(m_shellScriptState == State::Succeeded, return errorResult);
 
     QMutexLocker lk(&m_commandMutex);

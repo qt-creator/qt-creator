@@ -679,12 +679,12 @@ void DockerDevicePrivate::startContainer()
     m_shell = std::make_unique<ContainerShell>(m_settings, m_container, q->rootPath());
 
     connect(m_shell.get(), &DeviceShell::done, this, [this](const ProcessResultData &resultData) {
+        m_shell.release()->deleteLater();
         if (resultData.m_error != QProcess::UnknownError
             || resultData.m_exitStatus == QProcess::NormalExit)
             return;
 
         qCWarning(dockerDeviceLog) << "Container shell encountered error:" << resultData.m_error;
-        m_shell.release()->deleteLater();
 
         DockerApi::recheckDockerDaemon();
         MessageManager::writeFlashing(Tr::tr("Docker daemon appears to be not running. "
