@@ -115,4 +115,8 @@ QTCREATOR_UTILS_EXPORT QString trimFront(const QString &string, QChar ch);
 QTCREATOR_UTILS_EXPORT QString trimBack(const QString &string, QChar ch);
 QTCREATOR_UTILS_EXPORT QString trim(const QString &string, QChar ch);
 
+QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QString &string, QChar ch);
+QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStringView &stringView,
+                                                                    QChar ch);
+
 } // namespace Utils

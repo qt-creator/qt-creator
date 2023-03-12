@@ -527,4 +527,23 @@ QTCREATOR_UTILS_EXPORT FilePath appendHelper(const FilePath &base, int n)
     return base.stringAppended(QString::number(n));
 }
 
+QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QStringView &stringView,
+                                                                    QChar ch)
+{
+    int splitIdx = stringView.indexOf(ch);
+    if (splitIdx == -1)
+        return {stringView, {}};
+
+    QStringView left = stringView.mid(0, splitIdx);
+    QStringView right = stringView.mid(splitIdx + 1);
+
+    return {left, right};
+}
+
+QTCREATOR_UTILS_EXPORT QPair<QStringView, QStringView> splitAtFirst(const QString &string, QChar ch)
+{
+    QStringView view = string;
+    return splitAtFirst(view, ch);
+}
+
 } // namespace Utils
