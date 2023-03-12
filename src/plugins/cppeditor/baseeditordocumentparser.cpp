@@ -8,6 +8,8 @@
 #include "cppprojectpartchooser.h"
 #include "editordocumenthandle.h"
 
+#include <QPromise>
+
 using namespace Utils;
 
 namespace CppEditor {
@@ -60,6 +62,7 @@ void BaseEditorDocumentParser::setConfiguration(const Configuration &configurati
 void BaseEditorDocumentParser::update(const UpdateParams &updateParams)
 {
     QPromise<void> dummy;
+    dummy.start();
     update(dummy, updateParams);
 }
 
