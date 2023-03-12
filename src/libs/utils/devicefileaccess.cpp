@@ -565,10 +565,13 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
 expected_str<void> DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
                                                      const FilePath &target) const
 {
-    if (QFile::copy(filePath.path(), target.path()))
+    QFile srcFile(filePath.path());
+
+    if (srcFile.copy(target.path()))
         return {};
-    return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\".")
-                               .arg(filePath.toUserOutput(), target.toUserOutput()));
+    return make_unexpected(
+        Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
+            .arg(filePath.toUserOutput(), target.toUserOutput(), srcFile.errorString()));
 }
 
 bool DesktopDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
