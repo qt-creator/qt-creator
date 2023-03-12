@@ -12,7 +12,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/fuzzymatcher.h>
-#include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -21,6 +20,7 @@
 #include <QMenuBar>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QtConcurrent>
 #include <QTextDocument>
 
 static const char lastTriggeredC[] = "LastTriggeredActions";
@@ -155,8 +155,8 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
     };
 
     QMap<MatchLevel, QList<LocatorFilterEntry>> filtered;
-    const QList<std::optional<FilterResult>> filterResults = Utils::map(std::as_const(m_entries), filter)
-                                                                 .results();
+    const QList<std::optional<FilterResult>> filterResults
+        = QtConcurrent::blockingMapped(m_entries, filter);
     for (const std::optional<FilterResult> &filterResult : filterResults) {
         if (filterResult)
             filtered[filterResult->first] << filterResult->second;
