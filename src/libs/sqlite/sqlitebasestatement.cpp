@@ -468,13 +468,19 @@ void BaseStatement::checkForStepError(int resultCode) const
     case SQLITE_CORRUPT:
         throw DatabaseIsCorrupt();
     case SQLITE_CANTOPEN_CONVPATH:
+        throw CannotOpenConvPath();
     case SQLITE_CANTOPEN_DIRTYWAL:
+        throw CannotOpenDirtyWal();
     case SQLITE_CANTOPEN_FULLPATH:
+        throw CannotCovertToFullPath();
     case SQLITE_CANTOPEN_ISDIR:
+        throw CannotOpenDirectoryPath();
     case SQLITE_CANTOPEN_NOTEMPDIR:
+        throw CannotOpenNoTempDir();
     case SQLITE_CANTOPEN_SYMLINK:
+        throw CannotOpenSynbolicLink();
     case SQLITE_CANTOPEN:
-        throwCannotOpen("SqliteStatement::stepStatement: Cannot open database or temporary file.");
+        throw CannotOpen();
     }
 
     throwUnknowError("SqliteStatement::stepStatement: unknown error has happened");
@@ -659,11 +665,6 @@ void BaseStatement::throwDataTypeMismatch(const char *) const
 void BaseStatement::throwExecutionInterrupted(const char *) const
 {
     throw ExecutionInterrupted{};
-}
-
-void BaseStatement::throwCannotOpen(const char *) const
-{
-    throw CannotOpen{};
 }
 
 QString BaseStatement::columnName(int column) const

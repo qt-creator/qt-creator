@@ -130,7 +130,6 @@ public:
     [[noreturn]] void throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const;
     [[noreturn]] void throwDataTypeMismatch(const char *whatHasHappened) const;
     [[noreturn]] void throwExecutionInterrupted(const char *whatHasHappened) const;
-    [[noreturn]] void throwCannotOpen(const char *whatHasHappened) const;
 
     QString columnName(int column) const;
 

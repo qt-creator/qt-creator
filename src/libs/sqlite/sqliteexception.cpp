@@ -624,4 +624,34 @@ const char *ConnectionsVirtualTableIsLocked::what() const noexcept
     return "Sqlite::ConnectionsVirtualTableIsLocked";
 }
 
+const char *CannotOpenConvPath::what() const noexcept
+{
+    return "Sqlite::CannotOpenConvPath";
+}
+
+const char *CannotOpenDirtyWal::what() const noexcept
+{
+    return "Sqlite::CannotOpenDirtyWal";
+}
+
+const char *CannotCovertToFullPath::what() const noexcept
+{
+    return "Sqlite::CannotCovertToFullPath";
+}
+
+const char *CannotOpenDirectoryPath::what() const noexcept
+{
+    return "Sqlite::CannotOpenDirectoryPath";
+}
+
+const char *CannotOpenNoTempDir::what() const noexcept
+{
+    return "Sqlite::CannotOpenNoTempDir";
+}
+
+const char *CannotOpenSynbolicLink::what() const noexcept
+{
+    return "Sqlite::CannotOpenSynbolicLink";
+}
+
 } // namespace Sqlite

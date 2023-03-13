@@ -712,6 +712,48 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT CannotOpenConvPath : public CannotOpen
+{
+public:
+    using CannotOpen::CannotOpen;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotOpenDirtyWal : public CannotOpen
+{
+public:
+    using CannotOpen::CannotOpen;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotCovertToFullPath : public CannotOpen
+{
+public:
+    using CannotOpen::CannotOpen;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotOpenDirectoryPath : public CannotOpen
+{
+public:
+    using CannotOpen::CannotOpen;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotOpenNoTempDir : public CannotOpen
+{
+public:
+    using CannotOpen::CannotOpen;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotOpenSynbolicLink : public CannotOpen
+{
+public:
+    using CannotOpen::CannotOpen;
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT CannotCreateChangeSetIterator : public Exception
 {
 public:
