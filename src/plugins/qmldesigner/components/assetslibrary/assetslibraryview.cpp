@@ -89,10 +89,10 @@ WidgetInfo AssetsLibraryView::widgetInfo()
     return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));
 }
 
-void AssetsLibraryView::customNotification(const AbstractView *view,
+void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
                                            const QString &identifier,
-                                           const QList<ModelNode> &nodeList,
-                                           const QList<QVariant> &data)
+                                           const QList<ModelNode> & /*nodeList*/,
+                                           const QList<QVariant> & /*data*/)
 {
     if (identifier == "delete_selected_assets")
         m_widget->deleteSelectedAssets();
