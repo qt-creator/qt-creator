@@ -40,10 +40,49 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT StatementIsBusyRecovering : public StatementIsBusy
+{
+public:
+    using StatementIsBusy::StatementIsBusy;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT StatementIsBusySnapshot : public StatementIsBusy
+{
+public:
+    using StatementIsBusy::StatementIsBusy;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT StatementIsBusyTimeout : public StatementIsBusy
+{
+public:
+    using StatementIsBusy::StatementIsBusy;
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT DatabaseIsBusy : public Exception
 {
 public:
     using Exception::Exception;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DatabaseIsBusyRecovering : public DatabaseIsBusy
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DatabaseIsBusySnapshot : public DatabaseIsBusy
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DatabaseIsBusyTimeout : public DatabaseIsBusy
+{
+public:
     const char *what() const noexcept override;
 };
 

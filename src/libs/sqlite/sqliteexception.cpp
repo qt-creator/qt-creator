@@ -464,4 +464,34 @@ const char *InputOutputCannotRead::what() const noexcept
     return "Sqlite::InputOutputCannotRead";
 }
 
+const char *StatementIsBusyRecovering::what() const noexcept
+{
+    return "Sqlite::StatementIsBusyRecovering";
+}
+
+const char *StatementIsBusySnapshot::what() const noexcept
+{
+    return "Sqlite::StatementIsBusySnapshot";
+}
+
+const char *StatementIsBusyTimeout::what() const noexcept
+{
+    return "Sqlite::StatementIsBusyTimeout";
+}
+
+const char *DatabaseIsBusyRecovering::what() const noexcept
+{
+    return "Sqlite::DatabaseIsBusyRecovering";
+}
+
+const char *DatabaseIsBusySnapshot::what() const noexcept
+{
+    return "Sqlite::DatabaseIsBusySnapshot";
+}
+
+const char *DatabaseIsBusyTimeout::what() const noexcept
+{
+    return "Sqlite::DatabaseIsBusyTimeout";
+}
+
 } // namespace Sqlite

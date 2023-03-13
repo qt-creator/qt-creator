@@ -310,11 +310,13 @@ void BaseStatement::checkForStepError(int resultCode) const
 {
     switch (resultCode) {
     case SQLITE_BUSY_RECOVERY:
+        throw StatementIsBusyRecovering(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_BUSY_SNAPSHOT:
+        throw StatementIsBusySnapshot(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_BUSY_TIMEOUT:
+        throw StatementIsBusyTimeout(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_BUSY:
-        throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to "
-                             "acquire the database locks!");
+        throw StatementIsBusy(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_MISSING_COLLSEQ:
     case SQLITE_ERROR_RETRY:
     case SQLITE_ERROR_SNAPSHOT:
@@ -459,11 +461,13 @@ void BaseStatement::checkForPrepareError(int resultCode) const
 {
     switch (resultCode) {
     case SQLITE_BUSY_RECOVERY:
+        throw StatementIsBusyRecovering(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_BUSY_SNAPSHOT:
+        throw StatementIsBusySnapshot(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_BUSY_TIMEOUT:
+        throw StatementIsBusyTimeout(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_BUSY:
-        throwStatementIsBusy("SqliteStatement::prepareStatement: database engine was unable to "
-                             "acquire the database locks!");
+        throw StatementIsBusy(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_MISSING_COLLSEQ:
     case SQLITE_ERROR_RETRY:
     case SQLITE_ERROR_SNAPSHOT:
@@ -572,11 +576,6 @@ void BaseStatement::checkColumnCount(int columnCount) const
 bool BaseStatement::isReadOnlyStatement() const
 {
     return sqlite3_stmt_readonly(m_compiledStatement.get());
-}
-
-void BaseStatement::throwStatementIsBusy(const char *) const
-{
-    throw StatementIsBusy(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
 void BaseStatement::throwStatementHasError(const char *) const

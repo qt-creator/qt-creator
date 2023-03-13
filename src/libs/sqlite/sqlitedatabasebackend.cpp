@@ -420,8 +420,11 @@ void DatabaseBackend::walCheckpointFull()
     case SQLITE_OK:
         break;
     case SQLITE_BUSY_RECOVERY:
+        throw DatabaseIsBusyRecovering();
     case SQLITE_BUSY_SNAPSHOT:
+        throw DatabaseIsBusySnapshot();
     case SQLITE_BUSY_TIMEOUT:
+        throw DatabaseIsBusyTimeout();
     case SQLITE_BUSY:
         throw DatabaseIsBusy();
     case SQLITE_ERROR_MISSING_COLLSEQ:
