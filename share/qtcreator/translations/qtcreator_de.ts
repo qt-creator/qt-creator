@@ -50576,7 +50576,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>%1 and other updates are available. Check the &lt;a %2&gt;Qt blog&lt;/a&gt; for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 und andere Aktualisierungen sind verfügbar. Details finden Sie im &lt;a %2&gt;Qt Blog&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>New updates are available. Start the update?</source>
@@ -50685,7 +50685,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Aktualisieren</translation>
+        <translation>Aktualisierung</translation>
     </message>
     <message>
         <source>Qt Maintenance Tool</source>
@@ -50762,11 +50762,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Local</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokal</translation>
     </message>
     <message>
         <source>Remote</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernt</translation>
     </message>
     <message>
         <source>Choose...</source>
@@ -50850,7 +50850,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Directory &quot;%1&quot; will be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis &quot;%1&quot; wird erstellt.</translation>
     </message>
     <message>
         <source>The project already exists.</source>
@@ -51107,35 +51107,35 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>copyFile is not implemented for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>copyFile ist für &quot;%1&quot; nicht implementiert</translation>
     </message>
     <message>
         <source>Cannot copy from %1, it is not a directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kann nicht kopiert werden, da es kein Verzeichnis ist.</translation>
     </message>
     <message>
         <source>Cannot copy %1 to %2, it is not a writable directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kann nicht nach %2 kopiert werden, da es kein schreibbares Verzeichnis ist.</translation>
     </message>
     <message>
         <source>Failed to copy recursively from &quot;%1&quot; to &quot;%2&quot; while trying to create tar archive from source: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Rekursives Kopieren von &quot;%1&quot; nach &quot;%2&quot; beim Erstellen des Tar-Archivs der Quelle fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>Failed to copy recursively from &quot;%1&quot; to &quot;%2&quot; while trying to extract tar archive to target: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Rekursives Kopieren von &quot;%1&quot; nach &quot;%2&quot; beim Auspacken des Tar-Archivs am Ziel fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>fileContents is not implemented for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>fileContents ist für &quot;%1&quot; nicht implementiert</translation>
     </message>
     <message>
         <source>writeFileContents is not implemented for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>writeFileContents ist für &quot;%1&quot; nicht implementiert</translation>
     </message>
     <message>
         <source>createTempFile is not implemented for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>createTempFile ist für &quot;%1&quot; nicht implementiert</translation>
     </message>
     <message>
         <source>Refusing to remove root directory.</source>
@@ -51155,51 +51155,51 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to copy file &quot;%1&quot; to &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren der Datei &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; existiert nicht</translation>
     </message>
     <message>
         <source>Could not open File &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <source>Cannot read &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht gelesen werden: %2</translation>
     </message>
     <message>
         <source>Could not open file &quot;%1&quot; for writing</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden</translation>
     </message>
     <message>
         <source>Could not write to file &quot;%1&quot; (only %2 of %3 bytes written)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden (es wurden nur %2 von %3 Bytes geschrieben)</translation>
     </message>
     <message>
         <source>Could not create temporary file in &quot;%1&quot; (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine temporäre Datei in &quot;%1&quot; erstellt werden (%2)</translation>
     </message>
     <message>
         <source>Failed to copy file &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; konnte nicht nach &quot;%2&quot; kopiert werden: %3. {1&quot;?} {2&quot;?} {3?}</translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht nach &quot;%2&quot; kopiert werden: %3</translation>
     </message>
     <message>
         <source>Failed reading file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht gelesen werden: %2</translation>
     </message>
     <message>
         <source>Failed writing file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden: %2</translation>
     </message>
     <message>
         <source>Failed creating temporary file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Failed creating temporary file &quot;%1&quot; (too many tries)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die temporäre Datei &quot;%1&quot; konnte nicht erstellt werden (zu viele Versuche)</translation>
     </message>
     <message>
         <source>Failed to create directory &quot;%1&quot;.</source>
@@ -51211,28 +51211,29 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Cannot Save Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeitsbereich kann nicht gespeichert werden</translation>
     </message>
     <message>
         <source>Could not save workspace to file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeitsbereich konnte nicht in der Datei %1 gespeichert werden</translation>
     </message>
     <message>
         <source>Delete Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeitsbereich löschen</translation>
     </message>
     <message>
         <source>Delete Workspaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeitsbereiche löschen</translation>
     </message>
     <message>
         <source>Delete workspace %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeitsbereich %1 löschen?</translation>
     </message>
     <message>
         <source>Delete these workspaces?
     %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Arbeitsbereiche löschen?
+    %1</translation>
     </message>
     <message>
         <source>File Error</source>
@@ -51240,11 +51241,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Cannot Restore Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeitsbereich kann nicht wiederhergestellt werden</translation>
     </message>
     <message>
         <source>Could not restore workspace %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Arbeitsbereich %1 konnte nicht wiederhergestellt werden</translation>
     </message>
     <message>
         <source>Cannot write file %1: %2</source>
@@ -51290,19 +51291,19 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Error while trying to copy file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Versuch die Datei zu kopieren: %1</translation>
     </message>
     <message>
         <source>Could not copy file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei konnte nicht kopiert werden: %1</translation>
     </message>
     <message>
         <source>Could not set permissions on &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Berechtigungen für &quot;%1&quot; konnten nicht gesetzt werden</translation>
     </message>
     <message>
         <source>No &quot;localSource&quot; device hook set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Geräteimplementation für &quot;localSource&quot; gesetzt.</translation>
     </message>
     <message>
         <source>Out of memory.</source>
@@ -51767,11 +51768,11 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Failed to retrieve clangd version: Unexpected clangd output.</source>
-        <translation type="unfinished">Konnte Clangd-Version nicht bestimmen. Unerwartete Ausgabe.</translation>
+        <translation>Konnte Clangd-Version nicht bestimmen. Unerwartete Ausgabe.</translation>
     </message>
     <message>
         <source>The clangd version is %1, but %2 or greater is required.</source>
-        <translation type="unfinished">Die Clangd-Version ist %1, aber %2 oder neuer wird benötigt.</translation>
+        <translation>Die Clangd-Version ist %1, aber %2 oder neuer wird benötigt.</translation>
     </message>
 </context>
 <context>
