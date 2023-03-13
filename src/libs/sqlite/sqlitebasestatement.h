@@ -118,7 +118,6 @@ public:
     void checkColumnCount(int columnCount) const;
     bool isReadOnlyStatement() const;
     [[noreturn]] void throwStatementIsMisused(const char *whatHasHappened) const;
-    [[noreturn]] void throwConstraintPreventsModification(const char *whatHasHappened) const;
     [[noreturn]] void throwNoValuesToFetch(const char *whatHasHappened) const;
     [[noreturn]] void throwInvalidColumnFetched(const char *whatHasHappened) const;
     [[noreturn]] void throwBindingIndexIsOutOfRange(const char *whatHasHappened) const;

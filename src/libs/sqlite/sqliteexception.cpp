@@ -509,4 +509,64 @@ const char *StatementHasErrorSnapshot::what() const noexcept
     return "Sqlite::StatementHasErrorSnapshot";
 }
 
+const char *CheckConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::CheckConstraintPreventsModification";
+}
+
+const char *CommitHookConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::CommitHookConstraintPreventsModification";
+}
+
+const char *DataTypeConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::DataTypeConstraintPreventsModification";
+}
+
+const char *ForeignKeyConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::ForeignKeyConstraintPreventsModification";
+}
+
+const char *FunctionConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::FunctionConstraintPreventsModification";
+}
+
+const char *NotNullConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::NotNullConstraintPreventsModification";
+}
+
+const char *PinnedConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::PinnedConstraintPreventsModification";
+}
+
+const char *PrimaryKeyConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::PrimaryKeyConstraintPreventsModification";
+}
+
+const char *RowIdConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::RowIdConstraintPreventsModification";
+}
+
+const char *TriggerConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::TriggerConstraintPreventsModification";
+}
+
+const char *UniqueConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::UniqueConstraintPreventsModification";
+}
+
+const char *VirtualTableConstraintPreventsModification::what() const noexcept
+{
+    return "Sqlite::VirtualTableConstraintPreventsModification";
+}
+
 } // namespace Sqlite

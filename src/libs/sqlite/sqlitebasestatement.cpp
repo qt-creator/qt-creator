@@ -328,20 +328,31 @@ void BaseStatement::checkForStepError(int resultCode) const
     case SQLITE_MISUSE:
         throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
     case SQLITE_CONSTRAINT_CHECK:
+        throw CheckConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_COMMITHOOK:
+        throw CommitHookConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_DATATYPE:
+        throw DataTypeConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_FOREIGNKEY:
+        throw ForeignKeyConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_FUNCTION:
+        throw FunctionConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_NOTNULL:
+        throw NotNullConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_PINNED:
+        throw PinnedConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_PRIMARYKEY:
+        throw PrimaryKeyConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_ROWID:
+        throw RowIdConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_TRIGGER:
+        throw TriggerConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_UNIQUE:
+        throw UniqueConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT_VTAB:
+        throw VirtualTableConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_CONSTRAINT:
-        throwConstraintPreventsModification(
-            "SqliteStatement::stepStatement: contraint prevent insert or update!");
+        throw ConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_TOOBIG:
         throwTooBig("SqliteStatement::stepStatement: Some is to bigger than SQLITE_MAX_LENGTH.");
     case SQLITE_SCHEMA:
@@ -585,11 +596,6 @@ bool BaseStatement::isReadOnlyStatement() const
 void BaseStatement::throwStatementIsMisused(const char *) const
 {
     throw StatementIsMisused(sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwConstraintPreventsModification(const char *) const
-{
-    throw ConstraintPreventsModification(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
 void BaseStatement::throwNoValuesToFetch(const char *) const

@@ -333,6 +333,91 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT CheckConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CommitHookConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DataTypeConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT ForeignKeyConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT FunctionConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT NotNullConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT PinnedConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT PrimaryKeyConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT RowIdConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT TriggerConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT UniqueConstraintPreventsModification : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT VirtualTableConstraintPreventsModification
+    : public ConstraintPreventsModification
+{
+public:
+    using ConstraintPreventsModification::ConstraintPreventsModification;
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT NoValuesToFetch : public Exception
 {
 public:
