@@ -318,11 +318,13 @@ void BaseStatement::checkForStepError(int resultCode) const
     case SQLITE_BUSY:
         throw StatementIsBusy(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_MISSING_COLLSEQ:
+        throw StatementHasErrorMissingCollatingSequence(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_RETRY:
+        throw StatementHasErrorRetry(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_SNAPSHOT:
+        throw StatementHasErrorSnapshot(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR:
-        throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a "
-                               "constraint violation) has occurred!");
+        throw StatementHasError(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_MISUSE:
         throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
     case SQLITE_CONSTRAINT_CHECK:
@@ -469,11 +471,13 @@ void BaseStatement::checkForPrepareError(int resultCode) const
     case SQLITE_BUSY:
         throw StatementIsBusy(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_MISSING_COLLSEQ:
+        throw StatementHasErrorMissingCollatingSequence(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_RETRY:
+        throw StatementHasErrorRetry(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR_SNAPSHOT:
+        throw StatementHasErrorSnapshot(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_ERROR:
-        throwStatementHasError("SqliteStatement::prepareStatement: run-time error (such as a "
-                               "constraint violation) has occurred!");
+        throw StatementHasError(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_MISUSE:
         throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
     case SQLITE_IOERR_READ:
@@ -576,11 +580,6 @@ void BaseStatement::checkColumnCount(int columnCount) const
 bool BaseStatement::isReadOnlyStatement() const
 {
     return sqlite3_stmt_readonly(m_compiledStatement.get());
-}
-
-void BaseStatement::throwStatementHasError(const char *) const
-{
-    throw StatementHasError(sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
 void BaseStatement::throwStatementIsMisused(const char *) const

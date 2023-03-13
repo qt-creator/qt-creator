@@ -93,6 +93,27 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT StatementHasErrorMissingCollatingSequence : public StatementHasError
+{
+public:
+    using StatementHasError::StatementHasError;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT StatementHasErrorRetry : public StatementHasError
+{
+public:
+    using StatementHasError::StatementHasError;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT StatementHasErrorSnapshot : public StatementHasError
+{
+public:
+    using StatementHasError::StatementHasError;
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT StatementIsMisused : public ExceptionWithMessage
 {
 public:

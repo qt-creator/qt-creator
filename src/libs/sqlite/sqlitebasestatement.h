@@ -117,7 +117,6 @@ public:
     void checkBindingParameterCount(int bindingParameterCount) const;
     void checkColumnCount(int columnCount) const;
     bool isReadOnlyStatement() const;
-    [[noreturn]] void throwStatementHasError(const char *whatHasHappened) const;
     [[noreturn]] void throwStatementIsMisused(const char *whatHasHappened) const;
     [[noreturn]] void throwConstraintPreventsModification(const char *whatHasHappened) const;
     [[noreturn]] void throwNoValuesToFetch(const char *whatHasHappened) const;

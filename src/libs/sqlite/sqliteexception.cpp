@@ -494,4 +494,19 @@ const char *DatabaseIsBusyTimeout::what() const noexcept
     return "Sqlite::DatabaseIsBusyTimeout";
 }
 
+const char *StatementHasErrorMissingCollatingSequence::what() const noexcept
+{
+    return "Sqlite::StatementHasErrorMissingCollatingSequence";
+}
+
+const char *StatementHasErrorRetry::what() const noexcept
+{
+    return "Sqlite::StatementHasErrorRetry";
+}
+
+const char *StatementHasErrorSnapshot::what() const noexcept
+{
+    return "Sqlite::StatementHasErrorSnapshot";
+}
+
 } // namespace Sqlite
