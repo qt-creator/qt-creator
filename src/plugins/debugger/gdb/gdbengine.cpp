@@ -4369,7 +4369,7 @@ void GdbEngine::setupInferior()
         setLinuxOsAbi();
         QString symbolFile;
         if (!rp.symbolFile.isEmpty())
-            symbolFile = rp.symbolFile.toFileInfo().absoluteFilePath();
+            symbolFile = rp.symbolFile.absoluteFilePath().path();
 
         //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
         //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
