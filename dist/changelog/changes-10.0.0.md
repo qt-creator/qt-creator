@@ -15,6 +15,8 @@ General
 
 * Added support for temporarily dragging progress details out of the way
   in addition to hiding them with the button below them (QTCREATORBUG-28078)
+* Fixed that the locator search term was not preserved when using `Open as
+  Centered Popup`
 
 Editing
 -------
@@ -108,6 +110,12 @@ Projects
   by default (QTCREATORBUG-28513)
 * Fixed that `Package manager auto setup` created a dependency of the project
   build to the Qt Creator installation
+* Fixed that cloned build configurations could miss values from the `Initial
+  Parameters` (QTCREATORBUG-28759)
+* Fixed that CMake preset macros were not expanded for environment variables
+  (QTCREATORBUG-28606)
+* Fixed a crash with the `Kit Configuration` button for build configurations
+  (QTCREATORBUG-28740)
 
 ### Qbs
 
@@ -129,9 +137,15 @@ Debugging
 * Fixed highlighting in the `Disassembler` view
 * Fixed skipping `std::function` details when stepping
 * Fixed an out of memory issue when debugging long lists (QTCREATORBUG-26416)
+* Fixed the highlighting of values and members in the memory view
+  (QTCREATORBUG-23681)
+* GDB
+    * Fixed issues with GDB 13.1
 * CDB
     * Fixed the printing of addresses of pointers with multiple base classes
       (QTCREATORBUG-28337)
+    * Fixed some performance issues (QTCREATORBUG-18287)
+    * Fixed a freeze with non-UTF-8 system encoding (QTCREATORBUG-25054)
 
 ### Python
 
@@ -242,6 +256,7 @@ Philip Van Hoof
 Pranta Dastider  
 Robert Löhning  
 Sami Shalayel  
+Samuel Gaist  
 Samuel Ghinet  
 Sergey Levin  
 Sivert Krøvel  
