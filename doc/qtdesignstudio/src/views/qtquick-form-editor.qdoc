@@ -162,8 +162,8 @@
     \section1 Hiding Component Boundaries
 
     The \uicontrol {2D} view displays the boundaries of component instances.
-    To hide them, select the \inlineimage icons/boundingrect.png
-    button.
+    To hide them, right-click in the \uicontrol 2D view and select
+    \uicontrol {Show Bounds} from the context menu.
 
     \section1 Previewing Component Size
 

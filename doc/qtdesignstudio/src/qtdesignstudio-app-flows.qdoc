@@ -485,9 +485,8 @@
     To create an event list:
 
     \list 1
-        \li Select the \inlineimage icons/edit.png
-            (\uicontrol {Show Event List}) button on the Design mode
-            \l{Summary of Main Toolbar Actions}{toolbar}, or press \key {Alt+E}.
+        \li Right-click in the \uicontrol 2D or \uicontrol Navigator view and select
+        \uicontrol {Event List} > \uicontrol {Show Event List}.
         \li In the \uicontrol {Event List} dialog, select \inlineimage icons/plus.png
             to add a keyboard shortcut for triggering an event to the list.
             \image studio-flow-event-list.png "Event List dialog"

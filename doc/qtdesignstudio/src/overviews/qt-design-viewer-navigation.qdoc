@@ -155,6 +155,7 @@ To organize the pages vertically:
       \li Set \uicontrol {Content size} > \uicontrol H to 3072.
       \li On the \uicontrol Layout tab, select
       \uicontrol {Fill parent component}.
+    \endlist
 \endlist
 
 You must also create a scrollbar to scroll the web application. You create

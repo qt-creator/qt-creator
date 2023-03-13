@@ -150,6 +150,33 @@
         \li Action
         \li Keyboard Shortcut
         \li Read More
+
+    \if defined(qtdesignstudio)
+    \row
+        \li \inlineimage icons/home.png
+        \li \uicontrol {Home}: opens the welcome page.
+        \li
+        \li
+    \row
+      \li \inlineimage icons/start_playback.png
+      \li \uicontrol {Play}: runs the application.
+      \li
+      \li
+    \row
+      \li \uicontrol {Live Preview}
+      \li Shows a preview of the current file or the entire UI. The changes you
+          make to the UI are instantly visible to you in the preview.
+      \li \key Alt+P (\key Opt+P on \macos)
+      \li \l{Validating with Target Hardware}
+    \endif
+
+    \row
+        \li Currently open file
+        \li Displays the location and filename of the currently open file. You
+            can select another file in the list of open files to view it in
+            the \uicontrol {2D} and \uicontrol Navigator views.
+        \li
+        \li \l{Open Documents}
     \row
         \li \inlineimage icons/prev.png
         \li \uicontrol {Go Back}: moves a step backwards in your location history.
@@ -163,130 +190,20 @@
         \li \key Alt+> (\key Opt+Cmd+> on \macos)
         \li \l{Navigating Between Open Files and Symbols}
     \row
-        \li \inlineimage icons/unlocked.png
-        \li File is writable: the currently open file can be modified and saved.
-        \li
-        \li \l{Open Documents}
-    \row
-        \li File type icon
-        \li Indicates the type of the currently open file. Design views cannot
-            be split, so the icon cannot be dragged, contrary to the tooltip.
-        \li
-        \li \l{Open Documents}
-    \row
-        \li Currently open file
-        \li Displays the location and filename of the currently open file. You
-            can select another file in the list of open files to view it in
-            the \uicontrol {2D} and \uicontrol Navigator views.
-        \li
-        \li \l{Open Documents}
-    \row
         \li \inlineimage icons/close.png
         \li \uicontrol {Close Document}: closes the current file.
         \li \key Ctrl+W (\key Cmd+W on \macos)
         \li
     \row
-        \li \inlineimage icons/live_preview.png
-        \li \uicontrol {Show Live Preview} shows a preview of the current file
-            or the entire UI. The changes you make to the UI are instantly
-            visible to you in the preview.
-        \li \key Alt+P (\key Opt+P on \macos)
-        \li \l{Validating with Target Hardware}
-    \row
-        \li Preview size
-        \li Displays the size of the preview dialog as a percentage. You can
-            select another percentage in the list to view the UI in different
-            sizes.
+        \li \inlineimage icons/create_component.png
+        \li Creates a custom component from the selected item.
         \li
-        \li \l{Previewing on Desktop}
+        \li \l{Creating Custom Components}
     \row
-        \li FPS
-        \li Displays the frames-per-second (FPS) refresh rate of previewed
-            animations.
+        \li \inlineimage icons/edit_component.png
+        \li Edits the selected custom component.
         \li
-        \li \l{Previewing on Desktop}
-    \row
-        \li Preview language
-        \li Displays the language used for a localized application during
-            preview. You can select another language in the list of languages
-            that the application has been localized to.
-        \li
-        \li
-    \row
-        \li \inlineimage icons/qtcreator-reset-position-icon.png
-        \li Returns a component to its \e {implicit position} after
-            being moved.
-        \li \key Ctrl+D (\key Cmd+D on \macos)
-        \li \l{Resetting Component Position and Size}
-    \row
-        \li \inlineimage icons/qtcreator-reset-size-icon.png
-        \li Returns a component to its implicit size after it was scaled.
-        \li \key Shift+S
-        \li \l{Resetting Component Position and Size}
-    \row
-        \li \inlineimage icons/anchor-fill.png
-        \li Fills the selected component to its parent component.
-        \li \key Shift+F
-        \li \l{Setting Anchors and Margins}
-    \row
-        \li \inlineimage icons/qtcreator-anchors-reset-icon.png
-        \li Resets anchors to their saved state for the selected component.
-        \li \key Ctrl+Shift+R (\key Shift+Cmd+R on \macos)
-        \li \l{Setting Anchors and Margins}
-    \row
-        \li \inlineimage icons/copy-formatting.png
-        \li Copies property values from the selected component.
-        \li
-        \li \l{Copying and Pasting Formatting}
-    \row
-        \li \inlineimage icons/paste-formatting.png
-        \li Applies copied property values to one or several selected
-            components.
-        \li
-        \li \l{Copying and Pasting Formatting}
-    \row
-        \li \inlineimage row.png
-        \li Uses a \uicontrol Row component to lay out the selected components.
-        \li \key Ctrl+U (\key Cmd+U on \macos)
-        \li \l{Using Layouts}
-    \row
-        \li \inlineimage column.png
-        \li Uses a \uicontrol Column component to lay out the selected
-            components.
-        \li \key Ctrl+L (\key Cmd+L on \macos)
-        \li \l{Using Layouts}
-    \row
-        \li \inlineimage grid.png
-        \li Uses a \uicontrol Grid component to lay out the selected
-            components.
-        \li \key Shift+G
-        \li \l{Using Layouts}
-    \if defined(qtdesignstudio)
-    \row
-        \li \inlineimage icons/edit.png
-        \li \uicontrol {Show Event List}: opens a dialog for viewing and
-            creating an event list for an application flow.
-        \li \key Alt+E (\key Opt+E on \macos)
-        \li \l{Simulating Events}
-    \row
-        \li \inlineimage icons/assign.png
-        \li \uicontrol {Assign Events to Actions}: assigns events to actions in
-            an application flow.
-        \li \key Alt+A  (\key Opt+A on \macos)
-        \li \l{Simulating Events}
-    \endif
-    \row
-        \li Styling
-        \li Displays the UI style used for UI controls.
-        \li
-        \li \l{Styling Controls}
-    \row
-        \li Subcomponents
-        \li Displays the components referred to in the current file. Select a
-            component in the list to open it in the \uicontrol {2D} and
-            \uicontrol Navigator views.
-        \li
-        \li \l{Using Components}
+        \li \l{Creating Custom Components}
     \row
         \li Workspace
         \li Displays the currently selected workspace. To switch to another
@@ -294,9 +211,9 @@
         \li
         \li \l{Managing Workspaces}
     \row
-        \li \inlineimage icons/annotation.png
-        \li Enables you to add or edit global annotations.
+        \li \uicontrol Share
+        \li Shares the application online using Qt Design Viewer.
         \li
-        \li \l{Annotating Designs}
+        \li \l{Sharing Applications Online}
     \endtable
 */

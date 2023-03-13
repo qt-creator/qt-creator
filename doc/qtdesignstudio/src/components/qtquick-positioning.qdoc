@@ -407,12 +407,6 @@
     \uicontrol {Stack Layout}, select the components in the \l {2D} view,
     and then select \uicontrol Layout in the context menu.
 
-    You can also click the \inlineimage column.png
-    (\uicontrol {Column Layout}), \inlineimage row.png
-    (\uicontrol {Row Layout}), and \inlineimage grid.png
-    (\uicontrol {Grid Layout}) toolbar buttons to apply
-    layouts to the selected components.
-
     To make a component within a layout as wide as possible while respecting the
     given constraints, select the component in the \uicontrol {2D} view, and
     then select \uicontrol Layout > \uicontrol {Fill Width} in the context menu.

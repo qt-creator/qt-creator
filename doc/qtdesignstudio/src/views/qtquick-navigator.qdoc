@@ -90,7 +90,7 @@
 
     To change the visibility of a component in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties view or select
-    \uicontrol Edit > \uicontrol Visibility in the context menu.
+    \uicontrol Visibility in the context menu.
 
     You can also set the \uicontrol Opacity field to 0 in \uicontrol Properties
     to hide components in the UI that you want to apply animation to.
