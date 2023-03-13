@@ -19393,11 +19393,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Find Unused Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht verwendete Funktionen finden</translation>
     </message>
     <message>
         <source>Find Unused C/C++ Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht verwendete C/C++-Funktionen finden</translation>
     </message>
     <message>
         <source>Open Type Hierarchy</source>
@@ -19513,7 +19513,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>collecting overrides ...</source>
-        <translation type="unfinished">Suche überschriebene Methoden ...</translation>
+        <translation>Suche überschriebene Methoden ...</translation>
     </message>
     <message>
         <source>Additional C++ Preprocessor Directives for %1:</source>
@@ -19549,7 +19549,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>C++ Code Model</source>
-        <translation type="unfinished"></translation>
+        <translation>C++-Codemodell</translation>
     </message>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
@@ -20158,7 +20158,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the %1 GCC online documentation&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die %1 GCC-Onlinedokumentation&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Copy...</source>
@@ -20288,15 +20288,15 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Checked %1 of %2 functions</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 von %2 Funktionen geprüft</translation>
     </message>
     <message>
         <source>Finding Unused Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht verwendete Funktionen finden</translation>
     </message>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because its path matches the ignore pattern.</source>
-        <translation type="unfinished"></translation>
+        <translation>C++-Indexer: Überspringe Datei &quot;%1&quot;, weil ihr Pfad dem Muster der zu ignorierenden Pfade entspricht.</translation>
     </message>
     <message>
         <source>The project contains C source files, but the currently active kit has no C compiler. The code model will not be fully functional.</source>
@@ -20336,11 +20336,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Ignore files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien ignorieren</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ignore files that match these wildcard patterns, one wildcard per line.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dateien ignorieren, die diesen Platzhalter-Filtern entsprechen. Ein Filter pro Zeile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Ignore precompiled headers</source>
@@ -20457,15 +20457,16 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
     <message>
         <source>You are trying to rename a symbol declared in the generated file &quot;%1&quot;.
 This is normally not a good idea, as the file will likely get overwritten during the build process.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie versuchen, ein Symbol in der generierten Datei &quot;%1&quot; umzubenennen.
+Dies ist normalerweise nicht empfehlenswert, da die Datei wahrscheinlich während des Erstellungsprozesses überschrieben wird.</translation>
     </message>
     <message>
         <source>Do you want to edit &quot;%1&quot; instead?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie stattdessen &quot;%1&quot; bearbeiten?</translation>
     </message>
     <message>
         <source>Open %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 öffnen</translation>
     </message>
     <message>
         <source>&amp;Refactor</source>
@@ -20567,79 +20568,79 @@ This is normally not a good idea, as the file will likely get overwritten during
     </message>
     <message>
         <source>Member Function Implementations</source>
-        <translation type="unfinished"></translation>
+        <translation>Implementationen von Memberfunktionen</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline</translation>
     </message>
     <message>
         <source>Outside Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Außerhalb der Klasse</translation>
     </message>
     <message>
         <source>Default implementation location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe für Ort der Implementation:</translation>
     </message>
     <message>
         <source>Getters and Setters</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter und Setter</translation>
     </message>
     <message>
         <source>Member</source>
-        <translation type="unfinished"></translation>
+        <translation>Member</translation>
     </message>
     <message>
         <source>Getter</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter</translation>
     </message>
     <message>
         <source>Setter</source>
-        <translation type="unfinished"></translation>
+        <translation>Setter</translation>
     </message>
     <message>
         <source>Signal</source>
-        <translation type="unfinished">Signal</translation>
+        <translation>Signal</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>QProperty</source>
-        <translation type="unfinished"></translation>
+        <translation>QProperty</translation>
     </message>
     <message>
         <source>Constant QProperty</source>
-        <translation type="unfinished"></translation>
+        <translation>Konstante QProperty</translation>
     </message>
     <message>
         <source>Create getters for all members</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter für alle Member erzeugen</translation>
     </message>
     <message>
         <source>Create setters for all members</source>
-        <translation type="unfinished"></translation>
+        <translation>Setter für alle Member erzeugen</translation>
     </message>
     <message>
         <source>Create signals for all members</source>
-        <translation type="unfinished"></translation>
+        <translation>Signale für alle Member erzeugen</translation>
     </message>
     <message>
         <source>Create Q_PROPERTY for all members</source>
-        <translation type="unfinished"></translation>
+        <translation>Q_PROPERTY für alle Member erzeugen</translation>
     </message>
     <message>
         <source>Select the getters and setters to be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu erzeugenden Getter und Setter aus.</translation>
     </message>
     <message>
         <source>Definitions Outside Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Definitionen außerhalb der Klasse</translation>
     </message>
     <message>
         <source>Initialize in Constructor</source>
@@ -20660,20 +20661,21 @@ This is normally not a good idea, as the file will likely get overwritten during
     </message>
     <message>
         <source>Constructor</source>
-        <translation type="unfinished"></translation>
+        <translation>Konstruktor</translation>
     </message>
     <message>
         <source>Parameters without default value must come before parameters with default value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parameter ohne Standardwert müssen vor Parametern mit Standardwert deklariert werden.</translation>
     </message>
     <message>
         <source>Initialize all members</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Member initialisieren</translation>
     </message>
     <message>
         <source>Select the members to be initialized in the constructor.
 Use drag and drop to change the order of the parameters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Member aus, die im Konstruktor initialisiert werden sollen.
+Ziehen Sie Eintrage mit der Maus, um die Reihenfolge der Parameter zu ändern.</translation>
     </message>
     <message>
         <source>Quick Fix settings are saved in a file. Existing settings file &quot;%1&quot; found. Should this file be used or a new one be created?</source>
@@ -48778,7 +48780,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Unused variable</source>
-        <translation>Unbenutzte Variable</translation>
+        <translation>Nicht verwendete Variable</translation>
     </message>
     <message>
         <source>Diff Against Current File</source>
@@ -49660,7 +49662,7 @@ Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</tr
     </message>
     <message>
         <source>Occurrences of unused variables.</source>
-        <translation>Vorkommen unbenutzter Variablen.</translation>
+        <translation>Vorkommen nicht verwendeter Variablen.</translation>
     </message>
     <message>
         <source>Renaming Occurrence</source>
