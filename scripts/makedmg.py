@@ -21,6 +21,8 @@ def parse_arguments():
     parser.add_argument('--dmg-size', default='1500m', required=False)
     parser.add_argument('--license-replacement', default=None,
         help='Absolute path to a license file which replaces the default LICENSE.GPL3-EXCEPT from Qt Creator source directory.')
+    parser.add_argument('--keep-signed-content-at', default=None,
+        help='For online installer we want to keep the signed .app without the dmg. This is used to create a 7z.')
     return parser.parse_args()
 
 def main():
@@ -43,6 +45,9 @@ def main():
         # sleep a few seconds to make sure disk image is fully unmounted etc
         time.sleep(5)
     finally:
-        shutil.rmtree(tempdir_base)
+        if arguments.keep_signed_content_at:
+            shutil.move(tempdir, arguments.keep_signed_content_at)
+        else:
+            shutil.rmtree(tempdir_base)
 if __name__ == "__main__":
     main()
