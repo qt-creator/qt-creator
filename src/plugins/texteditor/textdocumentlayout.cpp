@@ -352,6 +352,17 @@ void TextBlockUserData::setReplacement(const QString &replacement)
     m_replacement->setDocumentMargin(0);
 }
 
+void TextBlockUserData::setReplacementPosition(int replacementPosition)
+{
+    m_replacementPosition = replacementPosition;
+}
+
+void TextBlockUserData::clearReplacement()
+{
+    m_replacement.reset();
+    m_replacementPosition = -1;
+}
+
 void TextBlockUserData::addMark(TextMark *mark)
 {
     int i = 0;
@@ -525,26 +536,64 @@ QByteArray TextDocumentLayout::expectedRawStringSuffix(const QTextBlock &block)
     return {};
 }
 
-void TextDocumentLayout::updateReplacmentFormats(const QTextBlock &block,
+void TextDocumentLayout::updateReplacementFormats(const QTextBlock &block,
                                                  const FontSettings &fontSettings)
 {
     if (QTextDocument *replacement = replacementDocument(block)) {
         const QTextCharFormat replacementFormat = fontSettings.toTextCharFormat(
             TextStyles{C_TEXT, {C_DISABLED_CODE}});
+        QList<QTextLayout::FormatRange> formats = block.layout()->formats();
         QTextCursor cursor(replacement);
         cursor.select(QTextCursor::Document);
         cursor.setCharFormat(fontSettings.toTextCharFormat(C_TEXT));
-        cursor.setPosition(block.length() - 1);
+        const int position = replacementPosition(block);
+        cursor.setPosition(position);
+        const QString trailingText = block.text().mid(position);
+        if (!trailingText.isEmpty()) {
+            const int trailingIndex = replacement->firstBlock().text().indexOf(trailingText,
+                                                                               position);
+            if (trailingIndex >= 0) {
+                cursor.setPosition(trailingIndex, QTextCursor::KeepAnchor);
+                cursor.setCharFormat(replacementFormat);
+                cursor.setPosition(trailingIndex + trailingText.size());
+                const int length = std::max(trailingIndex - position, 0);
+                if (length) {
+                    // we have a replacement in the middle of the line adjust all formats that are
+                    // behind the replacement
+                    QTextLayout::FormatRange rest;
+                    rest.start = -1;
+                    for (QTextLayout::FormatRange &range : formats) {
+                        if (range.start >= position) {
+                            range.start += length;
+                        } else if (range.start + range.length > position) {
+                            // the format range starts before and ends after the position so we need to
+                            // split the format into before and after the suggestion format ranges
+                            rest.start = trailingIndex;
+                            rest.length = range.length - (position - range.start);
+                            rest.format = range.format;
+                            range.length = position - range.start;
+                        }
+                    }
+                    if (rest.start >= 0)
+                        formats += rest;
+                }
+            }
+        }
         cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
         cursor.setCharFormat(replacementFormat);
-        replacement->firstBlock().layout()->setFormats(block.layout()->formats());
+        replacement->firstBlock().layout()->setFormats(formats);
     }
 }
 
 QString TextDocumentLayout::replacement(const QTextBlock &block)
 {
-    if (QTextDocument *replacement = replacementDocument(block))
-        return replacement->toPlainText().mid(block.length() - 1);
+    if (QTextDocument *replacement = replacementDocument(block)) {
+        QTextCursor cursor(replacement);
+        const int position = replacementPosition(block);
+        cursor.setPosition(position);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        return cursor.selectedText();
+    }
     return {};
 }
 
@@ -552,6 +601,29 @@ QTextDocument *TextDocumentLayout::replacementDocument(const QTextBlock &block)
 {
     TextBlockUserData *userData = textUserData(block);
     return userData ? userData->replacement() : nullptr;
+}
+
+int TextDocumentLayout::replacementPosition(const QTextBlock &block)
+{
+    TextBlockUserData *userData = textUserData(block);
+    return userData ? userData->replacementPosition() : -1;
+}
+
+bool TextDocumentLayout::updateReplacement(const QTextBlock &block,
+                                           int position,
+                                           const FontSettings &fontSettings)
+{
+    if (QTextDocument *replacementDocument = TextDocumentLayout::replacementDocument(block)) {
+        const QString start = block.text().left(position);
+        const QString end = block.text().mid(position);
+        const QString replacement = replacementDocument->firstBlock().text();
+        if (replacement.startsWith(start) && replacement.endsWith(end)) {
+            userData(block)->setReplacementPosition(position);
+            TextDocumentLayout::updateReplacementFormats(block, fontSettings);
+            return true;
+        }
+    }
+    return false;
 }
 
 void TextDocumentLayout::requestExtraAreaUpdate()

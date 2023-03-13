@@ -127,8 +127,10 @@ public:
     void setExpectedRawStringSuffix(const QByteArray &suffix) { m_expectedRawStringSuffix = suffix; }
 
     void setReplacement(const QString &replacement);
-    void clearReplacement() { m_replacement.reset(); }
+    void setReplacementPosition(int replacementPosition);
+    void clearReplacement();
     QTextDocument *replacement() const { return m_replacement.get(); }
+    int replacementPosition() const { return m_replacementPosition; }
 
 private:
     TextMarks m_marks;
@@ -144,6 +146,7 @@ private:
     KSyntaxHighlighting::State m_syntaxState;
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
+    int m_replacementPosition = -1;
 };
 
 
@@ -177,9 +180,14 @@ public:
     static void setFolded(const QTextBlock &block, bool folded);
     static void setExpectedRawStringSuffix(const QTextBlock &block, const QByteArray &suffix);
     static QByteArray expectedRawStringSuffix(const QTextBlock &block);
-    static void updateReplacmentFormats(const QTextBlock &block, const FontSettings &fontSettings);
+    static void updateReplacementFormats(const QTextBlock &block,
+                                        const FontSettings &fontSettings);
     static QString replacement(const QTextBlock &block);
     static QTextDocument *replacementDocument(const QTextBlock &block);
+    static int replacementPosition(const QTextBlock &block);
+    static bool updateReplacement(const QTextBlock &block,
+                                  int position,
+                                  const FontSettings &fontSettings);
 
     class TEXTEDITOR_EXPORT FoldValidator
     {

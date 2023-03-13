@@ -102,6 +102,7 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
         connect(timer, &QTimer::timeout, this, [this, editor]() { requestCompletions(editor); });
         connect(editor, &TextEditorWidget::destroyed, this, [this, editor]() {
             m_scheduledRequests.remove(editor);
+            cancelRunningRequest(editor);
         });
         connect(editor, &TextEditorWidget::cursorPositionChanged, this, [this, editor] {
             cancelRunningRequest(editor);
@@ -129,8 +130,8 @@ void CopilotClient::requestCompletions(TextEditorWidget *editor)
          Position(cursor.mainCursor())}};
     request.setResponseCallback([this, editor = QPointer<TextEditorWidget>(editor)](
                                     const GetCompletionRequest::Response &response) {
-        if (editor)
-            handleCompletions(response, editor);
+        QTC_ASSERT(editor, return);
+        handleCompletions(response, editor);
     });
     m_runningRequests[editor] = request;
     sendMessage(request);
@@ -142,8 +143,16 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
     if (response.error())
         log(*response.error());
 
-    Utils::MultiTextCursor cursor = editor->multiTextCursor();
-    if (cursor.hasMultipleCursors() || cursor.hasSelection())
+    int requestPosition = -1;
+    if (const auto requestParams = m_runningRequests.take(editor).params())
+        requestPosition = requestParams->position().toPositionInDocument(editor->document());
+
+    const Utils::MultiTextCursor cursors = editor->multiTextCursor();
+    if (cursors.hasMultipleCursors())
+        return;
+
+    const QTextCursor cursor = cursors.mainCursor();
+    if (cursors.hasSelection() || cursors.mainCursor().position() != requestPosition)
         return;
 
     if (const std::optional<GetCompletionResponse> result = response.result()) {

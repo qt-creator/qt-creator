@@ -820,7 +820,8 @@ public:
     QList<int> m_visualIndentCache;
     int m_visualIndentOffset = 0;
 
-    void insertSuggestion(const QString &suggestion, const QTextBlock &block);
+    void insertSuggestion(const QString &suggestion);
+    void updateSuggestion();
     void clearCurrentSuggestion();
     QTextBlock m_suggestionBlock;
 };
@@ -1650,15 +1651,28 @@ void TextEditorWidgetPrivate::handleMoveBlockSelection(QTextCursor::MoveOperatio
     q->setMultiTextCursor(MultiTextCursor(cursors));
 }
 
-void TextEditorWidgetPrivate::insertSuggestion(const QString &suggestion, const QTextBlock &block)
+void TextEditorWidgetPrivate::insertSuggestion(const QString &suggestion)
 {
     clearCurrentSuggestion();
-    m_suggestionBlock = block;
-    m_document->insertSuggestion(suggestion, block);
     auto cursor = q->textCursor();
-    cursor.setPosition(block.position());
-    cursor.movePosition(QTextCursor::EndOfBlock);
-    q->setTextCursor(cursor);
+    m_suggestionBlock = cursor.block();
+    m_document->insertSuggestion(suggestion, cursor);
+}
+
+void TextEditorWidgetPrivate::updateSuggestion()
+{
+    if (!m_suggestionBlock.isValid())
+        return;
+    if (m_cursors.mainCursor().block() != m_suggestionBlock) {
+        clearCurrentSuggestion();
+    } else {
+        const int position = m_cursors.mainCursor().position() - m_suggestionBlock.position();
+        if (!TextDocumentLayout::updateReplacement(m_suggestionBlock,
+                                                   position,
+                                                   m_document->fontSettings())) {
+            clearCurrentSuggestion();
+        }
+    }
 }
 
 void TextEditorWidgetPrivate::clearCurrentSuggestion()
@@ -1852,16 +1866,7 @@ TextEditorWidget *TextEditorWidget::fromEditor(const IEditor *editor)
 
 void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
-    if (m_suggestionBlock.isValid()) {
-        if (QTextDocument *replacementDocument = TextDocumentLayout::replacementDocument(
-                m_suggestionBlock)) {
-            if (replacementDocument->firstBlock().text().startsWith(m_suggestionBlock.text()))
-                TextDocumentLayout::updateReplacmentFormats(m_suggestionBlock,
-                                                            m_document->fontSettings());
-            else
-                clearCurrentSuggestion();
-        }
-    }
+    updateSuggestion();
 
     if (m_bracketsAnimator)
         m_bracketsAnimator->finish();
@@ -2680,10 +2685,15 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Backtab: {
         if (ro) break;
         if (d->m_suggestionBlock.isValid()) {
-            QTextCursor cursor(d->m_suggestionBlock);
-            cursor.movePosition(QTextCursor::EndOfBlock);
-            cursor.insertText(TextDocumentLayout::replacement(d->m_suggestionBlock));
-            setTextCursor(cursor);
+            const int position = TextDocumentLayout::replacementPosition(d->m_suggestionBlock);
+            if (position >= 0) {
+                QTextCursor cursor(d->m_suggestionBlock);
+                cursor.setPosition(d->m_suggestionBlock.position() + position);
+                cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                cursor.insertText(TextDocumentLayout::replacement(d->m_suggestionBlock));
+                setTextCursor(cursor);
+            }
+            d->clearCurrentSuggestion();
             e->accept();
             return;
         }
@@ -5481,17 +5491,12 @@ void TextEditorWidget::slotCursorPositionChanged()
         if (EditorManager::currentEditor() && EditorManager::currentEditor()->widget() == this)
             EditorManager::setLastEditLocation(EditorManager::currentEditor());
     }
-    if (d->m_suggestionBlock.isValid()) {
-        if (textCursor().position()
-            != d->m_suggestionBlock.position() + d->m_suggestionBlock.length() - 1) {
-            d->clearCurrentSuggestion();
-        }
-    }
     MultiTextCursor cursor = multiTextCursor();
     cursor.replaceMainCursor(textCursor());
     setMultiTextCursor(cursor);
     d->updateCursorSelections();
     d->updateHighlights();
+    d->updateSuggestion();
 }
 
 void TextEditorWidgetPrivate::updateHighlights()
@@ -5933,7 +5938,7 @@ void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
 
 void TextEditorWidget::insertSuggestion(const QString &suggestion)
 {
-    d->insertSuggestion(suggestion, textCursor().block());
+    d->insertSuggestion(suggestion);
 }
 
 void TextEditorWidget::clearSuggestion()
