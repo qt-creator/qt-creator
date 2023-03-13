@@ -154,7 +154,9 @@ FilePaths CMakeProjectImporter::importCandidates()
 }
 
 static CMakeConfig configurationFromPresetProbe(
-    const FilePath &importPath, const PresetsDetails::ConfigurePreset &configurePreset)
+    const FilePath &importPath,
+    const FilePath &sourceDirectory,
+    const PresetsDetails::ConfigurePreset &configurePreset)
 {
     const FilePath cmakeListTxt = importPath / "CMakeLists.txt";
     cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
@@ -169,7 +171,7 @@ static CMakeConfig configurationFromPresetProbe(
     const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
 
     Environment env = cmakeExecutable.deviceEnvironment();
-    CMakePresets::Macros::expand(configurePreset, env, importPath);
+    CMakePresets::Macros::expand(configurePreset, env, sourceDirectory);
 
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
@@ -208,9 +210,14 @@ static CMakeConfig configurationFromPresetProbe(
                                       : CMakeConfig();
 
         auto expandCacheValue =
-            [configurePreset, env, importPath, cache](const QString &key) -> QString {
+            [configurePreset, env, sourceDirectory, cache](const QString &key) -> QString {
             QString result = cache.stringValueOf(key.toUtf8());
-            CMakePresets::Macros::expand(configurePreset, env, importPath, result);
+            CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, result);
+
+            // all usages involve file paths, so make sure they are cleaned up
+            const FilePaths paths = transform(result.split(";"), &FilePath::fromUserInput);
+            result = transform(paths, &FilePath::path).join(";");
+
             return result;
         };
 
@@ -665,7 +672,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (cache.valueOf("CMAKE_C_COMPILER").isEmpty()
             && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty()) {
             QApplication::setOverrideCursor(Qt::WaitCursor);
-            config = configurationFromPresetProbe(importPath, configurePreset);
+            config = configurationFromPresetProbe(importPath, projectDirectory(), configurePreset);
             QApplication::restoreOverrideCursor();
 
             if (!configurePreset.generator) {

@@ -1085,7 +1085,6 @@ LocatorPopup *createLocatorPopup(Locator *locator, QWidget *parent)
     else
         popup->layout()->addWidget(widget);
     popup->setWindowFlags(Qt::Popup);
-    popup->setAttribute(Qt::WA_DeleteOnClose);
     return popup;
 }
 

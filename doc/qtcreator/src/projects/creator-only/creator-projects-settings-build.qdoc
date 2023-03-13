@@ -20,11 +20,11 @@
     debug symbols that you need for debugging the application but that you
     can leave out from the release version. Generally, you use the debug
     configuration for testing and the release configuration for creating
-    the final installation file.
+    the final installation binary package.
 
     If you selected CMake as the build system for the project, you can
     use a \e {minimum size release} build configuration to create the
-    final installation file. It is a release build that makes the size
+    final installation binary package. It is a release build that makes the size
     of the binary package as small as possible, even if this makes the
     application slower.
 

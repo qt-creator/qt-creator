@@ -1624,10 +1624,6 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 void GdbEngine::shutdownInferior()
 {
     CHECK_STATE(InferiorShutdownRequested);
-    if (runParameters().startMode == AttachToCore) {
-        notifyInferiorShutdownFinished();
-        return;
-    }
     DebuggerCommand cmd;
     cmd.function = QLatin1String(runParameters().closeMode == DetachAtClose ? "detach " : "kill ");
     cmd.callback = CB(handleInferiorShutdown);
@@ -1715,6 +1711,8 @@ void GdbEngine::handleThreadGroupExited(const GdbMi &result)
         notifyExitCode(exitCode);
         if (m_rerunPending)
             m_rerunPending = false;
+        else if (state() == EngineShutdownRequested)
+            notifyEngineShutdownFinished();
         else
             notifyInferiorExited();
     }

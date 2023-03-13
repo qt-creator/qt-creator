@@ -736,10 +736,10 @@ void AndroidRunnerWorker::handleJdbSettled()
 {
     qCDebug(androidRunWorkerLog) << "Handle JDB settled";
     auto waitForCommand = [this] {
-        for (int i= 0; i < 5 && m_jdbProcess->state() == QProcess::Running; ++i) {
+        for (int i = 0; i < 120 && m_jdbProcess->state() == QProcess::Running; ++i) {
             m_jdbProcess->waitForReadyRead(500);
             QByteArray lines = m_jdbProcess->readAll();
-            const auto linesList =  lines.split('\n');
+            const auto linesList = lines.split('\n');
             for (const auto &line : linesList) {
                 auto msg = line.trimmed();
                 if (msg.startsWith(">"))
@@ -748,24 +748,29 @@ void AndroidRunnerWorker::handleJdbSettled()
         }
         return false;
     };
-    if (waitForCommand()) {
-        m_jdbProcess->write("cont\n");
-        if (m_jdbProcess->waitForBytesWritten(5000) && waitForCommand()) {
-            m_jdbProcess->write("exit\n");
-            m_jdbProcess->waitForBytesWritten(5000);
-            if (!m_jdbProcess->waitForFinished(5000)) {
-                m_jdbProcess->terminate();
-                if (!m_jdbProcess->waitForFinished(5000)) {
-                    qCDebug(androidRunWorkerLog) << "Killing JDB process";
-                    m_jdbProcess->kill();
-                    m_jdbProcess->waitForFinished();
-                }
-            } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
-                qCDebug(androidRunWorkerLog) << "JDB settled";
-                return;
-            }
+
+    const QStringList commands{"threads", "cont", "exit"};
+    const int jdbTimeout = 5000;
+
+    for (const QString &command : commands) {
+        if (waitForCommand()) {
+            m_jdbProcess->write(QString("%1\n").arg(command).toLatin1());
+            m_jdbProcess->waitForBytesWritten(jdbTimeout);
         }
     }
+
+    if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
+        m_jdbProcess->terminate();
+        if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
+            qCDebug(androidRunWorkerLog) << "Killing JDB process";
+            m_jdbProcess->kill();
+            m_jdbProcess->waitForFinished();
+        }
+    } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
+        qCDebug(androidRunWorkerLog) << "JDB settled";
+        return;
+    }
+
     emit remoteProcessFinished(Tr::tr("Cannot attach JDB to the running application."));
 }
 

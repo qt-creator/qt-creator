@@ -282,12 +282,12 @@ void LldbEngine::handleLldbStarted()
         cmd2.arg("attachpid", attachedPID);
 
     } else {
-
         cmd2.arg("startmode", rp.startMode);
         // it is better not to check the start mode on the python sid (as we would have to duplicate the
         // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
-        QTC_CHECK(!rp.attachPID.isValid() || (rp.startMode == AttachToCrashedProcess
-                                              || rp.startMode == AttachToLocalProcess));
+        QTC_CHECK(rp.attachPID.isValid() && (rp.startMode == AttachToRemoteProcess
+                                             || rp.startMode == AttachToLocalProcess
+                                             || rp.startMode == AttachToRemoteServer));
         cmd2.arg("attachpid", rp.attachPID.pid());
         cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toString()
                                                            : rp.deviceSymbolsRoot);

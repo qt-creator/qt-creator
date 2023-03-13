@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
     /*!
@@ -18,7 +18,7 @@
 
     To be able to run and debug applications on Boot2Qt devices,
     you must add devices and select them in the \QC
-    \l{glossary-buildandrun-kit}{kit}.
+    \l{Adding Kits}{kit}.
 
     \section1 Enabling the Boot2Qt Plugin
 
@@ -33,21 +33,27 @@
 
     \section1 Adding Boot2Qt Devices
 
-    You use a wizard to create the connections. You can use either a
-    network connection or a USB connection. If \QC does not automatically
-    detect a device you connected with USB, you can use a wizard to
-    create a network connection to the device.
+    If \QC does not automatically detect a device you connected with USB, you can
+    use a wizard to create either a network connection or a USB connection to
+    it.
 
-    \note On Ubuntu Linux, the development user account must have access to
-    plugged in devices. To allow the development user access to the device
-    via USB, create a new \c udev rule, as described in
+    \note On Ubuntu Linux, the development user account must have access to the
+    plugged-in devices. To grant them access to the device via USB, create a new
+    \c udev rule, as described in
     \l{https://doc.qt.io/Boot2Qt/b2qt-requirements-x11.html#setting-up-usb-access-to-embedded-devices}
     {Boot2Qt: Setting Up USB Access to Embedded Devices}.
 
     You can edit the settings later in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Devices > \uicontrol Devices.
 
-    \image qtcreator-boot2qt-device-configurations.png "Devices dialog"
+    \image qtcreator-boot2qt-device-configurations.png {Devices dialog}
+
+    To reboot the selected device, select \uicontrol {Reboot Device}.
+
+    To restore the default application to the device, select
+    \uicontrol {Restore Default App}.
+
+    \section2 Protecting Connections
 
     You can protect the connections between \QC and a device by using an
     \l{https://www.openssh.com/}{OpenSSH} connection. OpenSSH is a
@@ -57,17 +63,19 @@
     \QC. For more information, see \l {Configuring SSH Connections}.
 
     You need either a password or an SSH public and private key pair for
-    authentication. If you do not have an SSH key, you can use the ssh-keygen
+    authentication. If you do not have an SSH key, you can use the \c ssh-keygen
     tool to create it in \QC. For more information, see \l {Generating SSH Keys}.
 
-    \note \QC does not store passwords. If you use password authentication,
-    you may need to enter the password on every connection to the device,
-    or, if caching is enabled, at every \QC restart.
+    \QC does not store passwords. If you use password authentication, you may
+    need to enter the password upon every connection to the device, or if
+    caching is enabled, at every \QC restart. If you frequently run into the
+    timeout, consider using key-based authentication. On \macos and Linux, you
+    can also select \uicontrol Preferences > \uicontrol Devices > \uicontrol SSH
+    and increase the time (in minutes) to use the same SSH connection in the
+    \uicontrol {Connection sharing timeout} field. Windows does not support
+    shared connections.
 
-    To reboot the selected device, select \uicontrol {Reboot Device}.
-
-    To restore the default application to the device, select
-    \uicontrol {Restore Default App}.
+    \image qtcreator-ssh-options.png {SSH preferences}
 
     \section1 Flashing Boot2Qt Devices
 
@@ -75,7 +83,7 @@
     \uicontrol Tools > \uicontrol {Flash Boot to Qt Device} and follow the
     instructions of the wizard.
 
-    \image qtcreator-boot2qt-flashing-wizard.png "Boot2Qt Flashing Wizard"
+    \image qtcreator-boot2qt-flashing-wizard.png {Boot2Qt Flashing Wizard}
 
     \section1 Configuring Connections
 
@@ -83,8 +91,8 @@
     specify build and run settings for the device:
 
     \list 1
-        \li Make sure that your device can be reached via an IP address or
-            connect it with a USB connection.
+        \li Check that you can reach the IP address of the device, or use USB to
+            connect it.
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol {Qt Versions} > \uicontrol Add to add the Qt version
             for Boot2Qt.
@@ -100,7 +108,7 @@
                 \li Select \uicontrol Edit > \uicontrol Preferences >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
                     \uicontrol Boot2Qt.
-                    \image qtcreator-devices-boot2qt.png "Boot2Qt Network Device Setup wizard"
+                    \image qtcreator-devices-boot2qt.png {Boot2Qt Network Device Setup wizard}
                 \li In the \uicontrol {Device name} field, enter a name for
                     the connection.
                 \li In the \uicontrol {Device address} field, enter the host

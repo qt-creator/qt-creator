@@ -144,7 +144,7 @@ static Project projectFromJson(const QJsonObject &jsonObj)
     project.displayName = jsonObj.value("name_with_namespace").toString();
     project.pathName = jsonObj.value("path_with_namespace").toString();
     project.id = jsonObj.value("id").toInt(-1);
-    project.visibility = jsonObj.value("visibility").toString("public");
+    project.visibility = jsonObj.value("visibility").toString();
     project.httpUrl = jsonObj.value("http_url_to_repo").toString();
     project.sshUrl = jsonObj.value("ssh_url_to_repo").toString();
     if (jsonObj.contains("forks_count"))

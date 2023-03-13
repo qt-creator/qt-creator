@@ -140,6 +140,9 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
             return env.value(macroName);
         });
 
+        // Make sure to expand the CMake macros also for environment variables
+        expandAllButEnv(preset, sourceDirectory, value);
+
         if (append)
             env.appendOrSet(key, value, sep);
         else
@@ -173,6 +176,9 @@ void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath
             return QString("${%1}").arg(macroName);
         });
 
+        // Make sure to expand the CMake macros also for environment variables
+        expandAllButEnv(preset, sourceDirectory, value);
+
         envItems.emplace_back(Utils::EnvironmentItem(key, value, operation));
     });
 }
@@ -193,6 +199,9 @@ void expand(const PresetType &preset,
     value = expandMacroEnv("penv", value, [env](const QString &macroName) {
         return env.value(macroName);
     });
+
+    // Make sure to expand the CMake macros also for environment variables
+    expandAllButEnv(preset, sourceDirectory, value);
 }
 
 void updateToolchainFile(

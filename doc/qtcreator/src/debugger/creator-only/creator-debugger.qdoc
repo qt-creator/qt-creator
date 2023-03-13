@@ -734,8 +734,9 @@
 
     \title Examining Data
 
-    Use the \l {Debug Mode Views}{Debug mode views} to examine the data in more
-    detail.
+    Use the \l{Local Variables and Function Parameters}{Locals} and
+    \l{Evaluating Expressions}{Expressions} views to examine the data
+    in more detail.
 
     You can use the following keyboard shortcuts:
 
@@ -766,6 +767,40 @@
     function completes or jump to an arbitrary position in the current function.
 
     \section1 Stepping Into Code
+
+    Use the following buttons to step through the code:
+
+    \table
+        \header
+            \li Button
+            \li Function
+            \li Description
+        \row
+            \li \inlineimage icons/qtcreator-debug-button-stop.png
+            \li \uicontrol {Stop Debugger}
+            \li Stops the debugger.
+        \row
+            \li \inlineimage icons/debugger_stepover_small.png
+            \li \uicontrol {Step Over}
+            \li Steps over the next line inside the function being debugged. It
+                executes the call and moves to the next line to be executed in
+                the function.
+        \row
+            \li \inlineimage icons/debugger_stepinto_small.png
+            \li \uicontrol {Step Into}
+            \li Steps into the line that it is currently on. For a function call,
+                goes into the function and is ready to continue.
+        \row
+            \li \inlineimage icons/debugger_stepout_small.png
+            \li \uicontrol {Step Out}
+            \li Finishes executing the function and exits to the function that
+                it was called from.
+        \row
+            \li \inlineimage icons/qtcreator-debugging-continue.png
+            \li \uicontrol {Continue}
+            \li Resumes application execution at the address where it last
+                stopped.
+    \endtable
 
     When using GDB as the debugging backend, you can compress several steps
     into one step for less noisy debugging. For more information, see

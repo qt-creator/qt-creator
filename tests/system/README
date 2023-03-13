@@ -5,9 +5,10 @@ Squish tests inside this folder have several prerequisites to get them running.
 First - and most important - you have to own a valid Squish license. At least Squish 6.0 is required.
 
 Second - some of the test suites/test cases expect Qt versions to be installed in their default
-locations. On Linux/macOS this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1 and for Qt6 using
-an online installer located in SYSTEST_QTOI_BASEPATH which defaults to ~/Qt on UNIX and C:\Qt on
-Windows - alternatively set it to the base path of the Qt installation used by the online installer.
+locations. For Qt5, this is ~/Qt5.x.1 on Linux/macOS or C:\Qt\Qt5.x.1 on Windows. For Qt6, this is
+an installation from the online installer located in ~/Qt on Linux/macOS or C:\Qt on Windows.
+Alternatively, you can set the environment variable SYSTEST_QTOI_BASEPATH to a different base path
+of the Qt installation from the online installer.
 It's easiest to use installations of the official opensource Qt packages. Just install the
 Qt version for the respective toolchain with the components (if available):
 - (Desktop) <toolchain> <bitness>, e.g. Desktop gcc 64-bit

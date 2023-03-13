@@ -278,18 +278,15 @@ QString packageSubPath(PackageFormat format, BuildConfiguration::BuildType build
     const bool deb = (buildType == BuildConfiguration::Debug);
 
     if (format == Apk) {
-        if (deb)
+        if (deb) {
             return sig ? packageSubPath(Apk, BuildConfiguration::Release, true) // Intentional
                        : QLatin1String("apk/debug/android-build-debug.apk");
-        else
-            return QLatin1String(sig ? "apk/release/android-build-release-signed.apk"
-                                     : "apk/release/android-build-release-unsigned.apk");
-    } else {
-        return QLatin1String(deb ? "bundle/debug/android-build-debug.aab"
-                                 : "bundle/release/android-build-release.aab");
+        }
+        return QLatin1String(sig ? "apk/release/android-build-release-signed.apk"
+                                 : "apk/release/android-build-release-unsigned.apk");
     }
-
-    return {};
+    return QLatin1String(deb ? "bundle/debug/android-build-debug.aab"
+                             : "bundle/release/android-build-release.aab");
 }
 
 FilePath AndroidManager::packagePath(const Target *target)
