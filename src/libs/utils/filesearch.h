@@ -107,7 +107,8 @@ protected:
 class QTCREATOR_UTILS_EXPORT FileListIterator : public FileIterator
 {
 public:
-    explicit FileListIterator(const FilePaths &fileList, const QList<QTextCodec *> encodings);
+    explicit FileListIterator(const FilePaths &fileList = {},
+                              const QList<QTextCodec *> &encodings = {});
 
     int maxProgress() const override;
     int currentProgress() const override;
@@ -118,8 +119,8 @@ protected:
     const Item &itemAt(int index) const override;
 
 private:
-    QVector<Item> m_items;
-    int m_maxIndex;
+    const QList<Item> m_items;
+    int m_maxIndex = -1;
 };
 
 class QTCREATOR_UTILS_EXPORT SubDirFileIterator : public FileIterator

@@ -61,14 +61,13 @@ FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
                                         const QStringList &exclusionFilters,
                                         const QVariant &additionalParameters) const
 {
-    QTC_ASSERT(additionalParameters.isValid(),
-               return new FileListIterator(FilePaths(), QList<QTextCodec *>()));
+    QTC_ASSERT(additionalParameters.isValid(), return new FileListIterator);
     const FilePath projectFile = FilePath::fromVariant(additionalParameters);
     for (Project *project : ProjectManager::projects()) {
         if (project && projectFile == project->projectFilePath())
             return filesForProjects(nameFilters, exclusionFilters, {project});
     }
-    return new FileListIterator(FilePaths(), QList<QTextCodec *>());
+    return new FileListIterator;
 }
 
 QString CurrentProjectFind::label() const

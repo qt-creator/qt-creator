@@ -598,19 +598,20 @@ FileIterator::const_iterator FileIterator::end() const
 
 // #pragma mark -- FileListIterator
 
-QTextCodec *encodingAt(const QList<QTextCodec *> &encodings, int index)
+QList<FileIterator::Item> constructItems(const FilePaths &fileList,
+                                         const QList<QTextCodec *> &encodings)
 {
-    if (index >= 0 && index < encodings.size())
-        return encodings.at(index);
-    return QTextCodec::codecForLocale();
+    QList<FileIterator::Item> items;
+    items.reserve(fileList.size());
+    QTextCodec *defaultEncoding = QTextCodec::codecForLocale();
+    for (int i = 0; i < fileList.size(); ++i)
+        items.append(FileIterator::Item(fileList.at(i), encodings.value(i, defaultEncoding)));
+    return items;
 }
 
-FileListIterator::FileListIterator(const FilePaths &fileList, const QList<QTextCodec *> encodings)
-    : m_maxIndex(-1)
+FileListIterator::FileListIterator(const FilePaths &fileList, const QList<QTextCodec *> &encodings)
+    : m_items(constructItems(fileList, encodings))
 {
-    m_items.reserve(fileList.size());
-    for (int i = 0; i < fileList.size(); ++i)
-        m_items.append(Item(fileList.at(i), encodingAt(encodings, i)));
 }
 
 void FileListIterator::update(int requestedIndex)
