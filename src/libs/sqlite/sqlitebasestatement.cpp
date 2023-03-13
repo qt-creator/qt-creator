@@ -453,10 +453,13 @@ void BaseStatement::checkForStepError(int resultCode) const
     case SQLITE_INTERRUPT:
         throwExecutionInterrupted("SqliteStatement::stepStatement: Execution was interrupted.");
     case SQLITE_CORRUPT_INDEX:
+        throw DatabaseHasCorruptIndex();
     case SQLITE_CORRUPT_SEQUENCE:
+        throw DatabaseHasCorruptSequence();
     case SQLITE_CORRUPT_VTAB:
+        throw DatabaseHasCorruptVirtualTable();
     case SQLITE_CORRUPT:
-        throwDatabaseIsCorrupt("SqliteStatement::stepStatement: Database is corrupt.");
+        throw DatabaseIsCorrupt();
     case SQLITE_CANTOPEN_CONVPATH:
     case SQLITE_CANTOPEN_DIRTYWAL:
     case SQLITE_CANTOPEN_FULLPATH:
@@ -659,11 +662,6 @@ void BaseStatement::throwConnectionIsLocked(const char *) const
 void BaseStatement::throwExecutionInterrupted(const char *) const
 {
     throw ExecutionInterrupted{};
-}
-
-void BaseStatement::throwDatabaseIsCorrupt(const char *) const
-{
-    throw DatabaseIsCorrupt{};
 }
 
 void BaseStatement::throwCannotOpen(const char *) const

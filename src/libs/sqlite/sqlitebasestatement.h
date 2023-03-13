@@ -132,7 +132,6 @@ public:
     [[noreturn]] void throwDataTypeMismatch(const char *whatHasHappened) const;
     [[noreturn]] void throwConnectionIsLocked(const char *whatHasHappened) const;
     [[noreturn]] void throwExecutionInterrupted(const char *whatHasHappened) const;
-    [[noreturn]] void throwDatabaseIsCorrupt(const char *whatHasHappened) const;
     [[noreturn]] void throwCannotOpen(const char *whatHasHappened) const;
 
     QString columnName(int column) const;

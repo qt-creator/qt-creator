@@ -569,4 +569,19 @@ const char *VirtualTableConstraintPreventsModification::what() const noexcept
     return "Sqlite::VirtualTableConstraintPreventsModification";
 }
 
+const char *DatabaseHasCorruptIndex::what() const noexcept
+{
+    return "Sqlite::DatabaseHasCorruptIndex";
+}
+
+const char *DatabaseHasCorruptSequence::what() const noexcept
+{
+    return "Sqlite::DatabaseHasCorruptSequence";
+}
+
+const char *DatabaseHasCorruptVirtualTable::what() const noexcept
+{
+    return "Sqlite::DatabaseHasCorruptVirtualTable";
+}
+
 } // namespace Sqlite

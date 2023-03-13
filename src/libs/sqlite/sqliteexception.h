@@ -628,6 +628,27 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT DatabaseHasCorruptIndex : public DatabaseIsCorrupt
+{
+public:
+    using DatabaseIsCorrupt::DatabaseIsCorrupt;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DatabaseHasCorruptSequence : public DatabaseIsCorrupt
+{
+public:
+    using DatabaseIsCorrupt::DatabaseIsCorrupt;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DatabaseHasCorruptVirtualTable : public DatabaseIsCorrupt
+{
+public:
+    using DatabaseIsCorrupt::DatabaseIsCorrupt;
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT CannotOpen : public Exception
 {
 public:
