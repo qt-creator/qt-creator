@@ -7,9 +7,10 @@
 #include "qnxdeployqtlibrariesdialog.h"
 #include "qnxdevicetester.h"
 #include "qnxdeviceprocesslist.h"
-#include "qnxdeviceprocesssignaloperation.h"
 #include "qnxdevicewizard.h"
 #include "qnxtr.h"
+
+#include <remotelinux/remotelinuxsignaloperation.h>
 
 #include <utils/port.h>
 #include <utils/qtcassert.h>
@@ -24,6 +25,35 @@ using namespace Utils;
 namespace Qnx::Internal {
 
 const char QnxVersionKey[] = "QnxVersion";
+
+static QString signalProcessByNameQnxCommandLine(const QString &filePath, int sig)
+{
+    QString executable = filePath;
+    return QString::fromLatin1("for PID in $(ps -f -o pid,comm | grep %1 | awk '/%1/ {print $1}'); "
+        "do "
+            "kill -%2 $PID; "
+        "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/"))).arg(sig);
+}
+
+class QnxDeviceProcessSignalOperation : public RemoteLinuxSignalOperation
+{
+public:
+    explicit QnxDeviceProcessSignalOperation(const IDeviceConstPtr &device)
+        : RemoteLinuxSignalOperation(device)
+    {}
+
+
+    QString killProcessByNameCommandLine(const QString &filePath) const override
+    {
+        return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath, 15),
+                                                 signalProcessByNameQnxCommandLine(filePath, 9));
+    }
+
+    QString interruptProcessByNameCommandLine(const QString &filePath) const override
+    {
+        return signalProcessByNameQnxCommandLine(filePath, 2);
+    }
+};
 
 QnxDevice::QnxDevice()
 {

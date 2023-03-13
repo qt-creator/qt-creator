@@ -32,8 +32,6 @@ QtcPlugin {
         "qnxdevicewizard.h",
         "qnxdeviceprocesslist.cpp",
         "qnxdeviceprocesslist.h",
-        "qnxdeviceprocesssignaloperation.cpp",
-        "qnxdeviceprocesssignaloperation.h",
         "qnxdevicetester.cpp",
         "qnxdevicetester.h",
         "qnxconfigurationmanager.cpp",

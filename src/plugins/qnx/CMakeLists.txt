@@ -11,7 +11,6 @@ add_qtc_plugin(Qnx
     qnxdeployqtlibrariesdialog.cpp qnxdeployqtlibrariesdialog.h
     qnxdevice.cpp qnxdevice.h
     qnxdeviceprocesslist.cpp qnxdeviceprocesslist.h
-    qnxdeviceprocesssignaloperation.cpp qnxdeviceprocesssignaloperation.h
     qnxdevicetester.cpp qnxdevicetester.h
     qnxdevicewizard.cpp qnxdevicewizard.h
     qnxplugin.cpp
