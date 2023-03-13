@@ -109,27 +109,11 @@ public:
 
     sqlite3 *sqliteDatabaseHandle() const;
 
-    [[noreturn]] void checkForStepError(int resultCode) const;
-    [[noreturn]] void checkForPrepareError(int resultCode) const;
-    [[noreturn]] void checkForBindingError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
     void checkBindingName(int index) const;
     void checkBindingParameterCount(int bindingParameterCount) const;
     void checkColumnCount(int columnCount) const;
     bool isReadOnlyStatement() const;
-    [[noreturn]] void throwStatementIsMisused(const char *whatHasHappened) const;
-    [[noreturn]] void throwNoValuesToFetch(const char *whatHasHappened) const;
-    [[noreturn]] void throwInvalidColumnFetched(const char *whatHasHappened) const;
-    [[noreturn]] void throwBindingIndexIsOutOfRange(const char *whatHasHappened) const;
-    [[noreturn]] void throwWrongBingingName(const char *whatHasHappened) const;
-    [[noreturn]] void throwUnknowError(const char *whatHasHappened) const;
-    [[noreturn]] void throwBingingTooBig(const char *whatHasHappened) const;
-    [[noreturn]] void throwTooBig(const char *whatHasHappened) const;
-    [[noreturn]] void throwSchemaChangeError(const char *whatHasHappened) const;
-    [[noreturn]] void throwProtocolError(const char *whatHasHappened) const;
-    [[noreturn]] void throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const;
-    [[noreturn]] void throwDataTypeMismatch(const char *whatHasHappened) const;
-    [[noreturn]] void throwExecutionInterrupted(const char *whatHasHappened) const;
 
     QString columnName(int column) const;
 

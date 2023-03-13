@@ -287,12 +287,13 @@ void DatabaseBackend::checkCanOpenDatabase(Utils::SmallStringView databaseFilePa
 
 void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
 {
-    switch (resultCode) {
-    case SQLITE_OK:
-        return;
-    default:
-        closeWithoutException();
-        throw UnknowError(sqlite3_errmsg(sqliteDatabaseHandle()));
+    if (resultCode != SQLITE_OK) {
+        try {
+            Sqlite::throwError(resultCode, sqliteDatabaseHandle());
+        } catch (...) {
+            closeWithoutException();
+            throw;
+        }
     }
 }
 
@@ -416,25 +417,8 @@ void DatabaseBackend::walCheckpointFull()
                                                nullptr,
                                                nullptr);
 
-    switch (resultCode) {
-    case SQLITE_OK:
-        break;
-    case SQLITE_BUSY_RECOVERY:
-        throw DatabaseIsBusyRecovering();
-    case SQLITE_BUSY_SNAPSHOT:
-        throw DatabaseIsBusySnapshot();
-    case SQLITE_BUSY_TIMEOUT:
-        throw DatabaseIsBusyTimeout();
-    case SQLITE_BUSY:
-        throw DatabaseIsBusy();
-    case SQLITE_ERROR_MISSING_COLLSEQ:
-    case SQLITE_ERROR_RETRY:
-    case SQLITE_ERROR_SNAPSHOT:
-    case SQLITE_ERROR:
-        throw LogCannotBeCheckpointed{};
-    case SQLITE_MISUSE:
-        throw CheckpointIsMisused{};
-    }
+    if (resultCode != SQLITE_OK)
+        Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void DatabaseBackend::setUpdateHook(

@@ -10,6 +10,10 @@
 #include <exception>
 #include <iostream>
 
+extern "C" {
+struct sqlite3;
+}
+
 namespace Sqlite {
 
 class SQLITE_EXPORT Exception : public std::exception
@@ -879,5 +883,7 @@ public:
     using Exception::Exception;
     const char *what() const noexcept override;
 };
+
+[[noreturn]] SQLITE_EXPORT void throwError(int resultCode, sqlite3 *sqliteHandle);
 
 } // namespace Sqlite
