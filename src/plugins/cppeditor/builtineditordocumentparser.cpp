@@ -11,6 +11,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QPromise>
+
 using namespace CPlusPlus;
 using namespace Utils;
 
