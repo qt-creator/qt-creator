@@ -299,4 +299,169 @@ const char *CheckpointIsMisused::what() const noexcept
     return "Sqlite::CheckpointIsMisused";
 }
 
+const char *InputOutputCannotAuthenticate::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotAuthenticate";
+}
+
+const char *InputOutputCannotBeginAtomic::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotBeginAtomic";
+}
+
+const char *InputOutputBlocked::what() const noexcept
+{
+    return "Sqlite::InputOutputBlocked";
+}
+
+const char *InputOutputCannotCommitAtomic::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotCommitAtomic";
+}
+
+const char *InputOutputCannotRollbackAtomic::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotRollbackAtomic";
+}
+
+const char *InputOutputDataError::what() const noexcept
+{
+    return "Sqlite::InputOutputDataError";
+}
+
+const char *InputOutputFileSystemIsCorrupt::what() const noexcept
+{
+    return "Sqlite::InputOutputFileSystemIsCorrupt";
+}
+
+const char *InputOutputVNodeError::what() const noexcept
+{
+    return "Sqlite::InputOutputVNodeError";
+}
+
+const char *InputOutputConvPathFailed::what() const noexcept
+{
+    return "Sqlite::InputOutputConvPathFailed";
+}
+
+const char *InputOutputCannotGetTemporaryPath::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotGetTemporaryPath";
+}
+
+const char *InputOutputCannotMemoryMap::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotMemoryMap";
+}
+
+const char *InputOutputCannotDeleteNonExistingFile::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotDeleteNonExistingFile";
+}
+
+const char *InputOutputCannotSeek::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotSeek";
+}
+
+const char *InputOutputCannotMapSharedMemory::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotMapSharedMemory";
+}
+
+const char *InputOutputCannotLockSharedMemory::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotLockSharedMemory";
+}
+
+const char *InputOutputCannotEnlargeSharedMemory::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotEnlargeSharedMemory";
+}
+
+const char *InputOutputCannotOpenSharedMemory::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotOpenSharedMemory";
+}
+
+const char *InputOutputCannotCloseDirectory::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotCloseDirectory";
+}
+
+const char *InputOutputCannotClose::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotClose";
+}
+
+const char *InputOutputCannotLock::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotLock";
+}
+
+const char *InputOutputCannotCheckReservedLock::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotCheckReservedLock";
+}
+
+const char *InputOutputCannotAccess::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotAccess";
+}
+
+const char *InputOutputNoMemory::what() const noexcept
+{
+    return "Sqlite::InputOutputNoMemory";
+}
+
+const char *InputOutputCannotDelete::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotDelete";
+}
+
+const char *InputOutputCannotReadLock::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotReadLock";
+}
+
+const char *InputOutputCannotUnlock::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotUnlock";
+}
+
+const char *InputOutputCannotFsStat::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotFsStat";
+}
+
+const char *InputOutputCannotTruncate::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotTruncate";
+}
+
+const char *InputOutputCannotSynchronizeDirectory::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotFsyncDirectory";
+}
+
+const char *InputOutputCannotSynchronizeFile::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotSynchronizeFile";
+}
+
+const char *InputOutputCannotWrite::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotWrite";
+}
+
+const char *InputOutputCannotShortRead::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotShortRead";
+}
+
+const char *InputOutputCannotRead::what() const noexcept
+{
+    return "Sqlite::InputOutputCannotRead";
+}
+
 } // namespace Sqlite

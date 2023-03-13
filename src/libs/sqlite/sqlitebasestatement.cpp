@@ -367,39 +367,74 @@ void BaseStatement::checkForStepError(int resultCode) const
     case SQLITE_LOCKED_VTAB:
     case SQLITE_LOCKED:
         throwConnectionIsLocked("SqliteStatement::stepStatement: Database connection is locked.");
-    case SQLITE_IOERR_AUTH:
-    case SQLITE_IOERR_BEGIN_ATOMIC:
-    case SQLITE_IOERR_BLOCKED:
-    case SQLITE_IOERR_CHECKRESERVEDLOCK:
-    case SQLITE_IOERR_CLOSE:
-    case SQLITE_IOERR_COMMIT_ATOMIC:
-    case SQLITE_IOERR_CONVPATH:
-    case SQLITE_IOERR_DATA:
-    case SQLITE_IOERR_DELETE:
-    case SQLITE_IOERR_DELETE_NOENT:
-    case SQLITE_IOERR_DIR_CLOSE:
-    case SQLITE_IOERR_DIR_FSYNC:
-    case SQLITE_IOERR_FSTAT:
-    case SQLITE_IOERR_FSYNC:
-    case SQLITE_IOERR_GETTEMPPATH:
-    case SQLITE_IOERR_LOCK:
-    case SQLITE_IOERR_MMAP:
-    case SQLITE_IOERR_NOMEM:
-    case SQLITE_IOERR_RDLOCK:
     case SQLITE_IOERR_READ:
-    case SQLITE_IOERR_ROLLBACK_ATOMIC:
-    case SQLITE_IOERR_SEEK:
-    case SQLITE_IOERR_SHMLOCK:
-    case SQLITE_IOERR_SHMMAP:
-    case SQLITE_IOERR_SHMOPEN:
-    case SQLITE_IOERR_SHMSIZE:
+        throw InputOutputCannotRead();
     case SQLITE_IOERR_SHORT_READ:
-    case SQLITE_IOERR_TRUNCATE:
-    case SQLITE_IOERR_UNLOCK:
-    case SQLITE_IOERR_VNODE:
+        throw InputOutputCannotShortRead();
     case SQLITE_IOERR_WRITE:
+        throw InputOutputCannotWrite();
+    case SQLITE_IOERR_FSYNC:
+        throw InputOutputCannotSynchronizeFile();
+    case SQLITE_IOERR_DIR_FSYNC:
+        throw InputOutputCannotSynchronizeDirectory();
+    case SQLITE_IOERR_TRUNCATE:
+        throw InputOutputCannotTruncate();
+    case SQLITE_IOERR_FSTAT:
+        throw InputOutputCannotFsStat();
+    case SQLITE_IOERR_UNLOCK:
+        throw InputOutputCannotUnlock();
+    case SQLITE_IOERR_RDLOCK:
+        throw InputOutputCannotReadLock();
+    case SQLITE_IOERR_DELETE:
+        throw InputOutputCannotDelete();
+    case SQLITE_IOERR_BLOCKED:
+        throw InputOutputBlocked();
+    case SQLITE_IOERR_NOMEM:
+        throw InputOutputNoMemory();
+    case SQLITE_IOERR_ACCESS:
+        throw InputOutputCannotAccess();
+    case SQLITE_IOERR_CHECKRESERVEDLOCK:
+        throw InputOutputCannotCheckReservedLock();
+    case SQLITE_IOERR_LOCK:
+        throw InputOutputCannotLock();
+    case SQLITE_IOERR_CLOSE:
+        throw InputOutputCannotClose();
+    case SQLITE_IOERR_DIR_CLOSE:
+        throw InputOutputCannotCloseDirectory();
+    case SQLITE_IOERR_SHMOPEN:
+        throw InputOutputCannotOpenSharedMemory();
+    case SQLITE_IOERR_SHMSIZE:
+        throw InputOutputCannotEnlargeSharedMemory();
+    case SQLITE_IOERR_SHMLOCK:
+        throw InputOutputCannotLockSharedMemory();
+    case SQLITE_IOERR_SHMMAP:
+        throw InputOutputCannotMapSharedMemory();
+    case SQLITE_IOERR_SEEK:
+        throw InputOutputCannotSeek();
+    case SQLITE_IOERR_DELETE_NOENT:
+        throw InputOutputCannotDeleteNonExistingFile();
+    case SQLITE_IOERR_MMAP:
+        throw InputOutputCannotMemoryMap();
+    case SQLITE_IOERR_GETTEMPPATH:
+        throw InputOutputCannotGetTemporaryPath();
+    case SQLITE_IOERR_CONVPATH:
+        throw InputOutputConvPathFailed();
+    case SQLITE_IOERR_VNODE:
+        throw InputOutputVNodeError();
+    case SQLITE_IOERR_AUTH:
+        throw InputOutputCannotAuthenticate();
+    case SQLITE_IOERR_BEGIN_ATOMIC:
+        throw InputOutputCannotBeginAtomic();
+    case SQLITE_IOERR_COMMIT_ATOMIC:
+        throw InputOutputCannotCommitAtomic();
+    case SQLITE_IOERR_ROLLBACK_ATOMIC:
+        throw InputOutputCannotRollbackAtomic();
+    case SQLITE_IOERR_DATA:
+        throw InputOutputDataError();
+    case SQLITE_IOERR_CORRUPTFS:
+        throw InputOutputFileSystemIsCorrupt();
     case SQLITE_IOERR:
-        throwInputOutputError("SqliteStatement::stepStatement: An IO error happened.");
+        throw InputOutputError();
     case SQLITE_INTERRUPT:
         throwExecutionInterrupted("SqliteStatement::stepStatement: Execution was interrupted.");
     case SQLITE_CORRUPT_INDEX:
@@ -437,39 +472,74 @@ void BaseStatement::checkForPrepareError(int resultCode) const
                                "constraint violation) has occurred!");
     case SQLITE_MISUSE:
         throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
-    case SQLITE_IOERR_AUTH:
-    case SQLITE_IOERR_BEGIN_ATOMIC:
-    case SQLITE_IOERR_BLOCKED:
-    case SQLITE_IOERR_CHECKRESERVEDLOCK:
-    case SQLITE_IOERR_CLOSE:
-    case SQLITE_IOERR_COMMIT_ATOMIC:
-    case SQLITE_IOERR_CONVPATH:
-    case SQLITE_IOERR_DATA:
-    case SQLITE_IOERR_DELETE:
-    case SQLITE_IOERR_DELETE_NOENT:
-    case SQLITE_IOERR_DIR_CLOSE:
-    case SQLITE_IOERR_DIR_FSYNC:
-    case SQLITE_IOERR_FSTAT:
-    case SQLITE_IOERR_FSYNC:
-    case SQLITE_IOERR_GETTEMPPATH:
-    case SQLITE_IOERR_LOCK:
-    case SQLITE_IOERR_MMAP:
-    case SQLITE_IOERR_NOMEM:
-    case SQLITE_IOERR_RDLOCK:
     case SQLITE_IOERR_READ:
-    case SQLITE_IOERR_ROLLBACK_ATOMIC:
-    case SQLITE_IOERR_SEEK:
-    case SQLITE_IOERR_SHMLOCK:
-    case SQLITE_IOERR_SHMMAP:
-    case SQLITE_IOERR_SHMOPEN:
-    case SQLITE_IOERR_SHMSIZE:
+        throw InputOutputCannotRead();
     case SQLITE_IOERR_SHORT_READ:
-    case SQLITE_IOERR_TRUNCATE:
-    case SQLITE_IOERR_UNLOCK:
-    case SQLITE_IOERR_VNODE:
+        throw InputOutputCannotShortRead();
     case SQLITE_IOERR_WRITE:
+        throw InputOutputCannotWrite();
+    case SQLITE_IOERR_FSYNC:
+        throw InputOutputCannotSynchronizeFile();
+    case SQLITE_IOERR_DIR_FSYNC:
+        throw InputOutputCannotSynchronizeDirectory();
+    case SQLITE_IOERR_TRUNCATE:
+        throw InputOutputCannotTruncate();
+    case SQLITE_IOERR_FSTAT:
+        throw InputOutputCannotFsStat();
+    case SQLITE_IOERR_UNLOCK:
+        throw InputOutputCannotUnlock();
+    case SQLITE_IOERR_RDLOCK:
+        throw InputOutputCannotReadLock();
+    case SQLITE_IOERR_DELETE:
+        throw InputOutputCannotDelete();
+    case SQLITE_IOERR_BLOCKED:
+        throw InputOutputBlocked();
+    case SQLITE_IOERR_NOMEM:
+        throw InputOutputNoMemory();
+    case SQLITE_IOERR_ACCESS:
+        throw InputOutputCannotAccess();
+    case SQLITE_IOERR_CHECKRESERVEDLOCK:
+        throw InputOutputCannotCheckReservedLock();
+    case SQLITE_IOERR_LOCK:
+        throw InputOutputCannotLock();
+    case SQLITE_IOERR_CLOSE:
+        throw InputOutputCannotClose();
+    case SQLITE_IOERR_DIR_CLOSE:
+        throw InputOutputCannotCloseDirectory();
+    case SQLITE_IOERR_SHMOPEN:
+        throw InputOutputCannotOpenSharedMemory();
+    case SQLITE_IOERR_SHMSIZE:
+        throw InputOutputCannotEnlargeSharedMemory();
+    case SQLITE_IOERR_SHMLOCK:
+        throw InputOutputCannotLockSharedMemory();
+    case SQLITE_IOERR_SHMMAP:
+        throw InputOutputCannotMapSharedMemory();
+    case SQLITE_IOERR_SEEK:
+        throw InputOutputCannotSeek();
+    case SQLITE_IOERR_DELETE_NOENT:
+        throw InputOutputCannotDeleteNonExistingFile();
+    case SQLITE_IOERR_MMAP:
+        throw InputOutputCannotMemoryMap();
+    case SQLITE_IOERR_GETTEMPPATH:
+        throw InputOutputCannotGetTemporaryPath();
+    case SQLITE_IOERR_CONVPATH:
+        throw InputOutputConvPathFailed();
+    case SQLITE_IOERR_VNODE:
+        throw InputOutputVNodeError();
+    case SQLITE_IOERR_AUTH:
+        throw InputOutputCannotAuthenticate();
+    case SQLITE_IOERR_BEGIN_ATOMIC:
+        throw InputOutputCannotBeginAtomic();
+    case SQLITE_IOERR_COMMIT_ATOMIC:
+        throw InputOutputCannotCommitAtomic();
+    case SQLITE_IOERR_ROLLBACK_ATOMIC:
+        throw InputOutputCannotRollbackAtomic();
+    case SQLITE_IOERR_DATA:
+        throw InputOutputDataError();
+    case SQLITE_IOERR_CORRUPTFS:
+        throw InputOutputFileSystemIsCorrupt();
     case SQLITE_IOERR:
-        throwInputOutputError("SqliteStatement::prepareStatement: IO error happened!");
+        throw InputOutputError();
     }
 
     throwUnknowError("SqliteStatement::prepareStatement: unknown error has happened");
@@ -517,11 +587,6 @@ void BaseStatement::throwStatementHasError(const char *) const
 void BaseStatement::throwStatementIsMisused(const char *) const
 {
     throw StatementIsMisused(sqlite3_errmsg(sqliteDatabaseHandle()));
-}
-
-void BaseStatement::throwInputOutputError(const char *) const
-{
-    throw InputOutputError();
 }
 
 void BaseStatement::throwConstraintPreventsModification(const char *) const

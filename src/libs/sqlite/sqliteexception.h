@@ -68,6 +68,204 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT InputOutputCannotAuthenticate : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotBeginAtomic : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotCommitAtomic : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotRollbackAtomic : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputDataError : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputBlocked : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputFileSystemIsCorrupt : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputVNodeError : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputConvPathFailed : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotGetTemporaryPath : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotMemoryMap : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotDeleteNonExistingFile : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotSeek : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotMapSharedMemory : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotLockSharedMemory : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotEnlargeSharedMemory : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotOpenSharedMemory : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotCloseDirectory : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotClose : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotLock : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotCheckReservedLock : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotAccess : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputNoMemory : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotDelete : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotReadLock : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotUnlock : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotFsStat : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotTruncate : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotSynchronizeDirectory : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotSynchronizeFile : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotWrite : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotShortRead : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT InputOutputCannotRead : public InputOutputError
+{
+public:
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT ConstraintPreventsModification : public ExceptionWithMessage
 {
 public:
