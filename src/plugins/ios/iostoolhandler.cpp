@@ -72,14 +72,12 @@ public:
         // The future is canceled when app on simulator is stoped.
         QEventLoop loop;
         QFutureWatcher<void> watcher;
-        connect(&watcher, &QFutureWatcher<void>::canceled, this, [&] {
-            loop.quit();
-        });
+        connect(&watcher, &QFutureWatcher<void>::canceled, &loop, [&] { loop.quit(); });
         watcher.setFuture(fi.future());
 
         // Process to print the console output while app is running.
-        auto logProcess = [this, fi](QProcess *tailProcess, std::shared_ptr<QTemporaryFile> file) {
-            QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, this, [=] {
+        auto logProcess = [&](QProcess *tailProcess, std::shared_ptr<QTemporaryFile> file) {
+            QObject::connect(tailProcess, &QProcess::readyReadStandardOutput, &loop, [=] {
                 if (!fi.isCanceled())
                     emit logMessage(QString::fromLocal8Bit(tailProcess->readAll()));
             });
