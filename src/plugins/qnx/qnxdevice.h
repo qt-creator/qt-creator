@@ -20,7 +20,6 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
-    Utils::ProcessInterface *createProcessInterface() const override;
 
     int qnxVersion() const;
 

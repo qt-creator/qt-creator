@@ -11,8 +11,6 @@
 #include "qnxdevicewizard.h"
 #include "qnxtr.h"
 
-#include <remotelinux/sshprocessinterface.h>
-
 #include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -24,61 +22,6 @@ using namespace RemoteLinux;
 using namespace Utils;
 
 namespace Qnx::Internal {
-
-class QnxProcessImpl final : public SshProcessInterface
-{
-public:
-    QnxProcessImpl(const LinuxDevice *linuxDevice);
-    ~QnxProcessImpl() { killIfRunning(); }
-
-private:
-    QString fullCommandLine(const CommandLine &commandLine) const final;
-    void handleSendControlSignal(Utils::ControlSignal controlSignal) final;
-
-    const QString m_pidFile;
-};
-
-static std::atomic_int s_pidFileCounter = 1;
-
-QnxProcessImpl::QnxProcessImpl(const LinuxDevice *linuxDevice)
-    : SshProcessInterface(linuxDevice)
-    , m_pidFile(QString("%1/qtc.%2.pid").arg(Constants::QNX_TMP_DIR).arg(s_pidFileCounter.fetch_add(1)))
-{
-}
-
-QString QnxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
-{
-    QStringList args = ProcessArgs::splitArgs(commandLine.arguments(), HostOsInfo::hostOs());
-    args.prepend(commandLine.executable().toString());
-    const QString cmd = ProcessArgs::createUnixArgs(args).toString();
-
-    QString fullCommandLine =
-        "test -f /etc/profile && . /etc/profile ; "
-        "test -f $HOME/profile && . $HOME/profile ; ";
-
-    if (!m_setup.m_workingDirectory.isEmpty())
-        fullCommandLine += QString::fromLatin1("cd %1 ; ").arg(
-            ProcessArgs::quoteArg(m_setup.m_workingDirectory.toString()));
-
-    const Environment env = m_setup.m_environment;
-    env.forEachEntry([&](const QString &key, const QString &value, bool) {
-        fullCommandLine += QString("%1='%2' ").arg(key).arg(env.expandVariables(value));
-    });
-
-    fullCommandLine += QString::fromLatin1("%1 & echo $! > %2").arg(cmd).arg(m_pidFile);
-
-    return fullCommandLine;
-}
-
-void QnxProcessImpl::handleSendControlSignal(Utils::ControlSignal controlSignal)
-{
-    QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
-    const QString args = QString::fromLatin1("-%1 `cat %2`")
-            .arg(controlSignalToInt(controlSignal)).arg(m_pidFile);
-    CommandLine command = { "kill", args, CommandLine::Raw };
-    // Note: This blocking call takes up to 2 ms for local remote.
-    runInShell(command);
-}
 
 const char QnxVersionKey[] = "QnxVersion";
 
@@ -156,11 +99,6 @@ DeviceProcessList *QnxDevice::createProcessListModel(QObject *parent) const
 DeviceTester *QnxDevice::createDeviceTester() const
 {
     return new QnxDeviceTester;
-}
-
-Utils::ProcessInterface *QnxDevice::createProcessInterface() const
-{
-    return new QnxProcessImpl(this);
 }
 
 DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
