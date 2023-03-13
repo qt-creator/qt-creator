@@ -665,12 +665,15 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
 
     auto layout = new QGridLayout(dialog);
 
-    kitAspect.createConfigWidget(m_buildSystem->kit())
-        ->addToLayoutWithLabel(layout->parentWidget());
-    generatorAspect.createConfigWidget(m_buildSystem->kit())
-        ->addToLayoutWithLabel(layout->parentWidget());
-    configurationKitAspect.createConfigWidget(m_buildSystem->kit())
-        ->addToLayoutWithLabel(layout->parentWidget());
+    KitAspectWidget *widget = kitAspect.createConfigWidget(m_buildSystem->kit());
+    widget->setParent(dialog);
+    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget = generatorAspect.createConfigWidget(m_buildSystem->kit());
+    widget->setParent(dialog);
+    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget = configurationKitAspect.createConfigWidget(m_buildSystem->kit());
+    widget->setParent(dialog);
+    widget->addToLayoutWithLabel(layout->parentWidget());
 
     layout->setColumnStretch(1, 1);
 
