@@ -384,9 +384,11 @@ void BaseStatement::checkForStepError(int resultCode) const
         throwDataTypeMismatch(
             "SqliteStatement::stepStatement: Most probably you used not an integer for a rowid.");
     case SQLITE_LOCKED_SHAREDCACHE:
+        throw ConnectionsSharedCacheIsLocked(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_LOCKED_VTAB:
+        throw ConnectionsVirtualTableIsLocked(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_LOCKED:
-        throwConnectionIsLocked("SqliteStatement::stepStatement: Database connection is locked.");
+        throw ConnectionIsLocked(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_IOERR_READ:
         throw InputOutputCannotRead();
     case SQLITE_IOERR_SHORT_READ:
@@ -652,11 +654,6 @@ void BaseStatement::throwDatabaseExceedsMaximumFileSize(const char *) const
 void BaseStatement::throwDataTypeMismatch(const char *) const
 {
     throw DataTypeMismatch{sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwConnectionIsLocked(const char *) const
-{
-    throw ConnectionIsLocked{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
 void BaseStatement::throwExecutionInterrupted(const char *) const

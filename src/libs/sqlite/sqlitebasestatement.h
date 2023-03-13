@@ -129,7 +129,6 @@ public:
     [[noreturn]] void throwProtocolError(const char *whatHasHappened) const;
     [[noreturn]] void throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const;
     [[noreturn]] void throwDataTypeMismatch(const char *whatHasHappened) const;
-    [[noreturn]] void throwConnectionIsLocked(const char *whatHasHappened) const;
     [[noreturn]] void throwExecutionInterrupted(const char *whatHasHappened) const;
     [[noreturn]] void throwCannotOpen(const char *whatHasHappened) const;
 

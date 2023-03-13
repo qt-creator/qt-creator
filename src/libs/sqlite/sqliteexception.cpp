@@ -614,4 +614,14 @@ const char *CannotRollbackToReadOnlyConnection::what() const noexcept
     return "Sqlite::CannotRollbackToReadOnlyConnection";
 }
 
+const char *ConnectionsSharedCacheIsLocked::what() const noexcept
+{
+    return "Sqlite::ConnectionsSharedCacheIsLocked";
+}
+
+const char *ConnectionsVirtualTableIsLocked::what() const noexcept
+{
+    return "Sqlite::ConnectionsVirtualTableIsLocked";
+}
+
 } // namespace Sqlite

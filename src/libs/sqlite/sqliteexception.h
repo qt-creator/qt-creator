@@ -656,6 +656,20 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT ConnectionsSharedCacheIsLocked : public ConnectionIsLocked
+{
+public:
+    using ConnectionIsLocked::ConnectionIsLocked;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT ConnectionsVirtualTableIsLocked : public ConnectionIsLocked
+{
+public:
+    using ConnectionIsLocked::ConnectionIsLocked;
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT ExecutionInterrupted : public Exception
 {
 public:
