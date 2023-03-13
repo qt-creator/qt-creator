@@ -50317,23 +50317,23 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Expected delimiter after mangler ID.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach einer Mangler ID wird ein Trennzeichen erwartet.</translation>
     </message>
     <message>
         <source>Expected mangler ID &quot;l&quot; (lowercase), &quot;u&quot; (uppercase), or &quot;c&quot; (titlecase) after colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach einem Doppelpunkt wird eine Mangler ID &quot;l&quot; (Kleinschreibung), &quot;u&quot; (Großschreibung) oder &quot;c&quot; (Titlecase) erwartet.</translation>
     </message>
     <message>
         <source>Missing closing variable delimiter for:</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließendes Trennzeichen fehlt für Variable:</translation>
     </message>
     <message>
         <source>Show inline annotations for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Annotationen für %1 anzeigen</translation>
     </message>
     <message>
         <source>Temporarily hide inline annotations for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Annotationen für %1 temporär ausblenden</translation>
     </message>
     <message>
         <source>Show Diagnostic Settings</source>
@@ -50341,15 +50341,15 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Copy SHA1 to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>SHA1 in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Show Commit %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit %1 anzeigen</translation>
     </message>
 </context>
 <context>
@@ -50561,11 +50561,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Collapse</source>
-        <translation type="unfinished"></translation>
+        <translation>Einklappen</translation>
     </message>
     <message>
         <source>Expand</source>
-        <translation type="unfinished">Erweitern</translation>
+        <translation>Aufklappen</translation>
     </message>
 </context>
 <context>
