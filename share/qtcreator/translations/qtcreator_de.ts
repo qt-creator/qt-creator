@@ -26688,119 +26688,119 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <name>QtC::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
-        <translation type="unfinished">FakeVim benutzen</translation>
+        <translation>FakeVim benutzen</translation>
     </message>
     <message>
         <source>Read .vimrc from location:</source>
-        <translation type="unfinished">Verwende .vimrc aus:</translation>
+        <translation>Verwende .vimrc aus:</translation>
     </message>
     <message>
         <source>Show position of text marks</source>
-        <translation type="unfinished">Position der Textmarken anzeigen</translation>
+        <translation>Position der Textmarken anzeigen</translation>
     </message>
     <message>
         <source>Pass control keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Steuerungstasten weitergeben</translation>
     </message>
     <message>
         <source>Pass keys in insert mode</source>
-        <translation type="unfinished">Tastenanschläge im Einfügemodus weitergeben</translation>
+        <translation>Tastenanschläge im Einfügemodus weitergeben</translation>
     </message>
     <message>
         <source>Start of line</source>
-        <translation type="unfinished">Zeilenanfang</translation>
+        <translation>Zeilenanfang</translation>
     </message>
     <message>
         <source>Tabulator size:</source>
-        <translation type="unfinished">Tabulatorweite:</translation>
+        <translation>Tabulatorweite:</translation>
     </message>
     <message>
         <source>Smart tabulators</source>
-        <translation type="unfinished">&quot;Smart&quot;-Tabularmodus</translation>
+        <translation>&quot;Smart&quot;-Tabulatormodus</translation>
     </message>
     <message>
         <source>Highlight search results</source>
-        <translation type="unfinished">Suchergebnisse hervorheben</translation>
+        <translation>Suchergebnisse hervorheben</translation>
     </message>
     <message>
         <source>Shift width:</source>
-        <translation type="unfinished">Einrückung:</translation>
+        <translation>Einrückungsweite:</translation>
     </message>
     <message>
         <source>Expand tabulators</source>
-        <translation type="unfinished">Tabulatoren expandieren</translation>
+        <translation>Tabulatoren expandieren</translation>
     </message>
     <message>
         <source>Automatic indentation</source>
-        <translation type="unfinished">Automatische Einrückung</translation>
+        <translation>Automatische Einrückung</translation>
     </message>
     <message>
         <source>Smart indentation</source>
-        <translation type="unfinished">Intelligente Einrückung</translation>
+        <translation>Intelligente Einrückung</translation>
     </message>
     <message>
         <source>Incremental search</source>
-        <translation type="unfinished">Inkrementelle Suche</translation>
+        <translation>Inkrementelle Suche</translation>
     </message>
     <message>
         <source>Use search dialog</source>
-        <translation type="unfinished">Suchdialog verwenden</translation>
+        <translation>Suchdialog verwenden</translation>
     </message>
     <message>
         <source>Use smartcase</source>
-        <translation type="unfinished">Smartcase verwenden</translation>
+        <translation>Smartcase verwenden</translation>
     </message>
     <message>
         <source>Use ignorecase</source>
-        <translation type="unfinished">ignorecase verwenden</translation>
+        <translation>ignorecase verwenden</translation>
     </message>
     <message>
         <source>Use wrapscan</source>
-        <translation type="unfinished">Wrapscan verwenden</translation>
+        <translation>wrapscan verwenden</translation>
     </message>
     <message>
         <source>Use tildeop</source>
-        <translation type="unfinished"></translation>
+        <translation>tildeop verwenden</translation>
     </message>
     <message>
         <source>Show partial command</source>
-        <translation type="unfinished">Teil des Kommandos anzeigen</translation>
+        <translation>Teil des Kommandos anzeigen</translation>
     </message>
     <message>
         <source>Show line numbers relative to cursor</source>
-        <translation type="unfinished">Zeilennummern relativ zur Einfügemarke anzeigen</translation>
+        <translation>Zeilennummern relativ zur Einfügemarke anzeigen</translation>
     </message>
     <message>
         <source>Blinking cursor</source>
-        <translation type="unfinished">Blinkende Einfügemarke</translation>
+        <translation>Blinkende Einfügemarke</translation>
     </message>
     <message>
         <source>Scroll offset:</source>
-        <translation type="unfinished">Rollversatz:</translation>
+        <translation>Scroll Offset:</translation>
     </message>
     <message>
         <source>Backspace:</source>
-        <translation type="unfinished">Rücktaste:</translation>
+        <translation>Rücktaste:</translation>
     </message>
     <message>
         <source>Keyword characters:</source>
-        <translation type="unfinished">Wortbildende Zeichen:</translation>
+        <translation>Wortbildende Zeichen:</translation>
     </message>
     <message>
         <source>Displays line numbers relative to the line containing text cursor.</source>
-        <translation type="unfinished">Zeige Zeilennummern relativ zur Zeile mit der Einfügemarke an.</translation>
+        <translation>Zeilennummern relativ zur Zeile mit der Einfügemarke anzeigen.</translation>
     </message>
     <message>
         <source>Does not interpret key sequences like Ctrl-S in FakeVim but handles them as regular shortcuts. This gives easier access to core functionality at the price of losing some features of FakeVim.</source>
-        <translation type="unfinished">Zeichenfolgen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktionalität von FakeVim.</translation>
+        <translation>Tastensequenzen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktionalität von FakeVim.</translation>
     </message>
     <message>
         <source>Does not interpret some key presses in insert mode so that code can be properly completed and expanded.</source>
-        <translation type="unfinished">Einige Zeichenfolgen nicht im Einfügemodus verarbeiten, damit Quelltext korrekt vervollständigt und erweitert werden kann.</translation>
+        <translation>Einige Tastenanschläge nicht im Einfügemodus verarbeiten, damit Quelltext korrekt vervollständigt und erweitert werden kann.</translation>
     </message>
     <message>
         <source>Vim tabstop option.</source>
-        <translation type="unfinished">Vim-Tabulator-Einstellung.</translation>
+        <translation>Vim-Tabulatorstopp-Einstellung.</translation>
     </message>
     <message>
         <source>Unknown option: %1</source>
@@ -26836,11 +26836,12 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>These are the names of the actual keys on my german Apple keyboard https://support.apple.com/de-de/HT201236</translatorcomment>
+        <translation>Benutzen sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>
     <message>
         <source>Type Alt-Y, Alt-Y to quit FakeVim mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzen Sie Alt-Y, Alt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>
     <message>
         <source>Unknown option:</source>
@@ -26999,23 +27000,23 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Copy Text Editor Settings</source>
-        <translation type="unfinished">Texteditor-Einstellungen übernehmen</translation>
+        <translation>Texteditor-Einstellungen kopieren</translation>
     </message>
     <message>
         <source>Set Qt Style</source>
-        <translation type="unfinished">Qt-Stil setzen</translation>
+        <translation>Qt-Stil einstellen</translation>
     </message>
     <message>
         <source>Set Plain Style</source>
-        <translation type="unfinished">Einfachen Stil setzen</translation>
+        <translation>Einfachen Stil einstellen</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
-        <translation type="unfinished">Vim-Verhalten</translation>
+        <translation>Vim-Verhalten</translation>
     </message>
     <message>
         <source>Plugin Emulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin-Emulation</translation>
     </message>
     <message>
         <source>Action</source>
@@ -27035,19 +27036,20 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Meta+Shift+Y,Meta+Shift+Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>The actual shortcut in Qt terms</translatorcomment>
+        <translation>Meta+Shift+Y,Meta+Shift+Y</translation>
     </message>
     <message>
         <source>Alt+Y,Alt+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Y,Alt+Y</translation>
     </message>
     <message>
         <source>Meta+Shift+Y,%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Shift+Y,%1</translation>
     </message>
     <message>
         <source>Alt+Y,%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Y,%1</translation>
     </message>
     <message>
         <source>Execute User Action #%1</source>
@@ -32045,7 +32047,7 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <source>Macro</source>
