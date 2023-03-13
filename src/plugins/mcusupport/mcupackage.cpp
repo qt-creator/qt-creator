@@ -53,9 +53,9 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_addToSystemPath(addToSystemPath)
     , m_valueType(valueType)
 {
-    m_path = FilePath::fromUserInput(qtcEnvironmentVariable(m_environmentVariableName));
-    if (!m_path.exists()) {
-        m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);
+    m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);
+    if (m_path.isEmpty()) {
+        m_path = FilePath::fromUserInput(qtcEnvironmentVariable(m_environmentVariableName));
     }
 }
 
