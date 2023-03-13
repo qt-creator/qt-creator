@@ -584,4 +584,34 @@ const char *DatabaseHasCorruptVirtualTable::what() const noexcept
     return "Sqlite::DatabaseHasCorruptVirtualTable";
 }
 
+const char *CannotInitializeReadOnlyConnection::what() const noexcept
+{
+    return "Sqlite::CannotInitializeReadOnlyConnection";
+}
+
+const char *CannotLockReadOnlyConnection::what() const noexcept
+{
+    return "Sqlite::CannotLockReadOnlyConnection";
+}
+
+const char *CannotWriteToMovedDatabase::what() const noexcept
+{
+    return "Sqlite::CannotWriteToMovedDatabase";
+}
+
+const char *CannotCreateLogInReadonlyDirectory::what() const noexcept
+{
+    return "Sqlite::CannotCreateLogInReadonlyDirectory";
+}
+
+const char *DatabaseNeedsToBeRecovered::what() const noexcept
+{
+    return "Sqlite::DatabaseNeedsToBeRecovered";
+}
+
+const char *CannotRollbackToReadOnlyConnection::what() const noexcept
+{
+    return "Sqlite::CannotRollbackToReadOnlyConnection";
+}
+
 } // namespace Sqlite

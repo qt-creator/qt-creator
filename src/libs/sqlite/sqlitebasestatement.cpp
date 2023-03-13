@@ -359,14 +359,19 @@ void BaseStatement::checkForStepError(int resultCode) const
         throwSchemaChangeError("SqliteStatement::stepStatement: Schema changed but the statement "
                                "cannot be recompiled.");
     case SQLITE_READONLY_CANTINIT:
+        throw CannotInitializeReadOnlyConnection(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_READONLY_CANTLOCK:
+        throw CannotLockReadOnlyConnection(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_READONLY_DBMOVED:
+        throw CannotWriteToMovedDatabase(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_READONLY_DIRECTORY:
+        throw CannotCreateLogInReadonlyDirectory(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_READONLY_RECOVERY:
+        throw DatabaseNeedsToBeRecovered(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_READONLY_ROLLBACK:
+        throw CannotRollbackToReadOnlyConnection(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_READONLY:
-        throwCannotWriteToReadOnlyConnection(
-            "SqliteStatement::stepStatement: Cannot write to read only connection");
+        throw CannotWriteToReadOnlyConnection(sqlite3_errmsg(sqliteDatabaseHandle()));
     case SQLITE_PROTOCOL:
         throwProtocolError(
             "SqliteStatement::stepStatement: Something strang with the file locking happened.");
@@ -632,11 +637,6 @@ void BaseStatement::throwTooBig(const char *) const
 void BaseStatement::throwSchemaChangeError(const char *) const
 {
     throw SchemeChangeError{sqlite3_errmsg(sqliteDatabaseHandle())};
-}
-
-void BaseStatement::throwCannotWriteToReadOnlyConnection(const char *) const
-{
-    throw CannotWriteToReadOnlyConnection{sqlite3_errmsg(sqliteDatabaseHandle())};
 }
 
 void BaseStatement::throwProtocolError(const char *) const

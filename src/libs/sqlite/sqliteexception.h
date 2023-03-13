@@ -586,6 +586,48 @@ public:
     const char *what() const noexcept override;
 };
 
+class SQLITE_EXPORT CannotInitializeReadOnlyConnection : public CannotWriteToReadOnlyConnection
+{
+public:
+    using CannotWriteToReadOnlyConnection::CannotWriteToReadOnlyConnection;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotLockReadOnlyConnection : public CannotWriteToReadOnlyConnection
+{
+public:
+    using CannotWriteToReadOnlyConnection::CannotWriteToReadOnlyConnection;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotWriteToMovedDatabase : public CannotWriteToReadOnlyConnection
+{
+public:
+    using CannotWriteToReadOnlyConnection::CannotWriteToReadOnlyConnection;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotCreateLogInReadonlyDirectory : public CannotWriteToReadOnlyConnection
+{
+public:
+    using CannotWriteToReadOnlyConnection::CannotWriteToReadOnlyConnection;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT DatabaseNeedsToBeRecovered : public CannotWriteToReadOnlyConnection
+{
+public:
+    using CannotWriteToReadOnlyConnection::CannotWriteToReadOnlyConnection;
+    const char *what() const noexcept override;
+};
+
+class SQLITE_EXPORT CannotRollbackToReadOnlyConnection : public CannotWriteToReadOnlyConnection
+{
+public:
+    using CannotWriteToReadOnlyConnection::CannotWriteToReadOnlyConnection;
+    const char *what() const noexcept override;
+};
+
 class SQLITE_EXPORT ProtocolError : public ExceptionWithMessage
 {
 public:

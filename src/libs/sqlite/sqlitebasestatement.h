@@ -126,7 +126,6 @@ public:
     [[noreturn]] void throwBingingTooBig(const char *whatHasHappened) const;
     [[noreturn]] void throwTooBig(const char *whatHasHappened) const;
     [[noreturn]] void throwSchemaChangeError(const char *whatHasHappened) const;
-    [[noreturn]] void throwCannotWriteToReadOnlyConnection(const char *whatHasHappened) const;
     [[noreturn]] void throwProtocolError(const char *whatHasHappened) const;
     [[noreturn]] void throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const;
     [[noreturn]] void throwDataTypeMismatch(const char *whatHasHappened) const;
