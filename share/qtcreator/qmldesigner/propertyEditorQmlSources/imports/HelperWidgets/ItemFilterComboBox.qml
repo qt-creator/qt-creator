@@ -13,6 +13,8 @@ HelperWidgets.ComboBox {
     editable: true
     model: comboBox.addDefaultItem(itemFilterModel.itemModel)
 
+    validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
+
     HelperWidgets.ItemFilterModel {
         id: itemFilterModel
         modelNodeBackendProperty: modelNodeBackend

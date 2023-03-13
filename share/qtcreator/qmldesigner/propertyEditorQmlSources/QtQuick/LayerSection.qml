@@ -100,7 +100,6 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 width: implicitWidth
                 typeFilter: "QtQuick.Item"
-                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                 backendValue: backendValues.layer_effect
             }
 

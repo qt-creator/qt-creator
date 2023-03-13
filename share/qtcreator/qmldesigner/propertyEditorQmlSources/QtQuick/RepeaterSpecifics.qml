@@ -42,7 +42,6 @@ Column {
             SecondColumnLayout {
                 ItemFilterComboBox {
                     typeFilter: "Component"
-                    validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                     backendValue: backendValues.delegate
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth

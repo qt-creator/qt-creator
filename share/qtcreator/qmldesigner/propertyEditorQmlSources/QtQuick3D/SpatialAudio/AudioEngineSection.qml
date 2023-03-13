@@ -55,7 +55,6 @@ Section {
         SecondColumnLayout {
             ItemFilterComboBox {
                 typeFilter: "QtMultimedia.AudioDevice"
-                validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                 backendValue: backendValues.outputDevice
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth

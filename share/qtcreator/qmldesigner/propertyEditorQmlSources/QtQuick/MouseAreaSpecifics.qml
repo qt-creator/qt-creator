@@ -181,7 +181,6 @@ Column {
             SecondColumnLayout {
                 ItemFilterComboBox {
                     typeFilter: "QtQuick.QtObject"
-                    validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                     backendValue: backendValues.drag_target
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
