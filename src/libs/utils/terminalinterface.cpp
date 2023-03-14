@@ -304,8 +304,6 @@ void TerminalInterface::start()
         return;
     }
 
-    m_setup.m_environment.unset(QLatin1String("TERM"));
-
     Environment finalEnv = m_setup.m_environment;
 
     if (HostOsInfo::isWindowsHost()) {
@@ -319,6 +317,8 @@ void TerminalInterface::start()
             if (!systemRoot.isEmpty())
                 finalEnv.set("SystemRoot", systemRoot);
         }
+    } else if (HostOsInfo::isMacHost()) {
+        finalEnv.set("TERM", "xterm-256color");
     }
 
     if (finalEnv.hasChanges()) {

@@ -6,6 +6,7 @@
 #include "shellmodel.h"
 #include "terminaltr.h"
 #include "terminalwidget.h"
+#include "utils/terminalhooks.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icontext.h>
@@ -175,7 +176,6 @@ QWidget *TerminalPane::outputWidget(QWidget *parent)
         auto terminalWidget = new TerminalWidget(parent);
         m_tabWidget->addTab(terminalWidget, Tr::tr("Terminal"));
         setupTerminalWidget(terminalWidget);
-
     }
 
     return m_tabWidget;
@@ -201,12 +201,13 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
     if (!terminal)
         return;
 
-    auto setTabText = [this](TerminalWidget * terminal) {
+    auto setTabText = [this](TerminalWidget *terminal) {
         auto index = m_tabWidget->indexOf(terminal);
         const FilePath cwd = terminal->cwd();
 
-        const QString exe = terminal->currentCommand().isEmpty() ? terminal->shellName()
-                                                                 : terminal->currentCommand().executable().fileName();
+        const QString exe = terminal->currentCommand().isEmpty()
+                                ? terminal->shellName()
+                                : terminal->currentCommand().executable().fileName();
 
         if (cwd.isEmpty())
             m_tabWidget->setTabText(index, exe);

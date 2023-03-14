@@ -6,18 +6,22 @@
 #include "../projectexplorer_export.h"
 
 #include "idevice.h"
-#include "idevicefactory.h"
 
 #include <QApplication>
 
+#include <memory>
+
 namespace ProjectExplorer {
 class ProjectExplorerPlugin;
+class DesktopDevicePrivate;
 
 namespace Internal { class DesktopDeviceFactory; }
 
 class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
 {
 public:
+    ~DesktopDevice() override;
+
     IDevice::DeviceInfo deviceInformation() const override;
 
     IDeviceWidget *createWidget() override;
@@ -40,6 +44,8 @@ protected:
 
     friend class ProjectExplorerPlugin;
     friend class Internal::DesktopDeviceFactory;
+
+    std::unique_ptr<DesktopDevicePrivate> d;
 };
 
 } // namespace ProjectExplorer

@@ -181,6 +181,9 @@ public:
 
     QString toStandaloneCommandLine() const;
 
+    void setCreateConsoleOnWindows(bool create);
+    bool createConsoleOnWindows() const;
+
 signals:
     void starting(); // On NotRunning -> Starting state transition
     void started();  // On Starting -> Running state transition

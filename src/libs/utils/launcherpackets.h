@@ -98,6 +98,7 @@ public:
     bool unixTerminalDisabled = false;
     bool useCtrlCStub = false;
     int reaperTimeout = 500;
+    bool createConsoleOnWindows = false;
 
 private:
     void doSerialize(QDataStream &stream) const override;

@@ -20,8 +20,8 @@ public:
     QIODevice::OpenMode openMode() const;
     void handleProcessStart();
     void handleProcessStarted();
-    void setBelowNormalPriority();
     void setNativeArguments(const QString &arguments);
+    void setWindowsSpecificStartupFlags(bool belowNormalPriority, bool createConsoleWindow);
 
 private:
     ProcessMode m_processMode = ProcessMode::Reader;

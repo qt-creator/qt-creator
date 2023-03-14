@@ -454,9 +454,10 @@ private:
         ProcessStartHandler *handler = m_process->processStartHandler();
         handler->setProcessMode(m_setup.m_processMode);
         handler->setWriteData(m_setup.m_writeData);
-        if (m_setup.m_belowNormalPriority)
-            handler->setBelowNormalPriority();
         handler->setNativeArguments(m_setup.m_nativeArguments);
+        handler->setWindowsSpecificStartupFlags(m_setup.m_belowNormalPriority,
+                                                m_setup.m_createConsoleOnWindows);
+
         m_process->setProcessEnvironment(m_setup.m_environment.toProcessEnvironment());
         m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup.m_standardInputFile);
@@ -1311,6 +1312,16 @@ QString QtcProcess::toStandaloneCommandLine() const
     parts.append(d->m_setup.m_commandLine.executable().path());
     parts.append(d->m_setup.m_commandLine.splitArguments());
     return parts.join(" ");
+}
+
+void QtcProcess::setCreateConsoleOnWindows(bool create)
+{
+    d->m_setup.m_createConsoleOnWindows = create;
+}
+
+bool QtcProcess::createConsoleOnWindows() const
+{
+    return d->m_setup.m_createConsoleOnWindows;
 }
 
 void QtcProcess::setExtraData(const QString &key, const QVariant &value)

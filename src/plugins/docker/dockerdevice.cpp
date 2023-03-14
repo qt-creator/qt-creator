@@ -49,6 +49,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/sortfiltermodel.h>
 #include <utils/temporaryfile.h>
+#include <utils/terminalhooks.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
@@ -294,6 +295,7 @@ void DockerProcessImpl::start()
     m_process.setExtraData(m_setup.m_extraData);
     m_process.setStandardInputFile(m_setup.m_standardInputFile);
     m_process.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
+    m_process.setCreateConsoleOnWindows(m_setup.m_createConsoleOnWindows);
     if (m_setup.m_lowPriority)
         m_process.setLowPriority();
 
@@ -403,7 +405,6 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
         }
 
         QtcProcess *proc = new QtcProcess(d);
-        proc->setTerminalMode(TerminalMode::On);
 
         QObject::connect(proc, &QtcProcess::done, [proc] {
             if (proc->error() != QProcess::UnknownError && MessageManager::instance()) {
@@ -413,10 +414,10 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
             proc->deleteLater();
         });
 
-        const QString wd = workingDir.isEmpty() ? "/" : workingDir.path();
-        proc->setCommand({settings->dockerBinaryPath.filePath(),
-                          {"exec", "-it", "-w", wd, d->containerId(), "/bin/sh"}});
-        proc->setEnvironment(Environment::systemEnvironment()); // The host system env. Intentional.
+        proc->setTerminalMode(TerminalMode::On);
+        proc->setEnvironment(env);
+        proc->setWorkingDirectory(workingDir);
+        proc->setCommand({Terminal::defaultShellForDevice(rootPath()), {}});
         proc->start();
     });
 

@@ -37,10 +37,6 @@ set(resource_files
   debugger/utils.py
 )
 
-if (APPLE)
-  set(resource_directories ${resource_directories} scripts)
-endif()
-
 # copy resource directories during build
 qtc_copy_to_builddir(copy_share_to_builddir
   DIRECTORIES ${resource_directories}
