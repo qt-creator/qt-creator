@@ -39,7 +39,7 @@ public:
     static void shutdownSqliteLibrary();
     void checkpointFullWalLog();
 
-    void open(Utils::SmallStringView databaseFilePath, OpenMode openMode);
+    void open(Utils::SmallStringView databaseFilePath, OpenMode openMode, JournalMode journalMode);
     void close();
     void closeWithoutException();
 
@@ -67,7 +67,7 @@ public:
     template<typename Type>
     Type toValue(Utils::SmallStringView sqlStatement) const;
 
-    static int openMode(OpenMode);
+    static int createOpenFlags(OpenMode openMode, JournalMode journalMode);
 
     void setBusyTimeout(std::chrono::milliseconds timeout);
 

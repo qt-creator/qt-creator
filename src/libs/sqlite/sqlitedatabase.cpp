@@ -69,7 +69,7 @@ void Database::activateLogging()
 
 void Database::open(LockingMode lockingMode)
 {
-    m_databaseBackend.open(m_databaseFilePath, m_openMode);
+    m_databaseBackend.open(m_databaseFilePath, m_openMode, m_journalMode);
     if (m_busyTimeout > 0ms)
         m_databaseBackend.setBusyTimeout(m_busyTimeout);
     else

@@ -84,18 +84,19 @@ void DatabaseBackend::checkpointFullWalLog()
     checkIfLogCouldBeCheckpointed(resultCode);
 }
 
-void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mode)
+void DatabaseBackend::open(Utils::SmallStringView databaseFilePath,
+                           OpenMode openMode,
+                           JournalMode journalMode)
 {
     checkCanOpenDatabase(databaseFilePath);
 
     int resultCode = sqlite3_open_v2(std::string(databaseFilePath).c_str(),
                                      &m_databaseHandle,
-                                     openMode(mode),
+                                     createOpenFlags(openMode, journalMode),
                                      nullptr);
 
     checkDatabaseCouldBeOpened(resultCode);
 
-    sqlite3_extended_result_codes(m_databaseHandle, true);
     resultCode = sqlite3_carray_init(m_databaseHandle, nullptr, nullptr);
 
     checkCarrayCannotBeIntialized(resultCode);
@@ -392,16 +393,23 @@ JournalMode DatabaseBackend::pragmaToJournalMode(Utils::SmallStringView pragma)
     return static_cast<JournalMode>(index);
 }
 
-int DatabaseBackend::openMode(OpenMode mode)
+int DatabaseBackend::createOpenFlags(OpenMode openMode, JournalMode journalMode)
 {
-    int sqliteMode = SQLITE_OPEN_CREATE;
+    int sqliteOpenFlags = SQLITE_OPEN_CREATE | SQLITE_OPEN_EXRESCODE;
 
-    switch (mode) {
-        case OpenMode::ReadOnly: sqliteMode |= SQLITE_OPEN_READONLY; break;
-        case OpenMode::ReadWrite: sqliteMode |= SQLITE_OPEN_READWRITE; break;
+    if (journalMode == JournalMode::Memory)
+        sqliteOpenFlags |= SQLITE_OPEN_MEMORY;
+
+    switch (openMode) {
+    case OpenMode::ReadOnly:
+        sqliteOpenFlags |= SQLITE_OPEN_READONLY;
+        break;
+    case OpenMode::ReadWrite:
+        sqliteOpenFlags |= SQLITE_OPEN_READWRITE;
+        break;
     }
 
-    return sqliteMode;
+    return sqliteOpenFlags;
 }
 
 void DatabaseBackend::setBusyTimeout(std::chrono::milliseconds timeout)
