@@ -41,7 +41,6 @@ public:
         : RemoteLinuxSignalOperation(device)
     {}
 
-
     QString killProcessByNameCommandLine(const QString &filePath) const override
     {
         return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath, 15),
@@ -138,12 +137,7 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
     setConstructionFunction(&QnxDevice::create);
-    setCreator([] {
-        QnxDeviceWizard wizard;
-        if (wizard.exec() != QDialog::Accepted)
-            return IDevice::Ptr();
-        return wizard.device();
-    });
+    setCreator(&runDeviceWizard);
 }
 
 } // Qnx::Internal

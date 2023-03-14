@@ -3,36 +3,10 @@
 
 #pragma once
 
-#include "qnxdevice.h"
-
-#include <utils/wizard.h>
-
-namespace RemoteLinux {
-class GenericLinuxDeviceConfigurationWizardSetupPage;
-class GenericLinuxDeviceConfigurationWizardKeyDeploymentPage;
-class GenericLinuxDeviceConfigurationWizardFinalPage;
-}
+#include <projectexplorer/devicesupport/idevice.h>
 
 namespace Qnx::Internal {
 
-class QnxDeviceWizard : public Utils::Wizard
-{
-public:
-    explicit QnxDeviceWizard(QWidget *parent = nullptr);
-
-    ProjectExplorer::IDevice::Ptr device();
-
-private:
-    enum PageId {
-        SetupPageId,
-        KeyDeploymenPageId,
-        FinalPageId
-    };
-
-    RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage *m_setupPage;
-    RemoteLinux::GenericLinuxDeviceConfigurationWizardKeyDeploymentPage *m_keyDeploymentPage;
-    RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage *m_finalPage;
-    QnxDevice::Ptr m_device;
-};
+ProjectExplorer::IDevice::Ptr runDeviceWizard();
 
 } // Qnx::Internal

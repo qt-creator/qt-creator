@@ -22,15 +22,14 @@ public:
 
     int qnxVersion() const;
 
-protected:
+private:
+    QnxDevice();
+
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
 
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;
-
-private:
-    QnxDevice();
 
     void updateVersionNumber() const;
 

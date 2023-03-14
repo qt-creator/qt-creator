@@ -64,7 +64,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage final : 
 {
     Q_OBJECT
 public:
-    GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent);
+    GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent = nullptr);
     ~GenericLinuxDeviceConfigurationWizardFinalPage() override;
 
 protected:
