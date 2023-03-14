@@ -630,7 +630,7 @@ void LldbEngine::handleInterpreterBreakpointModified(const GdbMi &bpItem)
     updateBreakpointData(bp, bpItem, false);
 }
 
-void LldbEngine::loadSymbols(const QString &moduleName)
+void LldbEngine::loadSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
 }
@@ -660,13 +660,13 @@ void LldbEngine::reloadModules()
     runCommand(cmd);
 }
 
-void LldbEngine::requestModuleSymbols(const QString &moduleName)
+void LldbEngine::requestModuleSymbols(const FilePath &moduleName)
 {
     DebuggerCommand cmd("fetchSymbols");
-    cmd.arg("module", moduleName);
+    cmd.arg("module", moduleName.path());
     cmd.callback = [moduleName](const DebuggerResponse &response) {
         const GdbMi &symbols = response.data["symbols"];
-        QString moduleName = response.data["module"].data();
+        const QString module = response.data["module"].data();
         Symbols syms;
         for (const GdbMi &item : symbols) {
             Symbol symbol;
@@ -677,7 +677,7 @@ void LldbEngine::requestModuleSymbols(const QString &moduleName)
             symbol.demangled = item["demangled"].data();
             syms.append(symbol);
         }
-        showModuleSymbols(moduleName, syms);
+        showModuleSymbols(moduleName.withNewPath(module), syms);
     };
     runCommand(cmd);
 }

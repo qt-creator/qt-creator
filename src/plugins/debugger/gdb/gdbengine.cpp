@@ -2783,10 +2783,10 @@ static QString dotEscape(QString str)
     return str;
 }
 
-void GdbEngine::loadSymbols(const QString &modulePath)
+void GdbEngine::loadSymbols(const FilePath &modulePath)
 {
     // FIXME: gdb does not understand quoted names here (tested with 6.8)
-    runCommand({"sharedlibrary " + dotEscape(modulePath)});
+    runCommand({"sharedlibrary " + dotEscape(modulePath.path())});
     reloadModulesInternal();
     reloadStack();
     updateLocals();
@@ -2824,7 +2824,7 @@ void GdbEngine::loadSymbolsForStack()
 }
 
 static void handleShowModuleSymbols(const DebuggerResponse &response,
-    const QString &modulePath, const QString &fileName)
+                                    const FilePath &modulePath, const QString &fileName)
 {
     if (response.resultClass == ResultDone) {
         Symbols symbols;
@@ -2883,21 +2883,21 @@ static void handleShowModuleSymbols(const DebuggerResponse &response,
     }
 }
 
-void GdbEngine::requestModuleSymbols(const QString &modulePath)
+void GdbEngine::requestModuleSymbols(const FilePath &modulePath)
 {
-    Utils::TemporaryFile tf("gdbsymbols");
+    TemporaryFile tf("gdbsymbols");
     if (!tf.open())
         return;
     QString fileName = tf.fileName();
     tf.close();
-    DebuggerCommand cmd("maint print msymbols \"" + fileName + "\" " + modulePath, NeedsTemporaryStop);
+    DebuggerCommand cmd("maint print msymbols \"" + fileName + "\" " + modulePath.path(), NeedsTemporaryStop);
     cmd.callback = [modulePath, fileName](const DebuggerResponse &r) {
         handleShowModuleSymbols(r, modulePath, fileName);
     };
     runCommand(cmd);
 }
 
-void GdbEngine::requestModuleSections(const QString &moduleName)
+void GdbEngine::requestModuleSections(const FilePath &moduleName)
 {
     // There seems to be no way to get the symbols from a single .so.
     DebuggerCommand cmd("maint info section ALLOBJ", NeedsTemporaryStop);
@@ -2908,14 +2908,14 @@ void GdbEngine::requestModuleSections(const QString &moduleName)
 }
 
 void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
-                                         const QString &moduleName)
+                                         const FilePath &moduleName)
 {
     // ~"  Object file: /usr/lib/i386-linux-gnu/libffi.so.6\n"
     // ~"    0xb44a6114->0xb44a6138 at 0x00000114: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n"
     if (response.resultClass == ResultDone) {
         const QStringList lines = response.consoleStreamOutput.split('\n');
         const QString prefix = "  Object file: ";
-        const QString needle = prefix + moduleName;
+        const QString needle = prefix + moduleName.path();
         Sections sections;
         bool active = false;
         for (const QString &line : std::as_const(lines)) {

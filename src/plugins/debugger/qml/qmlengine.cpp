@@ -736,7 +736,7 @@ bool QmlEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
     return bp.isQmlFileAndLineBreakpoint();
 }
 
-void QmlEngine::loadSymbols(const QString &moduleName)
+void QmlEngine::loadSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
 }
@@ -759,7 +759,7 @@ void QmlEngine::updateAll()
     d->updateLocals();
 }
 
-void QmlEngine::requestModuleSymbols(const QString &moduleName)
+void QmlEngine::requestModuleSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
 }

@@ -2083,7 +2083,7 @@ void DebuggerEngine::examineModules()
 {
 }
 
-void DebuggerEngine::loadSymbols(const QString &)
+void DebuggerEngine::loadSymbols(const FilePath &)
 {
 }
 
@@ -2095,11 +2095,11 @@ void DebuggerEngine::loadSymbolsForStack()
 {
 }
 
-void DebuggerEngine::requestModuleSymbols(const QString &)
+void DebuggerEngine::requestModuleSymbols(const FilePath &)
 {
 }
 
-void DebuggerEngine::requestModuleSections(const QString &)
+void DebuggerEngine::requestModuleSections(const FilePath &)
 {
 }
 
@@ -2652,7 +2652,7 @@ static void createNewDock(QWidget *widget)
     dockWidget->show();
 }
 
-void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols &symbols)
+void DebuggerEngine::showModuleSymbols(const FilePath &moduleName, const Symbols &symbols)
 {
     auto w = new QTreeWidget;
     w->setUniformRowHeights(true);
@@ -2660,7 +2660,7 @@ void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols 
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
-    w->setObjectName("Symbols." + moduleName);
+    w->setObjectName("Symbols." + moduleName.toFSPathString());
     QStringList header;
     header.append(Tr::tr("Symbol"));
     header.append(Tr::tr("Address"));
@@ -2668,7 +2668,7 @@ void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols 
     header.append(Tr::tr("Section"));
     header.append(Tr::tr("Name"));
     w->setHeaderLabels(header);
-    w->setWindowTitle(Tr::tr("Symbols in \"%1\"").arg(moduleName));
+    w->setWindowTitle(Tr::tr("Symbols in \"%1\"").arg(moduleName.toUserOutput()));
     for (const Symbol &s : symbols) {
         auto it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);
@@ -2681,7 +2681,7 @@ void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols 
     createNewDock(w);
 }
 
-void DebuggerEngine::showModuleSections(const QString &moduleName, const Sections &sections)
+void DebuggerEngine::showModuleSections(const FilePath &moduleName, const Sections &sections)
 {
     auto w = new QTreeWidget;
     w->setUniformRowHeights(true);
@@ -2689,7 +2689,7 @@ void DebuggerEngine::showModuleSections(const QString &moduleName, const Section
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
-    w->setObjectName("Sections." + moduleName);
+    w->setObjectName("Sections." + moduleName.toFSPathString());
     QStringList header;
     header.append(Tr::tr("Name"));
     header.append(Tr::tr("From"));
@@ -2697,7 +2697,7 @@ void DebuggerEngine::showModuleSections(const QString &moduleName, const Section
     header.append(Tr::tr("Address"));
     header.append(Tr::tr("Flags"));
     w->setHeaderLabels(header);
-    w->setWindowTitle(Tr::tr("Sections in \"%1\"").arg(moduleName));
+    w->setWindowTitle(Tr::tr("Sections in \"%1\"").arg(moduleName.toUserOutput()));
     for (const Section &s : sections) {
         auto it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);

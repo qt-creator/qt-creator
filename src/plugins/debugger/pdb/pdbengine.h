@@ -52,9 +52,9 @@ private:
         const QString &expr, const QVariant &value) override;
     void executeDebuggerCommand(const QString &command) override;
 
-    void loadSymbols(const QString &moduleName) override;
+    void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
-    void requestModuleSymbols(const QString &moduleName) override;
+    void requestModuleSymbols(const Utils::FilePath &moduleName) override;
     void reloadModules() override;
     void reloadRegisters() override {}
     void reloadSourceFiles() override {}

@@ -303,11 +303,11 @@ public:
 
     virtual void reloadModules();
     virtual void examineModules();
-    virtual void loadSymbols(const QString &moduleName);
+    virtual void loadSymbols(const Utils::FilePath &moduleName);
     virtual void loadSymbolsForStack();
     virtual void loadAllSymbols();
-    virtual void requestModuleSymbols(const QString &moduleName);
-    virtual void requestModuleSections(const QString &moduleName);
+    virtual void requestModuleSymbols(const Utils::FilePath &moduleName);
+    virtual void requestModuleSections(const Utils::FilePath &moduleName);
 
     virtual void reloadRegisters();
     virtual void reloadPeripheralRegisters();
@@ -452,8 +452,8 @@ public:
 
     void openMemoryEditor();
 
-    static void showModuleSymbols(const QString &moduleName, const QVector<Symbol> &symbols);
-    static void showModuleSections(const QString &moduleName, const QVector<Section> &sections);
+    static void showModuleSymbols(const Utils::FilePath &moduleName, const QVector<Symbol> &symbols);
+    static void showModuleSections(const Utils::FilePath &moduleName, const QVector<Section> &sections);
 
     void handleExecDetach();
     void handleExecContinue();

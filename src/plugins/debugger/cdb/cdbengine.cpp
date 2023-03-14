@@ -1441,15 +1441,16 @@ void CdbEngine::reloadModules()
     runCommand({"modules", ExtensionCommand, CB(handleModules)});
 }
 
-void CdbEngine::loadSymbols(const QString & /* moduleName */)
+void CdbEngine::loadSymbols(const FilePath &moduleName)
 {
+    Q_UNUSED(moduleName)
 }
 
 void CdbEngine::loadAllSymbols()
 {
 }
 
-void CdbEngine::requestModuleSymbols(const QString &moduleName)
+void CdbEngine::requestModuleSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
 }

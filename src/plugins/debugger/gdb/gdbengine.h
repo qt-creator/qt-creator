@@ -216,17 +216,17 @@ private: ////////// General Interface //////////
     //
     // Modules specific stuff
     //
-    void loadSymbols(const QString &moduleName) final;
+    void loadSymbols(const Utils::FilePath &moduleName) final;
     void loadAllSymbols() final;
     void loadSymbolsForStack() final;
-    void requestModuleSymbols(const QString &moduleName) final;
-    void requestModuleSections(const QString &moduleName) final;
+    void requestModuleSymbols(const Utils::FilePath &moduleName) final;
+    void requestModuleSections(const Utils::FilePath &moduleName) final;
     void reloadModules() final;
     void examineModules() final;
 
     void reloadModulesInternal();
     void handleModulesList(const DebuggerResponse &response);
-    void handleShowModuleSections(const DebuggerResponse &response, const QString &moduleName);
+    void handleShowModuleSections(const DebuggerResponse &response, const Utils::FilePath &moduleName);
 
     //
     // Snapshot specific stuff
