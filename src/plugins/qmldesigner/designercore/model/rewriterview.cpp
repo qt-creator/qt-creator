@@ -703,6 +703,12 @@ void RewriterView::setPossibleImportsEnabled(bool b)
     m_possibleImportsEnabled = b;
 }
 
+void RewriterView::forceAmend()
+{
+    m_amendTimer.stop();
+    amendQmlText();
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.data();

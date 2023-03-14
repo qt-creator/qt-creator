@@ -700,16 +700,20 @@ ModelNode DesignDocument::rootModelNode() const
 
 void DesignDocument::undo()
 {
-    if (rewriterView() && !rewriterView()->modificationGroupActive())
+    if (rewriterView() && !rewriterView()->modificationGroupActive()) {
         plainTextEdit()->undo();
+        rewriterView()->forceAmend();
+    }
 
     viewManager().resetPropertyEditorView();
 }
 
 void DesignDocument::redo()
 {
-    if (rewriterView() && !rewriterView()->modificationGroupActive())
+    if (rewriterView() && !rewriterView()->modificationGroupActive()) {
         plainTextEdit()->redo();
+        rewriterView()->forceAmend();
+    }
 
     viewManager().resetPropertyEditorView();
 }
