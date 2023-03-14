@@ -2006,6 +2006,7 @@ bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QStri
             } else {
                 simpleName = oo.prettyName(name);
                 *className = simpleName;
+                classesFilter->prepareSearch(*className);
                 *matches = classesFilter->matchesFor(dummy, *className);
                 if (matches->empty()) {
                     if (const Name *name = qualifiedName->base()) {
@@ -2022,8 +2023,10 @@ bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QStri
             *className = oo.prettyName(name);
         }
 
-        if (matches->empty())
+        if (matches->empty()) {
+            classesFilter->prepareSearch(*className);
             *matches = classesFilter->matchesFor(dummy, *className);
+        }
         if (matches->empty() && !simpleName.isEmpty())
             *className = simpleName;
     }
