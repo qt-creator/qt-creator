@@ -643,12 +643,13 @@ void LldbEngine::reloadModules()
 {
     DebuggerCommand cmd("fetchModules");
     cmd.callback = [this](const DebuggerResponse &response) {
+        const FilePath inferior = runParameters().inferior.command.executable();
         const GdbMi &modules = response.data["modules"];
         ModulesHandler *handler = modulesHandler();
         handler->beginUpdateAll();
         for (const GdbMi &item : modules) {
             Module module;
-            module.modulePath = item["file"].data();
+            module.modulePath = inferior.withNewPath(item["file"].data());
             module.moduleName = item["name"].data();
             module.symbolsRead = Module::UnknownReadState;
             module.startAddress = item["loaded_addr"].toAddress();

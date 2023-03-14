@@ -470,7 +470,8 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         module.startAddress = 0;
         module.endAddress = 0;
         module.hostPath = result["host-name"].data();
-        module.modulePath = result["target-name"].data();
+        const QString target = result["target-name"].data();
+        module.modulePath = runParameters().inferior.command.executable().withNewPath(target);
         module.moduleName = QFileInfo(module.hostPath).baseName();
         modulesHandler()->updateModule(module);
     } else if (asyncClass == u"library-unloaded") {
@@ -478,7 +479,8 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         // target-name="/usr/lib/libdrm.so.2",
         // host-name="/usr/lib/libdrm.so.2"
         QString id = result["id"].data();
-        modulesHandler()->removeModule(result["target-name"].data());
+        const QString target = result["target-name"].data();
+        modulesHandler()->removeModule(runParameters().inferior.command.executable().withNewPath(target));
         progressPing();
         showStatusMessage(Tr::tr("Library %1 unloaded.").arg(id), 1000);
     } else if (asyncClass == u"thread-group-added") {
@@ -2811,7 +2813,7 @@ void GdbEngine::loadSymbolsForStack()
             for (const Module &module : modules) {
                 if (module.startAddress <= frame.address
                         && frame.address < module.endAddress) {
-                    runCommand({"sharedlibrary " + dotEscape(module.modulePath)});
+                    runCommand({"sharedlibrary " + dotEscape(module.modulePath.path())});
                     needUpdate = true;
                 }
             }
@@ -2956,11 +2958,6 @@ void GdbEngine::reloadModulesInternal()
     runCommand({"info shared", NeedsTemporaryStop, CB(handleModulesList)});
 }
 
-static QString nameFromPath(const QString &path)
-{
-    return QFileInfo(path).baseName();
-}
-
 void GdbEngine::handleModulesList(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
@@ -2971,14 +2968,15 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
         QString data = response.consoleStreamOutput;
         QTextStream ts(&data, QIODevice::ReadOnly);
         bool found = false;
+        const FilePath inferior = runParameters().inferior.command.executable();
         while (!ts.atEnd()) {
             QString line = ts.readLine();
             QString symbolsRead;
             QTextStream ts(&line, QIODevice::ReadOnly);
             if (line.startsWith("0x")) {
                 ts >> module.startAddress >> module.endAddress >> symbolsRead;
-                module.modulePath = ts.readLine().trimmed();
-                module.moduleName = nameFromPath(module.modulePath);
+                module.modulePath = inferior.withNewPath(ts.readLine().trimmed());
+                module.moduleName = module.modulePath.baseName();
                 module.symbolsRead =
                     (symbolsRead == "Yes" ? Module::ReadOk : Module::ReadFailed);
                 handler->updateModule(module);
@@ -2989,8 +2987,8 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
                 QTC_ASSERT(symbolsRead == "No", continue);
                 module.startAddress = 0;
                 module.endAddress = 0;
-                module.modulePath = ts.readLine().trimmed();
-                module.moduleName = nameFromPath(module.modulePath);
+                module.modulePath = inferior.withNewPath(ts.readLine().trimmed());
+                module.moduleName = module.modulePath.baseName();
                 handler->updateModule(module);
                 found = true;
             }
@@ -3002,8 +3000,8 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
             // loaded_addr="0x8fe00000",slide="0x0",prefix="__dyld_"},
             // shlib-info={...}...
             for (const GdbMi &item : response.data) {
-                module.modulePath = item["path"].data();
-                module.moduleName = nameFromPath(module.modulePath);
+                module.modulePath = inferior.withNewPath(item["path"].data());
+                module.moduleName = module.modulePath.baseName();
                 module.symbolsRead = (item["state"].data() == "Y")
                         ? Module::ReadOk : Module::ReadFailed;
                 module.startAddress =
@@ -3922,7 +3920,7 @@ void GdbEngine::handleGdbStarted()
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = rp.inferior.command.executable().toString();
+    module.modulePath = rp.inferior.command.executable();
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 

@@ -1488,12 +1488,13 @@ void CdbEngine::handleModules(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
         if (response.data.type() == GdbMi::List) {
+            const FilePath inferior = runParameters().inferior.command.executable();
             ModulesHandler *handler = modulesHandler();
             handler->beginUpdateAll();
             for (const GdbMi &gdbmiModule : response.data) {
                 Module module;
                 module.moduleName = gdbmiModule["name"].data();
-                module.modulePath = gdbmiModule["image"].data();
+                module.modulePath = inferior.withNewPath(gdbmiModule["image"].data());
                 module.startAddress = gdbmiModule["start"].data().toULongLong(nullptr, 0);
                 module.endAddress = gdbmiModule["end"].data().toULongLong(nullptr, 0);
                 if (gdbmiModule["deferred"].type() == GdbMi::Invalid)

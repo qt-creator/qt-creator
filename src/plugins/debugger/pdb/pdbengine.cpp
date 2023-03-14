@@ -294,7 +294,7 @@ void PdbEngine::refreshModules(const GdbMi &modules)
                 && path.endsWith("' (built-in)>")) {
             path = "(builtin)";
         }
-        module.modulePath = path;
+        module.modulePath = FilePath::fromString(path);
         handler->updateModule(module);
     }
     handler->endUpdateAll();
