@@ -161,7 +161,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     addAction(this, menu, Tr::tr("Show Source Files for Module \"%1\"").arg(moduleName),
               Tr::tr("Show Source Files for Module"),
               moduleNameValid && enabled && canReload,
-              [this, modulePath] { engine->loadSymbols(modulePath); });
+              [this, modulePath] { engine->loadSymbols(FilePath::fromUserInput(modulePath)); });
 
     // FIXME: Dependencies only available on Windows, when "depends" is installed.
     addAction(this, menu, Tr::tr("Show Dependencies of \"%1\"").arg(moduleName),
@@ -180,7 +180,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     addAction(this, menu, Tr::tr("Load Symbols for Module \"%1\"").arg(moduleName),
               Tr::tr("Load Symbols for Module"),
               moduleNameValid && canLoadSymbols,
-              [this, modulePath] { engine->loadSymbols(modulePath); });
+              [this, modulePath] { engine->loadSymbols(FilePath::fromUserInput(modulePath)); });
 
     addAction(this, menu, Tr::tr("Edit File \"%1\"").arg(moduleName),
               Tr::tr("Edit File"),
@@ -190,12 +190,12 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     addAction(this, menu, Tr::tr("Show Symbols in File \"%1\"").arg(moduleName),
               Tr::tr("Show Symbols"),
               canShowSymbols && moduleNameValid,
-              [this, modulePath] { engine->requestModuleSymbols(modulePath); });
+              [this, modulePath] { engine->requestModuleSymbols(FilePath::fromUserInput(modulePath)); });
 
     addAction(this, menu, Tr::tr("Show Sections in File \"%1\"").arg(moduleName),
               Tr::tr("Show Sections"),
               canShowSymbols && moduleNameValid,
-              [this, modulePath] { engine->requestModuleSections(modulePath); });
+              [this, modulePath] { engine->requestModuleSections(FilePath::fromUserInput(modulePath)); });
 
     menu->addAction(debuggerSettings()->settingsDialog.action());
 
