@@ -368,8 +368,11 @@ void ToolBarBackend::updateDocumentModel()
 
 int ToolBarBackend::documentIndex() const
 {
-    if (Core::EditorManager::currentDocument())
-        return Core::DocumentModel::indexOfDocument(Core::EditorManager::currentDocument()).value();
+    if (Core::EditorManager::currentDocument()) {
+        std::optional index = Core::DocumentModel::indexOfDocument(
+            Core::EditorManager::currentDocument());
+        return index.value_or(-1);
+    }
 
     return -1;
 }
