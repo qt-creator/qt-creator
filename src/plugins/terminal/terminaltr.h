@@ -9,7 +9,7 @@ namespace Terminal {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Terminal)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Terminal)
 };
 
 } // namespace Terminal

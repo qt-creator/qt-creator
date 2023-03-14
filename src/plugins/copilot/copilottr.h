@@ -9,7 +9,7 @@ namespace Copilot {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Copilot)
+    Q_DECLARE_TR_FUNCTIONS(QtC::Copilot)
 };
 
 } // namespace Copilot
