@@ -33,7 +33,7 @@ static QStringList versionSpecificCommandsToTest(int versionNumber)
     return {};
 }
 
-void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration)
+void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &device)
 {
     static const QStringList s_commandsToTest = {"awk",
                                                  "cat",
@@ -52,8 +52,8 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConf
                                                  "sleep",
                                                  "tail",
                                                  "uname"};
-    m_deviceConfiguration = deviceConfiguration;
-    QnxDevice::ConstPtr qnxDevice = m_deviceConfiguration.dynamicCast<const QnxDevice>();
+    m_device = device;
+    QnxDevice::ConstPtr qnxDevice = m_device.dynamicCast<const QnxDevice>();
     m_genericTester->setExtraCommandsToTest(
                 s_commandsToTest + versionSpecificCommandsToTest(qnxDevice->qnxVersion()));
 
@@ -63,7 +63,7 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConf
         emit progressMessage(Tr::tr("Checking that files can be created in %1...")
                 .arg(Constants::QNX_TMP_DIR));
         const QString pidFile = QString("%1/qtc_xxxx.pid").arg(Constants::QNX_TMP_DIR);
-        const CommandLine cmd(m_deviceConfiguration->filePath("/bin/sh"),
+        const CommandLine cmd(m_device->filePath("/bin/sh"),
             {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1").arg(pidFile)});
         process.setCommand(cmd);
     };
@@ -79,7 +79,7 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConf
     };
     m_genericTester->setExtraTests({Process(setupHandler, doneHandler, errorHandler)});
 
-    m_genericTester->testDevice(deviceConfiguration);
+    m_genericTester->testDevice(device);
 }
 
 void QnxDeviceTester::stopTest()
