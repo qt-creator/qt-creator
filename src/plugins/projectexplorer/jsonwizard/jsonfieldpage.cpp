@@ -666,7 +666,6 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
         const QList<LocatorFilterEntry> matches = classesFilter->matchesFor(f, {});
         if (!matches.isEmpty())
             f.reportResults(QVector<LocatorFilterEntry>(matches.cbegin(), matches.cend()));
-        f.reportFinished();
     }));
 }
 
