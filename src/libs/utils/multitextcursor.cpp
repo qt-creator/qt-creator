@@ -90,7 +90,7 @@ bool MultiTextCursor::hasMultipleCursors() const
 
 int MultiTextCursor::cursorCount() const
 {
-    return m_cursors.size();
+    return static_cast<int>(m_cursors.size());
 }
 
 void MultiTextCursor::movePosition(QTextCursor::MoveOperation operation,
