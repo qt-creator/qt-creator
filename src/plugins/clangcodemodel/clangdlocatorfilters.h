@@ -15,7 +15,7 @@ class ClangGlobalSymbolFilter : public Core::ILocatorFilter
 public:
     ClangGlobalSymbolFilter();
     ClangGlobalSymbolFilter(Core::ILocatorFilter *cppFilter,
-                            LanguageClient::WorkspaceLocatorFilter *lspFilter);
+                            Core::ILocatorFilter *lspFilter);
     ~ClangGlobalSymbolFilter() override;
 
 private:
@@ -23,7 +23,7 @@ private:
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     Core::ILocatorFilter * const m_cppFilter;
-    LanguageClient::WorkspaceLocatorFilter * const m_lspFilter;
+    Core::ILocatorFilter * const m_lspFilter;
 };
 
 class ClangClassesFilter : public ClangGlobalSymbolFilter

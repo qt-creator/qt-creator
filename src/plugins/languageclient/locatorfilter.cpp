@@ -216,20 +216,22 @@ WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter
 
 void WorkspaceLocatorFilter::prepareSearch(const QString &entry)
 {
-    prepareSearch(entry, LanguageClientManager::clients(), false);
+    prepareSearchHelper(entry, LanguageClientManager::clients(), false);
 }
 
-void WorkspaceLocatorFilter::prepareSearch(const QString &entry, const QList<Client *> &clients)
+void WorkspaceLocatorFilter::prepareSearchForClients(const QString &entry, const QList<Client *> &clients)
 {
-    prepareSearch(entry, clients, true);
+    prepareSearchHelper(entry, clients, true);
 }
 
-void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
-                                           const QList<Client *> &clients,
-                                           bool force)
+void WorkspaceLocatorFilter::prepareSearchHelper(const QString &entry,
+                                                 const QList<Client *> &clients, bool force)
 {
     m_pendingRequests.clear();
     m_results.clear();
+
+    if (clients.isEmpty())
+        return;
 
     WorkspaceSymbolParams params;
     params.setQuery(entry);

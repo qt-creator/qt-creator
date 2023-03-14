@@ -23,12 +23,24 @@
 using namespace Core;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
 
 const int MaxResultCount = 10000;
+
+static QList<Client *> clientsForOpenProjects()
+{
+    QSet<Client *> clients;
+    const QList<Project *> projects = ProjectManager::projects();
+    for (Project *project : projects) {
+        if (Client *client = ClangModelManagerSupport::clientForProject(project))
+            clients << client;
+    }
+    return clients.values();
+}
 
 class CppLocatorFilter : public CppEditor::CppLocatorFilter
 {
@@ -55,6 +67,10 @@ public:
         setEnabled(false);
         setHidden(true);
         setMaxResultCount(MaxResultCount);
+    }
+    void prepareSearch(const QString &entry) override
+    {
+        prepareSearchForClients(entry, clientsForOpenProjects());
     }
 };
 
@@ -84,6 +100,10 @@ public:
         setHidden(true);
         setMaxResultCount(MaxResultCount);
     }
+    void prepareSearch(const QString &entry) override
+    {
+        prepareSearchForClients(entry, clientsForOpenProjects());
+    }
 };
 
 class CppFunctionsFilter : public CppEditor::CppFunctionsFilter
@@ -112,6 +132,10 @@ public:
         setHidden(true);
         setMaxResultCount(MaxResultCount);
     }
+    void prepareSearch(const QString &entry) override
+    {
+        prepareSearchForClients(entry, clientsForOpenProjects());
+    }
 };
 
 
@@ -121,7 +145,7 @@ ClangGlobalSymbolFilter::ClangGlobalSymbolFilter()
 }
 
 ClangGlobalSymbolFilter::ClangGlobalSymbolFilter(ILocatorFilter *cppFilter,
-                                                 WorkspaceLocatorFilter *lspFilter)
+                                                 ILocatorFilter *lspFilter)
     : m_cppFilter(cppFilter), m_lspFilter(lspFilter)
 {
     setId(CppEditor::Constants::LOCATOR_FILTER_ID);
@@ -139,13 +163,7 @@ ClangGlobalSymbolFilter::~ClangGlobalSymbolFilter()
 void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
 {
     m_cppFilter->prepareSearch(entry);
-    QList<Client *> clients;
-    for (ProjectExplorer::Project * const project : ProjectExplorer::ProjectManager::projects()) {
-        if (Client * const client = ClangModelManagerSupport::clientForProject(project))
-            clients << client;
-    }
-    if (!clients.isEmpty())
-        m_lspFilter->prepareSearch(entry, clients);
+    m_lspFilter->prepareSearch(entry);
 }
 
 QList<LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
