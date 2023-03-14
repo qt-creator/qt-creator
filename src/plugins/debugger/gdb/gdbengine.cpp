@@ -4853,7 +4853,7 @@ void GdbEngine::handleTargetQnx(const DebuggerResponse &response)
         if (rp.attachPID.isValid())
             runCommand({"attach " + QString::number(rp.attachPID.pid()), CB(handleRemoteAttach)});
         else if (!rp.inferior.command.isEmpty())
-            runCommand({"set nto-executable " + rp.inferior.command.executable().toString(),
+            runCommand({"set nto-executable " + rp.inferior.command.executable().path(),
                         CB(handleSetNtoExecutable)});
         else
             handleInferiorPrepared();
