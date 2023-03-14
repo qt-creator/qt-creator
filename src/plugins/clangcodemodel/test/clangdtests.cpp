@@ -1280,6 +1280,9 @@ void ClangdTestHighlighting::test_data()
                                                     << QList<int>{C_FIELD} << 0;
     QTest::newRow("fake operator method call") << 1050 << 8 << 1050 << 22
                                                << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("concept definition") << 1053 << 30 << 1053 << 42
+                                               << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("concept use") << 1054 << 29 << 1054 << 41 << QList<int>{C_TYPE} << 0;
 }
 
 void ClangdTestHighlighting::test()
