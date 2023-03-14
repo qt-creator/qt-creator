@@ -23,8 +23,6 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
-const char QnxVersionKey[] = "QnxVersion";
-
 static QString signalProcessByNameQnxCommandLine(const QString &filePath, int sig)
 {
     QString executable = filePath;
@@ -63,46 +61,6 @@ QnxDevice::QnxDevice()
         QnxDeployQtLibrariesDialog dialog(device, parent);
         dialog.exec();
     }});
-}
-
-int QnxDevice::qnxVersion() const
-{
-    if (m_versionNumber == 0)
-        updateVersionNumber();
-
-    return m_versionNumber;
-}
-
-void QnxDevice::updateVersionNumber() const
-{
-    QtcProcess versionNumberProcess;
-
-    versionNumberProcess.setCommand({filePath("uname"), {"-r"}});
-    versionNumberProcess.runBlocking(EventLoopMode::On);
-
-    QByteArray output = versionNumberProcess.readAllRawStandardOutput();
-    QString versionMessage = QString::fromLatin1(output);
-    const QRegularExpression versionNumberRegExp("(\\d+)\\.(\\d+)\\.(\\d+)");
-    const QRegularExpressionMatch match = versionNumberRegExp.match(versionMessage);
-    if (match.hasMatch()) {
-        int major = match.captured(1).toInt();
-        int minor = match.captured(2).toInt();
-        int patch = match.captured(3).toInt();
-        m_versionNumber = (major << 16)|(minor<<8)|(patch);
-    }
-}
-
-void QnxDevice::fromMap(const QVariantMap &map)
-{
-    m_versionNumber = map.value(QLatin1String(QnxVersionKey), 0).toInt();
-    LinuxDevice::fromMap(map);
-}
-
-QVariantMap QnxDevice::toMap() const
-{
-    QVariantMap map(LinuxDevice::toMap());
-    map.insert(QLatin1String(QnxVersionKey), m_versionNumber);
-    return map;
 }
 
 PortsGatheringMethod QnxDevice::portsGatheringMethod() const

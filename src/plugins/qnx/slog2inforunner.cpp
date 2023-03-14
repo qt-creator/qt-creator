@@ -3,9 +3,9 @@
 
 #include "slog2inforunner.h"
 
-#include "qnxdevice.h"
 #include "qnxtr.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/qtcassert.h>
@@ -41,11 +41,8 @@ void Slog2InfoRunner::start()
         m_found = true;
     };
     const auto testErrorHandler = [this](const QtcProcess &) {
-        QnxDevice::ConstPtr qnxDevice = device().dynamicCast<const QnxDevice>();
-        if (qnxDevice && qnxDevice->qnxVersion() > 0x060500) {
-            appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
-                                 "debug output not available."), ErrorMessageFormat);
-        }
+        appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
+                             "debug output not available."), ErrorMessageFormat);
     };
 
     const auto launchTimeStartHandler = [this](QtcProcess &process) {

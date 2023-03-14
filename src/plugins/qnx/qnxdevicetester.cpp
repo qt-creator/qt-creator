@@ -4,7 +4,6 @@
 #include "qnxdevicetester.h"
 
 #include "qnxconstants.h"
-#include "qnxdevice.h"
 #include "qnxtr.h"
 
 #include <utils/qtcassert.h>
@@ -20,7 +19,7 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
 
 void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &device)
 {
-    QStringList commandsToTest = {
+    static const QStringList commandsToTest {
         "awk",
         "cat",
         "cut",
@@ -37,14 +36,9 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &device)
         "sed",
         "sleep",
         "tail",
-        "uname"
+        "uname",
+        "slog2info"
     };
-
-    QnxDevice::ConstPtr qnxDevice = device.dynamicCast<const QnxDevice>();
-    QTC_ASSERT(qnxDevice, return);
-
-    if (qnxDevice->qnxVersion() > 0x060500)
-        commandsToTest.append("slog2info");
 
     setExtraCommandsToTest(commandsToTest);
 

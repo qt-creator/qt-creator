@@ -20,20 +20,11 @@ public:
 
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
 
-    int qnxVersion() const;
-
 private:
     QnxDevice();
 
-    void fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
-
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;
-
-    void updateVersionNumber() const;
-
-    mutable int m_versionNumber = 0;
 };
 
 class QnxDeviceFactory final : public ProjectExplorer::IDeviceFactory
