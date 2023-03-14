@@ -555,6 +555,7 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     templateRewriterView->setTextModifier(&textModifierTemplate);
     templateModel->attachView(templateRewriterView.data());
     templateRewriterView->setCheckSemanticErrors(false);
+    templateRewriterView->setPossibleImportsEnabled(false);
 
     ModelNode templateRootNode = templateRewriterView->rootModelNode();
     QTC_ASSERT(templateRootNode.isValid(), return );
