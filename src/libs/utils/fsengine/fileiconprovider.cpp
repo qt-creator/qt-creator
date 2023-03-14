@@ -216,46 +216,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 {
     qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
 
-    if (filePath.isEmpty())
-        return unknownFileIcon();
-
-    // Check if its one of the virtual devices directories
-    if (filePath.path().startsWith(FilePath::specialRootPath())) {
-        // If the filepath does not need a device, it is a virtual device directory
-        if (!filePath.needsDevice())
-            return dirIcon();
-    }
-
-    bool isDir = filePath.isDir();
-
-    // Check for cached overlay icons by file suffix.
-    const QString filename = !isDir ? filePath.fileName() : QString();
-    if (!filename.isEmpty()) {
-        const std::optional<QIcon> icon = getIcon(m_filenameCache, filename);
-        if (icon)
-            return *icon;
-    }
-
-    const QString suffix = !isDir ? filePath.suffix() : QString();
-    if (!suffix.isEmpty()) {
-        const std::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
-        if (icon)
-            return *icon;
-    }
-
-    if (filePath.needsDevice())
-        return isDir ? dirIcon() : unknownFileIcon();
-
-    // Get icon from OS (and cache it based on suffix!)
-    QIcon icon;
-    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
-        icon = QFileIconProvider::icon(filePath.toFileInfo());
-    else // File icons are unknown on linux systems.
-        icon = isDir ? QFileIconProvider::icon(filePath.toFileInfo()) : unknownFileIcon();
-
-    if (!isDir && !suffix.isEmpty())
-        m_suffixCache.insert(suffix, icon);
-    return icon;
+    return icon(QFileInfo(filePath.toFSPathString()));
 }
 
 /*!
