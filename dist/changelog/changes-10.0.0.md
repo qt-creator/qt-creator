@@ -173,9 +173,10 @@ Version Control Systems
 ### Git
 
 * Improved tracking of external changes (QTCREATORBUG-21089)
-* Added editor annotation for blame information (instant blame) with a setting
-  (opt-out) and an action to show it manually for the current line
-  (QTCREATORBUG-23299)
+* Added editor annotation for blame information (instant blame) with the setting
+  `Edit > Preferences > Version Control Git > Add instant blame annotations to
+  editor` (opt-out) and the `Tools > Git > Current File > Instant Blame` action
+  to show annotation manually for the current line (QTCREATORBUG-23299)
 
 Test Integration
 ----------------
@@ -183,7 +184,8 @@ Test Integration
 * Improved `Run` and `Debug Test Under Cursor` (QTCREATORBUG-28496)
 * Improved the number of files that are scanned for tests
 * Improved output handling (QTCREATORBUG-28706)
-* Made the expensive checking for tests in derived `TestCase` objects optional
+* Added an option to enable the expensive checking for tests in derived
+  `TestCase` objects to `Edit > Preferences > Testing > Qt Test`
 
 Platforms
 ---------
