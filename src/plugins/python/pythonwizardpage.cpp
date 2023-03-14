@@ -80,11 +80,6 @@ bool PythonWizardPageFactory::validateData(Id typeId, const QVariant &data, QStr
         return false;
     }
     return true;
-
-
-    if (!items.isEmpty() && Utils::allOf(items, &validItem))
-        return true;
-
 }
 
 PythonWizardPage::PythonWizardPage()
