@@ -9,8 +9,6 @@
 #include <QMultiMap>
 #include <QUrl>
 
-#include <atomic>
-
 namespace Help {
 namespace Internal {
 
@@ -20,28 +18,23 @@ class HelpIndexFilter final : public Core::ILocatorFilter
 
 public:
     HelpIndexFilter();
-    ~HelpIndexFilter() final;
 
-    // ILocatorFilter
+    void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(const Core::LocatorFilterEntry &selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
 
-    QStringList allIndices() const;
-
 signals:
     void linksActivated(const QMultiMap<QString, QUrl> &links, const QString &key) const;
 
 private:
-    bool updateCache(QFutureInterface<Core::LocatorFilterEntry> &future,
-                     const QStringList &cache, const QString &entry);
     void invalidateCache();
 
     QStringList m_allIndicesCache;
     QStringList m_lastIndicesCache;
     QString m_lastEntry;
-    std::atomic_bool m_needsUpdate = true;
+    bool m_needsUpdate = true;
     QIcon m_icon;
 };
 

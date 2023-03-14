@@ -16,7 +16,6 @@
 #include <QHelpEngine>
 #include <QHelpFilterEngine>
 #include <QHelpLink>
-#include <QIcon>
 
 using namespace Core;
 using namespace Help;
@@ -41,11 +40,25 @@ HelpIndexFilter::HelpIndexFilter()
             this, &HelpIndexFilter::invalidateCache);
 }
 
-HelpIndexFilter::~HelpIndexFilter() = default;
-
-bool HelpIndexFilter::updateCache(QFutureInterface<LocatorFilterEntry> &future,
-                                  const QStringList &cache, const QString &entry)
+void HelpIndexFilter::prepareSearch(const QString &entry)
 {
+    Q_UNUSED(entry)
+    if (!m_needsUpdate)
+        return;
+
+    m_needsUpdate = false;
+    LocalHelpManager::setupGuiHelpEngine();
+    m_allIndicesCache = LocalHelpManager::filterEngine()->indices({});
+    m_lastIndicesCache.clear();
+    m_lastEntry.clear();
+}
+
+QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                                      const QString &entry)
+{
+    const QStringList cache = m_lastEntry.isEmpty() || !entry.contains(m_lastEntry)
+                                  ? m_allIndicesCache : m_lastIndicesCache;
+
     const Qt::CaseSensitivity cs = caseSensitivity(entry);
     QStringList bestKeywords;
     QStringList worseKeywords;
@@ -53,38 +66,15 @@ bool HelpIndexFilter::updateCache(QFutureInterface<LocatorFilterEntry> &future,
     worseKeywords.reserve(cache.size());
     for (const QString &keyword : cache) {
         if (future.isCanceled())
-            return false;
+            return {};
         if (keyword.startsWith(entry, cs))
             bestKeywords.append(keyword);
         else if (keyword.contains(entry, cs))
             worseKeywords.append(keyword);
     }
-    bestKeywords << worseKeywords;
-    m_lastIndicesCache = bestKeywords;
+    m_lastIndicesCache = bestKeywords + worseKeywords;
     m_lastEntry = entry;
 
-    return true;
-}
-
-QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
-{
-    if (m_needsUpdate.exchange(false)) {
-        QStringList indices;
-        QMetaObject::invokeMethod(this, [this] { return allIndices(); },
-                                  Qt::BlockingQueuedConnection, &indices);
-        m_allIndicesCache = indices;
-        // force updating the cache taking the m_allIndicesCache
-        m_lastIndicesCache = QStringList();
-        m_lastEntry = QString();
-    }
-
-    const QStringList cacheBase = m_lastEntry.isEmpty() || !entry.contains(m_lastEntry)
-            ? m_allIndicesCache : m_lastIndicesCache;
-
-    if (!updateCache(future, cacheBase, entry))
-        return QList<LocatorFilterEntry>();
-
-    const Qt::CaseSensitivity cs = caseSensitivity(entry);
     QList<LocatorFilterEntry> entries;
     for (const QString &keyword : std::as_const(m_lastIndicesCache)) {
         const int index = keyword.indexOf(entry, 0, cs);
@@ -92,7 +82,6 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
         filterEntry.highlightInfo = {index, int(entry.length())};
         entries.append(filterEntry);
     }
-
     return entries;
 }
 
@@ -105,12 +94,6 @@ void HelpIndexFilter::accept(const LocatorFilterEntry &selection,
     const QString &key = selection.displayName;
     const QMultiMap<QString, QUrl> links = LocalHelpManager::linksForKeyword(key);
     emit linksActivated(links, key);
-}
-
-QStringList HelpIndexFilter::allIndices() const
-{
-    LocalHelpManager::setupGuiHelpEngine();
-    return LocalHelpManager::filterEngine()->indices(QString());
 }
 
 void HelpIndexFilter::invalidateCache()
