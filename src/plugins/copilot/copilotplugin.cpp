@@ -6,9 +6,11 @@
 #include "copilotclient.h"
 #include "copilotoptionspage.h"
 #include "copilotsettings.h"
+#include "copilottr.h"
 
-#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
 #include <languageclient/languageclientmanager.h>
 
@@ -30,6 +32,18 @@ void CopilotPlugin::initialize()
             &CopilotSettings::applied,
             this,
             &CopilotPlugin::restartClient);
+
+    QAction *action = new QAction(this);
+    action->setText(Tr::tr("Request Copilot Suggestion"));
+    action->setToolTip(Tr::tr("Request Copilot Suggestion at the current editors cursor position."));
+
+    QObject::connect(action, &QAction::triggered, this, [this] {
+        if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
+            if (m_client->reachable())
+                m_client->requestCompletions(editor);
+        }
+    });
+    ActionManager::registerAction(action, "Copilot.RequestSuggestion");
 }
 
 void CopilotPlugin::extensionsInitialized()

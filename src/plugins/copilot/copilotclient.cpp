@@ -99,7 +99,10 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
     if (!m_scheduledRequests.contains(editor)) {
         auto timer = new QTimer(this);
         timer->setSingleShot(true);
-        connect(timer, &QTimer::timeout, this, [this, editor]() { requestCompletions(editor); });
+        connect(timer, &QTimer::timeout, this, [this, editor]() {
+            if (m_scheduledRequests[editor].cursorPosition == editor->textCursor().position())
+                requestCompletions(editor);
+        });
         connect(editor, &TextEditorWidget::destroyed, this, [this, editor]() {
             m_scheduledRequests.remove(editor);
             cancelRunningRequest(editor);
@@ -118,9 +121,6 @@ void CopilotClient::requestCompletions(TextEditorWidget *editor)
 {
     Utils::MultiTextCursor cursor = editor->multiTextCursor();
     if (cursor.hasMultipleCursors() || cursor.hasSelection())
-        return;
-
-    if (m_scheduledRequests[editor].cursorPosition != cursor.mainCursor().position())
         return;
 
     const Utils::FilePath filePath = editor->textDocument()->filePath();
