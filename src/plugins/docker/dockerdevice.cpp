@@ -304,7 +304,7 @@ void DockerProcessImpl::start()
                                              m_setup.m_workingDirectory,
                                              interactive,
                                              true,
-                                             m_setup.m_terminalMode == TerminalMode::Pty);
+                                             m_setup.m_ptyData.has_value());
 
     m_process.setCommand(fullCommandLine);
     m_process.start();

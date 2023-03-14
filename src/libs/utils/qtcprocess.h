@@ -77,8 +77,8 @@ public:
 
     void setProcessImpl(ProcessImpl processImpl);
 
-    void setPtyData(const Pty::Data &data);
-    Pty::Data ptyData() const;
+    void setPtyData(const std::optional<Pty::Data> &data);
+    std::optional<Pty::Data> ptyData() const;
 
     void setTerminalMode(TerminalMode mode);
     TerminalMode terminalMode() const;

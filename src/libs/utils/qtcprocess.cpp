@@ -310,7 +310,7 @@ private:
 class PtyProcessImpl final : public DefaultImpl
 {
 public:
-    ~PtyProcessImpl() { m_setup.m_ptyData.setResizeHandler({}); }
+    ~PtyProcessImpl() { QTC_CHECK(m_setup.m_ptyData); m_setup.m_ptyData->setResizeHandler({}); }
 
     qint64 write(const QByteArray &data) final
     {
@@ -338,7 +338,8 @@ public:
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
-        m_setup.m_ptyData.setResizeHandler([this](const QSize &size) {
+        QTC_CHECK(m_setup.m_ptyData);
+        m_setup.m_ptyData->setResizeHandler([this](const QSize &size) {
             if (m_ptyProcess)
                 m_ptyProcess->resize(size.width(), size.height());
         });
@@ -357,8 +358,8 @@ public:
                                          arguments,
                                          m_setup.m_workingDirectory.path(),
                                          m_setup.m_environment.toProcessEnvironment().toStringList(),
-                                         m_setup.m_ptyData.size().width(),
-                                         m_setup.m_ptyData.size().height());
+                                         m_setup.m_ptyData->size().width(),
+                                         m_setup.m_ptyData->size().height());
 
         if (!startResult) {
             const ProcessResultData result = {-1,
@@ -725,16 +726,16 @@ public:
 
     ProcessInterface *createProcessInterface()
     {
-        if (m_setup.m_terminalMode == TerminalMode::Pty)
-            return new PtyProcessImpl();
+        if (m_setup.m_ptyData)
+            return new PtyProcessImpl;
         if (m_setup.m_terminalMode != TerminalMode::Off)
             return Terminal::Hooks::instance().createTerminalProcessInterfaceHook()();
 
         const ProcessImpl impl = m_setup.m_processImpl == ProcessImpl::Default
                                ? defaultProcessImpl() : m_setup.m_processImpl;
         if (impl == ProcessImpl::QProcess)
-            return new QProcessImpl();
-        return new ProcessLauncherImpl();
+            return new QProcessImpl;
+        return new ProcessLauncherImpl;
     }
 
     void setProcessInterface(ProcessInterface *process)
@@ -1123,12 +1124,12 @@ void QtcProcess::setProcessImpl(ProcessImpl processImpl)
     d->m_setup.m_processImpl = processImpl;
 }
 
-void QtcProcess::setPtyData(const Pty::Data &data)
+void QtcProcess::setPtyData(const std::optional<Pty::Data> &data)
 {
     d->m_setup.m_ptyData = data;
 }
 
-Pty::Data QtcProcess::ptyData() const
+std::optional<Pty::Data> QtcProcess::ptyData() const
 {
     return d->m_setup.m_ptyData;
 }

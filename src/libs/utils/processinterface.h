@@ -50,7 +50,7 @@ public:
     ProcessMode m_processMode = ProcessMode::Reader;
     TerminalMode m_terminalMode = TerminalMode::Off;
 
-    Pty::Data m_ptyData;
+    std::optional<Pty::Data> m_ptyData;
     CommandLine m_commandLine;
     FilePath m_workingDirectory;
     Environment m_environment;

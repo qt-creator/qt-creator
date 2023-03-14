@@ -535,7 +535,7 @@ QString LinuxProcessInterface::fullCommandLine(const CommandLine &commandLine) c
         cmd.addArgs("&&", CommandLine::Raw);
     }
 
-    if (m_setup.m_terminalMode == TerminalMode::Off)
+    if (m_setup.m_terminalMode == TerminalMode::Off && !m_setup.m_ptyData)
         cmd.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
 
     const Environment &env = m_setup.m_environment;
@@ -543,7 +543,7 @@ QString LinuxProcessInterface::fullCommandLine(const CommandLine &commandLine) c
         cmd.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
     });
 
-    if (m_setup.m_terminalMode == TerminalMode::Off)
+    if (m_setup.m_terminalMode == TerminalMode::Off && !m_setup.m_ptyData)
         cmd.addArg("exec");
 
     if (!commandLine.isEmpty())
@@ -555,7 +555,7 @@ void LinuxProcessInterface::handleStarted(qint64 processId)
 {
     // Don't emit started() when terminal is off,
     // it's being done later inside handleReadyReadStandardOutput().
-    if (m_setup.m_terminalMode == TerminalMode::Off)
+    if (m_setup.m_terminalMode == TerminalMode::Off && !m_setup.m_ptyData)
         return;
 
     m_pidParsed = true;
@@ -740,7 +740,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 
     if (!m_sshParameters.x11DisplayName.isEmpty())
         cmd.addArg("-X");
-    if (q->m_setup.m_terminalMode != TerminalMode::Off)
+    if (q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData)
         cmd.addArg("-tt");
 
     cmd.addArg("-q");

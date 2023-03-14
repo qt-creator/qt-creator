@@ -126,7 +126,7 @@ void TerminalWidget::setupPty()
         env.unset("CLINK_NOAUTORUN");
 
     m_process->setProcessMode(ProcessMode::Writer);
-    m_process->setTerminalMode(TerminalMode::Pty);
+    m_process->setPtyData(Utils::Pty::Data());
     m_process->setCommand(shellCommand);
     if (m_openParameters.workingDirectory.has_value())
         m_process->setWorkingDirectory(*m_openParameters.workingDirectory);
@@ -912,8 +912,8 @@ void TerminalWidget::applySizeChange()
     if (newLiveSize.width() <= 0)
         newLiveSize.setWidth(1);
 
-    if (m_process)
-        m_process->ptyData().resize(newLiveSize);
+    if (m_process && m_process->ptyData())
+        m_process->ptyData()->resize(newLiveSize);
 
     m_surface->resize(newLiveSize);
     flushVTerm(true);
