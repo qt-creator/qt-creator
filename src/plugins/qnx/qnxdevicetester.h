@@ -7,17 +7,12 @@
 
 namespace Qnx::Internal {
 
-class QnxDeviceTester : public ProjectExplorer::DeviceTester
+class QnxDeviceTester : public RemoteLinux::GenericLinuxDeviceTester
 {
 public:
     explicit QnxDeviceTester(QObject *parent = nullptr);
 
     void testDevice(const ProjectExplorer::IDevice::Ptr &device) override;
-    void stopTest() override;
-
-private:
-    RemoteLinux::GenericLinuxDeviceTester *m_genericTester = nullptr;
-    ProjectExplorer::IDevice::ConstPtr m_device;
 };
 
 } // Qnx::Internal
