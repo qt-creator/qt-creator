@@ -170,6 +170,8 @@ public:
     bool possibleImportsEnabled() const;
     void setPossibleImportsEnabled(bool b);
 
+    void forceAmend();
+
 signals:
     void modelInterfaceProjectUpdated();
 
