@@ -94,6 +94,7 @@ bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
             return false;
 
         QFutureInterface<LocatorFilterEntry> dummyInterface;
+        classesFilter->prepareSearch(qualifiedClassName);
         const QList<LocatorFilterEntry> matches
             = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
         for (const LocatorFilterEntry &entry : matches) {
@@ -130,6 +131,7 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
             return;
 
         QFutureInterface<LocatorFilterEntry> dummyInterface;
+        classesFilter->prepareSearch(qualifiedClassName);
         const QList<LocatorFilterEntry> matches
             = classesFilter->matchesFor(dummyInterface, qualifiedClassName);
         for (const LocatorFilterEntry &entry : matches) {
