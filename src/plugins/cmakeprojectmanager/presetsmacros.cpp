@@ -38,6 +38,7 @@ static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${fileDir}", preset.fileDir.path());
     if (preset.generator)
         value.replace("${generator}", preset.generator.value());
 
@@ -51,6 +52,7 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${dollar}", "$");
 
     value.replace("${sourceDir}", sourceDirectory.toString());
+    value.replace("${fileDir}", preset.fileDir.path());
     value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
