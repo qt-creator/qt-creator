@@ -6,11 +6,13 @@
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
 
+namespace Utils { class FilePath; }
+
 namespace Debugger::Internal {
 
 void appendDebugOutput(QtMsgType type, const QString &message, const QmlDebug::QDebugContextInfo &info);
 
 void clearExceptionSelection();
-QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage);
+QStringList highlightExceptionCode(int lineNumber, const Utils::FilePath &filePath, const QString &errorMessage);
 
 } // Debugger::Internal

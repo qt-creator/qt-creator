@@ -539,6 +539,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         ba.remove(pos1, pos3 - pos1 + 1);
         GdbMi res;
         res.fromString(ba);
+        const FilePath &fileRoot = runParameters().projectSourceDirectory;
         BreakHandler *handler = breakHandler();
         Breakpoint bp;
         for (const GdbMi &bkpt : res) {
@@ -547,13 +548,13 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
                 // A sub-breakpoint.
                 QTC_ASSERT(bp, continue);
                 SubBreakpoint loc = bp->findOrCreateSubBreakpoint(nr);
-                loc->params.updateFromGdbOutput(bkpt);
+                loc->params.updateFromGdbOutput(bkpt, fileRoot);
                 loc->params.type = bp->type();
             } else {
                 // A primary breakpoint.
                 bp = handler->findBreakpointByResponseId(nr);
                 if (bp)
-                    bp->updateFromGdbOutput(bkpt);
+                    bp->updateFromGdbOutput(bkpt, fileRoot);
             }
         }
         if (bp)
@@ -569,7 +570,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
             const QString nr = bkpt["number"].data();
             BreakpointParameters br;
             br.type = BreakpointByFileAndLine;
-            br.updateFromGdbOutput(bkpt);
+            br.updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory);
             handler->handleAlienBreakpoint(nr, br);
         }
     } else if (asyncClass == u"breakpoint-deleted") {
@@ -1028,7 +1029,7 @@ void GdbEngine::handleQuerySources(const DebuggerResponse &response)
 {
     m_sourcesListUpdating = false;
     if (response.resultClass == ResultDone) {
-        QMap<QString, QString> oldShortToFull = m_shortToFullName;
+        QMap<QString, FilePath> oldShortToFull = m_shortToFullName;
         m_shortToFullName.clear();
         m_fullToShortName.clear();
         // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
@@ -1039,7 +1040,7 @@ void GdbEngine::handleQuerySources(const DebuggerResponse &response)
                 continue;
             GdbMi fullName = item["fullname"];
             QString file = fileName.data();
-            QString full;
+            FilePath full;
             if (fullName.isValid()) {
                 full = cleanupFullName(fullName.data());
                 m_fullToShortName[full] = file;
@@ -1183,7 +1184,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     const QString nr = data["bkptno"].data();
     int lineNumber = 0;
-    QString fullName;
+    FilePath fullName;
     QString function;
     QString language;
     if (frame.isValid()) {
@@ -1196,15 +1197,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             lineNumber = lineNumberG.toInt();
             fullName = cleanupFullName(frame["fullname"].data());
             if (fullName.isEmpty())
-                fullName = frame["file"].data();
+                fullName = runParameters().projectSourceDirectory.withNewPath(frame["file"].data());
         } // found line number
     } else {
         showMessage("INVALID STOPPED REASON", LogWarning);
     }
 
-    const FilePath onDevicePath = FilePath::fromString(fullName).onDevice(
-        runParameters().debugger.command.executable());
-    const FilePath fileName = onDevicePath.localSource().value_or(onDevicePath);
+    const FilePath fileName = fullName.localSource().value_or(fullName);
 
     if (!nr.isEmpty() && frame.isValid()) {
         // Use opportunity to update the breakpoint marker position.
@@ -1560,50 +1559,47 @@ void GdbEngine::handleExecuteContinue(const DebuggerResponse &response)
     }
 }
 
-QString GdbEngine::fullName(const QString &fileName)
+FilePath GdbEngine::fullName(const QString &fileName)
 {
     if (fileName.isEmpty())
-        return QString();
-    QTC_ASSERT(!m_sourcesListUpdating, /* */);
-    return m_shortToFullName.value(fileName, QString());
+        return {};
+    QTC_CHECK(!m_sourcesListUpdating);
+    return m_shortToFullName.value(fileName, {});
 }
 
-QString GdbEngine::cleanupFullName(const QString &fileName)
+FilePath GdbEngine::cleanupFullName(const QString &fileName)
 {
-    QString cleanFilePath = fileName;
+    FilePath cleanFilePath =
+        runParameters().projectSourceDirectory.withNewPath(fileName).cleanPath();
 
     // Gdb running on windows often delivers "fullnames" which
     // (a) have no drive letter and (b) are not normalized.
     if (Abi::hostAbi().os() == Abi::WindowsOS) {
         if (fileName.isEmpty())
-            return QString();
-        QFileInfo fi(fileName);
-        if (fi.isReadable())
-            cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
+            return {};
     }
 
     if (!debuggerSettings()->autoEnrichParameters.value())
         return cleanFilePath;
 
-    const QString sysroot = runParameters().sysRoot.toString();
-    if (QFileInfo(cleanFilePath).isReadable())
+    if (cleanFilePath.isReadableFile())
         return cleanFilePath;
+
+    const FilePath sysroot = runParameters().sysRoot;
     if (!sysroot.isEmpty() && fileName.startsWith('/')) {
-        cleanFilePath = sysroot + fileName;
-        if (QFileInfo(cleanFilePath).isReadable())
+        cleanFilePath = sysroot.pathAppended(fileName.mid(1));
+        if (cleanFilePath.isReadableFile())
             return cleanFilePath;
     }
     if (m_baseNameToFullName.isEmpty()) {
-        FilePath filePath = FilePath::fromString(sysroot + "/usr/src/debug");
+        FilePath filePath = sysroot.pathAppended("/usr/src/debug");
 
         if (filePath.isDir()) {
             filePath.iterateDirectory(
                 [this](const FilePath &filePath) {
                     QString name = filePath.fileName();
-                    if (!name.startsWith('.')) {
-                        QString path = filePath.path();
-                        m_baseNameToFullName.insert(name, path);
-                    }
+                    if (!name.startsWith('.'))
+                        m_baseNameToFullName.insert(name, filePath);
                     return IterationPolicy::Continue;
                 },
                 {{"*"}, QDir::NoFilter, QDirIterator::Subdirectories});
@@ -1613,7 +1609,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     cleanFilePath.clear();
     const QString base = FilePath::fromUserInput(fileName).fileName();
 
-    QMultiMap<QString, QString>::const_iterator jt = m_baseNameToFullName.constFind(base);
+    auto jt = m_baseNameToFullName.constFind(base);
     while (jt != m_baseNameToFullName.constEnd() && jt.key() == base) {
         // FIXME: Use some heuristics to find the "best" match.
         return jt.value();
@@ -1950,7 +1946,7 @@ void GdbEngine::executeRunToLine(const ContextData &data)
     if (data.address)
         loc = addressSpec(data.address);
     else
-        loc = '"' + breakLocation(data.fileName.toString()) + '"' + ':' + QString::number(data.lineNumber);
+        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
     runCommand({"tbreak " + loc});
 
     runCommand({"continue", NativeCommand|RunRequest, CB(handleExecuteRunToLine)});
@@ -1978,7 +1974,7 @@ void GdbEngine::executeJumpToLine(const ContextData &data)
     if (data.address)
         loc = addressSpec(data.address);
     else
-        loc = '"' + breakLocation(data.fileName.toString()) + '"' + ':' + QString::number(data.lineNumber);
+        loc = '"' + breakLocation(data.fileName) + '"' + ':' + QString::number(data.lineNumber);
     runCommand({"tbreak " + loc});
     notifyInferiorRunRequested();
 
@@ -2052,11 +2048,11 @@ void GdbEngine::setTokenBarrier()
 //
 //////////////////////////////////////////////////////////////////////
 
-QString GdbEngine::breakLocation(const QString &file) const
+QString GdbEngine::breakLocation(const FilePath &file) const
 {
     QString where = m_fullToShortName.value(file);
     if (where.isEmpty())
-        return FilePath::fromString(file).fileName();
+        return file.fileName();
     return where;
 }
 
@@ -2080,7 +2076,7 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
         usage = BreakpointUseShortPath;
 
     const QString fileName = usage == BreakpointUseFullPath
-        ? data.fileName.toString() : breakLocation(data.fileName.toString());
+        ? data.fileName.path() : breakLocation(data.fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName) + "\\\":"
@@ -2094,7 +2090,7 @@ QString GdbEngine::breakpointLocation2(const BreakpointParameters &data)
         usage = BreakpointUseShortPath;
 
     const QString fileName = usage == BreakpointUseFullPath
-        ? data.fileName.toString() : breakLocation(data.fileName.toString());
+        ? data.fileName.path() : breakLocation(data.fileName);
     return GdbMi::escapeCString(fileName) + ':' + QString::number(data.lineNumber);
 }
 
@@ -2107,7 +2103,7 @@ void GdbEngine::handleInsertInterpreterBreakpoint(const DebuggerResponse &respon
         notifyBreakpointInsertOk(bp);
     } else {
         bp->setResponseId(response.data["number"].data());
-        bp->updateFromGdbOutput(response.data);
+        bp->updateFromGdbOutput(response.data, runParameters().projectSourceDirectory);
         notifyBreakpointInsertOk(bp);
     }
 }
@@ -2117,7 +2113,7 @@ void GdbEngine::handleInterpreterBreakpointModified(const GdbMi &data)
     int modelId = data["modelid"].toInt();
     Breakpoint bp = breakHandler()->findBreakpointByModelId(modelId);
     QTC_ASSERT(bp, return);
-    bp->updateFromGdbOutput(data);
+    bp->updateFromGdbOutput(data, runParameters().projectSourceDirectory);
 }
 
 void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakpoint &bp)
@@ -2167,7 +2163,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
         // A sub-breakpoint.
         SubBreakpoint sub = bp->findOrCreateSubBreakpoint(nr);
         QTC_ASSERT(sub, return);
-        sub->params.updateFromGdbOutput(bkpt);
+        sub->params.updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory);
         sub->params.type = bp->type();
         if (usePseudoTracepoints && bp->isTracepoint()) {
             sub->params.tracepoint = true;
@@ -2185,7 +2181,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
             const QString subnr = location["number"].data();
             SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
             QTC_ASSERT(sub, return);
-            sub->params.updateFromGdbOutput(location);
+            sub->params.updateFromGdbOutput(location, runParameters().projectSourceDirectory);
             sub->params.type = bp->type();
             if (usePseudoTracepoints && bp->isTracepoint()) {
                 sub->params.tracepoint = true;
@@ -2196,7 +2192,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
 
     // A (the?) primary breakpoint.
     bp->setResponseId(nr);
-    bp->updateFromGdbOutput(bkpt);
+    bp->updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory);
     if (usePseudoTracepoints && bp->isTracepoint())
         bp->setMessage(bp->requestedParameters().message);
 }
@@ -2503,7 +2499,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
             // A sub-breakpoint.
             QTC_ASSERT(bp, continue);
             SubBreakpoint loc = bp->findOrCreateSubBreakpoint(nr);
-            loc->params.updateFromGdbOutput(bkpt);
+            loc->params.updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory);
             loc->params.type = bp->type();
             if (bp->isTracepoint()) {
                 loc->params.tracepoint = true;
@@ -2513,7 +2509,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
             // A primary breakpoint.
             bp = handler->findBreakpointByResponseId(nr);
             if (bp)
-                bp->updateFromGdbOutput(bkpt);
+                bp->updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory);
         }
     }
     QTC_ASSERT(bp, return);
@@ -3036,7 +3032,7 @@ void GdbEngine::reloadSourceFiles()
         cmd.callback = [this](const DebuggerResponse &response) {
             m_sourcesListUpdating = false;
             if (response.resultClass == ResultDone) {
-                QMap<QString, QString> oldShortToFull = m_shortToFullName;
+                QMap<QString, FilePath> oldShortToFull = m_shortToFullName;
                 m_shortToFullName.clear();
                 m_fullToShortName.clear();
                 // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
@@ -3047,7 +3043,7 @@ void GdbEngine::reloadSourceFiles()
                         continue;
                     GdbMi fullName = item["fullname"];
                     QString file = fileName.data();
-                    QString full;
+                    FilePath full;
                     if (fullName.isValid()) {
                         full = cleanupFullName(fullName.data());
                         m_fullToShortName[full] = file;

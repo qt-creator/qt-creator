@@ -1802,10 +1802,10 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                             updateScriptSource(name, lineOffset, columnOffset, source);
                         }
 
-                        QMap<QString,QString> files;
+                        QMap<QString, FilePath> files;
                         for (const QString &file : std::as_const(sourceFiles)) {
                             QString shortName = file;
-                            QString fullName = engine->toFileInProject(file);
+                            FilePath fullName = engine->toFileInProject(file);
                             files.insert(shortName, fullName);
                         }
 
@@ -1915,7 +1915,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                     const QVariantMap script = body.value("script").toMap();
                     QUrl fileUrl(script.value(NAME).toString());
-                    QString filePath = engine->toFileInProject(fileUrl);
+                    FilePath filePath = engine->toFileInProject(fileUrl);
 
                     const QVariantMap exception = body.value("exception").toMap();
                     QString errorMessage = exception.value("text").toString();
@@ -2045,8 +2045,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
     stackFrame.function = extractString(body.value("func"));
     if (stackFrame.function.isEmpty())
         stackFrame.function = Tr::tr("Anonymous Function");
-    stackFrame.file = FilePath::fromString(
-        engine->toFileInProject(extractString(body.value("script"))));
+    stackFrame.file = engine->toFileInProject(extractString(body.value("script")));
     stackFrame.usable = stackFrame.file.isReadableFile();
     stackFrame.receiver = extractString(body.value("receiver"));
     stackFrame.line = body.value("line").toInt() + 1;
@@ -2444,7 +2443,7 @@ void QmlEnginePrivate::flushSendBuffer()
     sendBuffer.clear();
 }
 
-QString QmlEngine::toFileInProject(const QUrl &fileUrl)
+FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
 {
     // make sure file finder is properly initialized
     const DebuggerRunParameters &rp = runParameters();
@@ -2453,7 +2452,7 @@ QString QmlEngine::toFileInProject(const QUrl &fileUrl)
     d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories);
     d->fileFinder.setSysroot(rp.sysRoot);
 
-    return d->fileFinder.findFile(fileUrl).constFirst().toString();
+    return d->fileFinder.findFile(fileUrl).constFirst();
 }
 
 DebuggerEngine *createQmlEngine()

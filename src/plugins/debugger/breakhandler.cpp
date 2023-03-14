@@ -1126,9 +1126,9 @@ void BreakpointItem::addToCommand(DebuggerCommand *cmd) const
     cmd->arg("expression", requested.expression);
 }
 
-void BreakpointItem::updateFromGdbOutput(const GdbMi &bkpt)
+void BreakpointItem::updateFromGdbOutput(const GdbMi &bkpt, const FilePath &fileRoot)
 {
-    m_parameters.updateFromGdbOutput(bkpt);
+    m_parameters.updateFromGdbOutput(bkpt, fileRoot);
     adjustMarker();
 }
 

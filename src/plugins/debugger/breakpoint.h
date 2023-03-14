@@ -128,7 +128,7 @@ public:
     bool isQmlFileAndLineBreakpoint() const;
     QString toString() const;
     void updateLocation(const QString &location); // file.cpp:42
-    void updateFromGdbOutput(const GdbMi &bkpt);
+    void updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &fileRoot);
 
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
     bool operator!=(const BreakpointParameters &p) const { return !equals(p); }

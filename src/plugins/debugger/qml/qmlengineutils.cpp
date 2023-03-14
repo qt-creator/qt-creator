@@ -20,6 +20,7 @@ using namespace QmlDebug;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Debugger::Internal {
 
@@ -218,11 +219,10 @@ void clearExceptionSelection()
     }
 }
 
-QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage)
+QStringList highlightExceptionCode(int lineNumber, const FilePath &filePath, const QString &errorMessage)
 {
     QStringList messages;
-    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(
-        Utils::FilePath::fromString(filePath));
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
 
     const  TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
@@ -251,7 +251,7 @@ QStringList highlightExceptionCode(int lineNumber, const QString &filePath, cons
         selections.append(sel);
         ed->setExtraSelections(TextEditorWidget::DebuggerExceptionSelection, selections);
 
-        messages.append(QString::fromLatin1("%1: %2: %3").arg(filePath).arg(lineNumber).arg(errorMessage));
+        messages.append(QString::fromLatin1("%1: %2: %3").arg(filePath.toUserOutput()).arg(lineNumber).arg(errorMessage));
     }
     return messages;
 }

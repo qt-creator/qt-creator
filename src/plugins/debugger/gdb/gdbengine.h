@@ -210,7 +210,7 @@ private: ////////// General Interface //////////
     void handleBkpt(const GdbMi &bkpt, const Breakpoint &bp);
     QString breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
     QString breakpointLocation2(const BreakpointParameters &data); // For gdb/CLI fallback.
-    QString breakLocation(const QString &file) const;
+    QString breakLocation(const Utils::FilePath &file) const;
     void updateTracepointCaptures(const Breakpoint &bp);
 
     //
@@ -265,13 +265,13 @@ private: ////////// General Interface //////////
     void reloadSourceFilesInternal();
     void handleQuerySources(const DebuggerResponse &response);
 
-    QString fullName(const QString &fileName);
-    QString cleanupFullName(const QString &fileName);
+    Utils::FilePath fullName(const QString &fileName);
+    Utils::FilePath cleanupFullName(const QString &fileName);
 
     // awful hack to keep track of used files
-    QMap<QString, QString> m_shortToFullName;
-    QMap<QString, QString> m_fullToShortName;
-    QMultiMap<QString, QString> m_baseNameToFullName;
+    QMap<QString, Utils::FilePath> m_shortToFullName;
+    QMap<Utils::FilePath, QString> m_fullToShortName;
+    QMultiMap<QString, Utils::FilePath> m_baseNameToFullName;
 
     bool m_sourcesListUpdating = false;
 

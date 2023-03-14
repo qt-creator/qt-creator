@@ -901,6 +901,9 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     if (Project *project = runControl->project()) {
         m_runParameters.projectSourceDirectory = project->projectDirectory();
         m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
+    } else {
+        m_runParameters.projectSourceDirectory = m_runParameters.debugger.command.executable().parentDir();
+        m_runParameters.projectSourceFiles.clear();
     }
 
     m_runParameters.toolChainAbi = ToolChainKitAspect::targetAbi(kit);
