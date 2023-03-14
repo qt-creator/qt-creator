@@ -513,6 +513,7 @@ void CppHighlighterTest::test_data()
     QTest::newRow("struct keyword") << 25 << 1 << 25 << 6 << C_KEYWORD;
     QTest::newRow("operator keyword") << 26 << 5 << 26 << 12 << C_KEYWORD;
     QTest::newRow("type in conversion operator") << 26 << 14 << 26 << 16 << C_PRIMITIVE_TYPE;
+    QTest::newRow("concept keyword") << 29 << 22 << 29 << 28 << C_KEYWORD;
 }
 
 void CppHighlighterTest::test()

@@ -25,3 +25,5 @@ template<int n = 5> class C;
 struct ConversionFunction {
     operator int();
 };
+
+template<typename T> concept NoConstraint = true;
