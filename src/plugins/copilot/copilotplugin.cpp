@@ -16,6 +16,8 @@
 
 #include <texteditor/texteditor.h>
 
+#include <QAction>
+
 using namespace Utils;
 using namespace Core;
 
