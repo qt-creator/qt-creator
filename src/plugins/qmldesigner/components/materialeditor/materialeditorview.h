@@ -3,23 +3,22 @@
 
 #pragma once
 
-#include <abstractview.h>
-#include <itemlibraryinfo.h>
+#include "abstractview.h"
+#include "modelnode.h"
 
 #include <QHash>
 #include <QPointer>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
+class QColorDialog;
 class QShortcut;
 class QStackedWidget;
-class QTimer;
-class QColorDialog;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ModelNode;
+class ItemLibraryInfo;
 class MaterialEditorQmlBackend;
 
 namespace Internal {
