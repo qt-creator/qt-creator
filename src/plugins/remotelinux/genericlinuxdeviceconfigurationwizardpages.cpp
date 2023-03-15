@@ -97,7 +97,9 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::validatePage()
 {
     d->device->setDisplayName(configurationName());
     SshParameters sshParams = d->device->sshParameters();
-    sshParams.url = url();
+    sshParams.setHost(d->hostNameLineEdit->text().trimmed());
+    sshParams.setUserName(d->userNameLineEdit->text().trimmed());
+    sshParams.setPort(d->sshPortSpinBox->value());
     d->device->setSshParameters(sshParams);
     return true;
 }
@@ -105,15 +107,6 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::validatePage()
 QString GenericLinuxDeviceConfigurationWizardSetupPage::configurationName() const
 {
     return d->nameLineEdit->text().trimmed();
-}
-
-QUrl GenericLinuxDeviceConfigurationWizardSetupPage::url() const
-{
-    QUrl url;
-    url.setHost(d->hostNameLineEdit->text().trimmed());
-    url.setUserName(d->userNameLineEdit->text().trimmed());
-    url.setPort(d->sshPortSpinBox->value());
-    return url;
 }
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::setDevice(const LinuxDevice::Ptr &device)

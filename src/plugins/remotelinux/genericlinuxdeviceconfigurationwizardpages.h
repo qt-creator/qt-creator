@@ -32,7 +32,6 @@ private:
     bool validatePage() override;
 
     QString configurationName() const;
-    QUrl url() const;
 
     Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate * const d;
 };
