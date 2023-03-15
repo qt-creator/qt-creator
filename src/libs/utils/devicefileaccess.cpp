@@ -269,12 +269,6 @@ bool DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &targ
     return false;
 }
 
-OsType DeviceFileAccess::osType(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath)
-    return OsTypeOther;
-}
-
 FilePath DeviceFileAccess::symLinkTarget(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
@@ -799,12 +793,6 @@ QByteArray DesktopDeviceFileAccess::fileId(const FilePath &filePath) const
     return result;
 }
 
-OsType DesktopDeviceFileAccess::osType(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath)
-    return HostOsInfo::hostOs();
-}
-
 // UnixDeviceAccess
 
 UnixDeviceFileAccess::~UnixDeviceFileAccess() = default;
@@ -1035,30 +1023,6 @@ expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &file
     return newPath;
 }
 
-OsType UnixDeviceFileAccess::osType() const
-{
-    if (m_osType)
-        return *m_osType;
-
-    const RunResult result = runInShell({"uname", {"-s"}, OsType::OsTypeLinux});
-    QTC_ASSERT(result.exitCode == 0, return OsTypeLinux);
-    const QString osName = QString::fromUtf8(result.stdOut).trimmed();
-    if (osName == "Darwin")
-        m_osType = OsTypeMac;
-    else if (osName == "Linux")
-        m_osType = OsTypeLinux;
-    else
-        m_osType = OsTypeOtherUnix;
-
-    return *m_osType;
-}
-
-OsType UnixDeviceFileAccess::osType(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    return osType();
-}
-
 QDateTime UnixDeviceFileAccess::lastModified(const FilePath &filePath) const
 {
     const RunResult result = runInShell(
@@ -1072,7 +1036,7 @@ QStringList UnixDeviceFileAccess::statArgs(const FilePath &filePath,
                                            const QString &linuxFormat,
                                            const QString &macFormat) const
 {
-    return (osType() == OsTypeMac ? QStringList{"-f", macFormat} : QStringList{"-c", linuxFormat})
+    return (filePath.osType() == OsTypeMac ? QStringList{"-f", macFormat} : QStringList{"-c", linuxFormat})
            << "-L" << filePath.path();
 }
 
@@ -1150,7 +1114,7 @@ FilePathInfo UnixDeviceFileAccess::filePathInfo(const FilePath &filePath) const
 
     const RunResult stat = runInShell({"stat", args, OsType::OsTypeLinux});
     return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut),
-                                             osType() == OsTypeMac ? 8 : 16);
+                                             filePath.osType() == OsTypeMac ? 8 : 16);
 }
 
 // returns whether 'find' could be used.
@@ -1165,7 +1129,7 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
     // TODO: Using stat -L will always return the link target, not the link itself.
     // We may wan't to add the information that it is a link at some point.
 
-    const QString statFormat = osType() == OsTypeMac
+    const QString statFormat = filePath.osType() == OsTypeMac
         ? QLatin1String("-f \"%p %m %z\"") : QLatin1String("-c \"%f %Y %s\"");
 
     if (callBack.index() == 1)
@@ -1192,7 +1156,7 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
     if (entries.isEmpty())
         return true;
 
-    const int modeBase = osType() == OsTypeMac ? 8 : 16;
+    const int modeBase = filePath.osType() == OsTypeMac ? 8 : 16;
 
     const auto toFilePath =
         [&filePath, &callBack, modeBase](const QString &entry) {

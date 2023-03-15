@@ -17,6 +17,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -181,6 +182,8 @@ void DeviceSettingsWidget::addDevice()
     IDevice::Ptr device = factory->create();
     if (device.isNull())
         return;
+
+    Utils::asyncRun([device] { device->checkOsType(); });
 
     m_deviceManager->addDevice(device);
     m_removeConfigButton->setEnabled(true);

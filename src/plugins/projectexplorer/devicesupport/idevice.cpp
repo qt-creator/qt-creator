@@ -93,6 +93,7 @@ static Id newId()
 
 const char DisplayNameKey[] = "Name";
 const char TypeKey[] = "OsType";
+const char ClientOsTypeKey[] = "ClientOsType";
 const char IdKey[] = "InternalId";
 const char OriginKey[] = "Origin";
 const char MachineTypeKey[] = "Type";
@@ -426,6 +427,8 @@ void IDevice::fromMap(const QVariantMap &map)
     d->type = typeFromMap(map);
     d->displayName.fromMap(map, DisplayNameKey);
     d->id = Id::fromSetting(map.value(QLatin1String(IdKey)));
+    d->osType = osTypeFromString(
+        map.value(QLatin1String(ClientOsTypeKey), osTypeToString(OsTypeLinux)).toString());
     if (!d->id.isValid())
         d->id = newId();
     d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
@@ -472,6 +475,7 @@ QVariantMap IDevice::toMap() const
     QVariantMap map;
     d->displayName.toMap(map, DisplayNameKey);
     map.insert(QLatin1String(TypeKey), d->type.toString());
+    map.insert(QLatin1String(ClientOsTypeKey), osTypeToString(d->osType));
     map.insert(QLatin1String(IdKey), d->id.toSetting());
     map.insert(QLatin1String(OriginKey), d->origin);
 
@@ -504,9 +508,6 @@ IDevice::Ptr IDevice::clone() const
     device->d->deviceState = d->deviceState;
     device->d->deviceActions = d->deviceActions;
     device->d->deviceIcons = d->deviceIcons;
-    // Os type is only set in the constructor, always to the same value.
-    // But make sure we notice if that changes in the future (which it shouldn't).
-    QTC_CHECK(device->d->osType == d->osType);
     device->d->osType = d->osType;
     device->fromMap(toMap());
     return device;

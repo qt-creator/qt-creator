@@ -126,7 +126,6 @@ public:
     RunResult runInShell(const CommandLine &cmdLine,
                          const QByteArray &stdInData) const override;
     QString mapToDevicePath(const QString &hostPath) const override;
-    OsType osType(const FilePath &filePath) const override;
 
     DockerDevicePrivate *m_dev = nullptr;
 };
@@ -375,12 +374,6 @@ QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
         newPath = '/' + lowerDriveLetter + newPath.mid(2); // strip C:
     }
     return newPath;
-}
-
-OsType DockerDeviceFileAccess::osType(const FilePath &filePath) const
-{
-    QTC_ASSERT(m_dev, return UnixDeviceFileAccess::osType(filePath));
-    return m_dev->q->osType();
 }
 
 DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &data)

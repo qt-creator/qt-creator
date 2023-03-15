@@ -305,6 +305,9 @@ public:
     Environment getEnvironment();
     void invalidateEnvironmentCache();
 
+    void checkOsType();
+    void queryOsType(std::function<RunResult(const CommandLine &)> run);
+
     LinuxDevice *q = nullptr;
     QThread m_shellThread;
     ShellThreadHandler *m_handler = nullptr;
@@ -939,6 +942,12 @@ LinuxDevice::LinuxDevice()
                      }});
 }
 
+void LinuxDevice::_setOsType(Utils::OsType osType)
+{
+    qCDebug(linuxDeviceLog) << "Setting OS type to" << osType << "for" << displayName();
+    IDevice::setOsType(osType);
+}
+
 LinuxDevice::~LinuxDevice()
 {
     delete d;
@@ -1045,6 +1054,23 @@ LinuxDevicePrivate::~LinuxDevicePrivate()
         QMetaObject::invokeMethod(&m_shellThread, closeShell, Qt::BlockingQueuedConnection);
 }
 
+void LinuxDevicePrivate::queryOsType(std::function<RunResult(const CommandLine &)> runInShell)
+{
+    const RunResult result = runInShell({"uname", {"-s"}, OsType::OsTypeLinux});
+    if (result.exitCode != 0)
+        q->_setOsType(OsTypeOtherUnix);
+    const QString osName = QString::fromUtf8(result.stdOut).trimmed();
+    if (osName == "Darwin")
+        q->_setOsType(OsTypeMac);
+    if (osName == "Linux")
+        q->_setOsType(OsTypeLinux);
+}
+
+void LinuxDevicePrivate::checkOsType()
+{
+    queryOsType([this](const CommandLine &cmd) { return runInShell(cmd); });
+}
+
 // Call me with shell mutex locked
 bool LinuxDevicePrivate::setupShell()
 {
@@ -1058,6 +1084,10 @@ bool LinuxDevicePrivate::setupShell()
     QMetaObject::invokeMethod(m_handler, [this, sshParameters] {
         return m_handler->start(sshParameters);
     }, Qt::BlockingQueuedConnection, &ok);
+
+    if (ok) {
+        queryOsType([this](const CommandLine &cmd) { return m_handler->runInShell(cmd); });
+    }
     return ok;
 }
 
@@ -1450,6 +1480,11 @@ FileTransferInterface *LinuxDevice::createFileTransferInterface(
 LinuxDevicePrivate *LinuxDevice::connectionAccess() const
 {
     return d;
+}
+
+void LinuxDevice::checkOsType()
+{
+    d->checkOsType();
 }
 
 namespace Internal {

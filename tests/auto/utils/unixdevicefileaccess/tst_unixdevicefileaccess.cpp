@@ -59,12 +59,6 @@ private slots:
         m_fileSizeTestFile.writeFileContents(QByteArray(1024, 'a'));
     }
 
-    void osType()
-    {
-        const auto osType = m_dfaPtr->osType({});
-        QCOMPARE(osType, HostOsInfo::hostOs());
-    }
-
     void fileSize()
     {
         const auto size = m_dfaPtr->fileSize(m_fileSizeTestFile);

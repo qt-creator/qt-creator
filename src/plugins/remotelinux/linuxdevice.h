@@ -42,11 +42,15 @@ public:
             const ProjectExplorer::FileTransferSetupData &setup) const override;
 
     class LinuxDevicePrivate *connectionAccess() const;
+    void checkOsType() override;
 
 protected:
     LinuxDevice();
 
+    void _setOsType(Utils::OsType osType);
+
     class LinuxDevicePrivate *d;
+    friend class LinuxDevicePrivate;
 };
 
 namespace Internal {

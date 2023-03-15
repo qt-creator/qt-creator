@@ -1566,7 +1566,11 @@ bool FilePath::setPermissions(QFile::Permissions permissions) const
 
 OsType FilePath::osType() const
 {
-    return fileAccess()->osType(*this);
+    if (!needsDevice())
+        return HostOsInfo::hostOs();
+
+    QTC_ASSERT(s_deviceHooks.osType, return HostOsInfo::hostOs());
+    return s_deviceHooks.osType(*this);
 }
 
 bool FilePath::removeFile() const

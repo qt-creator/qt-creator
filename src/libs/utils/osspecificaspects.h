@@ -14,6 +14,36 @@ namespace Utils {
 // Add more as needed.
 enum OsType { OsTypeWindows, OsTypeLinux, OsTypeMac, OsTypeOtherUnix, OsTypeOther };
 
+inline QString osTypeToString(OsType osType)
+{
+    switch (osType) {
+    case OsTypeWindows:
+        return "Windows";
+    case OsTypeLinux:
+        return "Linux";
+    case OsTypeMac:
+        return "Mac";
+    case OsTypeOtherUnix:
+        return "Other Unix";
+    case OsTypeOther:
+    default:
+        return "Other";
+    }
+}
+
+inline OsType osTypeFromString(const QString &string)
+{
+    if (string == "Windows")
+        return OsTypeWindows;
+    if (string == "Linux")
+        return OsTypeLinux;
+    if (string == "Mac")
+        return OsTypeMac;
+    if (string == "Other Unix")
+        return OsTypeOtherUnix;
+    return OsTypeOther;
+}
+
 namespace OsSpecificAspects {
 
 inline QString withExecutableSuffix(OsType osType, const QString &executable)

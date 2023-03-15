@@ -45,7 +45,6 @@ protected:
                                                const FilePath &target) const;
     virtual bool renameFile(const FilePath &filePath, const FilePath &target) const;
 
-    virtual OsType osType(const FilePath &filePath) const;
     virtual FilePath symLinkTarget(const FilePath &filePath) const;
     virtual FilePathInfo filePathInfo(const FilePath &filePath) const;
     virtual QDateTime lastModified(const FilePath &filePath) const;
@@ -100,7 +99,6 @@ protected:
     expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
-    OsType osType(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
     QDateTime lastModified(const FilePath &filePath) const override;
@@ -159,7 +157,6 @@ protected:
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
-    OsType osType(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;
     QDateTime lastModified(const FilePath &filePath) const override;
     QFile::Permissions permissions(const FilePath &filePath) const override;
@@ -194,14 +191,12 @@ private:
             const FileFilter &filter,
             QStringList *found) const;
 
-    Utils::OsType osType() const;
     QStringList statArgs(const FilePath &filePath,
                          const QString &linuxFormat,
                          const QString &macFormat) const;
 
     mutable bool m_tryUseFind = true;
     mutable std::optional<bool> m_hasMkTemp;
-    mutable std::optional<Utils::OsType> m_osType;
 };
 
 } // Utils

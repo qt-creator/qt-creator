@@ -443,6 +443,13 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         device->openTerminal(env, filePath);
     };
 
+    deviceHooks.osType = [](const FilePath &filePath) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        if (!device)
+            return OsTypeLinux;
+        return device->osType();
+    };
+
     DeviceProcessHooks processHooks;
 
     processHooks.processImplHook = [](const FilePath &filePath) -> ProcessInterface * {
