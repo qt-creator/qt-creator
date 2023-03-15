@@ -710,7 +710,10 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->cmakePresetDefaultConfigHash
             = CMakeConfigurationKitAspect::computeDefaultConfigHash(config, data->cmakeBinary);
 
-        QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
+        QString cmakeBuildType = QString::fromUtf8(cache.valueOf("CMAKE_BUILD_TYPE"));
+        CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeBuildType);
+
+        QByteArrayList buildConfigurationTypes = {cmakeBuildType.toUtf8()};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
             QByteArray buildConfigurationTypesString = cache.valueOf("CMAKE_CONFIGURATION_TYPES");
