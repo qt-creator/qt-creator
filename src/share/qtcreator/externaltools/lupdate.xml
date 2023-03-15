@@ -11,6 +11,7 @@
     <order>1</order>
     <executable>
         <path>%{CurrentDocument:Project:QT_INSTALL_BINS}/lupdate</path>
+        <path>%{ActiveProject:QT_INSTALL_BINS}/lupdate</path>
         <path>lupdate</path>
         <arguments>%{CurrentDocument:Project:FilePath}</arguments>
         <workingdirectory>%{CurrentDocument:Project:Path}</workingdirectory>

@@ -11,6 +11,7 @@
     <order>1</order>
     <executable>
         <path>%{CurrentDocument:Project:QT_INSTALL_BINS}/qml</path>
+        <path>%{ActiveProject:QT_INSTALL_BINS}/qml</path>
         <path>qml</path>
         <arguments>%{CurrentDocument:FilePath}</arguments>
         <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
