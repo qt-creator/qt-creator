@@ -161,6 +161,11 @@ public:
         setContent(u"/path/Second.qml", qmlDocument3);
         setContent(u"/path/example.qmltypes", qmltypes1);
         setContent(u"/path/types/example2.qmltypes", qmltypes2);
+        setContent(u"/path/one/First.qml", qmlDocument1);
+        setContent(u"/path/one/Second.qml", qmlDocument2);
+        setContent(u"/path/two/Third.qml", qmlDocument3);
+        setContent(u"/path/one/example.qmltypes", qmltypes1);
+        setContent(u"/path/two/example2.qmltypes", qmltypes2);
 
         ON_CALL(qmlDocumentParserMock, parse(qmlDocument1, _, _, _))
             .WillByDefault([&](auto, auto &imports, auto, auto) {
@@ -1510,6 +1515,29 @@ TEST_F(ProjectStorageUpdater, UpdatePathWatcherDirectoryDoesNotExists)
     updater.update(directories3, {}, projectPartId);
 }
 
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherDirectoryDoesNotChanged)
+{
+    setFilesDontChanged({qmldir1SourceId, qmldir2SourceId, path1SourceId, path2SourceId});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::Directory,
+                                               {path1SourceId, path2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherDirectoryRemoved)
+{
+    setFilesRemoved({qmldir1SourceId, path1SourceId});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(
+                    IdPaths{projectPartId, QmlDesigner::SourceType::Directory, {path2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
 TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmldirs)
 {
     EXPECT_CALL(patchWatcherMock,
@@ -1532,6 +1560,29 @@ TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmldirDoesNotExists)
     updater.update(directories3, {}, projectPartId);
 }
 
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmldirDoesNotChanged)
+{
+    setFilesDontChanged({qmldir1SourceId, qmldir2SourceId, path1SourceId, path2SourceId});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlDir,
+                                               {qmldir1SourceId, qmldir2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmldirRemoved)
+{
+    setFilesRemoved({qmldir1SourceId, path1SourceId});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(
+                    IdPaths{projectPartId, QmlDesigner::SourceType::QmlDir, {qmldir2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
 TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmlFiles)
 {
     QString qmldir1{R"(module Example
@@ -1540,9 +1591,6 @@ TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmlFiles)
     setQmlFileNames(u"/path/one", {"First.qml", "Second.qml"});
     setQmlFileNames(u"/path/two", {"Third.qml"});
     setContent(u"/path/one/qmldir", qmldir1);
-    setContent(u"/path/one/First.qml", qmlDocument1);
-    setContent(u"/path/one/Second.qml", qmlDocument2);
-    setContent(u"/path/two/Third.qml", qmlDocument3);
 
     EXPECT_CALL(patchWatcherMock,
                 updateIdPaths(Contains(IdPaths{projectPartId,
@@ -1552,7 +1600,66 @@ TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmlFiles)
     updater.update(directories2, {}, projectPartId);
 }
 
-TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmltypesFilesInQmldirFiles)
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherOnlyQmlFilesDontChanged)
+{
+    QString qmldir1{R"(module Example
+                      FirstType 1.0 First.qml
+                      Second 1.0 Second.qml)"};
+    setQmlFileNames(u"/path/one", {"First.qml", "Second.qml"});
+    setQmlFileNames(u"/path/two", {"Third.qml"});
+    setContent(u"/path/one/qmldir", qmldir1);
+    setFilesDontChanged({firstSourceId, secondSourceId, thirdSourceId});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::Qml,
+                                               {firstSourceId, secondSourceId, thirdSourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherOnlyQmlFilesChanged)
+{
+    setFilesDontChanged({qmldir1SourceId, qmldir2SourceId, path1SourceId, path2SourceId});
+    setFilesChanged({firstSourceId, secondSourceId, thirdSourceId});
+    setProjectDatas(path1SourceId,
+                    {{path1SourceId, firstSourceId, exampleModuleId, FileType::QmlDocument},
+                     {path1SourceId, secondSourceId, exampleModuleId, FileType::QmlDocument}});
+    setProjectDatas(path2SourceId,
+                    {{path2SourceId, thirdSourceId, ModuleId{}, FileType::QmlDocument}});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::Qml,
+                                               {firstSourceId, secondSourceId, thirdSourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmlFilesAndDirectoriesDontChanged)
+{
+    setFilesDontChanged({qmldir1SourceId,
+                         qmldir2SourceId,
+                         path1SourceId,
+                         path2SourceId,
+                         firstSourceId,
+                         secondSourceId,
+                         thirdSourceId});
+    setProjectDatas(path1SourceId,
+                    {{path1SourceId, firstSourceId, exampleModuleId, FileType::QmlDocument},
+                     {path1SourceId, secondSourceId, exampleModuleId, FileType::QmlDocument}});
+    setProjectDatas(path2SourceId,
+                    {{path2SourceId, thirdSourceId, ModuleId{}, FileType::QmlDocument}});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::Qml,
+                                               {firstSourceId, secondSourceId, thirdSourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmltypesFilesInQmldir)
 {
     QString qmldir1{R"(module Example
                       typeinfo example.qmltypes)"};
@@ -1560,10 +1667,64 @@ TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmltypesFilesInQmldirFiles)
                       typeinfo example2.qmltypes)"};
     setContent(u"/path/one/qmldir", qmldir1);
     setContent(u"/path/two/qmldir", qmldir2);
-    setContent(u"/path/one/example.qmltypes", qmltypes1);
-    setContent(u"/path/two/example2.qmltypes", qmltypes2);
-    SourceId qmltypes1SourceId = sourcePathCache.sourceId("/path/one/example.qmltypes");
-    SourceId qmltypes2SourceId = sourcePathCache.sourceId("/path/two/example2.qmltypes");
+
+    setFilesDontChanged({firstSourceId, secondSourceId, thirdSourceId});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlTypes,
+                                               {qmltypes1SourceId, qmltypes2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherOnlyQmltypesFilesInQmldirDontChanged)
+{
+    QString qmldir1{R"(module Example
+                      typeinfo example.qmltypes)"};
+    QString qmldir2{R"(module Example2
+                      typeinfo example2.qmltypes)"};
+    setContent(u"/path/one/qmldir", qmldir1);
+    setContent(u"/path/two/qmldir", qmldir2);
+    setFilesDontChanged({qmltypes1SourceId, qmltypes2SourceId});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlTypes,
+                                               {qmltypes1SourceId, qmltypes2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherOnlyQmltypesFilesChanged)
+{
+    setFilesDontChanged({qmldir1SourceId, qmldir2SourceId, path1SourceId, path2SourceId});
+    setFilesChanged({qmltypes1SourceId, qmltypes2SourceId});
+    setProjectDatas(path1SourceId,
+                    {{path1SourceId, qmltypes1SourceId, exampleModuleId, FileType::QmlTypes}});
+    setProjectDatas(path2SourceId,
+                    {{path2SourceId, qmltypes2SourceId, exampleModuleId, FileType::QmlTypes}});
+
+    EXPECT_CALL(patchWatcherMock,
+                updateIdPaths(Contains(IdPaths{projectPartId,
+                                               QmlDesigner::SourceType::QmlTypes,
+                                               {qmltypes1SourceId, qmltypes2SourceId}})));
+
+    updater.update(directories2, {}, projectPartId);
+}
+
+TEST_F(ProjectStorageUpdater, UpdatePathWatcherQmltypesFilesAndDirectoriesDontChanged)
+{
+    setFilesDontChanged({qmldir1SourceId,
+                         qmldir2SourceId,
+                         path1SourceId,
+                         path2SourceId,
+                         qmltypes1SourceId,
+                         qmltypes2SourceId});
+    setProjectDatas(path1SourceId,
+                    {{path1SourceId, qmltypes1SourceId, exampleModuleId, FileType::QmlTypes}});
+    setProjectDatas(path2SourceId,
+                    {{path2SourceId, qmltypes2SourceId, exampleModuleId, FileType::QmlTypes}});
 
     EXPECT_CALL(patchWatcherMock,
                 updateIdPaths(Contains(IdPaths{projectPartId,
@@ -1579,8 +1740,6 @@ TEST_F(ProjectStorageUpdater, UpdatePathWatcherBuiltinQmltypesFiles)
     QString builtinQmltyplesPath2{"/path/two/example2.qmltypes"};
     setContent(builtinQmltyplesPath1, qmltypes1);
     setContent(builtinQmltyplesPath2, qmltypes2);
-    SourceId qmltypes1SourceId = sourcePathCache.sourceId("/path/one/example.qmltypes");
-    SourceId qmltypes2SourceId = sourcePathCache.sourceId("/path/two/example2.qmltypes");
 
     EXPECT_CALL(patchWatcherMock,
                 updateIdPaths(Contains(IdPaths{projectPartId,

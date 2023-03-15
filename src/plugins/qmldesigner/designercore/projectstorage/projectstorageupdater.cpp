@@ -342,7 +342,9 @@ void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
                               package,
                               notUpdatedFileStatusSourceIds,
                               notUpdatedSourceIds,
-                              directoryPath);
+                              directoryPath,
+                              watchedQmlSourceIds,
+                              watchedQmltypesSourceIds);
             break;
         }
         case FileState::NotExists: {
@@ -406,13 +408,16 @@ void ProjectStorageUpdater::parseProjectDatas(const Storage::Synchronization::Pr
                                               Storage::Synchronization::SynchronizationPackage &package,
                                               SourceIds &notUpdatedFileStatusSourceIds,
                                               SourceIds &notUpdatedSourceIds,
-                                              Utils::SmallStringView directoryPath)
+                                              Utils::SmallStringView directoryPath,
+                                              SourceIds &watchedQmlSourceIds,
+                                              SourceIds &watchedQmltypesSourceIds)
 {
     for (const Storage::Synchronization::ProjectData &projectData : projectDatas) {
         switch (projectData.fileType) {
         case Storage::Synchronization::FileType::QmlTypes: {
-            auto qmltypesPath = m_pathCache.sourcePath(projectData.sourceId);
+            watchedQmltypesSourceIds.push_back(projectData.sourceId);
 
+            auto qmltypesPath = m_pathCache.sourcePath(projectData.sourceId);
             parseTypeInfo(projectData,
                           qmltypesPath,
                           package,
@@ -421,8 +426,9 @@ void ProjectStorageUpdater::parseProjectDatas(const Storage::Synchronization::Pr
             break;
         }
         case Storage::Synchronization::FileType::QmlDocument: {
-            SourcePath qmlDocumentPath = m_pathCache.sourcePath(projectData.sourceId);
+            watchedQmlSourceIds.push_back(projectData.sourceId);
 
+            SourcePath qmlDocumentPath = m_pathCache.sourcePath(projectData.sourceId);
             parseQmlComponent(qmlDocumentPath.name(),
                               qmlDocumentPath,
                               directoryPath,

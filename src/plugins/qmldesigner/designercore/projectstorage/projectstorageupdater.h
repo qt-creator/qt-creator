@@ -124,7 +124,9 @@ private:
                            Storage::Synchronization::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds,
                            SourceIds &notUpdatedSourceIds,
-                           Utils::SmallStringView directoryPath);
+                           Utils::SmallStringView directoryPath,
+                           SourceIds &watchedQmlSourceIds,
+                           SourceIds &watchedQmltypesSourceIds);
     FileState parseTypeInfo(const Storage::Synchronization::ProjectData &projectData,
                             Utils::SmallStringView qmltypesPath,
                             Storage::Synchronization::SynchronizationPackage &package,
