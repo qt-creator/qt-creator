@@ -72,7 +72,7 @@ class DynamicPropertyRow : public QObject
     Q_OBJECT
 
     Q_PROPERTY(int row READ row WRITE setRow NOTIFY rowChanged FINAL)
-    Q_PROPERTY(PropertyEditorValue *backendValue READ backendValue NOTIFY rowChanged FINAL)
+    Q_PROPERTY(QmlDesigner::PropertyEditorValue *backendValue READ backendValue NOTIFY rowChanged FINAL)
     Q_PROPERTY(DynamicPropertiesProxyModel *model READ model WRITE setModel NOTIFY modelChanged FINAL)
 
 public:
@@ -85,10 +85,10 @@ public:
     int row() const;
     void setModel(DynamicPropertiesProxyModel *model);
     DynamicPropertiesProxyModel *model() const;
-    PropertyEditorValue *backendValue() const;
+    QmlDesigner::PropertyEditorValue *backendValue() const;
 
     Q_INVOKABLE void remove();
-    Q_INVOKABLE PropertyEditorValue *createProxyBackendValue();
+    Q_INVOKABLE QmlDesigner::PropertyEditorValue *createProxyBackendValue();
     Q_INVOKABLE void clearProxyBackendValues();
 
 signals:
@@ -103,9 +103,9 @@ private:
     void resetValue();
 
     int m_row = -1;
-    PropertyEditorValue *m_backendValue = nullptr;
+    QmlDesigner::PropertyEditorValue *m_backendValue = nullptr;
     DynamicPropertiesProxyModel *m_model = nullptr;
-    QList<PropertyEditorValue *> m_proxyBackendValues;
+    QList<QmlDesigner::PropertyEditorValue *> m_proxyBackendValues;
     bool m_lock = false;
 };
 

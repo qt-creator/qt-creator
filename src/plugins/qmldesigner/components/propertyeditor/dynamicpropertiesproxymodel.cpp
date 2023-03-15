@@ -254,7 +254,7 @@ DynamicPropertiesProxyModel *DynamicPropertyRow::model() const
     return m_model;
 }
 
-PropertyEditorValue *DynamicPropertyRow::backendValue() const
+QmlDesigner::PropertyEditorValue *DynamicPropertyRow::backendValue() const
 {
     return m_backendValue;
 }
@@ -264,10 +264,9 @@ void DynamicPropertyRow::remove()
     m_model->dynamicPropertiesModel()->deleteDynamicPropertyByRow(m_row);
 }
 
-PropertyEditorValue *DynamicPropertyRow::createProxyBackendValue()
+QmlDesigner::PropertyEditorValue *DynamicPropertyRow::createProxyBackendValue()
 {
-
-    PropertyEditorValue *newValue = new PropertyEditorValue(this);
+    auto *newValue = new QmlDesigner::PropertyEditorValue(this);
     m_proxyBackendValues.append(newValue);
 
     return newValue;
