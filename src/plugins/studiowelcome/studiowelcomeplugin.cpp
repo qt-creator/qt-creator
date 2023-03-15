@@ -17,18 +17,27 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmanager.h>
 #include "projectexplorer/target.h"
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <qmlprojectmanager/projectfilecontenttools.h>
 #include <qmlprojectmanager/qmlproject.h>
+
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/dynamiclicensecheck.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
@@ -638,6 +647,38 @@ void StudioWelcomePlugin::extensionsInitialized()
 
 bool StudioWelcomePlugin::delayedInitialize()
 {
+    QTimer::singleShot(2000, this, []() {
+        auto modelManager = QmlJS::ModelManagerInterface::instance();
+        if (!modelManager)
+            return;
+
+        QmlJS::PathsAndLanguages importPaths;
+
+        const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [](const Kit *k) {
+            const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
+            const bool isQt6 = version && version->qtVersion().majorVersion() == 6;
+
+            return isQt6
+                   && ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k)
+                          == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+        });
+
+        for (const Kit *kit : kits) {
+            const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
+
+            const Utils::FilePath qmlPath = version->qmlPath();
+            importPaths.maybeInsert(qmlPath, QmlJS::Dialect::QmlQtQuick2);
+
+            QFutureInterface<void> result;
+
+            QmlJS::ModelManagerInterface::importScan(result,
+                                                     QmlJS::ModelManagerInterface::workingCopy(),
+                                                     importPaths,
+                                                     modelManager,
+                                                     false);
+        }
+    });
+
     return true;
 }
 
