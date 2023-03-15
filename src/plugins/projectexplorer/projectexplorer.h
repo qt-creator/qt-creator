@@ -261,6 +261,9 @@ private slots:
     void testProject_projectTree();
     void testProject_multipleBuildConfigs();
 
+    void testSourceToBinaryMapping();
+    void testSourceToBinaryMapping_data();
+
     void testSessionSwitch();
 #endif // WITH_TESTS
 };

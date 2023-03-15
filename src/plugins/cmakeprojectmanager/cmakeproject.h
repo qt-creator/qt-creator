@@ -36,6 +36,8 @@ protected:
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+    void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
+
     Internal::PresetsData combinePresets(Internal::PresetsData &cmakePresetsData,
                                          Internal::PresetsData &cmakeUserPresetsData);
     void setupBuildPresets(Internal::PresetsData &presetsData);

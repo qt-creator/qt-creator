@@ -86,5 +86,13 @@
         <file>images/settingscategory_cpp@2x.png</file>
         <file>images/importasproject.png</file>
         <file>images/importasproject@2x.png</file>
+        <file>testdata/multi-target-project/CMakeLists.txt</file>
+        <file>testdata/multi-target-project/multi-target-project-app.pro</file>
+        <file>testdata/multi-target-project/multi-target-project-lib.cpp</file>
+        <file>testdata/multi-target-project/multi-target-project-lib.pro</file>
+        <file>testdata/multi-target-project/multi-target-project-main.cpp</file>
+        <file>testdata/multi-target-project/multi-target-project-shared.h</file>
+        <file>testdata/multi-target-project/multi-target-project.pro</file>
+        <file>testdata/multi-target-project/multi-target-project.qbs</file>
     </qresource>
 </RCC>

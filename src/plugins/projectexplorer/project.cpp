@@ -869,6 +869,13 @@ const Node *Project::nodeForFilePath(const FilePath &filePath,
     return nullptr;
 }
 
+FilePaths Project::binariesForSourceFile(const Utils::FilePath &sourceFile) const
+{
+    Q_UNUSED(sourceFile);
+    // TODO: QTCREATORBUG-28815
+    return {};
+}
+
 void Project::setProjectLanguages(Context language)
 {
     if (d->m_projectLanguages == language)
@@ -1480,6 +1487,76 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     QVERIFY(ProjectTree::currentNode());
     ProjectTree::instance()->expandAll();
     ProjectManager::closeAllProjects(); // QTCREATORBUG-25655
+}
+
+void ProjectExplorerPlugin::testSourceToBinaryMapping()
+{
+    // Find suitable kit.
+    Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit.");
+
+    // Copy project from qrc.
+    QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
+    QVERIFY(tempDir->isValid());
+    const FilePath projectDir = FilePath::fromString(tempDir->path() + "/multi-target-project");
+    if (!projectDir.exists()) {
+        const auto result = FilePath(":/projectexplorer/testdata/multi-target-project")
+                                .copyRecursively(projectDir);
+        QVERIFY2(result, qPrintable(result.error()));
+        const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files);
+        for (const QFileInfo &f : files)
+            QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
+    }
+
+    // Load Project.
+    QFETCH(QString, projectFileName);
+    const auto theProject = openProject(projectDir.pathAppended(projectFileName));
+    if (theProject.errorMessage().contains("text/")) {
+        QSKIP("This test requires the presence of the qmake/cmake/qbs project managers "
+              "to be fully functional");
+    }
+
+    QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
+    theProject.project()->configureAsExampleProject(kit);
+    QCOMPARE(theProject.project()->targets().size(), 1);
+    Target * const target = theProject.project()->activeTarget();
+    QVERIFY(target);
+    BuildSystem * const bs = target->buildSystem();
+    QVERIFY(bs);
+    QCOMPARE(bs, target->activeBuildConfiguration()->buildSystem());
+    if (bs->isWaitingForParse() || bs->isParsing()) {
+        QSignalSpy parsingFinishedSpy(bs, &BuildSystem::parsingFinished);
+        QVERIFY(parsingFinishedSpy.wait(10000));
+    }
+    QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
+
+    // Build project.
+    BuildManager::buildProjectWithoutDependencies(theProject.project());
+    if (BuildManager::isBuilding()) {
+        QSignalSpy buildingFinishedSpy(BuildManager::instance(), &BuildManager::buildQueueFinished);
+        QVERIFY(buildingFinishedSpy.wait(10000));
+    }
+    QVERIFY(!BuildManager::isBuilding());
+
+    // Check mapping
+    const auto binariesForSource = [&](const QString &fileName) {
+        return theProject.project()->binariesForSourceFile(projectDir.pathAppended(fileName));
+    };
+    QEXPECT_FAIL(0, "QTCREATORBUG-28815", Abort);
+    QCOMPARE(binariesForSource("multi-target-project-main.cpp").size(), 1);
+    QCOMPARE(binariesForSource("multi-target-project-lib.cpp").size(), 1);
+    QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);
+}
+
+void ProjectExplorerPlugin::testSourceToBinaryMapping_data()
+{
+    QTest::addColumn<QString>("projectFileName");
+    QTest::addRow("cmake") << "CMakeLists.txt";
+    QTest::addRow("qbs") << "multi-target-project.qbs";
+    QTest::addRow("qmake") << "multi-target-project.pro";
 }
 
 #endif // WITH_TESTS

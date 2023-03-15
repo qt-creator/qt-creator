@@ -7,16 +7,17 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmaketool.h"
 
 #include <coreplugin/icontext.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <qtsupport/qtkitinformation.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -235,6 +236,19 @@ ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
                    .isEmpty()
                ? DeploymentKnowledge::Approximative
                : DeploymentKnowledge::Bad;
+}
+
+void CMakeProject::configureAsExampleProject(ProjectExplorer::Kit *kit)
+{
+    QList<BuildInfo> infoList;
+    const QList<Kit *> kits(kit != nullptr ? QList<Kit *>({kit}) : KitManager::kits());
+    for (Kit *k : kits) {
+        if (QtSupport::QtKitAspect::qtVersion(k) != nullptr) {
+            if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))
+                infoList << factory->allAvailableSetups(k, projectFilePath());
+        }
+    }
+    setup(infoList);
 }
 
 } // namespace CMakeProjectManager
