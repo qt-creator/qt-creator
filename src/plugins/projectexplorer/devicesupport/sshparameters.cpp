@@ -21,6 +21,17 @@ namespace ProjectExplorer {
 
 SshParameters::SshParameters() = default;
 
+QString SshParameters::userAtHost() const
+{
+    QString res;
+    if (!m_userName.isEmpty())
+        res = m_userName + '@';
+    res += m_host;
+    if (m_port != 22)
+        res += QString(":%1").arg(m_port);
+    return res;
+}
+
 QStringList SshParameters::connectionOptions(const FilePath &binary) const
 {
     QString hostKeyCheckingString;

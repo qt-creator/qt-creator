@@ -31,7 +31,7 @@ public:
     quint16 port() const { return m_port; }
     QString userName() const { return m_userName; }
 
-    QString userAtHost() const { return userName().isEmpty() ? host() : userName() + '@' + host(); }
+    QString userAtHost() const;
 
     void setHost(const QString &host) { m_host = host; }
     void setPort(int port) { m_port = port; }
