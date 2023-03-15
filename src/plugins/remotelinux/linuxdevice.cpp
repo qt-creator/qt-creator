@@ -1202,7 +1202,7 @@ protected:
     }
 
     QString host() const { return m_sshParameters.host(); }
-    QString userAtHost() const { return m_sshParameters.userName() + '@' + m_sshParameters.host(); }
+    QString userAtHost() const { return m_sshParameters.userAtHost(); }
 
     QtcProcess &process() { return m_process; }
     FileTransferDirection direction() const { return m_direction; }
