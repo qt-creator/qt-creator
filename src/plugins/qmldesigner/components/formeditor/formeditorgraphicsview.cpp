@@ -6,6 +6,7 @@
 #include "formeditorwidget.h"
 #include "navigation2d.h"
 #include <utils/hostosinfo.h>
+#include <utils/transientscroll.h>
 
 #include <QAction>
 #include <QCoreApplication>
@@ -36,6 +37,7 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent)
     setBackgroundRole(QPalette::Window);
 
     activateCheckboardBackground();
+    Utils::TransientScrollAreaSupport::support(this);
 
     // as mousetracking only works for mouse key it is better to handle it in the
     // eventFilter method so it works also for the space scrolling case as expected

@@ -615,7 +615,6 @@ void StudioStyle::drawComplexControl(
             painter->save();
             painter->setRenderHint(QPainter::RenderHint::Antialiasing);
 
-            int lineWidth = pixelMetric(QStyle::PM_DefaultFrameWidth, option, widget);
             Theme::Color themeframeColor = enabled
                     ? interaction
                       ? Theme::DSstateControlBackgroundColor_hover // Pressed
@@ -627,14 +626,15 @@ void StudioStyle::drawComplexControl(
             QColor frameColor = creatorTheme()->color(themeframeColor);
 
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
-                Theme::Color bgPlusColor = enabled
+                Theme::Color themeBgPlusColor = enabled
                         ? interaction
                           ? Theme::DSstateControlBackgroundColor_hover // Pressed
                           : grooveHover
                               ? Theme::DSstateSeparatorColor // GrooveHover
-                              : Theme::DStoolbarBackground // Idle
+                              : Theme::DSstateControlBackgroundColor_hover // Idle should be the same as pressed
                         : Theme::DStoolbarBackground; // Disabled
-                Theme::Color bgMinusColor = Theme::DSpopupBackground;
+
+                Theme::Color themeBgMinusColor = Theme::DSpopupBackground;
 
                 QRect minusRect(groove);
                 QRect plusRect(groove);
@@ -659,9 +659,9 @@ void StudioStyle::drawComplexControl(
 
                 painter->save();
                 painter->setPen(Qt::NoPen);
-                painter->setBrush(creatorTheme()->color(bgPlusColor));
+                painter->setBrush(creatorTheme()->color(themeBgPlusColor));
                 painter->drawRoundedRect(plusRect, borderRadius, borderRadius);
-                painter->setBrush(creatorTheme()->color(bgMinusColor));
+                painter->setBrush(creatorTheme()->color(themeBgMinusColor));
                 painter->drawRoundedRect(minusRect, borderRadius, borderRadius);
                 painter->restore();
             }
@@ -673,7 +673,8 @@ void StudioStyle::drawComplexControl(
                           : Theme::DSBackgroundColorAlternate
                         : Theme::DScontrolBackgroundDisabled;
 
-                painter->setPen(tickPen);
+                painter->setBrush(Qt::NoBrush);
+                painter->setPen(creatorTheme()->color(tickPen));
                 int tickSize = proxy()->pixelMetric(PM_SliderTickmarkOffset, option, widget);
                 int available = proxy()->pixelMetric(PM_SliderSpaceAvailable, slider, widget);
                 int interval = slider->tickInterval;
@@ -729,7 +730,7 @@ void StudioStyle::drawComplexControl(
             }
 
             // draw handle
-            if ((option->subControls & SC_SliderHandle) ) {
+            if (option->subControls & SC_SliderHandle) {
                 Theme::Color handleColor = enabled
                         ? interaction
                             ? Theme::DSinteraction  // Interaction
@@ -749,8 +750,9 @@ void StudioStyle::drawComplexControl(
             }
 
             if (groove.isValid()) {
+                int borderWidth = pixelMetric(QStyle::PM_DefaultFrameWidth, option, widget);
                 painter->setBrush(Qt::NoBrush);
-                painter->setPen(QPen(frameColor, lineWidth));
+                painter->setPen(QPen(frameColor, borderWidth));
                 painter->drawRoundedRect(groove, borderRadius, borderRadius);
             }
             painter->restore();
@@ -853,27 +855,46 @@ QRect StudioStyle::subControlRect(
     }
 #endif
 
-    if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
-        switch (subControl) {
-        case SubControl::SC_SliderGroove:
-            return option->rect;
-        case SubControl::SC_SliderHandle:
-        {
-            QRect retval = Super::subControlRect(control, option, subControl, widget);
-            int thickness = 2;
-            QPoint center = retval.center();
-            const QRect &rect = slider->rect;
-            if (slider->orientation == Qt::Horizontal)
-                return {center.x() - thickness, rect.top(), (thickness * 2) + 1, rect.height()};
-            else
-                return {rect.left(), center.y() - thickness, rect.width(), (thickness * 2) + 1};
+    switch (control)
+    {
+    case CC_Slider:
+        if (const auto slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+            switch (subControl) {
+            case SubControl::SC_SliderGroove:
+                return slider->rect;
+            case SubControl::SC_SliderHandle:
+            {
+                QRect retval = Super::subControlRect(control, option, subControl, widget);
+                return (slider->orientation == Qt::Horizontal)
+                    ? retval.adjusted(0, 1, 0, 0)
+                    : retval.adjusted(1, 0, 0, 0);
+            }
+                break;
+            default:
+                break;
+            }
         }
-            break;
-        default:
-            break;
-        }
+        break;
+    default:
+        break;
     }
+
     return Super::subControlRect(control, option, subControl, widget);
+}
+
+int StudioStyle::styleHint(
+        StyleHint hint,
+        const QStyleOption *option,
+        const QWidget *widget,
+        QStyleHintReturn *returnData) const
+{
+    switch (hint) {
+    case SH_ScrollBar_Transient:
+        return true;
+    default:
+        break;
+    }
+    return Super::styleHint(hint, option, widget, returnData);
 }
 
 int StudioStyle::pixelMetric(
@@ -926,6 +947,21 @@ int StudioStyle::pixelMetric(
         return 4;
     case PM_ToolBarExtensionExtent:
         return 29;
+    case PM_ScrollBarExtent:
+        return 20;
+    case PM_ScrollBarSliderMin:
+        return 30;
+    case PM_SliderLength:
+        return 5;
+    case PM_SliderThickness:
+        if (const auto *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+            return (slider->orientation == Qt::Horizontal
+                        ? slider->rect.height()
+                        : slider->rect.width()) - 1;
+        }
+        break;
+    case PM_SliderControlThickness:
+        return 2;
     default:
         break;
     }

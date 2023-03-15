@@ -51,6 +51,12 @@ public:
             SubControl subControl,
             const QWidget *widget) const override;
 
+    int styleHint(
+            StyleHint hint,
+            const QStyleOption *option,
+            const QWidget *widget,
+            QStyleHintReturn *returnData) const override;
+
     int pixelMetric(
             PixelMetric metric,
             const QStyleOption *option = nullptr,

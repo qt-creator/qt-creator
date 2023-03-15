@@ -183,6 +183,7 @@ add_qtc_library(Utils
     tooltip/tips.cpp tooltip/tips.h
     tooltip/tooltip.cpp tooltip/tooltip.h
     touchbar/touchbar.h
+    transientscroll.cpp transientscroll.h
     treemodel.cpp treemodel.h
     treeviewcombobox.cpp treeviewcombobox.h
     uncommentselection.cpp uncommentselection.h

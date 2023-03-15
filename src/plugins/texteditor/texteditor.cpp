@@ -66,6 +66,7 @@
 #include <utils/textutils.h>
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/transientscroll.h>
 #include <utils/uncommentselection.h>
 
 #include <QAbstractTextDocumentLayout>
@@ -1144,6 +1145,7 @@ TextEditorWidget::TextEditorWidget(QWidget *parent)
     setLayoutDirection(Qt::LeftToRight);
     viewport()->setMouseTracking(true);
     setFrameStyle(QFrame::NoFrame);
+    TransientScrollAreaSupport::support(this);
 }
 
 void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
