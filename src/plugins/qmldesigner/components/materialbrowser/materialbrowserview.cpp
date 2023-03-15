@@ -452,7 +452,7 @@ void MaterialBrowserView::requestPreviews()
     m_previewRequests.clear();
 }
 
-ModelNode MaterialBrowserView::getMaterialOfModel(const ModelNode &model)
+ModelNode MaterialBrowserView::getMaterialOfModel(const ModelNode &model, int idx)
 {
     QmlObjectNode qmlObjNode(model);
     QString matExp = qmlObjNode.expression("materials");
@@ -463,12 +463,10 @@ ModelNode MaterialBrowserView::getMaterialOfModel(const ModelNode &model)
     if (mats.isEmpty())
         return {};
 
-    for (const auto &matId : mats) {
-        ModelNode mat = modelNodeForId(matId);
-        if (mat.isValid())
-            return mat;
-    }
-    return {};
+    ModelNode mat = modelNodeForId(mats.at(idx));
+    QTC_ASSERT(mat.isValid(), return {});
+
+    return mat;
 }
 
 void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
@@ -496,7 +494,17 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         return;
 
     if (identifier == "select_material") {
-        int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
+        ModelNode matNode;
+        if (!data.isEmpty() && !m_selectedModels.isEmpty()) {
+            ModelNode model3D = m_selectedModels.at(0);
+            QTC_ASSERT(model3D.isValid(), return);
+            matNode = getMaterialOfModel(model3D, data[0].toInt());
+        } else {
+            matNode = nodeList.first();
+        }
+        QTC_ASSERT(matNode.isValid(), return);
+
+        int idx = m_widget->materialBrowserModel()->materialIndex(matNode);
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
     } else if (identifier == "select_texture") {
