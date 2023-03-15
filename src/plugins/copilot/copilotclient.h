@@ -25,8 +25,6 @@ class CopilotClient : public LanguageClient::Client
 public:
     explicit CopilotClient(const Utils::FilePath &nodePath, const Utils::FilePath &distPath);
 
-    static CopilotClient *instance();
-
     void openDocument(TextEditor::TextDocument *document) override;
 
     void scheduleRequest(TextEditor::TextEditorWidget *editor);

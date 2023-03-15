@@ -3,8 +3,6 @@
 
 #include "copilotclient.h"
 
-#include "copilotsettings.h"
-
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
@@ -35,13 +33,6 @@ static LanguageClient::BaseClientInterface *clientInterface(const FilePath &node
     return interface;
 }
 
-static CopilotClient *currentInstance = nullptr;
-
-CopilotClient *CopilotClient::instance()
-{
-    return currentInstance;
-}
-
 CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
     : LanguageClient::Client(clientInterface(nodePath, distPath))
 {
@@ -69,7 +60,6 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
 
     for (Core::IDocument *doc : Core::DocumentModel::openedDocuments())
         openDoc(doc);
-    currentInstance = this;
 }
 
 void CopilotClient::openDocument(TextDocument *document)
