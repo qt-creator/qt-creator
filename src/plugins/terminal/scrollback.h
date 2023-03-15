@@ -38,7 +38,7 @@ public:
     Scrollback(size_t capacity);
     Scrollback() = delete;
 
-    int capacity() const { return m_capacity; };
+    int capacity() const { return static_cast<int>(m_capacity); };
     int size() const { return static_cast<int>(m_deque.size()); };
 
     const Line &line(size_t index) const { return m_deque.at(index); };
