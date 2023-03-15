@@ -329,7 +329,7 @@ static bool sortByHighlightedAndName(ExampleItem *first, ExampleItem *second)
     return first->name.compare(second->name, Qt::CaseInsensitive) < 0;
 }
 
-static QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
+static QList<std::pair<Section, QList<ExampleItem *>>> getCategories(
     const QList<ExampleItem *> &items)
 {
     static const QString otherDisplayName = Tr::tr("Other", "Category for all other examples");
@@ -345,7 +345,7 @@ static QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
                 other.append(item);
         }
     }
-    QList<std::pair<QString, QList<ExampleItem *>>> categories;
+    QList<std::pair<Section, QList<ExampleItem *>>> categories;
     if (categoryMap.isEmpty()) {
         // The example set doesn't define categories. Consider the "highlighted" ones as "featured"
         QList<ExampleItem *> featured;
@@ -354,15 +354,19 @@ static QList<std::pair<QString, QList<ExampleItem *>>> getCategories(
             return i->isHighlighted;
         });
         if (!featured.isEmpty())
-            categories.append({Tr::tr("Featured", "Category for highlighted examples"), featured});
+            categories.append(
+                {{Tr::tr("Featured", "Category for highlighted examples"), 0}, featured});
         if (!allOther.isEmpty())
-            categories.append({otherDisplayName, allOther});
+            categories.append({{otherDisplayName, 1}, allOther});
     } else {
+        int index = 0;
         const auto end = categoryMap.constKeyValueEnd();
-        for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it)
-            categories.append(*it);
+        for (auto it = categoryMap.constKeyValueBegin(); it != end; ++it) {
+            categories.append({{it->first, index, /*maxRows=*/index == 0 ? 2 : 1}, it->second});
+            ++index;
+        }
         if (!other.isEmpty())
-            categories.append({otherDisplayName, other});
+            categories.append({{otherDisplayName, index, /*maxRows=*/1}, other});
     }
     const auto end = categories.end();
     for (auto it = categories.begin(); it != end; ++it)
@@ -414,9 +418,9 @@ void ExamplesViewController::updateExamples()
         }
     }
 
-    const QList<std::pair<QString, QList<ExampleItem *>>> sections = getCategories(items);
+    const QList<std::pair<Section, QList<ExampleItem *>>> sections = getCategories(items);
     for (int i = 0; i < sections.size(); ++i) {
-        m_view->addSection({sections.at(i).first, i},
+        m_view->addSection(sections.at(i).first,
                            static_container_cast<ListItem *>(sections.at(i).second));
     }
 }
@@ -519,7 +523,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
         const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
         QFileInfoList fis;
         const QFileInfoList subDirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-        for (QFileInfo subDir : subDirs) {
+        for (const QFileInfo &subDir : subDirs) {
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
         }

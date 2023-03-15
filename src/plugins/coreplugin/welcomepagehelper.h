@@ -51,8 +51,16 @@ class CORE_EXPORT SectionGridView : public GridView
 public:
     explicit SectionGridView(QWidget *parent);
 
-    bool hasHeightForWidth() const;
-    int heightForWidth(int width) const;
+    void setMaxRows(std::optional<int> max);
+    std::optional<int> maxRows() const;
+
+    bool hasHeightForWidth() const override;
+    int heightForWidth(int width) const override;
+
+    void wheelEvent(QWheelEvent *e) override;
+
+private:
+    std::optional<int> m_maxRows;
 };
 
 using OptModelIndex = std::optional<QModelIndex>;
@@ -165,6 +173,9 @@ private:
 class CORE_EXPORT Section
 {
 public:
+    Section(const QString &name, int priority);
+    Section(const QString &name, int priority, std::optional<int> maxRows);
+
     friend bool operator<(const Section &lhs, const Section &rhs)
     {
         if (lhs.priority < rhs.priority)
@@ -179,6 +190,7 @@ public:
 
     QString name;
     int priority;
+    std::optional<int> maxRows;
 };
 
 class CORE_EXPORT SectionedGridView : public QStackedWidget
@@ -196,11 +208,14 @@ public:
     void clear();
 
 private:
+    void zoomInSection(const Section &section);
+
     QMap<Section, Core::ListModel *> m_sectionModels;
     QList<QWidget *> m_sectionLabels;
     QMap<Section, Core::GridView *> m_gridViews;
     std::unique_ptr<Core::ListModel> m_allItemsModel;
     std::unique_ptr<Core::GridView> m_allItemsView;
+    QPointer<QWidget> m_zoomedInWidget;
     Core::ListModel::PixmapFunction m_pixmapFunction;
     QAbstractItemDelegate *m_itemDelegate = nullptr;
 };
