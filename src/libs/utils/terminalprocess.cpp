@@ -44,8 +44,6 @@ namespace Internal {
 static QString modeOption(TerminalMode m)
 {
     switch (m) {
-    case TerminalMode::Pty:
-        return "pty";
     case TerminalMode::Run:
         return "run";
     case TerminalMode::Debug:
