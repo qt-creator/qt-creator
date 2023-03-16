@@ -94,6 +94,7 @@ DesignModeWidget::DesignModeWidget()
     : m_toolBar(new Core::EditorToolBar(this))
     , m_crumbleBar(new CrumbleBar(this))
 {
+    setAcceptDrops(true);
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -535,6 +536,12 @@ ADS::DockManager *DesignModeWidget::dockManager() const
 GlobalAnnotationEditor &DesignModeWidget::globalAnnotationEditor()
 {
     return m_globalAnnotationEditor;
+}
+
+void DesignModeWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    event->accept();
+    event->setDropAction(Qt::IgnoreAction);
 }
 
 DesignDocument *DesignModeWidget::currentDesignDocument() const

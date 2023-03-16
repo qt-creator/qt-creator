@@ -78,6 +78,9 @@ signals:
     void navigationHistoryChanged();
     void initialized();
 
+protected:
+    virtual void dragEnterEvent(QDragEnterEvent *event) override;
+
 private:
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
 
