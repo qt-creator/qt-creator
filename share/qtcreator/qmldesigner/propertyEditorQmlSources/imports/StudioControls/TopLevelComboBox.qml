@@ -134,12 +134,12 @@ T.ComboBox {
         interactive: false
         model: control.model
         Keys.onEscapePressed: comboBoxPopup.close()
+        currentIndex: control.highlightedIndex
 
         delegate: ItemDelegate {
             id: itemDelegate
 
             onClicked: {
-                control.currentIndex = index
                 control.activated(index)
                 comboBoxPopup.close()
             }
