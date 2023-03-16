@@ -76,7 +76,8 @@ void CopilotClient::openDocument(TextDocument *document)
                 TextEditorWidget *widget = textEditor->editorWidget();
                 if (widget->multiTextCursor().hasMultipleCursors())
                     return;
-                if (widget->textCursor().position() != (position + charsAdded))
+                const int cursorPosition = widget->textCursor().position();
+                if (cursorPosition < position || cursorPosition > position + charsAdded)
                     return;
                 scheduleRequest(textEditor->editorWidget());
             });
