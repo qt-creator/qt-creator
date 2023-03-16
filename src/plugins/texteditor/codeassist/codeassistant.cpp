@@ -252,6 +252,14 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         return;
     }
 
+    if (m_editorWidget->suggestionVisible()) {
+        if (reason != ExplicitlyInvoked) {
+            destroyContext();
+            return;
+        }
+        m_editorWidget->clearSuggestion();
+    }
+
     const QString prefix = m_editorWidget->textAt(basePosition,
                                                   m_editorWidget->position() - basePosition);
     if (!newProposal->hasItemsToPropose(prefix, reason)) {
