@@ -869,11 +869,32 @@ const Node *Project::nodeForFilePath(const FilePath &filePath,
     return nullptr;
 }
 
-FilePaths Project::binariesForSourceFile(const Utils::FilePath &sourceFile) const
+FilePaths Project::binariesForSourceFile(const FilePath &sourceFile) const
 {
-    Q_UNUSED(sourceFile);
-    // TODO: QTCREATORBUG-28815
-    return {};
+    if (!rootProjectNode())
+        return {};
+    const QList<Node *> fileNodes = rootProjectNode()->findNodes([&sourceFile](Node *n) {
+        return n->filePath() == sourceFile;
+    });
+    FilePaths binaries;
+    for (const Node * const fileNode : fileNodes) {
+        for (ProjectNode *projectNode = fileNode->parentProjectNode(); projectNode;
+             projectNode = projectNode->parentProjectNode()) {
+            if (!projectNode->isProduct())
+                continue;
+            if (projectNode->productType() == ProductType::App
+                || projectNode->productType() == ProductType::Lib) {
+                const QList<Node *> binaryNodes = projectNode->findNodes([](Node *n) {
+                    return n->asFileNode() && (n->asFileNode()->fileType() == FileType::App
+                               || n->asFileNode()->fileType() == FileType::Lib);
+
+                });
+                binaries << Utils::transform(binaryNodes, &Node::filePath);
+            }
+            break;
+        }
+    }
+    return binaries;
 }
 
 void Project::setProjectLanguages(Context language)
@@ -1533,19 +1554,23 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
     }
     QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
 
-    // Build project.
-    BuildManager::buildProjectWithoutDependencies(theProject.project());
-    if (BuildManager::isBuilding()) {
-        QSignalSpy buildingFinishedSpy(BuildManager::instance(), &BuildManager::buildQueueFinished);
-        QVERIFY(buildingFinishedSpy.wait(10000));
+    if (QLatin1String(QTest::currentDataTag()) == QLatin1String("qbs")) {
+        BuildManager::buildProjectWithoutDependencies(theProject.project());
+        if (BuildManager::isBuilding()) {
+            QSignalSpy buildingFinishedSpy(BuildManager::instance(), &BuildManager::buildQueueFinished);
+            QVERIFY(buildingFinishedSpy.wait(10000));
+        }
+        QVERIFY(!BuildManager::isBuilding());
+        QSignalSpy projectUpdateSpy(theProject.project(), &Project::fileListChanged);
+        QVERIFY(projectUpdateSpy.wait(5000));
     }
-    QVERIFY(!BuildManager::isBuilding());
 
     // Check mapping
     const auto binariesForSource = [&](const QString &fileName) {
         return theProject.project()->binariesForSourceFile(projectDir.pathAppended(fileName));
     };
-    QEXPECT_FAIL(0, "QTCREATORBUG-28815", Abort);
+    QEXPECT_FAIL("cmake", "QTCREATORBUG-28815", Abort);
+    QEXPECT_FAIL("qmake", "QTCREATORBUG-28815", Abort);
     QCOMPARE(binariesForSource("multi-target-project-main.cpp").size(), 1);
     QCOMPARE(binariesForSource("multi-target-project-lib.cpp").size(), 1);
     QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);

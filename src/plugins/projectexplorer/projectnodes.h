@@ -32,6 +32,8 @@ enum class FileType : quint16 {
     Resource,
     QML,
     Project,
+    App,
+    Lib,
     FileTypeSize
 };
 
