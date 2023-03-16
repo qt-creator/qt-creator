@@ -67,7 +67,6 @@ public:
     QString filter() const;
     QList<FileResourcesItem> model() const;
 
-    void setupModel();
     void refreshModel();
 
     Q_INVOKABLE void openFileDialog();
@@ -89,7 +88,6 @@ private:
 private:
     QUrl m_fileName;
     QUrl m_path;
-    QDir m_dirPath;
     QDir m_docPath;
     QString m_filter;
     QString m_currentPath;
