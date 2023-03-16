@@ -34541,7 +34541,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>The build step was ended forcefully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Build-Schritt wurde gestoppt.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited normally.</source>
@@ -35657,7 +35657,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Run Generator</source>
-        <translation type="unfinished"></translation>
+        <translation>Generator ausführen</translation>
     </message>
     <message>
         <source>Rebuild Without Dependencies</source>
@@ -36526,31 +36526,31 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>Ready to use</source>
-        <translation type="unfinished"></translation>
+        <translation>Einsatzbereit</translation>
     </message>
     <message>
         <source>Connected</source>
-        <translation type="unfinished">Verbunden</translation>
+        <translation>Verbunden</translation>
     </message>
     <message>
         <source>Disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Getrennt</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>localSource() not implemented for this device type.</source>
-        <translation type="unfinished"></translation>
+        <translation>localSource() ist für diesen Gerätetyp nicht implementiert.</translation>
     </message>
     <message>
         <source>No device for given path: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für den angegebenen Pfad: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Device for path &quot;%1&quot; does not support killing processes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Beenden von Prozessen wird von dem Gerät für den Pfad &quot;%1&quot; nicht unterstützt.</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -37850,7 +37850,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>Add QML_ELEMENT</source>
-        <translation type="unfinished"></translation>
+        <translation>QML_ELEMENT einfügen</translation>
     </message>
     <message>
         <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.
@@ -38086,19 +38086,19 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
     <message>
         <source>Create a project that you can open in Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann</translation>
     </message>
     <message>
         <source>Create a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio (via qmlproject) als auch mit Qt Creator (via CMakeLists.txt) kompatibel ist. Es enthält ein .ui.qml-Formular, das in Qt Design Studio visuell bearbeitet werden kann.</translation>
     </message>
     <message>
         <source>The minimum version of Qt you want to build the application for</source>
-        <translation type="unfinished"></translation>
+        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that contains an empty window. Optionally, you can create a Qt Design Studio project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt Quick-Anwendung, die ein leeres Fenster enthält. Optional kann ein Qt Design Studio-Projekt erstellt werden.</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
@@ -38109,7 +38109,10 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
 {
     return 0;
 }</source>
-        <translation type="unfinished"></translation>
+        <translation>int main(int argc, char *argv[])
+{
+    return 0;
+}</translation>
     </message>
     <message>
         <source>Code:</source>
@@ -38786,57 +38789,57 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     <message>
         <source>%1: Name.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Name.</translation>
     </message>
     <message>
         <source>%1: Full path to main file.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Vollständiger Pfad zur Hauptdatei.</translation>
     </message>
     <message>
         <source>%1: The name the active kit.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Der Name des aktiven Kits.</translation>
     </message>
     <message>
         <source>%1: Name of the active build configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Name der aktiven Build-Konfiguration.</translation>
     </message>
     <message>
         <source>%1: Type of the active build configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Typ der aktiven Build-Konfiguration.</translation>
     </message>
     <message>
         <source>%1: Full build path of active build configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Vollständiges Build-Verzeichnis der aktiven Build-Konfiguration.</translation>
     </message>
     <message>
         <source>%1: Variables in the active build environment.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Variablen in der aktiven Build-Umgebung.</translation>
     </message>
     <message>
         <source>%1: Name of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Name der aktiven Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>%1: Executable of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Ausführbare Datei der aktiven Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>%1: Variables in the environment of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Variablen in der Umgebung der aktiven Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>%1: Working directory of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Arbeitsverzeichnis der aktiven Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>Target Settings</source>
@@ -39057,11 +39060,11 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Taskhub Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Taskhub-Fehler</translation>
     </message>
     <message>
         <source>Taskhub Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Taskhub-Warnung</translation>
     </message>
     <message>
         <source>Build Issue</source>
@@ -39105,15 +39108,15 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>&amp;Configure Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt &amp;Konfigurieren</translation>
     </message>
     <message>
         <source>Enable Kit for Project &quot;%1&quot;</source>
-        <translation type="unfinished">Kit für das Projekt &quot;%2&quot; aktivieren {1&quot;?}</translation>
+        <translation>Kit für das Projekt &quot;%1&quot; aktivieren</translation>
     </message>
     <message>
         <source>Disable Kit for Project &quot;%1&quot;</source>
-        <translation type="unfinished">Kit für das Projekt &quot;%2&quot; deaktivieren {1&quot;?}</translation>
+        <translation>Kit für das Projekt &quot;%1&quot; deaktivieren</translation>
     </message>
     <message>
         <source>Cancel Build and Disable Kit in This Project</source>
@@ -39310,11 +39313,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>X11 Forwarding:</source>
-        <translation type="unfinished"></translation>
+        <translation>X11-Weiterleitung:</translation>
     </message>
     <message>
         <source>Forward to local display</source>
-        <translation type="unfinished">Auf lokalen Bildschirm weiterleiten</translation>
+        <translation>Auf lokalen Bildschirm weiterleiten</translation>
     </message>
     <message>
         <source>Make arguments:</source>
@@ -39652,7 +39655,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Falling back to use the cached environment for &quot;%1&quot; after:</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf die gespeicherte Umgebung für &quot;%1&quot; zurückgreifen nach:</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
@@ -40105,16 +40108,16 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>No device for path &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für Pfad &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Profile</source>
         <extracomment>The name of the profile build configuration created by default for a qmake project.</extracomment>
-        <translation type="unfinished">Profile</translation>
+        <translation>Profile</translation>
     </message>
     <message>
         <source>Profiling</source>
-        <translation type="unfinished">Profiling</translation>
+        <translation>Profiling</translation>
     </message>
 </context>
 <context>
