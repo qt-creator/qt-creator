@@ -326,7 +326,7 @@ void doSemanticHighlighting(
             styles.mainStyle = C_PARAMETER;
         } else if (token.type == "macro") {
             styles.mainStyle = C_MACRO;
-        } else if (token.type == "type") {
+        } else if (token.type == "type" || token.type == "concept") {
             styles.mainStyle = C_TYPE;
         } else if (token.type == "modifier") {
             styles.mainStyle = C_KEYWORD;

@@ -3941,10 +3941,10 @@ void GdbEngine::handleGdbStarted()
     }
 
     if (!rp.sysRoot.isEmpty()) {
-        runCommand({"set sysroot " + rp.sysRoot.toString()});
+        runCommand({"set sysroot " + rp.sysRoot.path()});
         // sysroot is not enough to correctly locate the sources, so explicitly
         // relocate the most likely place for the debug source
-        runCommand({"set substitute-path /usr/src " + rp.sysRoot.toString() + "/usr/src"});
+        runCommand({"set substitute-path /usr/src " + rp.sysRoot.path() + "/usr/src"});
     }
 
     //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
@@ -4139,7 +4139,7 @@ void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
         const FilePath debugInfoLocation = runParameters().debugInfoLocation;
         if (!debugInfoLocation.isEmpty() && debugInfoLocation.exists()) {
             const QString curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
-            QString cmd = "set debug-file-directory " + debugInfoLocation.toString();
+            QString cmd = "set debug-file-directory " + debugInfoLocation.path();
             if (!curDebugInfoLocations.isEmpty())
                 cmd += HostOsInfo::pathListSeparator() + curDebugInfoLocations;
             runCommand({cmd});
@@ -4799,7 +4799,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
             runCommand({"attach " + QString::number(runParameters().attachPID.pid()),
                         CB(handleTargetExtendedAttach)});
         } else if (!runParameters().inferior.command.isEmpty()) {
-            runCommand({"-gdb-set remote exec-file " + runParameters().inferior.command.executable().toString(),
+            runCommand({"-gdb-set remote exec-file " + runParameters().inferior.command.executable().path(),
                         CB(handleTargetExtendedAttach)});
         } else {
             const QString title = Tr::tr("No Remote Executable or Process ID Specified");

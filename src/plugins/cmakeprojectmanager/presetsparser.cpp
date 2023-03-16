@@ -36,6 +36,22 @@ bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &vers
     return true;
 }
 
+std::optional<QStringList> parseInclude(const QJsonValue &jsonValue)
+{
+    std::optional<QStringList> includes;
+
+    if (!jsonValue.isUndefined()) {
+        if (jsonValue.isArray()) {
+            includes = QStringList();
+            const QJsonArray includeArray = jsonValue.toArray();
+            for (const QJsonValue &includeValue : includeArray)
+                includes.value() << includeValue.toString();
+        }
+    }
+
+    return includes;
+}
+
 std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonValue)
 {
     std::optional<PresetsDetails::Condition> condition;
@@ -133,7 +149,8 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
 }
 
 bool parseConfigurePresets(const QJsonValue &jsonValue,
-                           QList<PresetsDetails::ConfigurePreset> &configurePresets)
+                           QList<PresetsDetails::ConfigurePreset> &configurePresets,
+                           const Utils::FilePath &fileDir)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -151,6 +168,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
         PresetsDetails::ConfigurePreset preset;
 
         preset.name = object.value("name").toString();
+        preset.fileDir = fileDir;
         preset.hidden = object.value("hidden").toBool();
 
         QJsonValue inherits = object.value("inherits");
@@ -291,7 +309,8 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
 }
 
 bool parseBuildPresets(const QJsonValue &jsonValue,
-                       QList<PresetsDetails::BuildPreset> &buildPresets)
+                       QList<PresetsDetails::BuildPreset> &buildPresets,
+                       const Utils::FilePath &fileDir)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -309,6 +328,7 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
         PresetsDetails::BuildPreset preset;
 
         preset.name = object.value("name").toString();
+        preset.fileDir = fileDir;
         preset.hidden = object.value("hidden").toBool();
 
         QJsonValue inherits = object.value("inherits");
@@ -416,6 +436,8 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
 
     QJsonObject root = jsonDoc.object();
 
+    m_presetsData.fileDir = jsonFile.parentDir();
+
     if (!parseVersion(root.value("version"), m_presetsData.version)) {
         errorMessage = Tr::tr("Invalid \"version\" in file \"%1\".").arg(jsonFile.fileName());
         return false;
@@ -426,14 +448,21 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
                               m_presetsData.cmakeMinimimRequired);
 
     // optional
-    if (!parseConfigurePresets(root.value("configurePresets"), m_presetsData.configurePresets)) {
+    m_presetsData.include = parseInclude(root.value("include"));
+
+    // optional
+    if (!parseConfigurePresets(root.value("configurePresets"),
+                               m_presetsData.configurePresets,
+                               jsonFile.parentDir())) {
         errorMessage
             = Tr::tr("Invalid \"configurePresets\" section in %1 file").arg(jsonFile.fileName());
         return false;
     }
 
     // optional
-    if (!parseBuildPresets(root.value("buildPresets"), m_presetsData.buildPresets)) {
+    if (!parseBuildPresets(root.value("buildPresets"),
+                           m_presetsData.buildPresets,
+                           jsonFile.parentDir())) {
         errorMessage
             = Tr::tr("Invalid \"buildPresets\" section in %1 file").arg(jsonFile.fileName());
         return false;

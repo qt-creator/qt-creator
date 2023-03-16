@@ -83,7 +83,7 @@
     directories.
 
     Also, the \uicontrol {Open Terminal} button in the
-    \uicontrol {Use build environment} section opens a terminal on the device.
+    \uicontrol {Build Environment} section opens a terminal on the device.
 
     \section1 Starting External Processes
 

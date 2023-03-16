@@ -15,6 +15,8 @@ General
 
 * Added support for temporarily dragging progress details out of the way
   in addition to hiding them with the button below them (QTCREATORBUG-28078)
+* Fixed that the locator search term was not preserved when using `Open as
+  Centered Popup`
 
 Editing
 -------
@@ -108,6 +110,12 @@ Projects
   by default (QTCREATORBUG-28513)
 * Fixed that `Package manager auto setup` created a dependency of the project
   build to the Qt Creator installation
+* Fixed that cloned build configurations could miss values from the `Initial
+  Parameters` (QTCREATORBUG-28759)
+* Fixed that CMake preset macros were not expanded for environment variables
+  (QTCREATORBUG-28606)
+* Fixed a crash with the `Kit Configuration` button for build configurations
+  (QTCREATORBUG-28740)
 
 ### Qbs
 
@@ -129,9 +137,15 @@ Debugging
 * Fixed highlighting in the `Disassembler` view
 * Fixed skipping `std::function` details when stepping
 * Fixed an out of memory issue when debugging long lists (QTCREATORBUG-26416)
+* Fixed the highlighting of values and members in the memory view
+  (QTCREATORBUG-23681)
+* GDB
+    * Fixed issues with GDB 13.1
 * CDB
     * Fixed the printing of addresses of pointers with multiple base classes
       (QTCREATORBUG-28337)
+    * Fixed some performance issues (QTCREATORBUG-18287)
+    * Fixed a freeze with non-UTF-8 system encoding (QTCREATORBUG-25054)
 
 ### Python
 
@@ -159,9 +173,10 @@ Version Control Systems
 ### Git
 
 * Improved tracking of external changes (QTCREATORBUG-21089)
-* Added editor annotation for blame information (instant blame) with a setting
-  (opt-out) and an action to show it manually for the current line
-  (QTCREATORBUG-23299)
+* Added editor annotation for blame information (instant blame) with the setting
+  `Edit > Preferences > Version Control Git > Add instant blame annotations to
+  editor` (opt-out) and the `Tools > Git > Current File > Instant Blame` action
+  to show annotation manually for the current line (QTCREATORBUG-23299)
 
 Test Integration
 ----------------
@@ -169,7 +184,8 @@ Test Integration
 * Improved `Run` and `Debug Test Under Cursor` (QTCREATORBUG-28496)
 * Improved the number of files that are scanned for tests
 * Improved output handling (QTCREATORBUG-28706)
-* Made the expensive checking for tests in derived `TestCase` objects optional
+* Added an option to enable the expensive checking for tests in derived
+  `TestCase` objects to `Edit > Preferences > Testing > Qt Test`
 
 Platforms
 ---------
@@ -242,6 +258,7 @@ Philip Van Hoof
 Pranta Dastider  
 Robert Löhning  
 Sami Shalayel  
+Samuel Gaist  
 Samuel Ghinet  
 Sergey Levin  
 Sivert Krøvel  

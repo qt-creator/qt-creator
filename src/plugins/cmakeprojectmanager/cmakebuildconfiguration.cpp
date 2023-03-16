@@ -665,12 +665,15 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
 
     auto layout = new QGridLayout(dialog);
 
-    kitAspect.createConfigWidget(m_buildSystem->kit())
-        ->addToLayoutWithLabel(layout->parentWidget());
-    generatorAspect.createConfigWidget(m_buildSystem->kit())
-        ->addToLayoutWithLabel(layout->parentWidget());
-    configurationKitAspect.createConfigWidget(m_buildSystem->kit())
-        ->addToLayoutWithLabel(layout->parentWidget());
+    KitAspectWidget *widget = kitAspect.createConfigWidget(m_buildSystem->kit());
+    widget->setParent(dialog);
+    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget = generatorAspect.createConfigWidget(m_buildSystem->kit());
+    widget->setParent(dialog);
+    widget->addToLayoutWithLabel(layout->parentWidget());
+    widget = configurationKitAspect.createConfigWidget(m_buildSystem->kit());
+    widget->setParent(dialog);
+    widget->addToLayoutWithLabel(layout->parentWidget());
 
     layout->setColumnStretch(1, 1);
 
@@ -1174,6 +1177,12 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
     const QString presetName = presetItem.expandedValue(k);
     initialArguments.removeIf(
         [presetArgument](const QString &item) { return item == presetArgument; });
+
+    // Remove the -DQTC_KIT_DEFAULT_CONFIG_HASH argument
+    const QString presetHashArgument
+        = CMakeConfigurationKitAspect::kitDefaultConfigHashItem(k).toArgument();
+    initialArguments.removeIf(
+        [presetHashArgument](const QString &item) { return item == presetHashArgument; });
 
     PresetsDetails::ConfigurePreset configurePreset
         = Utils::findOrDefault(project->presetsData().configurePresets,

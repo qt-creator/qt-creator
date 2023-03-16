@@ -7,6 +7,7 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/osspecificaspects.h>
 
 using namespace Utils;
 
@@ -40,10 +41,13 @@ static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${fileDir}", preset.fileDir.path());
     if (preset.generator)
         value.replace("${generator}", preset.generator.value());
 
     value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
+    value.replace("${pathListSep}",
+                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
 
 static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
@@ -53,10 +57,13 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${dollar}", "$");
 
     value.replace("${sourceDir}", sourceDirectory.toString());
+    value.replace("${fileDir}", preset.fileDir.path());
     value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${pathListSep}",
+                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
 
 static QString expandMacroEnv(const QString &macroPrefix,

@@ -29,6 +29,9 @@
         \li Select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol {Version Control} > \uicontrol Fossil, and set the
             designated directory in the \uicontrol {Default path} field.
+
+            \image qtcreator-preferences-vcs-fossil.webp {Fossil preferences}
+
     \endlist
 
     To create a local Fossil repository, select \uicontrol Tools >
@@ -62,4 +65,28 @@
             \li \uicontrol Settings
             \li Configure the settings of the local repository.
     \endtable
+
+    \section1 Fossil Preferences
+
+    To set Fossil preferences, select \uicontrol Edit > \uicontrol Preferences >
+    \uicontrol {Version Control} > \uicontrol Fossil:
+
+    \list
+        \li \uicontrol Command specifies the path to the command line client
+            executable.
+        \li \uicontrol {Default path} sets the path to the directory to store
+            local repositories by default.
+        \li \uicontrol {Default user} specifies an existing user who becomes the
+            author of changes made to the repository.
+        \li \uicontrol {SSL/TLS identity} sets the SSL/TLS client identity key
+            to use for authentication if the server requests it.
+        \li \uicontrol {Log count} sets the maximum number of lines the log can
+            have.
+        \li \uicontrol {Log width} sets the width of log entry lines to 20 or
+            above. The value 0 shows a single line per entry.
+        \li \uicontrol {Timeout} sets a timeout for version control operations.
+        \li \uicontrol {Disable auto sync} disables automatic pull before
+            a commit or update and automatic push after a commit or tag or branch
+            creation.
+    \endlist
 */

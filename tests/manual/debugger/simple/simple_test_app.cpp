@@ -2172,7 +2172,7 @@ namespace plugin {
 
     void testPlugin()
     {
-        QString dir = QDir::currentPath();
+        QString dir = QApplication::applicationDirPath();
     #ifdef Q_OS_LINUX
         QLibrary lib(dir + "/libsimple_test_plugin.so");
     #endif
