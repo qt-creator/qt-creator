@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "copilotclient.h"
+#include "copilotsuggestion.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -63,6 +64,14 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
         openDoc(doc);
 }
 
+CopilotClient::~CopilotClient()
+{
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForOpenedDocuments()) {
+        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
+            textEditor->editorWidget()->removeHoverHandler(&m_hoverHandler);
+    }
+}
+
 void CopilotClient::openDocument(TextDocument *document)
 {
     Client::openDocument(document);
@@ -112,7 +121,7 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
 void CopilotClient::requestCompletions(TextEditorWidget *editor)
 {
     Utils::MultiTextCursor cursor = editor->multiTextCursor();
-    if (cursor.hasMultipleCursors() || cursor.hasSelection())
+    if (cursor.hasMultipleCursors() || cursor.hasSelection() || editor->suggestionVisible())
         return;
 
     const Utils::FilePath filePath = editor->textDocument()->filePath();
@@ -128,39 +137,6 @@ void CopilotClient::requestCompletions(TextEditorWidget *editor)
     m_runningRequests[editor] = request;
     sendMessage(request);
 }
-
-class CopilotSuggestion final : public TextEditor::TextSuggestion
-{
-public:
-    CopilotSuggestion(const Completion &completion, QTextDocument *origin)
-        : m_completion(completion)
-    {
-        document()->setPlainText(completion.text());
-        m_start = completion.position().toTextCursor(origin);
-        m_start.setKeepPositionOnInsert(true);
-        setCurrentPosition(m_start.position());
-    }
-
-    bool apply() final
-    {
-        reset();
-        QTextCursor cursor = m_completion.range().toSelection(m_start.document());
-        cursor.insertText(m_completion.text());
-        return true;
-    }
-    void reset() final
-    {
-        m_start.removeSelectedText();
-    }
-    int position() final
-    {
-        return m_start.position();
-    }
-
-private:
-    Completion m_completion;
-    QTextCursor m_start;
-};
 
 void CopilotClient::handleCompletions(const GetCompletionRequest::Response &response,
                                       TextEditorWidget *editor)
@@ -184,7 +160,9 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
         if (completions.isEmpty())
             return;
         editor->insertSuggestion(
-            std::make_unique<CopilotSuggestion>(completions.first(), editor->document()));
+            std::make_unique<CopilotSuggestion>(completions, editor->document()));
+        m_lastCompletions[editor] = *result;
+        editor->addHoverHandler(&m_hoverHandler);
     }
 }
 
@@ -232,6 +210,11 @@ void CopilotClient::requestSignInConfirm(
     request.setResponseCallback(callback);
 
     sendMessage(request);
+}
+
+GetCompletionResponse CopilotClient::lastCompletion(TextEditor::TextEditorWidget *editor) const
+{
+    return m_lastCompletions.value(editor);
 }
 
 } // namespace Copilot::Internal

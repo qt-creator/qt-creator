@@ -39,7 +39,8 @@ protected:
         Priority_None = 0,
         Priority_Tooltip = 5,
         Priority_Help = 10,
-        Priority_Diagnostic = 20
+        Priority_Diagnostic = 20,
+        Priority_Suggestion = 40
     };
     void setPriority(int priority);
     int priority() const;

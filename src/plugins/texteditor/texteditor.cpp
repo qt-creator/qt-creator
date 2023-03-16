@@ -3736,7 +3736,10 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
         // Only handle tool tip for text cursor if mouse is within the block for the text cursor,
         // and not if the mouse is e.g. in the empty space behind a short line.
         if (line.isValid()) {
-            if (pos.x() <= blockBoundingGeometry(block).left() + line.naturalTextRect().right()) {
+            const QRectF blockGeometry = blockBoundingGeometry(block);
+            const int width = block == d->m_suggestionBlock ? blockGeometry.width()
+                                                            : line.naturalTextRect().right();
+            if (pos.x() <= blockGeometry.left() + width) {
                 d->processTooltipRequest(tc);
                 return true;
             } else if (d->processAnnotaionTooltipRequest(block, pos)) {
@@ -5980,8 +5983,8 @@ void TextEditorWidget::addHoverHandler(BaseHoverHandler *handler)
 
 void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
 {
-    d->m_hoverHandlers.removeAll(handler);
-    d->m_hoverHandlerRunner.handlerRemoved(handler);
+    if (d->m_hoverHandlers.removeAll(handler) > 0)
+        d->m_hoverHandlerRunner.handlerRemoved(handler);
 }
 
 void TextEditorWidget::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
@@ -5994,9 +5997,16 @@ void TextEditorWidget::clearSuggestion()
     d->clearCurrentSuggestion();
 }
 
+TextSuggestion *TextEditorWidget::currentSuggestion() const
+{
+    if (d->m_suggestionBlock.isValid())
+        return TextDocumentLayout::suggestion(d->m_suggestionBlock);
+    return nullptr;
+}
+
 bool TextEditorWidget::suggestionVisible() const
 {
-    return d->m_suggestionBlock.isValid();
+    return currentSuggestion();
 }
 
 #ifdef WITH_TESTS

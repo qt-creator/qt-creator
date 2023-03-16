@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "copilothoverhandler.h"
 #include "requests/checkstatus.h"
 #include "requests/getcompletions.h"
 #include "requests/signinconfirm.h"
@@ -18,12 +19,11 @@
 
 namespace Copilot::Internal {
 
-class DocumentWatcher;
-
 class CopilotClient : public LanguageClient::Client
 {
 public:
-    explicit CopilotClient(const Utils::FilePath &nodePath, const Utils::FilePath &distPath);
+    CopilotClient(const Utils::FilePath &nodePath, const Utils::FilePath &distPath);
+    ~CopilotClient() override;
 
     void openDocument(TextEditor::TextDocument *document) override;
 
@@ -46,6 +46,8 @@ public:
         const QString &userCode,
         std::function<void(const SignInConfirmRequest::Response &response)> callback);
 
+    GetCompletionResponse lastCompletion(TextEditor::TextEditorWidget *editor) const;
+
 private:
     QMap<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
     struct ScheduleData
@@ -54,6 +56,8 @@ private:
         QTimer *timer = nullptr;
     };
     QMap<TextEditor::TextEditorWidget *, ScheduleData> m_scheduledRequests;
+    CopilotHoverHandler m_hoverHandler;
+    QHash<TextEditor::TextEditorWidget *, GetCompletionResponse> m_lastCompletions;
 };
 
 } // namespace Copilot::Internal

@@ -165,7 +165,6 @@ private:
     std::unique_ptr<TextSuggestion> m_suggestion;
 };
 
-
 class TEXTEDITOR_EXPORT TextDocumentLayout : public QPlainTextDocumentLayout
 {
     Q_OBJECT

@@ -473,6 +473,7 @@ public:
 
     void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
     void clearSuggestion();
+    TextSuggestion *currentSuggestion() const;
     bool suggestionVisible() const;
 
 #ifdef WITH_TESTS

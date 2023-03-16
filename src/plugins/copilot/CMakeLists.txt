@@ -3,13 +3,15 @@ add_qtc_plugin(Copilot
   SOURCES
     authwidget.cpp authwidget.h
     copilot.qrc
-    copilotplugin.cpp copilotplugin.h
     copilotclient.cpp copilotclient.h
-    copilotsettings.cpp copilotsettings.h
+    copilothoverhandler.cpp copilothoverhandler.h
     copilotoptionspage.cpp copilotoptionspage.h
-    requests/getcompletions.h
+    copilotplugin.cpp copilotplugin.h
+    copilotsettings.cpp copilotsettings.h
+    copilotsuggestion.cpp copilotsuggestion.h
     requests/checkstatus.h
-    requests/signout.h
-    requests/signininitiate.h
+    requests/getcompletions.h
     requests/signinconfirm.h
+    requests/signininitiate.h
+    requests/signout.h
 )
