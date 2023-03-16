@@ -30,11 +30,10 @@ using namespace Utils;
 
 namespace Qdb::Internal {
 
-class QdbProcessImpl : public LinuxProcessInterface
+class QdbProcessImpl : public SshProcessInterface
 {
 public:
-    QdbProcessImpl(const LinuxDevice *linuxDevice)
-        : LinuxProcessInterface(linuxDevice) {}
+    QdbProcessImpl(const IDevice::ConstPtr &device) : SshProcessInterface(device) {}
     ~QdbProcessImpl() { killIfRunning(); }
 
 private:
@@ -124,7 +123,7 @@ ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()
 
 ProcessInterface *QdbDevice::createProcessInterface() const
 {
-    return new QdbProcessImpl(this);
+    return new QdbProcessImpl(sharedFromThis());
 }
 
 void QdbDevice::setSerialNumber(const QString &serial)

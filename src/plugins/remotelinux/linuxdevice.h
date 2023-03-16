@@ -41,12 +41,12 @@ public:
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(
             const ProjectExplorer::FileTransferSetupData &setup) const override;
 
+    class LinuxDevicePrivate *connectionAccess() const;
+
 protected:
     LinuxDevice();
 
     class LinuxDevicePrivate *d;
-    friend class SshProcessInterface;
-    friend class SshTransferInterface;
 };
 
 namespace Internal {

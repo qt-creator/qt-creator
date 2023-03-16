@@ -11,7 +11,6 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxsignaloperation.h"
 #include "remotelinuxtr.h"
-#include "sshprocessinterface.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -361,10 +360,8 @@ Environment LinuxDeviceFileAccess::deviceEnvironment() const
 
 class SshProcessInterfacePrivate : public QObject
 {
-    Q_OBJECT
-
 public:
-    SshProcessInterfacePrivate(SshProcessInterface *sshInterface, LinuxDevicePrivate *devicePrivate);
+    SshProcessInterfacePrivate(SshProcessInterface *sshInterface, const IDevice::ConstPtr &device);
 
     void start();
 
@@ -388,7 +385,6 @@ public:
     IDevice::ConstPtr m_device;
     std::unique_ptr<SshConnectionHandle> m_connectionHandle;
     QtcProcess m_process;
-    LinuxDevicePrivate *m_devicePrivate = nullptr;
 
     QString m_socketFilePath;
     SshParameters m_sshParameters;
@@ -396,36 +392,20 @@ public:
     bool m_killed = false;
 
     ProcessResultData m_result;
+
+    QByteArray m_output;
+    QByteArray m_error;
+    bool m_pidParsed = false;
 };
 
-SshProcessInterface::SshProcessInterface(const LinuxDevice *linuxDevice)
-    : d(new SshProcessInterfacePrivate(this, linuxDevice->d))
-{
-}
+SshProcessInterface::SshProcessInterface(const IDevice::ConstPtr &device)
+    : d(new SshProcessInterfacePrivate(this, device))
+{}
 
 SshProcessInterface::~SshProcessInterface()
 {
+    killIfRunning();
     delete d;
-}
-
-void SshProcessInterface::handleStarted(qint64 processId)
-{
-    emitStarted(processId);
-}
-
-void SshProcessInterface::handleDone(const ProcessResultData &resultData)
-{
-    emit done(resultData);
-}
-
-void SshProcessInterface::handleReadyReadStandardOutput(const QByteArray &outputData)
-{
-    emit readyRead(outputData, {});
-}
-
-void SshProcessInterface::handleReadyReadStandardError(const QByteArray &errorData)
-{
-    emit readyRead({}, errorData);
 }
 
 void SshProcessInterface::emitStarted(qint64 processId)
@@ -464,11 +444,6 @@ bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArra
     return isFinished;
 }
 
-IDevice::ConstPtr SshProcessInterface::device() const
-{
-    return d->m_device;
-}
-
 void SshProcessInterface::start()
 {
     d->start();
@@ -498,17 +473,7 @@ void SshProcessInterface::sendControlSignal(ControlSignal controlSignal)
     handleSendControlSignal(controlSignal);
 }
 
-LinuxProcessInterface::LinuxProcessInterface(const LinuxDevice *linuxDevice)
-    : SshProcessInterface(linuxDevice)
-{
-}
-
-LinuxProcessInterface::~LinuxProcessInterface()
-{
-    killIfRunning();
-}
-
-void LinuxProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
+void SshProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     QTC_ASSERT(controlSignal != ControlSignal::CloseWriteChannel, return);
@@ -521,67 +486,43 @@ void LinuxProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
     runInShell(command);
 }
 
-QString LinuxProcessInterface::fullCommandLine(const CommandLine &commandLine) const
+void SshProcessInterfacePrivate::handleStarted()
 {
-    CommandLine cmd;
+    const qint64 processId = m_process.usesTerminal() ? m_process.processId() : 0;
 
-    if (!commandLine.isEmpty() && device()->extraData(Constants::SourceProfile).toBool()) {
-        const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
-        for (const QString &filePath : rcFilesToSource) {
-            cmd.addArgs({"test", "-f", filePath});
-            cmd.addArgs("&&", CommandLine::Raw);
-            cmd.addArgs({".", filePath});
-            cmd.addArgs(";", CommandLine::Raw);
-        }
-    }
-
-    if (!m_setup.m_workingDirectory.isEmpty()) {
-        cmd.addArgs({"cd", m_setup.m_workingDirectory.path()});
-        cmd.addArgs("&&", CommandLine::Raw);
-    }
-
-    if (m_setup.m_terminalMode == TerminalMode::Off && !m_setup.m_ptyData)
-        cmd.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
-
-    const Environment &env = m_setup.m_environment;
-    env.forEachEntry([&](const QString &key, const QString &value, bool) {
-        cmd.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
-    });
-
-    if (m_setup.m_terminalMode == TerminalMode::Off && !m_setup.m_ptyData)
-        cmd.addArg("exec");
-
-    if (!commandLine.isEmpty())
-        cmd.addCommandLineAsArgs(commandLine, CommandLine::Raw);
-    return cmd.arguments();
-}
-
-void LinuxProcessInterface::handleStarted(qint64 processId)
-{
     // Don't emit started() when terminal is off,
     // it's being done later inside handleReadyReadStandardOutput().
-    if (m_setup.m_terminalMode == TerminalMode::Off && !m_setup.m_ptyData)
+    if (q->m_setup.m_terminalMode == TerminalMode::Off && !q->m_setup.m_ptyData)
         return;
 
     m_pidParsed = true;
-    emitStarted(processId);
+    q->emitStarted(processId);
 }
 
-void LinuxProcessInterface::handleDone(const ProcessResultData &resultData)
+void SshProcessInterfacePrivate::handleDone()
 {
-    ProcessResultData finalData = resultData;
+    if (m_connectionHandle) // TODO: should it disconnect from signals first?
+        m_connectionHandle.release()->deleteLater();
+
+    ProcessResultData finalData = m_process.resultData();
     if (!m_pidParsed) {
         finalData.m_error = QProcess::FailedToStart;
         finalData.m_errorString = Utils::joinStrings({finalData.m_errorString,
                                                       QString::fromLocal8Bit(m_error)}, '\n');
     }
-    emit done(finalData);
+    emit q->done(finalData);
 }
 
-void LinuxProcessInterface::handleReadyReadStandardOutput(const QByteArray &outputData)
+void SshProcessInterfacePrivate::handleReadyReadStandardOutput()
 {
+    // By default this forwards readyRead immediately, but only buffers the
+    // output in case the start signal is not emitted yet.
+    // In case the pid can be parsed now, the delayed started() is
+    // emitted, and any previously buffered output emitted now.
+    const QByteArray outputData = m_process.readAllRawStandardOutput();
+
     if (m_pidParsed) {
-        emit readyRead(outputData, {});
+        emit q->readyRead(outputData, {});
         return;
     }
 
@@ -608,31 +549,34 @@ void LinuxProcessInterface::handleReadyReadStandardOutput(const QByteArray &outp
     // We don't want to show output from e.g. /etc/profile.
     m_output = m_output.mid(endMarkerOffset + endMarkerLength);
 
-    emitStarted(processId);
+    q->emitStarted(processId);
 
     if (!m_output.isEmpty() || !m_error.isEmpty())
-        emit readyRead(m_output, m_error);
+        emit q->readyRead(m_output, m_error);
 
     m_output.clear();
     m_error.clear();
 }
 
-void LinuxProcessInterface::handleReadyReadStandardError(const QByteArray &errorData)
+void SshProcessInterfacePrivate::handleReadyReadStandardError()
 {
+    // By default forwards readyRead immediately, but buffers it in
+    // case the start signal is not emitted yet.
+    const QByteArray errorData = m_process.readAllRawStandardError();
+
     if (m_pidParsed) {
-        emit readyRead({}, errorData);
+        emit q->readyRead({}, errorData);
         return;
     }
     m_error.append(errorData);
 }
 
 SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshInterface,
-                                                       LinuxDevicePrivate *devicePrivate)
+                                                       const IDevice::ConstPtr &device)
     : QObject(sshInterface)
     , q(sshInterface)
-    , m_device(devicePrivate->q->sharedFromThis())
+    , m_device(device)
     , m_process(this)
-    , m_devicePrivate(devicePrivate)
 {
     connect(&m_process, &QtcProcess::started, this, &SshProcessInterfacePrivate::handleStarted);
     connect(&m_process, &QtcProcess::done, this, &SshProcessInterfacePrivate::handleDone);
@@ -646,19 +590,22 @@ void SshProcessInterfacePrivate::start()
 {
     clearForStart();
 
-    m_sshParameters = m_devicePrivate->q->sshParameters();
+    m_sshParameters = m_device->sshParameters();
     // TODO: Do we really need it for master process?
     m_sshParameters.x11DisplayName
             = q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString();
     if (SshSettings::connectionSharingEnabled()) {
         m_connecting = true;
-        m_connectionHandle.reset(new SshConnectionHandle(m_devicePrivate->q->sharedFromThis()));
+        m_connectionHandle.reset(new SshConnectionHandle(m_device));
         m_connectionHandle->setParent(this);
         connect(m_connectionHandle.get(), &SshConnectionHandle::connected,
                 this, &SshProcessInterfacePrivate::handleConnected);
         connect(m_connectionHandle.get(), &SshConnectionHandle::disconnected,
                 this, &SshProcessInterfacePrivate::handleDisconnected);
-        m_devicePrivate->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
+        auto linuxDevice = m_device.dynamicCast<const LinuxDevice>();
+        QTC_ASSERT(linuxDevice, handleDone(); return);
+        linuxDevice->connectionAccess()
+            ->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
     } else {
         doStart();
     }
@@ -683,34 +630,6 @@ void SshProcessInterfacePrivate::handleDisconnected(const ProcessResultData &res
 
     if (resultData.m_error != QProcess::UnknownError || m_process.state() != QProcess::NotRunning)
         emit q->done(resultData); // TODO: don't emit done() on process finished afterwards
-}
-
-void SshProcessInterfacePrivate::handleStarted()
-{
-    const qint64 processId = m_process.usesTerminal() ? m_process.processId() : 0;
-    // By default emits started signal, Linux impl doesn't emit it when terminal is off.
-    q->handleStarted(processId);
-}
-
-void SshProcessInterfacePrivate::handleDone()
-{
-    if (m_connectionHandle) // TODO: should it disconnect from signals first?
-        m_connectionHandle.release()->deleteLater();
-    q->handleDone(m_process.resultData());
-}
-
-void SshProcessInterfacePrivate::handleReadyReadStandardOutput()
-{
-    // By default emits signal. LinuxProcessImpl does custom parsing for processId
-    // and emits delayed start() - only when terminal is off.
-    q->handleReadyReadStandardOutput(m_process.readAllRawStandardOutput());
-}
-
-void SshProcessInterfacePrivate::handleReadyReadStandardError()
-{
-    // By default emits signal. LinuxProcessImpl buffers the error channel until
-    // it emits delayed start() - only when terminal is off.
-    q->handleReadyReadStandardError(m_process.readAllRawStandardError());
 }
 
 void SshProcessInterfacePrivate::clearForStart()
@@ -757,11 +676,44 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     options << m_sshParameters.host();
     cmd.addArgs(options);
 
-    CommandLine remoteWithLocalPath = q->m_setup.m_commandLine;
-    FilePath executable = FilePath::fromParts({}, {}, remoteWithLocalPath.executable().path());
-    remoteWithLocalPath.setExecutable(executable);
+    CommandLine commandLine = q->m_setup.m_commandLine;
+    FilePath executable = FilePath::fromParts({}, {}, commandLine.executable().path());
+    commandLine.setExecutable(executable);
 
-    cmd.addArg(q->fullCommandLine(remoteWithLocalPath));
+    CommandLine inner;
+
+    if (!commandLine.isEmpty() && m_device->extraData(Constants::SourceProfile).toBool()) {
+        const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
+        for (const QString &filePath : rcFilesToSource) {
+            inner.addArgs({"test", "-f", filePath});
+            inner.addArgs("&&", CommandLine::Raw);
+            inner.addArgs({".", filePath});
+            inner.addArgs(";", CommandLine::Raw);
+        }
+    }
+
+    if (!q->m_setup.m_workingDirectory.isEmpty()) {
+        inner.addArgs({"cd", q->m_setup.m_workingDirectory.path()});
+        inner.addArgs("&&", CommandLine::Raw);
+    }
+
+    if (q->m_setup.m_terminalMode == TerminalMode::Off && !q->m_setup.m_ptyData)
+        inner.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
+
+    const Environment &env = q->m_setup.m_environment;
+    env.forEachEntry([&](const QString &key, const QString &value, bool) {
+        inner.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
+    });
+
+    if (q->m_setup.m_terminalMode == TerminalMode::Off && !q->m_setup.m_ptyData)
+        inner.addArg("exec");
+
+    if (!commandLine.isEmpty())
+        inner.addCommandLineAsArgs(commandLine, CommandLine::Raw);
+
+
+    cmd.addArg(inner.arguments());
+
     return cmd;
 }
 
@@ -1065,7 +1017,7 @@ bool LinuxDevice::handlesFile(const FilePath &filePath) const
 
 ProcessInterface *LinuxDevice::createProcessInterface() const
 {
-    return new LinuxProcessInterface(this);
+    return new SshProcessInterface(sharedFromThis());
 }
 
 LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
@@ -1160,10 +1112,9 @@ class SshTransferInterface : public FileTransferInterface
     Q_OBJECT
 
 protected:
-    SshTransferInterface(const FileTransferSetupData &setup, LinuxDevicePrivate *devicePrivate)
+    SshTransferInterface(const FileTransferSetupData &setup, const IDevice::ConstPtr &device)
         : FileTransferInterface(setup)
-        , m_device(devicePrivate->q->sharedFromThis())
-        , m_devicePrivate(devicePrivate)
+        , m_device(device)
         , m_process(this)
     {
         m_direction = m_setup.m_files.isEmpty() ? FileTransferDirection::Invalid
@@ -1228,7 +1179,10 @@ private:
                     this, &SshTransferInterface::handleConnected);
             connect(m_connectionHandle.get(), &SshConnectionHandle::disconnected,
                     this, &SshTransferInterface::handleDisconnected);
-            m_devicePrivate->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
+            auto linuxDevice = m_device.dynamicCast<const LinuxDevice>();
+            QTC_ASSERT(linuxDevice, startFailed("No Linux device"); return);
+            linuxDevice->connectionAccess()
+                ->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
         } else {
             startImpl();
         }
@@ -1256,7 +1210,6 @@ private:
     }
 
     IDevice::ConstPtr m_device;
-    LinuxDevicePrivate *m_devicePrivate = nullptr;
     SshParameters m_sshParameters;
     FileTransferDirection m_direction = FileTransferDirection::Invalid; // helper
 
@@ -1271,8 +1224,9 @@ private:
 class SftpTransferImpl : public SshTransferInterface
 {
 public:
-    SftpTransferImpl(const FileTransferSetupData &setup, LinuxDevicePrivate *devicePrivate)
-        : SshTransferInterface(setup, devicePrivate) { }
+    SftpTransferImpl(const FileTransferSetupData &setup, const IDevice::ConstPtr &device)
+        : SshTransferInterface(setup, device)
+    {}
 
 private:
     void startImpl() final
@@ -1328,8 +1282,8 @@ private:
 class RsyncTransferImpl : public SshTransferInterface
 {
 public:
-    RsyncTransferImpl(const FileTransferSetupData &setup, LinuxDevicePrivate *devicePrivate)
-        : SshTransferInterface(setup, devicePrivate)
+    RsyncTransferImpl(const FileTransferSetupData &setup, const IDevice::ConstPtr &device)
+        : SshTransferInterface(setup, device)
     { }
 
 private:
@@ -1421,7 +1375,7 @@ private:
 class GenericTransferImpl : public FileTransferInterface
 {
 public:
-    GenericTransferImpl(const FileTransferSetupData &setup, LinuxDevicePrivate *)
+    GenericTransferImpl(const FileTransferSetupData &setup)
         : FileTransferInterface(setup)
     {}
 
@@ -1483,12 +1437,17 @@ FileTransferInterface *LinuxDevice::createFileTransferInterface(
         const FileTransferSetupData &setup) const
 {
     switch (setup.m_method) {
-    case FileTransferMethod::Sftp:  return new SftpTransferImpl(setup, d);
-    case FileTransferMethod::Rsync: return new RsyncTransferImpl(setup, d);
-    case FileTransferMethod::GenericCopy: return new GenericTransferImpl(setup, d);
+    case FileTransferMethod::Sftp:  return new SftpTransferImpl(setup, sharedFromThis());
+    case FileTransferMethod::Rsync: return new RsyncTransferImpl(setup, sharedFromThis());
+    case FileTransferMethod::GenericCopy: return new GenericTransferImpl(setup);
     }
     QTC_CHECK(false);
     return {};
+}
+
+LinuxDevicePrivate *LinuxDevice::connectionAccess() const
+{
+    return d;
 }
 
 namespace Internal {
