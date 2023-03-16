@@ -126,6 +126,7 @@ public:
     Q_INVOKABLE bool idListRemove(int idx);
     Q_INVOKABLE bool idListReplace(int idx, const QString &value);
     Q_INVOKABLE void commitDrop(const QString &dropData);
+    Q_INVOKABLE void openMaterialEditor(int idx);
 
 public slots:
     void resetValue();

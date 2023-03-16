@@ -7,10 +7,12 @@
 #include "bindingproperty.h"
 #include "createtexture.h"
 #include "designermcumanager.h"
+#include "designmodewidget.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "qmlitemnode.h"
 #include "qmlobjectnode.h"
+#include "qmldesignerplugin.h"
 
 #include <utils/qtcassert.h>
 
@@ -513,6 +515,12 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
     }
 
     m_modelNode.view()->model()->endDrag();
+}
+
+void PropertyEditorValue::openMaterialEditor(int idx)
+{
+    QmlDesigner::QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
+    m_modelNode.view()->emitCustomNotification("select_material", {}, {idx});
 }
 
 QStringList PropertyEditorValue::generateStringList(const QString &string) const
