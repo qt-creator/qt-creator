@@ -3,6 +3,7 @@
 
 #include "genericlinuxdeviceconfigurationwidget.h"
 
+#include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 #include "sshkeycreationdialog.h"
 
@@ -80,6 +81,9 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_qmlRuntimeLineEdit->setPlaceholderText(hint);
     m_qmlRuntimeLineEdit->setToolTip(hint);
 
+    m_sourceProfileCheckBox =
+        new QCheckBox(Tr::tr("Source %1 and %2").arg("/etc/profile").arg("$HOME/.profile"));
+
     auto sshPortLabel = new QLabel(Tr::tr("&SSH port:"));
     sshPortLabel->setBuddy(m_sshPortSpinBox);
 
@@ -93,7 +97,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         Tr::tr("&Username:"), m_userLineEdit, st, br,
         m_keyLabel, m_keyFileLineEdit, createKeyButton, br,
         Tr::tr("GDB server executable:"), m_gdbServerLineEdit, br,
-        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, br
+        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, br,
+        QString(), m_sourceProfileCheckBox, br
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,
@@ -124,6 +129,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::qmlRuntimeEditingFinished);
     connect(m_hostKeyCheckBox, &QCheckBox::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
+    connect(m_sourceProfileCheckBox, &QCheckBox::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::sourceProfileCheckingChanged);
 
     initGui();
 }
@@ -214,6 +221,11 @@ void GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged(bool doCheck)
     device()->setSshParameters(sshParams);
 }
 
+void GenericLinuxDeviceConfigurationWidget::sourceProfileCheckingChanged(bool doCheck)
+{
+    device()->setExtraData(Constants::SourceProfile, doCheck);
+}
+
 void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
 {
     hostNameEditingFinished();
@@ -260,6 +272,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_hostLineEdit->setEnabled(!device()->isAutoDetected());
     m_sshPortSpinBox->setEnabled(!device()->isAutoDetected());
     m_hostKeyCheckBox->setChecked(sshParams.hostKeyCheckingMode != SshHostKeyCheckingNone);
+    m_sourceProfileCheckBox->setChecked(device()->extraData(Constants::SourceProfile).toBool());
 
     m_hostLineEdit->setText(sshParams.host());
     m_sshPortSpinBox->setValue(sshParams.port());

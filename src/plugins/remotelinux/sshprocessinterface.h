@@ -5,6 +5,8 @@
 
 #include "remotelinux_export.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <utils/processinterface.h>
 
 namespace RemoteLinux {
@@ -25,6 +27,8 @@ protected:
     void killIfRunning();
     qint64 processId() const;
     bool runInShell(const Utils::CommandLine &command, const QByteArray &data = {});
+
+    ProjectExplorer::IDevice::ConstPtr device() const;
 
 private:
     virtual void handleStarted(qint64 processId);

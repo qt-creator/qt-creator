@@ -464,6 +464,11 @@ bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArra
     return isFinished;
 }
 
+IDevice::ConstPtr SshProcessInterface::device() const
+{
+    return d->m_device;
+}
+
 void SshProcessInterface::start()
 {
     d->start();
@@ -520,7 +525,7 @@ QString LinuxProcessInterface::fullCommandLine(const CommandLine &commandLine) c
 {
     CommandLine cmd;
 
-    if (!commandLine.isEmpty()) {
+    if (!commandLine.isEmpty() && device()->extraData(Constants::SourceProfile).toBool()) {
         const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
         for (const QString &filePath : rcFilesToSource) {
             cmd.addArgs({"test", "-f", filePath});
@@ -730,6 +735,7 @@ void SshProcessInterfacePrivate::doStart()
         env.set("DISPLAY", m_sshParameters.x11DisplayName);
         m_process.setControlEnvironment(env);
     }
+    m_process.setExtraData(q->m_setup.m_extraData);
     m_process.setCommand(fullLocalCommandLine());
     m_process.start();
 }

@@ -42,6 +42,7 @@ private:
     void setPrivateKey(const Utils::FilePath &path);
     void createNewKey();
     void hostKeyCheckingChanged(bool doCheck);
+    void sourceProfileCheckingChanged(bool doCheck);
 
     void updateDeviceFromUi() override;
     void updatePortsWarningLabel();
@@ -61,6 +62,7 @@ private:
     QLabel *m_machineTypeValueLabel;
     Utils::PathChooser *m_gdbServerLineEdit;
     Utils::PathChooser *m_qmlRuntimeLineEdit;
+    QCheckBox *m_sourceProfileCheckBox;
 };
 
 } // RemoteLinux::Internal

@@ -20,6 +20,7 @@ const char CustomCommandDeployStepId[] = "RemoteLinux.GenericRemoteLinuxCustomCo
 const char KillAppStepId[] = "RemoteLinux.KillAppStep";
 
 const char SupportsRSync[] =  "RemoteLinux.SupportsRSync";
+const char SourceProfile[] =  "RemoteLinux.SourceProfile";
 
 const char RunConfigId[] = "RemoteLinuxRunConfiguration:";
 const char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";
