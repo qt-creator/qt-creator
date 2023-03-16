@@ -4730,6 +4730,24 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                                               PaintEventBlockData &blockData) const
 {
     QVector<QTextLayout::FormatRange> prioritySelections;
+
+    int deltaPos = -1;
+    int delta = 0;
+
+    if (m_suggestionBlock == data.block) {
+        if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(
+                m_suggestionBlock)) {
+            deltaPos = TextDocumentLayout::replacementPosition(data.block);
+            const QString trailingText = data.block.text().mid(deltaPos);
+            if (!trailingText.isEmpty()) {
+                const int trailingIndex = replacement->firstBlock().text().indexOf(trailingText,
+                                                                                   deltaPos);
+                if (trailingIndex >= 0)
+                    delta = std::max(trailingIndex - deltaPos, 0);
+            }
+        }
+    }
+
     for (int i = 0; i < data.context.selections.size(); ++i) {
         const QAbstractTextDocumentLayout::Selection &range = data.context.selections.at(i);
         const int selStart = range.cursor.selectionStart() - blockData.position;
@@ -4739,6 +4757,22 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
             QTextLayout::FormatRange o;
             o.start = selStart;
             o.length = selEnd - selStart;
+            o.format = range.format;
+            QTextLayout::FormatRange rest;
+            rest.start = -1;
+            if (deltaPos >= 0 && delta != 0) {
+                if (o.start >= deltaPos) {
+                    o.start += delta;
+                } else if (o.start + o.length > deltaPos) {
+                    // the format range starts before and ends after the position so we need to
+                    // split the format into before and after the suggestion format ranges
+                    rest.start = deltaPos + delta;
+                    rest.length = o.length - (deltaPos - o.start);
+                    rest.format = o.format;
+                    o.length = deltaPos - o.start;
+                }
+            }
+
             o.format = range.format;
             if (data.textCursor.hasSelection() && data.textCursor == range.cursor
                 && data.textCursor.anchor() == range.cursor.anchor()) {
@@ -4751,10 +4785,15 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                 || (o.format.foreground().style() == Qt::NoBrush
                 && o.format.underlineStyle() != QTextCharFormat::NoUnderline
                 && o.format.background() == Qt::NoBrush)) {
-                if (q->selectionVisible(data.block.blockNumber()))
+                if (q->selectionVisible(data.block.blockNumber())) {
                     prioritySelections.append(o);
+                    if (rest.start >= 0)
+                        prioritySelections.append(rest);
+                }
             } else {
                 blockData.selections.append(o);
+                if (rest.start >= 0)
+                    blockData.selections.append(rest);
             }
         }
     }
