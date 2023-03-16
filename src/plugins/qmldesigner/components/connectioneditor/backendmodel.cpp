@@ -11,7 +11,6 @@
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "rewriterview.h"
-#include "rewritertransaction.h"
 
 #include "addnewbackenddialog.h"
 
@@ -20,8 +19,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 BackendModel::BackendModel(ConnectionView *parent) :
     QStandardItemModel(parent)
     ,m_connectionView(parent)
@@ -29,7 +26,7 @@ BackendModel::BackendModel(ConnectionView *parent) :
     connect(this, &QStandardItemModel::dataChanged, this, &BackendModel::handleDataChanged);
 }
 
-ConnectionView *QmlDesigner::Internal::BackendModel::connectionView() const
+ConnectionView *BackendModel::connectionView() const
 {
     return m_connectionView;
 }
@@ -310,7 +307,5 @@ void BackendModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
 
     m_lock = false;
 }
-
-} // namespace Internal
 
 } // namespace QmlDesigner

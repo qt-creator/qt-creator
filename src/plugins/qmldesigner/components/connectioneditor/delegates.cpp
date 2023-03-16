@@ -20,8 +20,6 @@
 
 namespace QmlDesigner {
 
-namespace  Internal {
-
 QStringList prependOnForSignalHandler(const QStringList &signalNames)
 {
     QStringList signalHandlerNames;
@@ -407,7 +405,5 @@ QWidget *BackendDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
 
         return widget;
 }
-
-} // namesapce Internal
 
 } // namespace QmlDesigner

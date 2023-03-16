@@ -34,8 +34,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ConnectionViewWidget)
@@ -611,7 +609,5 @@ void ConnectionViewWidget::backendTableViewSelectionChanged(const QModelIndex &c
     }
 
 }
-
-} // namespace Internal
 
 } // namespace QmlDesigner

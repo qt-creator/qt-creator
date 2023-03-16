@@ -259,7 +259,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
 
-    if (QmlDesigner::checkEnterpriseLicense())
+    if (checkEnterpriseLicense())
         Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);
     Exception::setWarnAboutException(!QmlDesignerPlugin::instance()
                                           ->settings()
@@ -292,29 +292,29 @@ bool QmlDesignerPlugin::delayedInitialize()
     MetaInfo::setPluginPaths(pluginPaths);
 
     d->viewManager.registerView(
-        std::make_unique<QmlDesigner::Internal::ConnectionView>(d->externalDependencies));
+        std::make_unique<ConnectionView>(d->externalDependencies));
 
     auto timelineView = d->viewManager.registerView(
-        std::make_unique<QmlDesigner::TimelineView>(d->externalDependencies));
+        std::make_unique<TimelineView>(d->externalDependencies));
     timelineView->registerActions();
 
     d->viewManager.registerView(
-        std::make_unique<QmlDesigner::CurveEditorView>(d->externalDependencies));
+        std::make_unique<CurveEditorView>(d->externalDependencies));
 
     auto eventlistView = d->viewManager.registerView(
-        std::make_unique<QmlDesigner::EventListPluginView>(d->externalDependencies));
+        std::make_unique<EventListPluginView>(d->externalDependencies));
     eventlistView->registerActions();
 
     auto transitionEditorView = d->viewManager.registerView(
-        std::make_unique<QmlDesigner::TransitionEditorView>(d->externalDependencies));
+        std::make_unique<TransitionEditorView>(d->externalDependencies));
     transitionEditorView->registerActions();
 
-    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::SourceTool>());
-    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::ColorTool>());
-    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TextTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
+    d->viewManager.registerFormEditorTool(std::make_unique<TextTool>());
     d->viewManager.registerFormEditorTool(
-        std::make_unique<QmlDesigner::PathTool>(d->externalDependencies));
-    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TransitionTool>());
+        std::make_unique<PathTool>(d->externalDependencies));
+    d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
 
     if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
         d->mainWidget.initialize();
@@ -495,7 +495,7 @@ void QmlDesignerPlugin::hideDesigner()
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
     d->documentManager.setCurrentDesignDocument(nullptr);
     d->shortCutManager.updateUndoActions(nullptr);
-    emitUsageStatisticsTime(QmlDesigner::Constants::EVENT_DESIGNMODE_TIME, m_usageTimer.elapsed());
+    emitUsageStatisticsTime(Constants::EVENT_DESIGNMODE_TIME, m_usageTimer.elapsed());
 }
 
 void QmlDesignerPlugin::changeEditor()

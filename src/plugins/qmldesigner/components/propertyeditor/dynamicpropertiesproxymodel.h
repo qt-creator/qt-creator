@@ -30,16 +30,13 @@
 #include <abstractview.h>
 #include <qmlitemnode.h>
 
-#include <enumeration.h>
 #include <QAbstractListModel>
 #include <QColor>
 #include <QtQml>
 
 namespace QmlDesigner {
-namespace Internal {
+
 class DynamicPropertiesModel;
-}
-} // namespace QmlDesigner
 
 class DynamicPropertiesProxyModel : public QAbstractListModel
 {
@@ -55,16 +52,16 @@ public:
 
     static void registerDeclarativeType();
 
-    QmlDesigner::Internal::DynamicPropertiesModel *dynamicPropertiesModel() const;
+    DynamicPropertiesModel *dynamicPropertiesModel() const;
 
     Q_INVOKABLE QString newPropertyName() const;
     Q_INVOKABLE void createProperty(const QString &name, const QString &type);
 
 protected:
-    void initModel(QmlDesigner::Internal::DynamicPropertiesModel *model);
+    void initModel(DynamicPropertiesModel *model);
 
 private:
-    QmlDesigner::Internal::DynamicPropertiesModel *m_model = nullptr;
+    DynamicPropertiesModel *m_model = nullptr;
 };
 
 class DynamicPropertyRow : public QObject
@@ -109,4 +106,6 @@ private:
     bool m_lock = false;
 };
 
-QML_DECLARE_TYPE(DynamicPropertyRow)
+} // namespace QmlDesigner
+
+QML_DECLARE_TYPE(QmlDesigner::DynamicPropertyRow)

@@ -27,6 +27,8 @@
 
 #include "dynamicpropertiesproxymodel.h"
 
+namespace QmlDesigner {
+
 class MaterialEditorDynamicPropertiesProxyModel : public DynamicPropertiesProxyModel
 {
     Q_OBJECT
@@ -35,3 +37,5 @@ public:
 
     static void registerDeclarativeType();
 };
+
+} // namespace QmlDesigner

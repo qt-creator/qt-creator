@@ -3,17 +3,17 @@
 
 #pragma once
 
-#include <modelnode.h>
-#include <bindingproperty.h>
-#include <variantproperty.h>
+#include <nodeinstanceglobal.h>
 
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
 
+class AbstractProperty;
 class AbstractView;
-
-namespace Internal {
+class BindingProperty;
+class ModelNode;
+class VariantProperty;
 
 class DynamicPropertiesModel : public QStandardItemModel
 {
@@ -22,11 +22,13 @@ class DynamicPropertiesModel : public QStandardItemModel
 public:
     enum ColumnRoles {
         TargetModelNodeRow = 0,
-        PropertyNameRow = 1,
-        PropertyTypeRow = 2,
-        PropertyValueRow = 3
+        PropertyNameRow    = 1,
+        PropertyTypeRow    = 2,
+        PropertyValueRow   = 3
     };
+
     DynamicPropertiesModel(bool explicitSelection, AbstractView *parent);
+
     void bindingPropertyChanged(const BindingProperty &bindingProperty);
     void abstractPropertyChanged(const AbstractProperty &bindingProperty);
     void variantPropertyChanged(const VariantProperty &variantProperty);
@@ -54,7 +56,7 @@ public:
 
     void dispatchPropertyChanges(const AbstractProperty &abstractProperty);
 
-    QmlDesigner::PropertyName unusedProperty(const QmlDesigner::ModelNode &modelNode);
+    PropertyName unusedProperty(const ModelNode &modelNode);
 
     static bool isValueType(const TypeName &type);
     static QVariant defaultValueForType(const TypeName &type);
@@ -84,7 +86,7 @@ protected:
     void updateDisplayRole(int row, int columns, const QString &string);
 
 private:
-    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void handleException();
 
     AbstractView *m_view = nullptr;
@@ -95,5 +97,4 @@ private:
     bool m_explicitSelection = false;
 };
 
-} // namespace Internal
 } // namespace QmlDesigner

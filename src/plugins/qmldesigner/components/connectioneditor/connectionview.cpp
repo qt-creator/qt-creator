@@ -22,8 +22,6 @@
 
 namespace QmlDesigner {
 
-namespace  Internal {
-
 ConnectionView::ConnectionView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_connectionViewWidget(new ConnectionViewWidget())
@@ -277,7 +275,5 @@ ConnectionView *ConnectionView::instance()
     QTC_ASSERT(s_instance, return nullptr);
     return s_instance;
 }
-
-} // namesapce Internal
 
 } // namespace QmlDesigner

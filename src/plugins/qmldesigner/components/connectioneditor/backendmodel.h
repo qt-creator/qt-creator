@@ -8,8 +8,6 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 class ConnectionView;
 
 class BackendModel : public QStandardItemModel
@@ -46,7 +44,5 @@ private:
     ConnectionView *m_connectionView;
     bool m_lock = false;
 };
-
-} // namespace Internal
 
 } // namespace QmlDesigner

@@ -55,7 +55,7 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     : AbstractView{externalDependencies}
     , m_imageCache(imageCache)
     , m_stackedWidget(new QStackedWidget)
-    , m_dynamicPropertiesModel(new Internal::DynamicPropertiesModel(true, this))
+    , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F12), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &TextureEditorView::reloadQml);
@@ -291,7 +291,7 @@ void TextureEditorView::currentTimelineChanged(const ModelNode &)
     m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
-Internal::DynamicPropertiesModel *TextureEditorView::dynamicPropertiesModel() const
+DynamicPropertiesModel *TextureEditorView::dynamicPropertiesModel() const
 {
     return m_dynamicPropertiesModel;
 }

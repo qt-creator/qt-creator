@@ -19,12 +19,9 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class DynamicPropertiesModel;
 class ModelNode;
 class TextureEditorQmlBackend;
-
-namespace Internal {
-class DynamicPropertiesModel;
-}
 
 class TextureEditorView : public AbstractView
 {
@@ -77,7 +74,7 @@ public:
 
     void currentTimelineChanged(const ModelNode &node) override;
 
-    Internal::DynamicPropertiesModel *dynamicPropertiesModel() const;
+    DynamicPropertiesModel *dynamicPropertiesModel() const;
 
     static TextureEditorView *instance();
 
@@ -123,7 +120,7 @@ private:
 
     QPointer<QColorDialog> m_colorDialog;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
-    Internal::DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
+    DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
 
 } // namespace QmlDesigner

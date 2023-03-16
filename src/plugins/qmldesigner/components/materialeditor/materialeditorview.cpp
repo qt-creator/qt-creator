@@ -43,7 +43,7 @@ namespace QmlDesigner {
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_stackedWidget(new QStackedWidget)
-    , m_dynamicPropertiesModel(new Internal::DynamicPropertiesModel(true, this))
+    , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &MaterialEditorView::reloadQml);
@@ -290,7 +290,7 @@ void MaterialEditorView::currentTimelineChanged(const ModelNode &)
     m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
-Internal::DynamicPropertiesModel *MaterialEditorView::dynamicPropertiesModel() const
+DynamicPropertiesModel *MaterialEditorView::dynamicPropertiesModel() const
 {
     return m_dynamicPropertiesModel;
 }
