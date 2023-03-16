@@ -1572,6 +1572,11 @@ void NodeInstanceView::setTarget(ProjectExplorer::Target *newTarget)
     }
 }
 
+ProjectExplorer::Target *NodeInstanceView::target() const
+{
+    return m_currentTarget;
+}
+
 void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)
 {
     if (!model())

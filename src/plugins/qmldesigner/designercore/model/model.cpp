@@ -1939,6 +1939,16 @@ NodeMetaInfo Model::qtQuick3DTextureMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DBakedLightmapMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, BakedLightmap>();
+    } else {
+        return metaInfo("QtQuick3D.BakedLightmap");
+    }
+}
+
 NodeMetaInfo Model::qtQuick3DMaterialMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

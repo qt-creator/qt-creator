@@ -22,8 +22,10 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class BakeLights;
 class Edit3DWidget;
 class Edit3DAction;
+class Edit3DBakeLightsAction;
 class Edit3DCameraAction;
 
 class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
@@ -57,6 +59,7 @@ public:
     QVector<Edit3DAction *> visibilityToggleActions() const;
     QVector<Edit3DAction *> backgroundColorActions() const;
     Edit3DAction *edit3DAction(View3DActionType type) const;
+    Edit3DBakeLightsAction *bakeLightsAction() const;
 
     void addQuick3DImport();
     void startContextMenu(const QPoint &pos);
@@ -65,6 +68,8 @@ public:
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
     void dropComponent(const ItemLibraryEntry &entry, const QPointF &pos);
     void dropAsset(const QString &file, const QPointF &pos);
+
+    bool isBakingLightsSupported() const;
 
 private slots:
     void onEntriesChanged();
@@ -122,6 +127,7 @@ private:
     Edit3DAction *m_visibilityTogglesAction = nullptr;
     Edit3DAction *m_backgrondColorMenuAction = nullptr;
     Edit3DAction *m_seekerAction = nullptr;
+    Edit3DBakeLightsAction *m_bakeLightsAction = nullptr;
     int particlemode;
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedModelNode;
@@ -130,6 +136,8 @@ private:
     NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPos;
     QTimer m_compressionTimer;
+    QPointer<BakeLights> m_bakeLights;
+    bool m_isBakingLightsSupported = false;
 
     friend class Edit3DAction;
 };

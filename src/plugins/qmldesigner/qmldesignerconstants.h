@@ -62,7 +62,7 @@ const char EDIT3D_PARTICLES_SEEKER[]    = "QmlDesigner.Editor3D.ParticlesSeeker"
 const char EDIT3D_PARTICLES_RESTART[] = "QmlDesigner.Editor3D.ParticlesRestart";
 const char EDIT3D_VISIBILITY_TOGGLES[] = "QmlDesigner.Editor3D.VisibilityToggles";
 const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundColorActions";
-
+const char EDIT3D_BAKE_LIGHTS[] = "QmlDesigner.Editor3D.BakeLights";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char COMPONENT_BUNDLES_FOLDER[] = "/ComponentBundles";

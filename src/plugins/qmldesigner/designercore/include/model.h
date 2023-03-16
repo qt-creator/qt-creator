@@ -87,6 +87,7 @@ public:
     NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
     NodeMetaInfo fontMetaInfo() const;
+    NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DModelMetaInfo() const;

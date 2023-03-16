@@ -122,6 +122,7 @@ public:
     QImage statePreviewImage(const ModelNode &stateNode) const;
 
     void setTarget(ProjectExplorer::Target *newTarget);
+    ProjectExplorer::Target *target() const;
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 

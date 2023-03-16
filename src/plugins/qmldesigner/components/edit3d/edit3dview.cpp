@@ -4,6 +4,7 @@
 #include "edit3dview.h"
 
 #include "backgroundcolorselection.h"
+#include "bakelights.h"
 #include "designeractionmanager.h"
 #include "designericons.h"
 #include "designersettings.h"
@@ -20,11 +21,16 @@
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
 #include "seekerslider.h"
+#include "theme.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <theme.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/kit.h>
+
+#include <qtsupport/qtkitinformation.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -204,6 +210,12 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_particlesPlayAction->action()->setChecked(sceneState[particlesPlayKey].toBool());
     else
         m_particlesPlayAction->action()->setChecked(true);
+
+    // Selection context change updates visible and enabled states
+    SelectionContext selectionContext(this);
+    selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
+    if (m_bakeLightsAction)
+        m_bakeLightsAction->currentContextChanged(selectionContext);
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -218,6 +230,13 @@ void Edit3DView::modelAttached(Model *model)
     }
 
     edit3DWidget()->canvas()->busyIndicator()->show();
+
+    m_isBakingLightsSupported = false;
+    ProjectExplorer::Target *target = QmlDesignerPlugin::instance()->currentDesignDocument()->currentTarget();
+    if (target && target->kit()) {
+        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
+            m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
+    }
 
     connect(model->metaInfo().itemLibraryInfo(), &ItemLibraryInfo::entriesChanged, this,
             &Edit3DView::onEntriesChanged, Qt::UniqueConnection);
@@ -279,6 +298,11 @@ void Edit3DView::handleEntriesChanged()
 
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
+    m_isBakingLightsSupported = false;
+
+    if (m_bakeLights)
+        m_bakeLights->cancel();
+
     // Hide the canvas when model is detached (i.e. changing documents)
     if (edit3DWidget() && edit3DWidget()->canvas()) {
         m_canvasCache.insert(model, edit3DWidget()->canvas()->renderImage());
@@ -702,6 +726,17 @@ void Edit3DView::createEdit3DActions()
             m_seekerAction->action()->setEnabled(!m_particlesPlayAction->action()->isChecked());
     };
 
+    SelectionContextOperation bakeLightsTrigger = [this](const SelectionContext &) {
+        if (!m_isBakingLightsSupported)
+            return;
+
+        // BakeLights cleans itself up when its dialog is closed
+        if (!m_bakeLights)
+            m_bakeLights = new BakeLights(this);
+        else
+            m_bakeLights->raiseDialog();
+    };
+
     m_particleViewModeAction = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_PARTICLE_MODE,
                 View3DActionType::Edit3DParticleModeToggle,
@@ -804,6 +839,11 @@ void Edit3DView::createEdit3DActions()
 
     m_seekerAction = createSeekerSliderAction();
 
+    m_bakeLightsAction = new Edit3DBakeLightsAction(
+                toolbarIcon(Theme::editLightOn_medium), //: TODO placeholder icon
+                this,
+                bakeLightsTrigger);
+
     m_leftActions << m_selectionModeAction;
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -830,6 +870,7 @@ void Edit3DView::createEdit3DActions()
     m_rightActions << nullptr;
     m_rightActions << m_seekerAction;
     m_rightActions << nullptr;
+    m_rightActions << m_bakeLightsAction;
     m_rightActions << m_resetAction;
 
     m_visibilityToggleActions << m_showGridAction;
@@ -868,6 +909,11 @@ QVector<Edit3DAction *> Edit3DView::backgroundColorActions() const
 Edit3DAction *Edit3DView::edit3DAction(View3DActionType type) const
 {
     return m_edit3DActions.value(type, nullptr).data();
+}
+
+Edit3DBakeLightsAction *Edit3DView::bakeLightsAction() const
+{
+    return m_bakeLightsAction;
 }
 
 void Edit3DView::addQuick3DImport()
@@ -937,6 +983,11 @@ void Edit3DView::dropAsset(const QString &file, const QPointF &pos)
     m_nodeAtPosReqType = NodeAtPosReqType::AssetDrop;
     m_droppedFile = file;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+}
+
+bool Edit3DView::isBakingLightsSupported() const
+{
+    return m_isBakingLightsSupported;
 }
 
 } // namespace QmlDesigner

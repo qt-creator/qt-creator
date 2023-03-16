@@ -48,7 +48,8 @@ enum class View3DActionType {
     SelectGridColor,
     ResetBackgroundColor,
     SyncBackgroundColor,
-    GetNodeAtPos
+    GetNodeAtPos,
+    SetBakeLightsView3D
 };
 
 constexpr bool isNanotraceEnabled()
