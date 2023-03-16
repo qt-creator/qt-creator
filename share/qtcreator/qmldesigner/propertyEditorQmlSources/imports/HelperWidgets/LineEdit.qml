@@ -65,7 +65,7 @@ StudioControls.TextField {
                 lineEdit.text = ""
             } else {
                 if (lineEdit.writeValueManually)
-                    lineEdit.text = convertColorToString(colorLogic.valueFromBackend)
+                    lineEdit.text = convertColorToString?.(colorLogic.valueFromBackend) ?? ""
                 else
                     lineEdit.text = colorLogic.valueFromBackend
             }

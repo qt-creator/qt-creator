@@ -21,7 +21,7 @@ HelperWidgets.ComboBox {
     }
 
     property string defaultItem: qsTr("[None]")
-    property string textValue: comboBox.backendValue.expression
+    property string textValue: comboBox.backendValue?.expression ?? ""
     property bool block: false
     property bool dirty: true
 
