@@ -5952,6 +5952,11 @@ void TextEditorWidget::clearSuggestion()
     d->clearCurrentSuggestion();
 }
 
+bool TextEditorWidget::suggestionVisible() const
+{
+    return d->m_suggestionBlock.isValid();
+}
+
 #ifdef WITH_TESTS
 void TextEditorWidget::processTooltipRequest(const QTextCursor &c)
 {

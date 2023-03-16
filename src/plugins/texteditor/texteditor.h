@@ -471,6 +471,7 @@ public:
 
     void insertSuggestion(const QString &suggestion);
     void clearSuggestion();
+    bool suggestionVisible() const;
 
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);

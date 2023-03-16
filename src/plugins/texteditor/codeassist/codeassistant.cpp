@@ -444,6 +444,7 @@ void CodeAssistantPrivate::automaticProposalTimeout()
 {
     if (isWaitingForProposal()
         || m_editorWidget->multiTextCursor().hasMultipleCursors()
+        || m_editorWidget->suggestionVisible()
         || (isDisplayingProposal() && !m_proposalWidget->isFragile())) {
         return;
     }
