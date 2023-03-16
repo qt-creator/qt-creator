@@ -32,6 +32,20 @@ TextInput {
     selectByMouse: false
     activeFocusOnPress: false
     clip: true
+    echoMode: TextInput.NoEcho
+
+    Text {
+        id: elidableText
+        anchors.fill: control
+        leftPadding: control.leftPadding
+        rightPadding: control.rightPadding
+        horizontalAlignment: control.horizontalAlignment
+        verticalAlignment: control.verticalAlignment
+        font: control.font
+        color: control.color
+        text: control.text
+        elide: Text.ElideRight
+    }
 
     Rectangle {
         id: background
@@ -127,6 +141,14 @@ TextInput {
             PropertyChanges {
                 target: background
                 color: control.style.background.interaction
+            }
+            PropertyChanges {
+                target: control
+                echoMode: TextInput.Normal
+            }
+            PropertyChanges {
+                target: elidableText
+                visible: false
             }
             PropertyChanges {
                 target: mouseArea
