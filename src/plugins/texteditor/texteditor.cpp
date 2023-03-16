@@ -4061,7 +4061,13 @@ static TextMarks availableMarks(const TextMarks &marks,
 
 QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
 {
-    const QTextLayout *layout = block.layout();
+    QTextLayout *layout = nullptr;
+    if (block != m_suggestionBlock)
+        layout = block.layout();
+    else if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(block))
+        layout = replacement->firstBlock().layout();
+
+    QTC_ASSERT(layout, layout = block.layout());
     const int lineCount = layout->lineCount();
     if (lineCount < 1)
         return {};
