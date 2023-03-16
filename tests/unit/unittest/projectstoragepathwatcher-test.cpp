@@ -69,7 +69,8 @@ protected:
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
     ProjectChunkId projectChunkId1{ProjectPartId::create(2), SourceType::Qml};
     ProjectChunkId projectChunkId2{ProjectPartId::create(2), SourceType::QmlUi};
-    ProjectChunkId projectChunkId3{ProjectPartId::create(4), SourceType::QmlTypes};
+    ProjectChunkId projectChunkId3{ProjectPartId::create(3), SourceType::QmlTypes};
+    ProjectChunkId projectChunkId4{ProjectPartId::create(4), SourceType::Qml};
     SourcePathView path1{"/path/path1"};
     SourcePathView path2{"/path/path2"};
     SourcePathView path3{"/path2/path1"};
@@ -99,6 +100,11 @@ protected:
     WatcherEntry watcherEntry6{projectChunkId1, sourceContextIds[1], sourceIds[2]};
     WatcherEntry watcherEntry7{projectChunkId2, sourceContextIds[1], sourceIds[3]};
     WatcherEntry watcherEntry8{projectChunkId3, sourceContextIds[1], sourceIds[3]};
+    WatcherEntry watcherEntry9{projectChunkId4, sourceContextIds[0], sourceIds[0]};
+    WatcherEntry watcherEntry10{projectChunkId4, sourceContextIds[0], sourceIds[1]};
+    WatcherEntry watcherEntry11{projectChunkId4, sourceContextIds[1], sourceIds[2]};
+    WatcherEntry watcherEntry12{projectChunkId4, sourceContextIds[1], sourceIds[3]};
+    WatcherEntry watcherEntry13{projectChunkId4, sourceContextIds[2], sourceIds[4]};
 };
 
 TEST_F(ProjectStoragePathWatcher, AddIdPaths)
@@ -310,9 +316,13 @@ TEST_F(ProjectStoragePathWatcher, RemoveOnePathForTwoId)
 
 TEST_F(ProjectStoragePathWatcher, NotAnymoreWatchedEntriesWithId)
 {
+    auto notContainsdId = [&](WatcherEntry entry) {
+        return entry.id != ids[0] && entry.id != ids[1];
+    };
     watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
-    auto oldEntries = watcher.notAnymoreWatchedEntriesWithIds({watcherEntry1, watcherEntry4}, {ids[0], ids[1]});
+    auto oldEntries = watcher.notAnymoreWatchedEntriesWithIds({watcherEntry1, watcherEntry4},
+                                                              notContainsdId);
 
     ASSERT_THAT(oldEntries, ElementsAre(watcherEntry2, watcherEntry3));
 }
@@ -386,15 +396,63 @@ TEST_F(ProjectStoragePathWatcher, NoDuplicatePathChanges)
     mockQFileSytemWatcher.directoryChanged(sourceContextPath);
 }
 
-TEST_F(ProjectStoragePathWatcher, UpdateContextIdPathsAndRemoveUnusedPaths)
+TEST_F(ProjectStoragePathWatcher, UpdateContextIdPathsAddsEntryInNewDirectory)
 {
-    watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1]}},
-                           {projectChunkId2, {sourceIds[0], sourceIds[1]}},
-                           {projectChunkId3, {sourceIds[1]}}});
+    watcher.updateIdPaths({
+        {projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+        {projectChunkId4, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}},
+    });
 
-    watcher.updateIdPaths({{projectChunkId1, {sourceIds[0]}}, {projectChunkId2, {sourceIds[1]}}});
+    watcher.updateContextIdPaths({{projectChunkId4, {sourceIds[4]}}}, {sourceContextIds[2]});
 
-    ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry4, watcherEntry5));
+    ASSERT_THAT(watcher.watchedEntries(),
+                UnorderedElementsAre(watcherEntry1,
+                                     watcherEntry3,
+                                     watcherEntry6,
+                                     watcherEntry9,
+                                     watcherEntry10,
+                                     watcherEntry11,
+                                     watcherEntry12,
+                                     watcherEntry13));
+}
+
+TEST_F(ProjectStoragePathWatcher, UpdateContextIdPathsAddsEntryToDirectory)
+{
+    watcher.updateIdPaths({
+        {projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+        {projectChunkId4, {sourceIds[1], sourceIds[3]}},
+    });
+
+    watcher.updateContextIdPaths({{projectChunkId4,
+                                   {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}}},
+                                 {sourceContextIds[1]});
+
+    ASSERT_THAT(watcher.watchedEntries(),
+                UnorderedElementsAre(watcherEntry1,
+                                     watcherEntry3,
+                                     watcherEntry6,
+                                     watcherEntry9,
+                                     watcherEntry10,
+                                     watcherEntry11,
+                                     watcherEntry12));
+}
+
+TEST_F(ProjectStoragePathWatcher, UpdateContextIdPathsRemovesEntry)
+{
+    watcher.updateIdPaths({
+        {projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+        {projectChunkId4, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}},
+    });
+
+    watcher.updateContextIdPaths({{projectChunkId4, {sourceIds[3]}}}, {sourceContextIds[1]});
+
+    ASSERT_THAT(watcher.watchedEntries(),
+                UnorderedElementsAre(watcherEntry1,
+                                     watcherEntry3,
+                                     watcherEntry6,
+                                     watcherEntry9,
+                                     watcherEntry10,
+                                     watcherEntry12));
 }
 
 } // namespace
