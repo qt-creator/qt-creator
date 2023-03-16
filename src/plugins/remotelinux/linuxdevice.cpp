@@ -15,6 +15,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/filetransferinterface.h>
 #include <projectexplorer/devicesupport/processlist.h>
@@ -389,6 +390,8 @@ public:
 
     QString m_socketFilePath;
     SshParameters m_sshParameters;
+    IDevice::ConstPtr m_linkDevice;
+
     bool m_connecting = false;
     bool m_killed = false;
 
@@ -397,6 +400,7 @@ public:
     QByteArray m_output;
     QByteArray m_error;
     bool m_pidParsed = false;
+    bool m_useConnectionSharing = false;
 };
 
 SshProcessInterface::SshProcessInterface(const IDevice::ConstPtr &device)
@@ -591,11 +595,15 @@ void SshProcessInterfacePrivate::start()
 {
     clearForStart();
 
+    const Id linkDeviceId = Id::fromSetting(m_device->extraData(Constants::LinkDevice));
+    m_linkDevice = DeviceManager::instance()->find(linkDeviceId);
+    m_useConnectionSharing = !m_linkDevice && SshSettings::connectionSharingEnabled();
+
     m_sshParameters = m_device->sshParameters();
     // TODO: Do we really need it for master process?
     m_sshParameters.x11DisplayName
             = q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString();
-    if (SshSettings::connectionSharingEnabled()) {
+    if (m_useConnectionSharing) {
         m_connecting = true;
         m_connectionHandle.reset(new SshConnectionHandle(m_device));
         m_connectionHandle->setParent(this);
@@ -662,30 +670,35 @@ void SshProcessInterfacePrivate::doStart()
     m_process.start();
 }
 
-CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
+static CommandLine getCommandLine(
+    const FilePath sshBinary,
+    const CommandLine commandLine0,
+    const FilePath &workingDirectory,
+    const Environment &env,
+    const QStringList &options,
+    bool useX,
+    bool useTerminal,
+    bool usePidMarker,
+    bool sourceProfile)
 {
-    CommandLine cmd{SshSettings::sshFilePath()};
+    CommandLine cmd{sshBinary};
 
-    if (!m_sshParameters.x11DisplayName.isEmpty())
+    if (useX)
         cmd.addArg("-X");
-    if (q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData)
+    if (useTerminal)
         cmd.addArg("-tt");
 
     cmd.addArg("-q");
 
-    QStringList options = m_sshParameters.connectionOptions(SshSettings::sshFilePath());
-    if (!m_socketFilePath.isEmpty())
-        options << "-o" << ("ControlPath=" + m_socketFilePath);
-    options << m_sshParameters.host();
     cmd.addArgs(options);
 
-    CommandLine commandLine = q->m_setup.m_commandLine;
+    CommandLine commandLine = commandLine0;
     FilePath executable = FilePath::fromParts({}, {}, commandLine.executable().path());
     commandLine.setExecutable(executable);
 
     CommandLine inner;
 
-    if (!commandLine.isEmpty() && m_device->extraData(Constants::SourceProfile).toBool()) {
+    if (!commandLine.isEmpty() && sourceProfile) {
         const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
         for (const QString &filePath : rcFilesToSource) {
             inner.addArgs({"test", "-f", filePath});
@@ -695,27 +708,83 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
         }
     }
 
-    if (!q->m_setup.m_workingDirectory.isEmpty()) {
-        inner.addArgs({"cd", q->m_setup.m_workingDirectory.path()});
+    if (!workingDirectory.isEmpty()) {
+        inner.addArgs({"cd", workingDirectory.path()});
         inner.addArgs("&&", CommandLine::Raw);
     }
 
-    if (q->m_setup.m_terminalMode == TerminalMode::Off && !q->m_setup.m_ptyData)
+    if (usePidMarker)
         inner.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
 
-    const Environment &env = q->m_setup.m_environment;
     env.forEachEntry([&](const QString &key, const QString &value, bool) {
         inner.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
     });
 
-    if (q->m_setup.m_terminalMode == TerminalMode::Off && !q->m_setup.m_ptyData)
+    if (!useTerminal && !commandLine.isEmpty())
         inner.addArg("exec");
 
     if (!commandLine.isEmpty())
         inner.addCommandLineAsArgs(commandLine, CommandLine::Raw);
 
-
     cmd.addArg(inner.arguments());
+
+    return cmd;
+}
+
+CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
+{
+    const FilePath sshBinary = SshSettings::sshFilePath();
+    const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData;
+    const bool usePidMarker = !useTerminal;
+    const bool sourceProfile = m_device->extraData(Constants::SourceProfile).toBool();
+    const bool useX = !m_sshParameters.x11DisplayName.isEmpty();
+
+    CommandLine cmd;
+    if (m_linkDevice) {
+        QStringList farOptions = m_sshParameters.connectionOptions("ssh");
+        farOptions << m_sshParameters.host();
+
+        const SshParameters nearParameters = m_linkDevice->sshParameters();
+        QStringList nearOptions = nearParameters.connectionOptions(sshBinary);
+//        if (!m_socketFilePath.isEmpty())
+//            options << "-o" << ("ControlPath=" + m_socketFilePath);
+        nearOptions << nearParameters.host();
+
+        cmd = getCommandLine("ssh",
+                             q->m_setup.m_commandLine,
+                             {},
+                             {},
+                             farOptions,
+                             false,
+                             false,
+                             false,
+                             false);
+
+        cmd = getCommandLine(sshBinary,
+                             cmd,
+                             {},
+                             {},
+                             nearOptions,
+                             false,
+                             false,
+                             usePidMarker,
+                             false);
+    } else {
+        QStringList options = m_sshParameters.connectionOptions(sshBinary);
+        if (!m_socketFilePath.isEmpty())
+            options << "-o" << ("ControlPath=" + m_socketFilePath);
+        options << m_sshParameters.host();
+
+        cmd = getCommandLine(sshBinary,
+                             q->m_setup.m_commandLine,
+                             q->m_setup.m_workingDirectory,
+                             q->m_setup.m_environment,
+                             options,
+                             useX,
+                             useTerminal,
+                             usePidMarker,
+                             sourceProfile);
+    }
 
     return cmd;
 }
@@ -1203,7 +1272,11 @@ private:
     void start() final
     {
         m_sshParameters = displayless(m_device->sshParameters());
-        if (SshSettings::connectionSharingEnabled()) {
+        const Id linkDeviceId = Id::fromSetting(m_device->extraData(Constants::LinkDevice));
+        const auto linkDevice = DeviceManager::instance()->find(linkDeviceId);
+        const bool useConnectionSharing = !linkDevice && SshSettings::connectionSharingEnabled();
+
+        if (useConnectionSharing) {
             m_connecting = true;
             m_connectionHandle.reset(new SshConnectionHandle(m_device));
             m_connectionHandle->setParent(this);

@@ -7,6 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QComboBox;
 class QLabel;
 class QLineEdit;
 class QRadioButton;
@@ -43,6 +44,7 @@ private:
     void createNewKey();
     void hostKeyCheckingChanged(bool doCheck);
     void sourceProfileCheckingChanged(bool doCheck);
+    void linkDeviceChanged(int index);
 
     void updateDeviceFromUi() override;
     void updatePortsWarningLabel();
@@ -63,6 +65,7 @@ private:
     Utils::PathChooser *m_gdbServerLineEdit;
     Utils::PathChooser *m_qmlRuntimeLineEdit;
     QCheckBox *m_sourceProfileCheckBox;
+    QComboBox *m_linkDeviceComboBox;
 };
 
 } // RemoteLinux::Internal
