@@ -4596,7 +4596,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Selected directory is not a Git repository</source>
-        <translation>選擇的目錄並非 Git 主目錄</translation>
+        <translation>選擇的目錄並非 Git 儲存庫</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -4651,7 +4651,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
-        <translation>無法決定 &quot;%1&quot; 的主目錄。</translation>
+        <translation>無法決定 &quot;%1&quot; 的儲存庫。</translation>
     </message>
     <message>
         <source>Cannot parse the file output.</source>
@@ -4787,11 +4787,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>The repository &quot;%1&quot; is not initialized.</source>
-        <translation>主目錄(Repository) &quot;%1&quot; 還沒有被初始化。</translation>
+        <translation>儲存庫 &quot;%1&quot; 還沒有被初始化。</translation>
     </message>
     <message>
         <source>Cannot retrieve last commit data of repository &quot;%1&quot;.</source>
-        <translation>無法取得主目錄 &quot;%1&quot; 上次提交的資料。</translation>
+        <translation>無法取得儲存庫 &quot;%1&quot; 上次提交的資料。</translation>
     </message>
     <message numerus="yes">
         <source>Amended &quot;%1&quot; (%n file(s)).
@@ -4946,7 +4946,7 @@ Reason: %3</source>
     <message>
         <source>Undo all pending changes to the repository
 %1?</source>
-        <translation type="obsolete">是否要復原主目錄
+        <translation type="obsolete">是否要復原儲存庫
 %1
 的所有暫停的變更？</translation>
     </message>
@@ -4972,7 +4972,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Repository Clean</source>
-        <translation>主目錄 (Repository) 清理</translation>
+        <translation>儲存庫清理</translation>
     </message>
     <message>
         <source>Choose Patch</source>
@@ -5088,11 +5088,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>建立主目錄...</translation>
+        <translation>建立儲存庫...</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
-        <translation>儲存您工作的目前狀態，並重置主目錄。</translation>
+        <translation>儲存您工作的目前狀態，並重置儲存庫。</translation>
     </message>
     <message>
         <source>Stashes...</source>
@@ -5116,7 +5116,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>The repository is clean.</source>
-        <translation>主目錄已清理乾淨。</translation>
+        <translation>儲存庫已清理乾淨。</translation>
     </message>
     <message>
         <source>Patches (*.patch *.diff)</source>
@@ -5208,11 +5208,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
     <message>
         <source>repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -5885,7 +5885,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Repository Log</source>
-        <translation>主目錄紀錄</translation>
+        <translation>儲存庫紀錄</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -5955,11 +5955,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Perforce repository: %1</source>
-        <translation>Perforce 主目錄： %1</translation>
+        <translation>Perforce 儲存庫： %1</translation>
     </message>
     <message>
         <source>Perforce: Unable to determine the repository: %1</source>
-        <translation>Perforce：無法決定主目錄：%1</translation>
+        <translation>Perforce：無法決定儲存庫：%1</translation>
     </message>
     <message>
         <source>The process terminated abnormally.</source>
@@ -6570,7 +6570,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>A version control system repository could not be created in &apos;%1&apos;.</source>
-        <translation>在 %1 裡無法建立版本控制系統主目錄。</translation>
+        <translation>在 %1 裡無法建立版本控制系統儲存庫。</translation>
     </message>
     <message>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
@@ -8165,7 +8165,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation>復原主目錄...</translation>
+        <translation>復原儲存庫...</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -8193,7 +8193,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Revert repository</source>
-        <translation>復原主目錄</translation>
+        <translation>復原儲存庫</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -8217,19 +8217,19 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation>比較主目錄</translation>
+        <translation>比較儲存庫</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation>主目錄狀態</translation>
+        <translation>儲存庫狀態</translation>
     </message>
     <message>
         <source>Log Repository</source>
-        <translation>主目錄紀錄</translation>
+        <translation>儲存庫紀錄</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation>更新主目錄</translation>
+        <translation>更新儲存庫</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -8237,7 +8237,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>是否要復原主目錄的所有暫停的變更？</translation>
+        <translation>是否要復原儲存庫的所有暫停的變更？</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -9520,15 +9520,15 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>Choose a repository of the project &apos;%1&apos;.</source>
-        <translation>請為專案 &apos;%1&apos; 選擇一個主目錄。</translation>
+        <translation>請為專案 &apos;%1&apos; 選擇一個儲存庫。</translation>
     </message>
     <message>
         <source>Mainline Repositories</source>
-        <translation>主線使用的主目錄</translation>
+        <translation>主線使用的儲存庫</translation>
     </message>
     <message>
         <source>Clones</source>
@@ -9536,15 +9536,15 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Baseline Repositories</source>
-        <translation>基線使用的主目錄</translation>
+        <translation>基線使用的儲存庫</translation>
     </message>
     <message>
         <source>Shared Project Repositories</source>
-        <translation>共享專案使用的主目錄</translation>
+        <translation>共享專案使用的儲存庫</translation>
     </message>
     <message>
         <source>Personal Repositories</source>
-        <translation>個人主目錄</translation>
+        <translation>個人儲存庫</translation>
     </message>
 </context>
 <context>
@@ -9956,7 +9956,7 @@ Will not be applied to whitespace in comments and strings.</source>
     <name>QtC::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
-        <translation>從 CVS 主目錄中取出，並試著載入裡面包含的專案。</translation>
+        <translation>從 CVS 儲存庫中取出，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>CVS Checkout</source>
@@ -9968,11 +9968,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Specify repository and path.</source>
-        <translation>請指定主目錄與路徑。</translation>
+        <translation>請指定儲存庫與路徑。</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
     <message>
         <source>Parsing of the log output failed</source>
@@ -10036,7 +10036,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation>找不到 &apos;%1&apos; 的主目錄</translation>
+        <translation>找不到 &apos;%1&apos; 的儲存庫</translation>
     </message>
     <message>
         <source>Meta+C,Meta+D</source>
@@ -10096,7 +10096,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Unedit Repository</source>
-        <translation>未編輯主目錄</translation>
+        <translation>未編輯儲存庫</translation>
     </message>
     <message>
         <source>Project Status</source>
@@ -10132,23 +10132,23 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation>比較主目錄</translation>
+        <translation>比較儲存庫</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation>主目錄狀態</translation>
+        <translation>儲存庫狀態</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation>主目錄紀錄</translation>
+        <translation>儲存庫紀錄</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation>更新主目錄</translation>
+        <translation>更新儲存庫</translation>
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation>復原主目錄...</translation>
+        <translation>復原儲存庫...</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -10184,11 +10184,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Revert repository</source>
-        <translation>復原主目錄</translation>
+        <translation>復原儲存庫</translation>
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>是否要復原主目錄的所有暫停的變更？</translation>
+        <translation>是否要復原儲存庫的所有暫停的變更？</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -10208,7 +10208,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Would you like to discard your changes to the repository &apos;%1&apos;?</source>
-        <translation>您要丟棄您對主目錄 &apos;%1&apos; 的變更嗎？</translation>
+        <translation>您要丟棄您對儲存庫 &apos;%1&apos; 的變更嗎？</translation>
     </message>
     <message>
         <source>Would you like to discard your changes to the file &apos;%1&apos;?</source>
@@ -10220,7 +10220,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Repository status</source>
-        <translation>主目錄狀態</translation>
+        <translation>儲存庫狀態</translation>
     </message>
     <message>
         <source>The initial revision %1 cannot be described.</source>
@@ -10281,11 +10281,11 @@ Will not be applied to whitespace in comments and strings.</source>
     <name>QtC::Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation>複製一個 Git 主目錄，並試著載入裡面包含的專案。</translation>
+        <translation>複製一個 Git 儲存庫，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Git Repository Clone</source>
-        <translation>Git 主目錄複製</translation>
+        <translation>Git 儲存庫複製</translation>
     </message>
     <message>
         <source>Location</source>
@@ -10293,7 +10293,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>請指定主目錄網址、取出目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、取出目錄與路徑。</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -10305,7 +10305,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Delete the master branch after checking out the repository.</source>
-        <translation>取出主目錄時刪除 master 分支。</translation>
+        <translation>取出儲存庫時刪除 master 分支。</translation>
     </message>
 </context>
 <context>
@@ -10327,11 +10327,11 @@ Will not be applied to whitespace in comments and strings.</source>
     <name>Gitorious::Internal::GitoriousCloneWizard</name>
     <message>
         <source>Clones a Gitorious repository and tries to load the contained project.</source>
-        <translation>複製一個 Gitorious 主目錄，並試著載入裡面包含的專案。</translation>
+        <translation>複製一個 Gitorious 儲存庫，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Gitorious Repository Clone</source>
-        <translation>Gitorious 主目錄複製</translation>
+        <translation>Gitorious 儲存庫複製</translation>
     </message>
 </context>
 <context>
@@ -10647,7 +10647,7 @@ Reason: %2</source>
     <name>QtC::Subversion</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation>從 Subversion 主目錄中取出，並試著載入裡面包含的專案。</translation>
+        <translation>從 Subversion 儲存庫中取出，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Subversion Checkout</source>
@@ -10659,11 +10659,11 @@ Reason: %2</source>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>請指定主目錄網址、取出目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、取出目錄與路徑。</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
 </context>
 <context>
@@ -11028,11 +11028,11 @@ Reason: %2</source>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
     <message>
         <source>repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -11246,7 +11246,7 @@ Reason: %2</source>
     <name>QtC::Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation>複製一個 Mercurial 主目錄，並試著載入裡面包含的專案。</translation>
+        <translation>複製一個 Mercurial 儲存庫，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Mercurial Clone</source>
@@ -11258,7 +11258,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>請指定主目錄網址、取出目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、取出目錄與路徑。</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -11418,7 +11418,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>建立主目錄...</translation>
+        <translation>建立儲存庫...</translation>
     </message>
     <message>
         <source>Pull Source</source>
@@ -11518,7 +11518,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>The repository &quot;%1&quot; does not exist.</source>
-        <translation>主目錄 &quot;%1&quot; 不存在。</translation>
+        <translation>儲存庫 &quot;%1&quot; 不存在。</translation>
     </message>
 </context>
 <context>
@@ -11627,11 +11627,11 @@ Reason: %2</source>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
-        <translation>&lt;沒有主目錄&gt;</translation>
+        <translation>&lt;沒有儲存庫&gt;</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation>主目錄：%1</translation>
+        <translation>儲存庫：%1</translation>
     </message>
     <message>
         <source>Do you want to delete all stashes?</source>
@@ -11658,12 +11658,12 @@ Reason: %2</source>
     </message>
     <message>
         <source>Repository Modified</source>
-        <translation>主目錄已變更</translation>
+        <translation>儲存庫已變更</translation>
     </message>
     <message>
         <source>%1 cannot be restored since the repository is modified.
 You can choose between stashing the changes or discarding them.</source>
-        <translation>%1 無法還原，因為主目錄已被變更。
+        <translation>%1 無法還原，因為儲存庫已被變更。
 您可以選擇要暫存或是丟棄變更。</translation>
     </message>
     <message>
@@ -11788,7 +11788,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>There were errors when cleaning the repository %1:</source>
-        <translation>清除主目錄 %1 時發生錯誤：</translation>
+        <translation>清除儲存庫 %1 時發生錯誤：</translation>
     </message>
     <message>
         <source>Delete...</source>
@@ -11796,7 +11796,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation>主目錄：%1</translation>
+        <translation>儲存庫：%1</translation>
     </message>
     <message numerus="yes">
         <source>%n bytes, last modified %1</source>
@@ -13538,7 +13538,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>Choose Repository Directory</source>
-        <translation>請選擇主目錄的存放目錄</translation>
+        <translation>請選擇儲存庫的存放目錄</translation>
     </message>
     <message>
         <source>The directory &apos;%1&apos; is already managed by a version control system (%2). Would you like to specify another directory?</source>
@@ -13550,11 +13550,11 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>Repository Created</source>
-        <translation>主目錄建立成功</translation>
+        <translation>儲存庫建立成功</translation>
     </message>
     <message>
         <source>Repository Creation Failed</source>
-        <translation>主目錄建立失敗</translation>
+        <translation>儲存庫建立失敗</translation>
     </message>
     <message>
         <source>Error: Executable timed out after %1s.</source>
@@ -13582,11 +13582,11 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>A version control repository has been created in %1.</source>
-        <translation>已在 %1 建立版本控制系統主目錄。</translation>
+        <translation>已在 %1 建立版本控制系統儲存庫。</translation>
     </message>
     <message>
         <source>A version control repository could not be created in %1.</source>
-        <translation>無法在 %1 建立版本控制系統主目錄。</translation>
+        <translation>無法在 %1 建立版本控制系統儲存庫。</translation>
     </message>
 </context>
 <context>
@@ -16824,7 +16824,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Do not use a shared repository, even if available.</source>
-        <translation>即使可以使用，也不要使用共享主目錄。</translation>
+        <translation>即使可以使用，也不要使用共享儲存庫。</translation>
     </message>
     <message>
         <source>Switch the checkout in the current directory to the new branch.</source>
@@ -17712,7 +17712,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>建立主目錄...</translation>
+        <translation>建立儲存庫...</translation>
     </message>
     <message>
         <source>Update</source>
@@ -17786,7 +17786,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Specify repository URL, clone directory and path.</source>
-        <translation>請指定主目錄網址、複製目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、複製目錄與路徑。</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -25404,11 +25404,11 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>The remote repository to check out.</source>
-        <translation>要取出的遠端主目錄。</translation>
+        <translation>要取出的遠端儲存庫。</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -25416,11 +25416,11 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>The development branch in the remote repository to check out.</source>
-        <translation>要取出的遠端主目錄中的開發分支。</translation>
+        <translation>要取出的遠端儲存庫中的開發分支。</translation>
     </message>
     <message>
         <source>Retrieve list of branches in repository.</source>
-        <translation>取得主目錄中的分支列表。</translation>
+        <translation>取得儲存庫中的分支列表。</translation>
     </message>
     <message>
         <source>...</source>
@@ -25448,7 +25448,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Clean Repository</source>
-        <translation>清除主目錄</translation>
+        <translation>清除儲存庫</translation>
     </message>
     <message>
         <source>Wrap submit message at:</source>
@@ -25491,8 +25491,8 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password, 
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="unfinished">指定一條執行圖形化提示密碼的命令，
-會在代碼倉函式庫要求 SSH 身份驗證的時候用到。（查看 SSH 和環境變數 SSH_ASKPASS 的相關文檔）。</translation>
+        <translation>指定一條執行圖形化提示密碼的命令，
+會在儲存庫要求 SSH 身份驗證的時候用到。（查看 SSH 和環境變數 SSH_ASKPASS 的相關文檔）。</translation>
     </message>
     <message>
         <source>&amp;SSH prompt command:</source>
