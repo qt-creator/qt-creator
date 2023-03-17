@@ -77,7 +77,8 @@ Item {
                 onActivated: backend.setCurrentStyle(styles.currentIndex)
                 openUpwards: true
                 enabled: backend.isInDesignMode
-                currentIndex: backend.currentStyle
+                property int currentStyleIndex: backend.currentStyle
+                onCurrentStyleIndexChanged: currentIndex = backend.currentStyle
             }
         }
     }

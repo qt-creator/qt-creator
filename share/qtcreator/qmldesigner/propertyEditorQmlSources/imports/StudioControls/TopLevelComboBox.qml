@@ -140,6 +140,7 @@ T.ComboBox {
             id: itemDelegate
 
             onClicked: {
+                control.currentIndex = index
                 control.activated(index)
                 comboBoxPopup.close()
             }
