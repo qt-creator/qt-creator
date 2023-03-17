@@ -60,6 +60,7 @@ Item {
                 valueRole: root.valueRole
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: implicitWidth
+                textElidable: true
 
                 onFocusChanged: {
                     if (itemFilterComboBox.focus)

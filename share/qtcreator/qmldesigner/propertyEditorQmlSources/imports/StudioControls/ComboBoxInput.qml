@@ -14,6 +14,11 @@ TextInput {
 
     property bool edit: control.activeFocus
     property bool hover: mouseArea.containsMouse && control.enabled
+    property bool elidable: false
+    readonly property real textAdvanceWidth: control.elidable
+                                             ? (elidableText.leftPadding
+                                                + elidableTextMetrics.advanceWidth)
+                                             : control.implicitWidth
 
     z: 2
     font: control.__parentControl.font
@@ -32,7 +37,7 @@ TextInput {
     selectByMouse: false
     activeFocusOnPress: false
     clip: true
-    echoMode: TextInput.NoEcho
+    echoMode: control.elidable ? TextInput.NoEcho : TextInput.Normal
 
     Text {
         id: elidableText
@@ -44,7 +49,14 @@ TextInput {
         font: control.font
         color: control.color
         text: control.text
+        visible: control.elidable
         elide: Text.ElideRight
+    }
+
+    TextMetrics {
+        id: elidableTextMetrics
+        font: elidableText.font
+        text: elidableText.text
     }
 
     Rectangle {

@@ -13,6 +13,7 @@ T.ComboBox {
 
     property alias actionIndicator: actionIndicator
     property alias labelColor: comboBoxInput.color
+    property alias textElidable: comboBoxInput.elidable
 
     // This property is used to indicate the global hover state
     property bool hover: (comboBoxInput.hover || actionIndicator.hover || popupIndicator.hover)
