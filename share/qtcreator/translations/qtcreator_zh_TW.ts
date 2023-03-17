@@ -238,7 +238,7 @@
     </message>
     <message>
         <source>Generator:</source>
-        <translation>建立器:</translation>
+        <translation>產生器:</translation>
     </message>
     <message>
         <source>Run CMake</source>
@@ -270,15 +270,15 @@
     </message>
     <message>
         <source>MinGW Generator (%1)</source>
-        <translation type="obsolete">MinGW 建立器 (%1)</translation>
+        <translation type="obsolete">MinGW 產生器 (%1)</translation>
     </message>
     <message>
         <source>Unix Generator (%1)</source>
-        <translation type="obsolete">Unix 建立器 (%1)</translation>
+        <translation type="obsolete">Unix 產生器 (%1)</translation>
     </message>
     <message>
         <source>No generator selected.</source>
-        <translation>沒有選擇建立器。</translation>
+        <translation>沒有選擇產生器。</translation>
     </message>
     <message>
         <source>CMake exited with errors. Please check CMake output.</source>
@@ -286,7 +286,7 @@
     </message>
     <message>
         <source>NMake Generator (%1)</source>
-        <translation type="obsolete">NMake 建立器(%1)</translation>
+        <translation type="obsolete">NMake 產生器(%1)</translation>
     </message>
     <message>
         <source>No valid cmake executable specified.</source>
@@ -28720,15 +28720,15 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
     <message>
         <source>NMake Generator (%1)</source>
-        <translation type="unfinished">NMake 建立器(%1)</translation>
+        <translation>NMake 產生器 (%1)</translation>
     </message>
     <message>
         <source>MinGW Generator (%1)</source>
-        <translation type="unfinished">MinGW 建立器 (%1)</translation>
+        <translation>MinGW 產生器 (%1)</translation>
     </message>
     <message>
         <source>Unix Generator (%1)</source>
-        <translation type="unfinished">Unix 建立器 (%1)</translation>
+        <translation>Unix 產生器 (%1)</translation>
     </message>
 </context>
 <context>
