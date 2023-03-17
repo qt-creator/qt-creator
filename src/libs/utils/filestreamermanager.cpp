@@ -99,10 +99,11 @@ FileStreamHandle execute(const std::function<void(FileStreamer *)> &onSetup,
     onSetup(streamer);
     const FileStreamHandle handle = generateUniqueHandle();
     QTC_CHECK(context == nullptr || context->thread() == QThread::currentThread());
-    QObject *finalContext = context ? context : streamer;
-    QObject::connect(streamer, &FileStreamer::done, finalContext, [=] {
-        if (onDone)
-            onDone(streamer);
+    if (onDone) {
+        QObject *finalContext = context ? context : streamer;
+        QObject::connect(streamer, &FileStreamer::done, finalContext, [=] { onDone(streamer); });
+    }
+    QObject::connect(streamer, &FileStreamer::done, streamer, [=] {
         removeStreamer(handle);
         streamer->deleteLater();
     });

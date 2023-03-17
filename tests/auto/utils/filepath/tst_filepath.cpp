@@ -1300,6 +1300,8 @@ void tst_filepath::asyncLocalCopy()
     QVERIFY(orig.exists());
     const FilePath dest = FilePath::fromString(rootPath).pathAppended("x/fileToCopyDest.txt");
     bool wasCalled = false;
+    // When QTRY_VERIFY failed, don't call the continuation after we leave this method
+    QObject context;
     auto afterCopy = [&orig, &dest, &wasCalled](expected_str<void> result) {
         QVERIFY(result);
         // check existence, size and content
@@ -1308,7 +1310,7 @@ void tst_filepath::asyncLocalCopy()
         QCOMPARE(dest.fileContents(), orig.fileContents());
         wasCalled = true;
     };
-    orig.asyncCopy(dest, afterCopy);
+    orig.asyncCopy(dest, &context, afterCopy);
     QTRY_VERIFY(wasCalled);
 }
 

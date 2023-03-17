@@ -637,30 +637,15 @@ FilePathInfo FilePath::filePathInfo() const
     return fileAccess()->filePathInfo(*this);
 }
 
-FileStreamHandle FilePath::asyncCopy(const FilePath &target, const CopyContinuation &cont) const
-{
-    return FileStreamerManager::copy(*this, target, cont);
-}
-
 FileStreamHandle FilePath::asyncCopy(const FilePath &target, QObject *context,
                                      const CopyContinuation &cont) const
 {
     return FileStreamerManager::copy(*this, target, context, cont);
 }
 
-FileStreamHandle FilePath::asyncRead(const ReadContinuation &cont) const
-{
-    return FileStreamerManager::read(*this, cont);
-}
-
 FileStreamHandle FilePath::asyncRead(QObject *context, const ReadContinuation &cont) const
 {
     return FileStreamerManager::read(*this, context, cont);
-}
-
-FileStreamHandle FilePath::asyncWrite(const QByteArray &data, const WriteContinuation &cont) const
-{
-    return FileStreamerManager::write(*this, data, cont);
 }
 
 FileStreamHandle FilePath::asyncWrite(const QByteArray &data, QObject *context,

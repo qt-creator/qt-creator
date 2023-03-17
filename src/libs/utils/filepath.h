@@ -210,12 +210,9 @@ public:
     static void sort(FilePaths &files);
 
     // Asynchronous interface
-    FileStreamHandle asyncCopy(const FilePath &target, const CopyContinuation &cont = {}) const;
     FileStreamHandle asyncCopy(const FilePath &target, QObject *context,
                                const CopyContinuation &cont = {}) const;
-    FileStreamHandle asyncRead(const ReadContinuation &cont = {}) const;
     FileStreamHandle asyncRead(QObject *context, const ReadContinuation &cont = {}) const;
-    FileStreamHandle asyncWrite(const QByteArray &data, const WriteContinuation &cont = {}) const;
     FileStreamHandle asyncWrite(const QByteArray &data, QObject *context,
                                 const WriteContinuation &cont = {}) const;
 

@@ -45,7 +45,7 @@ protected:
     {
         // FIXME: asyncCopy does not handle directories yet.
         QTC_ASSERT(m_source.isFile(), emit finished(false));
-        m_source.asyncCopy(m_target, [this](const expected_str<void> &cont) {
+        m_source.asyncCopy(m_target, this, [this](const expected_str<void> &cont) {
             if (!cont) {
                 addOutput(cont.error(), OutputFormat::ErrorMessage);
                 addOutput(Tr::tr("Copying failed"), OutputFormat::ErrorMessage);
