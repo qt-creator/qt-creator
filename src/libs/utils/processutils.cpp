@@ -107,7 +107,17 @@ ProcessHelper::ProcessHelper(QObject *parent)
     : QProcess(parent), m_processStartHandler(this)
 {
 #if defined(Q_OS_UNIX)
-    setChildProcessModifier([this] {
+    bool needSetsid = m_unixTerminalDisabled;
+#  if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    if (needSetsid) {
+        setUnixProcessParameters(QProcess::UnixProcessFlag::CreateNewSession);
+        needSetsid = false;
+    }
+#  endif
+
+    if (!m_lowPriority && !needSetsid)
+        return;
+    setChildProcessModifier([=, this] {
         // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
         if (m_lowPriority) {
             errno = 0;
@@ -116,7 +126,7 @@ ProcessHelper::ProcessHelper(QObject *parent)
         }
 
         // Disable terminal by becoming a session leader.
-        if (m_unixTerminalDisabled)
+        if (needSetsid)
             setsid();
     });
 #endif
