@@ -6,7 +6,7 @@ import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 
 StudioControls.ComboBox {
-    id: comboBox
+    id: root
 
     property alias typeFilter: itemFilterModel.typeFilter
 
@@ -24,49 +24,49 @@ StudioControls.ComboBox {
     }
 
     Component.onCompleted: {
-        comboBox.__isCompleted = true
-        resetInitialIndex()
+        root.__isCompleted = true
+        root.resetInitialIndex()
     }
 
-    onInitialModelDataChanged: resetInitialIndex()
-    onValueRoleChanged: resetInitialIndex()
-    onModelChanged: resetInitialIndex()
-    onTextRoleChanged: resetInitialIndex()
+    onInitialModelDataChanged: root.resetInitialIndex()
+    onValueRoleChanged: root.resetInitialIndex()
+    onModelChanged: root.resetInitialIndex()
+    onTextRoleChanged: root.resetInitialIndex()
 
     function resetInitialIndex() {
         let currentSelectedDataIndex = -1
 
         // Workaround for proper initialization. Use the initial modelData value and search for it
         // in the model. If nothing was found, set the editText to the initial modelData.
-        if (textRole === valueRole) {
-            currentSelectedDataIndex = comboBox.find(comboBox.initialModelData)
+        if (root.textRole === root.valueRole) {
+            currentSelectedDataIndex = root.find(root.initialModelData)
         } else {
-            for (let i = 0; i < comboBox.count; ++i) {
-                let movingModelIndex = model.index(i)
-                let movingModelValueData = model.data(movingModelIndex, valueRole)
-                if (movingModelValueData === initialModelData) {
+            for (let i = 0; i < root.count; ++i) {
+                let movingModelIndex = root.model.index(i)
+                let movingModelValueData = root.model.data(movingModelIndex, root.valueRole)
+                if (movingModelValueData === root.initialModelData) {
                     currentSelectedDataIndex = i
                     break
                 }
             }
         }
-        comboBox.currentIndex = currentSelectedDataIndex
-        if (comboBox.currentIndex === -1)
-            comboBox.editText = comboBox.initialModelData
+        root.currentIndex = currentSelectedDataIndex
+        if (root.currentIndex === -1)
+            root.editText = root.initialModelData
     }
 
-    function currentData(role = valueRole) {
-        if (comboBox.currentIndex !== -1) {
-            let currentModelIndex = model.index(currentIndex)
-            return model.data(currentModelIndex, role)
+    function currentData(role = root.valueRole) {
+        if (root.currentIndex !== -1) {
+            let currentModelIndex = root.model.index(root.currentIndex)
+            return root.model.data(currentModelIndex, role)
         }
-        return comboBox.editText
+        return root.editText
     }
 
     function availableValue() {
-        if (comboBox.currentIndex !== -1 && currentValue !== "")
-            return currentValue
+        if (root.currentIndex !== -1 && root.currentValue !== "")
+            return root.currentValue
 
-        return comboBox.editText
+        return root.editText
     }
 }
