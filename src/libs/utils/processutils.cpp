@@ -107,7 +107,18 @@ ProcessHelper::ProcessHelper(QObject *parent)
     : QProcess(parent), m_processStartHandler(this)
 {
 #if defined(Q_OS_UNIX)
-    setChildProcessModifier([this] { setupChildProcess_impl(); });
+    setChildProcessModifier([this] {
+        // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
+        if (m_lowPriority) {
+            errno = 0;
+            if (::nice(5) == -1 && errno != 0)
+                perror("Failed to set nice value");
+        }
+
+        // Disable terminal by becoming a session leader.
+        if (m_unixTerminalDisabled)
+            setsid();
+    });
 #endif
 }
 
@@ -151,22 +162,6 @@ void ProcessHelper::interruptProcess(QProcess *process)
     ProcessHelper *helper = qobject_cast<ProcessHelper *>(process);
     if (helper && helper->m_useCtrlCStub)
         ProcessHelper::interruptPid(process->processId());
-}
-
-void ProcessHelper::setupChildProcess_impl()
-{
-#if defined Q_OS_UNIX
-    // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
-    if (m_lowPriority) {
-        errno = 0;
-        if (::nice(5) == -1 && errno != 0)
-            perror("Failed to set nice value");
-    }
-
-    // Disable terminal by becoming a session leader.
-    if (m_unixTerminalDisabled)
-        setsid();
-#endif
 }
 
 } // namespace Utils

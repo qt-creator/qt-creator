@@ -50,7 +50,6 @@ public:
 
 private:
     void terminateProcess();
-    void setupChildProcess_impl();
 
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
