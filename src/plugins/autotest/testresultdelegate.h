@@ -38,7 +38,6 @@ private:
     public:
         LayoutPositions(QStyleOptionViewItem &options, const TestResultFilterModel *filterModel)
             : m_top(options.rect.top()),
-              m_bottom(options.rect.bottom()),
               m_left(options.rect.left()),
               m_right(options.rect.right())
         {
@@ -57,20 +56,15 @@ private:
         int top() const { return m_top + ITEM_MARGIN; }
         int left() const { return m_left + ITEM_MARGIN; }
         int right() const { return m_right - ITEM_MARGIN; }
-        int bottom() const { return m_bottom; }
         int minimumHeight() const { return ICON_SIZE + 2 * ITEM_MARGIN; }
 
         int iconSize() const { return ICON_SIZE; }
-        int fontHeight() const { return m_fontHeight; }
         int typeAreaLeft() const { return left() + ICON_SIZE + ITEM_SPACING; }
-        int typeAreaWidth() const { return m_typeAreaWidth; }
         int textAreaLeft() const { return typeAreaLeft() + m_typeAreaWidth + ITEM_SPACING; }
         int textAreaWidth() const { return fileAreaLeft() - ITEM_SPACING - textAreaLeft(); }
         int fileAreaLeft() const { return lineAreaLeft() - ITEM_SPACING - m_realFileLength; }
         int lineAreaLeft() const { return right() - m_maxLineLength; }
 
-        QRect typeArea() const { return QRect(typeAreaLeft(), top(),
-                                              typeAreaWidth(), m_fontHeight); }
         QRect textArea() const { return QRect(textAreaLeft(), top(),
                                               textAreaWidth(), m_fontHeight); }
         QRect fileArea() const { return QRect(fileAreaLeft(), top(),
@@ -84,7 +78,6 @@ private:
         int m_maxLineLength;
         int m_realFileLength;
         int m_top;
-        int m_bottom;
         int m_left;
         int m_right;
         int m_fontHeight;
