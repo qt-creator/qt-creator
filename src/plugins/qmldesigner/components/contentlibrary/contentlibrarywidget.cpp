@@ -100,7 +100,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     setWindowTitle(tr("Content Library", "Title of content library widget"));
     setMinimumWidth(120);
 
-    m_quickWidget->setObjectName(Constants::OBJECT_NAME_CONTENT_LIBRARY);
+    m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_CONTENT_LIBRARY);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));

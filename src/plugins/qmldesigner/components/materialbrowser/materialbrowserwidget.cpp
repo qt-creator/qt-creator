@@ -158,7 +158,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     m_context->setContext(context);
     m_context->setWidget(this);
 
-    m_quickWidget->setObjectName(Constants::OBJECT_NAME_MATERIAL_BROWSER);
+    m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_MATERIAL_BROWSER);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));

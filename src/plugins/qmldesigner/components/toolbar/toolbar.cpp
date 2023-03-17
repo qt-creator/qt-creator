@@ -73,7 +73,7 @@ void ToolBar::create()
     quickWidget->setMinimumWidth(200);
     quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-    quickWidget->setObjectName(Constants::OBJECT_NAME_TOP_TOOLBAR);
+    quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_TOP_TOOLBAR);
 
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
@@ -102,7 +102,7 @@ void ToolBar::createStatusBar()
     quickWidget->setMinimumWidth(200);
     quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-    quickWidget->setObjectName(Constants::OBJECT_NAME_STATUSBAR);
+    quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_STATUSBAR);
 
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 

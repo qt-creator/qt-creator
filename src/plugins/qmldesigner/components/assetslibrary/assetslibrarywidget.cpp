@@ -112,7 +112,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
                                                                   "over the lazy dog\n"
                                                                   "1234567890")});
     // create assets widget
-    m_assetsWidget->setObjectName(Constants::OBJECT_NAME_ASSET_LIBRARY);
+    m_assetsWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_ASSET_LIBRARY);
     m_assetsWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(m_assetsWidget->engine());
     m_assetsWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");

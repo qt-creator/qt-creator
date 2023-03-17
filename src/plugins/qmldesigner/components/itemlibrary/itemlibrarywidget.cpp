@@ -134,7 +134,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     setMinimumWidth(100);
 
     // set up Component Library view and model
-    m_itemsWidget->setObjectName(Constants::OBJECT_NAME_COMPONENT_LIBRARY);
+    m_itemsWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_COMPONENT_LIBRARY);
     m_itemsWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_itemsWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
