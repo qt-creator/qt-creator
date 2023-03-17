@@ -166,11 +166,11 @@
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新設置</translation>
+        <translation>新組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱:</translation>
+        <translation>新組態名稱:</translation>
     </message>
     <message>
         <source>Run cmake</source>
@@ -178,7 +178,7 @@
     </message>
     <message>
         <source>Reconfigure project:</source>
-        <translation>重新設置專案:</translation>
+        <translation>重新組態專案:</translation>
     </message>
     <message>
         <source>&amp;Change</source>
@@ -214,7 +214,7 @@
     </message>
     <message>
         <source>Base environment for this runconfiguration:</source>
-        <translation>本次執行設置的基本環境變數:</translation>
+        <translation>本次執行組態的基本環境變數:</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -258,7 +258,7 @@
     </message>
     <message>
         <source>The directory %1 specified in a build-configuration, does not contain a cbp file. Qt Creator needs to recreate this file, by running CMake. Some projects require command line arguments to the initial CMake call. Note that CMake remembers command line arguments from the previous runs.</source>
-        <translation>在建置設置中指定的目錄 %1 中未包含 cbp 檔案。Qt Creator 需要執行 CMake 以重新建立此檔案。某些專案需要命令列參數來初始化 CMake 的呼叫。如果您想新增額外的命令列參數，請新增在下面。注意 CMake 會記住上次執行時的命令列參數。</translation>
+        <translation>在建置組態中指定的目錄 %1 中未包含 cbp 檔案。Qt Creator 需要執行 CMake 以重新建立此檔案。某些專案需要命令列參數來初始化 CMake 的呼叫。如果您想新增額外的命令列參數，請新增在下面。注意 CMake 會記住上次執行時的命令列參數。</translation>
     </message>
     <message>
         <source>Qt Creator needs to run CMake in the new build directory. Some projects require command line arguments to the initial CMake call.</source>
@@ -2212,7 +2212,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; 除錯工具沒有被設置成使用公開的&lt;a href=&quot;%1&quot;&gt;微軟符號伺服器&lt;/a&gt;。建議您使用符號伺服器，以便取得作業系統函式庫中的符號。&lt;/p&gt;&lt;p&gt;&lt;i&gt;注意：&lt;/i&gt;此項工作需要一個快速的網際網路連線，才能讓此工作較順暢。同時，第一次連結可能造成延遲。&lt;/p&gt;&lt;p&gt;您要設置符號伺服器嗎?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; 除錯工具沒有被組態成使用公開的&lt;a href=&quot;%1&quot;&gt;微軟符號伺服器&lt;/a&gt;。建議您使用符號伺服器，以便取得作業系統函式庫中的符號。&lt;/p&gt;&lt;p&gt;&lt;i&gt;注意：&lt;/i&gt;此項工作需要一個快速的網際網路連線，才能讓此工作較順暢。同時，第一次連結可能造成延遲。&lt;/p&gt;&lt;p&gt;您要設置符號伺服器嗎?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Symbol Server</source>
@@ -4468,11 +4468,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新設置</translation>
+        <translation>新組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -5296,7 +5296,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Prepend to PATH:</source>
@@ -5987,7 +5987,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Perforce is not correctly configured.</source>
-        <translation>Perforce 未正確設置。</translation>
+        <translation>Perforce 未正確組態。</translation>
     </message>
     <message>
         <source>p4 diff %1</source>
@@ -6037,7 +6037,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -6342,7 +6342,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Edit build configuration:</source>
-        <translation>編輯建置設定：</translation>
+        <translation>編輯建置組態：</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -6350,20 +6350,20 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>New name for build configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>建置設置的新名稱 &lt;b&gt;%1&lt;/b&gt;：</translation>
+        <translation>建置組態的新名稱 &lt;b&gt;%1&lt;/b&gt;：</translation>
     </message>
     <message>
         <source>Clone Configuration</source>
         <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>複製設置</translation>
+        <translation>複製組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
-        <translation>取消建置並移除建置設置</translation>
+        <translation>取消建置並移除建置組態</translation>
     </message>
     <message>
         <source>Do Not Remove</source>
@@ -6371,23 +6371,23 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Remove Build Configuration %1?</source>
-        <translation>要移除建置設置 %1 嗎？</translation>
+        <translation>要移除建置組態 %1 嗎？</translation>
     </message>
     <message>
         <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>建置設置 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
+        <translation>建置組態 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
-        <translation>您想要取消建置動作並移除建置設置嗎？</translation>
+        <translation>您想要取消建置動作並移除建置組態嗎？</translation>
     </message>
     <message>
         <source>Remove Build Configuration?</source>
-        <translation>要移除建置設置嗎？</translation>
+        <translation>要移除建置組態嗎？</translation>
     </message>
     <message>
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此建置設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
+        <translation>您確定要刪除此建置組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
         <source>Build Steps</source>
@@ -6427,7 +6427,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">執行設置的基礎環境：</translation>
+        <translation type="obsolete">執行組態的基礎環境：</translation>
     </message>
     <message>
         <source>Editor settings:</source>
@@ -6642,7 +6642,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Run configuration:</source>
-        <translation>執行設置：</translation>
+        <translation>執行組態：</translation>
     </message>
     <message>
         <source>Run Settings</source>
@@ -6662,43 +6662,43 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
-        <translation>要移除執行設置嗎？</translation>
+        <translation>要移除執行組態嗎？</translation>
     </message>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此執行設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
+        <translation>您確定要刪除此執行組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>執行設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
+        <translation>執行組態 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation>取消建置並移除佈署設置</translation>
+        <translation>取消建置並移除佈署組態</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
-        <translation>要移除佈署設置 %1 嗎？</translation>
+        <translation>要移除佈署組態 %1 嗎？</translation>
     </message>
     <message>
         <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>佈署設置 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
+        <translation>佈署組態 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
-        <translation>您想要取消建置並移除佈署設置嗎？</translation>
+        <translation>您想要取消建置並移除佈署組態嗎？</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
-        <translation>要移除佈署設置嗎？</translation>
+        <translation>要移除佈署組態嗎？</translation>
     </message>
     <message>
         <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此佈署設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
+        <translation>您確定要刪除此佈署組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>佈署設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
+        <translation>佈署組態 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
     <message>
         <source>File not found: %1</source>
@@ -6882,7 +6882,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>The target &apos;%1&apos; for the project &apos;%2&apos; has no active run configuration.</source>
-        <translation>專案 &apos;%2&apos; 的目標 &apos;%1&apos; 沒有作用中的執行設置。</translation>
+        <translation>專案 &apos;%2&apos; 的目標 &apos;%1&apos; 沒有作用中的執行組態。</translation>
     </message>
     <message>
         <source>Cannot run &apos;%1&apos;.</source>
@@ -7055,7 +7055,7 @@ Do you want to ignore them?</source>
     <message>
         <source>The project %1 is not configured, skipping it.
 </source>
-        <translation>專案 %1 尚未設置，將跳過。</translation>
+        <translation>專案 %1 尚未組態，將跳過。</translation>
     </message>
     <message>
         <source>No project loaded.</source>
@@ -7067,7 +7067,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>The project %1 is not configured.</source>
-        <translation>專案 %1 尚未設置。</translation>
+        <translation>專案 %1 尚未組態。</translation>
     </message>
     <message>
         <source>Project has no build settings.</source>
@@ -7543,7 +7543,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Qt4 Run Configuration</source>
-        <translation>Qt4 執行設置</translation>
+        <translation>Qt4 執行組態</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -7563,7 +7563,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>此執行設置的基礎環境：</translation>
+        <translation>此執行組態的基礎環境：</translation>
     </message>
     <message>
         <source>Run Environment</source>
@@ -7592,11 +7592,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator 需要先設定建置設置才能執行建置。請在專案模式下設定工具鍊。</translation>
+        <translation type="obsolete">Qt Creator 需要先設定建置組態才能執行建置。請在專案模式下組態工具鍊。</translation>
     </message>
     <message>
         <source>Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator 需要設置一個工具鍊才能建置。請在專案模式下設定工具鍊。</translation>
+        <translation type="obsolete">Qt Creator 需要設置一個工具鍊才能建置。請在專案模式下組態工具鍊。</translation>
     </message>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
@@ -7604,7 +7604,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation>設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Override %1:</source>
@@ -7624,7 +7624,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>No Qt4 build configuration.</source>
-        <translation type="obsolete">沒有 Qt4 建置設置。</translation>
+        <translation type="obsolete">沒有 Qt4 建置組態。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
@@ -7641,11 +7641,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Configuration is faulty, please check the Issues view for details.</source>
-        <translation>設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping qmake step.</source>
-        <translation>設置沒有改變，將跳過 qmake 步驟。</translation>
+        <translation>組態沒有改變，將跳過 qmake 步驟。</translation>
     </message>
     <message>
         <source>No Qt version.</source>
@@ -7803,7 +7803,7 @@ Preselects a desktop Qt for building the application if available.</source>
     <name>QtC::Core</name>
     <message>
         <source>Filter Configuration</source>
-        <translation>過濾器設置</translation>
+        <translation>過濾器組態</translation>
     </message>
     <message>
         <source>Limit to prefix</source>
@@ -7871,7 +7871,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">過濾器設置</translation>
+        <translation type="obsolete">過濾器組態</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -7911,7 +7911,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Configure...</source>
-        <translation>設置...</translation>
+        <translation>組態...</translation>
     </message>
     <message>
         <source>Locate...</source>
@@ -7931,7 +7931,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Configure Filters</source>
-        <translation>過濾器設置</translation>
+        <translation>過濾器組態</translation>
     </message>
     <message>
         <source> min</source>
@@ -8001,7 +8001,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -9376,7 +9376,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -10616,11 +10616,11 @@ Reason: %2</source>
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新設置</translation>
+        <translation>新組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
     <message>
         <source>%1 Debug</source>
@@ -10822,7 +10822,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Generic Project Configuration File</source>
-        <translation>一般專案設置檔</translation>
+        <translation>一般專案組態檔</translation>
     </message>
     <message>
         <source>Perforce submit template</source>
@@ -11060,7 +11060,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -11202,7 +11202,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>The executable is not built by the current build configuration</source>
-        <translation>這個可執行檔不是使用目前的建置設置製作出來的</translation>
+        <translation>這個可執行檔不是使用目前的建置組態製作出來的</translation>
     </message>
     <message>
         <source> (disabled)</source>
@@ -11577,7 +11577,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Unconfigured Project</source>
-        <translation type="obsolete">未設置專案</translation>
+        <translation type="obsolete">未組態專案</translation>
     </message>
 </context>
 <context>
@@ -12292,7 +12292,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Make arguments:</source>
@@ -12650,7 +12650,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
-        <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;專案 &lt;b&gt;%1&lt;/b&gt; 尚未設置。&lt;br/&gt;&lt;br/&gt;您可以在&lt;a href=&quot;projectmode&quot;&gt;專案模式&lt;/a&gt;中設置。&lt;br/&gt;</translation>
+        <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;專案 &lt;b&gt;%1&lt;/b&gt; 尚未組態。&lt;br/&gt;&lt;br/&gt;您可以在&lt;a href=&quot;projectmode&quot;&gt;專案模式&lt;/a&gt;中組態。&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Targets</source>
@@ -13423,7 +13423,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>The &quot;Open C/C++ plugin&quot; is not installed in the Symbian SDK or the Symbian SDK path is misconfigured</source>
-        <translation type="obsolete">&quot;開啟 C/C++ 外掛程式&quot; 沒有安裝到 Symbian SDK，或是 Symbian SDK 路徑設定不正確</translation>
+        <translation type="obsolete">&quot;開啟 C/C++ 外掛程式&quot; 沒有安裝到 Symbian SDK，或是 Symbian SDK 路徑組態不正確</translation>
     </message>
     <message>
         <source>SBS was not found.</source>
@@ -13562,7 +13562,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>There is no patch-command configured in the common &apos;Version Control&apos; settings.</source>
-        <translation>在「版本控制」設定中沒有設定修補指令。</translation>
+        <translation>在「版本控制」設定中沒有組態修補指令。</translation>
     </message>
     <message>
         <source>Unable to launch &apos;%1&apos;: %2</source>
@@ -13641,7 +13641,7 @@ with a password, which you can enter below.</source>
     </message>
     <message>
         <source>Please configure a path.</source>
-        <translation>請設置一個路徑。</translation>
+        <translation>請組態一個路徑。</translation>
     </message>
     <message>
         <source>Pasted: %1</source>
@@ -13653,7 +13653,7 @@ with a password, which you can enter below.</source>
     </message>
     <message>
         <source>%1 - Configuration Error</source>
-        <translation>%1 - 設置錯誤</translation>
+        <translation>%1 - 組態錯誤</translation>
     </message>
     <message>
         <source>Settings...</source>
@@ -14616,7 +14616,7 @@ Ids must begin with a lowercase letter.</source>
     <name>QtC::Help</name>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">過濾器設置</translation>
+        <translation type="obsolete">過濾器組態</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -14906,7 +14906,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
 </context>
 <context>
@@ -15483,11 +15483,11 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; required for debugging binaries of the type &apos;%2&apos; is not configured correctly.</source>
-        <translation type="obsolete">除錯型態 &apos;%2&apos; 的執行檔需要使用除錯引擎 &apos;%1&apos;，但是設置不正確。</translation>
+        <translation type="obsolete">除錯型態 &apos;%2&apos; 的執行檔需要使用除錯引擎 &apos;%1&apos;，但是組態不正確。</translation>
     </message>
     <message>
         <source>None of the debugger engines &apos;%1&apos; capable of debugging binaries of the type &apos;%2&apos; is configured correctly.</source>
-        <translation type="obsolete">型態 &apos;%2&apos; 的執行檔適用的除錯引擎 &apos;%1&apos; 設置都不正確。</translation>
+        <translation type="obsolete">型態 &apos;%2&apos; 的執行檔適用的除錯引擎 &apos;%1&apos; 組態都不正確。</translation>
     </message>
     <message>
         <source>The preferred debugger engine for debugging binaries of type &apos;%1&apos; is not available.
@@ -15838,7 +15838,7 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>Deploy Configuration</source>
         <extracomment>Display name of the default deploy configuration</extracomment>
-        <translation>佈署設置</translation>
+        <translation>佈署組態</translation>
     </message>
     <message>
         <source>Application Still Running</source>
@@ -16847,7 +16847,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -18977,7 +18977,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>The following tool chain was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation type="obsolete">已設置以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次設置。</translation>
+        <translation type="obsolete">已組態以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
     </message>
     <message>
         <source>Duplicate Tool Chains detected</source>
@@ -18985,7 +18985,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation type="obsolete">已設置以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次設置。</translation>
+        <translation type="obsolete">已組態以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
     </message>
 </context>
 <context>
@@ -19519,7 +19519,7 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     </message>
     <message>
         <source>Build Configuration</source>
-        <translation type="obsolete">建置設置</translation>
+        <translation type="obsolete">建置組態</translation>
     </message>
     <message>
         <source>Project File Checks</source>
@@ -19566,7 +19566,7 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     </message>
     <message>
         <source>Create build configurations:</source>
-        <translation type="obsolete">建立建置設置：</translation>
+        <translation type="obsolete">建立建置組態：</translation>
     </message>
     <message>
         <source>For Each Qt Version One Debug And One Release</source>
@@ -20526,11 +20526,11 @@ With cache simulation, further event counters are enabled:
     <name>QtC::VcsBase</name>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Please configure &lt;b&gt;%1&lt;/b&gt; now.</source>
-        <translation>請現在設置 &lt;b&gt;%1&lt;/b&gt;。</translation>
+        <translation>請現在組態 &lt;b&gt;%1&lt;/b&gt;。</translation>
     </message>
 </context>
 <context>
@@ -20854,7 +20854,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Re-run this run-configuration</source>
-        <translation>重新執行此執行設置</translation>
+        <translation>重新執行此執行組態</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -21166,7 +21166,7 @@ Please use the stop button instead.</source>
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
         <translation>QML 效能分析器需要 Qt 4.7.4 或之後的版本。
-您目前作用中的建置設置的 Qt 版本太舊了。
+您目前作用中的建置組態的 Qt 版本太舊了。
 您要繼續嗎？</translation>
     </message>
     <message>
@@ -21366,7 +21366,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Qt Creator is waiting for the CODA application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right IP address and/or port are configured in the project settings.</source>
-        <translation type="obsolete">Qt Creator 正在等待 CODA 應用連接.&lt;br&gt;你確保你手機上應用正在執行並且IP 地址或連接埠已經設置正確.</translation>
+        <translation type="obsolete">Qt Creator 正在等待 CODA 應用連接.&lt;br&gt;你確保你手機上應用正在執行並且IP 地址或連接埠已經組態正確.</translation>
     </message>
     <message>
         <source>Canceled.
@@ -21420,7 +21420,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Choose a build configuration:</source>
-        <translation type="obsolete">選擇一個建置設置：</translation>
+        <translation type="obsolete">選擇一個建置組態：</translation>
     </message>
     <message>
         <source>Choose a tool chain:</source>
@@ -21670,7 +21670,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
-        <translation>新的通用型 Linux 裝置設定</translation>
+        <translation>新的通用型 Linux 裝置組態</translation>
     </message>
     <message>
         <source>Connection Data</source>
@@ -21687,7 +21687,7 @@ Do you want to retry?</source>
     <message>
         <source>The new device configuration will now be created.
 In addition, device connectivity will be tested.</source>
-        <translation>將建立新的裝置設置。
+        <translation>將建立新的裝置組態。
 此外，也會測試裝置的連線。</translation>
     </message>
     <message>
@@ -21696,7 +21696,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Device Configuration Wizard Selection</source>
-        <translation type="obsolete">裝置設置精靈選擇</translation>
+        <translation type="obsolete">裝置組態精靈選擇</translation>
     </message>
     <message>
         <source>Available device types:</source>
@@ -21770,7 +21770,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>No active build configuration.</source>
-        <translation>沒有作用中的建置設置。</translation>
+        <translation>沒有作用中的建置組態。</translation>
     </message>
     <message>
         <source>Don&apos;t know what to run.</source>
@@ -21809,7 +21809,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;管理裝置設置&lt;/a&gt;</translation>
+        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;管理裝置組態&lt;/a&gt;</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Set Debugger&lt;/a&gt;</source>
@@ -21845,7 +21845,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>執行設置的基礎環境：</translation>
+        <translation>執行組態的基礎環境：</translation>
     </message>
     <message>
         <source>Cancel Fetch Operation</source>
@@ -23533,7 +23533,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
-        <translation>沒有設定裝置設置。</translation>
+        <translation>沒有設定裝置組態。</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
@@ -23657,11 +23657,11 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Linux Device Configurations</source>
-        <translation type="obsolete">Linux 裝置設置</translation>
+        <translation type="obsolete">Linux 裝置組態</translation>
     </message>
     <message>
         <source>&amp;Configuration:</source>
-        <translation type="obsolete">設置(&amp;C)：</translation>
+        <translation type="obsolete">組態(&amp;C)：</translation>
     </message>
     <message>
         <source>General</source>
@@ -23877,7 +23877,7 @@ Remote stderr was: %1</source>
     </message>
     <message>
         <source>Device Configurations</source>
-        <translation type="obsolete">裝置設置</translation>
+        <translation type="obsolete">裝置組態</translation>
     </message>
     <message>
         <source>Could not start remote process: %1</source>
@@ -23899,7 +23899,7 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>SSH Key Configuration</source>
-        <translation type="obsolete">SSH 金鑰設置</translation>
+        <translation type="obsolete">SSH 金鑰組態</translation>
     </message>
     <message>
         <source>Options</source>
@@ -24699,7 +24699,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>qmake build configuration:</source>
-        <translation>qmake 建置設置：</translation>
+        <translation>qmake 建置組態：</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -24883,7 +24883,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>The name to identify this configuration:</source>
-        <translation>用於辨認此設置的名稱：</translation>
+        <translation>用於辨認此組態的名稱：</translation>
     </message>
     <message>
         <source>The device&apos;s host name or IP address:</source>
@@ -24919,11 +24919,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Device configuration:</source>
-        <translation type="obsolete">裝置設置：</translation>
+        <translation type="obsolete">裝置組態：</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;管理裝置設置&lt;/a&gt;</translation>
+        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;管理裝置組態&lt;/a&gt;</translation>
     </message>
     <message>
         <source>These show the INSTALLS settings from the project file(s).</source>
@@ -25336,7 +25336,7 @@ Influences the indentation of continuation lines.
 &lt;/pre&gt;
 &lt;/li&gt;
 
-&lt;li&gt;伴隨規則縮排: 在原設置上使用 tab 或 空格進行對齊。
+&lt;li&gt;伴隨規則縮排: 在原組態上使用 tab 或 空格進行對齊。
 &lt;pre&gt;
 (tab)int i = foo(a, b
 (tab)(tab)(tab)  c, d);
@@ -25474,7 +25474,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     </message>
     <message>
         <source>User/&amp;alias configuration file:</source>
-        <translation type="unfinished">使用者/別名設置檔案(&amp;a):</translation>
+        <translation>使用者/別名組態檔案(&amp;a):</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
@@ -25482,7 +25482,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     </message>
     <message>
         <source>User &amp;fields configuration file:</source>
-        <translation type="unfinished">使用者字段設置檔案(&amp;f):</translation>
+        <translation>使用者字段組態檔案(&amp;f):</translation>
     </message>
     <message>
         <source>&amp;Patch command:</source>
@@ -25500,7 +25500,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Configure...</source>
-        <translation type="obsolete">設置...</translation>
+        <translation type="obsolete">組態...</translation>
     </message>
 </context>
 <context>
@@ -25936,11 +25936,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Do you really want to delete the configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
+        <translation>您確定要刪除此組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
         <source>New name for configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
+        <translation>組態 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -26046,7 +26046,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Configuration unchanged, skipping autogen step.</source>
-        <translation>設置未變更，跳過 autogen 步驟。</translation>
+        <translation>組態未變更，跳過 autogen 步驟。</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -26068,7 +26068,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
-        <translation>設置未變更，跳過 autoreconf 步驟。</translation>
+        <translation>組態未變更，跳過 autoreconf 步驟。</translation>
     </message>
     <message>
         <source>Autoreconf</source>
@@ -26081,11 +26081,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新增設置</translation>
+        <translation>新增組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -26127,20 +26127,20 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
-        <translation>設置未變更，跳過設置步驟。</translation>
+        <translation>組態未變更，跳過組態步驟。</translation>
     </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Parsing %1 in directory %2</source>
@@ -26165,7 +26165,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Make</source>
@@ -26634,7 +26634,7 @@ references to elements in other files, loops, etc.)</source>
     <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Configure Project</source>
-        <translation>設置專案</translation>
+        <translation>組態專案</translation>
     </message>
     <message>
         <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
@@ -26650,7 +26650,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
     <message>
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses the Qt version: &lt;b&gt;%2&lt;/b&gt; and the tool chain: &lt;b&gt;%3&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;options.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;專案 &lt;b&gt;%1&lt;/b&gt;還沒設置。&lt;/p&gt;&lt;p&gt;Qt Creator 使用的 Qt 版本： &lt;b&gt;%2&lt;/b&gt; 和工具鍊： &lt;b&gt;%3&lt;/b&gt; 來解析專案。 你可以編輯這些 &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;選項.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;專案 &lt;b&gt;%1&lt;/b&gt;還沒組態。&lt;/p&gt;&lt;p&gt;Qt Creator 使用的 Qt 版本： &lt;b&gt;%2&lt;/b&gt; 和工具鍊： &lt;b&gt;%3&lt;/b&gt; 來解析專案。 你可以編輯這些 &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;選項.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Qt Version:</source>
@@ -26829,7 +26829,7 @@ references to elements in other files, loops, etc.)</source>
     <name>QSsh::SshKeyCreationDialog</name>
     <message>
         <source>SSH Key Configuration</source>
-        <translation type="unfinished">SSH 金鑰設置</translation>
+        <translation>SSH 金鑰組態</translation>
     </message>
     <message>
         <source>Options</source>
@@ -27266,7 +27266,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>&amp;Command:</source>
@@ -27402,7 +27402,7 @@ This option is useful when you want to try your application on devices which don
     <name>QtC::ProjectExplorer</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
-        <translation type="unfinished">裝置設置精靈選擇</translation>
+        <translation>裝置組態精靈選擇</translation>
     </message>
     <message>
         <source>Available device types:</source>
@@ -27410,7 +27410,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>Linux Device Configurations</source>
-        <translation type="unfinished">Linux 裝置設置</translation>
+        <translation>Linux 裝置組態</translation>
     </message>
     <message>
         <source>General</source>
@@ -27519,7 +27519,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>The name to identify this configuration:</source>
-        <translation type="unfinished">用於辨認此設置的名稱：</translation>
+        <translation>用於辨認此組態的名稱：</translation>
     </message>
     <message>
         <source>The device&apos;s host name or IP address:</source>
@@ -29997,7 +29997,7 @@ Remote stderr was: %1</source>
     </message>
     <message>
         <source>Unconfigured</source>
-        <translation type="unfinished">未設置</translation>
+        <translation>未組態</translation>
     </message>
     <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
