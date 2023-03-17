@@ -137,8 +137,9 @@ Rectangle {
             anchors.left: livePreviewButton.right
             anchors.leftMargin: 10
             model: backend.documentModel
-            currentIndex: backend.documentIndex
 
+            property int currentDocumentIndex: backend.documentIndex
+            onCurrentDocumentIndexChanged: currentFile.currentIndex =  currentFile.currentDocumentIndex
             onActivated: backend.openFileByIndex(index)
         }
 
@@ -237,7 +238,9 @@ Rectangle {
             anchors.right: annotations.left
             anchors.rightMargin: 10
             model: backend.workspaces
-            currentIndex: workspaces.find(backend.currentWorkspace)
+            property int currentWorkspaceIndex: workspaces.find(backend.currentWorkspace)
+            onCurrentWorkspaceIndexChanged: workspaces.currentIndex = workspaces.currentWorkspaceIndex
+
             visible: !root.flyoutEnabled
 
             onActivated: backend.setCurrentWorkspace(workspaces.currentText)
