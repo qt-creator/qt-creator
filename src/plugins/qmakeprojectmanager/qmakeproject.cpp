@@ -1311,15 +1311,13 @@ static FilePath destDirFor(const TargetInformation &ti)
     return ti.destDir;
 }
 
-void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentData &deploymentData)
+FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
-    const QString targetPath = file->installsList().targetPath;
-    if (targetPath.isEmpty())
-        return;
     const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(kit());
     if (!toolchain)
-        return;
+        return {};
 
+    FilePaths libs;
     TargetInformation ti = file->targetInformation();
     QString targetFileName = ti.target;
     const QStringList config = file->variableValue(Variable::Config);
@@ -1339,7 +1337,7 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
         }
         targetFileName += targetVersionExt + QLatin1Char('.');
         targetFileName += QLatin1String(isStatic ? "lib" : "dll");
-        deploymentData.addFile(destDirFor(ti) / targetFileName, targetPath);
+        libs << FilePath::fromString(targetFileName);
         break;
     }
     case Abi::DarwinOS: {
@@ -1359,10 +1357,10 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
                 targetFileName += majorVersion;
             }
             targetFileName += QLatin1Char('.');
-            targetFileName += file->singleVariableValue(isStatic
-                    ? Variable::StaticLibExtension : Variable::ShLibExtension);
+            targetFileName += file->singleVariableValue(isStatic ? Variable::StaticLibExtension
+                                                                 : Variable::ShLibExtension);
         }
-        deploymentData.addFile(destDir / targetFileName, targetPath);
+        libs << destDir / targetFileName;
         break;
     }
     case Abi::LinuxOS:
@@ -1374,10 +1372,10 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
 
         targetFileName += QLatin1Char('.');
         if (isStatic) {
-            targetFileName += QLatin1Char('a');
+            libs << destDirFor(ti) / (targetFileName + QLatin1Char('a'));
         } else {
             targetFileName += QLatin1String("so");
-            deploymentData.addFile(destDirFor(ti) / targetFileName, targetPath);
+            libs << destDirFor(ti) / targetFileName;
             if (nameIsVersioned) {
                 QString version = file->singleVariableValue(Variable::Version);
                 if (version.isEmpty())
@@ -1388,9 +1386,7 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
                 targetFileName += QLatin1Char('.');
                 while (!versionComponents.isEmpty()) {
                     const QString versionString = versionComponents.join(QLatin1Char('.'));
-                    deploymentData.addFile(destDirFor(ti).pathAppended(targetFileName
-                                                                       + versionString),
-                                           targetPath);
+                    libs << destDirFor(ti).pathAppended(targetFileName + versionString);
                     versionComponents.removeLast();
                 }
             }
@@ -1398,6 +1394,18 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
         break;
     default:
         break;
+    }
+
+    return libs;
+}
+
+void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentData &deploymentData)
+{
+    const QString targetPath = file->installsList().targetPath;
+    if (!targetPath.isEmpty()) {
+        const FilePaths libs = allLibraryTargetFiles(file);
+        for (const FilePath &lib : libs)
+            deploymentData.addFile(lib, targetPath);
     }
 }
 

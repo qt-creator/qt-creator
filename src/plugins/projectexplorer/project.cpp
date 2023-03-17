@@ -1570,7 +1570,6 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
         return theProject.project()->binariesForSourceFile(projectDir.pathAppended(fileName));
     };
     QEXPECT_FAIL("cmake", "QTCREATORBUG-28815", Abort);
-    QEXPECT_FAIL("qmake", "QTCREATORBUG-28815", Abort);
     QCOMPARE(binariesForSource("multi-target-project-main.cpp").size(), 1);
     QCOMPARE(binariesForSource("multi-target-project-lib.cpp").size(), 1);
     QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);
