@@ -4994,7 +4994,13 @@ void TextEditorWidget::paintBlock(QPainter *painter,
         QPointF replacementOffset = offset;
         replacementOffset.rx() += document()->documentMargin();
         while (replacementBlock.isValid()) {
-            replacementBlock.layout()->draw(painter, replacementOffset, selections, clipRect);
+            const QVector<QTextLayout::FormatRange> blockSelections
+                = replacementBlock.blockNumber() == 0 ? selections
+                                                      : QVector<QTextLayout::FormatRange>{};
+            replacementBlock.layout()->draw(painter,
+                                            replacementOffset,
+                                            blockSelections,
+                                            clipRect);
             replacementOffset.ry()
                 += replacement->documentLayout()->blockBoundingRect(replacementBlock).height();
             replacementBlock = replacementBlock.next();
