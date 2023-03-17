@@ -9,6 +9,7 @@
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectnodes.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -16,6 +17,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/modemanager.h>
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -74,13 +76,18 @@ static bool allowOnlySingleProject()
     return !settings->value(qdsAllowMultipleProjects, false).toBool();
 }
 
-Utils::FilePaths QmlProject::getUiQmlFilesForFolder(const Utils::FilePath &folder)
+Utils::FilePaths QmlProject::collectUiQmlFilesForFolder(const Utils::FilePath &folder) const
 {
     const Utils::FilePaths uiFiles = files([&](const ProjectExplorer::Node *node) {
         return node->filePath().completeSuffix() == "ui.qml"
-                && node->filePath().parentDir() == folder;
+               && node->filePath().parentDir() == folder;
     });
     return uiFiles;
+}
+
+FilePaths QmlProject::collectQmlFiles() const
+{
+    return files([](const Node *node) { return node->filePath().suffix() == "qml"; });
 }
 
 QmlProject::QmlProject(const Utils::FilePath &fileName)
@@ -124,10 +131,13 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                                                                           Utils::Id());
                                   });
                               } else {
-                                  Utils::FilePaths uiFiles = getUiQmlFilesForFolder(projectDirectory()
-                                                                                    + "/content");
+                                  Utils::FilePaths uiFiles = collectUiQmlFilesForFolder(
+                                      projectDirectory() + "/content");
                                   if (uiFiles.isEmpty())
-                                      uiFiles = getUiQmlFilesForFolder(projectDirectory());
+                                      uiFiles = collectUiQmlFilesForFolder(projectDirectory());
+
+                                  if (uiFiles.isEmpty())
+                                      uiFiles = collectQmlFiles();
 
                                   if (!uiFiles.isEmpty()) {
                                       Utils::FilePath currentFile;
@@ -138,6 +148,8 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                                           QTimer::singleShot(1000, [uiFiles]() {
                                               Core::EditorManager::openEditor(uiFiles.first(),
                                                                               Utils::Id());
+                                              Core::ModeManager::activateMode(
+                                                  Core::Constants::MODE_DESIGN);
                                           });
                                   }
                               }
