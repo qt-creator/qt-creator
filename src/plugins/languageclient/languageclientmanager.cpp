@@ -41,7 +41,7 @@ static LanguageClientManager *managerInstance = nullptr;
 static bool g_shuttingDown = false;
 
 LanguageClientManager::LanguageClientManager(QObject *parent)
-    : QObject (parent)
+    : QObject(parent)
 {
     using namespace Core;
     using namespace ProjectExplorer;
@@ -91,7 +91,7 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
             &Client::initialized,
             managerInstance,
             [client](const LanguageServerProtocol::ServerCapabilities &capabilities) {
-                managerInstance->m_currentDocumentLocatorFilter.updateCurrentClient();
+                emit managerInstance->clientInitialized(client);
                 managerInstance->m_inspector.clientInitialized(client->name(), capabilities);
             });
     connect(client,

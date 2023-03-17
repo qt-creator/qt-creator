@@ -9,7 +9,6 @@
 #include "clangdcompletion.h"
 #include "clangdfindreferences.h"
 #include "clangdfollowsymbol.h"
-#include "clangdlocatorfilters.h"
 #include "clangdmemoryusagewidget.h"
 #include "clangdquickfixes.h"
 #include "clangdsemantichighlighting.h"
@@ -471,12 +470,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
         }
     });
 
-    connect(this, &Client::initialized, this, [this] {
-        auto currentDocumentFilter = static_cast<ClangdCurrentDocumentFilter *>(
-            CppEditor::CppModelManager::instance()->currentDocumentFilter());
-        currentDocumentFilter->updateCurrentClient();
-        d->openedExtraFiles.clear();
-    });
+    connect(this, &Client::initialized, this, [this] { d->openedExtraFiles.clear(); });
 
     start();
 }

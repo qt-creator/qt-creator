@@ -19,13 +19,14 @@ namespace Core { class IEditor; }
 
 namespace LanguageClient {
 
+class LanguageClientManager;
+
 class LANGUAGECLIENT_EXPORT DocumentLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
-    DocumentLocatorFilter();
+    DocumentLocatorFilter(LanguageClientManager *languageManager);
 
-    void updateCurrentClient();
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
@@ -40,6 +41,7 @@ protected:
     Utils::FilePath m_currentFilePath;
 
 private:
+    void updateCurrentClient();
     void updateSymbols(const LanguageServerProtocol::DocumentUri &uri,
                        const LanguageServerProtocol::DocumentSymbolsResult &symbols);
     void resetSymbols();

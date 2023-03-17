@@ -12,6 +12,7 @@
 #include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/indexitem.h>
+#include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientutils.h>
 #include <languageclient/locatorfilter.h>
 #include <projectexplorer/projectmanager.h>
@@ -194,6 +195,7 @@ class LspCurrentDocumentFilter : public DocumentLocatorFilter
 {
 public:
     LspCurrentDocumentFilter()
+        : DocumentLocatorFilter(LanguageClientManager::instance())
     {
         setId({});
         setDisplayName({});
@@ -312,11 +314,6 @@ ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter() : d(new Private)
 }
 
 ClangdCurrentDocumentFilter::~ClangdCurrentDocumentFilter() { delete d; }
-
-void ClangdCurrentDocumentFilter::updateCurrentClient()
-{
-    d->lspFilter.updateCurrentClient();
-}
 
 void ClangdCurrentDocumentFilter::prepareSearch(const QString &entry)
 {

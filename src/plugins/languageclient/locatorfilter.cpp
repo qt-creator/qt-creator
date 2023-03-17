@@ -24,7 +24,7 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
-DocumentLocatorFilter::DocumentLocatorFilter()
+DocumentLocatorFilter::DocumentLocatorFilter(LanguageClientManager *languageManager)
 {
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME));
@@ -34,6 +34,8 @@ DocumentLocatorFilter::DocumentLocatorFilter()
     setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &DocumentLocatorFilter::updateCurrentClient);
+    connect(languageManager, &LanguageClientManager::clientInitialized,
             this, &DocumentLocatorFilter::updateCurrentClient);
 }
 

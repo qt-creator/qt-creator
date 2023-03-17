@@ -80,6 +80,7 @@ public:
 
 signals:
     void clientAdded(Client *client);
+    void clientInitialized(Client *client);
     void clientRemoved(Client *client);
     void shutdownFinished();
 
@@ -102,7 +103,7 @@ private:
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QList<Client *>> m_clientsForSetting;
     QHash<TextEditor::TextDocument *, QPointer<Client>> m_clientForDocument;
-    DocumentLocatorFilter m_currentDocumentLocatorFilter;
+    DocumentLocatorFilter m_currentDocumentLocatorFilter{this};
     WorkspaceLocatorFilter m_workspaceLocatorFilter;
     WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;
     WorkspaceMethodLocatorFilter m_workspaceMethodLocatorFilter;
