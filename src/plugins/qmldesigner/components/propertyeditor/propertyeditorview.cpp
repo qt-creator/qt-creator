@@ -629,7 +629,7 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
     resetView();
 }
 
-void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
+void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
     if (noValidSelection())
         return;
@@ -641,7 +641,11 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
             m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedNode).isAliasExported());
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
-            setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+            m_locked = true;
+            PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromUtf8(property.name()));
+            if (value)
+                value->resetValue();
+            m_locked = false;
 
             if (propertyIsAttachedLayoutProperty(property.name())) {
                 m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
@@ -697,12 +701,9 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
     }
 }
 
-void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
+void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-    if (locked())
-        return;
-
-    if (noValidSelection())
+    if (locked() || noValidSelection())
         return;
 
     for (const BindingProperty &property : propertyList) {
@@ -714,11 +715,11 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             if (property.name().contains("anchor"))
                 m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(m_selectedNode);
-            if ( QmlObjectNode(m_selectedNode).modelNode().property(property.name()).isBindingProperty())
-                setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
-            else
-                setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).modelValue(property.name()));
 
+            m_locked = true;
+            QString exp = QmlObjectNode(m_selectedNode).bindingProperty(property.name()).expression();
+            m_qmlBackEndForCurrentType->setExpression(property.name(), exp);
+            m_locked = false;
         }
     }
 }

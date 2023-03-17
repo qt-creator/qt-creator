@@ -35,6 +35,7 @@ public:
     void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
     void initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    void setExpression(const PropertyName &propName, const QString &exp);
 
     QQmlContext *context();
     PropertyEditorContextObject* contextObject();

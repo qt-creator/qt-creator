@@ -365,6 +365,13 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyNa
     }
 }
 
+void PropertyEditorQmlBackend::setExpression(const PropertyName &propName, const QString &exp)
+{
+    PropertyEditorValue *propertyValue = propertyValueForName(QString::fromUtf8(propName));
+    if (propertyValue)
+        propertyValue->setExpression(exp);
+}
+
 QQmlContext *PropertyEditorQmlBackend::context() {
     return m_view->rootContext();
 }

@@ -328,7 +328,7 @@ PropertyEditorNodeWrapper *PropertyEditorValue::complexNode()
 
 void PropertyEditorValue::resetValue()
 {
-    if (m_value.isValid() || isBound()) {
+    if (m_value.isValid() || !m_expression.isEmpty() || isBound()) {
         m_value = QVariant();
         m_isBound = false;
         m_expression = QString();
