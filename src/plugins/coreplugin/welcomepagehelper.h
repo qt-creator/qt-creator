@@ -40,7 +40,7 @@ public:
 class CORE_EXPORT GridView : public QListView
 {
 public:
-    explicit GridView(QWidget *parent);
+    explicit GridView(QWidget *parent = nullptr);
 
 protected:
     void leaveEvent(QEvent *) final;
@@ -74,7 +74,7 @@ public:
 
     using PixmapFunction = std::function<QPixmap(QString)>;
 
-    explicit ListModel(QObject *parent);
+    explicit ListModel(QObject *parent = nullptr);
     ~ListModel() override;
 
     void appendItems(const QList<ListItem *> &items);
@@ -199,9 +199,10 @@ private:
     QMap<Section, Core::ListModel *> m_sectionModels;
     QList<QWidget *> m_sectionLabels;
     QMap<Section, Core::GridView *> m_gridViews;
-    Core::GridView *m_allItemsView = nullptr;
-    Core::ListModelFilter *m_filteredAllItemsModel = nullptr;
+    std::unique_ptr<Core::ListModel> m_allItemsModel;
+    std::unique_ptr<Core::GridView> m_allItemsView;
     Core::ListModel::PixmapFunction m_pixmapFunction;
+    QAbstractItemDelegate *m_itemDelegate = nullptr;
 };
 
 } // namespace Core

@@ -633,11 +633,9 @@ void ListItemDelegate::goon()
 
 SectionedGridView::SectionedGridView(QWidget *parent)
     : QStackedWidget(parent)
-    , m_allItemsView(new Core::GridView(this))
 {
-    auto allItemsModel = new ListModel(this);
-    allItemsModel->setPixmapFunction(m_pixmapFunction);
-    m_filteredAllItemsModel = new Core::ListModelFilter(allItemsModel, this);
+    m_allItemsModel.reset(new ListModel);
+    m_allItemsModel->setPixmapFunction(m_pixmapFunction);
 
     auto area = new QScrollArea(this);
     area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -653,16 +651,18 @@ SectionedGridView::SectionedGridView(QWidget *parent)
     area->setWidget(sectionedView);
 
     addWidget(area);
-
-    m_allItemsView->setModel(m_filteredAllItemsModel);
-    addWidget(m_allItemsView);
 }
 
-SectionedGridView::~SectionedGridView() = default;
+SectionedGridView::~SectionedGridView()
+{
+    clear();
+}
 
 void SectionedGridView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    m_allItemsView->setItemDelegate(delegate);
+    m_itemDelegate = delegate;
+    if (m_allItemsView)
+        m_allItemsView->setItemDelegate(delegate);
     for (GridView *view : std::as_const(m_gridViews))
         view->setItemDelegate(delegate);
 }
@@ -670,18 +670,30 @@ void SectionedGridView::setItemDelegate(QAbstractItemDelegate *delegate)
 void SectionedGridView::setPixmapFunction(const Core::ListModel::PixmapFunction &pixmapFunction)
 {
     m_pixmapFunction = pixmapFunction;
-    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
-    allProducts->setPixmapFunction(pixmapFunction);
+    m_allItemsModel->setPixmapFunction(pixmapFunction);
     for (ListModel *model : std::as_const(m_sectionModels))
         model->setPixmapFunction(pixmapFunction);
 }
 
 void SectionedGridView::setSearchString(const QString &searchString)
 {
-    int view = searchString.isEmpty() ? 0  // sectioned view
-                                      : 1; // search view
-    setCurrentIndex(view);
-    m_filteredAllItemsModel->setSearchString(searchString);
+    if (searchString.isEmpty()) {
+        // back to sectioned view
+        setCurrentIndex(0);
+        return;
+    }
+    if (!m_allItemsView) {
+        // We don't have a grid set for searching yet.
+        // Create all items view for filtering.
+        m_allItemsView.reset(new GridView);
+        m_allItemsView->setModel(new ListModelFilter(m_allItemsModel.get(), m_allItemsView.get()));
+        if (m_itemDelegate)
+            m_allItemsView->setItemDelegate(m_itemDelegate);
+        addWidget(m_allItemsView.get());
+    }
+    setCurrentWidget(m_allItemsView.get());
+    auto filterModel = static_cast<ListModelFilter *>(m_allItemsView.get()->model());
+    filterModel->setSearchString(searchString);
 }
 
 ListModel *SectionedGridView::addSection(const Section &section, const QList<ListItem *> &items)
@@ -695,7 +707,7 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     model->appendItems(items);
 
     auto gridView = new SectionGridView(this);
-    gridView->setItemDelegate(m_allItemsView->itemDelegate());
+    gridView->setItemDelegate(m_itemDelegate);
     gridView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gridView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gridView->setModel(model);
@@ -717,12 +729,11 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     vbox->insertWidget(position + 1, gridView);
 
     // add the items also to the all products model to be able to search correctly
-    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
-    const QSet<ListItem *> allItems = toSet(allProducts->items());
+    const QSet<ListItem *> allItems = toSet(m_allItemsModel->items());
     const QList<ListItem *> newItems = filtered(items, [&allItems](ListItem *item) {
         return !allItems.contains(item);
     });
-    allProducts->appendItems(newItems);
+    m_allItemsModel->appendItems(newItems);
 
     // only show section label(s) if there is more than one section
     m_sectionLabels.at(0)->setVisible(m_sectionLabels.size() > 1);
@@ -732,14 +743,14 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
 
 void SectionedGridView::clear()
 {
-    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
-    allProducts->clear();
+    m_allItemsModel->clear();
     qDeleteAll(m_sectionModels);
     qDeleteAll(m_sectionLabels);
     qDeleteAll(m_gridViews);
     m_sectionModels.clear();
     m_sectionLabels.clear();
     m_gridViews.clear();
+    m_allItemsView.reset();
 }
 
 } // namespace Core
