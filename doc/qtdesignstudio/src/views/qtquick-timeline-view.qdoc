@@ -26,7 +26,7 @@
     It now displays a \l{Timeline Toolbar}{toolbar} and a ruler but no
     keyframe tracks.
 
-    \image studio-timeline-no-tracks.png "Timeline view without keyframe tracks"
+    \image studio-timeline-no-tracks.webp "Timeline view without keyframe tracks"
 
     To animate component properties in the \uicontrol Timeline view, you
     must \l{Setting Keyframe Values}{insert keyframes} for them. In the
@@ -35,7 +35,7 @@
     want to animate. A keyframe track is generated for each component that you
     insert keyframes for.
 
-    \image studio-timeline-with-empty-tracks.png "Timeline view with a property"
+    \image studio-timeline-with-empty-tracks.webp "Timeline view with a property"
 
     You can now select \inlineimage icons/local_record_keyframes.png
     to \l{Setting Keyframe Values}{record changes} in component properties
@@ -56,7 +56,7 @@
 
     \section1 Navigating in Timeline
 
-    \image studio-timeline.png "Timeline view"
+    \image studio-timeline.webp "Timeline view"
 
     You can navigate the timeline in the following ways:
 
@@ -87,7 +87,7 @@
     in the context menu, and then select a color in the \l{Picking Colors}
     {color picker}. To reset the color, select \uicontrol {Reset Color}.
 
-    \image studio-timeline-keyframe-track-colors.png "Keyframe track colors in Timeline"
+    \image studio-timeline-keyframe-track-colors.webp "Keyframe track colors in Timeline"
 
     \section1 Timeline Toolbar
 
