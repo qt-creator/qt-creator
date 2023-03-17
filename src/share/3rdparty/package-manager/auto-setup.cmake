@@ -46,6 +46,8 @@ macro(qtc_auto_setup_conan)
       message(FATAL_ERROR "conan --version failed='${result_code}: ${conan_version_output}")
     endif()
 
+    string(REGEX REPLACE ".*Conan version ([0-9].[0-9]).*" "\\1" conan_version "${conan_version_output}")
+
     set(conanfile_timestamp_file "${CMAKE_BINARY_DIR}/conan-dependencies/conanfile.timestamp")
     file(TIMESTAMP "${conanfile_txt}" conanfile_timestamp)
 
@@ -68,6 +70,9 @@ macro(qtc_auto_setup_conan)
     if (do_conan_installation)
       message(STATUS "Qt Creator: conan package manager auto-setup. "
                      "Skip this step by setting QT_CREATOR_SKIP_CONAN_SETUP to ON.")
+
+      file(COPY "${conanfile_txt}" DESTINATION "${CMAKE_BINARY_DIR}/conan-dependencies/")
+
       file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake" "
         set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")
         set(CMAKE_CXX_COMPILER \"${CMAKE_CXX_COMPILER}\")
@@ -77,17 +82,39 @@ macro(qtc_auto_setup_conan)
           "include(\"${CMAKE_TOOLCHAIN_FILE}\")\n")
       endif()
 
-      file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/CMakeLists.txt" "
-        cmake_minimum_required(VERSION 3.15)
-        project(conan-setup)
-        include(\"${CMAKE_CURRENT_LIST_DIR}/conan.cmake\")
-        conan_cmake_run(
-          CONANFILE \"${conanfile_txt}\"
-          INSTALL_FOLDER \"${CMAKE_BINARY_DIR}/conan-dependencies\"
-          GENERATORS cmake_paths json
-          BUILD ${QT_CREATOR_CONAN_BUILD_POLICY}
-          ENV CONAN_CMAKE_TOOLCHAIN_FILE=\"${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake\"
-        )")
+       file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/CMakeLists.txt" "
+          cmake_minimum_required(VERSION 3.15)
+
+          unset(CMAKE_PROJECT_INCLUDE_BEFORE CACHE)
+          project(conan-setup)
+
+          if (${conan_version} VERSION_GREATER_EQUAL 2.0)
+            include(\"${CMAKE_CURRENT_LIST_DIR}/conan_support.cmake\")
+            conan_profile_detect_default()
+            detect_host_profile(\"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\")
+
+            conan_install(
+              -pr \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\"
+              --build=${QT_CREATOR_CONAN_BUILD_POLICY}
+              -s build_type=${CMAKE_BUILD_TYPE}
+              -g CMakeDeps)
+            if (CONAN_INSTALL_SUCCESS)
+              file(WRITE \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_paths.cmake\" \"
+                list(PREPEND CMAKE_PREFIX_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
+                list(PREPEND CMAKE_MODULE_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
+              \")
+            endif()
+          else()
+            include(\"${CMAKE_CURRENT_LIST_DIR}/conan.cmake\")
+            conan_cmake_run(
+              CONANFILE \"${conanfile_txt}\"
+              INSTALL_FOLDER \"${CMAKE_BINARY_DIR}/conan-dependencies\"
+              GENERATORS cmake_paths cmake_find_package json
+              BUILD ${QT_CREATOR_CONAN_BUILD_POLICY}
+              ENV CONAN_CMAKE_TOOLCHAIN_FILE=\"${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake\"
+            )
+          endif()
+        ")
 
       execute_process(COMMAND ${CMAKE_COMMAND}
         -S "${CMAKE_BINARY_DIR}/conan-dependencies/"

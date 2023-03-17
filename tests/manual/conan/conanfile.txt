@@ -1,4 +1,2 @@
 [requires]
-fmt/8.0.0
-[generators]
-cmake_find_package
+fmt/9.1.0
