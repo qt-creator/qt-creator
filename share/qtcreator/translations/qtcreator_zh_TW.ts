@@ -1652,7 +1652,7 @@
     </message>
     <message>
         <source>Code Style</source>
-        <translation>源碼樣式</translation>
+        <translation>程式碼樣式</translation>
     </message>
     <message>
         <source>File Naming</source>
@@ -20866,7 +20866,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Code Style Settings</source>
-        <translation type="obsolete">代碼風格設定</translation>
+        <translation type="obsolete">程式碼樣式設定</translation>
     </message>
     <message>
         <source>Code Style</source>
@@ -20877,7 +20877,7 @@ These files are preserved.</source>
     <name>CodeStyleSettingsPanel</name>
     <message>
         <source>Code Style Settings</source>
-        <translation type="obsolete">代碼風格設定</translation>
+        <translation type="obsolete">程式碼樣式設定</translation>
     </message>
     <message>
         <source>Code Style</source>
@@ -21069,7 +21069,7 @@ These files are preserved.</source>
     <name>QtC::QmlJSTools</name>
     <message>
         <source>Code Style</source>
-        <translation>代碼風格</translation>
+        <translation>程式碼樣式</translation>
     </message>
     <message>
         <source>Qt Quick</source>
@@ -24070,19 +24070,19 @@ Remote error output was: %1</source>
     <name>QtC::TextEditor</name>
     <message>
         <source>Edit Code Style</source>
-        <translation>編輯代碼風格</translation>
+        <translation>編輯程式碼樣式</translation>
     </message>
     <message>
         <source>Code style name:</source>
-        <translation>代碼風格名稱：</translation>
+        <translation>程式碼樣式名稱：</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
-        <translation>您不能儲存內建代碼風格的變更。請先複製以建立您自己的版本。</translation>
+        <translation>您不能儲存內建程式碼樣式的變更。請先複製以建立您自己的版本。</translation>
     </message>
     <message>
         <source>Copy Built-in Code Style</source>
-        <translation>複製內建代碼風格</translation>
+        <translation>複製內建程式碼樣式</translation>
     </message>
     <message>
         <source>%1 (Copy)</source>
@@ -24090,23 +24090,23 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>Copy Code Style</source>
-        <translation>複製代碼風格</translation>
+        <translation>複製程式碼樣式</translation>
     </message>
     <message>
         <source>Delete Code Style</source>
-        <translation>刪除代碼風格</translation>
+        <translation>刪除程式碼樣式</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
-        <translation>您確定要永久刪除這個代碼風格嗎？</translation>
+        <translation>您確定要永久刪除這個程式碼樣式嗎？</translation>
     </message>
     <message>
         <source>Import Code Style</source>
-        <translation>匯入代碼風格</translation>
+        <translation>匯入程式碼樣式</translation>
     </message>
     <message>
         <source>Code styles (*.xml);;All files (*)</source>
-        <translation>代碼風格 (*.xml);;所有檔案(*)</translation>
+        <translation>程式碼樣式 (*.xml);;所有檔案(*)</translation>
     </message>
     <message>
         <source>Cannot import code style from &quot;%1&quot;.</source>
@@ -24114,11 +24114,11 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>Cannot import code style</source>
-        <translation type="obsolete">無法匯入代碼風格</translation>
+        <translation type="obsolete">無法匯入程式碼樣式</translation>
     </message>
     <message>
         <source>Export Code Style</source>
-        <translation>匯出代碼風格</translation>
+        <translation>匯出程式碼樣式</translation>
     </message>
     <message>
         <source>%1 [proxy: %2]</source>
