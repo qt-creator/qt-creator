@@ -721,5 +721,68 @@ void removeOutdatedKits()
         KitManager::deregisterKit(kit);
 }
 
+/*
+* using kitQmlImportPath of kit found in profile.xml to get the path to Qul
+* installation where description file (.json) of the kit is located.
+*/
+static const FilePaths kitsFiles(const Kit *kit)
+{
+    const FilePath qulRoot = kitDependencyPath(kit, Legacy::Constants::QUL_CMAKE_VAR);
+    return kitsPath(qulRoot).dirEntries(Utils::FileFilter({"*.json"}, QDir::Files));
+}
+
+/*
+* When file description (.json) of a kit exists in the Qul installation that means
+* target is installed.
+*/
+static bool anyKitDescriptionFileExists(const FilePaths &jsonFiles,
+                                        const QStringList &kitsProperties)
+{
+    static const QRegularExpression re("(\\w+)-(\\w+)-(.+)\\.json");
+    for (const FilePath &jsonFile : jsonFiles) {
+        const QRegularExpressionMatch match = re.match(jsonFile.fileName());
+        QStringList kitsPropertiesFromFileName;
+        if (match.hasMatch()) {
+            const QString toolchain = match.captured(1).replace(
+                "gnu", "gcc"); // kitFileName contains gnu while profiles.xml contains gcc
+            const QString vendor = match.captured(2);
+            const QString device = match.captured(3);
+
+            kitsPropertiesFromFileName << toolchain << vendor << device;
+        }
+
+        if (kitsPropertiesFromFileName == kitsProperties)
+            return true;
+    }
+    return false;
+}
+
+const QList<Kit *> findUninstalledTargetsKits()
+{
+    QList<Kit *> uninstalledTargetsKits;
+    for (Kit *kit : KitManager::kits()) {
+        if (!kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
+            continue;
+
+        const QStringList kitsProperties = {
+            kit->value(Constants::KIT_MCUTARGET_TOOLCHAIN_KEY).toString().toLower(),
+            kit->value(Constants::KIT_MCUTARGET_VENDOR_KEY).toString().toLower(),
+            kit->value(Constants::KIT_MCUTARGET_MODEL_KEY).toString().toLower(),
+        };
+
+        const FilePaths kitsDescriptionFiles = kitsFiles(kit);
+        if (!anyKitDescriptionFileExists(kitsDescriptionFiles, kitsProperties))
+            uninstalledTargetsKits << kit;
+    }
+
+    return uninstalledTargetsKits;
+}
+
+void removeUninstalledTargetsKits(const QList<Kit *> uninstalledTargetsKits)
+{
+    for (const auto &kit : uninstalledTargetsKits)
+        KitManager::deregisterKit(kit);
+}
+
 } // namespace McuKitManager
 } // namespace McuSupport::Internal
