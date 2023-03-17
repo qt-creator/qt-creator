@@ -2103,7 +2103,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Breakpoint on QML Signal Handler</source>
-        <translation type="obsolete">在 QML 信號處理器的中斷點</translation>
+        <translation type="obsolete">在 QML 訊號處理器的中斷點</translation>
     </message>
     <message>
         <source>Breakpoint at JavaScript throw</source>
@@ -2244,7 +2244,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Show a Message Box When Receiving a Signal</source>
-        <translation>當接收到信號時顯示訊息盒</translation>
+        <translation>當接收到訊號時顯示訊息盒</translation>
     </message>
     <message>
         <source>Log Time Stamps</source>
@@ -2552,7 +2552,7 @@ You can choose between waiting longer or abort debugging.</source>
     </message>
     <message>
         <source>Application exited after receiving signal %1</source>
-        <translation>應用程式接收到信號 %1 後退出</translation>
+        <translation>應用程式接收到訊號 %1 後退出</translation>
     </message>
     <message>
         <source>Application exited normally</source>
@@ -2932,16 +2932,16 @@ on slow machines. In this case, the value should be increased.</source>
 for less noisy debugging. For example, the atomic reference
 counting code is skipped, and a single &apos;Step Into&apos; for a signal
 emission ends up directly in the slot connected to it.</source>
-        <translation type="obsolete">允許「單步進入」將多個步驟合併到一個步驟，以減少除錯時的冗餘情況。例如，最小參考計算（atomic reference counting）代碼就會被跳過，一個發射信號的「單步進入」會直接跳到它的信號槽等等。</translation>
+        <translation type="obsolete">允許「單步進入」將多個步驟合併到一個步驟，以減少除錯時的冗餘情況。例如，最小參考計算（atomic reference counting）代碼就會被跳過，一個發射訊號的「單步進入」會直接跳到它的槽等等。</translation>
     </message>
     <message>
         <source>Show a message box when receiving a signal</source>
-        <translation>當收到信號時顯示訊息盒</translation>
+        <translation>當收到訊號時顯示訊息盒</translation>
     </message>
     <message>
         <source>This will show a message box as soon as your application
 receives a signal like SIGSEGV during debugging.</source>
-        <translation type="obsolete">在您的應用程式除錯時，若收到系統信號，如 SIGSEGV，會立即顯示一個訊息盒。</translation>
+        <translation type="obsolete">在您的應用程式除錯時，若收到系統訊號，如 SIGSEGV，會立即顯示一個訊息盒。</translation>
     </message>
     <message>
         <source>The number of seconds Qt Creator will wait before it terminates
@@ -3830,7 +3830,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Signals &amp;&amp; Slots Editor</source>
-        <translation>信號與信號槽編輯器</translation>
+        <translation>訊號與槽編輯器</translation>
     </message>
     <message>
         <source>Widget box</source>
@@ -3846,7 +3846,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Edit Signals/Slots</source>
-        <translation>編輯信號/信號槽</translation>
+        <translation>編輯訊號/槽</translation>
     </message>
     <message>
         <source>Edit Buddies</source>
@@ -3888,7 +3888,7 @@ Please verify the #include-directives.</source>
     </message>
     <message>
         <source>Error finding/adding a slot.</source>
-        <translation>尋找/新增信號槽時發生錯誤。</translation>
+        <translation>尋找/新增槽時發生錯誤。</translation>
     </message>
     <message>
         <source>Internal error: No project could be found for %1.</source>
@@ -15079,7 +15079,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>Break on QML signal handler</source>
-        <translation type="obsolete">在 QML 信號處理器中斷</translation>
+        <translation type="obsolete">在 QML 訊號處理器中斷</translation>
     </message>
     <message>
         <source>Break when JavaScript exception is thrown</source>
@@ -15393,7 +15393,7 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>Stopped: %1 (Signal %2).</source>
-        <translation>已停止：%1 (信號 %2)。</translation>
+        <translation>已停止：%1 (訊號 %2)。</translation>
     </message>
     <message>
         <source>Stopped in thread %1 by: %2.</source>
@@ -15415,11 +15415,11 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;p&gt;底層由於接收到作業系統的信號而停止。&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;信號名稱： &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;信號意義：&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation>&lt;p&gt;底層由於接收到作業系統的訊號而停止。&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;訊號名稱： &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;訊號意義：&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <source>Signal received</source>
-        <translation>接收到信號</translation>
+        <translation>接收到訊號</translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it triggered an exception.&lt;p&gt;%1</source>
@@ -22941,7 +22941,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Handling Signal</source>
-        <translation>信號處理中</translation>
+        <translation>訊號處理中</translation>
     </message>
 </context>
 <context>
@@ -23805,7 +23805,7 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Remote process was killed by a signal.</source>
-        <translation>遠端行程被信號強行終結。</translation>
+        <translation>遠端行程被訊號強行終結。</translation>
     </message>
     <message>
         <source>Remote process finished with exit code %1.</source>
@@ -25964,11 +25964,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Process killed by signal</source>
-        <translation type="obsolete">行程被信號強行中止</translation>
+        <translation type="obsolete">行程被訊號強行中止</translation>
     </message>
     <message>
         <source>Server sent invalid signal &apos;%1&apos;</source>
-        <translation type="obsolete">伺服器送出無效的信號 &apos;%1&apos;</translation>
+        <translation type="obsolete">伺服器送出無效的訊號 &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -26603,7 +26603,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
     <message>
         <source>Signal</source>
-        <translation>信號</translation>
+        <translation>訊號</translation>
     </message>
     <message>
         <source>Part of binding loop</source>
@@ -27809,11 +27809,11 @@ This option is useful when you want to try your application on devices which don
     <name>QSsh::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
-        <translation type="unfinished">行程被信號強行中止</translation>
+        <translation>行程被訊號強行中止</translation>
     </message>
     <message>
         <source>Server sent invalid signal &apos;%1&apos;</source>
-        <translation type="unfinished">伺服器送出無效的信號 &apos;%1&apos;</translation>
+        <translation>伺服器送出無效的訊號 &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
