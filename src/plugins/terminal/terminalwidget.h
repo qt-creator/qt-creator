@@ -51,10 +51,11 @@ public:
     {
         int start;
         int end;
+        bool final{false};
 
         bool operator!=(const Selection &other) const
         {
-            return start != other.start || end != other.end;
+            return start != other.start || end != other.end || final != other.final;
         }
 
         bool operator==(const Selection &other) const { return !operator!=(other); }
@@ -151,12 +152,12 @@ protected:
     TextAndOffsets textAt(const QPoint &pos) const;
 
     void applySizeChange();
-
     void updateScrollBars();
 
     void flushVTerm(bool force);
 
     bool setSelection(const std::optional<Selection> &selection);
+    QString textFromSelection() const;
 
     void configBlinkTimer();
 

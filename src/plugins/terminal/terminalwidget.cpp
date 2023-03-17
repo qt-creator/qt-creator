@@ -273,10 +273,8 @@ void TerminalWidget::setupSurface()
             &Internal::TerminalSurface::invalidated,
             this,
             [this](const QRect &rect) {
-                if (setSelection(std::nullopt))
-                    updateViewport();
-                else
-                    updateViewport(gridToViewport(rect));
+                setSelection(std::nullopt);
+                updateViewport(gridToViewport(rect));
             });
     connect(m_surface.get(),
             &Internal::TerminalSurface::cursorChanged,
@@ -300,8 +298,8 @@ void TerminalWidget::setupSurface()
             });
     connect(m_surface.get(), &Internal::TerminalSurface::altscreenChanged, this, [this] {
         updateScrollBars();
-        updateViewport();
-        setSelection(std::nullopt);
+        if (!setSelection(std::nullopt))
+            updateViewport();
     });
     connect(m_surface.get(), &Internal::TerminalSurface::unscroll, this, [this] {
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
@@ -385,21 +383,7 @@ QAction &TerminalWidget::zoomOutAction()
 
 void TerminalWidget::copyToClipboard() const
 {
-    if (!m_selection)
-        return;
-
-    Internal::CellIterator it = m_surface->iteratorAt(m_selection->start);
-    Internal::CellIterator end = m_surface->iteratorAt(m_selection->end);
-
-    std::u32string s;
-    for (; it != end; ++it) {
-        if (it.gridPos().x() == 0 && !s.empty())
-            s += U'\n';
-        if (*it != 0)
-            s += *it;
-    }
-
-    const QString text = QString::fromUcs4(s.data(), static_cast<int>(s.size()));
+    QString text = textFromSelection();
 
     qCDebug(selectionLog) << "Copied to clipboard: " << text;
 
@@ -420,7 +404,6 @@ void TerminalWidget::pasteFromClipboard()
 void TerminalWidget::clearSelection()
 {
     setSelection(std::nullopt);
-    updateViewport();
     m_surface->sendKey(Qt::Key_Escape);
 }
 
@@ -472,19 +455,59 @@ void TerminalWidget::flushVTerm(bool force)
     }
 }
 
+QString TerminalWidget::textFromSelection() const
+{
+    if (!m_selection)
+        return {};
+
+    Internal::CellIterator it = m_surface->iteratorAt(m_selection->start);
+    Internal::CellIterator end = m_surface->iteratorAt(m_selection->end);
+
+    std::u32string s;
+    for (; it != end; ++it) {
+        if (it.gridPos().x() == 0 && !s.empty())
+            s += U'\n';
+        if (*it != 0)
+            s += *it;
+    }
+
+    return QString::fromUcs4(s.data(), static_cast<int>(s.size()));
+}
+
 bool TerminalWidget::setSelection(const std::optional<Selection> &selection)
 {
-    if (selection.has_value() != m_selection.has_value()) {
-        qCDebug(selectionLog) << "Copy enabled:" << selection.has_value();
-        m_copyAction.setEnabled(selection.has_value());
+    if (selectionLog().isDebugEnabled())
+        updateViewport();
+
+    if (selection == m_selection) {
+        return false;
     }
 
-    if (selection.has_value() && m_selection.has_value()) {
-        if (*selection == *m_selection)
-            return false;
-    }
+    /*if (m_selection && m_selection->final) {
+        QClipboard *clipboard = QApplication::clipboard();
+        if (clipboard->supportsSelection()) {
+            qCDebug(selectionLog) << "Clearing selection from clipboard";
+            clipboard->clear(QClipboard::Selection);
+        }
+    }*/
 
     m_selection = selection;
+
+    if (m_selection && m_selection->final) {
+        qCDebug(selectionLog) << "Copy enabled:" << selection.has_value();
+        m_copyAction.setEnabled(selection.has_value());
+
+        QClipboard *clipboard = QApplication::clipboard();
+        if (clipboard->supportsSelection()) {
+            QString text = textFromSelection();
+            qCDebug(selectionLog) << "Selection set to clipboard: " << text;
+            clipboard->setText(text, QClipboard::Selection);
+        }
+    }
+
+    if (!selectionLog().isDebugEnabled())
+        updateViewport();
+
     return true;
 }
 
@@ -922,8 +945,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
     }
 
     if (actionTriggered) {
-        if (setSelection(std::nullopt))
-            updateViewport();
+        setSelection(std::nullopt);
         return;
     }
 
@@ -1053,14 +1075,17 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         if (std::chrono::system_clock::now() - m_lastDoubleClick < 500ms) {
             m_selectLineMode = true;
-            m_selection->start = m_surface->gridToPos(
-                {0, m_surface->posToGrid(m_selection->start).y()});
-            m_selection->end = m_surface->gridToPos(
-                {m_surface->liveSize().width(), m_surface->posToGrid(m_selection->end).y()});
+            const Selection newSelection{m_surface->gridToPos(
+                                             {0, m_surface->posToGrid(m_selection->start).y()}),
+                                         m_surface->gridToPos(
+                                             {m_surface->liveSize().width(),
+                                              m_surface->posToGrid(m_selection->end).y()}),
+                                         false};
+            setSelection(newSelection);
         } else {
             m_selectLineMode = false;
             int pos = m_surface->gridToPos(globalToGrid(viewportToGlobal(event->pos())));
-            setSelection(Selection{pos, pos});
+            setSelection(Selection{pos, pos, false});
         }
         event->accept();
         updateViewport();
@@ -1068,7 +1093,6 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
         if (m_selection) {
             m_copyAction.trigger();
             setSelection(std::nullopt);
-            updateViewport();
         } else {
             m_pasteAction.trigger();
         }
@@ -1077,7 +1101,7 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
 void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_selection && event->buttons() & Qt::LeftButton) {
-        const auto old = m_selection;
+        Selection newSelection = *m_selection;
         int scrollVelocity = 0;
         if (event->pos().y() < 0) {
             scrollVelocity = (event->pos().y());
@@ -1110,16 +1134,15 @@ void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
             start = 0;
 
         if (m_selectLineMode) {
-            m_selection->start = m_surface->gridToPos({0, m_surface->posToGrid(start).y()});
-            m_selection->end = m_surface->gridToPos(
+            newSelection.start = m_surface->gridToPos({0, m_surface->posToGrid(start).y()});
+            newSelection.end = m_surface->gridToPos(
                 {m_surface->liveSize().width(), m_surface->posToGrid(newEnd).y()});
         } else {
-            m_selection->start = start;
-            m_selection->end = newEnd;
+            newSelection.start = start;
+            newSelection.end = newEnd;
         }
 
-        if (old != *m_selection || selectionLog().isDebugEnabled())
-            updateViewport();
+        setSelection(newSelection);
     } else if (event->modifiers() == Qt::ControlModifier) {
         checkLinkAt(event->pos());
     } else if (m_linkSelection) {
@@ -1171,10 +1194,10 @@ void TerminalWidget::mouseReleaseEvent(QMouseEvent *event)
     m_scrollTimer.stop();
 
     if (m_selection && event->button() == Qt::LeftButton) {
-        if (m_selection->end - m_selection->start == 0) {
+        if (m_selection->end - m_selection->start == 0)
             setSelection(std::nullopt);
-            updateViewport();
-        }
+        else
+            setSelection(Selection{m_selection->start, m_selection->end, true});
     }
 }
 
@@ -1208,11 +1231,10 @@ void TerminalWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
     const auto hit = textAt(event->pos());
 
-    setSelection(Selection{hit.start, hit.end});
+    setSelection(Selection{hit.start, hit.end, true});
 
     m_lastDoubleClick = std::chrono::system_clock::now();
 
-    updateViewport();
     event->accept();
 }
 
