@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "stateseditorwidget.h"
+#include "stateseditorimageprovider.h"
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
-#include "stateseditorimageprovider.h"
 
 #include <designersettings.h>
 #include <theme.h>
@@ -13,8 +13,8 @@
 
 #include <invalidqmlsourceexception.h>
 
-#include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -22,18 +22,16 @@
 
 #include <QApplication>
 
-#include <QFileInfo>
-#include <QShortcut>
 #include <QBoxLayout>
+#include <QFileInfo>
 #include <QKeySequence>
+#include <QShortcut>
 
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
 
-enum {
-    debug = false
-};
+enum { debug = false };
 
 namespace QmlDesigner {
 
@@ -70,10 +68,11 @@ void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
     rootContext()->setContextProperty(QLatin1String("canAddNewStates"), showAddNewStatesButton);
 }
 
-StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel)
-    : m_statesEditorView(statesEditorView),
-    m_imageProvider(nullptr),
-    m_qmlSourceUpdateShortcut(nullptr)
+StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView,
+                                       StatesEditorModel *statesEditorModel)
+    : m_statesEditorView(statesEditorView)
+    , m_imageProvider(nullptr)
+    , m_qmlSourceUpdateShortcut(nullptr)
 {
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
@@ -89,11 +88,9 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     rootContext()->setContextProperties(
-        QVector<QQmlContext::PropertyPair>{
-            {{"statesEditorModel"}, QVariant::fromValue(statesEditorModel)},
-            {{"canAddNewStates"}, true}
-        }
-    );
+        QVector<QQmlContext::PropertyPair>{{{"statesEditorModel"},
+                                            QVariant::fromValue(statesEditorModel)},
+                                           {{"canAddNewStates"}, true}});
 
     Theme::setupTheme(engine());
 
@@ -147,14 +144,17 @@ void StatesEditorWidget::reloadQmlSource()
 
         Core::AsynchronousMessageBox::warning(tr("Cannot Create QtQuick View"),
                                               tr("StatesEditorWidget: %1 cannot be created.%2")
-                                              .arg(qmlSourcesPath(), errorString));
+                                                  .arg(qmlSourcesPath(), errorString));
         return;
     }
 
-    connect(rootObject(), SIGNAL(currentStateInternalIdChanged()), m_statesEditorView.data(), SLOT(synchonizeCurrentStateFromWidget()));
+    connect(rootObject(),
+            SIGNAL(currentStateInternalIdChanged()),
+            m_statesEditorView.data(),
+            SLOT(synchonizeCurrentStateFromWidget()));
     connect(rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
     connect(rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
     m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
 }
 
-} // QmlDesigner
+} // namespace QmlDesigner

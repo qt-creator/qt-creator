@@ -2,30 +2,30 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "stateseditorview.h"
-#include "stateseditorwidget.h"
+
 #include "stateseditormodel.h"
+#include "stateseditorwidget.h"
+
 #include <rewritingexception.h>
-
-#include <QDebug>
-#include <QRegularExpression>
-#include <QMessageBox>
-#include <cmath>
-#include <memory>
-
-#include <nodemetainfo.h>
-
 #include <bindingproperty.h>
-#include <variantproperty.h>
 #include <nodelistproperty.h>
-
+#include <nodemetainfo.h>
+#include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <qmlstate.h>
+
 #include <annotationeditor/annotationeditor.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QDebug>
+#include <QMessageBox>
+#include <QRegularExpression>
+
+#include <cmath>
+#include <memory>
 
 namespace QmlDesigner {
 
@@ -63,7 +63,9 @@ WidgetInfo StatesEditorView::widgetInfo()
                             tr("States view"));
 }
 
-void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void StatesEditorView::rootNodeTypeChanged(const QString & /*type*/,
+                                           int /*majorVersion*/,
+                                           int /*minorVersion*/)
 {
     checkForStatesAvailability();
 }
@@ -94,13 +96,14 @@ void StatesEditorView::removeState(int nodeId)
                 QStringList lockedTargets;
                 const auto propertyChanges = modelState.propertyChanges();
 
-                 // confirm removing not empty states
+                // confirm removing not empty states
                 if (!propertyChanges.isEmpty()) {
                     QMessageBox msgBox;
                     msgBox.setTextFormat(Qt::RichText);
                     msgBox.setIcon(QMessageBox::Question);
                     msgBox.setWindowTitle(tr("Remove State"));
-                    msgBox.setText(tr("This state is not empty. Are you sure you want to remove it?"));
+                    msgBox.setText(
+                        tr("This state is not empty. Are you sure you want to remove it?"));
                     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
                     msgBox.setDefaultButton(QMessageBox::Yes);
 
@@ -129,8 +132,9 @@ void StatesEditorView::removeState(int nodeId)
                     msgBox.setTextFormat(Qt::RichText);
                     msgBox.setIcon(QMessageBox::Question);
                     msgBox.setWindowTitle(tr("Remove State"));
-                    msgBox.setText(QString(tr("Removing this state will modify locked components.") + "<br><br>%1")
-                                           .arg(detailedText));
+                    msgBox.setText(QString(tr("Removing this state will modify locked components.")
+                                           + "<br><br>%1")
+                                       .arg(detailedText));
                     msgBox.setInformativeText(tr("Continue by removing the state?"));
                     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
                     msgBox.setDefaultButton(QMessageBox::Ok);
@@ -154,7 +158,7 @@ void StatesEditorView::removeState(int nodeId)
 
             stateNode.destroy();
         }
-    }  catch (const RewritingException &e) {
+    } catch (const RewritingException &e) {
         e.showException();
     }
 }
@@ -485,12 +489,14 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
     resetModel();
 }
 
-void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
+void StatesEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
     for (const AbstractProperty &property : propertyList) {
-        if (property.name() == "states" && property.parentModelNode() == activeStateGroup().modelNode())
+        if (property.name() == "states"
+            && property.parentModelNode() == activeStateGroup().modelNode())
             resetModel();
-        if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
+        if (property.name() == "when"
+            && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
     }
 }
@@ -499,22 +505,29 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (removedNode.hasParentProperty()) {
         const NodeAbstractProperty propertyParent = removedNode.parentProperty();
-        if (propertyParent.parentModelNode() == activeStateGroup().modelNode() && propertyParent.name() == "states")
+        if (propertyParent.parentModelNode() == activeStateGroup().modelNode()
+            && propertyParent.name() == "states")
             m_lastIndex = propertyParent.indexOf(removedNode);
     }
     if (currentState().isValid() && removedNode == currentState())
         setCurrentState(baseState());
 }
 
-void StatesEditorView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty &parentProperty, PropertyChangeFlags /*propertyChange*/)
+void StatesEditorView::nodeRemoved(const ModelNode & /*removedNode*/,
+                                   const NodeAbstractProperty &parentProperty,
+                                   PropertyChangeFlags /*propertyChange*/)
 {
-    if (parentProperty.isValid() && parentProperty.parentModelNode() == activeStateGroup().modelNode() && parentProperty.name() == "states") {
+    if (parentProperty.isValid() && parentProperty.parentModelNode() == activeStateGroup().modelNode()
+        && parentProperty.name() == "states") {
         m_statesEditorModel->removeState(m_lastIndex);
         m_lastIndex = -1;
     }
 }
 
-void StatesEditorView::nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
+void StatesEditorView::nodeAboutToBeReparented(const ModelNode &node,
+                                               const NodeAbstractProperty & /*newPropertyParent*/,
+                                               const NodeAbstractProperty &oldPropertyParent,
+                                               AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     if (oldPropertyParent.isValid()
         && oldPropertyParent.parentModelNode() == activeStateGroup().modelNode()
@@ -522,8 +535,10 @@ void StatesEditorView::nodeAboutToBeReparented(const ModelNode &node, const Node
         m_lastIndex = oldPropertyParent.indexOf(node);
 }
 
-
-void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
+void StatesEditorView::nodeReparented(const ModelNode &node,
+                                      const NodeAbstractProperty &newPropertyParent,
+                                      const NodeAbstractProperty &oldPropertyParent,
+                                      AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     if (oldPropertyParent.isValid()
         && oldPropertyParent.parentModelNode() == activeStateGroup().modelNode()
@@ -552,7 +567,8 @@ void StatesEditorView::bindingPropertiesChanged(
     [[maybe_unused]] AbstractView::PropertyChangeFlags propertyChange)
 {
     for (const BindingProperty &property : propertyList) {
-        if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
+        if (property.name() == "when"
+            && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
     }
 }
@@ -567,7 +583,8 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
     auto guard = qScopeGuard([&]() { m_block = false; });
 
     for (const VariantProperty &property : propertyList) {
-        if (property.name() == "name" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
+        if (property.name() == "name"
+            && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
         else if (property.name() == "state"
                  && property.parentModelNode() == activeStateGroup().modelNode())

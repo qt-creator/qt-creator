@@ -6,7 +6,6 @@
 #include <QAbstractListModel>
 #include <QPointer>
 
-
 namespace QmlDesigner {
 
 class StatesEditorView;
@@ -51,7 +50,6 @@ public:
     Q_INVOKABLE bool hasAnnotation(int internalNodeId) const;
 
     void reset();
-
 
 signals:
     void changedToState(int n);

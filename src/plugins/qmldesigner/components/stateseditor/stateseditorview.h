@@ -13,14 +13,15 @@ class StatesEditorModel;
 class StatesEditorWidget;
 class AnnotationEditor;
 
-class StatesEditorView : public AbstractView {
+class StatesEditorView : public AbstractView
+{
     Q_OBJECT
 
 public:
     explicit StatesEditorView(ExternalDependenciesInterface &externalDependencies);
     ~StatesEditorView() override;
 
-    void renameState(int internalNodeId,const QString &newName);
+    void renameState(int internalNodeId, const QString &newName);
     void setWhenCondition(int internalNodeId, const QString &condition);
     void resetWhenCondition(int internalNodeId);
     void setStateAsDefault(int internalNodeId);
@@ -38,7 +39,7 @@ public:
     // AbstractView
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
-    void propertiesRemoved(const QList<AbstractProperty>& propertyList) override;
+    void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
     void nodeRemoved(const ModelNode &removedNode,
                      const NodeAbstractProperty &parentProperty,
@@ -52,9 +53,10 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeOrderChanged(const NodeListProperty &listProperty) override;
-    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
-    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
-
+    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                  PropertyChangeFlags propertyChange) override;
+    void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
+                                  PropertyChangeFlags propertyChange) override;
 
     // AbstractView
     void currentStateChanged(const ModelNode &node) override;
@@ -67,7 +69,6 @@ public:
 
     ModelNode acitveStatesGroupNode() const;
     void setAcitveStatesGroupNode(const ModelNode &modelNode);
-
 
 public slots:
     void synchonizeCurrentStateFromWidget();
