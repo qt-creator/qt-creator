@@ -287,8 +287,7 @@ public:
                                                           Utils::globalMacroExpander());
 
         const auto updateFormatCommandState = [&, formatCommandLabel, formatCommandOptionsLabel] {
-            const bool enabled = useCustomFormatCommand->isChecked()
-                                 && autoFormatOnSave->isChecked();
+            const bool enabled = useCustomFormatCommand->isChecked();
             formatCommandLabel->setEnabled(enabled);
             formatCommand->setEnabled(enabled);
             formatCommandOptionsLabel->setEnabled(enabled);
@@ -298,7 +297,6 @@ public:
 
         connect(autoFormatOnSave, &QCheckBox::toggled, this, [&, updateFormatCommandState]() {
             autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
-            useCustomFormatCommand->setEnabled(autoFormatOnSave->isChecked());
             updateFormatCommandState();
         });
         connect(useCustomFormatCommand, &QCheckBox::toggled, this, updateFormatCommandState);
