@@ -20,6 +20,22 @@ CppLocatorData::CppLocatorData()
     m_pendingDocuments.reserve(MaxPendingDocuments);
 }
 
+QList<IndexItem::Ptr> CppLocatorData::findSymbols(IndexItem::ItemType type,
+                                                  const QString &symbolName) const
+{
+    QList<IndexItem::Ptr> matches;
+    filterAllFiles([&](const IndexItem::Ptr &info) {
+        if (info->type() & type) {
+            if (info->symbolName() == symbolName || info->scopedSymbolName() == symbolName)
+                matches << info;
+        }
+        if (info->type() & IndexItem::Enum)
+            return IndexItem::Continue;
+        return IndexItem::Recurse;
+    });
+    return matches;
+}
+
 void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 {
     QMutexLocker locker(&m_pendingDocumentsMutex);
