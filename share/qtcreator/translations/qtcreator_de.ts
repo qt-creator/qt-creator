@@ -12864,7 +12864,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Build Environment</source>
-        <translation type="unfinished">Build-Umgebung</translation>
+        <translation>Build-Umgebung</translation>
     </message>
     <message>
         <source>Clear system environment</source>
@@ -12916,7 +12916,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Base environment for the CMake configure step:</source>
-        <translation type="unfinished"></translation>
+        <translation>Basisumgebung für den CMake-Konfigurationsschritt:</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -13044,7 +13044,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Attempt to include %1 which was already parsed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versuch, die Datei %1 einzufügen, welche schon ausgewertet wurde.</translation>
     </message>
     <message>
         <source>yes</source>
@@ -13156,7 +13156,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Tools</source>
-        <translation type="unfinished">Werkzeuge</translation>
+        <translation>Werkzeuge</translation>
     </message>
     <message>
         <source>System CMake at %1</source>
@@ -13279,7 +13279,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMakeFormatter</source>
-        <translation type="unfinished"></translation>
+        <translation>CMakeFormatter</translation>
     </message>
     <message>
         <source>Build &quot;%1&quot;</source>
@@ -13319,7 +13319,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Show advanced options by default</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Optionen standardmäßig anzeigen</translation>
     </message>
     <message>
         <source>General</source>
@@ -13389,27 +13389,27 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>%1 (via cmake)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (via cmake)</translation>
     </message>
     <message>
         <source>cmake generator failed: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Generator fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>Kit does not have a cmake binary set</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kit hat keine ausführbare CMake-Datei gesetzt</translation>
     </message>
     <message>
         <source>Cannot create output directory &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
     </message>
     <message>
         <source>No valid cmake executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine gültige ausführbare CMake-Datei</translation>
     </message>
     <message>
         <source>Running in %1: %2</source>
-        <translation type="unfinished">Führe in %1 aus: %2 {1:?}</translation>
+        <translation>Führe in %1 aus: %2</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -13445,7 +13445,7 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>CMake version %1 is unsupported. Update to version 3.15 (with file-api) or later.</source>
-        <translation type="unfinished">Die CMake-Version %1 wird nicht unterstützt. Aktualisieren Sie auf Version 3.14 (mit file-api) oder neuer. {1 ?} {3.15 ?}</translation>
+        <translation>Die CMake-Version %1 wird nicht unterstützt. Aktualisieren Sie auf Version 3.15 (mit file-api) oder neuer.</translation>
     </message>
     <message>
         <source>Platform</source>
@@ -13753,7 +13753,7 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>CMake project configuration failed. No CMake configuration for build type &quot;%1&quot; found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die CMake-Konfiguration des Projekts ist fehlgeschlagen. Es wurde keine CMake-Konfiguration für den Build-Typ &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; CMake configuration found. Available configurations: &quot;%2&quot;.
@@ -13805,45 +13805,45 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Format &amp;Current File</source>
-        <translation type="unfinished">Aktuelle &amp;Datei formatieren</translation>
+        <translation>Aktuelle &amp;Datei formatieren</translation>
     </message>
     <message>
         <source>Enable auto format on file save</source>
-        <translation type="unfinished">Beim Speichern einer Datei automatisch formatieren</translation>
+        <translation>Beim Speichern einer Datei automatisch formatieren</translation>
     </message>
     <message>
         <source>Restrict to MIME types:</source>
-        <translation type="unfinished">Auf MIME-Typen beschränken:</translation>
+        <translation>Auf MIME-Typen beschränken:</translation>
     </message>
     <message>
         <source>Restrict to files contained in the current project</source>
-        <translation type="unfinished">Auf Dateien des aktuellen Projekts beschränken</translation>
+        <translation>Auf Dateien des aktuellen Projekts beschränken</translation>
     </message>
     <message>
         <source>%1 Command</source>
-        <translation type="unfinished">Ausführbare Datei für %1</translation>
+        <translation>Ausführbare Datei für %1</translation>
     </message>
     <message>
         <source>Formatter</source>
-        <translation type="unfinished"></translation>
+        <translation>Formatter</translation>
     </message>
     <message>
         <source>Automatic Formatting on File Save</source>
-        <translation type="unfinished">Automatische Formatierung beim Speichern einer Datei</translation>
+        <translation>Automatische Formatierung beim Speichern einer Datei</translation>
     </message>
     <message>
         <source>CMakeFormat command:</source>
-        <translation type="unfinished"></translation>
+        <translation>CMakeFormat-Kommando:</translation>
     </message>
     <message>
         <source>Install</source>
         <comment>ConfigWidget display name.</comment>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>CMake Install</source>
         <comment>Display name for CMakeProjectManager::CMakeInstallStep id.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mit CMake installieren</translation>
     </message>
 </context>
 <context>
