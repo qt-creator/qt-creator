@@ -8,6 +8,7 @@
 #include "model_p.h"
 #include "internalnode_p.h"
 #include "nodeinstanceview.h"
+#include "qmlobjectnode.h"
 #include <qmlstate.h>
 #include <qmltimeline.h>
 #include <nodemetainfo.h>
@@ -928,8 +929,8 @@ void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const Mod
             || newMaterialNode.parentProperty() != matLib.defaultNodeListProperty()) {
         matLib.defaultNodeListProperty().reparentHere(newMaterialNode);
     }
-    BindingProperty modelMatsProp = modelNode.bindingProperty("materials");
-    modelMatsProp.setExpression(newMaterialNode.id());
+
+    QmlObjectNode(modelNode).setBindingProperty("materials", newMaterialNode.id());
 }
 
 ModelNode AbstractView::getTextureDefaultInstance(const QString &source)
