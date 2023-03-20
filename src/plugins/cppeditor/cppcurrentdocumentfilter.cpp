@@ -53,13 +53,17 @@ void CppCurrentDocumentFilter::makeAuxiliary()
 QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         QFutureInterface<LocatorFilterEntry> &future, const QString & entry)
 {
-    QList<LocatorFilterEntry> goodEntries;
-    QList<LocatorFilterEntry> betterEntries;
-
     const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
-        return goodEntries;
+        return {};
 
+    struct Entry
+    {
+        LocatorFilterEntry entry;
+        IndexItem::Ptr info;
+    };
+    QList<Entry> goodEntries;
+    QList<Entry> betterEntries;
     const QList<IndexItem::Ptr> items = itemsOfCurrentDocument();
     for (const IndexItem::Ptr &info : items) {
         if (future.isCanceled())
@@ -74,7 +78,6 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         QRegularExpressionMatch match = regexp.match(matchString);
         if (match.hasMatch()) {
             const bool betterMatch = match.capturedStart() == 0;
-            QVariant id = QVariant::fromValue(info);
             QString name = matchString;
             QString extraInfo = info->symbolScope();
             if (info->type() == IndexItem::Function) {
@@ -84,7 +87,7 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
                 }
             }
 
-            LocatorFilterEntry filterEntry(this, name, id, info->icon());
+            LocatorFilterEntry filterEntry(this, name, {}, info->icon());
             filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
             filterEntry.extraInfo = extraInfo;
             if (match.hasMatch()) {
@@ -96,28 +99,26 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
             }
 
             if (betterMatch)
-                betterEntries.append(filterEntry);
+                betterEntries.append({filterEntry, info});
             else
-                goodEntries.append(filterEntry);
+                goodEntries.append({filterEntry, info});
         }
     }
 
     // entries are unsorted by design!
     betterEntries += goodEntries;
 
-    QHash<QString, QList<LocatorFilterEntry>> possibleDuplicates;
-    for (const LocatorFilterEntry &e : std::as_const(betterEntries)) {
-        const IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(e.internalData);
-        possibleDuplicates[info->scopedSymbolName() + info->symbolType()] << e;
-    }
+    QHash<QString, QList<Entry>> possibleDuplicates;
+    for (const Entry &e : std::as_const(betterEntries))
+        possibleDuplicates[e.info->scopedSymbolName() + e.info->symbolType()] << e;
     for (auto it = possibleDuplicates.cbegin(); it != possibleDuplicates.cend(); ++it) {
-        const QList<LocatorFilterEntry> &duplicates = it.value();
+        const QList<Entry> &duplicates = it.value();
         if (duplicates.size() == 1)
             continue;
-        QList<LocatorFilterEntry> declarations;
-        QList<LocatorFilterEntry> definitions;
-        for (const LocatorFilterEntry &candidate : duplicates) {
-            const IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(candidate.internalData);
+        QList<Entry> declarations;
+        QList<Entry> definitions;
+        for (const Entry &candidate : duplicates) {
+            const IndexItem::Ptr info = candidate.info;
             if (info->type() != IndexItem::Function)
                 break;
             if (info->isFunctionDefinition())
@@ -127,14 +128,14 @@ QList<LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         }
         if (definitions.size() == 1
             && declarations.size() + definitions.size() == duplicates.size()) {
-            for (const LocatorFilterEntry &decl : std::as_const(declarations)) {
-                Utils::erase(betterEntries, [&decl](const LocatorFilterEntry &e) {
-                    return e.internalData == decl.internalData;
+            for (const Entry &decl : std::as_const(declarations)) {
+                Utils::erase(betterEntries, [&decl](const Entry &e) {
+                    return e.info == decl.info;
                 });
             }
         }
     }
-    return betterEntries;
+    return Utils::transform(betterEntries, [](const Entry &entry) { return entry.entry; });
 }
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
