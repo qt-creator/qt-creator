@@ -106,29 +106,60 @@ Item {
 
         property string webUrl: modelData.textureWebUrl
 
-        Text {
+        IconButton {
             id: downloadIcon
-            color: root.downloadState === "unavailable" || root.downloadState === "failed"
-                   ? StudioTheme.Values.themeRedLight
-                   : StudioTheme.Values.themeTextColor
-
-            font.family: StudioTheme.Constants.iconFont.family
-            text: root.downloadState === "unavailable"
+            icon: root.downloadState === "unavailable"
                   ? StudioTheme.Constants.downloadUnavailable
                   : StudioTheme.Constants.download
 
-            font.pixelSize: 22
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            anchors.bottomMargin: 0
+            iconColor: root.downloadState === "unavailable" || root.downloadState === "failed"
+                       ? StudioTheme.Values.themeRedLight
+                       : StudioTheme.Values.themeTextColor
 
+            iconSize: 22
+            iconScale: downloadIcon.containsMouse ? 1.2 : 1
+            iconStyle: Text.Outline
+            iconStyleColor: "black"
+
+            tooltip: modelData.textureToolTip + (downloadIcon.visible
+                                                ? "\n\n" + root.statusText()
+                                                : "")
+            buttonSize: 22
+
+            transparentBg: true
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            style: Text.Outline
-            styleColor: "black"
-
             visible: root.downloadState !== "downloaded"
-        }
+
+            anchors.bottomMargin: 0
+            anchors.rightMargin: 4
+
+            Rectangle { // Arrow Fill
+                anchors.centerIn: parent
+                z: -1
+
+                width: parent.width / 2
+                height: parent.height / 2
+                color: "black"
+            }
+
+            onClicked: {
+                if (root.downloadState !== "" && root.downloadState !== "failed")
+                    return
+
+                if (!ContentLibraryBackend.rootView.markTextureDownloading())
+                    return
+
+                progressBar.visible = true
+                tooltip.visible = false
+                root.progressText = qsTr("Downloading...")
+                root.allowCancel = true
+                root.progressValue = Qt.binding(function() { return downloader.progress })
+
+                root.downloadState = ""
+                downloader.start()
+            }
+        } // IconButton
 
         ToolTip {
             id: tooltip
@@ -153,8 +184,9 @@ Item {
         id: mouseArea
 
         anchors.fill: parent
+        hoverEnabled: !downloadIcon.visible
+        propagateComposedEvents: downloadIcon.visible
         acceptedButtons: Qt.LeftButton | Qt.RightButton
-        hoverEnabled: true
 
         onEntered: tooltip.visible = image.visible
         onExited: tooltip.visible = false
@@ -167,28 +199,6 @@ Item {
                 root.showContextMenu()
             }
         }
-
-        onClicked: (mouse) => {
-            if (mouse.button !== Qt.LeftButton)
-                return
-
-            if (root.downloadState !== "" && root.downloadState !== "failed")
-                return
-
-            if (!ContentLibraryBackend.rootView.markTextureDownloading())
-                return
-
-            progressBar.visible = true
-            tooltip.visible = false
-            root.progressText = qsTr("Downloading...")
-            root.allowCancel = true
-            root.progressValue = Qt.binding(function() { return downloader.progress })
-
-            mouseArea.enabled = false
-            root.downloadState = ""
-            root.downloadStateChanged()
-            downloader.start()
-        }
     }
 
     FileDownloader {
@@ -198,7 +208,6 @@ Item {
         downloadEnabled: true
         onDownloadStarting: {
             root.downloadState = "downloading"
-            root.downloadStateChanged()
         }
 
         onFinishedChanged: {
@@ -214,16 +223,12 @@ Item {
             root.progressValue = 0
 
             root.downloadState = ""
-            root.downloadStateChanged()
-            mouseArea.enabled = true
 
             ContentLibraryBackend.rootView.markNoTextureDownloading()
         }
 
         onDownloadFailed: {
             root.downloadState = "failed"
-            root.downloadStateChanged()
-            mouseArea.enabled = true
 
             ContentLibraryBackend.rootView.markNoTextureDownloading()
         }
@@ -237,10 +242,8 @@ Item {
         alwaysCreateDir: false
         clearTargetPathContents: false
         onFinishedChanged: {
-            mouseArea.enabled = true
             modelData.setDownloaded()
             root.downloadState = modelData.isDownloaded() ? "downloaded" : "failed"
-            root.downloadStateChanged()
 
             ContentLibraryBackend.rootView.markNoTextureDownloading()
         }

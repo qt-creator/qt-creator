@@ -14,13 +14,19 @@ Rectangle {
     property alias icon: icon.text
     property alias tooltip: toolTip.text
     property alias iconSize: icon.font.pixelSize
+    property alias iconScale: icon.scale
+    property alias iconColor: icon.color
+    property alias iconStyle: icon.style
+    property alias iconStyleColor: icon.styleColor
+
     property alias containsMouse: mouseArea.containsMouse
 
     property bool enabled: true
+    property bool transparentBg: false
     property int buttonSize: StudioTheme.Values.height
-    property color normalColor: StudioTheme.Values.themeControlBackground
-    property color hoverColor: StudioTheme.Values.themeControlBackgroundHover
-    property color pressColor: StudioTheme.Values.themeControlBackgroundInteraction
+    property color normalColor: root.transparentBg ? "transparent" : StudioTheme.Values.themeControlBackground
+    property color hoverColor: root.transparentBg ? "transparent" : StudioTheme.Values.themeControlBackgroundHover
+    property color pressColor: root.transparentBg ? "transparent" : StudioTheme.Values.themeControlBackgroundInteraction
 
     width: buttonSize
     height: buttonSize
@@ -32,18 +38,18 @@ Rectangle {
 
     Text {
         id: icon
+        anchors.centerIn: root
 
         color: root.enabled ? StudioTheme.Values.themeTextColor : StudioTheme.Values.themeTextColorDisabled
         font.family: StudioTheme.Constants.iconFont.family
         font.pixelSize: StudioTheme.Values.baseIconFontSize
-        anchors.centerIn: root
     }
 
     MouseArea {
         id: mouseArea
 
         anchors.fill: parent
-        hoverEnabled: true
+        hoverEnabled: root.visible
         onClicked: {
             // We need to keep mouse area enabled even when button is disabled to make tooltip work
             if (root.enabled)

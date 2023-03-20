@@ -110,43 +110,51 @@ Item {
                 }
             } // IconButton
 
-            Text { // download icon
-                color: root.downloadState === "unavailable" || root.downloadState === "failed"
-                       ? StudioTheme.Values.themeRedLight
-                       : StudioTheme.Values.themeTextColor
-
-                font.family: StudioTheme.Constants.iconFont.family
-                text: root.downloadState === "unavailable"
+            IconButton {
+                id: downloadIcon
+                icon: root.downloadState === "unavailable"
                       ? StudioTheme.Constants.downloadUnavailable
                       : StudioTheme.Constants.download
 
-                font.pixelSize: 22
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                anchors.bottomMargin: 0
+                iconColor: root.downloadState === "unavailable" || root.downloadState === "failed"
+                           ? StudioTheme.Values.themeRedLight
+                           : StudioTheme.Values.themeTextColor
 
+                iconSize: 22
+                iconScale: downloadIcon.containsMouse ? 1.2 : 1
+                iconStyle: Text.Outline
+                iconStyleColor: "black"
+
+                tooltip: qsTr("Click to download material")
+                buttonSize: 22
+
+                transparentBg: true
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                style: Text.Outline
-                styleColor: "black"
-
                 visible: root.downloadState !== "downloaded"
 
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton
+                anchors.bottomMargin: 0
+                anchors.rightMargin: 4
 
-                    onClicked: (mouse) => {
-                        if (root.downloadState !== "" && root.downloadState !== "failed")
-                            return
+                Rectangle { // arrow fill
+                    anchors.centerIn: parent
+                    z: -1
 
-                        downloadPane.beginDownload(Qt.binding(function() { return downloader.progress }))
-
-                        root.downloadState = ""
-                        downloader.start()
-                    }
+                    width: parent.width / 2
+                    height: parent.height / 2
+                    color: "black"
                 }
-            }
+
+                onClicked: {
+                    if (root.downloadState !== "" && root.downloadState !== "failed")
+                        return
+
+                    downloadPane.beginDownload(Qt.binding(function() { return downloader.progress }))
+
+                    root.downloadState = ""
+                    downloader.start()
+                }
+            } // IconButton
         } // Image
 
         TextInput {
