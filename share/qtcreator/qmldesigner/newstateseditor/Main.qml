@@ -683,7 +683,7 @@ Rectangle {
                                 onEntered: function (drag) {
                                     let dragSource = (drag.source as StateThumbnail)
 
-                                    if (dragSource === undefined)
+                                    if (!dragSource)
                                         return
 
                                     if (dragSource.extendString !== stateThumbnail.extendString
@@ -698,7 +698,7 @@ Rectangle {
                                 onDropped: function (drop) {
                                     let dropSource = (drop.source as StateThumbnail)
 
-                                    if (dropSource === undefined)
+                                    if (!dropSource)
                                         return
 
                                     if (dropSource.extendString !== stateThumbnail.extendString
