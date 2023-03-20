@@ -209,46 +209,54 @@ private:
         m_content = TextEditor::TextDocument::currentTextDocument()->plainText();
     }
 
-    LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
-                                            const LocatorFilterEntry &parent) override
-    {
-        LocatorFilterEntry entry;
-        entry.filter = this;
-        entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
-                    static_cast<SymbolKind>(info.kind()), info.name(),
-                    info.detail().value_or(QString()));
-        entry.internalData = QVariant::fromValue(info);
-        const Position pos = info.range().start();
-        entry.linkForEditor = {m_currentFilePath, pos.line() + 1, pos.character()};
-        entry.extraInfo = parent.extraInfo;
-        if (!entry.extraInfo.isEmpty())
-            entry.extraInfo.append("::");
-        entry.extraInfo.append(parent.displayName);
-
-        // TODO: Can we extend clangd to send visibility information?
-        entry.displayIcon = LanguageClient::symbolIcon(info.kind());
-
-        return entry;
-    }
-
     // Filter out declarations for which a definition is also present.
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override
     {
-        QList<LocatorFilterEntry> allMatches
-            = DocumentLocatorFilter::matchesFor(future, entry);
-        QHash<QString, QList<LocatorFilterEntry>> possibleDuplicates;
-        for (const LocatorFilterEntry &e : std::as_const(allMatches))
-            possibleDuplicates[e.displayName + e.extraInfo] << e;
+        struct Entry
+        {
+            LocatorFilterEntry entry;
+            DocumentSymbol symbol;
+        };
+        QList<Entry> docEntries;
+
+        const auto docSymbolGenerator = [&](const DocumentSymbol &info,
+                                            const LocatorFilterEntry &parent) {
+            LocatorFilterEntry entry;
+            entry.filter = this;
+            entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
+                static_cast<SymbolKind>(info.kind()), info.name(),
+                info.detail().value_or(QString()));
+            entry.internalData = QVariant::fromValue(info);
+            entry.linkForEditor = linkForDocSymbol(info);
+            entry.extraInfo = parent.extraInfo;
+            if (!entry.extraInfo.isEmpty())
+                entry.extraInfo.append("::");
+            entry.extraInfo.append(parent.displayName);
+
+            // TODO: Can we extend clangd to send visibility information?
+            entry.displayIcon = LanguageClient::symbolIcon(info.kind());
+            docEntries.append({entry, info});
+            return entry;
+        };
+
+        QList<LocatorFilterEntry> allMatches = matchesForImpl(future, entry, docSymbolGenerator);
+        if (docEntries.isEmpty())
+            return allMatches; // SymbolInformation case
+
+        QTC_CHECK(docEntries.size() == allMatches.size());
+        QHash<QString, QList<Entry>> possibleDuplicates;
+        for (const Entry &e : std::as_const(docEntries))
+            possibleDuplicates[e.entry.displayName + e.entry.extraInfo] << e;
         const QTextDocument doc(m_content);
         for (auto it = possibleDuplicates.cbegin(); it != possibleDuplicates.cend(); ++it) {
-            const QList<LocatorFilterEntry> &duplicates = it.value();
+            const QList<Entry> &duplicates = it.value();
             if (duplicates.size() == 1)
                 continue;
-            QList<LocatorFilterEntry> declarations;
-            QList<LocatorFilterEntry> definitions;
-            for (const LocatorFilterEntry &candidate : duplicates) {
-                const auto symbol = qvariant_cast<DocumentSymbol>(candidate.internalData);
+            QList<Entry> declarations;
+            QList<Entry> definitions;
+            for (const Entry &candidate : duplicates) {
+                const DocumentSymbol symbol = candidate.symbol;
                 const SymbolKind kind = static_cast<SymbolKind>(symbol.kind());
                 if (kind != SymbolKind::Class && kind != SymbolKind::Function)
                     break;
@@ -273,14 +281,14 @@ private:
             }
             if (definitions.size() == 1
                 && declarations.size() + definitions.size() == duplicates.size()) {
-                for (const LocatorFilterEntry &decl : std::as_const(declarations)) {
-                    Utils::erase(allMatches, [&decl](const LocatorFilterEntry &e) {
-                        return e.internalData == decl.internalData;
+                for (const Entry &decl : std::as_const(declarations)) {
+                    Utils::erase(docEntries, [&decl](const Entry &e) {
+                        return e.symbol == decl.symbol;
                     });
                 }
             }
         }
-        return allMatches;
+        return Utils::transform(docEntries, [](const Entry &entry) { return entry.entry; });
     }
 
     QString m_content;
