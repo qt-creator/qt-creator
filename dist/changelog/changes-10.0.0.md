@@ -209,6 +209,7 @@ Platforms
 * Added support for loading and attaching to core dumps from remote devices
 * Added support for using ClangFormat on remote files
 * Added an option to enable necessary capabilities for debugging with LLDB
+  to `Edit > Preferences > Devices` for a Docker device
 * Fixed an issue with space in file paths (QTCREATORBUG-28476)
 * Fixed that auto-detection controls were shown for devices registered by the
   installer

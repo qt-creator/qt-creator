@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
     /*!
@@ -25,11 +25,9 @@
     {debuggers} and \l{Adding Qt Versions}{Qt versions}, in the Docker container
     and creates kits for the devices.
 
-    You can use images that are available locally. You can pull
-    images from Docker hub or other registries using the
+    To pull images from Docker hub or other registries, use the
     \l{https://docs.docker.com/engine/reference/commandline/pull/}{docker pull}
-    command. To check that an image is available locally, run the
-    \c {docker images} command in a terminal.
+    command.
 
     \section1 Enabling Docker Plugin
 
@@ -54,21 +52,45 @@
             \uicontrol {Docker Device} > \uicontrol {Start Wizard}
             to search for images in your local Docker installation.
         \li Select the Docker image to use, and then select \uicontrol OK.
-        \li In \uicontrol Devices, check and modify Docker device preferences.
-            \image qtcreator-preferences-devices-docker-device.webp "Docker device preferences"
-        \li Select \uicontrol {Run as outside user} to use the user ID
-            and group ID of the user running \QC in the Docker container.
-        \li Select \uicontrol {Do not modify entry point} to stop \QC from
-            modifying the entry point of the image if the image starts into
-            a shell.
-        \li In \uicontrol {Paths to mount}, specify host directories to
-            mount into the container, such as the project directory.
-        \li In \uicontrol {Search locations}, select where to search
-            for kit items.
-        \li Select \uicontrol {Auto-detect Kit Items} to find kit items and to
-            create kits for the Docker device.
+        \li In \uicontrol Devices, check and change Docker device preferences.
+            \image qtcreator-preferences-devices-docker-device.png "Docker device preferences"
         \li Select \uicontrol Apply to save your changes.
     \endlist
+
+    The following table summarizes the options you can set.
+
+    \table
+    \header
+        \li Option
+        \li Value
+    \row
+        \li \uicontrol {Run as outside user}
+        \li On Linux and \macos, sets the user ID and group ID of the user
+            running \QC in the Docker container. This option is not available
+            on Windows.
+    \row
+        \li \uicontrol {Do not modify entry point}
+        \li Stops \QC from modifying the \l {Modifying Entry Points}{entry point}
+            of the image. Make sure that the entry point starts a shell.
+    \row
+        \li \uicontrol {Enable flags needed for LLDB}
+        \li Adds the following flags to the container to allow LLDB to run:
+            \badcode
+            --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
+            \endcode
+    \row
+        \li \uicontrol {Clangd executable}
+        \li The path to a remote Clangd executable to use for a remote code
+            model.
+    \row
+        \li \uicontrol {Paths to mount}
+        \li Host directories to \l{Specifying Paths to Mount}{mount} into the
+            container, such as the project directory.
+    \row
+        \li \uicontrol {Search locations}
+        \li Where to \l{Auto-detecting Kit Items}{automatically detect} kit
+            items.
+    \endtable
 
     The following sections describe the Docker device preferences in more detail.
 
