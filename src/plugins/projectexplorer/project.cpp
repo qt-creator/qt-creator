@@ -11,6 +11,7 @@
 #include "environmentaspect.h"
 #include "kit.h"
 #include "kitinformation.h"
+#include "msvctoolchain.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
@@ -20,6 +21,7 @@
 #include "runconfigurationaspects.h"
 #include "target.h"
 #include "taskhub.h"
+#include "toolchainmanager.h"
 #include "userfileaccessor.h"
 
 #include <coreplugin/idocument.h>
@@ -1514,10 +1516,20 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
 {
     // Find suitable kit.
     Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid();
+        return k->isValid() && ToolChainKitAspect::cxxToolChain(k);
     });
     if (!kit)
-        QSKIP("The test requires at least one valid kit.");
+        QSKIP("The test requires at least one kit with a toolchain.");
+
+    const auto toolchain = ToolChainKitAspect::cxxToolChain(kit);
+    QVERIFY(toolchain);
+    if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolChain *>(toolchain)) {
+        while (!msvcToolchain->environmentInitialized()) {
+            QSignalSpy parsingFinishedSpy(ToolChainManager::instance(),
+                                          &ToolChainManager::toolChainUpdated);
+            QVERIFY(parsingFinishedSpy.wait(10000));
+        }
+    }
 
     // Copy project from qrc.
     QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
@@ -1569,7 +1581,6 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
     const auto binariesForSource = [&](const QString &fileName) {
         return theProject.project()->binariesForSourceFile(projectDir.pathAppended(fileName));
     };
-    QEXPECT_FAIL("cmake", "QTCREATORBUG-28815", Abort);
     QCOMPARE(binariesForSource("multi-target-project-main.cpp").size(), 1);
     QCOMPARE(binariesForSource("multi-target-project-lib.cpp").size(), 1);
     QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);

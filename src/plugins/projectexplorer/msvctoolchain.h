@@ -81,6 +81,8 @@ public:
                                                                 const QString &batchFile,
                                                                 const QString &batchArgs,
                                                                 QMap<QString, QString> &envPairs);
+    bool environmentInitialized() const { return !m_environmentModifications.isEmpty(); }
+
 protected:
     class WarningFlagAdder
     {

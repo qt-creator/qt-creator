@@ -605,6 +605,28 @@ void addCompileGroups(ProjectNode *targetRoot,
                     std::move(otherFileNodes));
 }
 
+static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLevelBuildDir,
+                                  const TargetDetails &td)
+{
+    if (td.artifacts.isEmpty())
+        return;
+    FileType type = FileType::Unknown;
+    if (td.type == "EXECUTABLE")
+        type = FileType::App;
+    else if (td.type == "SHARED_LIBRARY" || td.type == "STATIC_LIBRARY")
+        type = FileType::Lib;
+    if (type == FileType::Unknown)
+        return;
+    std::vector<std::unique_ptr<FileNode>> nodes;
+    const FilePath buildDir = topLevelBuildDir.resolvePath(td.buildDir);
+    for (const FilePath &artifact : td.artifacts) {
+        nodes.emplace_back(new FileNode(buildDir.resolvePath(artifact), type));
+        type = FileType::Unknown;
+        nodes.back()->setIsGenerated(true);
+    }
+    addCMakeVFolder(targetRoot, buildDir, 10, Tr::tr("<Generated Files>"), std::move(nodes));
+}
+
 void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                 const Configuration &config,
                 const std::vector<TargetDetails> &targetDetails,
@@ -635,6 +657,7 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
         tNode->setBuildDirectory(directoryBuildDir(config, buildDir, t.directory));
 
         addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td);
+        addGeneratedFilesNode(tNode, buildDir, td);
     }
 }
 
