@@ -94,6 +94,33 @@ class tst_QtcProcess : public QObject
 private slots:
     void initTestCase();
 
+    void testEnv()
+    {
+        if (HostOsInfo::isWindowsHost())
+            QSKIP("Skipping env test on Windows");
+
+        QProcess qproc;
+        FilePath envPath = Environment::systemEnvironment().searchInPath("env");
+
+        qproc.setProgram(envPath.nativePath());
+        qproc.start();
+        qproc.waitForFinished();
+        QByteArray qoutput = qproc.readAllStandardOutput() + qproc.readAllStandardError();
+        qDebug() << "QProcess output:" << qoutput;
+        QCOMPARE(qproc.exitCode(), 0);
+
+        QtcProcess qtcproc;
+        qtcproc.setCommand({envPath, {}});
+        qtcproc.runBlocking();
+        QCOMPARE(qtcproc.exitCode(), 0);
+        QByteArray qtcoutput = qtcproc.readAllRawStandardOutput()
+                               + qtcproc.readAllRawStandardError();
+
+        qDebug() << "QtcProcess output:" << qtcoutput;
+
+        QCOMPARE(qtcoutput.size() > 0, qoutput.size() > 0);
+    }
+
     void multiRead();
 
     void splitArgs_data();
