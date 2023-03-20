@@ -483,19 +483,12 @@ bool TerminalWidget::setSelection(const std::optional<Selection> &selection)
         return false;
     }
 
-    /*if (m_selection && m_selection->final) {
-        QClipboard *clipboard = QApplication::clipboard();
-        if (clipboard->supportsSelection()) {
-            qCDebug(selectionLog) << "Clearing selection from clipboard";
-            clipboard->clear(QClipboard::Selection);
-        }
-    }*/
+    m_copyAction.setEnabled(selection.has_value());
 
     m_selection = selection;
 
     if (m_selection && m_selection->final) {
         qCDebug(selectionLog) << "Copy enabled:" << selection.has_value();
-        m_copyAction.setEnabled(selection.has_value());
 
         QClipboard *clipboard = QApplication::clipboard();
         if (clipboard->supportsSelection()) {
