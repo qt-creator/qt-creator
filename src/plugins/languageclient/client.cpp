@@ -1669,10 +1669,15 @@ LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     }
     QHash<QAbstractButton *, MessageActionItem> itemForButton;
     if (const std::optional<QList<MessageActionItem>> actions = message.actions()) {
-        for (const MessageActionItem &action : *actions)
-            itemForButton.insert(box->addButton(action.title(), QMessageBox::InvalidRole), action);
+        auto button = box->addButton(QMessageBox::Close);
+        connect(button, &QPushButton::clicked, box, &QMessageBox::reject);
+        for (const MessageActionItem &action : *actions) {
+            connect(button, &QPushButton::clicked, box, &QMessageBox::accept);
+            itemForButton.insert(button, action);
+        }
     }
-    box->exec();
+    if (box->exec() == QDialog::Rejected)
+        return {};
     const MessageActionItem &item = itemForButton.value(box->clickedButton());
     return item.isValid() ? LanguageClientValue<MessageActionItem>(item)
                           : LanguageClientValue<MessageActionItem>();
