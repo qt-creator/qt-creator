@@ -175,7 +175,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceSymbolRequest : public Request<
         LanguageClientArray<SymbolInformation>, std::nullptr_t, WorkspaceSymbolParams>
 {
 public:
-    WorkspaceSymbolRequest(const WorkspaceSymbolParams &params);
+    explicit WorkspaceSymbolRequest(const WorkspaceSymbolParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "workspace/symbol";
 };

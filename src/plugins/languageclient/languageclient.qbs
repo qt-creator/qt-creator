@@ -24,6 +24,8 @@ QtcPlugin {
         "callhierarchy.h",
         "client.cpp",
         "client.h",
+        "clientrequesttask.cpp",
+        "clientrequesttask.h",
         "diagnosticmanager.cpp",
         "diagnosticmanager.h",
         "documentsymbolcache.cpp",

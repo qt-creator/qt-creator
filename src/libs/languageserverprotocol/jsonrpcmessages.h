@@ -141,6 +141,7 @@ public:
     void setMethod(const QString &method)
     { m_jsonObject.insert(methodKey, method); }
 
+    using Parameters = Params;
     std::optional<Params> params() const
     {
         const QJsonValue &params = m_jsonObject.value(paramsKey);
