@@ -25,8 +25,7 @@ CppLocatorFilter::CppLocatorFilter()
 
 LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
-    const QVariant id = QVariant::fromValue(info);
-    LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
+    LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), {}, info->icon());
     filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
         filterEntry.extraInfo = info->shortNativeFilePath();
@@ -121,8 +120,7 @@ CppClassesFilter::CppClassesFilter()
 
 LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
-    const QVariant id = QVariant::fromValue(info);
-    LocatorFilterEntry filterEntry(this, info->symbolName(), id, info->icon());
+    LocatorFilterEntry filterEntry(this, info->symbolName(), {}, info->icon());
     filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     filterEntry.extraInfo = info->symbolScope().isEmpty()
         ? info->shortNativeFilePath()
@@ -141,8 +139,6 @@ CppFunctionsFilter::CppFunctionsFilter()
 
 LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
-    const QVariant id = QVariant::fromValue(info);
-
     QString name = info->symbolName();
     QString extraInfo = info->symbolScope();
     info->unqualifiedNameAndScope(name, &name, &extraInfo);
@@ -152,7 +148,7 @@ LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr i
         extraInfo.append(" (" + info->filePath().fileName() + ')');
     }
 
-    LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());
+    LocatorFilterEntry filterEntry(this, name + info->symbolType(), {}, info->icon());
     filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
     filterEntry.extraInfo = extraInfo;
 

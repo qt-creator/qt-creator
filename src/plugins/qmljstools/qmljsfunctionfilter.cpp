@@ -47,8 +47,7 @@ QList<LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<LocatorFil
 
             const QRegularExpressionMatch match = regexp.match(info.symbolName);
             if (match.hasMatch()) {
-                QVariant id = QVariant::fromValue(info);
-                LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
+                LocatorFilterEntry filterEntry(this, info.displayName);
                 filterEntry.linkForEditor = {info.fileName, info.line, info.column};
                 filterEntry.extraInfo = info.extraInfo;
                 filterEntry.highlightInfo = highlightInfo(match);
