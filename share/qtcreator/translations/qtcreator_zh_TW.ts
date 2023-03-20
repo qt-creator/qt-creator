@@ -5975,7 +5975,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Could not start perforce &apos;%1&apos;. Please check your settings in the preferences.</source>
-        <translation>無法啟動 perforce &apos;%1&apos;。請檢查喜好設定中的設置。</translation>
+        <translation>無法啟動 perforce &apos;%1&apos;。請檢查偏好設定中的設置。</translation>
     </message>
     <message>
         <source>Perforce did not respond within timeout limit (%1 ms).</source>
@@ -9879,14 +9879,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Preferences</source>
-        <translation>喜好設定</translation>
+        <translation>偏好設定</translation>
     </message>
 </context>
 <context>
     <name>QtC::CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
-        <translation>在 CodePaster 喜好設定中沒有定義伺服器。</translation>
+        <translation>在 CodePaster 偏好設定中沒有定義伺服器。</translation>
     </message>
     <message>
         <source>No Server defined in the CodePaster options.</source>
@@ -13508,7 +13508,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;No valid Qt versions found.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Please add a Qt version in &lt;span style=&quot; font-style:italic;&quot;&gt;Tools &amp;gt; Options &amp;gt; Build &amp;amp; Run&lt;/span&gt; (&lt;span style=&quot; font-style:italic;&quot;&gt;Qt Creator &amp;gt; Preferences &amp;gt; Build &amp;amp; Run&lt;/span&gt; on Mac OS) or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;找不到正確的 Qt 版本。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;請在&lt;span style=&quot; font-style:italic;&quot;&gt;「工具」 &amp;gt; 「選項」 &amp;gt; 「建置並執行」&lt;/span&gt;（在 MacOS 上則是&lt;span style=&quot; font-style:italic;&quot;&gt;「Qt Creator」 &amp;gt; 「喜好設定」 &amp;gt; 「建置並執行」&lt;/span&gt;）裡新增 Qt 版本，或是透過 SDK 的維護工具來新增。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;找不到正確的 Qt 版本。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;請在&lt;span style=&quot; font-style:italic;&quot;&gt;「工具」 &amp;gt; 「選項」 &amp;gt; 「建置並執行」&lt;/span&gt;（在 MacOS 上則是&lt;span style=&quot; font-style:italic;&quot;&gt;「Qt Creator」 &amp;gt; 「偏好設定」 &amp;gt; 「建置並執行」&lt;/span&gt;）裡新增 Qt 版本，或是透過 SDK 的維護工具來新增。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Qt Unit Test</source>
@@ -17108,7 +17108,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Preferences</source>
-        <translation>喜好設定</translation>
+        <translation>偏好設定</translation>
     </message>
     <message>
         <source>Name</source>
