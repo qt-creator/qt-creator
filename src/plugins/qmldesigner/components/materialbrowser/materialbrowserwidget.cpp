@@ -296,6 +296,9 @@ void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, cons
         m_materialBrowserView->applyTextureToMaterial({mat}, tex);
     });
 
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
+
     creator->deleteLater();
 }
 
@@ -325,6 +328,9 @@ void MaterialBrowserWidget::acceptAssetsDropOnMaterial(int matIndex, const QList
         m_materialBrowserModel->selectMaterial(matIndex);
         m_materialBrowserView->applyTextureToMaterial({mat}, tex);
     });
+
+    if (m_materialBrowserView->model())
+        m_materialBrowserView->model()->endDrag();
 
     creator->deleteLater();
 }
