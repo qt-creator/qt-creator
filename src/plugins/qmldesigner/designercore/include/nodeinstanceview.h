@@ -6,6 +6,7 @@
 #include "qmldesignercorelib_global.h"
 #include "abstractview.h"
 #include "modelcache.h"
+#include "rewritertransaction.h"
 
 #include <modelnode.h>
 #include <nodeinstance.h>

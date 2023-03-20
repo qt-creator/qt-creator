@@ -4,6 +4,7 @@
 #pragma once
 
 #include "materialeditorview.h"
+#include "rewritertransaction.h"
 
 namespace QmlDesigner {
 
@@ -12,7 +13,7 @@ class MaterialEditorTransaction : public QObject
     Q_OBJECT
 
 public:
-    MaterialEditorTransaction(QmlDesigner::MaterialEditorView *materialEditor);
+    MaterialEditorTransaction(MaterialEditorView *materialEditor);
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void end();
@@ -23,8 +24,8 @@ protected:
      void timerEvent(QTimerEvent *event) override;
 
 private:
-    QmlDesigner::MaterialEditorView *m_materialEditor = nullptr;
-    QmlDesigner::RewriterTransaction m_rewriterTransaction;
+    MaterialEditorView *m_materialEditor = nullptr;
+    RewriterTransaction m_rewriterTransaction;
     int m_timerId = -1;
 };
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "propertyeditorview.h"
+#include "rewritertransaction.h"
 
 namespace QmlDesigner {
 
@@ -11,7 +12,7 @@ class PropertyEditorTransaction : public QObject
 {
     Q_OBJECT
 public:
-    PropertyEditorTransaction(QmlDesigner::PropertyEditorView *propertyEditor);
+    PropertyEditorTransaction(PropertyEditorView *propertyEditor);
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void end();
@@ -22,8 +23,8 @@ protected:
      void timerEvent(QTimerEvent *event) override;
 
 private:
-    QmlDesigner::PropertyEditorView *m_propertyEditor;
-    QmlDesigner::RewriterTransaction m_rewriterTransaction;
+    PropertyEditorView *m_propertyEditor;
+    RewriterTransaction m_rewriterTransaction;
     int m_timerId;
 };
 

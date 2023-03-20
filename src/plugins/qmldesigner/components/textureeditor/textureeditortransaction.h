@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "rewritertransaction.h"
 #include "textureeditorview.h"
 
 namespace QmlDesigner {

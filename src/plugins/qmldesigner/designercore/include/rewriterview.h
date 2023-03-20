@@ -4,9 +4,9 @@
 #pragma once
 
 #include "qmldesignercorelib_global.h"
-#include "exception.h"
 #include "abstractview.h"
 #include "documentmessage.h"
+#include "rewritertransaction.h"
 
 #include <QScopedPointer>
 #include <QTimer>
