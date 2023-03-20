@@ -9,6 +9,7 @@
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
 #include "projectstoragetypes.h"
+#include "sourcepath.h"
 
 #include <qmljs/parser/qmldirparser_p.h>
 
@@ -124,7 +125,6 @@ private:
                            Storage::Synchronization::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds,
                            SourceIds &notUpdatedSourceIds,
-                           Utils::SmallStringView directoryPath,
                            SourceIds &watchedQmlSourceIds,
                            SourceIds &watchedQmltypesSourceIds);
     FileState parseTypeInfo(const Storage::Synchronization::ProjectData &projectData,
@@ -149,10 +149,7 @@ private:
                            SourceIds &notUpdatedSourceIds,
                            SourceIds &watchedQmlSourceIds,
                            FileState qmldirState);
-    void parseQmlComponent(Utils::SmallStringView fileName,
-                           Utils::SmallStringView filePath,
-                           Utils::SmallStringView directoryPath,
-                           SourceId sourceId,
+    void parseQmlComponent(SourceId sourceId,
                            Storage::Synchronization::SynchronizationPackage &package,
                            SourceIds &notUpdatedFileStatusSourceIds);
 
