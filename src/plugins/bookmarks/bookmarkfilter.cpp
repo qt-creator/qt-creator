@@ -59,8 +59,8 @@ void BookmarkFilter::prepareSearch(const QString &entry)
         const Bookmark *bookmark = m_manager->bookmarkForIndex(idx);
         const QString filename = bookmark->filePath().fileName();
         LocatorFilterEntry filterEntry(this,
-                                       QString("%1:%2").arg(filename).arg(bookmark->lineNumber()),
-                                       QVariant::fromValue(idx));
+                                       QString("%1:%2").arg(filename).arg(bookmark->lineNumber()));
+        filterEntry.internalData = QVariant::fromValue(idx);
         if (!bookmark->note().isEmpty())
             filterEntry.extraInfo = bookmark->note();
         else if (!bookmark->lineText().isEmpty())

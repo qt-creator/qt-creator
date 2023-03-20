@@ -66,7 +66,8 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
         }
 
         if (index >= 0) {
-            LocatorFilterEntry filterEntry(this, tool->displayName(), QVariant::fromValue(tool));
+            LocatorFilterEntry filterEntry(this, tool->displayName());
+            filterEntry.internalData = QVariant::fromValue(tool);
             filterEntry.extraInfo = tool->description();
             filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
 
@@ -78,7 +79,7 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
                 goodEntries.append(filterEntry);
         }
     }
-    LocatorFilterEntry configEntry(this, "Configure External Tool...", {});
+    LocatorFilterEntry configEntry(this, "Configure External Tool...");
     configEntry.extraInfo = "Opens External Tool settings";
     m_results = {};
     m_results << bestEntries << betterEntries << goodEntries << configEntry;

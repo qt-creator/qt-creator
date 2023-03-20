@@ -77,7 +77,8 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
         const QString text = Utils::stripAccelerator(pair.second);
         const int index = text.indexOf(entry, 0, entryCaseSensitivity);
         if (index >= 0) {
-            LocatorFilterEntry filterEntry(this, text, QVariant(pair.first));
+            LocatorFilterEntry filterEntry(this, text);
+            filterEntry.internalData = QVariant(pair.first);
             filterEntry.highlightInfo = {index, int(entry.length())};
 
             if (index == 0)

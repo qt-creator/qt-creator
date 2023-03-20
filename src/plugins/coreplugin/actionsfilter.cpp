@@ -215,7 +215,9 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
         }
     } else if (!text.isEmpty()) {
         const ActionFilterEntryData data{action, {}};
-        LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
+        LocatorFilterEntry filterEntry(this, text);
+        filterEntry.internalData = QVariant::fromValue(data);
+        filterEntry.displayIcon = action->icon();
         filterEntry.extraInfo = path.join(" > ");
         updateEntry(action, filterEntry);
     }
@@ -241,8 +243,10 @@ void ActionsFilter::collectEntriesForCommands()
 
         const QString identifier = command->id().toString();
         const QStringList path = identifier.split(QLatin1Char('.'));
-        const ActionFilterEntryData data{action, command->id()};
-        LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
+        const ActionFilterEntryData data{};
+        LocatorFilterEntry filterEntry(this, text);
+        filterEntry.internalData = QVariant::fromValue(ActionFilterEntryData{action, command->id()});
+        filterEntry.displayIcon = action->icon();
         filterEntry.displayExtra = command->keySequence().toString(QKeySequence::NativeText);
         if (path.size() >= 2)
             filterEntry.extraInfo = path.mid(0, path.size() - 1).join(" > ");
@@ -260,7 +264,9 @@ void ActionsFilter::collectEntriesForLastTriggered()
         if (!data.action || !m_enabledActions.contains(data.action))
             continue;
         const QString text = actionText(data.action);
-        LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), data.action->icon());
+        LocatorFilterEntry filterEntry(this, text);
+        filterEntry.internalData = QVariant::fromValue(data);
+        filterEntry.displayIcon = data.action->icon();
         updateEntry(data.action, filterEntry);
     }
 }

@@ -72,14 +72,9 @@ public:
 
     LocatorFilterEntry() = default;
 
-    LocatorFilterEntry(ILocatorFilter *fromFilter,
-                       const QString &name,
-                       const QVariant &data = {},
-                       std::optional<QIcon> icon = std::nullopt)
+    LocatorFilterEntry(ILocatorFilter *fromFilter, const QString &name)
         : filter(fromFilter)
         , displayName(name)
-        , internalData(data)
-        , displayIcon(icon)
     {}
 
     /* backpointer to creating filter */
@@ -93,7 +88,7 @@ public:
     /* additional tooltip */
     QString toolTip;
     /* can be used by the filter to save more information about the entry */
-    QVariant internalData;
+    QVariant internalData; // DON'T USE IN NEW CODE, IT'S GOING TO BE REMOVED, SOON...
     /* icon to display along with the entry */
     std::optional<QIcon> displayIcon;
     /* file path, if the entry is related to a file, is used e.g. for resolving a file icon */

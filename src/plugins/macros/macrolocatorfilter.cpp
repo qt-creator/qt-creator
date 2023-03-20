@@ -50,7 +50,8 @@ QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<
         }
 
         if (index >= 0) {
-            Core::LocatorFilterEntry filterEntry(this, displayName, {}, m_icon);
+            Core::LocatorFilterEntry filterEntry(this, displayName);
+            filterEntry.displayIcon = m_icon;
             filterEntry.extraInfo = description;
             filterEntry.highlightInfo = Core::LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
 

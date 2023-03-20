@@ -52,17 +52,25 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
 
     QList<LocatorFilterEntry> entries;
     if (entry.trimmed().isEmpty()) {
-        entries.append({this, Tr::tr("Reset Engine"), QVariant::fromValue(EngineAction::Reset)});
+        LocatorFilterEntry entry{this, Tr::tr("Reset Engine")};
+        entry.internalData = QVariant::fromValue(EngineAction::Reset);
+        entries.append(entry);
     } else {
         const QString result = m_engine->evaluate(entry).toString();
         if (m_aborted) {
             const QString message = entry + " = " + Tr::tr("Engine aborted after timeout.");
-            entries.append({this, message, QVariant::fromValue(EngineAction::Abort)});
+            LocatorFilterEntry entry(this, message);
+            entry.internalData = QVariant::fromValue(EngineAction::Abort);
+            entries.append(entry);
         } else {
             const QString expression = entry + " = " + result;
             entries.append({this, expression});
-            entries.append({this, Tr::tr("Copy to clipboard: %1").arg(result), result});
-            entries.append({this, Tr::tr("Copy to clipboard: %1").arg(expression), expression});
+            LocatorFilterEntry resultEntry(this, Tr::tr("Copy to clipboard: %1").arg(result));
+            resultEntry.internalData = result;
+            entries.append(resultEntry);
+            LocatorFilterEntry expressionEntry(this, Tr::tr("Copy to clipboard: %1").arg(expression));
+            resultEntry.internalData = expression;
+            entries.append(expressionEntry);
         }
     }
 

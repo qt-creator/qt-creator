@@ -60,10 +60,9 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
     for (int i = 0; i < m_filterShortcutStrings.size(); ++i) {
         if (future.isCanceled())
             break;
-        LocatorFilterEntry filterEntry(this,
-                                m_filterShortcutStrings.at(i),
-                                i,
-                                m_icon);
+        LocatorFilterEntry filterEntry(this, m_filterShortcutStrings.at(i));
+        filterEntry.internalData = i;
+        filterEntry.displayIcon = m_icon;
         filterEntry.extraInfo = m_filterDisplayNames.at(i);
         filterEntry.toolTip = m_filterDescriptions.at(i);
         filterEntry.displayExtra = m_filterKeyboardShortcuts.at(i);

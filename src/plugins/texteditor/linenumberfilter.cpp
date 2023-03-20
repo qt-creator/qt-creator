@@ -64,7 +64,9 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorF
             text = Tr::tr("Line %1").arg(line);
         else
             text = Tr::tr("Column %1").arg(column);
-        value.append(LocatorFilterEntry(this, text, QVariant::fromValue(data)));
+        LocatorFilterEntry entry(this, text);
+        entry.internalData = QVariant::fromValue(data);
+        value.append(entry);
     }
     return value;
 }
