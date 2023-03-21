@@ -23,9 +23,7 @@ QtcPlugin {
         "vcpkgsettings.h",
     ]
 
-    Group {
-        name: "Unit tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [
             "vcpkg_test.h",
             "vcpkg_test.cpp",

@@ -239,9 +239,7 @@ Project {
             ]
         }
 
-        Group {
-            name: "Unit tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
                 "debuggerunittests.qrc",
             ]

@@ -25,9 +25,7 @@ QtcPlugin {
         "fakevimtr.h",
     ]
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: ["fakevim_test.cpp"]
     }
 }

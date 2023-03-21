@@ -13,9 +13,7 @@ QtcPlugin {
         "silversearcherplugin.cpp", "silversearcherplugin.h",
     ]
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [
             "outputparser_test.cpp",
             "outputparser_test.h",

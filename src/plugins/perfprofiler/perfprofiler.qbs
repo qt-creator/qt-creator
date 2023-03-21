@@ -75,9 +75,7 @@ QtcPlugin {
         files: [ "PerfProfilerFlameGraphView.qml" ]
     }
 
-    Group {
-        name: "Unit tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         prefix: "tests/"
         files: [
             "perfprofilertracefile_test.cpp",

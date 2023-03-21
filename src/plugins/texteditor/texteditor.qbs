@@ -222,9 +222,7 @@ Project {
             ]
         }
 
-        Group {
-            name: "Tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
                 "texteditor_test.cpp",
             ]

@@ -250,9 +250,7 @@ Project {
             ]
         }
 
-        Group {
-            name: "Tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: ["outputparser_test.h", "outputparser_test.cpp"]
         }
 

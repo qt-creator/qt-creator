@@ -54,10 +54,8 @@ QtcPlugin {
         "clangformatutils.cpp",
     ]
 
-    Group {
-        name: "Tests"
+    QtcTestFiles {
         prefix: "tests/"
-        condition: qtc.testsEnabled
         cpp.defines: outer.concat('TESTDATA_DIR="' + sourceDirectory + "/tests/data" + '"')
         files: [
             "clangformat-test.cpp",

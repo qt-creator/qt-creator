@@ -116,9 +116,7 @@ Project {
             "sdkmanageroutputparser.h"
         ]
 
-        Group {
-            name: "Unit tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
                 "android_tst.qrc",
                 "androidsdkmanager_test.cpp",

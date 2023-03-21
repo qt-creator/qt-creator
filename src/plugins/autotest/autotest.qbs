@@ -125,9 +125,7 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Test sources"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [
             "autotestunittests.cpp",
             "autotestunittests.h",

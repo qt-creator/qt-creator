@@ -245,9 +245,7 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
         files: [
             "compileroptionsbuilder_test.cpp",

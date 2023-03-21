@@ -77,9 +77,7 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         files: [ "gotoslot_test.cpp" ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

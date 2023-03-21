@@ -58,8 +58,7 @@ QtcPlugin {
         "settingshandler.cpp",
     ]
 
-    Group {
-        name: "McuSupport test files"
+    QtcTestFiles {
         condition: qtc.testsEnabled && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
         prefix: "test/"
         files: [

@@ -271,9 +271,7 @@ Project {
             ]
         }
 
-        Group {
-            name: "Tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
                 "testdatadir.cpp",
                 "testdatadir.h",

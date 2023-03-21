@@ -67,9 +67,7 @@ Project {
             "images/embeddedtarget.png",
         ]
 
-        Group {
-            name: "Tests"
-            condition: qtc.testsEnabled
+        QtcTestFiles {
             files: [
                 "filesystemaccess_test.cpp",
                 "filesystemaccess_test.h",

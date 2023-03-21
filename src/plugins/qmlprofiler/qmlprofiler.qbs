@@ -73,9 +73,7 @@ QtcPlugin {
         files: "qml/**"
     }
 
-    Group {
-        name: "Unit tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         prefix: "tests/"
         files: [
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",

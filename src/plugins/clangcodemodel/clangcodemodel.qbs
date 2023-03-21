@@ -94,9 +94,7 @@ QtcPlugin {
         }
     }
 
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
+    QtcTestFiles {
         prefix: "test/"
         files: [
             "activationsequenceprocessortest.cpp",
