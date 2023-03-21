@@ -30,7 +30,7 @@ function(_extract_ts_data_from_targets outprefix)
 
         set(_target_sources "")
         if(_source_files)
-          list(FILTER _source_files EXCLUDE REGEX ".*[.]json[.]in|.*[.]svg")
+          list(FILTER _source_files EXCLUDE REGEX ".*[.]json[.]in|.*[.]svg|.*[.]pro|.*[.]css")
           list(APPEND _target_sources ${_source_files})
         endif()
         if(_extra_translations)
