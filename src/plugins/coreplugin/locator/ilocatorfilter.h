@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include "utils/tasktree.h"
 #include <coreplugin/core_global.h>
 
 #include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/link.h>
+#include <utils/tasktree.h>
 
 #include <QFutureInterface>
 #include <QIcon>

@@ -11,8 +11,8 @@
 
 #include <projectexplorer/jsonwizard/jsonprojectpage.h>
 
-#include "utils/wizard.h"
 #include <utils/qtcassert.h>
+#include <utils/wizard.h>
 
 using namespace StudioWelcome;
 

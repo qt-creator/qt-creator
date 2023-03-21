@@ -9,8 +9,8 @@
 #include "documentmodel.h"
 #include "ieditor.h"
 
-#include "utils/link.h"
-#include "utils/textfileformat.h"
+#include <utils/link.h>
+#include <utils/textfileformat.h>
 
 #include <QFileDialog>
 #include <QList>

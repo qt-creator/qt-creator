@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include "utils/filepath.h"
+#include <utils/filepath.h>
+
 #include <clang/Format/Format.h>
 
 namespace CppEditor { class CppCodeStyleSettings; }

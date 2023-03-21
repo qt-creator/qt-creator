@@ -8,9 +8,11 @@
 #include "qnxtoolchain.h"
 #include "qnxtr.h"
 
-#include "debugger/debuggeritem.h"
-
 #include <coreplugin/icore.h>
+
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggerkitinformation.h>
 
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
@@ -22,10 +24,6 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
-#include <debugger/debuggeritem.h>
-#include <debugger/debuggeritemmanager.h>
-#include <debugger/debuggerkitinformation.h>
 
 #include <utils/algorithm.h>
 

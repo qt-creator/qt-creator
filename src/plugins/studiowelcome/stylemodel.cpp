@@ -3,8 +3,8 @@
 
 #include "stylemodel.h"
 
-#include "utils/algorithm.h"
-#include "utils/qtcassert.h"
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QRegularExpression>
 

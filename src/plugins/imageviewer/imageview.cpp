@@ -8,11 +8,11 @@
 #include "imageviewerfile.h"
 #include "imageviewertr.h"
 #include "multiexportdialog.h"
-#include "utils/mimeutils.h"
 
 #include <coreplugin/messagemanager.h>
 
 #include <utils/fileutils.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 

@@ -13,15 +13,16 @@
 #include "debuggertr.h"
 
 #include "breakhandler.h"
+#include "debuggermainwindow.h"
 #include "disassembleragent.h"
+#include "enginemanager.h"
 #include "localsandexpressionswindow.h"
 #include "logwindow.h"
-#include "debuggermainwindow.h"
-#include "enginemanager.h"
 #include "memoryagent.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "peripheralregisterhandler.h"
+#include "shared/peutils.h"
 #include "sourcefileshandler.h"
 #include "sourceutils.h"
 #include "stackhandler.h"
@@ -31,7 +32,6 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 #include "watchwindow.h"
-#include "debugger/shared/peutils.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>

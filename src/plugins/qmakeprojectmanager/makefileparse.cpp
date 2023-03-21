@@ -359,11 +359,12 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
 // Unit tests:
 
 #ifdef WITH_TESTS
-#   include <QTest>
 
-#   include "qmakeprojectmanagerplugin.h"
+#include "qmakeprojectmanagerplugin.h"
 
-#   include "projectexplorer/outputparser_test.h"
+#include <projectexplorer/outputparser_test.h>
+
+#include <QTest>
 
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;

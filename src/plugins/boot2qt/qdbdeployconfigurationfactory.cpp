@@ -7,7 +7,7 @@
 #include "qdbtr.h"
 
 #include <projectexplorer/deploymentdataview.h>
-#include "projectexplorer/devicesupport/idevice.h"
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>

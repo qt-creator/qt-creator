@@ -5,13 +5,13 @@
 
 #include "dockerconstants.h"
 #include "dockertr.h"
-#include "utils/hostosinfo.h"
 
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/filepath.h>
+#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
 using namespace Utils;

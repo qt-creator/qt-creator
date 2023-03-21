@@ -4,9 +4,10 @@
 #pragma once
 
 #include "presetsparser.h"
-#include "utils/temporarydirectory.h"
 
 #include <qtsupport/qtprojectimporter.h>
+
+#include <utils/temporarydirectory.h>
 
 namespace CMakeProjectManager {
 

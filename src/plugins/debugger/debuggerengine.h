@@ -7,12 +7,14 @@
 #include "debuggerconstants.h"
 #include "debuggerprotocol.h"
 #include "breakhandler.h"
-#include "projectexplorer/abi.h"
 #include "threadshandler.h"
 
 #include <coreplugin/icontext.h>
+
+#include <projectexplorer/abi.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
 #include <projectexplorer/runcontrol.h>
+
 #include <texteditor/textmark.h>
 
 #include <utils/filepath.h>
