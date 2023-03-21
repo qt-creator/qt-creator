@@ -9,109 +9,115 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT NoSourcePathForInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT ProjectStorageError : std::exception
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT NoSourceContextPathForInvalidSourceContextId : std::exception
+class QMLDESIGNERCORE_EXPORT NoSourcePathForInvalidSourceId : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT SourceContextIdDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT NoSourceContextPathForInvalidSourceContextId : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT SourceIdDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT SourceContextIdDoesNotExists : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT TypeHasInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT SourceIdDoesNotExists : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ModuleDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT TypeHasInvalidSourceId : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ModuleAlreadyExists : std::exception
+class QMLDESIGNERCORE_EXPORT ModuleDoesNotExists : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ExportedTypeCannotBeInserted : std::exception
+class QMLDESIGNERCORE_EXPORT ModuleAlreadyExists : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT TypeNameDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT ExportedTypeCannotBeInserted : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT PropertyNameDoesNotExists : std::exception
+class QMLDESIGNERCORE_EXPORT TypeNameDoesNotExists : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT PrototypeChainCycle : std::exception
+class QMLDESIGNERCORE_EXPORT PropertyNameDoesNotExists : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT AliasChainCycle : std::exception
+class QMLDESIGNERCORE_EXPORT PrototypeChainCycle : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT CannotParseQmlTypesFile : std::exception
+class QMLDESIGNERCORE_EXPORT AliasChainCycle : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT CannotParseQmlDocumentFile : std::exception
+class QMLDESIGNERCORE_EXPORT CannotParseQmlTypesFile : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidProjectSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT CannotParseQmlDocumentFile : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidProjectSourceId : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidModuleId : std::exception
+class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidSourceId : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT FileStatusHasInvalidSourceId : std::exception
+class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidModuleId : ProjectStorageError
+{
+public:
+    const char *what() const noexcept override;
+};
+
+class QMLDESIGNERCORE_EXPORT FileStatusHasInvalidSourceId : ProjectStorageError
 {
 public:
     const char *what() const noexcept override;

@@ -17,6 +17,7 @@ public:
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
     virtual Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId sourceId) const = 0;
+    virtual std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const = 0;
 
 protected:
     ~ProjectStorageInterface() = default;

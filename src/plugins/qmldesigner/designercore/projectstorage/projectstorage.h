@@ -414,16 +414,22 @@ public:
             sourceId);
     }
 
+    std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const override
+    {
+        return selectProjectDataForSourceIdStatement
+            .template optionalValueWithTransaction<Storage::Synchronization::ProjectData>(sourceId);
+    }
+
     Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
-        return selectProjectDatasForModuleIdStatement
+        return selectProjectDatasForSourceIdStatement
             .template valuesWithTransaction<Storage::Synchronization::ProjectData>(64,
                                                                                    projectSourceId);
     }
 
     Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
     {
-        return selectProjectDatasForModuleIdsStatement.template valuesWithTransaction<
+        return selectProjectDatasForSourceIdsStatement.template valuesWithTransaction<
             Storage::Synchronization::ProjectData>(64, toIntegers(projectSourceIds));
     }
 
@@ -712,7 +718,7 @@ private:
                    < std::tie(second.projectSourceId, second.sourceId);
         });
 
-        auto range = selectProjectDatasForModuleIdsStatement
+        auto range = selectProjectDatasForSourceIdsStatement
                          .template range<Storage::Synchronization::ProjectData>(
                              toIntegers(updatedProjectSourceIds));
 
@@ -2581,6 +2587,7 @@ private:
             table.addColumn("fileType", Sqlite::StrictColumnType::Integer);
 
             table.addPrimaryKeyContraint({projectSourceIdColumn, sourceIdColumn});
+            table.addUniqueIndex({sourceIdColumn});
 
             table.initialize(database);
         }
@@ -3082,7 +3089,7 @@ public:
         "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
     WriteStatement<2> updateExportedTypeNameTypeIdStatement{
         "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
-    mutable ReadStatement<4, 1> selectProjectDatasForModuleIdsStatement{
+    mutable ReadStatement<4, 1> selectProjectDatasForSourceIdsStatement{
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId IN carray(?1) ORDER BY projectSourceId, sourceId",
         database};
@@ -3095,9 +3102,13 @@ public:
     WriteStatement<4> updateProjectDataStatement{
         "UPDATE projectDatas SET moduleId=?3, fileType=?4 WHERE projectSourceId=?1 AND sourceId=?2",
         database};
-    mutable ReadStatement<4, 1> selectProjectDatasForModuleIdStatement{
+    mutable ReadStatement<4, 1> selectProjectDatasForSourceIdStatement{
         "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
         "projectSourceId=?1",
+        database};
+    mutable ReadStatement<4, 1> selectProjectDataForSourceIdStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "sourceId=?1 LIMIT 1",
         database};
     mutable ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
         "SELECT typeId FROM types WHERE sourceId IN carray(?1)", database};

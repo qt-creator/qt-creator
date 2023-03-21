@@ -31,6 +31,11 @@ public:
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 
+    MOCK_METHOD(std::optional<QmlDesigner::Storage::Synchronization::ProjectData>,
+                fetchProjectData,
+                (QmlDesigner::SourceId sourceId),
+                (const, override));
+
     MOCK_METHOD(QmlDesigner::SourceContextId,
                 fetchSourceContextId,
                 (Utils::SmallStringView SourceContextPath),

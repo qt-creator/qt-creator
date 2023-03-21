@@ -175,8 +175,9 @@ class ProjectStorageData
 public:
     ProjectStorageData(::ProjectExplorer::Project *project)
         : database{project->projectDirectory().pathAppended("projectstorage.db").toString()}
+        , projectPartId{ProjectPartId::create(
+              pathCache.sourceId(SourcePath{project->projectDirectory().toString() + "/."}).internalId())}
     {}
-
     Sqlite::Database database;
     ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     ProjectStorageUpdater::PathCache pathCache{storage};
@@ -186,13 +187,15 @@ public:
     QmlTypesParser qmlTypesParser{pathCache, storage};
     ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, ProjectStorageUpdater::PathCache>
         pathWatcher{pathCache, fileSystem, &updater};
+    ProjectPartId projectPartId;
     ProjectStorageUpdater updater{fileSystem,
                                   storage,
                                   fileStatusCache,
                                   pathCache,
                                   qmlDocumentParser,
                                   qmlTypesParser,
-                                  pathWatcher};
+                                  pathWatcher,
+                                  projectPartId};
 };
 
 std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project)

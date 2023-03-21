@@ -71,7 +71,7 @@ public:
     }
 
     void updateContextIdPaths(const std::vector<IdPaths> &idPaths,
-                              const SourceContextIds &sourceContextIds)
+                              const SourceContextIds &sourceContextIds) override
     {
         const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 

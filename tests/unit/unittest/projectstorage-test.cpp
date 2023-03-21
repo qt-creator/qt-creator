@@ -5190,7 +5190,7 @@ TEST_F(ProjectStorage, ThrowForUpdatingWithInvalidProjectSourceIdInProjectData)
                  QmlDesigner::ProjectDataHasInvalidProjectSourceId);
 }
 
-TEST_F(ProjectStorage, FetchProjectDatasByModuleIds)
+TEST_F(ProjectStorage, FetchProjectDatasByDirectorySourceIds)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5212,7 +5212,7 @@ TEST_F(ProjectStorage, FetchProjectDatasByModuleIds)
     ASSERT_THAT(projectDatas, UnorderedElementsAre(projectData1, projectData2, projectData3));
 }
 
-TEST_F(ProjectStorage, FetchProjectDatasByModuleId)
+TEST_F(ProjectStorage, FetchProjectDatasByDirectorySourceId)
 {
     Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
                                                        sourceId1,
@@ -5232,6 +5232,28 @@ TEST_F(ProjectStorage, FetchProjectDatasByModuleId)
     auto projectData = storage.fetchProjectDatas(qmlProjectSourceId);
 
     ASSERT_THAT(projectData, UnorderedElementsAre(projectData1, projectData2));
+}
+
+TEST_F(ProjectStorage, FetchProjectDataBySourceIds)
+{
+    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+                                                       sourceId1,
+                                                       qmlModuleId,
+                                                       Storage::Synchronization::FileType::QmlDocument};
+    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+                                                       sourceId2,
+                                                       qmlModuleId,
+                                                       Storage::Synchronization::FileType::QmlDocument};
+    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+                                                       sourceId3,
+                                                       qtQuickModuleId,
+                                                       Storage::Synchronization::FileType::QmlTypes};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
+                                               {projectData1, projectData2, projectData3}});
+
+    auto projectData = storage.fetchProjectData({sourceId2});
+
+    ASSERT_THAT(projectData, Eq(projectData2));
 }
 
 TEST_F(ProjectStorage, ExcludeExportedTypes)
