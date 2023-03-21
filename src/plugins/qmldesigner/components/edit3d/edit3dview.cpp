@@ -12,6 +12,7 @@
 #include "edit3dcanvas.h"
 #include "edit3dviewconfig.h"
 #include "edit3dwidget.h"
+#include "materialutils.h"
 #include "metainfo.h"
 #include "nodehints.h"
 #include "nodeinstanceview.h"
@@ -324,7 +325,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
             createdNode = QmlVisualNode::createQml3DNode(
                 this, m_droppedEntry, edit3DWidget()->canvas()->activeScene(), pos3d).modelNode();
             if (createdNode.metaInfo().isQtQuick3DModel())
-                assignMaterialTo3dModel(createdNode);
+                MaterialUtils::assignMaterialTo3dModel(this, createdNode);
         });
         if (createdNode.isValid())
             setSelectedModelNode(createdNode);
@@ -332,7 +333,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
         if (m_droppedModelNode.isValid() && isModel) {
             executeInTransaction(__FUNCTION__, [&] {
-                assignMaterialTo3dModel(modelNode, m_droppedModelNode);
+                MaterialUtils::assignMaterialTo3dModel(this, modelNode, m_droppedModelNode);
             });
         }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {

@@ -17,6 +17,7 @@
 #include <nodeproperty.h>
 #include <variantproperty.h>
 #include <metainfo.h>
+#include <materialutils.h>
 #include <abstractview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
@@ -710,7 +711,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         newQmlObjectNode.destroy();
                         return;
                     }
-                    m_view->assignMaterialTo3dModel(targetNode, newModelNode);
+                    MaterialUtils::assignMaterialTo3dModel(m_view, targetNode, newModelNode);
                 }
 
                 ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
@@ -751,9 +752,9 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     const QList<ModelNode> models = newModelNode.subModelNodesOfType(
                         m_view->model()->qtQuick3DModelMetaInfo());
                     QTC_ASSERT(models.size() == 1, return);
-                    m_view->assignMaterialTo3dModel(models.at(0));
+                    MaterialUtils::assignMaterialTo3dModel(m_view, models.at(0));
                 } else if (newModelNode.metaInfo().isQtQuick3DModel()) {
-                    m_view->assignMaterialTo3dModel(newModelNode);
+                    MaterialUtils::assignMaterialTo3dModel(m_view, newModelNode);
                 }
 
                 if (!validContainer) {
@@ -836,7 +837,7 @@ void NavigatorTreeModel::handleMaterialDrop(const QMimeData *mimeData, const QMo
     ModelNode matNode = m_view->modelNodeForInternalId(internalId);
 
     m_view->executeInTransaction(__FUNCTION__, [&] {
-        m_view->assignMaterialTo3dModel(targetNode, matNode);
+        MaterialUtils::assignMaterialTo3dModel(m_view, targetNode, matNode);
     });
 }
 

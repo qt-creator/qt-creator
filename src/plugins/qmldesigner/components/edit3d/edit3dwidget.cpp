@@ -8,6 +8,7 @@
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dvisibilitytogglesmenu.h"
+#include "materialutils.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
 #include "nodeabstractproperty.h"
@@ -387,7 +388,7 @@ void Edit3DWidget::onCreateAction()
 
         // if added node is a Model, assign it a material
         if (modelNode.metaInfo().isQtQuick3DModel())
-            m_view->assignMaterialTo3dModel(modelNode);
+            MaterialUtils::assignMaterialTo3dModel(m_view, modelNode);
     });
 
 }
