@@ -29,7 +29,7 @@ def main():
                          "testfiles.Headers.testfile\\.h":__modifyHeader__,
                          "testfiles.Sources.testfile\\.cpp":__modifySource__,
                          "testfiles.Sources.main\\.cpp":None}
-    for fileName, modification in fileModifications.iteritems():
+    for fileName, modification in fileModifications.items():
         __modifyFile__(fileName, modification)
     test.log("Reverting all files...")
     fileModifications = dict(zip(fileModifications.keys(),
@@ -84,7 +84,7 @@ def __modifySource__():
         type(cppEditorStr, "<Delete>")
 
 def revertChanges(files):
-    for f,canRevert in files.iteritems():
+    for f,canRevert in files.items():
         simpleName = simpleFileName(f)
         test.log("Trying to revert changes for '%s'" % simpleName)
         if openDocument(f):

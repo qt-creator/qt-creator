@@ -109,7 +109,7 @@ def retrieveData(record):
 
 def verifyOutline(outlinePseudoTree, datasetFileName):
     fileName = datasetFileName[:datasetFileName.index("_")]
-    expected = map(retrieveData, testData.dataset(datasetFileName))
+    expected = list(map(retrieveData, testData.dataset(datasetFileName)))
     if len(expected) != len(outlinePseudoTree):
         test.fail("Mismatch in length of expected and found elements of outline. Skipping "
                   "verification of nodes.",

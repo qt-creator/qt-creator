@@ -342,7 +342,7 @@ def getConfiguredKits():
     # update collected Qt versions with their configured device and version
     iterateKits(False, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
-    for kit, qtVersion in kitsWithQtVersionName.iteritems():
+    for kit, qtVersion in kitsWithQtVersionName.items():
         if qtVersion in qtVersionNames:
             result.append(kit)
         else:

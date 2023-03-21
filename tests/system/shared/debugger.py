@@ -57,7 +57,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
                   "window=':Qt Creator_Core::Internal::MainWindow'}")
     breakPointList = []
     for current in filesAndLines:
-        for curFile,curLine in current.iteritems():
+        for curFile,curLine in current.items():
             if not openDocument(curFile):
                 return None
             editor = getEditorForFileSuffix(curFile, True)
@@ -239,7 +239,7 @@ def __logDebugResult__():
 
 def verifyBreakPoint(bpToVerify):
     if isinstance(bpToVerify, dict):
-        fileName = bpToVerify.keys()[0]
+        fileName = list(bpToVerify.keys())[0]
         editor = getEditorForFileSuffix(fileName)
         if editor:
             test.compare(waitForObject(":DebugModeWidget_QComboBox").toolTip, fileName,
