@@ -30,6 +30,7 @@ T.ComboBox {
     property real __actionIndicatorHeight: control.style.actionIndicatorSize.height
 
     property alias textInput: comboBoxInput
+    property alias suffix: comboBoxInput.suffix
 
     property int maximumPopupHeight: control.style.maxComboBoxPopupHeight
 

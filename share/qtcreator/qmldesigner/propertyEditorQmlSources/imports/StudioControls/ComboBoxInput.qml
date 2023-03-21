@@ -15,10 +15,7 @@ TextInput {
     property bool edit: control.activeFocus
     property bool hover: mouseArea.containsMouse && control.enabled
     property bool elidable: false
-    readonly property real textAdvanceWidth: control.elidable
-                                             ? (elidableText.leftPadding
-                                                + elidableTextMetrics.advanceWidth)
-                                             : control.implicitWidth
+    property string suffix: ""
 
     z: 2
     font: control.__parentControl.font
@@ -48,15 +45,22 @@ TextInput {
         verticalAlignment: control.verticalAlignment
         font: control.font
         color: control.color
-        text: control.text
+        text: control.text + control.suffix
         visible: control.elidable
         elide: Text.ElideRight
     }
 
-    TextMetrics {
-        id: elidableTextMetrics
-        font: elidableText.font
-        text: elidableText.text
+    Text {
+        id: nonElidableSuffix
+        anchors.fill: control
+        leftPadding: control.implicitWidth - control.rightPadding
+        rightPadding: control.rightPadding
+        horizontalAlignment: control.horizontalAlignment
+        verticalAlignment: control.verticalAlignment
+        font: control.font
+        color: control.color
+        text: control.suffix
+        visible: !control.elidable
     }
 
     Rectangle {
@@ -160,6 +164,10 @@ TextInput {
             }
             PropertyChanges {
                 target: elidableText
+                visible: false
+            }
+            PropertyChanges {
+                target: nonElidableSuffix
                 visible: false
             }
             PropertyChanges {

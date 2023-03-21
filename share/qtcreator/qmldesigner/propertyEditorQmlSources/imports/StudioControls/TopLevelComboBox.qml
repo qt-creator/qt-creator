@@ -16,6 +16,7 @@ T.ComboBox {
     property bool edit: false
     property bool open: window.visible
     property bool openUpwards: false
+    property alias suffix: comboBoxInput.suffix
 
     editable: false
     width: control.style.controlSize.width

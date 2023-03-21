@@ -238,22 +238,13 @@ Rectangle {
             anchors.right: annotations.left
             anchors.rightMargin: 10
             model: backend.workspaces
+            suffix: qsTr(" Workspace")
             property int currentWorkspaceIndex: workspaces.find(backend.currentWorkspace)
             onCurrentWorkspaceIndexChanged: workspaces.currentIndex = workspaces.currentWorkspaceIndex
 
             visible: !root.flyoutEnabled
 
             onActivated: backend.setCurrentWorkspace(workspaces.currentText)
-            Text {
-                z: 20
-                x: workspaces.contentItem.implicitWidth
-
-                text: qsTr("Workspace")
-                font: workspaces.font
-                anchors.verticalCenter: parent.verticalCenter
-
-                color: workspaces.contentItem.color
-            }
         }
 
         ToolbarButton {
