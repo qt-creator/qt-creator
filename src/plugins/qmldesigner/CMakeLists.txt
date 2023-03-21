@@ -91,11 +91,6 @@ extend_qtc_library(QmlDesignerCore
   PUBLIC_DEPENDS rt
 )
 
-set(UI_FILES
-  ${CMAKE_CURRENT_LIST_DIR}/designercore/instances/puppetbuildprogressdialog.ui
-)
-qt_wrap_ui(UI_SOURCES ${UI_FILES})
-
 extend_qtc_library(QmlDesignerCore
   INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES
@@ -290,8 +285,6 @@ extend_qtc_library(QmlDesignerCore
     nodeinstanceserverproxy.cpp
     nodeinstanceserverproxy.h
     nodeinstanceview.cpp
-    puppetbuildprogressdialog.cpp
-    puppetbuildprogressdialog.h
     puppetstartdata.h
     puppetstarter.cpp
     puppetstarter.h
