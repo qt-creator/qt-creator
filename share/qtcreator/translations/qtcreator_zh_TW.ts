@@ -4102,7 +4102,7 @@ Reason: %3</source>
     <message numerus="yes">
         <source>%n lines filtered</source>
         <translation>
-            <numerusform>已過濾 %n 行</numerusform>
+            <numerusform>已篩選 %n 行</numerusform>
         </translation>
     </message>
     <message>
@@ -4306,11 +4306,11 @@ Reason: %3</source>
     <name>FilterNameDialogClass</name>
     <message>
         <source>Add Filter Name</source>
-        <translation>新增過濾器名稱</translation>
+        <translation>新增篩選器名稱</translation>
     </message>
     <message>
         <source>Filter Name:</source>
-        <translation>過濾器名稱：</translation>
+        <translation>篩選器名稱：</translation>
     </message>
 </context>
 <context>
@@ -5363,27 +5363,27 @@ Reason: %3</source>
     </message>
     <message>
         <source>Filters</source>
-        <translation>過濾器</translation>
+        <translation>篩選器</translation>
     </message>
     <message>
         <source>Unfiltered</source>
-        <translation>未過濾</translation>
+        <translation>未篩選</translation>
     </message>
     <message>
         <source>No user defined filters available or no filter selected.</source>
-        <translation>沒有使用者定義的過濾器可使用，或者未選取過濾器。</translation>
+        <translation>沒有使用者定義的篩選器可使用，或者未選取篩選器。</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will show every documentation file available, as no attributes are specified.</source>
-        <translation>當沒有指定任何屬性時，過濾器 &quot;%1&quot; 會顯示所有可用的文件檔。</translation>
+        <translation>當沒有指定任何屬性時，篩選器 &quot;%1&quot; 會顯示所有可用的文件檔。</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will only show documentation files that have the attribute %2 specified.</source>
-        <translation>過濾器 &quot;%1&quot; 只會顯示包含屬性 %2 的文件檔。</translation>
+        <translation>篩選器 &quot;%1&quot; 只會顯示包含屬性 %2 的文件檔。</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will only show documentation files that have the attributes %2 specified.</source>
-        <translation>過濾器 &quot;%1&quot; 只會顯示包含屬性 %2 的文件檔。</translation>
+        <translation>篩選器 &quot;%1&quot; 只會顯示包含屬性 %2 的文件檔。</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;body&gt;
@@ -5392,7 +5392,7 @@ Add, modify, and remove document filters, which determine the documentation set 
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
-新增，變更與移除文件過濾器。它決定在說明模式中要顯示的文件集。屬性是在文件中定義的。選擇屬性可以顯示相關文件的集合。請注意，某些屬性會在多個文件檔中被定義。
+新增，變更與移除文件篩選器。它決定在說明模式中要顯示的文件集。屬性是在文件中定義的。選擇屬性可以顯示相關文件的集合。請注意，某些屬性會在多個文件檔中被定義。
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -5580,7 +5580,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Filtered by:</source>
-        <translation>過濾方式：</translation>
+        <translation>篩選方式：</translation>
     </message>
     <message>
         <source>Indexing</source>
@@ -6325,7 +6325,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Filter: %1
 %2</source>
-        <translation>過濾器：%1
+        <translation>篩選器：%1
 %2</translation>
     </message>
     <message>
@@ -6602,7 +6602,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Filter Tree</source>
-        <translation>過濾樹狀圖</translation>
+        <translation>篩選樹狀圖</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -6710,7 +6710,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Filter by categories</source>
-        <translation>依分類過濾</translation>
+        <translation>依分類篩選</translation>
     </message>
     <message>
         <source>Show Warnings</source>
@@ -7803,7 +7803,7 @@ Preselects a desktop Qt for building the application if available.</source>
     <name>QtC::Core</name>
     <message>
         <source>Filter Configuration</source>
-        <translation>過濾器組態</translation>
+        <translation>篩選器組態</translation>
     </message>
     <message>
         <source>Limit to prefix</source>
@@ -7815,7 +7815,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Generic Directory Filter</source>
-        <translation>一般目錄過濾</translation>
+        <translation>一般目錄篩選</translation>
     </message>
     <message>
         <source>Select Directory</source>
@@ -7824,16 +7824,16 @@ Preselects a desktop Qt for building the application if available.</source>
     <message numerus="yes">
         <source>%1 filter update: %n files</source>
         <translation>
-            <numerusform>%1 過濾器更新：%n 個檔案</numerusform>
+            <numerusform>%1 篩選器更新：%n 個檔案</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 filter update: 0 files</source>
-        <translation>%1 過濾器更新：0 個檔案</translation>
+        <translation>%1 篩選器更新：0 個檔案</translation>
     </message>
     <message>
         <source>%1 filter update: canceled</source>
-        <translation>%1 過濾器更新：已取消</translation>
+        <translation>%1 篩選器更新：已取消</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -7841,7 +7841,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
-        <translation>指定檔案名稱過濾器，用逗號分隔。過濾器可以包含萬用字元符。</translation>
+        <translation>指定檔案名稱篩選器，用逗號分隔。篩選器可以包含萬用字元符。</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -7871,7 +7871,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">過濾器組態</translation>
+        <translation type="obsolete">篩選器組態</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -7879,7 +7879,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Filter:</source>
-        <translation>過濾器：</translation>
+        <translation>篩選器：</translation>
     </message>
     <message>
         <source>Add Filter Configuration</source>
@@ -7887,7 +7887,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Available filters</source>
-        <translation>可使用的過濾器</translation>
+        <translation>可使用的篩選器</translation>
     </message>
     <message>
         <source>Ctrl+K</source>
@@ -7931,7 +7931,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Configure Filters</source>
-        <translation>過濾器組態</translation>
+        <translation>篩選器組態</translation>
     </message>
     <message>
         <source> min</source>
@@ -8268,7 +8268,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>List of comma separated wildcard filters</source>
-        <translation>以逗號分隔的萬用字元符過濾器列表</translation>
+        <translation>以逗號分隔的萬用字元符篩選器列表</translation>
     </message>
     <message>
         <source>untitled</source>
@@ -9255,7 +9255,7 @@ Will not be applied to whitespace in comments and strings.</source>
     <name>QtC::Help</name>
     <message>
         <source>Filter</source>
-        <translation>過濾器</translation>
+        <translation>篩選器</translation>
     </message>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -11877,7 +11877,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Filter</source>
-        <translation>過濾器</translation>
+        <translation>篩選器</translation>
     </message>
     <message>
         <source>Clear text</source>
@@ -14456,7 +14456,7 @@ Ids must begin with a lowercase letter.</source>
     <name>QtC::Core</name>
     <message>
         <source>Unfiltered</source>
-        <translation>未過濾</translation>
+        <translation>未篩選</translation>
     </message>
 </context>
 <context>
@@ -14616,7 +14616,7 @@ Ids must begin with a lowercase letter.</source>
     <name>QtC::Help</name>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">過濾器組態</translation>
+        <translation type="obsolete">篩選器組態</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -15984,7 +15984,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
     <message>
         <source>Filter properties</source>
-        <translation type="obsolete">過濾器屬性</translation>
+        <translation type="obsolete">篩選器屬性</translation>
     </message>
 </context>
 <context>
@@ -16732,7 +16732,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Filter tree</source>
-        <translation>過濾樹狀圖</translation>
+        <translation>篩選樹狀圖</translation>
     </message>
     <message>
         <source>Outline</source>
@@ -19008,7 +19008,7 @@ Do you want to retry?</source>
     <message>
         <source>&lt;Filter&gt;</source>
         <comment>Library search input hint text</comment>
-        <translation>&lt;過濾器&gt;</translation>
+        <translation>&lt;篩選器&gt;</translation>
     </message>
 </context>
 <context>
@@ -20755,7 +20755,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Apply Filter</source>
-        <translation>套用過濾器</translation>
+        <translation>套用篩選器</translation>
     </message>
     <message>
         <source>Generating file list...
@@ -22008,7 +22008,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Filter...</source>
-        <translation>過濾器...</translation>
+        <translation>篩選器...</translation>
     </message>
     <message>
         <source>Profiling aborted.</source>
@@ -22114,7 +22114,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Error Filter</source>
-        <translation>錯誤過濾</translation>
+        <translation>錯誤篩選</translation>
     </message>
     <message>
         <source>Internal Error</source>
@@ -24142,7 +24142,7 @@ Filter: %2
 %3</source>
         <extracomment>%3 is filled by BaseFileFind::runNewSearch</extracomment>
         <translation>路徑：%1
-過濾器：%2
+篩選器：%2
 %3</translation>
     </message>
     <message>
@@ -24939,7 +24939,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Filter by process name:</source>
-        <translation type="obsolete">依行程名稱過濾(&amp;F)：</translation>
+        <translation type="obsolete">依行程名稱篩選(&amp;F)：</translation>
     </message>
     <message>
         <source>&amp;Update List</source>
@@ -29849,7 +29849,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">過濾器</translation>
+        <translation>篩選器</translation>
     </message>
     <message>
         <source>&amp;Update List</source>
