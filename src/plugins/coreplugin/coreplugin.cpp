@@ -313,6 +313,12 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
     return res;
 }
 
+FutureSynchronizer *CorePlugin::futureSynchronizer()
+{
+    QTC_ASSERT(m_instance, return nullptr);
+    return &m_instance->m_futureSynchronizer;
+}
+
 Environment CorePlugin::startupSystemEnvironment()
 {
     return m_instance->m_startupSystemEnvironment;
