@@ -4,6 +4,7 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/desktopdevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace McuSupport {
 namespace Internal {
