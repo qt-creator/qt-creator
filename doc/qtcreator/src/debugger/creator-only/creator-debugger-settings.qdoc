@@ -23,7 +23,7 @@
     output is sent to the system log. To override this behavior, select
     the \uicontrol {Force logging to console} check box. This sets
     \c QT_LOGGING_TO_CONSOLE=1 in the environment of the debugged
-    program, which effectively prevents storing debug output in
+    application, which effectively prevents storing debug output in
     system logs.
 
     \section1 Mapping Source Paths
@@ -96,7 +96,7 @@
     future, select the \uicontrol {Use automatic symbol cache} check box.
 
     To execute GDB commands after GDB has been started, but before the debugged
-    program is started or attached, and before the debugging helpers are
+    application is started or attached, and before the debugging helpers are
     initialized, enter them in the \uicontrol {Additional Startup Commands}
     field.
 

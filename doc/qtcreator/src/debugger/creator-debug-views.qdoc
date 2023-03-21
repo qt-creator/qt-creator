@@ -12,7 +12,7 @@
 
     \title Viewing Call Stack Trace
 
-    When the program being debugged is interrupted, \QC displays the nested
+    When the application being debugged is interrupted, \QC displays the nested
     function calls leading to the current position as a call stack trace. This
     stack trace is built up from call stack frames, each representing a
     particular function. For each function, \QC tries to retrieve the file name
@@ -24,14 +24,17 @@
     Since the call stack leading to the current position may originate or go
     through code for which no debug information is available, not all stack
     frames have corresponding source locations. Stack frames without
-    corresponding source locations are grayed out in the \uicontrol Stack view.
+    corresponding source locations are grayed out.
 
     If you click a frame with a known source location, the text editor jumps to
-    the corresponding location and updates the \uicontrol {Locals} and
-    \uicontrol {Expressions} views, making it seem like the program
-    was interrupted before entering the function.
+    the corresponding location and updates the
+    \l {Local Variables and Function Parameters}{Locals} and
+    \l {Evaluating Expressions}{Expressions} views, making it seem like the
+    application was interrupted before entering the function.
 
-    To find out which QML file is causing a Qt Quick 2 application to crash,
+    \section1 Loading QML Stack
+
+    To find out which QML file is causing a Qt Quick application to crash,
     select \uicontrol {Load QML Stack} in the context menu in the
     \uicontrol Stack view. The debugger tries to retrieve the JavaScript stack
     from the stopped executable and prepends the frames to the C++ frames,
@@ -66,8 +69,8 @@
 
         \li Executing some system calls
 
-        \li Changes in a block of memory at a particular address when a
-            program is running
+        \li Changes in a block of memory at a particular address when an
+            application is running
 
         \li Emitting QML signals
 
@@ -75,26 +78,30 @@
 
     \endlist
 
-    The interruption of a program by a breakpoint can be restricted with certain
-    conditions.
+    A breakpoint interrupts the application every time the application reaches
+    its location unless you specify a boolean condition for it. The breakpoint
+    evaluates the expression each time the application passes it, and the
+    application stops only if the condition evaluates to \c true.
+
+    \section1 Unclaimed and Claimed Breakpoints
 
     Breakpoints come in two varieties: \c unclaimed and \c claimed.
     An unclaimed breakpoint represents a task to interrupt the debugged
-    program and passes the control to you later. It has two states:
+    application and passes the control to you later. It has two states:
     \c pending and \c implanted.
 
     Unclaimed breakpoints are stored as a part of a session and exist
-    independently of whether a program is being debugged or not. They
+    independently of whether an application is being debugged or not. They
     are listed in the \uicontrol {Breakpoint Preset} view and in the
     editor using the \inlineimage icons/qtcreator-unclaimed-breakpoint-icon.png
     (\uicontrol {Unclaimed Breakpoint}) icon, when they refer to a position
     in code.
 
-    \image qtcreator-debugger-breakpoint-preset.png {Breakpoint Preset view}
+    \image qtcreator-debugger-breakpoint-preset.webp {Breakpoint Preset view}
 
     When a debugger starts, the debugging backend identifies breakpoints
     from the set of unclaimed breakpoints that might be handled by the
-    debugged program and claims them for its own exclusive use. Claimed
+    debugged application and claims them for its own exclusive use. Claimed
     breakpoints are listed in the \uicontrol {Breakpoints} view of the
     running debugger. This view only exists while the debugger is running.
 
@@ -115,11 +122,11 @@
     \uicontrol{Breakpoint Preset} view.
 
     When an implanted breakpoint is hit during the execution of the
-    debugged program, control is passed back to you.
-    You can then examine the state of the interrupted program, or
+    debugged application, control is passed back to you.
+    You can then examine the state of the interrupted application, or
     continue execution either line-by-line or continuously.
 
-    \image qtcreator-debug-breakpoints.png "Breakpoints view"
+    \image qtcreator-debug-breakpoints.webp {Breakpoints view}
 
     \section1 Adding Breakpoints
 
@@ -133,7 +140,7 @@
 
                 \li In the code editor, click the left margin or press \key F9
                     (\key F8 on \macos) on a particular line you want the
-                    program to stop.
+                    application to stop.
 
                 \li In the \uicontrol {Breakpoint Preset} view or the
                     \uicontrol Breakpoints view:
@@ -146,23 +153,67 @@
             \endlist
 
         \li In the \uicontrol {Breakpoint type} field, select the location in the
-            program code where you want the program to stop. The other options
-            to specify depend on the selected location.
+            application code where you want the application to stop.
 
-            \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
-
-        \li In the \uicontrol Condition field, set the condition to be evaluated
-            before stopping at the breakpoint if the condition evaluates as
-            true.
-
-        \li In the \uicontrol Ignore field, specify the number of times that the
-            breakpoint is ignored before the program stops.
-
-        \li In the \uicontrol Commands field, specify the commands to execute
-            when the program stops; one command on a line. GDB executes the
-            commands in the order in which they are specified.
-
+            \image qtcreator-add-breakpoint.webp {Add Breakpoints} dialog
     \endlist
+
+    Deselect the \uicontrol Enabled check box to make the breakpoint temporarily
+    inoperative as if you had deleted it, but keep the information about the
+    breakpoint, so that you can enable it again later.
+
+    The other options to specify depend on the location you select, such as file
+    name and line number, address, expression, or function name. The following
+    table summarizes the advanced options.
+
+    \table
+    \header
+        \li Option
+        \li Value
+    \row
+        \li \uicontrol Condition
+        \li The condition to evaluate before stopping at the breakpoint if the
+            condition evaluates as \c true.
+    \row
+        \li \uicontrol {Ignore count}
+        \li The number of times to ignore the breakpoint before the application
+            stops.
+    \row
+        \li \uicontrol {Thread specification}
+        \li
+    \row
+        \li \uicontrol Path
+        \li Determines how to specify the path when setting breakpoints:
+            \list
+                \li \uicontrol {Use Engine Default} is the preferred setting of
+                    the debugger engine.
+                \li \uicontrol {Use Full Path} passes the full path to avoid
+                    ambiguity if several modules contain files with the same
+                    name. This is the engine default for CDB and LLDB.
+                \li \uicontrol {Use File Name} passes the file name only. This is
+                    useful when the location of the source tree does not match
+                    the one used when building the modules. This is the engine
+                    default for GDB as using full paths can be slow with it.
+            \endlist
+    \row
+        \li \uicontrol Module
+        \li Specify the module (base name of the library or executable) for
+            function or file type breakpoints to speed up debugger startup
+            (CDB, LLDB).
+    \row
+        \li \uicontrol Commands
+        \li Commands to execute when the application stops. List one command per
+            line. GDB executes the commands in the order in which you specify
+            them.
+    \row
+        \li \uicontrol {Tracepoint only}
+        \li A \e tracepoint lets you log information about the application
+            without adding log statements or otherwise modifying your code.
+            You can set conditions for the tracepoint.
+    \row
+        \li \uicontrol Message
+        \li The tracepoint message to show in \l {Application Output}.
+    \endtable
 
     \if defined(qtcreator)
     \section1 Specifying Breakpoint Settings
@@ -170,6 +221,8 @@
     You can specify settings for breakpoints in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Debugger. For more information,
     see \l{Debugger Preferences}.
+
+    \image qtcreator-debugger-general-options.png {General tab in Debugger preferences}
 
     To use a full absolute path in breakpoints, select the
     \uicontrol {Set breakpoints using a full absolute path} check box.
@@ -261,12 +314,12 @@
     disabled breakpoint. To re-enable a breakpoint, use any of the above
     methods.
 
-    With the notable exception of data breakpoints, breakpoints retain their
-    enabled or disabled state when the debugged program is restarted.
+    Other than data breakpoints retain their enabled or disabled state when the
+    debugged application is restarted.
 
     \section1 Setting Data Breakpoints
 
-    A \e {data breakpoint} stops the program when data is read or written at the
+    A \e {data breakpoint} stops the application when data is read or written at the
     specified address.
 
     To set a data breakpoint at an address:
@@ -291,8 +344,8 @@
     \uicontrol {Add Data Breakpoint at Object's Address} in the
     context menu to set the data breakpoint.
 
-    Data breakpoints will be disabled when the debugged program exits, as it
-    is unlikely that the used addresses will stay the same at the next program
+    Data breakpoints will be disabled when the debugged application exits, as it
+    is unlikely that the used addresses will stay the same at the next application
     launch. If you really want a data breakpoint to be active again, re-enable
     it manually.
 */
@@ -313,7 +366,7 @@
 
     \image qtcreator-locals.png {Locals view}
 
-    Whenever a program stops under the control of the debugger, it retrieves
+    Whenever an application stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
     \uicontrol {Locals} view. The \uicontrol Locals pane shows
     information about parameters of the function in that frame as well as the
@@ -416,7 +469,7 @@
 
     You can use the \uicontrol {Locals} and \uicontrol {Expressions} view to change
     the contents of variables of simple data types, for example, \c int, \c float,
-    \c QString and \c std::string when the program is interrupted. To do so,
+    \c QString and \c std::string when the application is interrupted. To do so,
     click the \uicontrol Value column, modify the value with the inplace editor,
     and press \key Enter (or \key Return).
 

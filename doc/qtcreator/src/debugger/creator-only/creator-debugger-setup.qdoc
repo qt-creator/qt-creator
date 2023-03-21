@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -15,48 +15,57 @@
 
     \title Setting Up Debugger
 
-    The main debugger settings are associated with the
-    \l{glossary-buildandrun-kit}{kit} you build and run your project with. To
+    The main debugger preferences are associated with the
+    \l{Adding Kits}{kit} you build and run your project with. To
     specify the debugger and compiler to use for each kit, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
 
+    \image qtcreator-kits.png {Kits preferences}
+
     You need to set up the debugger only if the automatic setup fails because
-    the native debugger is missing (as is usually the case for the CDB debugger
-    on Windows, which you always must install yourself) or because the installed
-    version is not supported. For example, when your system does not have GDB
+    the native debugger is missing (for example, you must install the CDB
+    debugger on Windows yourself) or because \QC does not support the installed
+    version. For example, when your system does not have GDB
     installed or the installed version is outdated, and you want to use a locally
     installed replacement instead.
 
-    \note If you need to change the debugger to use for an automatically
-    detected \l{glossary-buildandrun-kit}{kit}, you can \uicontrol Clone the
-    kit and change the parameters in the clone. Make sure to select the cloned
-    kit for your project.
+    To change the debugger in an automatically detected kit, select
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    \uicontrol Clone to create a copy of the kit, and change the
+    parameters in the cloned kit. Make sure to enable the cloned kit
+    for your project.
 
     If the debugger you want to use is not automatically detected, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
-    \note To use the debugging tools for Windows, you must install them and add
-    the Microsoft Symbol Server to the symbol search path of the
-    debugger. For more information, see \l{Setting CDB Paths on Windows}.
+    \image qtcreator-preferences-kits-debuggers.webp {Debuggers tab in Kits preferences}
 
-    \note To use the Free Software Foundation (FSF) version of GDB on \macos, you
-    must sign it and modify your \l{glossary-buildandrun-kit}{kit} settings.
+    To use the debugging tools for Windows, you must install them.
+    Optionally, you can set up the Microsoft Symbol Server if you need
+    symbol information from Microsoft modules that is not found locally.
+    For more information, see \l{Setting CDB Paths on Windows}.
 
-    This section describes the options you have for debugging C++ code and
-    installing the supported native debuggers. It also
-    applies for code in other compiled languages such as C, FORTRAN, Ada.
+    To use the Free Software Foundation (FSF) version of GDB on \macos, you
+    must sign it and modify your kit preferences.
 
-    For more information on the debugger modes, see
-    \l{Launching the Debugger in Different Modes}.
+    This section describes the options you have for debugging C++ and Python code
+    and installing the supported native debuggers. It also
+    applies to code in other compiled languages such as C, FORTRAN, and Ada.
+
+    For more information about launching the debugger in different modes, see
+    \l{Debugger Operating Modes}.
 
     \section1 Supported Native Debugger Versions
 
-    \QC supports native debuggers when working with compiled code. On
-    most supported platforms, the GNU Symbolic Debugger GDB can be used. On
-    Microsoft Windows, when using the Microsoft tool chain, the Microsoft
-    Console Debugger CDB is needed. On \macos and Linux, the LLDB debugger
-    can be used.
+    \QC supports native debuggers for debugging compiled code.
+    On most supported platforms, you can use the GNU Symbolic Debugger (GDB).
+    On Microsoft Windows, when using the Microsoft tool chain, you need the
+    Microsoft Console Debugger (CDB). On \macos and Linux, you can use the LLDB
+    debugger. On all supported platforms, you can use PDB to debug Python source
+    code.
+
+    \note You need a debugger version built with Python scripting support.
 
     The following table summarizes the support for debugging C++ code:
 
@@ -89,28 +98,26 @@
 
     \section2 Supported GDB Versions
 
-    Starting with version 3.1, \QC requires the Python scripting extension. GDB
-    builds without Python scripting are not supported anymore and will not work.
-    The minimum supported version is GDB 7.5 using Python version 2.7, or 3.3,
-    or newer.
+    Use GDB 7.5, or later, with the Python scripting extension and Python version
+    3.3, or later.
 
     For remote debugging using GDB and GDB server, the minimum supported version
     of GDB server on the target \l{glossary-device}{device} is 7.0.
 
     \section2 Supported CDB Versions
 
-    All versions of CDB targeting platforms supported by Qt are supported by
-    \QC.
+    \QC supports all versions of CDB targeting platforms that Qt supports.
 
     \section2 Supported LLDB Versions
 
     The LLDB native debugger has similar functionality to the GDB debugger. LLDB
-    is the default debugger in Xcode on \macos for supporting C++ on the desktop.
+    is the default debugger in Xcode on \macos for C++ on the desktop.
     LLDB is typically used with the Clang compiler (even though you can use it
     with GCC, too).
 
     On \macos you can use the LLDB version delivered with Xcode or build from source.
-    The minimum supported version is LLDB 320.4.
+    The minimum supported version is LLDB 320.4. You need a LLDB version built
+    with Python support.
 
     On Linux, the minimum supported version is LLDB 3.8.
 
@@ -182,22 +189,15 @@
     the required files in
     \c{"%ProgramFiles%\Debugging Tools for Windows"}.
 
-    \section3 Symbol Server
-
-    We highly recommend that you add the Microsoft Symbol Server to the
-    symbol search path of the debugger. The Symbol Server has debugging
-    information for the operating system libraries for debugging Windows
-    applications. For more information, see \l{Setting CDB Paths on Windows}.
-
     \section2 Debugging Tools for \macos
 
     The Qt binary distribution has both debug and release
-    variants of the libraries. But you have to explicitly tell the
+    variants of the libraries. However, you have to explicitly tell the
     runtime linker that you want to use the debug libraries even if
     your application is compiled as debug, as release is the default
     library.
 
-    If you use a qmake based project in \QC,  you can set a flag in
+    If you use a qmake based project in \QC, you can set a flag in
     your \l{glossary-run-config}{run configuration}, in
     \uicontrol Projects mode. In the run configuration, select
     \uicontrol{Use debug version of frameworks}.
@@ -209,6 +209,27 @@
     \section2 LLDB
 
     We recommend using the LLDB version that is delivered with the latest Xcode.
+
+    \section2 PDB
+
+    \l{https://docs.python.org/3/library/pdb.html}{PDB} is a source code debugger
+    for Python applications. You can use it to debug projects that have a
+    \l {Creating Widget-Based Qt for Python Applications}{.pyproject}
+    configuration file.
+
+    You must install Python and set the interpreter to use in \uicontrol Projects
+    > \uicontrol Run:
+
+    \image qtcreator-run-settings-python.webp {Run settings for a Python project}
+
+    Start debugging the \c main.py file. If you encounter problems, check the
+    active build target in the kit selector.
+
+    \QC does not support mixed-mode debugging, but you can attach GDB to the
+    Python interpreter to debug the C++ implementation of the corresponding
+    Python code. For more information, see
+    \l{https://doc.qt.io/qtforpython-6/tutorials/debugging/qtcreator/qtcreator.html}
+    {Debugging PySide with Qt Creator (Linux)}.
 
     \section1 Setting up FSF GDB for \macos
 
@@ -264,7 +285,7 @@
                 (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
                 \c $HOME).
 
-        \li To use the debugger, add the kit in the \uicontrol {Build Settings}
+        \li To use the debugger, enable the kit in the \uicontrol {Build Settings}
             of the project.
 
     \endlist
