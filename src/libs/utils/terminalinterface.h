@@ -23,7 +23,7 @@ class QTCREATOR_UTILS_EXPORT TerminalInterface : public ProcessInterface
     friend class StubCreator;
 
 public:
-    TerminalInterface();
+    TerminalInterface(bool waitOnExit = true);
     ~TerminalInterface() override;
 
     int inferiorProcessId() const;

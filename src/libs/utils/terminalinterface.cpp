@@ -53,12 +53,19 @@ static QString msgCannotExecute(const QString &p, const QString &why)
     return Tr::tr("Cannot execute \"%1\": %2").arg(p, why);
 }
 
+static QString msgPromptToClose()
+{
+    // Shown in a terminal which might have a different character set on Windows.
+    return Tr::tr("Press <RETURN> to close this window...");
+}
+
 class TerminalInterfacePrivate : public QObject
 {
     Q_OBJECT
 public:
-    TerminalInterfacePrivate(TerminalInterface *p)
+    TerminalInterfacePrivate(TerminalInterface *p, bool waitOnExit)
         : q(p)
+        , waitOnExit(waitOnExit)
     {
         connect(&stubServer,
                 &QLocalServer::newConnection,
@@ -83,10 +90,12 @@ public:
     TerminalInterface *q;
 
     StubCreator *stubCreator{nullptr};
+
+    const bool waitOnExit;
 };
 
-TerminalInterface::TerminalInterface()
-    : d(new TerminalInterfacePrivate(this))
+TerminalInterface::TerminalInterface(bool waitOnExit)
+    : d(new TerminalInterfacePrivate(this, waitOnExit))
 {}
 
 TerminalInterface::~TerminalInterface()
@@ -348,6 +357,8 @@ void TerminalInterface::start()
 
     if (d->envListFile)
         cmd.addArgs({"-e", d->envListFile->fileName()});
+
+    cmd.addArgs({"--wait", d->waitOnExit ? msgPromptToClose() : ""});
 
     cmd.addArgs({"--", m_setup.m_commandLine.executable().nativePath()});
     cmd.addArgs(m_setup.m_commandLine.arguments(), CommandLine::Raw);

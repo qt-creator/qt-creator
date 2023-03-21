@@ -58,6 +58,7 @@ public:
 };
 
 TerminalProcessImpl::TerminalProcessImpl(TerminalPane *terminalPane)
+    : TerminalInterface(false)
 {
     auto creator = new ProcessStubCreator(this, terminalPane);
     creator->moveToThread(qApp->thread());

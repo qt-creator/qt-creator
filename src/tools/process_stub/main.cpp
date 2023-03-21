@@ -172,6 +172,11 @@ void doExit(int exitCode)
     if (controlSocket.state() == QLocalSocket::ConnectedState && controlSocket.bytesToWrite())
         controlSocket.waitForBytesWritten(1000);
 
+    if (!commandLineParser.value("wait").isEmpty()) {
+        std::cout << commandLineParser.value("wait").toStdString();
+        std::cin.get();
+    }
+
     exit(exitCode);
 }
 
@@ -394,6 +399,11 @@ std::optional<int> tryParseCommandLine(QCoreApplication &app)
         QCommandLineOption({"w", "workingDir"}, "Working directory for inferior", "workingDir"));
     commandLineParser.addOption(QCommandLineOption({"v", "verbose"}, "Print debug messages"));
     commandLineParser.addOption(QCommandLineOption({"e", "envfile"}, "Path to env file", "envfile"));
+    commandLineParser.addOption(
+        QCommandLineOption("wait",
+                           "Message to display to the user while waiting for key press",
+                           "waitmessage",
+                           "Press enter to continue ..."));
 
     commandLineParser.process(app);
 
