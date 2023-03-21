@@ -535,10 +535,7 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
     const auto actionsSwitcher = std::make_shared<FindUnusedActionsEnabledSwitcher>();
 
     // Step 1: Employ locator to find all functions
-    ILocatorFilter *const functionsFilter
-            = Utils::findOrDefault(ILocatorFilter::allLocatorFilters(),
-                                   Utils::equal(&ILocatorFilter::id,
-                                                Id(Constants::FUNCTIONS_FILTER_ID)));
+    ILocatorFilter *const functionsFilter = CppModelManager::instance()->functionsFilter();
     QTC_ASSERT(functionsFilter, return);
     const QPointer<SearchResult> search
         = SearchResultWindow::instance()->startNewSearch(Tr::tr("Find Unused Functions"),
