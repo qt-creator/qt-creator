@@ -143,7 +143,7 @@ public:
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
-    void updateContainerAccess();
+    bool updateContainerAccess();
     void changeMounts(QStringList newMounts);
     bool ensureReachable(const FilePath &other);
     void shutdown();
@@ -171,7 +171,7 @@ public:
     Tasks validateMounts() const;
 
     bool createContainer();
-    void startContainer();
+    bool startContainer();
     void stopCurrentContainer();
     void fetchSystemEnviroment();
 
@@ -185,6 +185,8 @@ public:
     bool addTemporaryMount(const FilePath &path, const FilePath &containerPath);
 
     QStringList createMountArgs() const;
+
+    bool isImageAvailable() const;
 
     DockerDevice *const q;
     DockerDeviceData m_data;
@@ -392,7 +394,9 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
 
     setOpenTerminal([this, settings](const Environment &env, const FilePath &workingDir) {
         Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
-        updateContainerAccess();
+        if (!updateContainerAccess())
+            return;
+
         if (d->containerId().isEmpty()) {
             MessageManager::writeDisrupting(Tr::tr("Error starting remote shell. No container."));
             return;
@@ -446,9 +450,9 @@ void DockerDevice::setData(const DockerDeviceData &data)
     d->setData(data);
 }
 
-void DockerDevice::updateContainerAccess() const
+bool DockerDevice::updateContainerAccess() const
 {
-    d->updateContainerAccess();
+    return d->updateContainerAccess();
 }
 
 CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
@@ -461,7 +465,8 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
     if (!m_settings)
         return {};
 
-    updateContainerAccess();
+    if (!updateContainerAccess())
+        return {};
 
     CommandLine dockerCmd{m_settings->dockerBinaryPath.filePath(), {"exec"}};
 
@@ -614,9 +619,28 @@ QStringList DockerDevicePrivate::createMountArgs() const
     return cmds;
 }
 
+bool DockerDevicePrivate::isImageAvailable() const
+{
+    QtcProcess proc;
+    proc.setCommand(
+        {m_settings->dockerBinaryPath.filePath(),
+         {"image", "list", m_data.repoAndTag(), "--format", "{{.Repository}}:{{.Tag}}"}});
+    proc.runBlocking();
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
+        return false;
+
+    if (proc.stdOut().trimmed() == m_data.repoAndTag())
+        return true;
+
+    return false;
+}
+
 bool DockerDevicePrivate::createContainer()
 {
     if (!m_settings)
+        return false;
+
+    if (!isImageAvailable())
         return false;
 
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
@@ -671,10 +695,10 @@ bool DockerDevicePrivate::createContainer()
     return true;
 }
 
-void DockerDevicePrivate::startContainer()
+bool DockerDevicePrivate::startContainer()
 {
     if (!createContainer())
-        return;
+        return false;
 
     m_shell = std::make_unique<ContainerShell>(m_settings, m_container, q->rootPath());
 
@@ -693,23 +717,25 @@ void DockerDevicePrivate::startContainer()
                                              "or restart Qt Creator."));
     });
 
-    if (!m_shell->start()) {
-        qCWarning(dockerDeviceLog) << "Container shell failed to start";
-    }
+    if (m_shell->start())
+        return true;
+
+    qCWarning(dockerDeviceLog) << "Container shell failed to start";
+    return false;
 }
 
-void DockerDevicePrivate::updateContainerAccess()
+bool DockerDevicePrivate::updateContainerAccess()
 {
     if (m_isShutdown)
-        return;
+        return false;
 
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
-        return;
+        return false;
 
     if (m_shell)
-        return;
+        return true;
 
-    startContainer();
+    return startContainer();
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
@@ -881,7 +907,8 @@ void DockerDevice::aboutToBeRemoved() const
 
 void DockerDevicePrivate::fetchSystemEnviroment()
 {
-    updateContainerAccess();
+    if (!updateContainerAccess())
+        return;
 
     if (m_shell && m_shell->state() == DeviceShell::State::Succeeded) {
         const RunResult result = runInShell({"env", {}});
@@ -905,7 +932,8 @@ void DockerDevicePrivate::fetchSystemEnviroment()
 
 RunResult DockerDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &stdInData)
 {
-    updateContainerAccess();
+    if (!updateContainerAccess())
+        return {};
     QTC_ASSERT(m_shell, return {});
     return m_shell->runInShell(cmd, stdInData);
 }

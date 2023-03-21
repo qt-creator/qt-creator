@@ -95,7 +95,7 @@ public:
 
     void setData(const DockerDeviceData &data);
 
-    void updateContainerAccess() const;
+    bool updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
