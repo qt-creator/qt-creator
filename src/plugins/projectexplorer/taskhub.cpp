@@ -51,8 +51,9 @@ public:
                                                    : Tr::tr("Warning"));
         setPriority(task.type == Task::Error ? TextEditor::TextMark::NormalPriority
                                              : TextEditor::TextMark::LowPriority);
-        setToolTip(task.toolTip(task.category == Constants::TASK_CATEGORY_COMPILE
-                                    ? Tr::tr("Build Issue") : QString()));
+        setToolTip(task.formattedDescription({Task::WithSummary | Task::WithLinks},
+                                             task.category == Constants::TASK_CATEGORY_COMPILE
+                                                 ? Tr::tr("Build Issue") : QString()));
         setIcon(task.icon());
         setVisible(!task.icon().isNull());
     }

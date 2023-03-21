@@ -8,8 +8,8 @@
 #include "projectexplorertr.h"
 
 #include <app/app_version.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/textmark.h>
-
 #include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
@@ -105,11 +105,16 @@ void Task::setFile(const Utils::FilePath &file_)
     }
 }
 
-QString Task::description() const
+QString Task::description(DescriptionTags tags) const
 {
-    QString desc = summary;
-    if (!details.isEmpty())
-        desc.append('\n').append(details.join('\n'));
+    QString desc;
+    if (tags & WithSummary)
+        desc = summary;
+    if (!details.isEmpty()) {
+        if (!desc.isEmpty())
+            desc.append('\n');
+        desc.append(details.join('\n'));
+    }
     return desc;
 }
 
@@ -120,32 +125,37 @@ QIcon Task::icon() const
     return m_icon;
 }
 
-QString Task::toolTip(const QString &extraHeading) const
+QString Task::formattedDescription(DescriptionTags tags, const QString &extraHeading) const
 {
     if (isNull())
         return {};
 
-    QString text = description();
+    QString text = description(tags);
+    const int offset = (tags & WithSummary) ? 0 : summary.size() + 1;
     static const QString linkTagStartPlaceholder("__QTC_LINK_TAG_START__");
     static const QString linkTagEndPlaceholder("__QTC_LINK_TAG_END__");
     static const QString linkEndPlaceholder("__QTC_LINK_END__");
-    for (auto formatRange = formats.crbegin(); formatRange != formats.crend(); ++formatRange) {
-        if (!formatRange->format.isAnchor())
-            continue;
-        text.insert(formatRange->start + formatRange->length, linkEndPlaceholder);
-        text.insert(formatRange->start, QString::fromLatin1("%1%2%3").arg(
+    if (tags & WithLinks) {
+        for (auto formatRange = formats.crbegin(); formatRange != formats.crend(); ++formatRange) {
+            if (!formatRange->format.isAnchor())
+                continue;
+            text.insert(formatRange->start - offset + formatRange->length, linkEndPlaceholder);
+            text.insert(formatRange->start - offset, QString::fromLatin1("%1%2%3").arg(
                 linkTagStartPlaceholder, formatRange->format.anchorHref(), linkTagEndPlaceholder));
+        }
     }
     text = text.toHtmlEscaped();
-    text.replace(linkEndPlaceholder, "</a>");
-    text.replace(linkTagStartPlaceholder, "<a href=\"");
-    text.replace(linkTagEndPlaceholder, "\">");
+    if (tags & WithLinks) {
+        text.replace(linkEndPlaceholder, "</a>");
+        text.replace(linkTagStartPlaceholder, "<a href=\"");
+        text.replace(linkTagEndPlaceholder, "\">");
+    }
     const QString htmlExtraHeading = extraHeading.isEmpty()
                                          ? QString()
                                          : QString::fromUtf8("<b>%1</b><br/>").arg(extraHeading);
-    return QString::fromUtf8("<html><body>%1<code style=\"white-space:pre;font-family:monospace\">"
-                             "%2</code></body></html>")
-        .arg(htmlExtraHeading, text);
+    return QString::fromUtf8("<html><body>%1<code style=\"white-space:pre;font-family:%2\">"
+                             "%3</code></body></html>")
+        .arg(htmlExtraHeading, TextEditor::FontSettings::defaultFixedFontFamily(), text);
 }
 
 //
