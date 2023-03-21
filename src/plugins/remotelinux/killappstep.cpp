@@ -20,10 +20,21 @@ using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
-class KillAppService : public AbstractRemoteLinuxDeployService
+class KillAppStep : public AbstractRemoteLinuxDeployStep
 {
 public:
-    void setRemoteExecutable(const FilePath &filePath) { m_remoteExecutable = filePath; }
+    KillAppStep(BuildStepList *bsl, Id id) : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        setWidgetExpandedByDefault(false);
+
+        setInternalInitializer([this] {
+            Target * const theTarget = target();
+            QTC_ASSERT(theTarget, return CheckResult::failure());
+            RunConfiguration * const rc = theTarget->activeRunConfiguration();
+            m_remoteExecutable =  rc ? rc->runnable().command.executable() : FilePath();
+            return CheckResult::success();
+        });
+    }
 
 private:
     bool isDeploymentNecessary() const final { return !m_remoteExecutable.isEmpty(); }
@@ -32,7 +43,7 @@ private:
     FilePath m_remoteExecutable;
 };
 
-Group KillAppService::deployRecipe()
+Group KillAppStep::deployRecipe()
 {
     const auto setupHandler = [this](DeviceProcessKiller &killer) {
         killer.setProcessPath(m_remoteExecutable);
@@ -48,27 +59,6 @@ Group KillAppService::deployRecipe()
     };
     return Group { Killer(setupHandler, doneHandler, errorHandler) };
 }
-
-class KillAppStep : public AbstractRemoteLinuxDeployStep
-{
-public:
-    KillAppStep(BuildStepList *bsl, Id id) : AbstractRemoteLinuxDeployStep(bsl, id)
-    {
-        auto service = new Internal::KillAppService;
-        setDeployService(service);
-
-        setWidgetExpandedByDefault(false);
-
-        setInternalInitializer([this, service] {
-            Target * const theTarget = target();
-            QTC_ASSERT(theTarget, return CheckResult::failure());
-            RunConfiguration * const rc = theTarget->activeRunConfiguration();
-            const FilePath remoteExe = rc ? rc->runnable().command.executable() : FilePath();
-            service->setRemoteExecutable(remoteExe);
-            return CheckResult::success();
-        });
-    }
-};
 
 KillAppStepFactory::KillAppStepFactory()
 {

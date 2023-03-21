@@ -7,6 +7,10 @@
 
 #include "abstractremotelinuxdeploystep.h"
 
+#include <projectexplorer/devicesupport/filetransfer.h>
+
+#include <utils/tasktree.h>
+
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT RsyncDeployStep : public AbstractRemoteLinuxDeployStep
@@ -17,6 +21,20 @@ public:
 
     static Utils::Id stepId();
     static QString displayName();
+
+    void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &files);
+    void setIgnoreMissingFiles(bool ignore) { m_ignoreMissingFiles = ignore; }
+    void setFlags(const QString &flags) { m_flags = flags; }
+
+private:
+    bool isDeploymentNecessary() const final;
+    Utils::Tasking::Group deployRecipe() final;
+    Utils::Tasking::TaskItem mkdirTask();
+    Utils::Tasking::TaskItem transferTask();
+
+    mutable ProjectExplorer::FilesToTransfer m_files;
+    bool m_ignoreMissingFiles = false;
+    QString m_flags;
 };
 
 } // namespace RemoteLinux

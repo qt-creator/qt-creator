@@ -21,16 +21,24 @@ using namespace Utils::Tasking;
 
 namespace Qdb::Internal {
 
-// QdbStopApplicationService
+// QdbStopApplicationStep
 
-class QdbStopApplicationService : public RemoteLinux::AbstractRemoteLinuxDeployService
+class QdbStopApplicationStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
-private:
+public:
+    QdbStopApplicationStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        setWidgetExpandedByDefault(false);
+
+        setInternalInitializer([this] { return isDeploymentPossible(); });
+    }
+
     bool isDeploymentNecessary() const final { return true; }
     Group deployRecipe() final;
 };
 
-Group QdbStopApplicationService::deployRecipe()
+Group QdbStopApplicationStep::deployRecipe()
 {
     const auto setupHandler = [this](QtcProcess &process) {
         const auto device = DeviceKitAspect::device(target()->kit());
@@ -66,24 +74,6 @@ Group QdbStopApplicationService::deployRecipe()
     };
     return Group { Process(setupHandler, doneHandler, errorHandler) };
 }
-
-// QdbStopApplicationStep
-
-class QdbStopApplicationStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
-{
-public:
-    QdbStopApplicationStep(BuildStepList *bsl, Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
-    {
-        auto service = new QdbStopApplicationService;
-        setDeployService(service);
-
-        setWidgetExpandedByDefault(false);
-
-        setInternalInitializer([service] { return service->isDeploymentPossible(); });
-    }
-};
-
 
 // QdbStopApplicationStepFactory
 

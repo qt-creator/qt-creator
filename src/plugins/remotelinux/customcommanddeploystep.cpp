@@ -19,9 +19,26 @@ using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
-class CustomCommandDeployService : public AbstractRemoteLinuxDeployService
+class CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep
 {
 public:
+    CustomCommandDeployStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        auto commandLine = addAspect<StringAspect>();
+        commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
+        commandLine->setLabelText(Tr::tr("Command line:"));
+        commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
+        commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
+
+        setInternalInitializer([this, commandLine] {
+            setCommandLine(commandLine->value().trimmed());
+            return isDeploymentPossible();
+        });
+
+        addMacroExpander();
+    }
+
     void setCommandLine(const QString &commandLine);
     CheckResult isDeploymentPossible() const final;
 
@@ -34,20 +51,20 @@ private:
     QString m_commandLine;
 };
 
-void CustomCommandDeployService::setCommandLine(const QString &commandLine)
+void CustomCommandDeployStep::setCommandLine(const QString &commandLine)
 {
     m_commandLine = commandLine;
 }
 
-CheckResult CustomCommandDeployService::isDeploymentPossible() const
+CheckResult CustomCommandDeployStep::isDeploymentPossible() const
 {
     if (m_commandLine.isEmpty())
         return CheckResult::failure(Tr::tr("No command line given."));
 
-    return AbstractRemoteLinuxDeployService::isDeploymentPossible();
+    return AbstractRemoteLinuxDeployStep::isDeploymentPossible();
 }
 
-Group CustomCommandDeployService::deployRecipe()
+Group CustomCommandDeployStep::deployRecipe()
 {
     const auto setupHandler = [this](QtcProcess &process) {
         emit progressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
@@ -75,30 +92,6 @@ Group CustomCommandDeployService::deployRecipe()
     };
     return Group { Process(setupHandler, doneHandler, errorHandler) };
 }
-
-class CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep
-{
-public:
-    CustomCommandDeployStep(BuildStepList *bsl, Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
-    {
-        auto service = new CustomCommandDeployService;
-        setDeployService(service);
-
-        auto commandLine = addAspect<StringAspect>();
-        commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
-        commandLine->setLabelText(Tr::tr("Command line:"));
-        commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
-        commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
-
-        setInternalInitializer([service, commandLine] {
-            service->setCommandLine(commandLine->value().trimmed());
-            return service->isDeploymentPossible();
-        });
-
-        addMacroExpander();
-    }
-};
 
 
 // CustomCommandDeployStepFactory

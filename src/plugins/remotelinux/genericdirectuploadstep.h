@@ -18,8 +18,14 @@ public:
                             bool offerIncrementalDeployment = true);
     ~GenericDirectUploadStep() override;
 
+    bool isDeploymentNecessary() const final;
+    Utils::Tasking::Group deployRecipe() final;
+
     static Utils::Id stepId();
     static QString displayName();
+
+private:
+    class GenericDirectUploadStepPrivate *d;
 };
 
-} //namespace RemoteLinux
+} // RemoteLinux

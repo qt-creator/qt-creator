@@ -22,12 +22,22 @@ using namespace Utils::Tasking;
 
 namespace Qdb::Internal {
 
-// QdbMakeDefaultAppService
-
-class QdbMakeDefaultAppService : public RemoteLinux::AbstractRemoteLinuxDeployService
+class QdbMakeDefaultAppStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
 public:
-    void setMakeDefault(bool makeDefault) { m_makeDefault = makeDefault; }
+    QdbMakeDefaultAppStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        auto selection = addAspect<SelectionAspect>();
+        selection->setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");
+        selection->addOption(Tr::tr("Set this application to start by default"));
+        selection->addOption(Tr::tr("Reset default application"));
+
+        setInternalInitializer([this, selection] {
+            m_makeDefault = selection->value() == 0;
+            return isDeploymentPossible();
+        });
+    }
 
 private:
     bool isDeploymentNecessary() const final { return true; }
@@ -65,30 +75,6 @@ private:
 
     bool m_makeDefault = true;
 };
-
-// QdbMakeDefaultAppStep
-
-class QdbMakeDefaultAppStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
-{
-public:
-    QdbMakeDefaultAppStep(BuildStepList *bsl, Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
-    {
-        auto service = new QdbMakeDefaultAppService;
-        setDeployService(service);
-
-        auto selection = addAspect<SelectionAspect>();
-        selection->setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");
-        selection->addOption(Tr::tr("Set this application to start by default"));
-        selection->addOption(Tr::tr("Reset default application"));
-
-        setInternalInitializer([service, selection] {
-            service->setMakeDefault(selection->value() == 0);
-            return service->isDeploymentPossible();
-        });
-    }
-};
-
 
 // QdbMakeDefaultAppStepFactory
 

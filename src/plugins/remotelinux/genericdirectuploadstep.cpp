@@ -25,7 +25,6 @@ using namespace Utils;
 using namespace Utils::Tasking;
 
 namespace RemoteLinux {
-namespace Internal {
 
 const int MaxConcurrentStatCalls = 10;
 
@@ -36,20 +35,12 @@ struct UploadStorage
 
 enum class IncrementalDeployment { Enabled, Disabled, NotSupported };
 
-class GenericDirectUploadService : public AbstractRemoteLinuxDeployService
+class GenericDirectUploadStepPrivate
 {
 public:
-    GenericDirectUploadService(QObject *parent = nullptr)
-        : AbstractRemoteLinuxDeployService(parent)
+    GenericDirectUploadStepPrivate(GenericDirectUploadStep *parent)
+        : q(parent)
     {}
-
-    void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &deployableFiles);
-    void setIncrementalDeployment(IncrementalDeployment incremental);
-    void setIgnoreMissingFiles(bool ignoreMissingFiles);
-
-private:
-    bool isDeploymentNecessary() const final;
-    Utils::Tasking::Group deployRecipe() final;
 
     QDateTime timestampFromStat(const DeployableFile &file, QtcProcess *statProc);
 
@@ -64,6 +55,7 @@ private:
     TaskItem chmodTask(const DeployableFile &file);
     TaskItem chmodTree(const TreeStorage<UploadStorage> &storage);
 
+    GenericDirectUploadStep *q;
     IncrementalDeployment m_incremental = IncrementalDeployment::NotSupported;
     bool m_ignoreMissingFiles = false;
     mutable QList<DeployableFile> m_deployableFiles;
@@ -84,38 +76,19 @@ QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
     return collected;
 }
 
-} // namespace Internal
-
-using namespace Internal;
-
-void GenericDirectUploadService::setDeployableFiles(const QList<DeployableFile> &deployableFiles)
-{
-    m_deployableFiles = deployableFiles;
-}
-
-void GenericDirectUploadService::setIncrementalDeployment(IncrementalDeployment incremental)
-{
-    m_incremental = incremental;
-}
-
-void GenericDirectUploadService::setIgnoreMissingFiles(bool ignoreMissingFiles)
-{
-    m_ignoreMissingFiles = ignoreMissingFiles;
-}
-
-bool GenericDirectUploadService::isDeploymentNecessary() const
+bool GenericDirectUploadStep::isDeploymentNecessary() const
 {
     QList<DeployableFile> collected;
-    for (int i = 0; i < m_deployableFiles.count(); ++i)
-        collected.append(collectFilesToUpload(m_deployableFiles.at(i)));
+    for (int i = 0; i < d->m_deployableFiles.count(); ++i)
+        collected.append(collectFilesToUpload(d->m_deployableFiles.at(i)));
 
-    QTC_CHECK(collected.size() >= m_deployableFiles.size());
-    m_deployableFiles = collected;
-    return !m_deployableFiles.isEmpty();
+    QTC_CHECK(collected.size() >= d->m_deployableFiles.size());
+    d->m_deployableFiles = collected;
+    return !d->m_deployableFiles.isEmpty();
 }
 
-QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &file,
-                                                        QtcProcess *statProc)
+QDateTime GenericDirectUploadStepPrivate::timestampFromStat(const DeployableFile &file,
+                                                            QtcProcess *statProc)
 {
     bool succeeded = false;
     QString error;
@@ -130,7 +103,7 @@ QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &fi
         succeeded = true;
     }
     if (!succeeded) {
-        emit warningMessage(Tr::tr("Failed to retrieve remote timestamp for file \"%1\". "
+        emit q->warningMessage(Tr::tr("Failed to retrieve remote timestamp for file \"%1\". "
                                    "Incremental deployment will not work. Error message was: %2")
                                .arg(file.remoteFilePath(), error));
         return {};
@@ -139,30 +112,30 @@ QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &fi
     const QString warningString(Tr::tr("Unexpected stat output for remote file \"%1\": %2")
                                 .arg(file.remoteFilePath()).arg(QString::fromUtf8(output)));
     if (!output.startsWith(file.remoteFilePath().toUtf8())) {
-        emit warningMessage(warningString);
+        emit q->warningMessage(warningString);
         return {};
     }
     const QByteArrayList columns = output.mid(file.remoteFilePath().toUtf8().size() + 1).split(' ');
     if (columns.size() < 14) { // Normal Linux stat: 16 columns in total, busybox stat: 15 columns
-        emit warningMessage(warningString);
+        emit q->warningMessage(warningString);
         return {};
     }
     bool isNumber;
     const qint64 secsSinceEpoch = columns.at(11).toLongLong(&isNumber);
     if (!isNumber) {
-        emit warningMessage(warningString);
+        emit q->warningMessage(warningString);
         return {};
     }
     return QDateTime::fromSecsSinceEpoch(secsSinceEpoch);
 }
 
-TaskItem GenericDirectUploadService::statTask(UploadStorage *storage,
-                                              const DeployableFile &file,
-                                              StatEndHandler statEndHandler)
+TaskItem GenericDirectUploadStepPrivate::statTask(UploadStorage *storage,
+                                                  const DeployableFile &file,
+                                                  StatEndHandler statEndHandler)
 {
     const auto setupHandler = [=](QtcProcess &process) {
         // We'd like to use --format=%Y, but it's not supported by busybox.
-        process.setCommand({deviceConfiguration()->filePath("stat"),
+        process.setCommand({q->deviceConfiguration()->filePath("stat"),
                             {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
     const auto endHandler = [=](const QtcProcess &process) {
@@ -173,8 +146,8 @@ TaskItem GenericDirectUploadService::statTask(UploadStorage *storage,
     return Process(setupHandler, endHandler, endHandler);
 }
 
-TaskItem GenericDirectUploadService::statTree(const TreeStorage<UploadStorage> &storage,
-                                              FilesToStat filesToStat, StatEndHandler statEndHandler)
+TaskItem GenericDirectUploadStepPrivate::statTree(const TreeStorage<UploadStorage> &storage,
+                                                  FilesToStat filesToStat, StatEndHandler statEndHandler)
 {
     const auto setupHandler = [=](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
@@ -189,14 +162,14 @@ TaskItem GenericDirectUploadService::statTree(const TreeStorage<UploadStorage> &
     return Tree(setupHandler);
 }
 
-TaskItem GenericDirectUploadService::uploadTask(const TreeStorage<UploadStorage> &storage)
+TaskItem GenericDirectUploadStepPrivate::uploadTask(const TreeStorage<UploadStorage> &storage)
 {
     const auto setupHandler = [this, storage](FileTransfer &transfer) {
         if (storage->filesToUpload.isEmpty()) {
-            emit progressMessage(Tr::tr("No files need to be uploaded."));
+            emit q->progressMessage(Tr::tr("No files need to be uploaded."));
             return TaskAction::StopWithDone;
         }
-        emit progressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
+        emit q->progressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
                                     storage->filesToUpload.size()));
         FilesToTransfer files;
         for (const DeployableFile &file : std::as_const(storage->filesToUpload)) {
@@ -204,51 +177,51 @@ TaskItem GenericDirectUploadService::uploadTask(const TreeStorage<UploadStorage>
                 const QString message = Tr::tr("Local file \"%1\" does not exist.")
                                               .arg(file.localFilePath().toUserOutput());
                 if (m_ignoreMissingFiles) {
-                    emit warningMessage(message);
+                    emit q->warningMessage(message);
                     continue;
                 }
-                emit errorMessage(message);
+                emit q->errorMessage(message);
                 return TaskAction::StopWithError;
             }
             files.append({file.localFilePath(),
-                          deviceConfiguration()->filePath(file.remoteFilePath())});
+                          q->deviceConfiguration()->filePath(file.remoteFilePath())});
         }
         if (files.isEmpty()) {
-            emit progressMessage(Tr::tr("No files need to be uploaded."));
+            emit q->progressMessage(Tr::tr("No files need to be uploaded."));
             return TaskAction::StopWithDone;
         }
         transfer.setFilesToTransfer(files);
         QObject::connect(&transfer, &FileTransfer::progress,
-                         this, &GenericDirectUploadService::progressMessage);
+                         q, &GenericDirectUploadStep::progressMessage);
         return TaskAction::Continue;
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
-        emit errorMessage(transfer.resultData().m_errorString);
+        emit q->errorMessage(transfer.resultData().m_errorString);
     };
 
     return Transfer(setupHandler, {}, errorHandler);
 }
 
-TaskItem GenericDirectUploadService::chmodTask(const DeployableFile &file)
+TaskItem GenericDirectUploadStepPrivate::chmodTask(const DeployableFile &file)
 {
     const auto setupHandler = [=](QtcProcess &process) {
-        process.setCommand({deviceConfiguration()->filePath("chmod"),
+        process.setCommand({q->deviceConfiguration()->filePath("chmod"),
                 {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
     const auto errorHandler = [=](const QtcProcess &process) {
         const QString error = process.errorString();
         if (!error.isEmpty()) {
-            emit warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
+            emit q->warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
                                     .arg(file.remoteFilePath(), error));
         } else if (process.exitCode() != 0) {
-            emit warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
+            emit q->warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
                                     .arg(file.remoteFilePath(), process.cleanedStdErr()));
         }
     };
     return Process(setupHandler, {}, errorHandler);
 }
 
-TaskItem GenericDirectUploadService::chmodTree(const TreeStorage<UploadStorage> &storage)
+TaskItem GenericDirectUploadStepPrivate::chmodTree(const TreeStorage<UploadStorage> &storage)
 {
     const auto setupChmodHandler = [=](TaskTree &tree) {
         QList<DeployableFile> filesToChmod;
@@ -266,16 +239,16 @@ TaskItem GenericDirectUploadService::chmodTree(const TreeStorage<UploadStorage> 
     return Tree(setupChmodHandler);
 }
 
-Group GenericDirectUploadService::deployRecipe()
+Group GenericDirectUploadStep::deployRecipe()
 {
     const auto preFilesToStat = [this](UploadStorage *storage) {
         QList<DeployableFile> filesToStat;
-        for (const DeployableFile &file : std::as_const(m_deployableFiles)) {
-            if (m_incremental != IncrementalDeployment::Enabled || hasLocalFileChanged(file)) {
+        for (const DeployableFile &file : std::as_const(d->m_deployableFiles)) {
+            if (d->m_incremental != IncrementalDeployment::Enabled || hasLocalFileChanged(file)) {
                 storage->filesToUpload.append(file);
                 continue;
             }
-            if (m_incremental == IncrementalDeployment::NotSupported)
+            if (d->m_incremental == IncrementalDeployment::NotSupported)
                 continue;
             filesToStat << file;
         }
@@ -288,7 +261,7 @@ Group GenericDirectUploadService::deployRecipe()
     };
 
     const auto postFilesToStat = [this](UploadStorage *storage) {
-        return m_incremental == IncrementalDeployment::NotSupported
+        return d->m_incremental == IncrementalDeployment::NotSupported
                ? QList<DeployableFile>() : storage->filesToUpload;
     };
     const auto postStatEndHandler = [this](UploadStorage *storage, const DeployableFile &file,
@@ -304,11 +277,11 @@ Group GenericDirectUploadService::deployRecipe()
     const TreeStorage<UploadStorage> storage;
     const Group root {
         Storage(storage),
-        statTree(storage, preFilesToStat, preStatEndHandler),
-        uploadTask(storage),
+        d->statTree(storage, preFilesToStat, preStatEndHandler),
+        d->uploadTask(storage),
         Group {
-            chmodTree(storage),
-            statTree(storage, postFilesToStat, postStatEndHandler)
+            d->chmodTree(storage),
+            d->statTree(storage, postFilesToStat, postStatEndHandler)
         },
         OnGroupDone(doneHandler)
     };
@@ -317,11 +290,9 @@ Group GenericDirectUploadService::deployRecipe()
 
 GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id id,
                                                  bool offerIncrementalDeployment)
-    : AbstractRemoteLinuxDeployStep(bsl, id)
+    : AbstractRemoteLinuxDeployStep(bsl, id),
+      d(new GenericDirectUploadStepPrivate(this))
 {
-    auto service = new GenericDirectUploadService;
-    setDeployService(service);
-
     BoolAspect *incremental = nullptr;
     if (offerIncrementalDeployment) {
         incremental = addAspect<BoolAspect>();
@@ -338,23 +309,26 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id i
                                  BoolAspect::LabelPlacement::AtCheckBox);
     ignoreMissingFiles->setValue(false);
 
-    setInternalInitializer([incremental, ignoreMissingFiles, service] {
+    setInternalInitializer([this, incremental, ignoreMissingFiles] {
         if (incremental) {
-            service->setIncrementalDeployment(incremental->value()
-                ? IncrementalDeployment::Enabled : IncrementalDeployment::Disabled);
+            d->m_incremental = incremental->value()
+                ? IncrementalDeployment::Enabled : IncrementalDeployment::Disabled;
         } else {
-            service->setIncrementalDeployment(IncrementalDeployment::NotSupported);
+            d->m_incremental = IncrementalDeployment::NotSupported;
         }
-        service->setIgnoreMissingFiles(ignoreMissingFiles->value());
-        return service->isDeploymentPossible();
+        d->m_ignoreMissingFiles = ignoreMissingFiles->value();
+        return isDeploymentPossible();
     });
 
-    setRunPreparer([this, service] {
-        service->setDeployableFiles(target()->deploymentData().allFiles());
+    setRunPreparer([this] {
+        d->m_deployableFiles = target()->deploymentData().allFiles();
     });
 }
 
-GenericDirectUploadStep::~GenericDirectUploadStep() = default;
+GenericDirectUploadStep::~GenericDirectUploadStep()
+{
+    delete d;
+}
 
 Utils::Id GenericDirectUploadStep::stepId()
 {

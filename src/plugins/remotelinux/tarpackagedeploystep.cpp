@@ -21,9 +21,36 @@ using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
-class TarPackageDeployService : public AbstractRemoteLinuxDeployService
+// TarPackageDeployStep
+
+class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
 {
 public:
+    TarPackageDeployStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        setWidgetExpandedByDefault(false);
+
+        setInternalInitializer([this] {
+            const BuildStep *tarCreationStep = nullptr;
+
+            for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
+                if (step == this)
+                    break;
+                if (step->id() == Constants::TarPackageCreationStepId) {
+                    tarCreationStep = step;
+                    break;
+                }
+            }
+            if (!tarCreationStep)
+                return CheckResult::failure(Tr::tr("No tarball creation step found."));
+
+            const FilePath tarFile =
+                    FilePath::fromVariant(tarCreationStep->data(Constants::TarPackageFilePathId));
+            setPackageFilePath(tarFile);
+            return isDeploymentPossible();
+        });
+    }
     void setPackageFilePath(const FilePath &filePath);
 
 private:
@@ -36,29 +63,28 @@ private:
     FilePath m_packageFilePath;
 };
 
-void TarPackageDeployService::setPackageFilePath(const FilePath &filePath)
+void TarPackageDeployStep::setPackageFilePath(const FilePath &filePath)
 {
     m_packageFilePath = filePath;
 }
 
-QString TarPackageDeployService::remoteFilePath() const
+QString TarPackageDeployStep::remoteFilePath() const
 {
     return QLatin1String("/tmp/") + m_packageFilePath.fileName();
 }
 
-bool TarPackageDeployService::isDeploymentNecessary() const
+bool TarPackageDeployStep::isDeploymentNecessary() const
 {
     return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
 }
 
-TaskItem TarPackageDeployService::uploadTask()
+TaskItem TarPackageDeployStep::uploadTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
         const FilesToTransfer files {{m_packageFilePath,
                         deviceConfiguration()->filePath(remoteFilePath())}};
         transfer.setFilesToTransfer(files);
-        connect(&transfer, &FileTransfer::progress,
-                this, &TarPackageDeployService::progressMessage);
+        connect(&transfer, &FileTransfer::progress, this, &TarPackageDeployStep::progressMessage);
         emit progressMessage(Tr::tr("Uploading package to device..."));
     };
     const auto doneHandler = [this](const FileTransfer &) {
@@ -71,7 +97,7 @@ TaskItem TarPackageDeployService::uploadTask()
     return Transfer(setupHandler, doneHandler, errorHandler);
 }
 
-TaskItem TarPackageDeployService::installTask()
+TaskItem TarPackageDeployStep::installTask()
 {
     const auto setupHandler = [this](QtcProcess &process) {
         const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()
@@ -96,45 +122,10 @@ TaskItem TarPackageDeployService::installTask()
     return Process(setupHandler, doneHandler, errorHandler);
 }
 
-Group TarPackageDeployService::deployRecipe()
+Group TarPackageDeployStep::deployRecipe()
 {
     return Group { uploadTask(), installTask() };
 }
-
-// TarPackageDeployStep
-
-class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
-{
-public:
-    TarPackageDeployStep(BuildStepList *bsl, Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
-    {
-        auto service = new TarPackageDeployService;
-        setDeployService(service);
-
-        setWidgetExpandedByDefault(false);
-
-        setInternalInitializer([this, service] {
-            const BuildStep *tarCreationStep = nullptr;
-
-            for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
-                if (step == this)
-                    break;
-                if (step->id() == Constants::TarPackageCreationStepId) {
-                    tarCreationStep = step;
-                    break;
-                }
-            }
-            if (!tarCreationStep)
-                return CheckResult::failure(Tr::tr("No tarball creation step found."));
-
-            const FilePath tarFile =
-                    FilePath::fromVariant(tarCreationStep->data(Constants::TarPackageFilePathId));
-            service->setPackageFilePath(tarFile);
-            return service->isDeploymentPossible();
-        });
-    }
-};
 
 
 // TarPackageDeployStepFactory

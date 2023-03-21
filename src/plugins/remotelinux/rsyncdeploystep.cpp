@@ -25,39 +25,57 @@ using namespace Utils::Tasking;
 
 namespace RemoteLinux {
 
-class RsyncDeployService : public AbstractRemoteLinuxDeployService
+// RsyncDeployStep
+
+RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-public:
-    void setDeployableFiles(const QList<DeployableFile> &files);
-    void setIgnoreMissingFiles(bool ignore) { m_ignoreMissingFiles = ignore; }
-    void setFlags(const QString &flags) { m_flags = flags; }
+    auto flags = addAspect<StringAspect>();
+    flags->setDisplayStyle(StringAspect::LineEditDisplay);
+    flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
+    flags->setLabelText(Tr::tr("Flags:"));
+    flags->setValue(FileTransferSetupData::defaultRsyncFlags());
 
-private:
-    bool isDeploymentNecessary() const final;
-    Group deployRecipe() final;
-    TaskItem mkdirTask();
-    TaskItem transferTask();
+    auto ignoreMissingFiles = addAspect<BoolAspect>();
+    ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
+    ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
+                                 BoolAspect::LabelPlacement::InExtraLabel);
+    ignoreMissingFiles->setValue(false);
 
-    mutable FilesToTransfer m_files;
-    bool m_ignoreMissingFiles = false;
-    QString m_flags;
-};
+    setInternalInitializer([this, ignoreMissingFiles, flags] {
+        if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
+            // rsync transfer on the same device currently not implemented
+            // and typically not wanted.
+            return CheckResult::failure(
+                Tr::tr("rsync is only supported for transfers between different devices."));
+        }
+        setIgnoreMissingFiles(ignoreMissingFiles->value());
+        setFlags(flags->value());
+        return isDeploymentPossible();
+    });
 
-void RsyncDeployService::setDeployableFiles(const QList<DeployableFile> &files)
+    setRunPreparer([this] {
+        setDeployableFiles(target()->deploymentData().allFiles());
+    });
+}
+
+RsyncDeployStep::~RsyncDeployStep() = default;
+
+void RsyncDeployStep::setDeployableFiles(const QList<DeployableFile> &files)
 {
     m_files.clear();
     for (const DeployableFile &f : files)
         m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
 }
 
-bool RsyncDeployService::isDeploymentNecessary() const
+bool RsyncDeployStep::isDeploymentNecessary() const
 {
     if (m_ignoreMissingFiles)
         Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
     return !m_files.empty();
 }
 
-TaskItem RsyncDeployService::mkdirTask()
+TaskItem RsyncDeployStep::mkdirTask()
 {
     const auto setupHandler = [this](QtcProcess &process) {
         QStringList remoteDirs;
@@ -85,14 +103,14 @@ TaskItem RsyncDeployService::mkdirTask()
     return Process(setupHandler, {}, errorHandler);
 }
 
-TaskItem RsyncDeployService::transferTask()
+TaskItem RsyncDeployStep::transferTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
         transfer.setTransferMethod(FileTransferMethod::Rsync);
         transfer.setRsyncFlags(m_flags);
         transfer.setFilesToTransfer(m_files);
         connect(&transfer, &FileTransfer::progress,
-                this, &AbstractRemoteLinuxDeployService::stdOutData);
+                this, &AbstractRemoteLinuxDeployStep::stdOutData);
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
@@ -108,49 +126,10 @@ TaskItem RsyncDeployService::transferTask()
     return Transfer(setupHandler, {}, errorHandler);
 }
 
-Group RsyncDeployService::deployRecipe()
+Group RsyncDeployStep::deployRecipe()
 {
     return Group { mkdirTask(), transferTask() };
 }
-
-// RsyncDeployStep
-
-RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
-{
-    auto service = new RsyncDeployService;
-    setDeployService(service);
-
-    auto flags = addAspect<StringAspect>();
-    flags->setDisplayStyle(StringAspect::LineEditDisplay);
-    flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-    flags->setLabelText(Tr::tr("Flags:"));
-    flags->setValue(FileTransferSetupData::defaultRsyncFlags());
-
-    auto ignoreMissingFiles = addAspect<BoolAspect>();
-    ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
-    ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
-                                 BoolAspect::LabelPlacement::InExtraLabel);
-    ignoreMissingFiles->setValue(false);
-
-    setInternalInitializer([this, service, flags, ignoreMissingFiles] {
-        if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
-            // rsync transfer on the same device currently not implemented
-            // and typically not wanted.
-            return CheckResult::failure(
-                Tr::tr("rsync is only supported for transfers between different devices."));
-        }
-        service->setIgnoreMissingFiles(ignoreMissingFiles->value());
-        service->setFlags(flags->value());
-        return service->isDeploymentPossible();
-    });
-
-    setRunPreparer([this, service] {
-        service->setDeployableFiles(target()->deploymentData().allFiles());
-    });
-}
-
-RsyncDeployStep::~RsyncDeployStep() = default;
 
 Utils::Id RsyncDeployStep::stepId()
 {
