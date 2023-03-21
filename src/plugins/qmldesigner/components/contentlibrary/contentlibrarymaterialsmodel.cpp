@@ -172,7 +172,7 @@ bool ContentLibraryMaterialsModel::fetchBundleMetadata(const QDir &bundleDir)
     return false;
 }
 
-void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, const QStringList &files)
+void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, const QStringList &)
 {
     QString metaFileUrl = m_baseUrl + "/shared_files.zip";
     FileDownloader *downloader = new FileDownloader(this);
