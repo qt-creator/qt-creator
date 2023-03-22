@@ -67,26 +67,26 @@ CheckResult CustomCommandDeployStep::isDeploymentPossible() const
 Group CustomCommandDeployStep::deployRecipe()
 {
     const auto setupHandler = [this](QtcProcess &process) {
-        emit progressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
+        addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
                                  {"-c", m_commandLine}});
         QtcProcess *proc = &process;
         connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
-            emit stdOutData(proc->readAllStandardOutput());
+            handleStdOutData(proc->readAllStandardOutput());
         });
         connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
-            emit stdErrData(proc->readAllStandardError());
+            handleStdErrData(proc->readAllStandardError());
         });
     };
     const auto doneHandler = [this](const QtcProcess &) {
-        emit progressMessage(Tr::tr("Remote command finished successfully."));
+        addProgressMessage(Tr::tr("Remote command finished successfully."));
     };
     const auto errorHandler = [this](const QtcProcess &process) {
         if (process.error() != QProcess::UnknownError
                 || process.exitStatus() != QProcess::NormalExit) {
-            emit errorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
+            addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         } else if (process.exitCode() != 0) {
-            emit errorMessage(Tr::tr("Remote process finished with exit code %1.")
+            addErrorMessage(Tr::tr("Remote process finished with exit code %1.")
                 .arg(process.exitCode()));
         }
     };

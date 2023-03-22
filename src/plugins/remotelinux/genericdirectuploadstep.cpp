@@ -103,7 +103,7 @@ QDateTime GenericDirectUploadStepPrivate::timestampFromStat(const DeployableFile
         succeeded = true;
     }
     if (!succeeded) {
-        emit q->warningMessage(Tr::tr("Failed to retrieve remote timestamp for file \"%1\". "
+        q->addWarningMessage(Tr::tr("Failed to retrieve remote timestamp for file \"%1\". "
                                    "Incremental deployment will not work. Error message was: %2")
                                .arg(file.remoteFilePath(), error));
         return {};
@@ -112,18 +112,18 @@ QDateTime GenericDirectUploadStepPrivate::timestampFromStat(const DeployableFile
     const QString warningString(Tr::tr("Unexpected stat output for remote file \"%1\": %2")
                                 .arg(file.remoteFilePath()).arg(QString::fromUtf8(output)));
     if (!output.startsWith(file.remoteFilePath().toUtf8())) {
-        emit q->warningMessage(warningString);
+        q->addWarningMessage(warningString);
         return {};
     }
     const QByteArrayList columns = output.mid(file.remoteFilePath().toUtf8().size() + 1).split(' ');
     if (columns.size() < 14) { // Normal Linux stat: 16 columns in total, busybox stat: 15 columns
-        emit q->warningMessage(warningString);
+        q->addWarningMessage(warningString);
         return {};
     }
     bool isNumber;
     const qint64 secsSinceEpoch = columns.at(11).toLongLong(&isNumber);
     if (!isNumber) {
-        emit q->warningMessage(warningString);
+        q->addWarningMessage(warningString);
         return {};
     }
     return QDateTime::fromSecsSinceEpoch(secsSinceEpoch);
@@ -166,37 +166,37 @@ TaskItem GenericDirectUploadStepPrivate::uploadTask(const TreeStorage<UploadStor
 {
     const auto setupHandler = [this, storage](FileTransfer &transfer) {
         if (storage->filesToUpload.isEmpty()) {
-            emit q->progressMessage(Tr::tr("No files need to be uploaded."));
+            q->addProgressMessage(Tr::tr("No files need to be uploaded."));
             return TaskAction::StopWithDone;
         }
-        emit q->progressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
-                                    storage->filesToUpload.size()));
+        q->addProgressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
+                                     storage->filesToUpload.size()));
         FilesToTransfer files;
         for (const DeployableFile &file : std::as_const(storage->filesToUpload)) {
             if (!file.localFilePath().exists()) {
                 const QString message = Tr::tr("Local file \"%1\" does not exist.")
                                               .arg(file.localFilePath().toUserOutput());
                 if (m_ignoreMissingFiles) {
-                    emit q->warningMessage(message);
+                    q->addWarningMessage(message);
                     continue;
                 }
-                emit q->errorMessage(message);
+                q->addErrorMessage(message);
                 return TaskAction::StopWithError;
             }
             files.append({file.localFilePath(),
                           q->deviceConfiguration()->filePath(file.remoteFilePath())});
         }
         if (files.isEmpty()) {
-            emit q->progressMessage(Tr::tr("No files need to be uploaded."));
+            q->addProgressMessage(Tr::tr("No files need to be uploaded."));
             return TaskAction::StopWithDone;
         }
         transfer.setFilesToTransfer(files);
         QObject::connect(&transfer, &FileTransfer::progress,
-                         q, &GenericDirectUploadStep::progressMessage);
+                         q, &GenericDirectUploadStep::addProgressMessage);
         return TaskAction::Continue;
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
-        emit q->errorMessage(transfer.resultData().m_errorString);
+        q->addErrorMessage(transfer.resultData().m_errorString);
     };
 
     return Transfer(setupHandler, {}, errorHandler);
@@ -211,11 +211,11 @@ TaskItem GenericDirectUploadStepPrivate::chmodTask(const DeployableFile &file)
     const auto errorHandler = [=](const QtcProcess &process) {
         const QString error = process.errorString();
         if (!error.isEmpty()) {
-            emit q->warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                    .arg(file.remoteFilePath(), error));
+            q->addWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
+                                     .arg(file.remoteFilePath(), error));
         } else if (process.exitCode() != 0) {
-            emit q->warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                    .arg(file.remoteFilePath(), process.cleanedStdErr()));
+            q->addWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
+                                          .arg(file.remoteFilePath(), process.cleanedStdErr()));
         }
     };
     return Process(setupHandler, {}, errorHandler);
@@ -271,7 +271,7 @@ Group GenericDirectUploadStep::deployRecipe()
             saveDeploymentTimeStamp(file, timestamp);
     };
     const auto doneHandler = [this] {
-        emit progressMessage(Tr::tr("All files successfully deployed."));
+        addProgressMessage(Tr::tr("All files successfully deployed."));
     };
 
     const TreeStorage<UploadStorage> storage;

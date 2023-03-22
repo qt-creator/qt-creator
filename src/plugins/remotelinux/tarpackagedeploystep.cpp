@@ -84,15 +84,15 @@ TaskItem TarPackageDeployStep::uploadTask()
         const FilesToTransfer files {{m_packageFilePath,
                         deviceConfiguration()->filePath(remoteFilePath())}};
         transfer.setFilesToTransfer(files);
-        connect(&transfer, &FileTransfer::progress, this, &TarPackageDeployStep::progressMessage);
-        emit progressMessage(Tr::tr("Uploading package to device..."));
+        connect(&transfer, &FileTransfer::progress, this, &TarPackageDeployStep::addProgressMessage);
+        addProgressMessage(Tr::tr("Uploading package to device..."));
     };
     const auto doneHandler = [this](const FileTransfer &) {
-        emit progressMessage(Tr::tr("Successfully uploaded package file."));
+        addProgressMessage(Tr::tr("Successfully uploaded package file."));
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
-        emit errorMessage(result.m_errorString);
+        addErrorMessage(result.m_errorString);
     };
     return Transfer(setupHandler, doneHandler, errorHandler);
 }
@@ -105,19 +105,19 @@ TaskItem TarPackageDeployStep::installTask()
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"), {"-c", cmdLine}});
         QtcProcess *proc = &process;
         connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
-            emit stdOutData(proc->readAllStandardOutput());
+            handleStdOutData(proc->readAllStandardOutput());
         });
         connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
-            emit stdErrData(proc->readAllStandardError());
+            handleStdErrData(proc->readAllStandardError());
         });
-        emit progressMessage(Tr::tr("Installing package to device..."));
+        addProgressMessage(Tr::tr("Installing package to device..."));
     };
     const auto doneHandler = [this](const QtcProcess &) {
         saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
-        emit progressMessage(Tr::tr("Successfully installed package file."));
+        addProgressMessage(Tr::tr("Successfully installed package file."));
     };
     const auto errorHandler = [this](const QtcProcess &process) {
-        emit errorMessage(Tr::tr("Installing package failed.") + process.errorString());
+        addErrorMessage(Tr::tr("Installing package failed.") + process.errorString());
     };
     return Process(setupHandler, doneHandler, errorHandler);
 }

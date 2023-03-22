@@ -58,17 +58,17 @@ private:
             process.setCommand(cmd);
             QtcProcess *proc = &process;
             connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
-                emit stdErrData(proc->readAllStandardError());
+                handleStdErrData(proc->readAllStandardError());
             });
         };
         const auto doneHandler = [this](const QtcProcess &) {
             if (m_makeDefault)
-                emit progressMessage(Tr::tr("Application set as the default one."));
+                addProgressMessage(Tr::tr("Application set as the default one."));
             else
-                emit progressMessage(Tr::tr("Reset the default application."));
+                addProgressMessage(Tr::tr("Reset the default application."));
         };
         const auto errorHandler = [this](const QtcProcess &process) {
-            emit errorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
+            addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         };
         return Group { Process(setupHandler, doneHandler, errorHandler) };
     }

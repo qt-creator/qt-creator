@@ -25,6 +25,7 @@ public:
     static QString displayName();
 
 private:
+    friend class GenericDirectUploadStepPrivate;
     class GenericDirectUploadStepPrivate *d;
 };
 

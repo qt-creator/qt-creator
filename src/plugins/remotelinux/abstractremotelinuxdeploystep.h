@@ -58,12 +58,8 @@ public:
 
     virtual CheckResult isDeploymentPossible() const;
 
-signals:
-    void errorMessage(const QString &message);
-    void progressMessage(const QString &message);
-    void warningMessage(const QString &message);
-    void stdOutData(const QString &data);
-    void stdErrData(const QString &data);
+    void handleStdOutData(const QString &data);
+    void handleStdErrData(const QString &data);
 
 protected:
     bool fromMap(const QVariantMap &map) override;
@@ -81,14 +77,13 @@ protected:
     bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
                               const QDateTime &remoteTimestamp) const;
 
-private:
-    void handleProgressMessage(const QString &message);
-    void handleErrorMessage(const QString &message);
-    void handleWarningMessage(const QString &message);
-    void handleFinished();
-    void handleStdOutData(const QString &data);
-    void handleStdErrData(const QString &data);
+    void addProgressMessage(const QString &message);
+    void addErrorMessage(const QString &message);
+    void addWarningMessage(const QString &message);
 
+    void handleFinished();
+
+private:
     virtual bool isDeploymentNecessary() const;
     virtual Utils::Tasking::Group deployRecipe();
 

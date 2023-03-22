@@ -43,7 +43,7 @@ Group QdbStopApplicationStep::deployRecipe()
     const auto setupHandler = [this](QtcProcess &process) {
         const auto device = DeviceKitAspect::device(target()->kit());
         if (!device) {
-            emit errorMessage(Tr::tr("No device to stop the application on."));
+            addErrorMessage(Tr::tr("No device to stop the application on."));
             return TaskAction::StopWithError;
         }
         QTC_CHECK(device);
@@ -51,25 +51,25 @@ Group QdbStopApplicationStep::deployRecipe()
         process.setWorkingDirectory("/usr/bin");
         QtcProcess *proc = &process;
         connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
-            emit stdOutData(proc->readAllStandardOutput());
+            handleStdOutData(proc->readAllStandardOutput());
         });
         return TaskAction::Continue;
     };
     const auto doneHandler = [this](const QtcProcess &) {
-        emit progressMessage(Tr::tr("Stopped the running application."));
+        addProgressMessage(Tr::tr("Stopped the running application."));
     };
     const auto errorHandler = [this](const QtcProcess &process) {
         const QString errorOutput = process.cleanedStdErr();
         const QString failureMessage = Tr::tr("Could not check and possibly stop running application.");
         if (process.exitStatus() == QProcess::CrashExit) {
-            emit errorMessage(failureMessage);
+            addErrorMessage(failureMessage);
         } else if (process.result() != ProcessResult::FinishedWithSuccess) {
-            emit stdErrData(process.errorString());
+            handleStdErrData(process.errorString());
         } else if (errorOutput.contains("Could not connect: Connection refused")) {
-            emit progressMessage(Tr::tr("Checked that there is no running application."));
+            addProgressMessage(Tr::tr("Checked that there is no running application."));
         } else if (!errorOutput.isEmpty()) {
-            emit stdErrData(errorOutput);
-            emit errorMessage(failureMessage);
+            handleStdErrData(errorOutput);
+            addErrorMessage(failureMessage);
         }
     };
     return Group { Process(setupHandler, doneHandler, errorHandler) };

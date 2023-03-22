@@ -86,7 +86,7 @@ TaskItem RsyncDeployStep::mkdirTask()
         process.setCommand({deviceConfiguration()->filePath("mkdir"),
                             QStringList("-p") + remoteDirs});
         connect(&process, &QtcProcess::readyReadStandardError, this, [this, proc = &process] {
-            emit stdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
+            handleStdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
         });
     };
     const auto errorHandler = [this](const QtcProcess &process) {
@@ -97,8 +97,8 @@ TaskItem RsyncDeployStep::mkdirTask()
                 finalMessage += '\n';
             finalMessage += stdErr;
         }
-        emit errorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
-                          + '\n' + finalMessage);
+        addErrorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
+                        + '\n' + finalMessage);
     };
     return Process(setupHandler, {}, errorHandler);
 }
@@ -110,17 +110,17 @@ TaskItem RsyncDeployStep::transferTask()
         transfer.setRsyncFlags(m_flags);
         transfer.setFilesToTransfer(m_files);
         connect(&transfer, &FileTransfer::progress,
-                this, &AbstractRemoteLinuxDeployStep::stdOutData);
+                this, &AbstractRemoteLinuxDeployStep::handleStdOutData);
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
         if (result.m_error == QProcess::FailedToStart) {
-            emit errorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
+            addErrorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
         } else if (result.m_exitStatus == QProcess::CrashExit) {
-            emit errorMessage(Tr::tr("rsync crashed."));
+            addErrorMessage(Tr::tr("rsync crashed."));
         } else if (result.m_exitCode != 0) {
-            emit errorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode)
-                + "\n" + result.m_errorString);
+            addErrorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode)
+                            + "\n" + result.m_errorString);
         }
     };
     return Transfer(setupHandler, {}, errorHandler);

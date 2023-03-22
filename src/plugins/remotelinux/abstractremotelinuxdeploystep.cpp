@@ -40,19 +40,8 @@ public:
 using namespace Internal;
 
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl, Id id)
-    : BuildStep(bsl, id), d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
-{
-    connect(this, &AbstractRemoteLinuxDeployStep::errorMessage,
-            this, &AbstractRemoteLinuxDeployStep::handleErrorMessage);
-    connect(this, &AbstractRemoteLinuxDeployStep::progressMessage,
-            this, &AbstractRemoteLinuxDeployStep::handleProgressMessage);
-    connect(this, &AbstractRemoteLinuxDeployStep::warningMessage,
-            this, &AbstractRemoteLinuxDeployStep::handleWarningMessage);
-    connect(this, &AbstractRemoteLinuxDeployStep::stdOutData,
-            this, &AbstractRemoteLinuxDeployStep::handleStdOutData);
-    connect(this, &AbstractRemoteLinuxDeployStep::stdErrData,
-            this, &AbstractRemoteLinuxDeployStep::handleStdErrData);
-}
+    : BuildStep(bsl, id), d(new AbstractRemoteLinuxDeployStepPrivate)
+{}
 
 AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
 {
@@ -88,13 +77,13 @@ void AbstractRemoteLinuxDeployStep::start()
 
     const CheckResult check = isDeploymentPossible();
     if (!check) {
-        emit errorMessage(check.errorMessage());
+        addErrorMessage(check.errorMessage());
         handleFinished();
         return;
     }
 
     if (!isDeploymentNecessary()) {
-        emit progressMessage(Tr::tr("No deployment action necessary. Skipping."));
+        addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
         handleFinished();
         return;
     }
@@ -190,19 +179,19 @@ void AbstractRemoteLinuxDeployStep::doCancel()
     stop();
 }
 
-void AbstractRemoteLinuxDeployStep::handleProgressMessage(const QString &message)
+void AbstractRemoteLinuxDeployStep::addProgressMessage(const QString &message)
 {
     emit addOutput(message, OutputFormat::NormalMessage);
 }
 
-void AbstractRemoteLinuxDeployStep::handleErrorMessage(const QString &message)
+void AbstractRemoteLinuxDeployStep::addErrorMessage(const QString &message)
 {
     emit addOutput(message, OutputFormat::ErrorMessage);
     emit addTask(DeploymentTask(Task::Error, message), 1); // TODO correct?
     d->hasError = true;
 }
 
-void AbstractRemoteLinuxDeployStep::handleWarningMessage(const QString &message)
+void AbstractRemoteLinuxDeployStep::addWarningMessage(const QString &message)
 {
     emit addOutput(message, OutputFormat::ErrorMessage);
     emit addTask(DeploymentTask(Task::Warning, message), 1); // TODO correct?
@@ -214,6 +203,7 @@ void AbstractRemoteLinuxDeployStep::handleFinished()
         emit addOutput(Tr::tr("Deploy step failed."), OutputFormat::ErrorMessage);
     else
         emit addOutput(Tr::tr("Deploy step finished."), OutputFormat::NormalMessage);
+
     emit finished(!d->hasError);
 }
 

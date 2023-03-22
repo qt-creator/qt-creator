@@ -47,14 +47,14 @@ Group KillAppStep::deployRecipe()
 {
     const auto setupHandler = [this](DeviceProcessKiller &killer) {
         killer.setProcessPath(m_remoteExecutable);
-        emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
-                             .arg(m_remoteExecutable.path()));
+        addProgressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
+                                  .arg(m_remoteExecutable.path()));
     };
     const auto doneHandler = [this](const DeviceProcessKiller &) {
-        emit progressMessage(Tr::tr("Remote application killed."));
+        addProgressMessage(Tr::tr("Remote application killed."));
     };
     const auto errorHandler = [this](const DeviceProcessKiller &) {
-        emit progressMessage(Tr::tr("Failed to kill remote application. "
+        addProgressMessage(Tr::tr("Failed to kill remote application. "
                                     "Assuming it was not running."));
     };
     return Group { Killer(setupHandler, doneHandler, errorHandler) };
