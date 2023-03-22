@@ -15022,7 +15022,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>ClearCase Command</source>
-        <translation type="unfinished">ClearCase-Befehl</translation>
+        <translation>Ausführbare Datei von ClearCase</translation>
     </message>
     <message>
         <source>Arg&amp;uments:</source>
@@ -25802,7 +25802,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Diff</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Diff</translation>
     </message>
     <message>
         <source>&amp;Diff</source>
@@ -25929,7 +25929,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Rendering diff</source>
-        <translation type="unfinished"></translation>
+        <translation>Generiere Diff</translation>
     </message>
     <message>
         <source>[%1] %2</source>
@@ -27809,7 +27809,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Waiting for data...</source>
-        <translation type="unfinished">Warte auf Daten...</translation>
+        <translation>Warte auf Daten...</translation>
     </message>
     <message>
         <source>Cannot run &quot;%1&quot; in &quot;%2&quot;: %3</source>
@@ -28130,10 +28130,8 @@ Jetzt Commit ausführen?</translation>
     <message numerus="yes">
         <source>Cannot commit %n files</source>
         <translation>
-            <numerusform>Commit schlug für eine Datei fehl
-</numerusform>
-            <numerusform>Commit schlug für %n Dateien fehl
-</numerusform>
+            <numerusform>Commit schlug für eine Datei fehl</numerusform>
+            <numerusform>Commit schlug für %n Dateien fehl</numerusform>
         </translation>
     </message>
     <message>
@@ -28406,11 +28404,11 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Add instant blame annotations to editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotationen für &quot;Blame&quot; im Editor anzeigen</translation>
     </message>
     <message>
         <source>Directly annotate each line in the editor when scrolling through the document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotationen für Zeilen im Editor direkt beim Scrollen durch das Dokument anzeigen.</translation>
     </message>
     <message>
         <source>Git</source>
@@ -28418,7 +28416,7 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Instant Blame</source>
-        <translation type="unfinished"></translation>
+        <translation>Instant Blame</translation>
     </message>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
@@ -29535,7 +29533,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Git Blame</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Blame</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
@@ -29565,20 +29563,20 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Instant Blame Current Line</source>
         <comment>Avoid translating &quot;Blame&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Instant Blame für aktuelle Zeile</translation>
     </message>
     <message>
         <source>Instant Blame for &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Blame&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Instant Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Meta+G,Meta+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+G,Meta+I</translation>
     </message>
     <message>
         <source>Alt+G,Alt+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+G,Alt+I</translation>
     </message>
     <message>
         <source>Diff Current Project</source>
@@ -29713,7 +29711,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>You</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie selbst</translation>
     </message>
     <message>
         <source>Amend %1</source>
@@ -29753,39 +29751,39 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>&amp;Reviewers:</source>
-        <translation type="unfinished">&amp;Reviewer:</translation>
+        <translation>&amp;Reviewer:</translation>
     </message>
     <message>
         <source>&amp;Draft/private</source>
-        <translation type="unfinished">&amp;Entwurf/privat</translation>
+        <translation>&amp;Entwurf/privat</translation>
     </message>
     <message>
         <source>&amp;Work-in-progress</source>
-        <translation type="unfinished">&amp;In Arbeit</translation>
+        <translation>&amp;In Arbeit</translation>
     </message>
     <message>
         <source>Pushes the selected commit and all dependent commits.</source>
-        <translation type="unfinished">Push des ausgewählten Commit und aller abhängigen Commits.</translation>
+        <translation>Push des ausgewählten Commit und aller abhängigen Commits.</translation>
     </message>
     <message>
         <source>&amp;Topic:</source>
-        <translation type="unfinished">&amp;Topic:</translation>
+        <translation>&amp;Topic:</translation>
     </message>
     <message>
         <source>Push:</source>
-        <translation type="unfinished">Push:</translation>
+        <translation>Push:</translation>
     </message>
     <message>
         <source>Commits:</source>
-        <translation type="unfinished">Commits:</translation>
+        <translation>Commits:</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished">Bis:</translation>
+        <translation>Nach:</translation>
     </message>
     <message>
         <source>Number of commits</source>
-        <translation type="unfinished">Anzahl der Commits</translation>
+        <translation>Anzahl der Commits</translation>
     </message>
     <message>
         <source>Comma-separated list of reviewers.
@@ -29793,7 +29791,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
 Reviewers can be specified by nickname or email address. Spaces not allowed.
 
 Partial names can be used if they are unambiguous.</source>
-        <translation type="unfinished">Kommaseparierte Liste der Reviewer.
+        <translation>Kommaseparierte Liste der Reviewer.
 
 Reviewer können mit Benutzernamen oder E-Mail-Adresse angegeben werden. Leerzeichen sind nicht erlaubt.
 
@@ -29801,13 +29799,13 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
     <message>
         <source>Certificate Error</source>
-        <translation type="unfinished">Zertifikatsfehler</translation>
+        <translation>Zertifikatsfehler</translation>
     </message>
     <message>
         <source>Server certificate for %1 cannot be authenticated.
 Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
-        <translation type="unfinished">Server-Zertifikat für %1 kann nicht authentifiziert werden.
+        <translation>Server-Zertifikat für %1 kann nicht authentifiziert werden.
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
@@ -47647,55 +47645,55 @@ Failed to open file &quot;%1&quot;</source>
     </message>
     <message>
         <source>Waiting for data...</source>
-        <translation type="unfinished">Warte auf Daten...</translation>
+        <translation>Warte auf Daten...</translation>
     </message>
     <message>
         <source>Subversion Command</source>
-        <translation type="unfinished">Subversion-Kommando</translation>
+        <translation>Subversion-Kommando</translation>
     </message>
     <message>
         <source>Subversion command:</source>
-        <translation type="unfinished">Subversion-Kommando:</translation>
+        <translation>Subversion-Kommando:</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished">Passwort:</translation>
+        <translation>Passwort:</translation>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation</source>
-        <translation type="unfinished">Änderungen der Leerzeichen bei Annotation weglassen</translation>
+        <translation>Änderungen der Leerzeichen bei Annotation weglassen</translation>
     </message>
     <message>
         <source>Log count:</source>
-        <translation type="unfinished">Log-Anzeige beschränken auf:</translation>
+        <translation>Log-Anzeige beschränken auf:</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zeitlimit:</translation>
+        <translation>Zeitlimit:</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>Subversion</source>
-        <translation type="unfinished">Subversion</translation>
+        <translation>Subversion</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Konfiguration</translation>
+        <translation>Konfiguration</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished">Authentifizierung</translation>
+        <translation>Authentifizierung</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Sonstige Einstellungen</translation>
+        <translation>Sonstige Einstellungen</translation>
     </message>
 </context>
 <context>
