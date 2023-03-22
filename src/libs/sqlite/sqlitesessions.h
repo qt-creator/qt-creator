@@ -8,10 +8,6 @@
 #include "sqlitesessionchangeset.h"
 #include "sqlitewritestatement.h"
 
-extern "C" {
-void sqlite3session_delete(sqlite3_session *pSession);
-};
-
 namespace Sqlite {
 
 namespace Internal {
@@ -44,7 +40,6 @@ public:
                             {"INSERT INTO ", sessionsTableName, "(changeset) VALUES(?)"}),
                         database}
         , databaseName(databaseName)
-        , session{nullptr, sqlite3session_delete}
     {}
     ~Sessions();
 
@@ -64,12 +59,17 @@ public:
 private:
     void attachTables(const Utils::SmallStringVector &tables);
 
+    struct Deleter
+    {
+        SQLITE_EXPORT void operator()(sqlite3_session *statement);
+    };
+
 public:
     Database &database;
     WriteStatement<1> insertSession;
     Utils::SmallString databaseName;
     Utils::SmallStringVector tableNames;
-    std::unique_ptr<sqlite3_session, decltype(&sqlite3session_delete)> session;
+    std::unique_ptr<sqlite3_session, Deleter> session;
 };
 
 } // namespace Sqlite

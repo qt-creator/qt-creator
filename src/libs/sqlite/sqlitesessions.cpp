@@ -173,4 +173,9 @@ SessionChangeSets Sessions::changeSets() const
     return selectChangeSets.values<SessionChangeSet>(1024);
 }
 
+void Sessions::Deleter::operator()(sqlite3_session *session)
+{
+    sqlite3session_delete(session);
+}
+
 } // namespace Sqlite

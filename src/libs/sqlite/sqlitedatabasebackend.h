@@ -109,8 +109,14 @@ protected:
     static JournalMode pragmaToJournalMode(Utils::SmallStringView pragma);
 
 private:
+    struct Deleter
+    {
+        SQLITE_EXPORT void operator()(sqlite3 *database);
+    };
+
+private:
     Database &m_database;
-    sqlite3 *m_databaseHandle;
+    std::unique_ptr<sqlite3, Deleter> m_databaseHandle;
     BusyHandler m_busyHandler;
     ProgressHandler m_progressHandler;
 };

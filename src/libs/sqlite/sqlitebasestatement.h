@@ -50,8 +50,6 @@ public:
     BaseStatement(const BaseStatement &) = delete;
     BaseStatement &operator=(const BaseStatement &) = delete;
 
-    static void deleteCompiledStatement(sqlite3_stmt *m_compiledStatement);
-
     bool next() const;
     void step() const;
     void reset() const noexcept;
@@ -123,7 +121,13 @@ protected:
     ~BaseStatement() = default;
 
 private:
-    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt *)> m_compiledStatement;
+    struct Deleter
+    {
+        SQLITE_EXPORT void operator()(sqlite3_stmt *statement);
+    };
+
+private:
+    std::unique_ptr<sqlite3_stmt, Deleter> m_compiledStatement;
     Database &m_database;
 };
 

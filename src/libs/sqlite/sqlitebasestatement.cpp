@@ -27,15 +27,9 @@ extern "C" int sqlite3_carray_bind(
 namespace Sqlite {
 
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
-    : m_compiledStatement(nullptr, deleteCompiledStatement)
-    , m_database(database)
+    : m_database(database)
 {
     prepare(sqlStatement);
-}
-
-void BaseStatement::deleteCompiledStatement(sqlite3_stmt *compiledStatement)
-{
-    sqlite3_finalize(compiledStatement);
 }
 
 class UnlockNotification
@@ -483,6 +477,11 @@ ValueView BaseStatement::fetchValueView(int column) const
     }
 
     return ValueView::create(NullValue{});
+}
+
+void BaseStatement::Deleter::operator()(sqlite3_stmt *statement)
+{
+    sqlite3_finalize(statement);
 }
 
 } // namespace Sqlite
