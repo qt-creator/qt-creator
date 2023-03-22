@@ -12387,15 +12387,15 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Einstellungen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Use file *.astylerc defined in project files</source>
-        <translation type="unfinished">Verwende Datei *.astylerc wie in Projektdateien definiert</translation>
+        <translation>Verwende Datei *.astylerc wie in Projektdateien definiert</translation>
     </message>
     <message>
         <source>Use specific config file:</source>
-        <translation type="unfinished">Bestimmte Konfigurationsdatei verwenden:</translation>
+        <translation>Bestimmte Konfigurationsdatei verwenden:</translation>
     </message>
     <message>
         <source>AStyle (*.astylerc)</source>
@@ -12403,23 +12403,23 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Use file .astylerc or astylerc in HOME</source>
-        <translation type="unfinished">Verwende .astylerc oder astylerc in HOME</translation>
+        <translation>Verwende .astylerc oder astylerc in HOME</translation>
     </message>
     <message>
         <source>Use customized style:</source>
-        <translation type="unfinished">Verwende angepassten Stil:</translation>
+        <translation>Verwende angepassten Stil:</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">Konfiguration</translation>
+        <translation>Konfiguration</translation>
     </message>
     <message>
         <source>Artistic Style command:</source>
-        <translation type="unfinished">Ausführbare Datei von Artistic Style:</translation>
+        <translation>Ausführbare Datei von Artistic Style:</translation>
     </message>
     <message>
         <source>Restrict to MIME types:</source>
-        <translation type="unfinished">Auf MIME-Typen beschränken:</translation>
+        <translation>Auf MIME-Typen beschränken:</translation>
     </message>
     <message>
         <source>Artistic Style</source>
@@ -12431,15 +12431,15 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Use predefined style:</source>
-        <translation type="unfinished">Verwende vorgegebenen Stil:</translation>
+        <translation>Verwende vorgegebenen Stil:</translation>
     </message>
     <message>
         <source>Fallback style:</source>
-        <translation type="unfinished">Fallback-Stil:</translation>
+        <translation>Fallback-Stil:</translation>
     </message>
     <message>
         <source>Clang Format command:</source>
-        <translation type="unfinished">Ausführbare Datei von Clang Format:</translation>
+        <translation>Ausführbare Datei von Clang Format:</translation>
     </message>
     <message>
         <source>Clang Format</source>
@@ -12447,11 +12447,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
-        <translation type="unfinished">Verwende Datei uncrustify.cfg wie in Projektdateien definiert</translation>
+        <translation>Verwende Datei uncrustify.cfg wie in Projektdateien definiert</translation>
     </message>
     <message>
         <source>Use file specific uncrustify.cfg</source>
-        <translation type="unfinished">Dateispezifische uncrustify.cfg verwenden</translation>
+        <translation>Dateispezifische uncrustify.cfg verwenden</translation>
     </message>
     <message>
         <source>Uncrustify file (*.cfg)</source>
@@ -12459,19 +12459,19 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Use file uncrustify.cfg in HOME</source>
-        <translation type="unfinished">Verwende uncrustify.cfg in HOME</translation>
+        <translation>Verwende uncrustify.cfg in HOME</translation>
     </message>
     <message>
         <source>Format entire file if no text was selected</source>
-        <translation type="unfinished">Formatiere die ganze Datei falls kein Text selektiert ist</translation>
+        <translation>Formatiere die ganze Datei falls kein Text selektiert ist</translation>
     </message>
     <message>
         <source>For action Format Selected Text</source>
-        <translation type="unfinished">Für die Aktion &quot;Formatiere selektierten Text&quot;</translation>
+        <translation>Für die Aktion &quot;Formatiere selektierten Text&quot;</translation>
     </message>
     <message>
         <source>Uncrustify command:</source>
-        <translation type="unfinished">Ausführbare Datei von Uncrustify:</translation>
+        <translation>Ausführbare Datei von Uncrustify:</translation>
     </message>
     <message>
         <source>Uncrustify</source>
@@ -12487,19 +12487,19 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Enable auto format on file save</source>
-        <translation type="unfinished">Beim Speichern einer Datei automatisch formatieren</translation>
+        <translation>Beim Speichern einer Datei automatisch formatieren</translation>
     </message>
     <message>
         <source>Tool:</source>
-        <translation type="unfinished">Werkzeug:</translation>
+        <translation>Werkzeug:</translation>
     </message>
     <message>
         <source>Restrict to files contained in the current project</source>
-        <translation type="unfinished">Auf Dateien des aktuellen Projekts beschränken</translation>
+        <translation>Auf Dateien des aktuellen Projekts beschränken</translation>
     </message>
     <message>
         <source>Automatic Formatting on File Save</source>
-        <translation type="unfinished">Automatische Formatierung beim Speichern einer Datei</translation>
+        <translation>Automatische Formatierung beim Speichern einer Datei</translation>
     </message>
     <message>
         <source>General</source>
@@ -12650,7 +12650,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Rückgängig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
 </context>
 <context>
@@ -14337,11 +14337,11 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Use global settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellungen verwenden</translation>
     </message>
     <message>
         <source>ClangFormat settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für ClangFormat:</translation>
     </message>
     <message>
         <source>Indenting only</source>
@@ -14486,7 +14486,7 @@ Ausgabe:
     </message>
     <message>
         <source>Analyze File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei analysieren...</translation>
     </message>
     <message>
         <source>File</source>
@@ -14642,15 +14642,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Analyze Project with %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt mit %1 analysieren...</translation>
     </message>
     <message>
         <source>Analyze Current File with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Datei mit %1 analysieren</translation>
     </message>
     <message>
         <source>%1 tool stopped by user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeug %1 durch den Benutzer gestoppt.</translation>
     </message>
     <message>
         <source>Cannot analyze current file: No files open.</source>
@@ -14856,11 +14856,11 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Go to Clang-Tidy</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Clang-Tidy wechseln</translation>
     </message>
     <message>
         <source>Go to Clazy</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Clazy wechseln</translation>
     </message>
     <message>
         <source>Remove Selected</source>
@@ -14900,7 +14900,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Default Clang-Tidy and Clazy checks</source>
-        <translation type="unfinished">Vorgegebene Clang-Tidy- und Clazy-Prüfungen</translation>
+        <translation>Vorgegebene Clang-Tidy- und Clazy-Prüfungen</translation>
     </message>
     <message>
         <source>Options for %1</source>
@@ -20875,7 +20875,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Cppcheck Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration für Cppcheck</translation>
     </message>
     <message>
         <source>Analyze</source>
@@ -20899,7 +20899,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Cppcheck Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldungen von Cppcheck</translation>
     </message>
 </context>
 <context>
