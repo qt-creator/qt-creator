@@ -218,14 +218,8 @@ void TerminalWidget::setupColors()
 
     m_currentColors = newColors;
 
-    m_surface->setColors(TerminalSettings::instance().foregroundColor.value(),
-                         TerminalSettings::instance().backgroundColor.value());
-
-    for (int i = 0; i < 16; ++i) {
-        m_surface->setAnsiColor(i, TerminalSettings::instance().colors[i].value());
-    }
-
-    clearContents();
+    updateViewport();
+    update();
 }
 
 void TerminalWidget::setupActions()
@@ -334,6 +328,18 @@ void TerminalWidget::configBlinkTimer()
         else
             m_cursorBlinkTimer.stop();
     }
+}
+
+QColor TerminalWidget::toQColor(std::variant<int, QColor> color) const
+{
+    if (std::holds_alternative<int>(color)) {
+        int idx = std::get<int>(color);
+        if (idx >= 0 && idx < 18)
+            return m_currentColors[idx];
+
+        return m_currentColors[Internal::ColorIndex::Background];
+    }
+    return std::get<QColor>(color);
 }
 
 void TerminalWidget::setFont(const QFont &font)
@@ -747,8 +753,9 @@ void TerminalWidget::paintSelectionOrBackground(QPainter &p,
 
     if (isInSelection)
         p.fillRect(cellRect, TerminalSettings::instance().selectionColor.value());
-    else if (cell.background)
-        p.fillRect(cellRect, *cell.background);
+    else if (!(std::holds_alternative<int>(cell.backgroundColor)
+               && std::get<int>(cell.backgroundColor) == 17))
+        p.fillRect(cellRect, toQColor(cell.backgroundColor));
 }
 
 int TerminalWidget::paintCell(QPainter &p,
@@ -759,7 +766,7 @@ int TerminalWidget::paintCell(QPainter &p,
 {
     paintSelectionOrBackground(p, cell, cellRect, gridPos);
 
-    p.setPen(cell.foreground);
+    p.setPen(toQColor(cell.foregroundColor));
 
     f.setBold(cell.bold);
     f.setItalic(cell.italic);
@@ -909,12 +916,10 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
 
     p.save();
 
-    const QColor defaultBgColor = m_surface->defaultBgColor();
-
     if (paintLog().isDebugEnabled())
         p.fillRect(event->rect(), QColor::fromRgb(rand() % 60, rand() % 60, rand() % 60));
     else
-        p.fillRect(event->rect(), defaultBgColor);
+        p.fillRect(event->rect(), m_currentColors[Internal::ColorIndex::Background]);
 
     int scrollOffset = verticalScrollBar()->value();
     int offset = -(scrollOffset * m_cellSize.height());
@@ -929,7 +934,8 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
 
     p.restore();
 
-    p.fillRect(QRectF{{0, 0}, QSizeF{(qreal) width(), topMargin()}}, defaultBgColor);
+    p.fillRect(QRectF{{0, 0}, QSizeF{(qreal) width(), topMargin()}},
+               m_currentColors[Internal::ColorIndex::Background]);
 
     if (selectionLog().isDebugEnabled()) {
         if (m_selection)
@@ -1295,8 +1301,7 @@ bool TerminalWidget::event(QEvent *event)
 
     if (event->type() == QEvent::Paint) {
         QPainter p(this);
-        p.fillRect(QRect(QPoint(0, 0), size()),
-                   TerminalSettings::instance().backgroundColor.value());
+        p.fillRect(QRect(QPoint(0, 0), size()), m_currentColors[Internal::ColorIndex::Background]);
         return true;
     }
 

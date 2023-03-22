@@ -21,7 +21,7 @@ public:
     class Line
     {
     public:
-        Line(int cols, const VTermScreenCell *cells, VTermState *vts);
+        Line(int cols, const VTermScreenCell *cells);
         Line(Line &&other) = default;
         Line() = delete;
 
@@ -44,9 +44,7 @@ public:
     const Line &line(size_t index) const { return m_deque.at(index); };
     const std::deque<Line> &lines() const { return m_deque; };
 
-    void emplace(int cols,
-                 const VTermScreenCell *cells,
-                 VTermState *vts);
+    void emplace(int cols, const VTermScreenCell *cells);
     void popto(int cols, VTermScreenCell *cells);
 
     void clear();

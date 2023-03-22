@@ -166,6 +166,8 @@ protected:
 
     void configBlinkTimer();
 
+    QColor toQColor(std::variant<int, QColor> color) const;
+
 private:
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<Internal::TerminalSurface> m_surface;

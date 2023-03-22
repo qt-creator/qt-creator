@@ -89,6 +89,18 @@ struct TerminalSurfacePrivate
         vterm_state_set_unrecognised_fallbacks(vts, &m_vtermStateFallbacks, this);
         vterm_state_set_bold_highbright(vts, true);
 
+        VTermColor fg;
+        VTermColor bg;
+        vterm_color_indexed(&fg, ColorIndex::Foreground);
+        vterm_color_indexed(&bg, ColorIndex::Background);
+        vterm_state_set_default_colors(vts, &fg, &bg);
+
+        for (int i = 0; i < 16; ++i) {
+            VTermColor col;
+            vterm_color_indexed(&col, i);
+            vterm_state_set_palette_color(vts, i, &col);
+        }
+
         vterm_screen_reset(m_vtermScreen, 1);
     }
 
@@ -99,6 +111,25 @@ struct TerminalSurfacePrivate
         vterm_get_size(m_vterm.get(), &rows, &cols);
 
         return QSize(cols, rows);
+    }
+
+    std::variant<int, QColor> toVariantColor(const VTermColor &color)
+    {
+        if (color.type & VTERM_COLOR_DEFAULT_BG)
+            return ColorIndex::Background;
+        else if (color.type & VTERM_COLOR_DEFAULT_FG)
+            return ColorIndex::Foreground;
+        else if (color.type & VTERM_COLOR_INDEXED) {
+            if (color.indexed.idx >= 16) {
+                VTermColor c = color;
+                vterm_state_convert_color_to_rgb(vterm_obtain_state(m_vterm.get()), &c);
+                return toQColor(c);
+            }
+            return color.indexed.idx;
+        } else if (color.type == VTERM_COLOR_RGB)
+            return toQColor(color);
+        else
+            return -1;
     }
 
     TerminalCell toCell(const VTermScreenCell &cell)
@@ -113,13 +144,8 @@ struct TerminalSurfacePrivate
         if (static_cast<bool>(cell.attrs.reverse))
             std::swap(fg, bg);
 
-        const QColor cellBgColor = toQColor(*bg);
-        const QColor cellFgColor = toQColor(*fg);
-
-        if (cellBgColor != m_defaultBgColor)
-            result.background = toQColor(*bg);
-
-        result.foreground = cellFgColor;
+        result.backgroundColor = toVariantColor(*bg);
+        result.foregroundColor = toVariantColor(*fg);
 
         result.bold = cell.attrs.bold;
         result.strikeOut = cell.attrs.strike;
@@ -151,26 +177,6 @@ struct TerminalSurfacePrivate
         return result;
     }
 
-    VTermColor defaultBgColor() const
-    {
-        VTermColor defaultBg;
-        if (!m_altscreen) {
-            VTermColor defaultFg;
-            vterm_state_get_default_colors(vterm_obtain_state(m_vterm.get()),
-                                           &defaultFg,
-                                           &defaultBg);
-            // We want to compare the cell bg against this later and cells don't
-            // set DEFAULT_BG
-            defaultBg.type = VTERM_COLOR_RGB;
-            return defaultBg;
-        } // This is a slightly better guess when in an altscreen
-
-        VTermPos vtp{0, 0};
-        static VTermScreenCell refCell{};
-        vterm_screen_get_cell(m_vtermScreen, vtp, &refCell);
-        return refCell.bg;
-    }
-
     // Callbacks from vterm
     void invalidate(VTermRect rect)
     {
@@ -185,7 +191,7 @@ struct TerminalSurfacePrivate
 
     int sb_pushline(int cols, const VTermScreenCell *cells)
     {
-        m_scrollback->emplace(cols, cells, vterm_obtain_state(m_vterm.get()));
+        m_scrollback->emplace(cols, cells);
         emit q->fullSizeChanged(q->fullSize());
         return 1;
     }
@@ -284,8 +290,6 @@ struct TerminalSurfacePrivate
         static VTermScreenCell refCell{};
         VTermPos vtp{y, x};
         vterm_screen_get_cell(m_vtermScreen, vtp, &refCell);
-        vterm_screen_convert_color_to_rgb(m_vtermScreen, &refCell.fg);
-        vterm_screen_convert_color_to_rgb(m_vtermScreen, &refCell.bg);
 
         return &refCell;
     }
@@ -295,7 +299,6 @@ struct TerminalSurfacePrivate
     VTermScreenCallbacks m_vtermScreenCallbacks;
     VTermStateFallbacks m_vtermStateFallbacks;
 
-    QColor m_defaultBgColor;
     Cursor m_cursor;
     QString m_currentCommand;
 
@@ -352,8 +355,14 @@ std::u32string::value_type TerminalSurface::fetchCharAt(int x, int y) const
 
 TerminalCell TerminalSurface::fetchCell(int x, int y) const
 {
-    static TerminalCell
-        emptyCell{1, {}, {}, false, {}, std::nullopt, QTextCharFormat::NoUnderline, false};
+    static TerminalCell emptyCell{1,
+                                  {},
+                                  {},
+                                  false,
+                                  ColorIndex::Foreground,
+                                  ColorIndex::Background,
+                                  QTextCharFormat::NoUnderline,
+                                  false};
 
     QTC_ASSERT(y >= 0, return emptyCell);
     QTC_ASSERT(y < fullSize().height() && x < fullSize().width(), return emptyCell);
@@ -398,33 +407,6 @@ void TerminalSurface::dataFromPty(const QByteArray &data)
 void TerminalSurface::flush()
 {
     vterm_screen_flush_damage(d->m_vtermScreen);
-}
-
-void TerminalSurface::setColors(QColor foreground, QColor background)
-{
-    VTermState *vts = vterm_obtain_state(d->m_vterm.get());
-
-    VTermColor fg;
-    VTermColor bg;
-
-    vterm_color_rgb(&fg, foreground.red(), foreground.green(), foreground.blue());
-    vterm_color_rgb(&bg, background.red(), background.green(), background.blue());
-
-    d->m_defaultBgColor = background;
-
-    vterm_state_set_default_colors(vts, &fg, &bg);
-    vterm_screen_reset(d->m_vtermScreen, 1);
-}
-
-void TerminalSurface::setAnsiColor(int index, QColor color)
-{
-    VTermState *vts = vterm_obtain_state(d->m_vterm.get());
-
-    VTermColor col;
-    vterm_color_rgb(&col, color.red(), color.green(), color.blue());
-    vterm_state_set_palette_color(vts, index, &col);
-
-    vterm_screen_reset(d->m_vtermScreen, 1);
 }
 
 void TerminalSurface::pasteFromClipboard(const QString &clipboardText)
@@ -494,11 +476,6 @@ Cursor TerminalSurface::cursor() const
         cursor.position.setY(cursor.position.y() + d->m_scrollback->size());
 
     return cursor;
-}
-
-QColor TerminalSurface::defaultBgColor() const
-{
-    return toQColor(d->defaultBgColor());
 }
 
 ShellIntegration *TerminalSurface::shellIntegration() const

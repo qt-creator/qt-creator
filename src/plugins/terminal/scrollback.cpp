@@ -10,15 +10,11 @@
 
 namespace Terminal::Internal {
 
-Scrollback::Line::Line(int cols, const VTermScreenCell *cells, VTermState *vts)
+Scrollback::Line::Line(int cols, const VTermScreenCell *cells)
     : m_cols(cols)
     , m_cells(std::make_unique<VTermScreenCell[]>(cols))
 {
     memcpy(m_cells.get(), cells, cols * sizeof(cells[0]));
-    for (int i = 0; i < cols; ++i) {
-        vterm_state_convert_color_to_rgb(vts, &m_cells[i].fg);
-        vterm_state_convert_color_to_rgb(vts, &m_cells[i].bg);
-    }
 }
 
 const VTermScreenCell *Scrollback::Line::cell(int i) const
@@ -31,9 +27,9 @@ Scrollback::Scrollback(size_t capacity)
     : m_capacity(capacity)
 {}
 
-void Scrollback::emplace(int cols, const VTermScreenCell *cells, VTermState *vts)
+void Scrollback::emplace(int cols, const VTermScreenCell *cells)
 {
-    m_deque.emplace_front(cols, cells, vts);
+    m_deque.emplace_front(cols, cells);
     while (m_deque.size() > m_capacity) {
         m_deque.pop_back();
     }

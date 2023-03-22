@@ -18,14 +18,16 @@ class Scrollback;
 
 struct TerminalSurfacePrivate;
 
+enum ColorIndex { Foreground = 16, Background = 17 };
+
 struct TerminalCell
 {
     int width;
     QString text;
     bool bold{false};
     bool italic{false};
-    QColor foreground;
-    std::optional<QColor> background;
+    std::variant<int, QColor> foregroundColor;
+    std::variant<int, QColor> backgroundColor;
     QTextCharFormat::UnderlineStyle underlineStyle{QTextCharFormat::NoUnderline};
     bool strikeOut{false};
 };
@@ -81,9 +83,6 @@ public:
     void dataFromPty(const QByteArray &data);
     void flush();
 
-    void setColors(QColor foreground, QColor background);
-    void setAnsiColor(int index, QColor color);
-
     void pasteFromClipboard(const QString &text);
 
     void sendKey(Qt::Key key);
@@ -93,8 +92,6 @@ public:
     int invertedScrollOffset() const;
 
     Cursor cursor() const;
-
-    QColor defaultBgColor() const;
 
     ShellIntegration *shellIntegration() const;
 
