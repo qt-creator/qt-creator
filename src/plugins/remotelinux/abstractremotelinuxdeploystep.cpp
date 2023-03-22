@@ -71,8 +71,56 @@ bool AbstractRemoteLinuxDeployStep::hasRemoteFileChanged(
     return d->deployTimes.hasRemoteFileChanged(deployableFile, kit(), remoteTimestamp);
 }
 
-void AbstractRemoteLinuxDeployStep::start()
+CheckResult AbstractRemoteLinuxDeployStep::isDeploymentPossible() const
 {
+    if (!deviceConfiguration())
+        return CheckResult::failure(Tr::tr("No device configuration set."));
+    return CheckResult::success();
+}
+
+void AbstractRemoteLinuxDeployStep::setInternalInitializer(const std::function<CheckResult ()> &init)
+{
+    d->internalInit = init;
+}
+
+void AbstractRemoteLinuxDeployStep::setRunPreparer(const std::function<void ()> &prep)
+{
+    d->runPreparer = prep;
+}
+
+bool AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
+{
+    if (!BuildStep::fromMap(map))
+        return false;
+    d->deployTimes.importDeployTimes(map);
+    return true;
+}
+
+QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
+{
+    QVariantMap map = BuildStep::toMap();
+    map.insert(d->deployTimes.exportDeployTimes());
+    return map;
+}
+
+bool AbstractRemoteLinuxDeployStep::init()
+{
+    QTC_ASSERT(d->internalInit, return false);
+    const CheckResult canDeploy = d->internalInit();
+    if (!canDeploy) {
+        emit addOutput(Tr::tr("Cannot deploy: %1").arg(canDeploy.errorMessage()),
+                       OutputFormat::ErrorMessage);
+    }
+    return canDeploy;
+}
+
+void AbstractRemoteLinuxDeployStep::doRun()
+{
+    if (d->runPreparer)
+        d->runPreparer();
+
+    d->hasError = false;
+
     QTC_ASSERT(!d->m_taskTree, return);
 
     const CheckResult check = isDeploymentPossible();
@@ -98,76 +146,6 @@ void AbstractRemoteLinuxDeployStep::start()
     d->m_taskTree->start();
 }
 
-void AbstractRemoteLinuxDeployStep::stop()
-{
-    if (!d->m_taskTree)
-        return;
-    d->m_taskTree.reset();
-    handleFinished();
-}
-
-CheckResult AbstractRemoteLinuxDeployStep::isDeploymentPossible() const
-{
-    if (!deviceConfiguration())
-        return CheckResult::failure(Tr::tr("No device configuration set."));
-    return CheckResult::success();
-}
-
-QVariantMap AbstractRemoteLinuxDeployStep::exportDeployTimes() const
-{
-    return d->deployTimes.exportDeployTimes();
-}
-
-void AbstractRemoteLinuxDeployStep::importDeployTimes(const QVariantMap &map)
-{
-    d->deployTimes.importDeployTimes(map);
-}
-
-void AbstractRemoteLinuxDeployStep::setInternalInitializer(const std::function<CheckResult ()> &init)
-{
-    d->internalInit = init;
-}
-
-void AbstractRemoteLinuxDeployStep::setRunPreparer(const std::function<void ()> &prep)
-{
-    d->runPreparer = prep;
-}
-
-bool AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
-{
-    if (!BuildStep::fromMap(map))
-        return false;
-    importDeployTimes(map);
-    return true;
-}
-
-QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
-{
-    QVariantMap map = BuildStep::toMap();
-    map.insert(exportDeployTimes());
-    return map;
-}
-
-bool AbstractRemoteLinuxDeployStep::init()
-{
-    QTC_ASSERT(d->internalInit, return false);
-    const CheckResult canDeploy = d->internalInit();
-    if (!canDeploy) {
-        emit addOutput(Tr::tr("Cannot deploy: %1").arg(canDeploy.errorMessage()),
-                       OutputFormat::ErrorMessage);
-    }
-    return canDeploy;
-}
-
-void AbstractRemoteLinuxDeployStep::doRun()
-{
-    if (d->runPreparer)
-        d->runPreparer();
-
-    d->hasError = false;
-    start();
-}
-
 void AbstractRemoteLinuxDeployStep::doCancel()
 {
     if (d->hasError)
@@ -176,7 +154,11 @@ void AbstractRemoteLinuxDeployStep::doCancel()
     emit addOutput(Tr::tr("User requests deployment to stop; cleaning up."),
                    OutputFormat::NormalMessage);
     d->hasError = true;
-    stop();
+
+    if (!d->m_taskTree)
+        return;
+    d->m_taskTree.reset();
+    handleFinished();
 }
 
 void AbstractRemoteLinuxDeployStep::addProgressMessage(const QString &message)

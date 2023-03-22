@@ -49,11 +49,6 @@ public:
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~AbstractRemoteLinuxDeployStep() override;
 
-    void start();
-    void stop();
-
-    QVariantMap exportDeployTimes() const;
-    void importDeployTimes(const QVariantMap &map);
     ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
 
     virtual CheckResult isDeploymentPossible() const;
