@@ -217,7 +217,8 @@ bool AndroidCreateKeystoreCertificate::checkCertificateAlias()
 
 bool AndroidCreateKeystoreCertificate::checkCountryCode()
 {
-    if (!m_countryLineEdit->text().contains(QRegularExpression("[A-Z]{2}"))) {
+    static const QRegularExpression re("[A-Z]{2}");
+    if (!m_countryLineEdit->text().contains(re)) {
         m_infoLabel->show();
         m_infoLabel->setText(Tr::tr("Invalid country code."));
         return false;

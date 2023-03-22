@@ -306,7 +306,7 @@ void AndroidConfig::parseDependenciesJson()
 
     auto fillQtVersionsRange = [](const QString &shortVersion) {
         QList<QVersionNumber> versions;
-        const QRegularExpression re(R"(([0-9]\.[0-9]+\.)\[([0-9]+)\-([0-9]+)\])");
+        static const QRegularExpression re(R"(([0-9]\.[0-9]+\.)\[([0-9]+)\-([0-9]+)\])");
         QRegularExpressionMatch match = re.match(shortVersion);
         if (match.hasMatch() && match.lastCapturedIndex() == 3)
             for (int i = match.captured(2).toInt(); i <= match.captured(3).toInt(); ++i)
@@ -892,7 +892,7 @@ QVersionNumber AndroidConfig::ndkVersion(const FilePath &ndkPath)
             // r6a
             // r10e (64 bit)
             QString content = QString::fromUtf8(reader.data());
-            QRegularExpression re("(r)(?<major>[0-9]{1,2})(?<minor>[a-z]{1,1})");
+            static const QRegularExpression re("(r)(?<major>[0-9]{1,2})(?<minor>[a-z]{1,1})");
             QRegularExpressionMatch match = re.match(content);
             if (match.hasMatch()) {
                 QString major = match.captured("major");

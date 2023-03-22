@@ -863,7 +863,7 @@ void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
     if (!contents)
         return;
 
-    QRegularExpression regex(QLatin1String("\"sdkBuildToolsRevision\":.\"[0-9.]+\""));
+    static const QRegularExpression regex(R"("sdkBuildToolsRevision":."[0-9.]+")");
     QRegularExpressionMatch match = regex.match(QString::fromUtf8(contents.value()));
     const QString version = buildToolsVersion().toString();
     if (match.hasMatch() && !version.isEmpty()) {
@@ -925,7 +925,8 @@ void AndroidBuildApkStep::setBuildToolsVersion(const QVersionNumber &version)
 void AndroidBuildApkStep::stdError(const QString &output)
 {
     QString newOutput = output;
-    newOutput.remove(QRegularExpression("^(\\n)+"));
+    static const QRegularExpression re("^(\\n)+");
+    newOutput.remove(re);
 
     if (newOutput.isEmpty())
         return;

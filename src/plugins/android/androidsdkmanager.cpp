@@ -549,7 +549,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
         } else if (assertionFound) {
             // The first assertion is to start reviewing licenses. Always accept.
             reviewingLicenses = true;
-            QRegularExpression reg("(\\d+\\sof\\s)(?<steps>\\d+)");
+            static const QRegularExpression reg(R"((\d+\sof\s)(?<steps>\d+))");
             QRegularExpressionMatch match = reg.match(stdOut);
             if (match.hasMatch())
                 steps = match.captured("steps").toInt();

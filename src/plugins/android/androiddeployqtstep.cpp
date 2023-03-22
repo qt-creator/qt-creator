@@ -620,7 +620,8 @@ void AndroidDeployQtStep::stdError(const QString &line)
     emit addOutput(line, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
 
     QString newOutput = line;
-    newOutput.remove(QRegularExpression("^(\\n)+"));
+    static const QRegularExpression re("^(\\n)+");
+    newOutput.remove(re);
 
     if (newOutput.isEmpty())
         return;
