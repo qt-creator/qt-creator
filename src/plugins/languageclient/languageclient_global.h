@@ -29,5 +29,7 @@ const char LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_N
 const char LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_ID[] = "Workspace Functions and Methods";
 const char LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::LanguageClient", "Functions and Methods in Workspace");
 
+const char CALL_HIERARCHY_FACTORY_ID[] = "LanguageClient.CallHierarchy";
+
 } // namespace Constants
 } // namespace LanguageClient

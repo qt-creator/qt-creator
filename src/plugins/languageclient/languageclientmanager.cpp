@@ -11,6 +11,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/navigationwidget.h>
 
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/progresssupport.h>
@@ -448,6 +449,8 @@ QList<Client *> LanguageClientManager::reachableClients()
 void LanguageClientManager::editorOpened(Core::IEditor *editor)
 {
     using namespace TextEditor;
+    using namespace Core;
+
     if (auto *textEditor = qobject_cast<BaseTextEditor *>(editor)) {
         if (TextEditorWidget *widget = textEditor->editorWidget()) {
             connect(widget, &TextEditorWidget::requestLinkAt, this,
@@ -465,6 +468,14 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                     [document = textEditor->textDocument()](const QTextCursor &cursor) {
                         if (auto client = clientForDocument(document))
                             client->symbolSupport().renameSymbol(document, cursor);
+                    });
+            connect(widget, &TextEditorWidget::requestCallHierarchy, this,
+                    [this, textEditor](const QTextCursor &cursor) {
+                        if (auto client = clientForDocument(textEditor->textDocument())) {
+                            emit openCallHierarchy();
+                            NavigationWidget::activateSubWidget(Constants::CALL_HIERARCHY_FACTORY_ID,
+                                                                Side::Left);
+                        }
                     });
             connect(widget, &TextEditorWidget::cursorPositionChanged, this, [widget]() {
                 if (Client *client = clientForDocument(widget->textDocument()))

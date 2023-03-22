@@ -437,6 +437,7 @@ public:
 
     virtual void findUsages();
     virtual void renameSymbolUnderCursor();
+    virtual void openCallHierarchy();
 
     /// Abort code assistant if it is running.
     void abortAssist();
@@ -487,6 +488,7 @@ signals:
                        bool resolveTarget, bool inNextSplit);
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
+    void requestCallHierarchy(const QTextCursor &cursor);
     void optionalActionMaskChanged();
     void toolbarOutlineChanged(QWidget *newOutline);
 

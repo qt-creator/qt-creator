@@ -431,6 +431,10 @@ void CppEditorPlugin::initialize()
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
 
+    cmd = ActionManager::command(TextEditor::Constants::OPEN_CALL_HIERARCHY);
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
+    cppToolsMenu->addAction(cmd);
+
     // Refactoring sub-menu
     Command *sep = contextMenu->addSeparator();
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));

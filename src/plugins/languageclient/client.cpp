@@ -3,6 +3,7 @@
 
 #include "client.h"
 
+#include "callhierarchy.h"
 #include "diagnosticmanager.h"
 #include "documentsymbolcache.h"
 #include "languageclientcompletionassist.h"
@@ -879,6 +880,8 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
         if (symbolSupport().supportsRename(widget->textDocument()))
             optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
+        if (CallHierarchyFactory::supportsCallHierarchy(this, textEditor->document()))
+            optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
         widget->setOptionalActions(optionalActions);
     }
 }

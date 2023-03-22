@@ -208,6 +208,7 @@ const char FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.FollowSymbol
 const char FIND_USAGES[] = "TextEditor.FindUsages";
 // moved from CppEditor to TextEditor avoid breaking the setting by using the old key
 const char RENAME_SYMBOL[] = "CppEditor.RenameSymbolUnderCursor";
+const char OPEN_CALL_HIERARCHY[] = "TextEditor.OpenCallHierarchy";
 const char JUMP_TO_FILE_UNDER_CURSOR[] = "TextEditor.JumpToFileUnderCursor";
 const char JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.JumpToFileUnderCursorInNextSplit";
 

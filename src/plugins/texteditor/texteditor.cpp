@@ -2348,6 +2348,11 @@ void TextEditorWidget::renameSymbolUnderCursor()
     emit requestRename(textCursor());
 }
 
+void TextEditorWidget::openCallHierarchy()
+{
+    emit requestCallHierarchy(textCursor());
+}
+
 void TextEditorWidget::abortAssist()
 {
     d->m_codeAssistant.destroyContext();
@@ -8224,6 +8229,11 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
         const auto findUsage = ActionManager::command(Constants::FIND_USAGES)->action();
         if (!menu->actions().contains(findUsage))
             menu->addAction(findUsage);
+    }
+    if (optionalActions() & TextEditorActionHandler::CallHierarchy) {
+        const auto callHierarchy = ActionManager::command(Constants::OPEN_CALL_HIERARCHY)->action();
+        if (!menu->actions().contains(callHierarchy))
+            menu->addAction(callHierarchy);
     }
 
     menu->addSeparator();

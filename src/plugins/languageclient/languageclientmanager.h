@@ -83,6 +83,7 @@ signals:
     void clientInitialized(Client *client);
     void clientRemoved(Client *client);
     void shutdownFinished();
+    void openCallHierarchy();
 
 private:
     LanguageClientManager(QObject *parent);
