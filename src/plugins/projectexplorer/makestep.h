@@ -55,11 +55,6 @@ public:
 
     Utils::Environment makeEnvironment() const;
 
-    // FIXME: All unused, remove in 4.15.
-    void setBuildTarget(const QString &buildTarget) { setSelectedBuildTarget(buildTarget); }
-    bool buildsTarget(const QString &target) const;
-    void setBuildTarget(const QString &target, bool on);
-
 protected:
     void supportDisablingForSubdirs() { m_disablingForSubDirsSupported = true; }
     virtual QStringList displayArguments() const;
