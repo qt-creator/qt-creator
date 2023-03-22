@@ -47,6 +47,9 @@ QWidget *TerminalSettingsPage::widget()
 
     // clang-format off
     Column {
+        Row {
+            settings.enableTerminal, st,
+        },
         Group {
             title(Tr::tr("Font")),
             Row {

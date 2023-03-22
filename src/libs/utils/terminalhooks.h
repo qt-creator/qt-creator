@@ -37,7 +37,7 @@ private:
 };
 
 namespace Terminal {
-struct HooksPrivate;
+class HooksPrivate;
 
 enum class ExitBehavior { Close, Restart, Keep };
 
@@ -61,17 +61,28 @@ QTCREATOR_UTILS_EXPORT FilePath defaultShellForDevice(const FilePath &deviceRoot
 class QTCREATOR_UTILS_EXPORT Hooks
 {
 public:
-    using OpenTerminalHook = Hook<void, const OpenTerminalParameters &>;
-    using CreateTerminalProcessInterfaceHook = Hook<ProcessInterface *>;
+    using OpenTerminal = std::function<void(const OpenTerminalParameters &)>;
+    using CreateTerminalProcessInterface = std::function<ProcessInterface *()>;
+
+    struct CallbackSet
+    {
+        OpenTerminal openTerminal;
+        CreateTerminalProcessInterface createTerminalProcessInterface;
+    };
+
     using GetTerminalCommandsForDevicesHook = Hook<QList<NameAndCommandLine>>;
 
 public:
     static Hooks &instance();
     ~Hooks();
 
-    OpenTerminalHook &openTerminalHook();
-    CreateTerminalProcessInterfaceHook &createTerminalProcessInterfaceHook();
     GetTerminalCommandsForDevicesHook &getTerminalCommandsForDevicesHook();
+
+    void openTerminal(const OpenTerminalParameters &parameters) const;
+    ProcessInterface *createTerminalProcessInterface() const;
+
+    void addCallbackSet(const QString &name, const CallbackSet &callbackSet);
+    void removeCallbackSet(const QString &name);
 
 private:
     Hooks();

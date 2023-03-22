@@ -64,6 +64,13 @@ TerminalSettings::TerminalSettings()
     setAutoApply(false);
     setSettingsGroup("Terminal");
 
+    enableTerminal.setSettingsKey("EnableTerminal");
+    enableTerminal.setLabelText(Tr::tr("Use internal Terminal"));
+    enableTerminal.setToolTip(
+        Tr::tr("If enabled, use the internal terminal when \"Run In Terminal\" is "
+               "enabled and for \"Open Terminal here\"."));
+    enableTerminal.setDefaultValue(true);
+
     font.setSettingsKey("FontFamily");
     font.setLabelText(Tr::tr("Family:"));
     font.setHistoryCompleter("Terminal.Fonts.History");
@@ -121,6 +128,7 @@ TerminalSettings::TerminalSettings()
     registerAspect(&fontSize);
     registerAspect(&shell);
     registerAspect(&allowBlinkingCursor);
+    registerAspect(&enableTerminal);
 }
 
 } // namespace Terminal

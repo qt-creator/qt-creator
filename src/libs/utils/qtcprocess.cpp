@@ -732,7 +732,7 @@ public:
         if (m_setup.m_ptyData)
             return new PtyProcessImpl;
         if (m_setup.m_terminalMode != TerminalMode::Off)
-            return Terminal::Hooks::instance().createTerminalProcessInterfaceHook()();
+            return Terminal::Hooks::instance().createTerminalProcessInterface();
 
         const ProcessImpl impl = m_setup.m_processImpl == ProcessImpl::Default
                                ? defaultProcessImpl() : m_setup.m_processImpl;

@@ -8,6 +8,7 @@
 #include "terminalcommand.h"
 #include "terminalinterface.h"
 
+#include <QMutex>
 #include <QTemporaryFile>
 
 namespace Utils::Terminal {
@@ -88,21 +89,65 @@ public:
     ExternalTerminalProcessImpl() { setStubCreator(new ProcessStubCreator(this)); }
 };
 
-struct HooksPrivate
+class HooksPrivate
 {
+public:
     HooksPrivate()
-        : m_openTerminalHook([](const OpenTerminalParameters &parameters) {
+        : m_getTerminalCommandsForDevicesHook([] { return QList<NameAndCommandLine>{}; })
+    {
+        auto openTerminal = [](const OpenTerminalParameters &parameters) {
             DeviceFileHooks::instance().openTerminal(parameters.workingDirectory.value_or(
                                                          FilePath{}),
                                                      parameters.environment.value_or(Environment{}));
-        })
-        , m_createTerminalProcessInterfaceHook([] { return new ExternalTerminalProcessImpl(); })
-        , m_getTerminalCommandsForDevicesHook([] { return QList<NameAndCommandLine>{}; })
-    {}
+        };
+        auto createProcessInterface = []() { return new ExternalTerminalProcessImpl(); };
 
-    Hooks::OpenTerminalHook m_openTerminalHook;
-    Hooks::CreateTerminalProcessInterfaceHook m_createTerminalProcessInterfaceHook;
+        addCallbackSet("External", {openTerminal, createProcessInterface});
+    }
+
+    void addCallbackSet(const QString &name, const Hooks::CallbackSet &callbackSet)
+    {
+        QMutexLocker lk(&m_mutex);
+        m_callbackSets.push_back(qMakePair(name, callbackSet));
+
+        m_createTerminalProcessInterface
+            = m_callbackSets.back().second.createTerminalProcessInterface;
+        m_openTerminal = m_callbackSets.back().second.openTerminal;
+    }
+
+    void removeCallbackSet(const QString &name)
+    {
+        if (name == "External")
+            return;
+
+        QMutexLocker lk(&m_mutex);
+        m_callbackSets.removeIf([name](const auto &pair) { return pair.first == name; });
+
+        m_createTerminalProcessInterface
+            = m_callbackSets.back().second.createTerminalProcessInterface;
+        m_openTerminal = m_callbackSets.back().second.openTerminal;
+    }
+
+    Hooks::CreateTerminalProcessInterface createTerminalProcessInterface()
+    {
+        QMutexLocker lk(&m_mutex);
+        return m_createTerminalProcessInterface;
+    }
+
+    Hooks::OpenTerminal openTerminal()
+    {
+        QMutexLocker lk(&m_mutex);
+        return m_openTerminal;
+    }
+
     Hooks::GetTerminalCommandsForDevicesHook m_getTerminalCommandsForDevicesHook;
+
+private:
+    Hooks::OpenTerminal m_openTerminal;
+    Hooks::CreateTerminalProcessInterface m_createTerminalProcessInterface;
+
+    QMutex m_mutex;
+    QList<QPair<QString, Hooks::CallbackSet>> m_callbackSets;
 };
 
 Hooks &Hooks::instance()
@@ -117,19 +162,29 @@ Hooks::Hooks()
 
 Hooks::~Hooks() = default;
 
-Hooks::OpenTerminalHook &Hooks::openTerminalHook()
+void Hooks::openTerminal(const OpenTerminalParameters &parameters) const
 {
-    return d->m_openTerminalHook;
+    d->openTerminal()(parameters);
 }
 
-Hooks::CreateTerminalProcessInterfaceHook &Hooks::createTerminalProcessInterfaceHook()
+ProcessInterface *Hooks::createTerminalProcessInterface() const
 {
-    return d->m_createTerminalProcessInterfaceHook;
+    return d->createTerminalProcessInterface()();
 }
 
 Hooks::GetTerminalCommandsForDevicesHook &Hooks::getTerminalCommandsForDevicesHook()
 {
     return d->m_getTerminalCommandsForDevicesHook;
+}
+
+void Hooks::addCallbackSet(const QString &name, const CallbackSet &callbackSet)
+{
+    d->addCallbackSet(name, callbackSet);
+}
+
+void Hooks::removeCallbackSet(const QString &name)
+{
+    d->removeCallbackSet(name);
 }
 
 } // namespace Utils::Terminal

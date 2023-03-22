@@ -13,13 +13,14 @@ public:
 
     static TerminalSettings &instance();
 
+    Utils::BoolAspect enableTerminal;
+
     Utils::StringAspect font;
     Utils::IntegerAspect fontSize;
     Utils::StringAspect shell;
 
     Utils::ColorAspect foregroundColor;
     Utils::ColorAspect backgroundColor;
-
     Utils::ColorAspect selectionColor;
 
     Utils::ColorAspect colors[16];

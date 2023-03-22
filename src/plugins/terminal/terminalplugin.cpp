@@ -43,13 +43,34 @@ void TerminalPlugin::extensionsInitialized()
     m_terminalPane = new TerminalPane();
     ExtensionSystem::PluginManager::instance()->addObject(m_terminalPane);
 
-    Utils::Terminal::Hooks::instance().openTerminalHook().set(
-        [this](const Utils::Terminal::OpenTerminalParameters &p) {
-            m_terminalPane->openTerminal(p);
-        });
+    auto enable = [this] {
+        Utils::Terminal::Hooks::instance()
+            .addCallbackSet("Internal",
+                            {[this](const Utils::Terminal::OpenTerminalParameters &p) {
+                                 m_terminalPane->openTerminal(p);
+                             },
+                             [this] { return new TerminalProcessImpl(m_terminalPane); }});
+    };
 
-    Utils::Terminal::Hooks::instance().createTerminalProcessInterfaceHook().set(
-        [this] { return new TerminalProcessImpl(m_terminalPane); });
+    auto disable = [] { Utils::Terminal::Hooks::instance().removeCallbackSet("Internal"); };
+
+    static bool isEnabled = false;
+    auto settingsChanged = [enable, disable] {
+        if (isEnabled != TerminalSettings::instance().enableTerminal.value()) {
+            isEnabled = TerminalSettings::instance().enableTerminal.value();
+            if (isEnabled)
+                enable();
+            else
+                disable();
+        }
+    };
+
+    QObject::connect(&TerminalSettings::instance(),
+                     &Utils::AspectContainer::applied,
+                     this,
+                     settingsChanged);
+
+    settingsChanged();
 }
 
 } // namespace Internal
