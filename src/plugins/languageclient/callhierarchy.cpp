@@ -291,6 +291,7 @@ Core::NavigationView CallHierarchyFactory::createWidget()
     Icons::RELOAD_TOOLBAR.icon();
     auto button = new QToolButton;
     button->setIcon(Icons::RELOAD_TOOLBAR.icon());
+    button->setToolTip(Tr::tr("Reloads the call hierarchy for the symbol under cursor position."));
     connect(button, &QToolButton::clicked, [h](){
         h->updateHierarchyAtCursorPosition();
     });
