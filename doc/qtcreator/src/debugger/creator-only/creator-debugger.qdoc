@@ -879,10 +879,24 @@
 
     \title Viewing Threads
 
-    If a multi-threaded application is interrupted, the \uicontrol Threads view or
-    the combobox named \uicontrol Threads in the debugger status bar can be used
-    to switch from one thread to another. The \uicontrol Stack view adjusts
-    itself accordingly.
+    An application can have more than one thread of execution that share one
+    address space, which means that they can examine and change the same
+    variables. However, each thread has its own registers, execution stack,
+    and possibly private memory.
+
+    When a multi-threaded application is interrupted, you can view the threads
+    currently active in the application and switch between them in the
+    \uicontrol Threads view (1):
+
+    \image qtcreator-debugger-threads.webp {Threads view}
+
+    You can also select a thread in the \uicontrol Threads field (2) on the
+    debugger toolbar.
+
+    This allows you to select the thread that is in the focus of the debugger.
+
+    The \l {Viewing Call Stack Trace}{Stack} view adjusts its contents
+    accordingly.
 */
 
 /*!
@@ -893,38 +907,59 @@
     \title Viewing Modules
 
     The \uicontrol Modules view displays information that the debugger plugin
-    has about modules included in the application that is being debugged. A
-    module is a dynamic link library (\c {.dll}) in Windows, a shared object
-    (\c {.so}) in Linux, and a dynamic shared library (\c {.dylib}) in \macos.
+    has about modules included in the application that is being debugged.
+
+    A module is:
+
+    \list
+        \li A dynamic link library (\c {.dll}) in Windows
+        \li A shared object (\c {.so}) in Linux
+        \li A dynamic shared library (\c {.dylib}) in \macos
+    \endlist
+
+    \image qtcreator-debugger-modules.webp {Modules view}
 
     In addition, the view displays symbols within the modules and indicates
-    where each module was loaded.
+    where each module was loaded. Right-click column headers to show and
+    hide columns in the view.
 
-    Right-click the view to open a context menu that has menu items for:
+    Right-click the view to select the following actions:
 
     \list
 
-        \li Updating the module list
+        \li Update the module list
 
-        \li Loading symbols for modules
+        \li Show source files for a module
 
-        \li Examining modules
+        \li Show dependencies between modules (Windows only)
 
-        \li Editing module files
+        \li Load symbols for modules
 
-        \li Showing symbols in modules
+        \li Examine modules
 
-        \li Showing dependencies between modules (Windows only)
+        \li Edit module files
+
+        \li Show symbols in modules
+
+        \li Show sections in modules
+
+        \li Set \l{Debugger Preferences}{debugger preferences}
 
     \endlist
 
-    By default, the \uicontrol Modules view is hidden.
+    By default, the \uicontrol Modules view is hidden. To show it, select it in
+    \uicontrol Views on the debugger toolbar.
+
+    \section1 Breaking on Loading Modules in CDB
 
     When using CDB as debug backend, you can specify that the debugger should
     break when application modules are loaded or unloaded. To enable breaking
     for the specified modules, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Debugger > \uicontrol CDB. For more information, see
-    \l{Specifying CDB Settings}.
+    \uicontrol Debugger > \uicontrol CDB.
+
+    \image qtcreator-cdb-options.png {CDB tab in Debugger preferences}
+
+    For more information, see \l{Specifying CDB Settings}.
 */
 
 /*!
@@ -939,15 +974,30 @@
     the source file is actually part of the project, or whether it was compiled
     elsewhere. The view shows the path to each file in the file system.
 
-    Right-click the view to open a context menu that has menu items for
-    reloading data and opening files.
+    \image qtcreator-debugger-source-files.webp {Source Files view}
+
+    Right-click the view to select the following actions:
+
+    \list
+        \li Reload data
+        \li Open the selected file
+        \li Set \l{Debugger Preferences}{debugger preferences}
+    \endlist
+
+    By default, the \uicontrol {Source Files} view is hidden. To show it, select
+    it in \uicontrol Views on the debugger toolbar.
+
+    \section1 External Sources
 
     To enable the debugger to step into the code and display the source code
     when using a copy of the source tree at a location different from the one
     at which the libraries were built, you can map source paths to target
-    paths. For more information, see \l{Mapping Source Paths}.
+    paths in \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
+    \uicontrol General:
 
-    By default, the \uicontrol {Source Files} view is hidden.
+    \image qtcreator-debugger-general-options.png {General tab in Debugger preferences}
+
+    For more information, see \l{Mapping Source Paths}.
 */
 
 /*!
@@ -1009,7 +1059,7 @@
     \uicontrol Debug > \uicontrol {Operate by Instruction} while the debugger is
     running. Alternatively, click the
     \inlineimage icons/debugger_singleinstructionmode.png
-    (\uicontrol {Operate by Instruction}) tool button on the debugger tool bar.
+    (\uicontrol {Operate by Instruction}) tool button on the debugger toolbar.
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,
     select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
