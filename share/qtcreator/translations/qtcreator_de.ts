@@ -30656,78 +30656,78 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation type="unfinished">Neues Verzeichnis</translation>
+        <translation>Neues Verzeichnis</translation>
     </message>
     <message>
         <source>Bookmark:</source>
-        <translation type="unfinished">Lesezeichen:</translation>
+        <translation>Lesezeichen:</translation>
     </message>
     <message>
         <source>Add in folder:</source>
-        <translation type="unfinished">Im Verzeichnis:</translation>
+        <translation>In Verzeichnis hinzufügen:</translation>
     </message>
     <message>
         <source>Delete Folder</source>
-        <translation type="unfinished">Verzeichnis löschen</translation>
+        <translation>Verzeichnis löschen</translation>
     </message>
     <message>
         <source>Rename Folder</source>
-        <translation type="unfinished">Verzeichnis umbenennen</translation>
+        <translation>Verzeichnis umbenennen</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
-        <translation type="unfinished">Lesezeichen anzeigen</translation>
+        <translation>Lesezeichen anzeigen</translation>
     </message>
     <message>
         <source>Show Bookmark as New Page</source>
-        <translation type="unfinished">Lesezeichen in neuem Reiter anzeigen</translation>
+        <translation>Lesezeichen in neuem Reiter anzeigen</translation>
     </message>
     <message>
         <source>Delete Bookmark</source>
-        <translation type="unfinished">Lesezeichen löschen</translation>
+        <translation>Lesezeichen löschen</translation>
     </message>
     <message>
         <source>Rename Bookmark</source>
-        <translation type="unfinished">Lesezeichen umbenennen</translation>
+        <translation>Lesezeichen umbenennen</translation>
     </message>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
-        <translation type="unfinished">Beim Löschen eines Verzeichnisses wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
+        <translation>Beim Löschen eines Verzeichnisses wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortfahren?</translation>
     </message>
 </context>
 <context>
     <name>QtC::ImageViewer</name>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Export</translation>
+        <translation>Exportieren</translation>
     </message>
     <message>
         <source>Set as Default</source>
-        <translation type="unfinished">Als Vorgabe setzen</translation>
+        <translation>Als Vorgabe setzen</translation>
     </message>
     <message>
         <source>on</source>
-        <translation type="unfinished">an</translation>
+        <translation>an</translation>
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished">aus</translation>
+        <translation>aus</translation>
     </message>
     <message>
         <source>Use the current settings for background, outline, and fitting to screen as the default for new image viewers. Current default:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die aktuellen Einstellungen für Hintergrund, Kontur und an den Bildschirm anpassen als Voreinstellung speichern. Aktuelle Voreinstellung:</translation>
     </message>
     <message>
         <source>Background: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrund: %1</translation>
     </message>
     <message>
         <source>Outline: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontur: %1</translation>
     </message>
     <message>
         <source>Fit to Screen: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>An Bildschirm anpassen: %1</translation>
     </message>
     <message>
         <source>Image Viewer</source>
@@ -30739,35 +30739,35 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
-        <translation type="unfinished">Ctrl+=</translation>
+        <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Switch Background</source>
-        <translation type="unfinished">Hintergrund umschalten</translation>
+        <translation>Hintergrund umschalten</translation>
     </message>
     <message>
         <source>Ctrl+[</source>
-        <translation type="unfinished">Ctrl+[</translation>
+        <translation>Ctrl+[</translation>
     </message>
     <message>
         <source>Switch Outline</source>
-        <translation type="unfinished">Umriss umschalten</translation>
+        <translation>Kontur umschalten</translation>
     </message>
     <message>
         <source>Ctrl+]</source>
-        <translation type="unfinished">Ctrl+]</translation>
+        <translation>Ctrl+]</translation>
     </message>
     <message>
         <source>Toggle Animation</source>
-        <translation type="unfinished">Animation umschalten</translation>
+        <translation>Animation umschalten</translation>
     </message>
     <message>
         <source>Export Multiple Images</source>
-        <translation type="unfinished">Mehrere Bilder exportieren</translation>
+        <translation>Mehrere Bilder exportieren</translation>
     </message>
     <message>
         <source>Copy as Data URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Daten-URL kopieren</translation>
     </message>
     <message>
         <source>Play Animation</source>
