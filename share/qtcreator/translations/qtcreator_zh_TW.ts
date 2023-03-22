@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Unable to send command line arguments to the already running instance. It appears to be not responding. Do you want to start a new instance of Creator?</source>
-        <translation>無法傳送命令列參數到正在執行中的實體。該實體似乎無法回應。您要重新啟動一個 Creator 的實體嗎？</translation>
+        <translation>無法傳送命令列引數到正在執行中的實體。該實體似乎無法回應。您要重新啟動一個 Creator 的實體嗎？</translation>
     </message>
     <message>
         <source>Could not send message</source>
@@ -190,7 +190,7 @@
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>參數：</translation>
+        <translation>引數：</translation>
     </message>
     <message>
         <source>Select Working Directory</source>
@@ -246,23 +246,23 @@
     </message>
     <message>
         <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used tool chain here and rerun CMake. Or simply finish the wizard directly.</source>
-        <translation type="obsolete">目錄 %1 已存在一份足夠新的 cbp 檔。您可以在此傳送特殊參數，或是變更所使用的工具鍊，然後重新執行 CMake。或者您也可以直接結束此精靈。</translation>
+        <translation type="obsolete">目錄 %1 已存在一份足夠新的 cbp 檔。您可以在此傳送特殊引數，或是變更所使用的工具鍊，然後重新執行 CMake。或者您也可以直接結束此精靈。</translation>
     </message>
     <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
-        <translation>目錄 %1 中沒有 cbp 檔。Qt Creator 需要執行 CMake 以建立此檔案。某些專案需要命令列參數來初始化 CMake 的呼叫。</translation>
+        <translation>目錄 %1 中沒有 cbp 檔。Qt Creator 需要執行 CMake 以建立此檔案。某些專案需要命令列引數來初始化 CMake 的呼叫。</translation>
     </message>
     <message>
         <source>The directory %1 contains an outdated .cbp file. Qt Creator needs to update this file by running CMake. If you want to add additional command line arguments, add them below. Note that CMake remembers command line arguments from the previous runs.</source>
-        <translation>目錄 %1 包含了一個過期的 .cbp 檔。Qt Creator需要執行 CMake 以更新此檔案。如果您想新增額外的命令列參數，請新增在下面。注意 CMake 會記住上次執行時的命令列參數。</translation>
+        <translation>目錄 %1 包含了一個過期的 .cbp 檔。Qt Creator需要執行 CMake 以更新此檔案。如果您想新增額外的命令列引數，請新增在下面。注意 CMake 會記住上次執行時的命令列引數。</translation>
     </message>
     <message>
         <source>The directory %1 specified in a build-configuration, does not contain a cbp file. Qt Creator needs to recreate this file, by running CMake. Some projects require command line arguments to the initial CMake call. Note that CMake remembers command line arguments from the previous runs.</source>
-        <translation>在建置組態中指定的目錄 %1 中未包含 cbp 檔案。Qt Creator 需要執行 CMake 以重新建立此檔案。某些專案需要命令列參數來初始化 CMake 的呼叫。如果您想新增額外的命令列參數，請新增在下面。注意 CMake 會記住上次執行時的命令列參數。</translation>
+        <translation>在建置組態中指定的目錄 %1 中未包含 cbp 檔案。Qt Creator 需要執行 CMake 以重新建立此檔案。某些專案需要命令列引數來初始化 CMake 的呼叫。如果您想新增額外的命令列引數，請新增在下面。注意 CMake 會記住上次執行時的命令列引數。</translation>
     </message>
     <message>
         <source>Qt Creator needs to run CMake in the new build directory. Some projects require command line arguments to the initial CMake call.</source>
-        <translation>Qt Creator 需要在新的建置目錄下執行 CMake。某些專案需要命令列參數來初始化 CMake 的呼叫。</translation>
+        <translation>Qt Creator 需要在新的建置目錄下執行 CMake。某些專案需要命令列引數來初始化 CMake 的呼叫。</translation>
     </message>
     <message>
         <source>Refreshing cbp file in %1.</source>
@@ -302,7 +302,7 @@
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation>額外的參數：</translation>
+        <translation>額外的引數：</translation>
     </message>
     <message>
         <source>Targets:</source>
@@ -1251,7 +1251,7 @@
     </message>
     <message>
         <source>Debugging complex shell commands in a terminal is currently not supported.</source>
-        <translation>目前不支援在終端機中對複雜的 shell 指令除錯。</translation>
+        <translation>目前不支援在終端機中對複雜的 shell 命令除錯。</translation>
     </message>
     <message>
         <source>Quoting error in terminal command.</source>
@@ -1259,7 +1259,7 @@
     </message>
     <message>
         <source>Terminal command may not be a shell command.</source>
-        <translation>終端機指令可能不是一個 shell 指令。</translation>
+        <translation>終端機命令可能不是一個 shell 命令。</translation>
     </message>
     <message>
         <source>Cannot start the terminal emulator &apos;%1&apos;.</source>
@@ -1744,7 +1744,7 @@
     </message>
     <message>
         <source>Generate a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration</source>
-        <translation>對相關的宣告產生一個&lt;i&gt;簡易&lt;/i&gt;的指令與初始的描述</translation>
+        <translation>對相關的宣告產生一個&lt;i&gt;簡易&lt;/i&gt;的命令與初始的描述</translation>
     </message>
     <message>
         <source>Generate brief description</source>
@@ -2010,7 +2010,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Command:</source>
-        <translation>指令：</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Message:</source>
@@ -2152,7 +2152,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Additional &amp;arguments:</source>
-        <translation>額外的參數(&amp;A)：</translation>
+        <translation>額外的引數(&amp;A)：</translation>
     </message>
     <message>
         <source>Debugger Paths</source>
@@ -2534,7 +2534,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>The gdb process has not responded to a command within %n second(s). This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or abort debugging.</source>
         <translation type="obsolete">
-            <numerusform>GDB 行程在 %n 秒之內未回應指令。這可能表示程式陷入無窮迴圈，或執行操作的時間超過預期。
+            <numerusform>GDB 行程在 %n 秒之內未回應命令。這可能表示程式陷入無窮迴圈，或執行操作的時間超過預期。
 您可以選擇繼續等待或中止除錯。</numerusform>
         </translation>
     </message>
@@ -2666,7 +2666,7 @@ Try: %2</source>
     </message>
     <message>
         <source>Processing queued commands</source>
-        <translation>處理佇列中的指令中</translation>
+        <translation>處理佇列中的命令中</translation>
     </message>
     <message numerus="yes">
         <source>The gdb process has not responded to a command within %n second(s). This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
@@ -3068,7 +3068,7 @@ at debugger startup.</source>
     </message>
     <message>
         <source>Additional Startup Commands</source>
-        <translation>額外的啟動指令</translation>
+        <translation>額外的啟動命令</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after GDB has been started and the debugging helpers have been initialized.&lt;/p&gt;&lt;p&gt;You can add commands to load further debugging helpers here, or modify existing ones.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -3288,7 +3288,7 @@ at debugger startup.</source>
     </message>
     <message>
         <source>&amp;Arguments:</source>
-        <translation type="obsolete">參數(&amp;A)：</translation>
+        <translation type="obsolete">引數(&amp;A)：</translation>
     </message>
     <message>
         <source>&amp;Tool chain:</source>
@@ -4165,7 +4165,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Argument must be positive: %1=%2</source>
-        <translation>參數必須為正值：%1=%2</translation>
+        <translation>引數必須為正值：%1=%2</translation>
     </message>
     <message>
         <source>General</source>
@@ -4825,7 +4825,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>The command &apos;git pull --rebase&apos; failed, aborting rebase.</source>
-        <translation>指令 &apos;git pull --rebase&apos; 失敗，中止執行 rebase。</translation>
+        <translation>命令 &apos;git pull --rebase&apos; 失敗，中止執行 rebase。</translation>
     </message>
     <message>
         <source>Git SVN Log</source>
@@ -5284,7 +5284,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>參數：</translation>
+        <translation>引數：</translation>
     </message>
     <message>
         <source>Git needs to find Perl in the environment.</source>
@@ -5308,7 +5308,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">指令：</translation>
+        <translation type="unfinished">命令：</translation>
     </message>
 </context>
 <context>
@@ -5946,7 +5946,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Error running &quot;where&quot; on %1: %2</source>
         <extracomment>Failed to run p4 &quot;where&quot; to resolve a Perforce file name to a local file system name.</extracomment>
-        <translation>在 %1 執行 &quot;where&quot; 指令時發生錯誤：%2</translation>
+        <translation>在 %1 執行 &quot;where&quot; 命令時發生錯誤：%2</translation>
     </message>
     <message>
         <source>The file is not mapped</source>
@@ -5991,12 +5991,12 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>p4 diff %1</source>
-        <translatorcomment>指令，還是說明？</translatorcomment>
+        <translatorcomment>命令，還是說明？</translatorcomment>
         <translation>p4 diff %1</translation>
     </message>
     <message>
         <source>p4 describe %1</source>
-        <translatorcomment>指令，還是說明？</translatorcomment>
+        <translatorcomment>命令，還是說明？</translatorcomment>
         <translation>p4 describe %1</translation>
     </message>
     <message>
@@ -6061,7 +6061,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>P4 command:</source>
-        <translation>P4 指令：</translation>
+        <translation>P4 命令：</translation>
     </message>
     <message>
         <source>P4 client:</source>
@@ -6093,7 +6093,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Perforce Command</source>
-        <translation>Perforce 指令</translation>
+        <translation>Perforce 命令</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -6131,7 +6131,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>The option %1 requires an argument.</source>
-        <translation>選項 %1 需要參數。</translation>
+        <translation>選項 %1 需要引數。</translation>
     </message>
     <message>
         <source>Failed Plugins</source>
@@ -6522,7 +6522,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Command:</source>
-        <translation>指令：</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -6530,11 +6530,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Command arguments:</source>
-        <translation type="obsolete">指令參數：</translation>
+        <translation type="obsolete">命令引數：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">參數：</translation>
+        <translation type="unfinished">引數：</translation>
     </message>
     <message>
         <source>Project File Factory</source>
@@ -7547,7 +7547,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>參數：</translation>
+        <translation>引數：</translation>
     </message>
     <message>
         <source>Select Working Directory</source>
@@ -8029,7 +8029,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Subversion command:</source>
-        <translation>Subversion 指令：</translation>
+        <translation>Subversion 命令：</translation>
     </message>
     <message>
         <source>Username:</source>
@@ -8037,7 +8037,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Subversion Command</source>
-        <translation>Subversion 指令</translation>
+        <translation>Subversion 命令</translation>
     </message>
     <message>
         <source>&amp;Subversion</source>
@@ -9400,7 +9400,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>CVS command:</source>
-        <translation>CVS 指令：</translation>
+        <translation>CVS 命令：</translation>
     </message>
     <message>
         <source>CVS root:</source>
@@ -10248,7 +10248,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>CVS Command</source>
-        <translation>CVS 指令</translation>
+        <translation>CVS 命令</translation>
     </message>
 </context>
 <context>
@@ -11064,7 +11064,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Command:</source>
-        <translation>指令：</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>User</source>
@@ -11482,7 +11482,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Mercurial Command</source>
-        <translation>Mercurial 指令</translation>
+        <translation>Mercurial 命令</translation>
     </message>
 </context>
 <context>
@@ -12036,7 +12036,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <name>QtC::Core</name>
     <message>
         <source>Command</source>
-        <translation>指令</translation>
+        <translation>命令</translation>
     </message>
     <message>
         <source>Label</source>
@@ -12085,7 +12085,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>CVS Command Log Editor</source>
-        <translation>CVS 指令紀錄編輯器</translation>
+        <translation>CVS 命令紀錄編輯器</translation>
     </message>
     <message>
         <source>CVS File Log Editor</source>
@@ -12101,7 +12101,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Git Command Log Editor</source>
-        <translation>Git 指令紀錄編輯器</translation>
+        <translation>Git 命令紀錄編輯器</translation>
     </message>
     <message>
         <source>Git File Log Editor</source>
@@ -12121,7 +12121,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Mercurial Command Log Editor</source>
-        <translation>Mercurial 指令紀錄編輯器</translation>
+        <translation>Mercurial 命令紀錄編輯器</translation>
     </message>
     <message>
         <source>Mercurial File Log Editor</source>
@@ -12145,7 +12145,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Perforce CommandLog Editor</source>
-        <translation>Perforce 指令紀錄編輯器</translation>
+        <translation>Perforce 命令紀錄編輯器</translation>
     </message>
     <message>
         <source>Perforce Log Editor</source>
@@ -12165,7 +12165,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Subversion Command Log Editor</source>
-        <translation>Subversion 指令紀錄編輯器</translation>
+        <translation>Subversion 命令紀錄編輯器</translation>
     </message>
     <message>
         <source>Subversion File Log Editor</source>
@@ -12181,7 +12181,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Bazaar Command Log Editor</source>
-        <translation>Bazaar 指令紀錄編輯器</translation>
+        <translation>Bazaar 命令紀錄編輯器</translation>
     </message>
     <message>
         <source>Bazaar File Log Editor</source>
@@ -12246,7 +12246,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <name>QtC::FakeVim</name>
     <message>
         <source>Ex Command Mapping</source>
-        <translation>Ex 指令映射</translation>
+        <translation>Ex 命令映射</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -12296,7 +12296,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Make arguments:</source>
-        <translation>Make 參數：</translation>
+        <translation>Make 引數：</translation>
     </message>
     <message>
         <source>Targets:</source>
@@ -13232,7 +13232,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     <name>QtC::RemoteLinux</name>
     <message>
         <source>Could not find make command &apos;%1&apos; in the build environment</source>
-        <translation type="obsolete">在建置環境中找不到 make 指令 &apos;%1&apos;</translation>
+        <translation type="obsolete">在建置環境中找不到 make 命令 &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Package Modified</source>
@@ -13562,7 +13562,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>There is no patch-command configured in the common &apos;Version Control&apos; settings.</source>
-        <translation>在「版本控制」設定中沒有組態修補指令。</translation>
+        <translation>在「版本控制」設定中沒有組態修補命令。</translation>
     </message>
     <message>
         <source>Unable to launch &apos;%1&apos;: %2</source>
@@ -13786,7 +13786,7 @@ with a password, which you can enter below.</source>
     <message>
         <source>The qmake command &quot;%1&quot; was not found or is not executable.</source>
         <extracomment>%1: Path to qmake executable</extracomment>
-        <translation>找不到 qmake 指令 &quot;%1&quot;，或該指令無法執行。</translation>
+        <translation>找不到 qmake 命令 &quot;%1&quot;，或該命令無法執行。</translation>
     </message>
 </context>
 <context>
@@ -14851,23 +14851,23 @@ Ids must begin with a lowercase letter.</source>
     <name>QtC::Utils</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
-        <translation>指令 &apos;%1&apos; 已成功完成。</translation>
+        <translation>命令 &apos;%1&apos; 已成功完成。</translation>
     </message>
     <message>
         <source>The command &apos;%1&apos; terminated with exit code %2.</source>
-        <translation>指令 &apos;%1&apos; 已結束，離開代碼 %2。</translation>
+        <translation>命令 &apos;%1&apos; 已結束，離開代碼 %2。</translation>
     </message>
     <message>
         <source>The command &apos;%1&apos; terminated abnormally.</source>
-        <translation>指令 &apos;%1&apos; 異常結束。</translation>
+        <translation>命令 &apos;%1&apos; 異常結束。</translation>
     </message>
     <message>
         <source>The command &apos;%1&apos; could not be started.</source>
-        <translation>指令 &apos;%1&apos; 無法啟動。</translation>
+        <translation>命令 &apos;%1&apos; 無法啟動。</translation>
     </message>
     <message>
         <source>The command &apos;%1&apos; did not respond within the timeout limit (%2 ms).</source>
-        <translation>指令 &apos;%1&apos; 在時限 (%2毫秒) 內未回應。</translation>
+        <translation>命令 &apos;%1&apos; 在時限 (%2毫秒) 內未回應。</translation>
     </message>
     <message>
         <source>Process not Responding</source>
@@ -15095,8 +15095,8 @@ debugger start-up times (CDB, LLDB).</source>
     <message>
         <source>Debugger command to be executed when the breakpoint is hit.
 GDB allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
-        <translation type="obsolete">當遇到中斷點時要執行的除錯器指令。
-GDB 允許使用 &apos;\n&apos; 來區隔多個指令序列。</translation>
+        <translation type="obsolete">當遇到中斷點時要執行的除錯器命令。
+GDB 允許使用 &apos;\n&apos; 來區隔多個命令序列。</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Determines how the path is specified when setting breakpoints:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Use Engine Default&lt;/i&gt;: Preferred setting of the debugger engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use Full Path&lt;/i&gt;: Pass full path, avoiding ambiguities should files of the same name exist in several modules. This is the engine default for CDB and LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use File Name&lt;/i&gt;: Pass the file name only. This is useful when using a source tree whose location does not match the one used when building the modules. It is the engine default for GDB as using full paths can be slow with this engine.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -15160,7 +15160,7 @@ GDB 允許使用 &apos;\n&apos; 來區隔多個指令序列。</translation>
     </message>
     <message>
         <source>&amp;Command:</source>
-        <translation type="obsolete">指令(&amp;C)：</translation>
+        <translation type="obsolete">命令(&amp;C)：</translation>
     </message>
     <message>
         <source>Use Engine Default</source>
@@ -16474,7 +16474,7 @@ Reason: %2</source>
     <message>
         <source>Running command: %1
 </source>
-        <translation type="obsolete">執行指令：%1</translation>
+        <translation type="obsolete">執行命令：%1</translation>
     </message>
     <message>
         <source>Recipe %1 failed with exit code %2.</source>
@@ -16851,7 +16851,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Command:</source>
-        <translation>指令：</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>User</source>
@@ -17021,7 +17021,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>參數：</translation>
+        <translation>引數：</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -17804,7 +17804,7 @@ Local pulls are not applied to the master branch.</source>
     <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
-        <translation>Bazaar 指令</translation>
+        <translation>Bazaar 命令</translation>
     </message>
 </context>
 <context>
@@ -18329,7 +18329,7 @@ to version control (%2)
     </message>
     <message>
         <source>Error evaluating command line arguments: %1</source>
-        <translation>計算命令列參數時發生錯誤：%1</translation>
+        <translation>計算命令列引數時發生錯誤：%1</translation>
     </message>
     <message>
         <source>Start Debugging</source>
@@ -19183,7 +19183,7 @@ Error: %2</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>參數：</translation>
+        <translation>引數：</translation>
     </message>
     <message>
         <source>Main QML file:</source>
@@ -20395,7 +20395,7 @@ if (a &amp;&amp;
     </message>
     <message>
         <source>Valgrind Command</source>
-        <translation>Valgrind 指令</translation>
+        <translation>Valgrind 命令</translation>
     </message>
     <message>
         <source>Valgrind Suppression Files</source>
@@ -20736,15 +20736,15 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Command</source>
-        <translation>指令</translation>
+        <translation>命令</translation>
     </message>
     <message>
         <source>User command #%1</source>
-        <translation>使用者指令 #%1</translation>
+        <translation>使用者命令 #%1</translation>
     </message>
     <message>
         <source>User Command Mapping</source>
-        <translation>使用者指令映射</translation>
+        <translation>使用者命令映射</translation>
     </message>
 </context>
 <context>
@@ -21825,7 +21825,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Use this command instead</source>
-        <translation>用這個指令代替</translation>
+        <translation>用這個命令代替</translation>
     </message>
     <message>
         <source>Alternate executable on device:</source>
@@ -21833,7 +21833,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>參數：</translation>
+        <translation>引數：</translation>
     </message>
     <message>
         <source>&lt;default&gt;</source>
@@ -22344,7 +22344,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Command-line arguments: %1</source>
-        <translation>命令列參數：%1</translation>
+        <translation>命令列引數：%1</translation>
     </message>
     <message>
         <source>** Analyzing finished **
@@ -22379,7 +22379,7 @@ In addition, device connectivity will be tested.</source>
     <name>QtC::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
-        <translation>回復差異區塊的指令</translation>
+        <translation>回復差異區塊的命令</translation>
     </message>
 </context>
 <context>
@@ -23138,7 +23138,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Open Command Prompt Here</source>
-        <translation>在此開啟指令提示</translation>
+        <translation>在此開啟命令提示</translation>
     </message>
     <message>
         <source>Open Terminal Here</source>
@@ -23789,7 +23789,7 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Run custom remote command</source>
-        <translation>執行自訂的遠端指令</translation>
+        <translation>執行自訂的遠端命令</translation>
     </message>
     <message>
         <source>No command line given.</source>
@@ -23797,7 +23797,7 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Starting remote command &apos;%1&apos;...</source>
-        <translation>啟動遠端指令 &apos;%1&apos;......</translation>
+        <translation>啟動遠端命令 &apos;%1&apos;...</translation>
     </message>
     <message>
         <source>Remote process failed to start.</source>
@@ -23813,7 +23813,7 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Remote command finished successfully.</source>
-        <translation>遠端指令成功完成。</translation>
+        <translation>遠端命令成功完成。</translation>
     </message>
     <message>
         <source>Deploy to Remote Linux Host</source>
@@ -23999,7 +23999,7 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>Running command: %1</source>
-        <translation type="obsolete">執行指令：%1</translation>
+        <translation type="obsolete">執行命令：%1</translation>
     </message>
     <message>
         <source>Packaging finished successfully.</source>
@@ -24259,7 +24259,7 @@ Filter: %2
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="obsolete">參數：</translation>
+        <translation type="obsolete">引數：</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -24270,7 +24270,7 @@ Filter: %2
     <name>QtC::Core</name>
     <message>
         <source>Command Mappings</source>
-        <translation>指令映射</translation>
+        <translation>命令映射</translation>
     </message>
     <message>
         <source>Target</source>
@@ -24695,7 +24695,7 @@ p, li { white-space: pre-wrap; }
     <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
-        <translation>Make 參數：</translation>
+        <translation>Make 引數：</translation>
     </message>
     <message>
         <source>qmake build configuration:</source>
@@ -24703,7 +24703,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation>額外的參數：</translation>
+        <translation>額外的引數：</translation>
     </message>
     <message>
         <source>Link QML debugging library:</source>
@@ -25460,7 +25460,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="unfinished">一個可執行檔，以儲存在臨時檔案中的提交訊息為首參數。當提交失敗時以非零值退出並在標準錯誤中輸出訊息。</translation>
+        <translation>一個可執行檔，以儲存在臨時檔案中的提交訊息為第一個引數。當提交失敗時以非零值退出並在標準錯誤中輸出訊息。</translation>
     </message>
     <message>
         <source>Submit message &amp;check script:</source>
@@ -25486,7 +25486,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     </message>
     <message>
         <source>&amp;Patch command:</source>
-        <translation>修補指令(&amp;P)：</translation>
+        <translation>修補命令(&amp;P)：</translation>
     </message>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password, 
@@ -25496,7 +25496,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>&amp;SSH prompt command:</source>
-        <translation>SSH 提示指令(&amp;S)：</translation>
+        <translation>SSH 提示命令(&amp;S)：</translation>
     </message>
     <message>
         <source>Configure...</source>
@@ -26050,7 +26050,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>參數：</translation>
+        <translation>引數：</translation>
     </message>
     <message>
         <source>Autogen</source>
@@ -26416,7 +26416,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
-        <translation>前一個指令仍然在執行中 (&apos;%1&apos;)。
+        <translation>前一個命令仍然在執行中 (&apos;%1&apos;)。
 您要強行結束它嗎？</translation>
     </message>
     <message>
@@ -26437,11 +26437,11 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Starting command &apos;%1&apos;</source>
-        <translation>啟動指令 &apos;%1&apos; 中</translation>
+        <translation>啟動命令 &apos;%1&apos; 中</translation>
     </message>
     <message>
         <source>Execute Custom Commands</source>
-        <translation>執行自訂指令</translation>
+        <translation>執行自訂命令</translation>
     </message>
 </context>
 <context>
@@ -27270,7 +27270,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>&amp;Command:</source>
-        <translation type="unfinished">指令(&amp;C)：</translation>
+        <translation type="unfinished">命令(&amp;C)：</translation>
     </message>
     <message>
         <source>Diff</source>
@@ -27965,7 +27965,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">參數：</translation>
+        <translation type="unfinished">引數：</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -28030,7 +28030,7 @@ Please install an SDK of at least API version %1.</source>
     </message>
     <message>
         <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation type="unfinished">打包錯誤：指令 &apos;%1&apos; 失敗。 {1 %2&apos;?}</translation>
+        <translation type="unfinished">打包錯誤：命令 &apos;%1&apos; 失敗。 {1 %2&apos;?}</translation>
     </message>
     <message>
         <source> Reason: %1</source>
@@ -29135,7 +29135,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
     <message>
         <source>Running command: %1</source>
-        <translation type="unfinished">執行指令：%1</translation>
+        <translation type="unfinished">執行命令：%1</translation>
     </message>
     <message>
         <source>Connection error: %1</source>
@@ -30226,11 +30226,11 @@ Qt Creator 知道一個相似的URI.</translation>
     <name>QtC::QtSupport</name>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">指令：</translation>
+        <translation type="unfinished">命令：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">參數：</translation>
+        <translation type="unfinished">引數：</translation>
     </message>
     <message>
         <source>Working directory:</source>
