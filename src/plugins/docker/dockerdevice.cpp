@@ -394,7 +394,7 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
     setDisplayName(Tr::tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
     setAllowEmptyCommand(true);
 
-    setOpenTerminal([this, settings](const Environment &env, const FilePath &workingDir) {
+    setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
         Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
         if (!updateContainerAccess())
             return;
