@@ -40,8 +40,6 @@ public:
     }
 
 private:
-    bool isDeploymentNecessary() const final { return true; }
-
     Group deployRecipe() final
     {
         const auto setupHandler = [this](QtcProcess &process) {

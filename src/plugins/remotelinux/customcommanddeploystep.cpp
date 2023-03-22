@@ -46,8 +46,6 @@ protected:
     Group deployRecipe() final;
 
 private:
-    bool isDeploymentNecessary() const final { return true; }
-
     QString m_commandLine;
 };
 

@@ -34,7 +34,6 @@ public:
         setInternalInitializer([this] { return isDeploymentPossible(); });
     }
 
-    bool isDeploymentNecessary() const final { return true; }
     Group deployRecipe() final;
 };
 
