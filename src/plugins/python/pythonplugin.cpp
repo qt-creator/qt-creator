@@ -59,6 +59,7 @@ void PythonPlugin::initialize()
     d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
+    ProjectManager::registerProjectType<PythonProject>(PythonMimeTypeLegacy);
     JsonWizardFactory::registerPageFactory(new PythonWizardPageFactory);
 }
 
