@@ -22,10 +22,6 @@ public:
     static Utils::Id stepId();
     static QString displayName();
 
-    void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &files);
-    void setIgnoreMissingFiles(bool ignore) { m_ignoreMissingFiles = ignore; }
-    void setFlags(const QString &flags) { m_flags = flags; }
-
 private:
     bool isDeploymentNecessary() const final;
     Utils::Tasking::Group deployRecipe() final;

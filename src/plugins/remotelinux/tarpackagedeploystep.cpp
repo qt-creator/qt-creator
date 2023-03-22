@@ -45,13 +45,11 @@ public:
             if (!tarCreationStep)
                 return CheckResult::failure(Tr::tr("No tarball creation step found."));
 
-            const FilePath tarFile =
-                    FilePath::fromVariant(tarCreationStep->data(Constants::TarPackageFilePathId));
-            setPackageFilePath(tarFile);
+            m_packageFilePath =
+                FilePath::fromVariant(tarCreationStep->data(Constants::TarPackageFilePathId));
             return isDeploymentPossible();
         });
     }
-    void setPackageFilePath(const FilePath &filePath);
 
 private:
     QString remoteFilePath() const;
@@ -62,11 +60,6 @@ private:
 
     FilePath m_packageFilePath;
 };
-
-void TarPackageDeployStep::setPackageFilePath(const FilePath &filePath)
-{
-    m_packageFilePath = filePath;
-}
 
 QString TarPackageDeployStep::remoteFilePath() const
 {

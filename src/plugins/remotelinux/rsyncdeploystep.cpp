@@ -49,24 +49,20 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
             return CheckResult::failure(
                 Tr::tr("rsync is only supported for transfers between different devices."));
         }
-        setIgnoreMissingFiles(ignoreMissingFiles->value());
-        setFlags(flags->value());
+        m_ignoreMissingFiles = ignoreMissingFiles->value();
+        m_flags = flags->value();
         return isDeploymentPossible();
     });
 
     setRunPreparer([this] {
-        setDeployableFiles(target()->deploymentData().allFiles());
+        const QList<DeployableFile> files = target()->deploymentData().allFiles();
+        m_files.clear();
+        for (const DeployableFile &f : files)
+            m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
     });
 }
 
 RsyncDeployStep::~RsyncDeployStep() = default;
-
-void RsyncDeployStep::setDeployableFiles(const QList<DeployableFile> &files)
-{
-    m_files.clear();
-    for (const DeployableFile &f : files)
-        m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
-}
 
 bool RsyncDeployStep::isDeploymentNecessary() const
 {

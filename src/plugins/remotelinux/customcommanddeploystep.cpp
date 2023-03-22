@@ -32,27 +32,20 @@ public:
         commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
 
         setInternalInitializer([this, commandLine] {
-            setCommandLine(commandLine->value().trimmed());
+            m_commandLine = commandLine->value().trimmed();
             return isDeploymentPossible();
         });
 
         addMacroExpander();
     }
 
-    void setCommandLine(const QString &commandLine);
     CheckResult isDeploymentPossible() const final;
 
-protected:
+private:
     Group deployRecipe() final;
 
-private:
     QString m_commandLine;
 };
-
-void CustomCommandDeployStep::setCommandLine(const QString &commandLine)
-{
-    m_commandLine = commandLine;
-}
 
 CheckResult CustomCommandDeployStep::isDeploymentPossible() const
 {
