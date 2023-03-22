@@ -2,10 +2,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androiddeployqtstep.h"
+
 #include "androidavdmanager.h"
 #include "androidbuildapkstep.h"
 #include "androidconstants.h"
-#include "androiddeployqtstep.h"
 #include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidqtversion.h"
@@ -16,6 +17,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildsteplist.h>
@@ -27,10 +29,14 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
+#include <utils/commandline.h>
+#include <utils/environment.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -59,7 +65,78 @@ const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGR
 
 // AndroidDeployQtStep
 
-AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
+class AndroidDeployQtStep : public BuildStep
+{
+    Q_OBJECT
+
+    enum DeployErrorCode
+    {
+        NoError = 0,
+        InconsistentCertificates = 0x0001,
+        UpdateIncompatible = 0x0002,
+        PermissionModelDowngrade = 0x0004,
+        VersionDowngrade = 0x0008,
+        Failure = 0x0010
+    };
+
+public:
+    AndroidDeployQtStep(BuildStepList *bc, Id id);
+
+signals:
+    void askForUninstall(DeployErrorCode errorCode);
+
+private:
+    void runCommand(const CommandLine &command);
+
+    bool init() override;
+    void doRun() override;
+    void doCancel() override;
+    void gatherFilesToPull();
+    DeployErrorCode runDeploy();
+    void slotAskForUninstall(DeployErrorCode errorCode);
+
+    void runImpl(QPromise<bool> &promise);
+
+    QWidget *createConfigWidget() override;
+
+    void processReadyReadStdOutput(DeployErrorCode &errorCode);
+    void stdOutput(const QString &line);
+    void processReadyReadStdError(DeployErrorCode &errorCode);
+    void stdError(const QString &line);
+    DeployErrorCode parseDeployErrors(const QString &deployOutputLine) const;
+
+    friend void operator|=(DeployErrorCode &e1, const DeployErrorCode &e2) {
+        e1 = static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2);
+    }
+
+    friend DeployErrorCode operator|(const DeployErrorCode &e1, const DeployErrorCode &e2) {
+        return static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2);
+    }
+
+    void reportWarningOrError(const QString &message, Task::TaskType type);
+
+    FilePath m_manifestName;
+    QString m_serialNumber;
+    QString m_avdName;
+    FilePath m_apkPath;
+    QMap<QString, FilePath> m_filesToPull;
+
+    QStringList m_androidABIs;
+    BoolAspect *m_uninstallPreviousPackage = nullptr;
+    bool m_uninstallPreviousPackageRun = false;
+    bool m_useAndroiddeployqt = false;
+    bool m_askForUninstall = false;
+    CommandLine m_androiddeployqtArgs;
+    FilePath m_adbPath;
+    FilePath m_command;
+    FilePath m_workingDirectory;
+    Environment m_environment;
+    AndroidDeviceInfo m_deviceInfo;
+
+    FutureSynchronizer m_synchronizer;
+};
+
+AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
     : BuildStep(parent, id)
 {
     setImmutable(true);
@@ -209,9 +286,9 @@ bool AndroidDeployQtStep::init()
             reportWarningOrError(Tr::tr("The deployment step's project node is invalid."), Task::Error);
             return false;
         }
-        m_apkPath = Utils::FilePath::fromString(node->data(Constants::AndroidApk).toString());
+        m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
-            m_manifestName = Utils::FilePath::fromString(node->data(Constants::AndroidManifest).toString());
+            m_manifestName = FilePath::fromString(node->data(Constants::AndroidManifest).toString());
             m_command = AndroidConfigurations::currentConfig().adbToolPath();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {
@@ -254,7 +331,7 @@ bool AndroidDeployQtStep::init()
         m_apkPath = AndroidManager::packagePath(target());
         m_workingDirectory = bc ? AndroidManager::buildDirectory(target()): FilePath();
     }
-    m_environment = bc ? bc->environment() : Utils::Environment();
+    m_environment = bc ? bc->environment() : Environment();
 
     m_adbPath = AndroidConfigurations::currentConfig().adbToolPath();
 
@@ -593,3 +670,5 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
 }
 
 } // Android::Internal
+
+#include "androiddeployqtstep.moc"
