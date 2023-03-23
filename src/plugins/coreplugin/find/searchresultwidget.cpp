@@ -93,7 +93,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     topLayout->addWidget(m_topReplaceWidget);
 
     m_messageWidget = new QFrame;
-    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::CanceledSearchTextColor));
+    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError));
     m_messageWidget->setPalette(pal);
     if (creatorTheme()->flag(Theme::DrawSearchResultWidgetFrame)) {
         m_messageWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);

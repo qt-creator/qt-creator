@@ -36,7 +36,6 @@ public:
         BadgeLabelBackgroundColorUnchecked,
         BadgeLabelTextColorChecked,
         BadgeLabelTextColorUnchecked,
-        CanceledSearchTextColor,
         ComboBoxArrowColor,
         ComboBoxArrowColorDisabled,
         ComboBoxTextColor,

@@ -184,7 +184,6 @@ BadgeLabelBackgroundColorChecked=normalBackground
 BadgeLabelBackgroundColorUnchecked=selectedBackground
 BadgeLabelTextColorChecked=text
 BadgeLabelTextColorUnchecked=text
-CanceledSearchTextColor=ff0000
 ComboBoxArrowColor=text
 ComboBoxArrowColorDisabled=text
 ComboBoxTextColor=text

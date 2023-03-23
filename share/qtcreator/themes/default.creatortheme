@@ -175,7 +175,6 @@ BadgeLabelBackgroundColorChecked=ffe0e0e0
 BadgeLabelBackgroundColorUnchecked=ff808080
 BadgeLabelTextColorChecked=ff606060
 BadgeLabelTextColorUnchecked=ffffffff
-CanceledSearchTextColor=ffff0000
 ComboBoxArrowColor=ffb8b5b2
 ComboBoxArrowColorDisabled=ffdcdcdc
 ComboBoxTextColor=ffffffff
