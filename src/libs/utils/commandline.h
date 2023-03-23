@@ -119,6 +119,8 @@ public:
     enum RawType { Raw };
 
     CommandLine();
+    ~CommandLine();
+
     explicit CommandLine(const FilePath &executable);
     CommandLine(const FilePath &exe, const QStringList &args);
     CommandLine(const FilePath &exe, const QStringList &args, OsType osType);

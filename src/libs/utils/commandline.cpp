@@ -1409,6 +1409,8 @@ CommandLine::CommandLine(const FilePath &executable)
     : m_executable(executable)
 {}
 
+CommandLine::~CommandLine() = default;
+
 CommandLine::CommandLine(const FilePath &exe, const QStringList &args)
     : m_executable(exe)
 {
