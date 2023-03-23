@@ -470,8 +470,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                             client->symbolSupport().renameSymbol(document, cursor);
                     });
             connect(widget, &TextEditorWidget::requestCallHierarchy, this,
-                    [this, textEditor](const QTextCursor &cursor) {
-                        if (auto client = clientForDocument(textEditor->textDocument())) {
+                    [this, document = textEditor->textDocument()]() {
+                        if (clientForDocument(document)) {
                             emit openCallHierarchy();
                             NavigationWidget::activateSubWidget(Constants::CALL_HIERARCHY_FACTORY_ID,
                                                                 Side::Left);
