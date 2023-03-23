@@ -101,14 +101,31 @@ void DeviceSettingsWidget::initGui()
     m_deviceStateTextLabel = new QLabel;
     m_osSpecificGroupBox = new QGroupBox(Tr::tr("Type Specific"));
     m_osSpecificGroupBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    m_addConfigButton = new QPushButton(Tr::tr("&Add..."));
+    m_addConfigButton = new QPushButton(Tr::tr("&Start Wizard to Add Device..."));
     m_removeConfigButton = new QPushButton(Tr::tr("&Remove"));
     m_defaultDeviceButton = new QPushButton(Tr::tr("Set As Default"));
-    auto line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    auto customButtonsContainer = new QWidget;
-    m_buttonsLayout = new QVBoxLayout(customButtonsContainer);
+
+    auto directLayout = new QVBoxLayout;
+    for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories()) {
+        if (!factory->canCreate())
+            continue;
+        auto button = new QPushButton(Tr::tr("Add %1").arg(factory->displayName()));
+        directLayout->addWidget(button);
+        if (!factory->quickCreationAllowed()) {
+            button->setEnabled(false);
+            continue;
+        }
+        connect (button, &QPushButton::clicked, this, [factory, this] {
+            IDevice::Ptr device = factory->construct();
+            QTC_ASSERT(device, return);
+            m_deviceManager->addDevice(device);
+            m_removeConfigButton->setEnabled(true);
+            m_configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
+            saveSettings();
+        });
+    }
+
+    m_buttonsLayout = new QVBoxLayout;
     m_buttonsLayout->setContentsMargins({});
     auto scrollAreaWidget = new QWidget;
     auto scrollArea = new QScrollArea;
@@ -135,10 +152,12 @@ void DeviceSettingsWidget::initGui()
         },
         Column {
             m_addConfigButton,
+            Space(10),
+            directLayout,
+            Space(30),
             m_removeConfigButton,
             m_defaultDeviceButton,
-            line,
-            customButtonsContainer,
+            m_buttonsLayout,
             st,
         },
     }.attachTo(this);

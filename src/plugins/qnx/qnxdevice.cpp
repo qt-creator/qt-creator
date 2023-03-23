@@ -9,9 +9,12 @@
 #include "qnxdevicewizard.h"
 #include "qnxtr.h"
 
+#include <projectexplorer/devicesupport/sshparameters.h>
+
 #include <remotelinux/remotelinuxsignaloperation.h>
 
 #include <utils/port.h>
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -56,6 +59,13 @@ QnxDevice::QnxDevice()
     setDisplayType(Tr::tr("QNX"));
     setDefaultDisplayName(Tr::tr("QNX Device"));
     setOsType(OsTypeOtherUnix);
+    setupId(IDevice::ManuallyAdded);
+    setType(Constants::QNX_QNX_OS_TYPE);
+    setMachineType(IDevice::Hardware);
+    SshParameters sshParams;
+    sshParams.timeout = 10;
+    setSshParameters(sshParams);
+    setFreePorts(PortList::fromString("10000-10100"));
 
     addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
         QnxDeployQtLibrariesDialog dialog(device, parent);
@@ -94,6 +104,7 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
     setDisplayName(Tr::tr("QNX Device"));
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
+    setQuickCreationAllowed(true);
     setConstructionFunction(&QnxDevice::create);
     setCreator(&runDeviceWizard);
 }

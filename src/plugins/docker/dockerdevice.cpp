@@ -383,7 +383,9 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeOtherUnix);
     setDefaultDisplayName(Tr::tr("Docker Image"));
-
+    setupId(IDevice::ManuallyAdded);
+    setType(Constants::DOCKER_DEVICE_TYPE);
+    setMachineType(IDevice::Hardware);
     setDisplayName(Tr::tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
     setAllowEmptyCommand(true);
 
@@ -1095,9 +1097,6 @@ public:
         QTC_ASSERT(item, return {});
 
         auto device = DockerDevice::create(m_settings, *item);
-        device->setupId(IDevice::ManuallyAdded);
-        device->setType(Constants::DOCKER_DEVICE_TYPE);
-        device->setMachineType(IDevice::Hardware);
 
         return device;
     }

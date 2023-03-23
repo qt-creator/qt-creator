@@ -104,6 +104,7 @@ private:
 QdbDevice::QdbDevice()
 {
     setDisplayType(Tr::tr("Boot2Qt Device"));
+    setType(Constants::QdbLinuxOsType);
 
     addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
         (void) new DeviceApplicationObserver(device, {device->filePath("reboot"), {}});
@@ -247,6 +248,7 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
 {
     setDisplayName(Tr::tr("Boot2Qt Device"));
     setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
+    setQuickCreationAllowed(true);
     setConstructionFunction(&QdbDevice::create);
     setCreator([] {
         QdbDeviceWizard wizard(Core::ICore::dialogParent());

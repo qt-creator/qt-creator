@@ -27,6 +27,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/port.h>
+#include <utils/portlist.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -887,8 +888,15 @@ LinuxDevice::LinuxDevice()
 {
     setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Remote Linux"));
-    setDefaultDisplayName(Tr::tr("Remote Linux Device"));
     setOsType(OsTypeLinux);
+
+    setupId(IDevice::ManuallyAdded, Utils::Id());
+    setType(Constants::GenericLinuxOsType);
+    setMachineType(IDevice::Hardware);
+    setFreePorts(PortList::fromString(QLatin1String("10000-10100")));
+    SshParameters sshParams;
+    sshParams.timeout = 10;
+    setSshParameters(sshParams);
 
     addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
         if (auto d = PublicKeyDeploymentDialog::createDialog(device, parent)) {
@@ -1489,6 +1497,7 @@ LinuxDeviceFactory::LinuxDeviceFactory()
     setDisplayName(Tr::tr("Remote Linux Device"));
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
+    setQuickCreationAllowed(true);
     setCreator([] {
         GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::dialogParent());
         if (wizard.exec() != QDialog::Accepted)

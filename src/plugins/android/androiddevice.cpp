@@ -847,7 +847,6 @@ AndroidDeviceFactory::AndroidDeviceFactory()
     setDisplayName(Tr::tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
-
     setConstructionFunction(&AndroidDevice::create);
     if (m_androidConfig.sdkToolsOk()) {
         setCreator([this] {
