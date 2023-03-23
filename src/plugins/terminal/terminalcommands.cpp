@@ -18,6 +18,8 @@ namespace Terminal {
 constexpr char COPY[] = "Terminal.Copy";
 constexpr char PASTE[] = "Terminal.Paste";
 constexpr char CLEARSELECTION[] = "Terminal.ClearSelection";
+constexpr char MOVECURSORWORDLEFT[] = "Terminal.MoveCursorWordLeft";
+constexpr char MOVECURSORWORDRIGHT[] = "Terminal.MoveCursorWordRight";
 
 constexpr char NEWTERMINAL[] = "Terminal.NewTerminal";
 constexpr char CLOSETERMINAL[] = "Terminal.CloseTerminal";
@@ -59,6 +61,16 @@ void TerminalCommands::initWidgetActions(const Core::Context &context)
     command = ActionManager::instance()->registerAction(&m_widgetActions.clearSelection,
                                                         CLEARSELECTION);
     command->setDefaultKeySequence(QKeySequence("Esc"));
+    m_commands.push_back(command);
+
+    command = ActionManager::instance()->registerAction(&m_widgetActions.moveCursorWordLeft,
+                                                        MOVECURSORWORDLEFT);
+    command->setDefaultKeySequence(QKeySequence("Alt+Left"));
+    m_commands.push_back(command);
+
+    command = ActionManager::instance()->registerAction(&m_widgetActions.moveCursorWordRight,
+                                                        MOVECURSORWORDRIGHT);
+    command->setDefaultKeySequence(QKeySequence("Alt+Right"));
     m_commands.push_back(command);
 }
 
@@ -113,12 +125,19 @@ void TerminalCommands::initGlobalCommands()
 
 bool TerminalCommands::triggerAction(QKeyEvent *event)
 {
+    QKeyCombination combination = event->keyCombination();
+
+    // On macOS, the arrow keys include the KeypadModifier, which we don't want.
+    if (HostOsInfo::isMacHost() && combination.keyboardModifiers() & Qt::KeypadModifier)
+        combination = QKeyCombination(combination.keyboardModifiers() & ~Qt::KeypadModifier,
+                                      combination.key());
+
     for (const auto &command : TerminalCommands::instance().m_commands) {
         if (!command->action()->isEnabled())
             continue;
 
         for (const auto &shortcut : command->keySequences()) {
-            const auto result = shortcut.matches(QKeySequence(event->keyCombination()));
+            const auto result = shortcut.matches(QKeySequence(combination));
             if (result == QKeySequence::ExactMatch) {
                 command->action()->trigger();
                 return true;

@@ -234,6 +234,8 @@ void TerminalWidget::setupActions()
     connect(&a.paste, &QAction::triggered, this, ifHasFocus(&TerminalWidget::pasteFromClipboard));
     connect(&a.clearSelection, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearSelection));
     connect(&a.clearTerminal, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearContents));
+    connect(&a.moveCursorWordLeft, &QAction::triggered, this, ifHasFocus(&TerminalWidget::moveCursorWordLeft));
+    connect(&a.moveCursorWordRight, &QAction::triggered, this, ifHasFocus(&TerminalWidget::moveCursorWordRight));
     // clang-format on
 }
 
@@ -400,6 +402,16 @@ void TerminalWidget::zoomOut()
 {
     m_font.setPointSize(qMax(m_font.pointSize() - 1, 1));
     setFont(m_font);
+}
+
+void TerminalWidget::moveCursorWordLeft()
+{
+    writeToPty("\x1b\x62");
+}
+
+void TerminalWidget::moveCursorWordRight()
+{
+    writeToPty("\x1b\x66");
 }
 
 void TerminalWidget::clearContents()

@@ -21,6 +21,8 @@ struct WidgetActions
     QAction paste{Tr::tr("Paste")};
     QAction clearSelection{Tr::tr("Clear Selection")};
     QAction clearTerminal{Tr::tr("Clear Terminal")};
+    QAction moveCursorWordLeft{Tr::tr("Move Cursor Word Left")};
+    QAction moveCursorWordRight{Tr::tr("Move Cursor Word Right")};
 };
 
 struct PaneActions

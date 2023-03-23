@@ -37,6 +37,9 @@ public:
     void zoomIn();
     void zoomOut();
 
+    void moveCursorWordLeft();
+    void moveCursorWordRight();
+
     void clearContents();
 
     struct Selection
