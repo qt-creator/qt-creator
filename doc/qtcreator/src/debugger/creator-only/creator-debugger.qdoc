@@ -1007,17 +1007,57 @@
 
     \title Viewing and Editing Register State
 
-    The \uicontrol Registers view displays the current state of the CPU registers.
-    Depending on the CPU type, there will be different registers available. The
-    values of registers that recently have changed are highlighted in red and empty
-    register values as well as leading zeroes are grayed out.
+    \e {Machine code} consists of machine language instructions that make the CPU
+    perform tasks, such as load or store, on units of data in the CPU's registers
+    or memory.
 
-    In addition it is possible to edit the content of registers while the application is
-    stopped. This applies to both General-purpose and Special-purpose registers.
-    Registers can be edited in the standard condensed view or in their particular parts
-    if the register is displayed expanded.
+    The \uicontrol Registers view displays the current state of general-purpose
+    and special-purpose CPU registers. The available registers depend on the CPU
+    type.
 
-    By default, the \uicontrol Registers view is hidden.
+    \image qtcreator-debugger-registers-view.webp {Registers view}
+
+    You can view register values when the application stops. Double-click
+    register values to edit them.
+
+    The values of registers that recently changed are highlighted in red. Empty
+    register values and leading zeroes are grayed out.
+
+    Right-click column headers to show and hide the \uicontrol Name and
+    \uicontrol Value columns in the view.
+
+    Right-click the view to select the following actions:
+
+    \list
+        \li Reload register list.
+        \li Open \l {Examining Memory}{Memory Editor} at the selected value.
+        \li Open the \l {Viewing Disassembled Code}{Disassembler} view.
+        \li Display a value in hexadecimal, decimal, octal, or binary format.
+    \endlist
+
+    By default, the \uicontrol Registers view is hidden. To show it, select it in
+    \uicontrol Views on the debugger toolbar.
+
+    \section1 Examining Memory
+
+    You can examine memory in many formats, independently of the application's
+    data types.
+
+    To open the memory editor, select a value \uicontrol Registers view,
+    and then select \uicontrol {Open Memory Editor at <value>} or
+    \uicontrol {Open Memory View at <value>} in the context menu:
+
+    \image qtcreator-debugger-memory-editor.webp {Memory Editor}
+
+    Hover the mouse pointer on a value to see details as a tooltip.
+
+    Right-click a value to:
+
+    \list
+        \li Copy the selection in ASCII or hexadecimal format.
+        \li Set a data breakpoint on the selection.
+        \li Jump to the selected address in the current data view or a new one.
+    \endlist
 */
 
 /*!
