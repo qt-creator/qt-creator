@@ -221,7 +221,7 @@ public:
     virtual bool prepareForBuild(const Target *target);
     virtual std::optional<Utils::FilePath> clangdExecutable() const;
 
-    virtual void checkOsType(){};
+    virtual void checkOsType() {}
 
 protected:
     IDevice();
