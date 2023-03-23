@@ -21,7 +21,7 @@
 
 #include <QMenu>
 #include <QStandardPaths>
-#include <QtWidgets/qwidget.h>
+#include <QToolButton>
 
 namespace Terminal {
 
@@ -110,6 +110,14 @@ TerminalPane::TerminalPane(QObject *parent)
         Core::Command *minMaxCommand = Core::ActionManager::command("Coreplugin.OutputPane.minmax");
         if (minMaxCommand)
             emit minMaxCommand->action()->triggered();
+    });
+
+    m_openSettingsButton = new QToolButton();
+    m_openSettingsButton->setToolTip(Tr::tr("Open Terminal Settings"));
+    m_openSettingsButton->setIcon(Icons::SETTINGS_TOOLBAR.icon());
+
+    connect(m_openSettingsButton, &QToolButton::clicked, m_openSettingsButton, []() {
+        TerminalCommands::openSettingsAction()->trigger();
     });
 }
 
@@ -252,7 +260,7 @@ QList<QWidget *> TerminalPane::toolBarWidgets() const
     widgets.prepend(m_newTerminalButton);
     widgets.prepend(m_closeTerminalButton);
 
-    return widgets;
+    return widgets << m_openSettingsButton;
 }
 
 QString TerminalPane::displayName() const

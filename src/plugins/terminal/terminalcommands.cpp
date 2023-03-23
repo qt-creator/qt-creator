@@ -129,4 +129,9 @@ bool TerminalCommands::triggerAction(QKeyEvent *event)
     return false;
 }
 
+QAction *TerminalCommands::openSettingsAction()
+{
+    return ActionManager::command("Preferences.Terminal.General")->action();
+}
+
 } // namespace Terminal

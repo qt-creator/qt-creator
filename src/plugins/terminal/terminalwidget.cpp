@@ -26,6 +26,7 @@
 #include <QElapsedTimer>
 #include <QGlyphRun>
 #include <QLoggingCategory>
+#include <QMenu>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -232,6 +233,7 @@ void TerminalWidget::setupActions()
     connect(&a.copy, &QAction::triggered, this, ifHasFocus(&TerminalWidget::copyToClipboard));
     connect(&a.paste, &QAction::triggered, this, ifHasFocus(&TerminalWidget::pasteFromClipboard));
     connect(&a.clearSelection, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearSelection));
+    connect(&a.clearTerminal, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearContents));
     // clang-format on
 }
 
@@ -1078,7 +1080,17 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
         event->accept();
         updateViewport();
     } else if (event->button() == Qt::RightButton) {
-        if (m_selection) {
+        if (event->modifiers() == Qt::ShiftModifier) {
+            QMenu *contextMenu = new QMenu(this);
+            contextMenu->addAction(&TerminalCommands::widgetActions().copy);
+            contextMenu->addAction(&TerminalCommands::widgetActions().paste);
+            contextMenu->addSeparator();
+            contextMenu->addAction(&TerminalCommands::widgetActions().clearTerminal);
+            contextMenu->addSeparator();
+            contextMenu->addAction(TerminalCommands::openSettingsAction());
+
+            contextMenu->popup(event->globalPos());
+        } else if (m_selection) {
             copyToClipboard();
             setSelection(std::nullopt);
         } else {

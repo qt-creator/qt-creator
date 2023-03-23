@@ -20,6 +20,7 @@ struct WidgetActions
     QAction copy{Tr::tr("Copy")};
     QAction paste{Tr::tr("Paste")};
     QAction clearSelection{Tr::tr("Clear Selection")};
+    QAction clearTerminal{Tr::tr("Clear Terminal")};
 };
 
 struct PaneActions
@@ -44,6 +45,8 @@ public:
     static QList<QKeySequence> shortcutsFor(QAction *action);
 
     static bool triggerAction(QKeyEvent *event);
+
+    static QAction *openSettingsAction();
 
 protected:
     void initWidgetActions(const Core::Context &context);
