@@ -157,6 +157,7 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
             if ((qmlMetaObject->className() == "ListElement"
                  || qmlMetaObject->className() == "Connections")
                 && (qmlMetaObject->moduleName() == "Qt" || qmlMetaObject->moduleName() == "QtQml"
+                    || qmlMetaObject->moduleName() == "QtQml.Base"
                     || qmlMetaObject->moduleName() == "QtQuick")) {
                 qmlScopeObjects.clear();
                 break;
