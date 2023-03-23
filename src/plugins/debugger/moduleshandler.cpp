@@ -140,6 +140,12 @@ public:
     DebuggerEngine *engine;
 };
 
+static bool dependsCanBeFound()
+{
+    static bool dependsInPath = Environment::systemEnvironment().searchInPath("depends").isEmpty();
+    return dependsInPath;
+}
+
 bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 {
     ModuleItem *item = itemForIndexAtLevel<1>(ev.sourceModelIndex());
@@ -163,11 +169,13 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               moduleNameValid && enabled && canReload,
               [this, modulePath] { engine->loadSymbols(modulePath); });
 
-    // FIXME: Dependencies only available on Windows, when "depends" is installed.
     addAction(this, menu, Tr::tr("Show Dependencies of \"%1\"").arg(moduleName),
               Tr::tr("Show Dependencies"),
-              moduleNameValid && !moduleName.isEmpty() && HostOsInfo::isWindowsHost(),
-              [modulePath] { QtcProcess::startDetached({{"depends"}, {modulePath.toString()}}); });
+              moduleNameValid && !modulePath.needsDevice() && modulePath.exists()
+                  && dependsCanBeFound(),
+              [modulePath] {
+                  QtcProcess::startDetached({{"depends"}, {modulePath.toString()}});
+              });
 
     addAction(this, menu, Tr::tr("Load Symbols for All Modules"),
               enabled && canLoadSymbols,
