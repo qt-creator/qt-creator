@@ -6,19 +6,21 @@
 #include "qnxconstants.h"
 #include "qnxdeployqtlibrariesdialog.h"
 #include "qnxdevicetester.h"
-#include "qnxdevicewizard.h"
 #include "qnxtr.h"
+
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/sshparameters.h>
 
+#include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <remotelinux/remotelinuxsignaloperation.h>
+#include <remotelinux/linuxdevice.h>
 
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-
-#include <QRegularExpression>
+#include <utils/wizard.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -54,48 +56,73 @@ public:
     }
 };
 
-QnxDevice::QnxDevice()
+class QnxDevice final : public LinuxDevice
 {
-    setDisplayType(Tr::tr("QNX"));
-    setDefaultDisplayName(Tr::tr("QNX Device"));
-    setOsType(OsTypeOtherUnix);
-    setupId(IDevice::ManuallyAdded);
-    setType(Constants::QNX_QNX_OS_TYPE);
-    setMachineType(IDevice::Hardware);
-    SshParameters sshParams;
-    sshParams.timeout = 10;
-    setSshParameters(sshParams);
-    setFreePorts(PortList::fromString("10000-10100"));
+public:
+    QnxDevice()
+    {
+        setDisplayType(Tr::tr("QNX"));
+        setDefaultDisplayName(Tr::tr("QNX Device"));
+        setOsType(OsTypeOtherUnix);
+        setupId(IDevice::ManuallyAdded);
+        setType(Constants::QNX_QNX_OS_TYPE);
+        setMachineType(IDevice::Hardware);
+        SshParameters sshParams;
+        sshParams.timeout = 10;
+        setSshParameters(sshParams);
+        setFreePorts(PortList::fromString("10000-10100"));
 
-    addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
-        QnxDeployQtLibrariesDialog dialog(device, parent);
-        dialog.exec();
-    }});
-}
+        addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
+            QnxDeployQtLibrariesDialog dialog(device, parent);
+            dialog.exec();
+        }});
+    }
 
-PortsGatheringMethod QnxDevice::portsGatheringMethod() const
+    PortsGatheringMethod portsGatheringMethod() const final
+    {
+        return {
+            [this](QAbstractSocket::NetworkLayerProtocol) {
+                return CommandLine(filePath("netstat"), {"-na"});
+            },
+            &Port::parseFromNetstatOutput
+        };
+    }
+
+    DeviceProcessSignalOperation::Ptr signalOperation() const final
+    {
+        return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(sharedFromThis()));
+    }
+
+    DeviceTester *createDeviceTester() const final { return new QnxDeviceTester; }
+};
+
+class QnxDeviceWizard : public Wizard
 {
-    return {
-        // TODO: The command is probably needlessly complicated because the parsing method
-        // used to be fixed. These two can now be matched to each other.
-        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
-            Q_UNUSED(protocol)
-            return {filePath("netstat"), {"-na"}};
-        },
+public:
+    QnxDeviceWizard() : Wizard(Core::ICore::dialogParent())
+    {
+        setWindowTitle(Tr::tr("New QNX Device Configuration Setup"));
 
-        &Port::parseFromNetstatOutput
-    };
-}
+        addPage(&m_setupPage);
+        addPage(&m_keyDeploymentPage);
+        addPage(&m_finalPage);
+        m_finalPage.setCommitPage(true);
 
-DeviceTester *QnxDevice::createDeviceTester() const
-{
-    return new QnxDeviceTester;
-}
+        m_device.reset(new QnxDevice);
 
-DeviceProcessSignalOperation::Ptr QnxDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(sharedFromThis()));
-}
+        m_setupPage.setDevice(m_device);
+        m_keyDeploymentPage.setDevice(m_device);
+    }
+
+    IDevice::Ptr device() const { return m_device; }
+
+private:
+    GenericLinuxDeviceConfigurationWizardSetupPage m_setupPage;
+    GenericLinuxDeviceConfigurationWizardKeyDeploymentPage m_keyDeploymentPage;
+    GenericLinuxDeviceConfigurationWizardFinalPage m_finalPage;
+
+    LinuxDevice::Ptr m_device;
+};
 
 // Factory
 
@@ -105,8 +132,13 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
     setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
                     ":/qnx/images/qnxdevice.png");
     setQuickCreationAllowed(true);
-    setConstructionFunction(&QnxDevice::create);
-    setCreator(&runDeviceWizard);
+    setConstructionFunction([] { return IDevice::Ptr(new QnxDevice); });
+    setCreator([] {
+        QnxDeviceWizard wizard;
+        if (wizard.exec() != QDialog::Accepted)
+            return IDevice::Ptr();
+        return wizard.device();
+    });
 }
 
 } // Qnx::Internal

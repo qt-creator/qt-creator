@@ -11,7 +11,6 @@ add_qtc_plugin(Qnx
     qnxdeployqtlibrariesdialog.cpp qnxdeployqtlibrariesdialog.h
     qnxdevice.cpp qnxdevice.h
     qnxdevicetester.cpp qnxdevicetester.h
-    qnxdevicewizard.cpp qnxdevicewizard.h
     qnxplugin.cpp
     qnxqtversion.cpp qnxqtversion.h
     qnxrunconfiguration.cpp qnxrunconfiguration.h
