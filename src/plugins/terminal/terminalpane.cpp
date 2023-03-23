@@ -218,6 +218,11 @@ void TerminalPane::removeTab(int index)
         delete m_tabWidget->widget(index);
 
     TerminalCommands::instance().paneActions().closeTerminal.setEnabled(m_tabWidget->count() > 1);
+
+    if (auto terminal = currentTerminal()) {
+        terminal->setFocus();
+    }
+
     emit navigateStateUpdate();
 }
 
