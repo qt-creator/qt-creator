@@ -497,6 +497,26 @@ PaletteTextDisabled=textDisabled
 PaletteMid=ffafafaf
 PalettePlaceholderText=ff808081
 
+TerminalForeground=ffffffff
+TerminalBackground=ff000000
+TerminalSelection=7fffffff
+TerminalAnsi0=000000
+TerminalAnsi1=8b1b10
+TerminalAnsi2=4aa32e
+TerminalAnsi3=9a9a2f
+TerminalAnsi4=0000ab
+TerminalAnsi5=a320ac
+TerminalAnsi6=49a3b0
+TerminalAnsi7=bfbfbf
+TerminalAnsi8=666666
+TerminalAnsi9=d22d1f
+TerminalAnsi10=62d63f
+TerminalAnsi11=e5e54b
+TerminalAnsi12=0000fe
+TerminalAnsi13=d22dde
+TerminalAnsi14=69e2e4
+TerminalAnsi15=e5e5e6
+
 [Flags]
 ComboBoxDrawTextShadow=false
 DerivePaletteFromTheme=true

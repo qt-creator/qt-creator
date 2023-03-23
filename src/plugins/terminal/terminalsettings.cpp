@@ -7,6 +7,7 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/theme/theme.h>
 
 using namespace Utils;
 
@@ -96,33 +97,42 @@ TerminalSettings::TerminalSettings()
     shell.setToolTip(Tr::tr("The shell executable to be started as terminal"));
     shell.setDefaultValue(defaultShell());
 
-    setupColor(this, foregroundColor, "Foreground", QColor::fromRgb(0xff, 0xff, 0xff));
-    setupColor(this, backgroundColor, "Background", QColor::fromRgb(0x0, 0x0, 0x0));
-    setupColor(this, selectionColor, "Selection", QColor::fromRgb(0xFF, 0xFF, 0xFF, 0x7F));
+    setupColor(this,
+               foregroundColor,
+               "Foreground",
+               Utils::creatorTheme()->color(Theme::TerminalForeground));
+    setupColor(this,
+               backgroundColor,
+               "Background",
+               Utils::creatorTheme()->color(Theme::TerminalBackground));
+    setupColor(this,
+               selectionColor,
+               "Selection",
+               Utils::creatorTheme()->color(Theme::TerminalSelection));
 
-    setupColor(this, colors[0], "0", QColor::fromRgb(0x00, 0x00, 0x00));
-    setupColor(this, colors[8], "8", QColor::fromRgb(102, 102, 102));
+    setupColor(this, colors[0], "0", Utils::creatorTheme()->color(Theme::TerminalAnsi0));
+    setupColor(this, colors[8], "8", Utils::creatorTheme()->color(Theme::TerminalAnsi8));
 
-    setupColor(this, colors[1], "1", QColor::fromRgb(139, 27, 16));
-    setupColor(this, colors[9], "9", QColor::fromRgb(210, 45, 31));
+    setupColor(this, colors[1], "1", Utils::creatorTheme()->color(Theme::TerminalAnsi1));
+    setupColor(this, colors[9], "9", Utils::creatorTheme()->color(Theme::TerminalAnsi9));
 
-    setupColor(this, colors[2], "2", QColor::fromRgb(74, 163, 46));
-    setupColor(this, colors[10], "10", QColor::fromRgb(98, 214, 63));
+    setupColor(this, colors[2], "2", Utils::creatorTheme()->color(Theme::TerminalAnsi2));
+    setupColor(this, colors[10], "10", Utils::creatorTheme()->color(Theme::TerminalAnsi10));
 
-    setupColor(this, colors[3], "3", QColor::fromRgb(154, 154, 47));
-    setupColor(this, colors[11], "11", QColor::fromRgb(229, 229, 75));
+    setupColor(this, colors[3], "3", Utils::creatorTheme()->color(Theme::TerminalAnsi3));
+    setupColor(this, colors[11], "11", Utils::creatorTheme()->color(Theme::TerminalAnsi11));
 
-    setupColor(this, colors[4], "4", QColor::fromRgb(0, 0, 171));
-    setupColor(this, colors[12], "12", QColor::fromRgb(0, 0, 254));
+    setupColor(this, colors[4], "4", Utils::creatorTheme()->color(Theme::TerminalAnsi4));
+    setupColor(this, colors[12], "12", Utils::creatorTheme()->color(Theme::TerminalAnsi12));
 
-    setupColor(this, colors[5], "5", QColor::fromRgb(163, 32, 172));
-    setupColor(this, colors[13], "13", QColor::fromRgb(210, 45, 222));
+    setupColor(this, colors[5], "5", Utils::creatorTheme()->color(Theme::TerminalAnsi5));
+    setupColor(this, colors[13], "13", Utils::creatorTheme()->color(Theme::TerminalAnsi13));
 
-    setupColor(this, colors[6], "6", QColor::fromRgb(73, 163, 176));
-    setupColor(this, colors[14], "14", QColor::fromRgb(105, 226, 228));
+    setupColor(this, colors[6], "6", Utils::creatorTheme()->color(Theme::TerminalAnsi6));
+    setupColor(this, colors[14], "14", Utils::creatorTheme()->color(Theme::TerminalAnsi14));
 
-    setupColor(this, colors[7], "7", QColor::fromRgb(191, 191, 191));
-    setupColor(this, colors[15], "15", QColor::fromRgb(229, 229, 230));
+    setupColor(this, colors[7], "7", Utils::creatorTheme()->color(Theme::TerminalAnsi7));
+    setupColor(this, colors[15], "15", Utils::creatorTheme()->color(Theme::TerminalAnsi15));
 
     registerAspect(&font);
     registerAspect(&fontSize);

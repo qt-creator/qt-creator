@@ -337,6 +337,7 @@ QWidget *TerminalSettingsPage::widget()
     TerminalSettings &settings = TerminalSettings::instance();
 
     QPushButton *loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
+    QPushButton *resetTheme = new QPushButton(Tr::tr("Reset Theme to default"));
 
     connect(loadThemeButton, &QPushButton::clicked, this, [widget] {
         const FilePath path = FileUtils::getOpenFilePath(
@@ -361,6 +362,16 @@ QWidget *TerminalSettingsPage::widget()
         const expected_str<void> result = loadColorScheme(path);
         if (!result)
             QMessageBox::warning(widget, Tr::tr("Error"), result.error());
+    });
+
+    connect(resetTheme, &QPushButton::clicked, this, [] {
+        TerminalSettings &settings = TerminalSettings::instance();
+        settings.foregroundColor.setVolatileValue(settings.foregroundColor.defaultValue());
+        settings.backgroundColor.setVolatileValue(settings.backgroundColor.defaultValue());
+        settings.selectionColor.setVolatileValue(settings.selectionColor.defaultValue());
+
+        for (auto &color : settings.colors)
+            color.setVolatileValue(color.defaultValue());
     });
 
     // clang-format off
@@ -402,7 +413,7 @@ QWidget *TerminalSettingsPage::widget()
                     settings.colors[14], settings.colors[15]
                 },
                 Row {
-                    loadThemeButton, st,
+                    loadThemeButton, resetTheme, st,
                 }
             },
         },
