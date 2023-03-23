@@ -8,6 +8,7 @@
 #include "terminalsurface.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
@@ -1069,7 +1070,10 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
                 return;
             }
 
-            Core::EditorManager::openEditorAt(m_linkSelection->link);
+            if (m_linkSelection->link.targetFilePath.isDir())
+                Core::FileUtils::showInFileSystemView(m_linkSelection->link.targetFilePath);
+            else
+                Core::EditorManager::openEditorAt(m_linkSelection->link);
         }
         return;
     }
