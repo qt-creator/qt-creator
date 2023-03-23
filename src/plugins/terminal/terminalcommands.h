@@ -51,6 +51,8 @@ public:
 
     static QAction *openSettingsAction();
 
+    void registerOpenCloseTerminalPaneCommand();
+
 protected:
     void initWidgetActions(const Core::Context &context);
     void initPaneActions(const Core::Context &context);

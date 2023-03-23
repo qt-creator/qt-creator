@@ -295,6 +295,8 @@ void TerminalPane::setFocus()
 {
     if (const auto t = currentTerminal())
         t->setFocus();
+
+    TerminalCommands::instance().registerOpenCloseTerminalPaneCommand();
 }
 
 bool TerminalPane::hasFocus() const

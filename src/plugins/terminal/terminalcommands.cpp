@@ -153,4 +153,13 @@ QAction *TerminalCommands::openSettingsAction()
     return ActionManager::command("Preferences.Terminal.General")->action();
 }
 
+void TerminalCommands::registerOpenCloseTerminalPaneCommand()
+{
+    Command* terminalCmd = ActionManager::command("QtCreator.Pane.Terminal");
+    QTC_ASSERT(terminalCmd, return);
+
+    if (!m_commands.contains(terminalCmd))
+        m_commands.append(terminalCmd);
+}
+
 } // namespace Terminal
