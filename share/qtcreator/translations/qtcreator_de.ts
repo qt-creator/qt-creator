@@ -21111,23 +21111,23 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Failed to copy core file to device: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Core-Datei konnte nicht auf das Gerät kopiert werden: %1</translation>
     </message>
     <message>
         <source>Failed to copy symbol file to device: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbol-Datei konnte nicht auf das Gerät kopiert werden: %1</translation>
     </message>
     <message>
         <source>Copying files to device... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere Dateien auf Gerät... %1/%2</translation>
     </message>
     <message>
         <source>Copying files to device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere Dateien auf Gerät...</translation>
     </message>
     <message>
         <source>Kit:</source>
@@ -22221,7 +22221,7 @@ was generated. In such situations the breakpoint is shifted to the
 next source code line for which code was actually generated.
 This option reflects such temporary change by moving the breakpoint
 markers in the source code editor.</source>
-        <translation>Nicht alle Quellcode-Zeilen bewirken die Erzeugung von ausführbarem Code. Wenn man auf solche Zeilen einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall auf die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
+        <translation>Nicht alle Quellcode-Zeilen bewirken die Erzeugung von ausführbarem Code. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall auf die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
         <source>Allows or inhibits reading the user&apos;s default
@@ -22262,7 +22262,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>The options below give access to advanced&lt;br&gt;or experimental functions of GDB.&lt;p&gt;Enabling them may negatively impact&lt;br&gt;your debugging experience.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die untenstehenden Einstellungen betreffen spezielle&lt;br&gt;oder experimentelle Funktionalität von GDB.&lt;p&gt;Ihre Verwendung kann das Debuggen&lt;br&gt;negativ beeinflussen.</translation>
     </message>
     <message>
         <source>Additional Attach Commands</source>
@@ -23166,11 +23166,11 @@ Installieren Sie das Paket &quot;Qt Debug Information Files&quot; für diese Qt-
     </message>
     <message>
         <source>Debugger Start Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Start des Debuggers schlug fehl</translation>
     </message>
     <message>
         <source>The system prevents loading of %1 which is required for debugging. Make sure that your antivirus solution is up to date and if that does not work consider to add an exception for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das System verhindert das Laden von %1, welches für das Debuggen erforderlich ist. Stellen Sie sicher, dass Ihr Virenschutzprogramm aktuell ist. Falls dies nicht hilft, ziehen Sie in Betracht, eine Ausnahme für %1 hinzuzufügen.</translation>
     </message>
     <message>
         <source>Value %1 obtained from evaluating the condition of breakpoint %2, stopping.</source>
@@ -23594,7 +23594,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>&amp;Attach to Process</source>
-        <translation type="unfinished">&amp;An Prozess anhängen</translation>
+        <translation>&amp;An Prozess anhängen</translation>
     </message>
     <message>
         <source>Edit Breakpoint...</source>
@@ -23602,11 +23602,11 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Starten</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Anhalten</translation>
+        <translation>Anhalten</translation>
     </message>
     <message>
         <source>F8</source>
@@ -24575,7 +24575,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Debugger Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Position des Debuggers</translation>
     </message>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
@@ -25093,7 +25093,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>&lt;p&gt;Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
         <source>Stopping and stepping in the debugger will automatically open views associated with the current location.</source>
@@ -25532,7 +25532,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Debugger Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger-Wert</translation>
     </message>
 </context>
 <context>
@@ -25609,7 +25609,7 @@ Bitte prüfen Sie die #include-Anweisungen.</translation>
     </message>
     <message>
         <source>Cannot rename UI symbol &quot;%1&quot; in C++ files: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>UI-Symbol &quot;%1&quot; konnte in den C++-Dateien nicht umbenannt werden: %2</translation>
     </message>
     <message>
         <source>Error finding/adding a slot.</source>
@@ -25627,31 +25627,31 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; not found in project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; wurde nicht im Projekt gefunden.</translation>
     </message>
     <message>
         <source>No active target.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Ziel aktiv.</translation>
     </message>
     <message>
         <source>No active build system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Build-System aktiv.</translation>
     </message>
     <message>
         <source>Failed to find the ui header.</source>
-        <translation type="unfinished"></translation>
+        <translation>UI-Header-Datei konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Renaming via the property editor cannot be synced with C++ code; see QTCREATORBUG-19141. This message will not be repeated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenennungen über den Eigenschaften-Editor können nicht mit C++-Code synchronisiert werden; siehe auch QTCREATORBUG-19141. Diese Nachricht wird nicht erneut angezeigt.</translation>
     </message>
     <message>
         <source>Failed to retrieve ui header contents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt des UI-Headers konnte nicht abgerufen werden.</translation>
     </message>
     <message>
         <source>Failed to locate corresponding symbol in ui header.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das entsprechende Symbol konnte im UI-Header nicht ausfindig gemacht werden.</translation>
     </message>
     <message>
         <source>Widget box</source>
