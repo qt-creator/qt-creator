@@ -587,10 +587,15 @@ QList<SlotList> getSlotsLists(const ModelNode &node)
 ModelNode createNewConnection(ModelNode targetNode)
 {
     NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->qtQuickConnectionsMetaInfo();
-    ModelNode newConnectionNode = targetNode.view()->createModelNode(
-        "QtQuick.Connections", connectionsMetaInfo.majorVersion(), connectionsMetaInfo.minorVersion());
-    if (QmlItemNode::isValidQmlItemNode(targetNode))
+    ModelNode newConnectionNode = targetNode.view()->createModelNode(connectionsMetaInfo.typeName(),
+                                                                     connectionsMetaInfo.majorVersion(),
+                                                                     connectionsMetaInfo.minorVersion());
+    if (QmlItemNode::isValidQmlItemNode(targetNode)) {
         targetNode.nodeAbstractProperty("data").reparentHere(newConnectionNode);
+    } else {
+        targetNode.view()->rootModelNode().defaultNodeAbstractProperty().reparentHere(
+            newConnectionNode);
+    }
 
     newConnectionNode.bindingProperty("target").setExpression(targetNode.id());
 
