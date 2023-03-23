@@ -1180,7 +1180,10 @@ void TerminalWidget::checkLinkAt(const QPoint &pos)
             t = QDir::homePath() + t.mid(1);
         }
 
-        const Link link = Link::fromString(t, true);
+        Link link = Link::fromString(t, true);
+
+        if (!link.targetFilePath.isAbsolutePath())
+            link.targetFilePath = m_cwd.pathAppended(link.targetFilePath.path());
 
         if (link.hasValidTarget()
             && (link.targetFilePath.scheme().toString().startsWith("http")
