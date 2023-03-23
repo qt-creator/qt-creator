@@ -1112,6 +1112,15 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
         } else {
             pasteFromClipboard();
         }
+    } else if (event->button() == Qt::MiddleButton) {
+        QClipboard *clipboard = QApplication::clipboard();
+        if (clipboard->supportsSelection()) {
+            const QString selectionText = clipboard->text(QClipboard::Selection);
+            if (!selectionText.isEmpty())
+                m_surface->pasteFromClipboard(selectionText);
+        } else {
+            m_surface->pasteFromClipboard(textFromSelection());
+        }
     }
 }
 void TerminalWidget::mouseMoveEvent(QMouseEvent *event)
