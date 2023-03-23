@@ -8,6 +8,8 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/environment.h>

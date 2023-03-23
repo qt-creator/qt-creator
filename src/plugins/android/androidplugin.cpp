@@ -50,6 +50,8 @@
 
 #include <qtsupport/qtversionmanager.h>
 
+#include <QTimer>
+
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;
 

@@ -11,6 +11,7 @@
 #include "idebugserverprovider.h"
 
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>

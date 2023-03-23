@@ -14,6 +14,7 @@
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
