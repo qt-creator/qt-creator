@@ -331,7 +331,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
 } // namespace TextEditor
 
 #ifdef WITH_TESTS
-#include <texteditorplugin.h>
+#include "texteditorplugin.h"
 #include <QTest>
 
 namespace TextEditor::Internal {
