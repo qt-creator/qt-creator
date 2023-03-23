@@ -19429,7 +19429,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Inspect C++ Code Model...</source>
-        <translation>Inspiziere das C++-Codemodell...</translation>
+        <translation>C++-Codemodell inspizieren...</translation>
     </message>
     <message>
         <source>Meta+Shift+F12</source>
@@ -31706,19 +31706,19 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Symbols in Current Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole im aktuellen Dokument</translation>
     </message>
     <message>
         <source>Symbols in Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbole im Arbeitsbereich</translation>
     </message>
     <message>
         <source>Classes and Structs in Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Klassen und Strukturen im Arbeitsbereich</translation>
     </message>
     <message>
         <source>Functions and Methods in Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionen und Methoden im Arbeitsbereich</translation>
     </message>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
@@ -31730,19 +31730,19 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Show available quick fixes</source>
-        <translation type="unfinished"></translation>
+        <translation>Zur Verfügung stehende Quick Fixes anzeigen</translation>
     </message>
     <message>
         <source>Restart %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 neu starten</translation>
     </message>
     <message>
         <source>Inspect Language Clients</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Clients inspizieren</translation>
     </message>
     <message>
         <source>Manage...</source>
-        <translation type="unfinished">Verwalten...</translation>
+        <translation>Verwalten...</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -31763,7 +31763,8 @@ Ablaufdatum: %3</translation>
     <message>
         <source>List of file patterns.
 Example: *.cpp%1*.h</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste von Datei-Mustern.
+Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Startup behavior:</source>
@@ -31771,15 +31772,15 @@ Example: *.cpp%1*.h</source>
     </message>
     <message>
         <source>Initialization options:</source>
-        <translation type="unfinished"></translation>
+        <translation>Initialisierungseinstellungen:</translation>
     </message>
     <message>
         <source>Failed to parse JSON at %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON konnte bei %1 nicht ausgewertet werden: %2</translation>
     </message>
     <message>
         <source>Language server-specific JSON to pass via &quot;initializationOptions&quot; field of &quot;initialize&quot; request.</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server-abhängiges JSON, das über das &quot;initializationOptions&quot;-Feld der &quot;initialize&quot;-Anfrage übergeben werden soll.</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -31791,7 +31792,7 @@ Example: *.cpp%1*.h</source>
     </message>
     <message>
         <source>JSON Error</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Fehler</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -31815,31 +31816,31 @@ Example: *.cpp%1*.h</source>
     </message>
     <message>
         <source>%1 for %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 für %2</translation>
     </message>
     <message>
         <source>uninitialized</source>
-        <translation type="unfinished"></translation>
+        <translation>nicht initialisiert</translation>
     </message>
     <message>
         <source>initialize requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Initialisierung angefordert</translation>
     </message>
     <message>
         <source>initialized</source>
-        <translation type="unfinished"></translation>
+        <translation>initialisiert</translation>
     </message>
     <message>
         <source>shutdown requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Abschaltung angefordert</translation>
     </message>
     <message>
         <source>shutdown</source>
-        <translation type="unfinished"></translation>
+        <translation>abgeschaltet</translation>
     </message>
     <message>
         <source>error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Cannot send data to unstarted server %1</source>
@@ -31851,68 +31852,69 @@ Example: *.cpp%1*.h</source>
     </message>
     <message>
         <source>Renaming is not supported with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenennen wird von %1 nicht unterstützt</translation>
     </message>
     <message>
         <source>Invalid parameter in &quot;%1&quot;:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Parameter in &quot;%1&quot;:
+%2</translation>
     </message>
     <message>
         <source>Language Server &quot;%1&quot; Initialize Error</source>
-        <translation type="unfinished">Fehler bei Initialisierung von Language Server &quot;%1&quot;</translation>
+        <translation>Fehler beim Initialisieren von Language Server &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Initialize error: </source>
-        <translation type="unfinished">Fehler bei Initialisierung: </translation>
+        <translation>Fehler bei Initialisierung: </translation>
     </message>
     <message>
         <source>Initialize result is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergebnis der Initialisierung ist ungültig.</translation>
     </message>
     <message>
         <source>Server Info is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Serverinformation ist ungültig.</translation>
     </message>
     <message>
         <source>No initialize result.</source>
-        <translation type="unfinished">Initialisierung ohne Ergebnis.</translation>
+        <translation>Initialisierung ohne Ergebnis.</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Cannot handle MIME type of message %1</source>
-        <translation type="unfinished"></translation>
+        <translation>MIME type %1 der Nachricht kann nicht verarbeitet werden</translation>
     </message>
     <message>
         <source>Generic StdIO Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Generischer StdIO Language Server</translation>
     </message>
     <message>
         <source>Inspect Language Clients...</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Clients inspizieren...</translation>
     </message>
     <message>
         <source>Always On</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer an</translation>
     </message>
     <message>
         <source>Requires an Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Benötigt eine offene Datei</translation>
     </message>
     <message>
         <source>Start Server per Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Server pro Projekt starten</translation>
     </message>
     <message>
         <source>Search Again to update results and re-enable Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchen Sie erneut, um die Ergebnisse zu aktualisieren und das Ersetzen wieder zu aktivieren</translation>
     </message>
     <message numerus="yes">
         <source>Re&amp;name %n files</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eine Datei umbe&amp;nennen</numerusform>
             <numerusform>%n Dateien umbe&amp;nennen</numerusform>
         </translation>
@@ -31920,84 +31922,84 @@ Example: *.cpp%1*.h</source>
     <message>
         <source>Files:
 %1</source>
-        <translation type="unfinished">Dateien:
+        <translation>Dateien:
 %1</translation>
     </message>
     <message>
         <source>%1 is not reachable anymore.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist nicht mehr erreichbar.</translation>
     </message>
     <message>
         <source>Matches all symbols from the current document, based on a language server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Symbole im aktuellen Dokument, basierend auf einem Language Server.</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Alle aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Client Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Client-Nachricht</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachrichten</translation>
     </message>
     <message>
         <source>Server Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Nachricht</translation>
     </message>
     <message>
         <source>Log File</source>
-        <translation type="unfinished">Logdatei</translation>
+        <translation>Logdatei</translation>
     </message>
     <message>
         <source>Capabilities:</source>
-        <translation type="unfinished">Fähigkeiten:</translation>
+        <translation>Fähigkeiten:</translation>
     </message>
     <message>
         <source>Dynamic Capabilities:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dynamische Fähigkeiten:</translation>
     </message>
     <message>
         <source>Method:</source>
-        <translation type="unfinished">Methode:</translation>
+        <translation>Methode:</translation>
     </message>
     <message>
         <source>Options:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen:</translation>
     </message>
     <message>
         <source>Server Capabilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Fähigkeiten</translation>
     </message>
     <message>
         <source>Language Client Inspector</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Client Inspektor</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation type="unfinished">Log</translation>
+        <translation>Log</translation>
     </message>
     <message>
         <source>Capabilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Incoming</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingehend</translation>
     </message>
     <message>
         <source>Outgoing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgehend</translation>
     </message>
     <message>
         <source>Call Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufrufhierarchie</translation>
     </message>
 </context>
 <context>
@@ -32020,11 +32022,11 @@ Example: *.cpp%1*.h</source>
     </message>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
-        <translation type="unfinished">Die JSON-Nachricht konnte nicht ausgewertet werden: &quot;%1&quot;.</translation>
+        <translation>Die JSON-Nachricht konnte nicht ausgewertet werden: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Expected a JSON object, but got a JSON &quot;%1&quot; value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein JSON-Objekt wurde erwartet, aber ein JSON &quot;%1&quot;-Wert wurde gefunden.</translation>
     </message>
 </context>
 <context>
