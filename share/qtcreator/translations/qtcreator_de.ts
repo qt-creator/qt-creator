@@ -44425,7 +44425,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>&quot;%1&quot; produced no output: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; hat keine Ausgabe generiert: %2.</translation>
     </message>
     <message>
         <source>qmake &quot;%1&quot; is not an executable.</source>
@@ -44433,7 +44433,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>No QML utility installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein QML-Werkzeug installiert.</translation>
     </message>
     <message>
         <source>Desktop</source>
@@ -44463,7 +44463,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>qmake path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu qmake:</translation>
     </message>
     <message>
         <source>Register documentation:</source>
@@ -44503,7 +44503,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>qmake Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu qmake</translation>
     </message>
     <message>
         <source>Qt version %1 for %2</source>
@@ -44551,7 +44551,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Linking with a Qt installation automatically registers Qt versions and kits, and other tools that were installed with that Qt installer, in this Qt Creator installation. Other Qt Creator installations are not affected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verknüpfen mit einer Qt-Installation registriert Qt-Versionen, Kits und andere mit dem Qt-Installationsprogramm installierte Werkzeuge automatisch in dieser Qt Creator-Installation. Dies hat keine Auswirkung auf andere Qt Creator-Installationen.</translation>
     </message>
     <message>
         <source>%1&apos;s resource directory is not writable.</source>
@@ -44559,11 +44559,11 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Error Linking With Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Verknüpfen mit Qt</translation>
     </message>
     <message>
         <source>Could not write to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreiben nach &quot;%1&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>%1 is currently linked to &quot;%2&quot;.</source>
@@ -44725,35 +44725,35 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Invalid Qt version</source>
-        <translation type="unfinished">Ungültige Qt-Version</translation>
+        <translation>Ungültige Qt-Version</translation>
     </message>
     <message>
         <source>ABI:</source>
-        <translation type="unfinished">ABI:</translation>
+        <translation>ABI:</translation>
     </message>
     <message>
         <source>Source:</source>
-        <translation type="unfinished">Quelle:</translation>
+        <translation>Quelle:</translation>
     </message>
     <message>
         <source>mkspec:</source>
-        <translation type="unfinished">mkspec:</translation>
+        <translation>mkspec:</translation>
     </message>
     <message>
         <source>qmake:</source>
-        <translation type="unfinished">qmake:</translation>
+        <translation>qmake:</translation>
     </message>
     <message>
         <source>Default:</source>
-        <translation type="unfinished">Vorgabe:</translation>
+        <translation>Vorgabe:</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">Version:</translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <source>Qt version</source>
@@ -44781,11 +44781,11 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>The host location of the current Qt version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort der aktuellen Qt-Version auf dem Host.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s internal host executable files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Installationsverzeichnis für interne ausführbare Dateien für den Host der aktuellen Qt-Version.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s header files.</source>
@@ -44805,7 +44805,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s internal executable files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Installationsverzeichnis für interne ausführbare Dateien der aktuellen Qt-Version.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s plugins.</source>
@@ -44849,27 +44849,27 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Timeout running &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>No Qt version.</source>
-        <translation type="unfinished">Keine Qt-Version.</translation>
+        <translation>Keine Qt-Version.</translation>
     </message>
     <message>
         <source>Invalid Qt version.</source>
-        <translation type="unfinished">Ungültige Qt-Version.</translation>
+        <translation>Ungültige Qt-Version.</translation>
     </message>
     <message>
         <source>Requires Qt 5.0.0 or newer.</source>
-        <translation type="unfinished">Erfordert Qt 5.0.0 oder neuer.</translation>
+        <translation>Erfordert Qt 5.0.0 oder neuer.</translation>
     </message>
     <message>
         <source>Requires Qt 5.3.0 or newer.</source>
-        <translation type="unfinished">Erfordert Qt 5.3.0 oder neuer.</translation>
+        <translation>Erfordert Qt 5.3.0 oder neuer.</translation>
     </message>
     <message>
         <source>This Qt Version does not contain Qt Quick Compiler.</source>
-        <translation type="unfinished">Diese Qt-Version enthält keinen Qt Quick Compiler.</translation>
+        <translation>Diese Qt-Version enthält keinen Qt Quick Compiler.</translation>
     </message>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
@@ -44893,11 +44893,11 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>QML debugging and profiling:</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Debuggen und -Profiling:</translation>
     </message>
     <message>
         <source>Might make your application vulnerable.&lt;br/&gt;Only use in a safe environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann Ihre Anwendung angreifbar machen.&lt;br/&gt;Verwenden Sie dies nur in einer sicheren Umgebung.</translation>
     </message>
     <message>
         <source>Qt Quick Compiler:</source>
@@ -44909,7 +44909,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>If you plan to provide translations for your project&apos;s user interface via the Qt Linguist tool, please select a language here. A corresponding translation (.ts) file will be generated for you.</source>
-        <translation type="unfinished"></translation>
+        <translation>Falls Sie planen, Übersetzungen für die Benutzeroberfläche Ihres Projekts über das Qt Linguist-Werkzeug bereit zu stellen, wählen Sie hier eine Sprache. Eine zugehörige Übersetzungsdatei (.ts) wird für Sie erzeugt.</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
@@ -44933,31 +44933,31 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Edit &gt; Preferences &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wollen Sie eine Qt-Installation verknüpfen, um Qt-Versionen und Kits automatisch zu registrieren? Dies geht auch später unter Bearbeiten &gt; Einstellungen &gt; Kits &gt; Qt-Versionen &gt; Mit Qt verknüpfen.</translation>
     </message>
     <message>
         <source>Full path to the host bin directory of the Qt version in the active kit of the project containing the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad zum Host-&quot;bin&quot;-Verzeichnis der Qt-Version des aktiven Kits des Projekts des aktuellen Dokuments.</translation>
     </message>
     <message>
         <source>Full path to the target bin directory of the Qt version in the active kit of the project containing the current document.&lt;br&gt;You probably want %1 instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad zum Ziel-&quot;bin&quot;-Verzeichnis der Qt-Version des aktiven Kits des Projekts des aktuellen Dokuments.&lt;br&gt;Wahrscheinlich sollten Sie stattdessen %1 nutzen.</translation>
     </message>
     <message>
         <source>Full path to the host libexec directory of the Qt version in the active kit of the project containing the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad zum Host-&quot;libexec&quot;-Verzeichnis der Qt-Version des aktiven Kits des Projekts des aktuellen Dokuments.</translation>
     </message>
     <message>
         <source>Full path to the host bin directory of the Qt version in the active kit of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad zum Host-&quot;bin&quot;-Verzeichnis der Qt-Version des aktiven Kits des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Full path to the target bin directory of the Qt version in the active kit of the active project.&lt;br&gt;You probably want %1 instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad zum Ziel-&quot;bin&quot;-Verzeichnis der Qt-Version des aktiven Kits des aktiven Projekts.&lt;br&gt;Wahrscheinlich sollten Sie stattdessen %1 nutzen.</translation>
     </message>
     <message>
         <source>Full path to the libexec bin directory of the Qt version in the active kit of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad zum Host-&quot;libexec&quot;-Verzeichnis der Qt-Version des aktiven Kits des aktiven Projekts.</translation>
     </message>
     <message>
         <source>[Inexact] </source>
@@ -44967,17 +44967,17 @@ wirklich löschen?</translation>
     <message>
         <source>Boot2Qt</source>
         <comment>Qt version is used for Boot2Qt development</comment>
-        <translation type="unfinished">Boot2Qt</translation>
+        <translation>Boot2Qt</translation>
     </message>
     <message>
         <source>Featured</source>
         <comment>Category for highlighted examples</comment>
-        <translation type="unfinished"></translation>
+        <translation>Empfohlen</translation>
     </message>
     <message>
         <source>Other</source>
         <comment>Category for all other examples</comment>
-        <translation type="unfinished">Andere</translation>
+        <translation>Andere</translation>
     </message>
 </context>
 <context>
@@ -45848,19 +45848,19 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Add Files</source>
-        <translation type="unfinished">Dateien hinzufügen</translation>
+        <translation>Dateien hinzufügen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Alias:</source>
-        <translation type="unfinished">Aliasname:</translation>
+        <translation>Aliasname:</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Eigenschaften</translation>
+        <translation>Eigenschaften</translation>
     </message>
     <message>
         <source>Invalid file location</source>
