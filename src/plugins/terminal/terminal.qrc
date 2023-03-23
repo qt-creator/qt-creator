@@ -2,6 +2,8 @@
   <qresource prefix="/terminal">
     <file>images/settingscategory_terminal.png</file>
     <file>images/settingscategory_terminal@2x.png</file>
+    <file>images/terminal.png</file>
+    <file>images/terminal@2x.png</file>
     <file>shellintegrations/shellintegration-bash.sh</file>
     <file>shellintegrations/shellintegration-env.zsh</file>
     <file>shellintegrations/shellintegration-login.zsh</file>

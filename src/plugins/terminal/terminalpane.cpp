@@ -47,14 +47,16 @@ TerminalPane::TerminalPane(QObject *parent)
     QAction &newTerminal = TerminalCommands::instance().paneActions().newTerminal;
     QAction &closeTerminal = TerminalCommands::instance().paneActions().closeTerminal;
 
-    newTerminal.setIcon(
-        Icon({{":/terminal/images/settingscategory_terminal.png", Theme::Theme::IconsBaseColor}})
-            .icon());
+    newTerminal.setIcon(Icon({
+            {":/terminal/images/terminal.png", Theme::IconsBaseColor},
+            {":/utils/images/iconoverlay_add_small.png", Theme::IconsRunToolBarColor}}).icon());
     newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
 
     connect(&newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
 
-    closeTerminal.setIcon(Icons::CLOSE_TOOLBAR.icon());
+    closeTerminal.setIcon(Icon({
+            {":/terminal/images/terminal.png", Theme::IconsBaseColor},
+            {":/utils/images/iconoverlay_close_small.png", Theme::IconsStopToolBarColor}}).icon());
     closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
     closeTerminal.setEnabled(false);
 
