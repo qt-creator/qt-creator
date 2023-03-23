@@ -9,6 +9,7 @@
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
+class QDir;
 class QShortcut;
 class QToolButton;
 QT_END_NAMESPACE
@@ -80,6 +81,10 @@ private:
     void updateSearch();
     void setIsDragging(bool val);
     QString findTextureBundlePath();
+    void loadTextureBundle();
+    QVariantMap readBundleMetadata();
+    bool fetchTextureBundleMetadata(const QDir &bundleDir);
+    bool fetchTextureBundleIcons(const QDir &bundleDir);
 
     QScopedPointer<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
@@ -98,6 +103,10 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_isDragging = false;
     bool m_anyTextureBeingDownloaded = false;
+    QString m_baseUrl;
+    QString m_texturesUrl;
+    QString m_environmentsUrl;
+    QString m_downloadPath;
 };
 
 } // namespace QmlDesigner

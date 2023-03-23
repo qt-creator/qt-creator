@@ -8,6 +8,9 @@
 #include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
 
+#include "utils/filedownloader.h"
+#include "utils/fileextractor.h"
+
 #include <coreplugin/icore.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -19,6 +22,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QJsonDocument>
 #include <QMimeData>
 #include <QMouseEvent>
@@ -31,6 +35,8 @@
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
+
+constexpr int TextureBundleMetadataVersion = 1;
 
 static QString propertyEditorResourcesPath()
 {
@@ -98,6 +104,9 @@ ContentLibraryWidget::ContentLibraryWidget()
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
 {
+    qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
+    qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
+
     setWindowTitle(tr("Content Library", "Title of content library widget"));
     setMinimumWidth(120);
 
@@ -106,15 +115,17 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
-    QString textureBundlePath = findTextureBundlePath();
+    m_baseUrl = QmlDesignerPlugin::settings()
+                    .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
+                + "/textures/v1";
 
-    QVariantMap metaData;
-    QFile jsonFile(textureBundlePath + "/texture_bundle.json");
-    if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
-        metaData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
+    m_texturesUrl = m_baseUrl + "/Textures";
+    m_environmentsUrl = m_baseUrl + "/Environments";
 
-    m_texturesModel->loadTextureBundle(textureBundlePath, metaData);
-    m_environmentsModel->loadTextureBundle(textureBundlePath, metaData);
+    m_downloadPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+                     + "/QtDesignStudio/bundles";
+
+    loadTextureBundle();
 
     Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->quickWidget()->installEventFilter(this);
@@ -142,6 +153,115 @@ ContentLibraryWidget::ContentLibraryWidget()
                         {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())}});
 
     reloadQmlSource();
+}
+
+QVariantMap ContentLibraryWidget::readBundleMetadata()
+{
+    QVariantMap metaData;
+    QFile jsonFile(m_downloadPath + "/texture_bundle.json");
+    if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        metaData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
+
+    int version = metaData["version"].toInt();
+    if (version != TextureBundleMetadataVersion) {
+        qWarning() << "Unrecognized texture metadata file version: " << version;
+        return {};
+    }
+
+    return metaData;
+}
+
+void ContentLibraryWidget::loadTextureBundle()
+{
+    QDir bundleDir{m_downloadPath};
+
+    if (fetchTextureBundleMetadata(bundleDir) && fetchTextureBundleIcons(bundleDir)) {
+        QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
+        QVariantMap metaData = readBundleMetadata();
+        m_texturesModel->loadTextureBundle(m_texturesUrl, bundleIconPath, metaData);
+        m_environmentsModel->loadTextureBundle(m_environmentsUrl, bundleIconPath, metaData);
+    }
+}
+
+bool ContentLibraryWidget::fetchTextureBundleMetadata(const QDir &bundleDir)
+{
+    QString filePath = bundleDir.filePath("texture_bundle.json");
+
+    QFileInfo fi(filePath);
+    if (fi.exists() && fi.size() > 0)
+        return true;
+
+    QString metaFileUrl = m_baseUrl + "/texture_bundle.zip";
+    FileDownloader *downloader = new FileDownloader(this);
+    downloader->setUrl(metaFileUrl);
+    downloader->setProbeUrl(false);
+    downloader->setDownloadEnabled(true);
+
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+        FileExtractor *extractor = new FileExtractor(this);
+        extractor->setArchiveName(downloader->completeBaseName());
+        extractor->setSourceFile(downloader->outputFile());
+        extractor->setTargetPath(bundleDir.absolutePath());
+        extractor->setAlwaysCreateDir(false);
+        extractor->setClearTargetPathContents(false);
+
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+            downloader->deleteLater();
+            extractor->deleteLater();
+
+            if (fetchTextureBundleIcons(bundleDir)) {
+                QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
+                QVariantMap metaData = readBundleMetadata();
+                m_texturesModel->loadTextureBundle(m_texturesUrl, bundleIconPath, metaData);
+                m_environmentsModel->loadTextureBundle(m_environmentsUrl, bundleIconPath, metaData);
+            }
+        });
+
+        extractor->extract();
+    });
+
+    downloader->start();
+    return false;
+}
+
+bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
+{
+    QString iconsPath = bundleDir.filePath("TextureBundleIcons");
+
+    QDir iconsDir(iconsPath);
+    if (iconsDir.exists() && iconsDir.entryList(QDir::NoDotAndDotDot).length() > 0)
+        return true;
+
+    QString zipFileUrl = m_baseUrl + "/icons.zip";
+
+    FileDownloader *downloader = new FileDownloader(this);
+    downloader->setUrl(zipFileUrl);
+    downloader->setProbeUrl(false);
+    downloader->setDownloadEnabled(true);
+
+    QObject::connect(downloader, &FileDownloader::finishedChanged, this, [=]() {
+        FileExtractor *extractor = new FileExtractor(this);
+        extractor->setArchiveName(downloader->completeBaseName());
+        extractor->setSourceFile(downloader->outputFile());
+        extractor->setTargetPath(bundleDir.absolutePath());
+        extractor->setAlwaysCreateDir(false);
+        extractor->setClearTargetPathContents(false);
+
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [=]() {
+            downloader->deleteLater();
+            extractor->deleteLater();
+
+            QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
+            QVariantMap metaData = readBundleMetadata();
+            m_texturesModel->loadTextureBundle(m_texturesUrl, bundleIconPath, metaData);
+            m_environmentsModel->loadTextureBundle(m_environmentsUrl, bundleIconPath, metaData);
+        });
+
+        extractor->extract();
+    });
+
+    downloader->start();
+    return false;
 }
 
 QList<QToolButton *> ContentLibraryWidget::createToolBarWidgets()

@@ -114,7 +114,7 @@ bool ContentLibraryMaterialsModel::fetchBundleIcons(const QDir &bundleDir)
     QString iconsPath = bundleDir.filePath("icons");
 
     QDir iconsDir(iconsPath);
-    if (iconsDir.exists() && iconsDir.entryList().length() > 0)
+    if (iconsDir.exists() && iconsDir.entryList(QDir::NoDotAndDotDot).length() > 0)
         return true;
 
     QString zipFileUrl = m_baseUrl + "/icons.zip";

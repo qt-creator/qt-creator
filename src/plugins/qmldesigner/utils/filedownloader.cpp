@@ -8,6 +8,7 @@
 
 #include <QDir>
 #include <QQmlEngine>
+#include <QRandomGenerator>
 
 namespace QmlDesigner {
 
@@ -41,7 +42,8 @@ void FileDownloader::start()
 {
     emit downloadStarting();
 
-    QString tempFileName = QDir::tempPath() + "/.qds_download_" + url().fileName();
+    auto uniqueText = QByteArray::number(QRandomGenerator::global()->generate(), 16);
+    QString tempFileName = QDir::tempPath() + "/.qds_" + uniqueText + "_download_" + url().fileName();
 
     m_outputFile.setFileName(tempFileName);
     m_outputFile.open(QIODevice::WriteOnly);

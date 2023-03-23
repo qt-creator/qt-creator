@@ -6,9 +6,6 @@
 #include "contentlibrarytexturescategory.h"
 #include "qmldesignerplugin.h"
 
-#include "utils/filedownloader.h"
-#include "utils/fileextractor.h"
-
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
 
 #include <utils/algorithm.h>
@@ -18,6 +15,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonDocument>
 #include <QQmlEngine>
 #include <QSize>
 #include <QStandardPaths>
@@ -28,9 +26,6 @@ namespace QmlDesigner {
 ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &category, QObject *parent)
     : QAbstractListModel(parent)
 {
-    qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
-    qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
-
     m_category = category; // textures main category (ex: Textures, Environments)
 }
 
@@ -103,28 +98,24 @@ QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
  * @param bundlePath local path to the bundle folder and icons
  * @param metaData bundle textures metadata
  */
-void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, const QVariantMap &metaData)
+void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, const QString &bundleIconPath,
+                                                    const QVariantMap &metaData)
 {
     if (!m_bundleCategories.isEmpty())
         return;
 
-    QDir bundleDir = QString("%1/%2").arg(bundlePath, m_category);
+    QDir bundleDir = QString("%1/%2").arg(bundleIconPath, m_category);
     if (!bundleDir.exists()) {
-        qWarning() << __FUNCTION__ << "textures bundle folder doesn't exist." << bundlePath;
+        qWarning() << __FUNCTION__ << "textures bundle folder doesn't exist." << bundleDir.absolutePath();
         return;
     }
-
-    QString remoteBaseUrl = QmlDesignerPlugin::settings()
-                                .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
-                            + "/textures/" + m_category;
 
     const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
-        const QFileInfoList texFiles = QDir(dir.filePath() + "/icon").entryInfoList(QDir::Files);
+        const QFileInfoList texFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);
         for (const QFileInfo &tex : texFiles) {
-
-            QString fullRemoteUrl = QString("%1/%2/%3.zip").arg(remoteBaseUrl, dir.fileName(),
+            QString fullRemoteUrl = QString("%1/%2/%3.zip").arg(remoteUrl, dir.fileName(),
                                                                 tex.baseName());
             QString localDownloadPath = QString("%1/%2/%3").arg(QmlDesignerBasePlugin::bundlesPathSetting(),
                                                                 m_category, dir.fileName());
@@ -145,6 +136,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, c
         m_bundleCategories.append(category);
     }
 
+    resetModel();
     updateIsEmpty();
 }
 
