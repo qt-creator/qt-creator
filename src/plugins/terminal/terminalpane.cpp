@@ -47,7 +47,9 @@ TerminalPane::TerminalPane(QObject *parent)
     QAction &newTerminal = TerminalCommands::instance().paneActions().newTerminal;
     QAction &closeTerminal = TerminalCommands::instance().paneActions().closeTerminal;
 
-    newTerminal.setIcon(Icons::PLUS_TOOLBAR.icon());
+    newTerminal.setIcon(
+        Icon({{":/terminal/images/settingscategory_terminal.png", Theme::Theme::IconsBaseColor}})
+            .icon());
     newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
 
     connect(&newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
