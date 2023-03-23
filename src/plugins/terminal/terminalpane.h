@@ -20,21 +20,22 @@ class TerminalPane : public Core::IOutputPane
     Q_OBJECT
 public:
     TerminalPane(QObject *parent = nullptr);
+    ~TerminalPane() override;
 
-    virtual QWidget *outputWidget(QWidget *parent);
-    virtual QList<QWidget *> toolBarWidgets() const;
-    virtual QString displayName() const;
-    virtual int priorityInStatusBar() const;
-    virtual void clearContents();
-    virtual void visibilityChanged(bool visible);
-    virtual void setFocus();
-    virtual bool hasFocus() const;
-    virtual bool canFocus() const;
-    virtual bool canNavigate() const;
-    virtual bool canNext() const;
-    virtual bool canPrevious() const;
-    virtual void goToNext();
-    virtual void goToPrev();
+    QWidget *outputWidget(QWidget *parent) override;
+    QList<QWidget *> toolBarWidgets() const override;
+    QString displayName() const override;
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
+    void setFocus() override;
+    bool hasFocus() const override;
+    bool canFocus() const override;
+    bool canNavigate() const override;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
 
     void openTerminal(const Utils::Terminal::OpenTerminalParameters &parameters);
     void addTerminal(TerminalWidget *terminal, const QString &title);
@@ -53,11 +54,7 @@ private:
     QToolButton *m_newTerminalButton{nullptr};
     QToolButton *m_closeTerminalButton{nullptr};
 
-    QAction m_newTerminal;
-    QAction m_closeTerminal;
-    QAction m_nextTerminal;
-    QAction m_prevTerminal;
-    QAction m_minMaxAction;
+    bool m_widgetInitialized{false};
 };
 
 } // namespace Terminal

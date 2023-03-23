@@ -3,9 +3,9 @@
 
 #include "terminalwidget.h"
 #include "glyphcache.h"
+#include "terminalcommands.h"
 #include "terminalsettings.h"
 #include "terminalsurface.h"
-#include "terminaltr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -53,11 +53,6 @@ static constexpr std::chrono::milliseconds minRefreshInterval = 1s / 30;
 
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : QAbstractScrollArea(parent)
-    , m_copyAction(Tr::tr("Copy"))
-    , m_pasteAction(Tr::tr("Paste"))
-    , m_clearSelectionAction(Tr::tr("Clear Selection"))
-    , m_zoomInAction(Tr::tr("Zoom In"))
-    , m_zoomOutAction(Tr::tr("Zoom Out"))
     , m_openParameters(openParameters)
     , m_lastFlush(std::chrono::system_clock::now())
     , m_lastDoubleClick(std::chrono::system_clock::now())
@@ -224,27 +219,20 @@ void TerminalWidget::setupColors()
 
 void TerminalWidget::setupActions()
 {
-    m_copyAction.setEnabled(false);
-    m_copyAction.setShortcuts(
-        {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+C")
-                                              : QLatin1String("Ctrl+Shift+C")),
-         QKeySequence(Qt::Key_Return)});
-    m_pasteAction.setShortcut(QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+V") : QLatin1String("Ctrl+Shift+V")));
+    WidgetActions &a = TerminalCommands::widgetActions();
 
-    m_clearSelectionAction.setShortcut(QKeySequence("Esc"));
+    auto ifHasFocus = [this](void (TerminalWidget::*f)()) {
+        return [this, f] {
+            if (hasFocus())
+                (this->*f)();
+        };
+    };
 
-    m_zoomInAction.setShortcuts({QKeySequence("Ctrl++"), QKeySequence("Ctrl+Shift++")});
-    m_zoomOutAction.setShortcut(QKeySequence("Ctrl+-"));
-
-    connect(&m_copyAction, &QAction::triggered, this, &TerminalWidget::copyToClipboard);
-    connect(&m_pasteAction, &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
-    connect(&m_clearSelectionAction, &QAction::triggered, this, &TerminalWidget::clearSelection);
-    connect(&m_zoomInAction, &QAction::triggered, this, &TerminalWidget::zoomIn);
-    connect(&m_zoomOutAction, &QAction::triggered, this, &TerminalWidget::zoomOut);
-
-    addActions(
-        {&m_copyAction, &m_pasteAction, &m_clearSelectionAction, &m_zoomInAction, &m_zoomOutAction});
+    // clang-format off
+    connect(&a.copy, &QAction::triggered, this, ifHasFocus(&TerminalWidget::copyToClipboard));
+    connect(&a.paste, &QAction::triggered, this, ifHasFocus(&TerminalWidget::pasteFromClipboard));
+    connect(&a.clearSelection, &QAction::triggered, this, ifHasFocus(&TerminalWidget::clearSelection));
+    // clang-format on
 }
 
 void TerminalWidget::writeToPty(const QByteArray &data)
@@ -342,6 +330,14 @@ QColor TerminalWidget::toQColor(std::variant<int, QColor> color) const
     return std::get<QColor>(color);
 }
 
+void TerminalWidget::updateCopyState()
+{
+    if (!hasFocus())
+        return;
+
+    TerminalCommands::widgetActions().copy.setEnabled(m_selection.has_value());
+}
+
 void TerminalWidget::setFont(const QFont &font)
 {
     m_font = font;
@@ -364,33 +360,10 @@ void TerminalWidget::setFont(const QFont &font)
     }
 }
 
-QAction &TerminalWidget::copyAction()
+void TerminalWidget::copyToClipboard()
 {
-    return m_copyAction;
-}
+    QTC_ASSERT(m_selection.has_value(), return);
 
-QAction &TerminalWidget::pasteAction()
-{
-    return m_pasteAction;
-}
-
-QAction &TerminalWidget::clearSelectionAction()
-{
-    return m_clearSelectionAction;
-}
-
-QAction &TerminalWidget::zoomInAction()
-{
-    return m_zoomInAction;
-}
-
-QAction &TerminalWidget::zoomOutAction()
-{
-    return m_zoomOutAction;
-}
-
-void TerminalWidget::copyToClipboard() const
-{
     QString text = textFromSelection();
 
     qCDebug(selectionLog) << "Copied to clipboard: " << text;
@@ -491,9 +464,9 @@ bool TerminalWidget::setSelection(const std::optional<Selection> &selection)
         return false;
     }
 
-    m_copyAction.setEnabled(selection.has_value());
-
     m_selection = selection;
+
+    updateCopyState();
 
     if (m_selection && m_selection->final) {
         qCDebug(selectionLog) << "Copy enabled:" << selection.has_value();
@@ -958,25 +931,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         m_cursorBlinkState = true;
     }
 
-    bool actionTriggered = false;
-    for (const auto &action : actions()) {
-        if (!action->isEnabled())
-            continue;
-
-        for (const auto &shortcut : action->shortcuts()) {
-            const auto result = shortcut.matches(QKeySequence(event->keyCombination()));
-            if (result == QKeySequence::ExactMatch) {
-                action->trigger();
-                actionTriggered = true;
-                break;
-            }
-        }
-
-        if (actionTriggered)
-            break;
-    }
-
-    if (actionTriggered) {
+    if (TerminalCommands::triggerAction(event)) {
         setSelection(std::nullopt);
         return;
     }
@@ -1067,6 +1022,7 @@ void TerminalWidget::focusInEvent(QFocusEvent *)
 {
     updateViewport();
     configBlinkTimer();
+    updateCopyState();
 }
 void TerminalWidget::focusOutEvent(QFocusEvent *)
 {
@@ -1123,10 +1079,10 @@ void TerminalWidget::mousePressEvent(QMouseEvent *event)
         updateViewport();
     } else if (event->button() == Qt::RightButton) {
         if (m_selection) {
-            m_copyAction.trigger();
+            copyToClipboard();
             setSelection(std::nullopt);
         } else {
-            m_pasteAction.trigger();
+            pasteFromClipboard();
         }
     }
 }

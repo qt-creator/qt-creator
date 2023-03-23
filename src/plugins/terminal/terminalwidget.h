@@ -29,15 +29,7 @@ public:
 
     void setFont(const QFont &font);
 
-    QAction &copyAction();
-    QAction &pasteAction();
-
-    QAction &clearSelectionAction();
-
-    QAction &zoomInAction();
-    QAction &zoomOutAction();
-
-    void copyToClipboard() const;
+    void copyToClipboard();
     void pasteFromClipboard();
 
     void clearSelection();
@@ -168,6 +160,8 @@ protected:
 
     QColor toQColor(std::variant<int, QColor> color) const;
 
+    void updateCopyState();
+
 private:
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<Internal::TerminalSurface> m_surface;
@@ -191,14 +185,6 @@ private:
         QPoint start;
         QPoint end;
     } m_activeMouseSelect;
-
-    QAction m_copyAction;
-    QAction m_pasteAction;
-
-    QAction m_clearSelectionAction;
-
-    QAction m_zoomInAction;
-    QAction m_zoomOutAction;
 
     QTimer m_flushDelayTimer;
 

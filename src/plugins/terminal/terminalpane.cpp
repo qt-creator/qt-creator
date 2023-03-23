@@ -4,9 +4,9 @@
 #include "terminalpane.h"
 
 #include "shellmodel.h"
+#include "terminalcommands.h"
 #include "terminaltr.h"
 #include "terminalwidget.h"
-#include "utils/terminalhooks.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icontext.h>
@@ -16,10 +16,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/terminalhooks.h>
 #include <utils/utilsicons.h>
 
 #include <QMenu>
 #include <QStandardPaths>
+#include <QtWidgets/qwidget.h>
 
 namespace Terminal {
 
@@ -28,19 +30,33 @@ using namespace Utils::Terminal;
 
 TerminalPane::TerminalPane(QObject *parent)
     : Core::IOutputPane(parent)
+    , m_tabWidget(new QTabWidget)
 {
-    Core::Context context("Terminal.Window");
+    setupContext("Terminal.Pane", m_tabWidget);
+    TerminalCommands::instance().init(Core::Context("Terminal.Pane"));
 
-    m_newTerminal.setIcon(Icons::PLUS_TOOLBAR.icon());
-    m_newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
+    connect(this, &IOutputPane::zoomInRequested, this, [this] {
+        if (currentTerminal())
+            currentTerminal()->zoomIn();
+    });
+    connect(this, &IOutputPane::zoomOutRequested, this, [this] {
+        if (currentTerminal())
+            currentTerminal()->zoomOut();
+    });
 
-    connect(&m_newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
+    QAction &newTerminal = TerminalCommands::instance().paneActions().newTerminal;
+    QAction &closeTerminal = TerminalCommands::instance().paneActions().closeTerminal;
 
-    m_closeTerminal.setIcon(Icons::CLOSE_TOOLBAR.icon());
-    m_closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
-    m_closeTerminal.setEnabled(false);
+    newTerminal.setIcon(Icons::PLUS_TOOLBAR.icon());
+    newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
 
-    connect(&m_closeTerminal, &QAction::triggered, this, [this] {
+    connect(&newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
+
+    closeTerminal.setIcon(Icons::CLOSE_TOOLBAR.icon());
+    closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
+    closeTerminal.setEnabled(false);
+
+    connect(&closeTerminal, &QAction::triggered, this, [this] {
         removeTab(m_tabWidget->currentIndex());
     });
 
@@ -68,38 +84,38 @@ TerminalPane::TerminalPane(QObject *parent)
         addItems(shellModel->remote());
     });
 
-    m_newTerminal.setMenu(shellMenu);
-    m_newTerminal.setShortcut(QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T")));
+    newTerminal.setMenu(shellMenu);
 
-    m_newTerminalButton->setDefaultAction(&m_newTerminal);
+    m_newTerminalButton->setDefaultAction(&newTerminal);
 
     m_closeTerminalButton = new QToolButton();
-    m_closeTerminalButton->setDefaultAction(&m_closeTerminal);
+    m_closeTerminalButton->setDefaultAction(&closeTerminal);
 
-    m_nextTerminal.setShortcut(QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
-                                                                    : QLatin1String("Ctrl+PgUp")));
-    m_prevTerminal.setShortcut(QKeySequence(HostOsInfo::isMacHost()
-                                                ? QLatin1String("Ctrl+Shift+]")
-                                                : QLatin1String("Ctrl+PgDown")));
+    connect(&TerminalCommands::instance().paneActions().nextTerminal,
+            &QAction::triggered,
+            this,
+            [this] {
+                if (canNavigate())
+                    goToNext();
+            });
+    connect(&TerminalCommands::instance().paneActions().prevTerminal,
+            &QAction::triggered,
+            this,
+            [this] {
+                if (canPrevious())
+                    goToPrev();
+            });
 
-    connect(&m_nextTerminal, &QAction::triggered, this, [this] {
-        if (canNavigate())
-            goToNext();
-    });
-    connect(&m_prevTerminal, &QAction::triggered, this, [this] {
-        if (canPrevious())
-            goToPrev();
-    });
-
-    m_minMaxAction.setShortcut(QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Return")
-                                                                    : QLatin1String("Alt+Return")));
-
-    connect(&m_minMaxAction, &QAction::triggered, this, []() {
+    connect(&TerminalCommands::instance().paneActions().minMax, &QAction::triggered, this, []() {
         Core::Command *minMaxCommand = Core::ActionManager::command("Coreplugin.OutputPane.minmax");
         if (minMaxCommand)
             emit minMaxCommand->action()->triggered();
     });
+}
+
+TerminalPane::~TerminalPane()
+{
+    delete m_tabWidget;
 }
 
 static std::optional<FilePath> startupProjectDirectory()
@@ -132,7 +148,7 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 
     m_tabWidget->currentWidget()->setFocus();
 
-    m_closeTerminal.setEnabled(m_tabWidget->count() > 1);
+    TerminalCommands::instance().paneActions().closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
 }
 
@@ -142,7 +158,7 @@ void TerminalPane::addTerminal(TerminalWidget *terminal, const QString &title)
     m_tabWidget->setCurrentIndex(m_tabWidget->addTab(terminal, title));
     setupTerminalWidget(terminal);
 
-    m_closeTerminal.setEnabled(m_tabWidget->count() > 1);
+    TerminalCommands::instance().paneActions().closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
 }
 
@@ -161,9 +177,8 @@ TerminalWidget *TerminalPane::stoppedTerminalWithId(const Id &identifier) const
 
 QWidget *TerminalPane::outputWidget(QWidget *parent)
 {
-    if (!m_tabWidget) {
-        m_tabWidget = new QTabWidget(parent);
-
+    if (!m_widgetInitialized) {
+        m_widgetInitialized = true;
         m_tabWidget->setTabBarAutoHide(true);
         m_tabWidget->setDocumentMode(true);
         m_tabWidget->setTabsClosable(true);
@@ -192,7 +207,7 @@ void TerminalPane::removeTab(int index)
     if (m_tabWidget->count() > 1)
         delete m_tabWidget->widget(index);
 
-    m_closeTerminal.setEnabled(m_tabWidget->count() > 1);
+    TerminalCommands::instance().paneActions().closeTerminal.setEnabled(m_tabWidget->count() > 1);
     emit navigateStateUpdate();
 }
 
@@ -229,13 +244,15 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
 
     if (!terminal->shellName().isEmpty())
         setTabText(terminal);
-
-    terminal->addActions({&m_newTerminal, &m_nextTerminal, &m_prevTerminal, &m_minMaxAction});
 }
 
 QList<QWidget *> TerminalPane::toolBarWidgets() const
 {
-    return {m_newTerminalButton, m_closeTerminalButton};
+    QList<QWidget *> widgets = IOutputPane::toolBarWidgets();
+    widgets.prepend(m_newTerminalButton);
+    widgets.prepend(m_closeTerminalButton);
+
+    return widgets;
 }
 
 QString TerminalPane::displayName() const
