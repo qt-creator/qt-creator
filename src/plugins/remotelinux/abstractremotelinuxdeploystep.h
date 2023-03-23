@@ -8,20 +8,13 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
-#include <QtCore/qcontainerfwd.h>
 #include <QObject>
 
-namespace ProjectExplorer {
-class DeployableFile;
-class Kit;
-class Target;
-}
+namespace ProjectExplorer { class DeployableFile; }
 
 namespace Utils::Tasking { class Group; }
 
 namespace RemoteLinux {
-
-class CheckResult;
 
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
 
@@ -43,8 +36,6 @@ private:
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
 {
-    Q_OBJECT
-
 public:
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~AbstractRemoteLinuxDeployStep() override;
