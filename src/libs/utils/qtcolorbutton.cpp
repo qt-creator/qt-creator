@@ -3,12 +3,13 @@
 
 #include "qtcolorbutton.h"
 
-#include <QMimeData>
 #include <QApplication>
 #include <QColorDialog>
-#include <QDragEnterEvent>
-#include <QPainter>
 #include <QDrag>
+#include <QDragEnterEvent>
+#include <QMimeData>
+#include <QPainter>
+#include <QStyleOption>
 
 namespace Utils {
 
@@ -157,51 +158,36 @@ bool QtColorButton::isDialogOpen() const
 
 void QtColorButton::paintEvent(QPaintEvent *event)
 {
-    QToolButton::paintEvent(event);
-    if (!isEnabled())
-        return;
-
-    const int pixSize = 10;
-    QBrush br(d_ptr->shownColor());
-    if (d_ptr->m_backgroundCheckered) {
-        QPixmap pm(2 * pixSize, 2 * pixSize);
-        QPainter pmp(&pm);
-        pmp.fillRect(0, 0, pixSize, pixSize, Qt::white);
-        pmp.fillRect(pixSize, pixSize, pixSize, pixSize, Qt::white);
-        pmp.fillRect(0, pixSize, pixSize, pixSize, Qt::black);
-        pmp.fillRect(pixSize, 0, pixSize, pixSize, Qt::black);
-        pmp.fillRect(0, 0, 2 * pixSize, 2 * pixSize, d_ptr->shownColor());
-        br = QBrush(pm);
-    }
+    Q_UNUSED(event)
 
     QPainter p(this);
-    const int corr = 5;
-    QRect r = rect().adjusted(corr, corr, -corr, -corr);
-    p.setBrushOrigin((r.width() % pixSize + pixSize) / 2 + corr, (r.height() % pixSize + pixSize) / 2 + corr);
-    p.fillRect(r, br);
+    if (isEnabled()) {
+        QBrush br(d_ptr->shownColor());
+        if (d_ptr->m_backgroundCheckered) {
+            const int pixSize = 10;
+            QPixmap pm(2 * pixSize, 2 * pixSize);
+            pm.fill(Qt::white);
+            QPainter pmp(&pm);
+            pmp.fillRect(0, pixSize, pixSize, pixSize, Qt::black);
+            pmp.fillRect(pixSize, 0, pixSize, pixSize, Qt::black);
+            pmp.fillRect(pm.rect(), d_ptr->shownColor());
+            br = QBrush(pm);
+            p.setBrushOrigin((width() - pixSize) / 2, (height() - pixSize) / 2);
+        }
+        p.fillRect(rect(), br);
+    }
 
-    //const int adjX = qRound(r.width() / 4.0);
-    //const int adjY = qRound(r.height() / 4.0);
-    //p.fillRect(r.adjusted(adjX, adjY, -adjX, -adjY),
-    //           QColor(d_ptr->shownColor().rgb()));
-    /*
-    p.fillRect(r.adjusted(0, r.height() * 3 / 4, 0, 0),
-               QColor(d_ptr->shownColor().rgb()));
-    p.fillRect(r.adjusted(0, 0, 0, -r.height() * 3 / 4),
-               QColor(d_ptr->shownColor().rgb()));
-               */
-    /*
-    const QColor frameColor0(0, 0, 0, qRound(0.2 * (0xFF - d_ptr->shownColor().alpha())));
-    p.setPen(frameColor0);
-    p.drawRect(r.adjusted(adjX, adjY, -adjX - 1, -adjY - 1));
-    */
-
-    const QColor frameColor1(0, 0, 0, 26);
-    p.setPen(frameColor1);
-    p.drawRect(r.adjusted(1, 1, -2, -2));
-    const QColor frameColor2(0, 0, 0, 51);
-    p.setPen(frameColor2);
-    p.drawRect(r.adjusted(0, 0, -1, -1));
+    if (hasFocus()) {
+        QPen pen;
+        pen.setBrush(Qt::white);
+        pen.setStyle(Qt::DotLine);
+        p.setPen(pen);
+        p.setCompositionMode(QPainter::CompositionMode_Difference);
+    } else {
+        p.setPen(palette().text().color());
+        p.setOpacity(0.25);
+    }
+    p.drawRect(rect().adjusted(0, 0, -1, -1));
 }
 
 void QtColorButton::mousePressEvent(QMouseEvent *event)
