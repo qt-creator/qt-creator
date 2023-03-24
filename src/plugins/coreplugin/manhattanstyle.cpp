@@ -3,16 +3,14 @@
 
 #include "manhattanstyle.h"
 
-#include "styleanimator.h"
-
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/stylehelper.h>
-
 #include <utils/fancymainwindow.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <utils/styleanimator.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
-#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QCheckBox>

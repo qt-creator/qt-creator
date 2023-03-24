@@ -3,13 +3,17 @@
 
 #pragma once
 
+#include "utils_global.h"
+
+#include <QBasicTimer>
 #include <QPointer>
 #include <QTime>
-#include <QBasicTimer>
-#include <QStyle>
-#include <QPainter>
 #include <QWidget>
 
+class QPainter;
+class QStyleOption;
+
+namespace Utils {
 /*
  * This is a set of helper classes to allow for widget animations in
  * the style. Its mostly taken from Vista style so it should be fully documented
@@ -17,7 +21,7 @@
  *
  */
 
-class Animation
+class QTCREATOR_UTILS_EXPORT Animation
 {
 public :
     Animation() = default;
@@ -41,7 +45,7 @@ protected:
 };
 
 // Handles state transition animations
-class Transition : public Animation
+class QTCREATOR_UTILS_EXPORT Transition : public Animation
 {
 public :
     Transition() = default;
@@ -54,7 +58,7 @@ public :
     int m_duration = 100; //set time in ms to complete a state transition
 };
 
-class StyleAnimator : public QObject
+class QTCREATOR_UTILS_EXPORT StyleAnimator : public QObject
 {
     Q_OBJECT
 
@@ -70,3 +74,4 @@ private:
     QBasicTimer animationTimer;
     QList <Animation*> animations;
 };
+}

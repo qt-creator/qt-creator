@@ -3,9 +3,13 @@
 
 #include "styleanimator.h"
 
-#include <utils/algorithm.h>
+#include "algorithm.h"
 
+#include <QPainter>
 #include <QStyleOption>
+#include <QWidget>
+
+using namespace Utils;
 
 Animation * StyleAnimator::widgetAnimation(const QWidget *widget) const
 {
