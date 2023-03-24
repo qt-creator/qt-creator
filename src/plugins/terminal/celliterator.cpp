@@ -48,10 +48,11 @@ QPoint CellIterator::gridPos() const
     return m_surface->posToGrid(m_pos);
 }
 
-void CellIterator::updateChar()
+bool CellIterator::updateChar()
 {
     QPoint cell = m_surface->posToGrid(m_pos);
     m_char = m_surface->fetchCharAt(cell.x(), cell.y());
+    return m_char != 0;
 }
 
 CellIterator &CellIterator::operator-=(int n)
@@ -63,7 +64,9 @@ CellIterator &CellIterator::operator-=(int n)
         throw new std::runtime_error("-= n too big!");
 
     m_pos -= n;
-    updateChar();
+
+    while (!updateChar() && m_pos > 0 && m_skipZeros)
+        m_pos--;
 
     m_state = State::INSIDE;
 
@@ -79,10 +82,14 @@ CellIterator &CellIterator::operator+=(int n)
     if (n == 0)
         return *this;
 
-    if (m_pos + n < m_maxpos) {
+    if (m_pos + n < m_maxpos + 1) {
         m_state = State::INSIDE;
         m_pos += n;
-        updateChar();
+        while (!updateChar() && m_pos < (m_maxpos + 1) && m_skipZeros)
+            m_pos++;
+
+        if (m_pos == m_maxpos + 1)
+            m_state = State::END;
     } else {
         *this = m_surface->end();
     }

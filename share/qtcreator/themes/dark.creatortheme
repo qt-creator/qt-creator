@@ -387,6 +387,7 @@ QmlDesigner_ScrollBarHandleColor=ff505050
 TerminalForeground=ffffffff
 TerminalBackground=ff000000
 TerminalSelection=7fffffff
+TerminalFindMatch=7fffff00
 TerminalAnsi0=000000
 TerminalAnsi1=8b1b10
 TerminalAnsi2=4aa32e

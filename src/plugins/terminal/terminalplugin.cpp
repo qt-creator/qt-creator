@@ -7,6 +7,7 @@
 #include "terminalprocessimpl.h"
 #include "terminalsettings.h"
 #include "terminalsettingspage.h"
+#include "terminalcommands.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -33,6 +34,12 @@ TerminalPlugin::~TerminalPlugin()
     ExtensionSystem::PluginManager::instance()->removeObject(m_terminalPane);
     delete m_terminalPane;
     m_terminalPane = nullptr;
+}
+
+bool TerminalPlugin::delayedInitialize()
+{
+    TerminalCommands::instance().lazyInitCommands();
+    return true;
 }
 
 void TerminalPlugin::extensionsInitialized()

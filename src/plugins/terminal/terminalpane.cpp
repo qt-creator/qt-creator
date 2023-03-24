@@ -33,6 +33,8 @@ TerminalPane::TerminalPane(QObject *parent)
     , m_tabWidget(new QTabWidget)
 {
     setupContext("Terminal.Pane", m_tabWidget);
+    setZoomButtonsEnabled(true);
+
     TerminalCommands::instance().init(Core::Context("Terminal.Pane"));
 
     connect(this, &IOutputPane::zoomInRequested, this, [this] {
@@ -47,16 +49,18 @@ TerminalPane::TerminalPane(QObject *parent)
     QAction &newTerminal = TerminalCommands::instance().paneActions().newTerminal;
     QAction &closeTerminal = TerminalCommands::instance().paneActions().closeTerminal;
 
-    newTerminal.setIcon(Icon({
-            {":/terminal/images/terminal.png", Theme::IconsBaseColor},
-            {":/utils/images/iconoverlay_add_small.png", Theme::IconsRunToolBarColor}}).icon());
+    newTerminal.setIcon(
+        Icon({{":/terminal/images/terminal.png", Theme::IconsBaseColor},
+              {":/utils/images/iconoverlay_add_small.png", Theme::IconsRunToolBarColor}})
+            .icon());
     newTerminal.setToolTip(Tr::tr("Create a new Terminal."));
 
     connect(&newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
 
-    closeTerminal.setIcon(Icon({
-            {":/terminal/images/terminal.png", Theme::IconsBaseColor},
-            {":/utils/images/iconoverlay_close_small.png", Theme::IconsStopToolBarColor}}).icon());
+    closeTerminal.setIcon(
+        Icon({{":/terminal/images/terminal.png", Theme::IconsBaseColor},
+              {":/utils/images/iconoverlay_close_small.png", Theme::IconsStopToolBarColor}})
+            .icon());
     closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
     closeTerminal.setEnabled(false);
 
@@ -287,12 +291,6 @@ void TerminalPane::clearContents()
 {
     if (const auto t = currentTerminal())
         t->clearContents();
-}
-
-void TerminalPane::visibilityChanged(bool visible)
-{
-    if (visible)
-        TerminalCommands::instance().registerOpenCloseTerminalPaneCommand();
 }
 
 void TerminalPane::setFocus()

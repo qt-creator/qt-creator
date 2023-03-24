@@ -30,6 +30,8 @@ QtcPlugin {
         "terminalplugin.h",
         "terminalprocessimpl.cpp",
         "terminalprocessimpl.h",
+        "terminalsearch.cpp",
+        "terminalsearch.h",
         "terminalsettings.cpp",
         "terminalsettings.h",
         "terminalsettingspage.cpp",

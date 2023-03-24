@@ -82,13 +82,15 @@ public:
     }
 
     int position() const { return m_pos; }
+    void setSkipZeros(bool skipZeros) { m_skipZeros = skipZeros; }
 
 private:
-    void updateChar();
+    bool updateChar();
 
     const TerminalSurface *m_surface{nullptr};
     int m_pos{-1};
     int m_maxpos{-1};
+    bool m_skipZeros{false};
     mutable std::u32string::value_type m_char;
 };
 

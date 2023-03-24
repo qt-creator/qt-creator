@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "terminalcommands.h"
+#include "terminaltr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/find/textfindconstants.h>
 
 #include <utils/hostosinfo.h>
 
@@ -37,81 +39,87 @@ TerminalCommands::TerminalCommands() {}
 
 void TerminalCommands::init(const Core::Context &context)
 {
-    initWidgetActions(context);
-    initPaneActions(context);
+    m_context = context;
+    initWidgetActions();
+    initPaneActions();
     initGlobalCommands();
 }
 
-void TerminalCommands::initWidgetActions(const Core::Context &context)
+void TerminalCommands::registerAction(QAction &action,
+                                      const Utils::Id &id,
+                                      QList<QKeySequence> shortCuts)
 {
-    Command *command = ActionManager::instance()->registerAction(&m_widgetActions.copy,
-                                                                 COPY,
-                                                                 context);
-    command->setDefaultKeySequences(
-        {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+C")
-                                              : QLatin1String("Ctrl+Shift+C")),
-         QKeySequence(Qt::Key_Return)});
-    m_commands.push_back(command);
-
-    command = ActionManager::instance()->registerAction(&m_widgetActions.paste, PASTE, context);
-    command->setDefaultKeySequence(QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+V") : QLatin1String("Ctrl+Shift+V")));
-    m_commands.push_back(command);
-
-    command = ActionManager::instance()->registerAction(&m_widgetActions.clearSelection,
-                                                        CLEARSELECTION);
-    command->setDefaultKeySequence(QKeySequence("Esc"));
-    m_commands.push_back(command);
-
-    command = ActionManager::instance()->registerAction(&m_widgetActions.moveCursorWordLeft,
-                                                        MOVECURSORWORDLEFT);
-    command->setDefaultKeySequence(QKeySequence("Alt+Left"));
-    m_commands.push_back(command);
-
-    command = ActionManager::instance()->registerAction(&m_widgetActions.moveCursorWordRight,
-                                                        MOVECURSORWORDRIGHT);
-    command->setDefaultKeySequence(QKeySequence("Alt+Right"));
-    m_commands.push_back(command);
+    Command *cmd = ActionManager::instance()->registerAction(&action, id, m_context);
+    cmd->setKeySequences(shortCuts);
+    m_commands.push_back(cmd);
 }
 
-void TerminalCommands::initPaneActions(const Core::Context &context)
+void TerminalCommands::initWidgetActions()
 {
-    Command *command = ActionManager::instance()->registerAction(&m_paneActions.newTerminal,
-                                                                 NEWTERMINAL,
-                                                                 context);
-    command->setDefaultKeySequence(QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T")));
-    m_commands.push_back(command);
+    m_widgetActions.copy.setText(Tr::tr("Copy"));
+    m_widgetActions.paste.setText(Tr::tr("Paste"));
+    m_widgetActions.clearSelection.setText(Tr::tr("Clear Selection"));
+    m_widgetActions.clearTerminal.setText(Tr::tr("Clear Terminal"));
+    m_widgetActions.moveCursorWordLeft.setText(Tr::tr("Move Cursor Word Left"));
+    m_widgetActions.moveCursorWordRight.setText(Tr::tr("Move Cursor Word Right"));
+    m_widgetActions.findNext.setText(Tr::tr("Find Next"));
+    m_widgetActions.findPrevious.setText(Tr::tr("Find Previous"));
 
-    command = ActionManager::instance()->registerAction(&m_paneActions.closeTerminal,
-                                                        CLOSETERMINAL,
-                                                        context);
-    command->setDefaultKeySequence(QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+W") : QLatin1String("Ctrl+Shift+W")));
-    m_commands.push_back(command);
+    registerAction(m_widgetActions.copy,
+                   COPY,
+                   {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+C")
+                                                         : QLatin1String("Ctrl+Shift+C"))});
 
-    command = ActionManager::instance()->registerAction(&m_paneActions.nextTerminal,
-                                                        NEXTTERMINAL,
-                                                        context);
-    command->setDefaultKeySequences(
-        {QKeySequence("ALT+TAB"),
-         QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
-                                              : QLatin1String("Ctrl+PgUp"))});
-    m_commands.push_back(command);
+    registerAction(m_widgetActions.paste,
+                   PASTE,
+                   {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+V")
+                                                         : QLatin1String("Ctrl+Shift+V"))});
 
-    command = ActionManager::instance()->registerAction(&m_paneActions.prevTerminal,
-                                                        PREVTERMINAL,
-                                                        context);
-    command->setDefaultKeySequences(
-        {QKeySequence("ALT+SHIFT+TAB"),
-         QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
-                                              : QLatin1String("Ctrl+PgDown"))});
-    m_commands.push_back(command);
+    registerAction(m_widgetActions.clearSelection, CLEARSELECTION);
 
-    command = ActionManager::instance()->registerAction(&m_paneActions.minMax, MINMAX, context);
-    command->setDefaultKeySequence(QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Return") : QLatin1String("Alt+Return")));
-    m_commands.push_back(command);
+    registerAction(m_widgetActions.moveCursorWordLeft,
+                   MOVECURSORWORDLEFT,
+                   {QKeySequence("Alt+Left")});
+
+    registerAction(m_widgetActions.moveCursorWordRight,
+                   MOVECURSORWORDRIGHT,
+                   {QKeySequence("Alt+Right")});
+}
+
+void TerminalCommands::initPaneActions()
+{
+    m_paneActions.newTerminal.setText(Tr::tr("New Terminal"));
+    m_paneActions.closeTerminal.setText(Tr::tr("Close Terminal"));
+    m_paneActions.nextTerminal.setText(Tr::tr("Next Terminal"));
+    m_paneActions.prevTerminal.setText(Tr::tr("Previous Terminal"));
+    m_paneActions.minMax.setText(Tr::tr("Minimize/Maximize Terminal"));
+
+    registerAction(m_paneActions.newTerminal,
+                   NEWTERMINAL,
+                   {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T")
+                                                         : QLatin1String("Ctrl+Shift+T"))});
+
+    registerAction(m_paneActions.closeTerminal,
+                   CLOSETERMINAL,
+                   {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+W")
+                                                         : QLatin1String("Ctrl+Shift+W"))});
+
+    registerAction(m_paneActions.nextTerminal,
+                   NEXTTERMINAL,
+                   {QKeySequence("ALT+TAB"),
+                    QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
+                                                         : QLatin1String("Ctrl+PgUp"))});
+
+    registerAction(m_paneActions.prevTerminal,
+                   PREVTERMINAL,
+                   {QKeySequence("ALT+SHIFT+TAB"),
+                    QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
+                                                         : QLatin1String("Ctrl+PgDown"))});
+
+    registerAction(m_paneActions.minMax,
+                   MINMAX,
+                   {QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Return")
+                                                         : QLatin1String("Alt+Return"))});
 }
 
 void TerminalCommands::initGlobalCommands()
@@ -153,13 +161,20 @@ QAction *TerminalCommands::openSettingsAction()
     return ActionManager::command("Preferences.Terminal.General")->action();
 }
 
-void TerminalCommands::registerOpenCloseTerminalPaneCommand()
+void TerminalCommands::lazyInitCommand(const Utils::Id &id)
 {
-    Command* terminalCmd = ActionManager::command("QtCreator.Pane.Terminal");
-    QTC_ASSERT(terminalCmd, return);
+    Command *cmd = ActionManager::command(id);
+    QTC_ASSERT(cmd, return);
+    m_commands.append(cmd);
+}
 
-    if (!m_commands.contains(terminalCmd))
-        m_commands.append(terminalCmd);
+void TerminalCommands::lazyInitCommands()
+{
+    static const Utils::Id terminalPaneCmd("QtCreator.Pane.Terminal");
+    lazyInitCommand(terminalPaneCmd);
+    lazyInitCommand(Core::Constants::FIND_IN_DOCUMENT);
+    lazyInitCommand(Core::Constants::FIND_NEXT);
+    lazyInitCommand(Core::Constants::FIND_PREVIOUS);
 }
 
 } // namespace Terminal

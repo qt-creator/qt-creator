@@ -7,6 +7,10 @@
 #include "terminalsettings.h"
 #include "terminalsurface.h"
 
+#include <aggregation/aggregate.h>
+
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
@@ -48,6 +52,15 @@ using namespace Utils::Terminal;
 
 namespace Terminal {
 
+namespace ColorIndex {
+enum Indices {
+    Foreground = Internal::ColorIndex::Foreground,
+    Background = Internal::ColorIndex::Background,
+    Selection,
+    FindMatch,
+};
+}
+
 using namespace std::chrono_literals;
 
 // Minimum time between two refreshes. (30fps)
@@ -72,7 +85,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
             m_cursorBlinkState = !m_cursorBlinkState;
         else
             m_cursorBlinkState = true;
-        updateViewport(gridToViewport(QRect{m_cursor.position, m_cursor.position}));
+        updateViewportRect(gridToViewport(QRect{m_cursor.position, m_cursor.position}));
     });
 
     setAttribute(Qt::WA_InputMethodEnabled);
@@ -107,6 +120,18 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
         setupFont();
         configBlinkTimer();
     });
+
+    m_aggregate = new Aggregation::Aggregate(this);
+    m_aggregate->add(this);
+    m_aggregate->add(m_search.get());
+}
+
+TerminalWidget::~TerminalWidget()
+{
+    // The Aggregate stuff tries to do clever deletion of the children, but we
+    // we don't want that.
+    m_aggregate->remove(this);
+    m_aggregate->remove(m_search.get());
 }
 
 void TerminalWidget::setupPty()
@@ -203,12 +228,14 @@ void TerminalWidget::setupFont()
 void TerminalWidget::setupColors()
 {
     // Check if the colors have changed.
-    std::array<QColor, 18> newColors;
+    std::array<QColor, 20> newColors;
     for (int i = 0; i < 16; ++i) {
         newColors[i] = TerminalSettings::instance().colors[i].value();
     }
-    newColors[16] = TerminalSettings::instance().foregroundColor.value();
-    newColors[17] = TerminalSettings::instance().backgroundColor.value();
+    newColors[ColorIndex::Background] = TerminalSettings::instance().backgroundColor.value();
+    newColors[ColorIndex::Foreground] = TerminalSettings::instance().foregroundColor.value();
+    newColors[ColorIndex::Selection] = TerminalSettings::instance().selectionColor.value();
+    newColors[ColorIndex::FindMatch] = TerminalSettings::instance().findMatchColor.value();
 
     if (m_currentColors == newColors)
         return;
@@ -250,6 +277,16 @@ void TerminalWidget::setupSurface()
 {
     m_shellIntegration.reset(new ShellIntegration());
     m_surface = std::make_unique<Internal::TerminalSurface>(QSize{80, 60}, m_shellIntegration.get());
+    m_search = std::make_unique<TerminalSearch>(m_surface.get());
+
+    connect(m_search.get(), &TerminalSearch::hitsChanged, this, &TerminalWidget::updateViewport);
+    connect(m_search.get(), &TerminalSearch::currentHitChanged, this, [this] {
+        SearchHit hit = m_search->currentHit();
+        if (hit.start >= 0) {
+            setSelection(Selection{hit.start, hit.end, true}, hit != m_lastSelectedHit);
+            m_lastSelectedHit = hit;
+        }
+    });
 
     connect(m_surface.get(),
             &Internal::TerminalSurface::writeToPty,
@@ -263,7 +300,8 @@ void TerminalWidget::setupSurface()
             this,
             [this](const QRect &rect) {
                 setSelection(std::nullopt);
-                updateViewport(gridToViewport(rect));
+                updateViewportRect(gridToViewport(rect));
+                verticalScrollBar()->setValue(m_surface->fullSize().height());
             });
     connect(m_surface.get(),
             &Internal::TerminalSurface::cursorChanged,
@@ -282,7 +320,8 @@ void TerminalWidget::setupSurface()
 
                 m_cursor = newCursor;
 
-                updateViewport(gridToViewport(QRect{QPoint{startX, startY}, QPoint{endX, endY}}));
+                updateViewportRect(
+                    gridToViewport(QRect{QPoint{startX, startY}, QPoint{endX, endY}}));
                 configBlinkTimer();
             });
     connect(m_surface.get(), &Internal::TerminalSurface::altscreenChanged, this, [this] {
@@ -330,7 +369,7 @@ QColor TerminalWidget::toQColor(std::variant<int, QColor> color) const
         if (idx >= 0 && idx < 18)
             return m_currentColors[idx];
 
-        return m_currentColors[Internal::ColorIndex::Background];
+        return m_currentColors[ColorIndex::Background];
     }
     return std::get<QColor>(color);
 }
@@ -460,24 +499,34 @@ QString TerminalWidget::textFromSelection() const
     Internal::CellIterator end = m_surface->iteratorAt(m_selection->end);
 
     std::u32string s;
+    bool previousWasZero = false;
     for (; it != end; ++it) {
-        if (it.gridPos().x() == 0 && !s.empty())
+        if (it.gridPos().x() == 0 && !s.empty() && previousWasZero)
             s += U'\n';
-        if (*it != 0)
+
+        if (*it != 0) {
+            previousWasZero = false;
             s += *it;
+        } else {
+            previousWasZero = true;
+        }
     }
 
     return QString::fromUcs4(s.data(), static_cast<int>(s.size()));
 }
 
-bool TerminalWidget::setSelection(const std::optional<Selection> &selection)
+bool TerminalWidget::setSelection(const std::optional<Selection> &selection, bool scroll)
 {
+    qCDebug(selectionLog) << "setSelection" << selection.has_value();
+    if (selection.has_value())
+        qCDebug(selectionLog) << "start:" << selection->start << "end:" << selection->end
+                              << "final:" << selection->final;
+
     if (selectionLog().isDebugEnabled())
         updateViewport();
 
-    if (selection == m_selection) {
+    if (selection == m_selection)
         return false;
-    }
 
     m_selection = selection;
 
@@ -485,13 +534,25 @@ bool TerminalWidget::setSelection(const std::optional<Selection> &selection)
 
     if (m_selection && m_selection->final) {
         qCDebug(selectionLog) << "Copy enabled:" << selection.has_value();
+        QString text = textFromSelection();
 
         QClipboard *clipboard = QApplication::clipboard();
         if (clipboard->supportsSelection()) {
-            QString text = textFromSelection();
             qCDebug(selectionLog) << "Selection set to clipboard: " << text;
             clipboard->setText(text, QClipboard::Selection);
         }
+
+        if (scroll) {
+            QPoint start = m_surface->posToGrid(m_selection->start);
+            QPoint end = m_surface->posToGrid(m_selection->end);
+            QRect viewRect = gridToViewport(QRect{start, end});
+            if (viewRect.y() >= viewport()->height() || viewRect.y() < 0) {
+                // Selection is outside of the viewport, scroll to it.
+                verticalScrollBar()->setValue(start.y());
+            }
+        }
+
+        m_search->setCurrentSelection(SearchHitWithText{{selection->start, selection->end}, text});
     }
 
     if (!selectionLog().isDebugEnabled())
@@ -727,32 +788,64 @@ static void drawTextItemDecoration(QPainter &painter,
     painter.setBrush(oldBrush);
 }
 
-void TerminalWidget::paintSelectionOrBackground(QPainter &p,
-                                                const Internal::TerminalCell &cell,
-                                                const QRectF &cellRect,
-                                                const QPoint gridPos) const
+bool TerminalWidget::paintFindMatches(QPainter &p,
+                                      QList<SearchHit>::const_iterator &it,
+                                      const QRectF &cellRect,
+                                      const QPoint gridPos) const
+{
+    if (it == m_search->hits().constEnd())
+        return false;
+
+    const int pos = m_surface->gridToPos(gridPos);
+    while (it != m_search->hits().constEnd()) {
+        if (pos < it->start)
+            return false;
+
+        if (pos >= it->end) {
+            ++it;
+            continue;
+        }
+        break;
+    }
+    if (it == m_search->hits().constEnd())
+        return false;
+
+    p.fillRect(cellRect, m_currentColors[ColorIndex::FindMatch]);
+
+    return true;
+}
+
+bool TerminalWidget::paintSelection(QPainter &p, const QRectF &cellRect, const QPoint gridPos) const
 {
     bool isInSelection = false;
+    const int pos = m_surface->gridToPos(gridPos);
 
     if (m_selection) {
-        const int pos = m_surface->gridToPos(gridPos);
         isInSelection = pos >= m_selection->start && pos < m_selection->end;
     }
 
-    if (isInSelection)
-        p.fillRect(cellRect, TerminalSettings::instance().selectionColor.value());
-    else if (!(std::holds_alternative<int>(cell.backgroundColor)
-               && std::get<int>(cell.backgroundColor) == 17))
-        p.fillRect(cellRect, toQColor(cell.backgroundColor));
+    if (isInSelection) {
+        p.fillRect(cellRect, m_currentColors[ColorIndex::Selection]);
+    }
+
+    return isInSelection;
 }
 
 int TerminalWidget::paintCell(QPainter &p,
                               const QRectF &cellRect,
                               QPoint gridPos,
                               const Internal::TerminalCell &cell,
-                              QFont &f) const
+                              QFont &f,
+                              QList<SearchHit>::const_iterator &searchIt) const
 {
-    paintSelectionOrBackground(p, cell, cellRect, gridPos);
+    bool paintBackground = !paintSelection(p, cellRect, gridPos)
+                           && !paintFindMatches(p, searchIt, cellRect, gridPos);
+
+    bool isDefaultBg = std::holds_alternative<int>(cell.backgroundColor)
+                       && std::get<int>(cell.backgroundColor) == 17;
+
+    if (paintBackground && !isDefaultBg)
+        p.fillRect(cellRect, toQColor(cell.backgroundColor));
 
     p.setPen(toQColor(cell.foregroundColor));
 
@@ -865,6 +958,14 @@ void TerminalWidget::paintCells(QPainter &p, QPaintEvent *event) const
                             qCeil((event->rect().y() + event->rect().height()) / m_cellSize.height())
                                 + scrollOffset);
 
+    QList<SearchHit>::const_iterator searchIt
+        = std::lower_bound(m_search->hits().constBegin(),
+                           m_search->hits().constEnd(),
+                           startRow,
+                           [this](const SearchHit &hit, int value) {
+                               return m_surface->posToGrid(hit.start).y() < value;
+                           });
+
     for (int cellY = startRow; cellY < endRow; ++cellY) {
         for (int cellX = 0; cellX < m_surface->liveSize().width();) {
             const auto cell = m_surface->fetchCell(cellX, cellY);
@@ -872,7 +973,7 @@ void TerminalWidget::paintCells(QPainter &p, QPaintEvent *event) const
             QRectF cellRect(gridToGlobal({cellX, cellY}),
                             QSizeF{m_cellSize.width() * cell.width, m_cellSize.height()});
 
-            int numCells = paintCell(p, cellRect, {cellX, cellY}, cell, f);
+            int numCells = paintCell(p, cellRect, {cellX, cellY}, cell, f, searchIt);
 
             cellX += numCells;
         }
@@ -907,7 +1008,7 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
     if (paintLog().isDebugEnabled())
         p.fillRect(event->rect(), QColor::fromRgb(rand() % 60, rand() % 60, rand() % 60));
     else
-        p.fillRect(event->rect(), m_currentColors[Internal::ColorIndex::Background]);
+        p.fillRect(event->rect(), m_currentColors[ColorIndex::Background]);
 
     int scrollOffset = verticalScrollBar()->value();
     int offset = -(scrollOffset * m_cellSize.height());
@@ -923,7 +1024,7 @@ void TerminalWidget::paintEvent(QPaintEvent *event)
     p.restore();
 
     p.fillRect(QRectF{{0, 0}, QSizeF{(qreal) width(), topMargin()}},
-               m_currentColors[Internal::ColorIndex::Background]);
+               m_currentColors[ColorIndex::Background]);
 
     if (selectionLog().isDebugEnabled()) {
         if (m_selection)
@@ -946,8 +1047,20 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
         m_cursorBlinkState = true;
     }
 
+    if (event->key() == Qt::Key_Escape) {
+        if (m_selection)
+            TerminalCommands::widgetActions().clearSelection.trigger();
+        else {
+            QTC_ASSERT(Core::ActionManager::command(Core::Constants::S_RETURNTOEDITOR), return);
+            Core::ActionManager::command(Core::Constants::S_RETURNTOEDITOR)->action()->trigger();
+        }
+        return;
+    }
+
+    auto oldSelection = m_selection;
     if (TerminalCommands::triggerAction(event)) {
-        setSelection(std::nullopt);
+        if (oldSelection && oldSelection == m_selection)
+            setSelection(std::nullopt);
         return;
     }
 
@@ -1023,7 +1136,7 @@ void TerminalWidget::updateViewport()
     viewport()->update();
 }
 
-void TerminalWidget::updateViewport(const QRect &rect)
+void TerminalWidget::updateViewportRect(const QRect &rect)
 {
     viewport()->update(rect);
 }
@@ -1297,7 +1410,7 @@ bool TerminalWidget::event(QEvent *event)
 
     if (event->type() == QEvent::Paint) {
         QPainter p(this);
-        p.fillRect(QRect(QPoint(0, 0), size()), m_currentColors[Internal::ColorIndex::Background]);
+        p.fillRect(QRect(QPoint(0, 0), size()), m_currentColors[ColorIndex::Background]);
         return true;
     }
 

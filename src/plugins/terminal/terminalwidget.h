@@ -3,7 +3,10 @@
 
 #pragma once
 
+#include "terminalsearch.h"
 #include "terminalsurface.h"
+
+#include <aggregation/aggregate.h>
 
 #include <utils/link.h>
 #include <utils/qtcprocess.h>
@@ -26,6 +29,7 @@ class TerminalWidget : public QAbstractScrollArea
 public:
     TerminalWidget(QWidget *parent = nullptr,
                    const Utils::Terminal::OpenTerminalParameters &openParameters = {});
+    ~TerminalWidget() override;
 
     void setFont(const QFont &font);
 
@@ -41,6 +45,8 @@ public:
     void moveCursorWordRight();
 
     void clearContents();
+
+    TerminalSearch *search() { return m_search.get(); }
 
     struct Selection
     {
@@ -113,14 +119,16 @@ protected:
                   const QRectF &cellRect,
                   QPoint gridPos,
                   const Internal::TerminalCell &cell,
-                  QFont &f) const;
+                  QFont &f,
+                  QList<SearchHit>::const_iterator &searchIt) const;
     void paintCells(QPainter &painter, QPaintEvent *event) const;
     void paintCursor(QPainter &painter) const;
     void paintPreedit(QPainter &painter) const;
-    void paintSelectionOrBackground(QPainter &painter,
-                                    const Internal::TerminalCell &cell,
-                                    const QRectF &cellRect,
-                                    const QPoint gridPos) const;
+    bool paintFindMatches(QPainter &painter,
+                          QList<SearchHit>::const_iterator &searchIt,
+                          const QRectF &cellRect,
+                          const QPoint gridPos) const;
+    bool paintSelection(QPainter &painter, const QRectF &cellRect, const QPoint gridPos) const;
     void paintDebugSelection(QPainter &painter, const Selection &selection) const;
 
     qreal topMargin() const;
@@ -132,7 +140,7 @@ protected:
     QRect gridToViewport(QRect rect) const;
 
     void updateViewport();
-    void updateViewport(const QRect &rect);
+    void updateViewportRect(const QRect &rect);
 
     int textLineFromPixel(int y) const;
     std::optional<int> textPosFromPoint(const QTextLayout &textLayout, QPoint p) const;
@@ -156,7 +164,7 @@ protected:
 
     void flushVTerm(bool force);
 
-    bool setSelection(const std::optional<Selection> &selection);
+    bool setSelection(const std::optional<Selection> &selection, bool scroll = true);
     QString textFromSelection() const;
 
     void configBlinkTimer();
@@ -194,7 +202,7 @@ private:
     QTimer m_scrollTimer;
     int m_scrollDirection{0};
 
-    std::array<QColor, 18> m_currentColors;
+    std::array<QColor, 20> m_currentColors;
 
     Utils::Terminal::OpenTerminalParameters m_openParameters;
 
@@ -208,6 +216,11 @@ private:
 
     Utils::FilePath m_cwd;
     Utils::CommandLine m_currentCommand;
+
+    std::unique_ptr<TerminalSearch> m_search;
+
+    Aggregation::Aggregate *m_aggregate{nullptr};
+    SearchHit m_lastSelectedHit{};
 };
 
 } // namespace Terminal

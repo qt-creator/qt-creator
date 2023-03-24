@@ -22,6 +22,7 @@ public:
     Utils::ColorAspect foregroundColor;
     Utils::ColorAspect backgroundColor;
     Utils::ColorAspect selectionColor;
+    Utils::ColorAspect findMatchColor;
 
     Utils::ColorAspect colors[16];
 

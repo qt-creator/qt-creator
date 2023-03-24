@@ -399,6 +399,7 @@ QWidget *TerminalSettingsPage::widget()
                     Tr::tr("Foreground"), settings.foregroundColor, st,
                     Tr::tr("Background"), settings.backgroundColor, st,
                     Tr::tr("Selection"), settings.selectionColor, st,
+                    Tr::tr("Find match"), settings.findMatchColor, st,
                 },
                 Row {
                     settings.colors[0], settings.colors[1],

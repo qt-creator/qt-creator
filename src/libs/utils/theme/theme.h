@@ -423,6 +423,7 @@ public:
         TerminalForeground,
         TerminalBackground,
         TerminalSelection,
+        TerminalFindMatch,
 
         TerminalAnsi0,
         TerminalAnsi1,

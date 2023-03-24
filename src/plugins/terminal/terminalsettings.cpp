@@ -110,6 +110,11 @@ TerminalSettings::TerminalSettings()
                "Selection",
                Utils::creatorTheme()->color(Theme::TerminalSelection));
 
+    setupColor(this,
+               findMatchColor,
+               "Find matches",
+               Utils::creatorTheme()->color(Theme::TerminalFindMatch));
+
     setupColor(this, colors[0], "0", Utils::creatorTheme()->color(Theme::TerminalAnsi0));
     setupColor(this, colors[8], "8", Utils::creatorTheme()->color(Theme::TerminalAnsi8));
 

@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <utils/id.h>
+
+#include <coreplugin/icontext.h>
+
 #include <QAction>
 #include <QCoreApplication>
 #include <QKeyEvent>
@@ -10,29 +14,29 @@
 namespace Core {
 class Command;
 class Context;
-}
+} // namespace Core
 
 namespace Terminal {
 
 struct WidgetActions
 {
-    QAction copy{QCoreApplication::translate("QtC::Terminal", "Copy")};
-    QAction paste{QCoreApplication::translate("QtC::Terminal", "Paste")};
-    QAction clearSelection{QCoreApplication::translate("QtC::Terminal", "Clear Selection")};
-    QAction clearTerminal{QCoreApplication::translate("QtC::Terminal", "Clear Terminal")};
-    QAction moveCursorWordLeft{QCoreApplication::translate("QtC::Terminal",
-                                                           "Move Cursor Word Left")};
-    QAction moveCursorWordRight{QCoreApplication::translate("QtC::Terminal",
-                                                            "Move Cursor Word Right")};
+    QAction copy;
+    QAction paste;
+    QAction clearSelection;
+    QAction clearTerminal;
+    QAction moveCursorWordLeft;
+    QAction moveCursorWordRight;
+    QAction findNext;
+    QAction findPrevious;
 };
 
 struct PaneActions
 {
-    QAction newTerminal{QCoreApplication::translate("QtC::Terminal", "New Terminal")};
-    QAction closeTerminal{QCoreApplication::translate("QtC::Terminal", "Close Terminal")};
-    QAction nextTerminal{QCoreApplication::translate("QtC::Terminal", "Next Terminal")};
-    QAction prevTerminal{QCoreApplication::translate("QtC::Terminal", "Previous Terminal")};
-    QAction minMax{QCoreApplication::translate("QtC::Terminal", "Minimize/Maximize Terminal")};
+    QAction newTerminal;
+    QAction closeTerminal;
+    QAction nextTerminal;
+    QAction prevTerminal;
+    QAction minMax;
 };
 
 class TerminalCommands
@@ -51,17 +55,21 @@ public:
 
     static QAction *openSettingsAction();
 
-    void registerOpenCloseTerminalPaneCommand();
+    void lazyInitCommands();
 
 protected:
-    void initWidgetActions(const Core::Context &context);
-    void initPaneActions(const Core::Context &context);
+    void initWidgetActions();
+    void initPaneActions();
     void initGlobalCommands();
+
+    void lazyInitCommand(const Utils::Id &id);
+    void registerAction(QAction &action, const Utils::Id &id, QList<QKeySequence> shortcuts = {});
 
 private:
     WidgetActions m_widgetActions;
     PaneActions m_paneActions;
     QList<Core::Command *> m_commands;
+    Core::Context m_context;
 };
 
 } // namespace Terminal

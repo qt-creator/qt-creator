@@ -20,6 +20,7 @@ public:
     ~TerminalPlugin() override;
 
     void extensionsInitialized() override;
+    bool delayedInitialize() override;
 
 private:
     TerminalPane *m_terminalPane{nullptr};
