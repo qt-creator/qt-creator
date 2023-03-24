@@ -50,7 +50,6 @@ private:
     QMap<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
     struct ScheduleData
     {
-        ~ScheduleData();
         int cursorPosition = -1;
         QTimer *timer = nullptr;
     };

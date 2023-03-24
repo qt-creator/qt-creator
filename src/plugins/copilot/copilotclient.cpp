@@ -95,7 +95,7 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
                 requestCompletions(editor);
         });
         connect(editor, &TextEditorWidget::destroyed, this, [this, editor]() {
-            m_scheduledRequests.remove(editor);
+            delete m_scheduledRequests.take(editor).timer;
             cancelRunningRequest(editor);
         });
         connect(editor, &TextEditorWidget::cursorPositionChanged, this, [this, editor] {
@@ -106,11 +106,6 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
         m_scheduledRequests[editor].cursorPosition = editor->textCursor().position();
     }
     m_scheduledRequests[editor].timer->start(500);
-}
-
-CopilotClient::ScheduleData::~ScheduleData()
-{
-    delete timer;
 }
 
 void CopilotClient::requestCompletions(TextEditorWidget *editor)
