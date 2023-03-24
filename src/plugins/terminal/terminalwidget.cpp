@@ -1317,8 +1317,12 @@ void TerminalWidget::checkLinkAt(const QPoint &pos)
     const TextAndOffsets hit = textAt(pos);
 
     if (hit.text.size() > 0) {
-        QString t = chopIfEndsWith(QString::fromUcs4(hit.text.c_str(), hit.text.size()).trimmed(),
-                                   ':');
+        QString t = QString::fromUcs4(hit.text.c_str(), hit.text.size()).trimmed();
+        t = chopIfEndsWith(t, ':');
+
+        if (t.isEmpty())
+            return;
+
         if (t.startsWith("~/")) {
             t = QDir::homePath() + t.mid(1);
         }
@@ -1380,6 +1384,9 @@ TerminalWidget::TextAndOffsets TerminalWidget::textAt(const QPoint &pos) const
     std::u32string text;
     std::copy(itLeft.base(), it, std::back_inserter(text));
     std::copy(it, itRight, std::back_inserter(text));
+    std::transform(text.begin(), text.end(), text.begin(), [](const char32_t &ch) {
+        return ch == 0 ? U' ' : ch;
+    });
 
     return {(itLeft.base()).position(), itRight.position(), text};
 }
