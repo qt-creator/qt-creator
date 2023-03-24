@@ -54,7 +54,7 @@ public:
     int colorDepth() const;
     bool isValid() const;
     QString desktopCompilerId() const;
-    void printPackageProblems() const;
+    void handlePackageProblems(MessagesList &messages) const;
 
 private:
     const QVersionNumber m_qulVersion;

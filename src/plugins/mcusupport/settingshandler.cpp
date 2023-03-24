@@ -68,4 +68,17 @@ void SettingsHandler::setAutomaticKitCreation(bool isEnabled)
     settings->setValue(automaticKitCreationSettingsKey, isEnabled);
 }
 
+void SettingsHandler::setInitialPlatformName(const QString &platform)
+{
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    settings->setValue(Constants::SETTINGS_KEY_INITIAL_PLATFORM_KEY, platform);
+}
+
+QString SettingsHandler::initialPlatformName() const
+{
+    QSettings *settings = Core::ICore::settings(QSettings::UserScope);
+    const QString name
+        = settings->value(Constants::SETTINGS_KEY_INITIAL_PLATFORM_KEY, "").toString();
+    return name;
+}
 } // namespace McuSupport::Internal

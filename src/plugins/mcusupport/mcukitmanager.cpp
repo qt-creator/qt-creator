@@ -3,6 +3,7 @@
 
 #include "mcukitmanager.h"
 #include "mculegacyconstants.h"
+#include "mcusupport_global.h"
 #include "mcusupportoptions.h"
 
 #include "mcukitinformation.h"
@@ -486,31 +487,37 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
 {
     McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
 
-    const auto createKits = [qtForMCUsPackage, settingsHandler]() {
+    // add a list of package, board, errormessage,
+    MessagesList autoGenerationMessages;
+
+    const auto createKits = [&autoGenerationMessages, qtForMCUsPackage, settingsHandler] {
         if (settingsHandler->isAutomaticKitCreationEnabled()) {
             qtForMCUsPackage->updateStatus();
             if (!qtForMCUsPackage->isValidStatus()) {
                 switch (qtForMCUsPackage->status()) {
                 case McuAbstractPackage::Status::ValidPathInvalidPackage: {
-                    printMessage(Tr::tr("Path %1 exists, but does not contain %2.")
-                                     .arg(qtForMCUsPackage->path().toUserOutput(),
-                                          qtForMCUsPackage->detectionPath().toUserOutput()),
-                                 true);
+                    const QString message
+                        = Tr::tr("Path %1 exists, but does not contain %2.")
+                              .arg(qtForMCUsPackage->path().toUserOutput(),
+                                   qtForMCUsPackage->detectionPath().toUserOutput());
+                    autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
+                    printMessage(message, true);
                     break;
                 }
                 case McuAbstractPackage::Status::InvalidPath: {
-                    printMessage(Tr::tr(
-                                     "Path %1 does not exist. Add the path in Edit > Preferences > "
-                                     "Devices > MCU.")
-                                     .arg(qtForMCUsPackage->path().toUserOutput()),
-                                 true);
+                    const QString message
+                        = Tr::tr("Path %1 does not exist. Add the path in Edit > Preferences > "
+                                 "Devices > MCU.")
+                              .arg(qtForMCUsPackage->path().toUserOutput());
+                    autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
+                    printMessage(message, true);
                     break;
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
-                    printMessage(
-                        Tr::tr("Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
-                            .arg(qtForMCUsPackage->detectionPath().toUserOutput()),
-                        true);
+                    const QString message = Tr::tr("Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
+                            .arg(qtForMCUsPackage->detectionPath().toUserOutput());
+                    autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
+                    printMessage(message, true);
                     return;
                 }
                 default:
@@ -520,10 +527,10 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             }
 
             if (CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty()) {
-                printMessage(
-                    Tr::tr("No CMake tool was detected. Add a CMake tool in Edit > Preferences > "
-                           "Kits > CMake."),
-                    true);
+                const QString message = Tr::tr("No CMake tool was detected. Add a CMake tool in Edit > Preferences > "
+                           "Kits > CMake.");
+                autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
+                printMessage(message, true);
                 return;
             }
 
@@ -543,7 +550,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                     // if no kits for this target, create
                     if (target->isValid())
                         newKit(target.get(), qtForMCUsPackage);
-                    target->printPackageProblems();
+                    target->handlePackageProblems(autoGenerationMessages);
                 }
             }
             if (needsUpgrade)
@@ -552,6 +559,9 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
     };
 
     createKits();
+    McuSupportOptions::displayKitCreationMessages(autoGenerationMessages,
+                                                  settingsHandler,
+                                                  qtForMCUsPackage);
 }
 
 // Maintenance
@@ -569,6 +579,7 @@ void upgradeKitsByCreatingNewPackage(const SettingsHandler::Ptr &settingsHandler
 
     McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
 
+    MessagesList messages;
     for (const auto &target : std::as_const(repo.mcuTargets)) {
         if (!matchingKits(target.get(), qtForMCUsPackage).empty())
             // already up-to-date
@@ -583,9 +594,11 @@ void upgradeKitsByCreatingNewPackage(const SettingsHandler::Ptr &settingsHandler
 
             if (target->isValid())
                 newKit(target.get(), qtForMCUsPackage);
-            target->printPackageProblems();
+            target->handlePackageProblems(messages);
         }
     }
+    // Open the dialog showing warnings and errors in packages
+    McuSupportOptions::displayKitCreationMessages(messages, settingsHandler, qtForMCUsPackage);
 }
 
 // Maintenance
