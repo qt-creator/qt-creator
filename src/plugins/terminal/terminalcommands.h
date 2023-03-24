@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "terminaltr.h"
-
 #include <QAction>
+#include <QCoreApplication>
 #include <QKeyEvent>
 
 namespace Core {
@@ -17,21 +16,23 @@ namespace Terminal {
 
 struct WidgetActions
 {
-    QAction copy{Tr::tr("Copy")};
-    QAction paste{Tr::tr("Paste")};
-    QAction clearSelection{Tr::tr("Clear Selection")};
-    QAction clearTerminal{Tr::tr("Clear Terminal")};
-    QAction moveCursorWordLeft{Tr::tr("Move Cursor Word Left")};
-    QAction moveCursorWordRight{Tr::tr("Move Cursor Word Right")};
+    QAction copy{QCoreApplication::translate("QtC::Terminal", "Copy")};
+    QAction paste{QCoreApplication::translate("QtC::Terminal", "Paste")};
+    QAction clearSelection{QCoreApplication::translate("QtC::Terminal", "Clear Selection")};
+    QAction clearTerminal{QCoreApplication::translate("QtC::Terminal", "Clear Terminal")};
+    QAction moveCursorWordLeft{QCoreApplication::translate("QtC::Terminal",
+                                                           "Move Cursor Word Left")};
+    QAction moveCursorWordRight{QCoreApplication::translate("QtC::Terminal",
+                                                            "Move Cursor Word Right")};
 };
 
 struct PaneActions
 {
-    QAction newTerminal{Tr::tr("New Terminal")};
-    QAction closeTerminal{Tr::tr("Close Terminal")};
-    QAction nextTerminal{Tr::tr("Next Terminal")};
-    QAction prevTerminal{Tr::tr("Previous Terminal")};
-    QAction minMax{Tr::tr("Minimize/Maximize Terminal")};
+    QAction newTerminal{QCoreApplication::translate("QtC::Terminal", "New Terminal")};
+    QAction closeTerminal{QCoreApplication::translate("QtC::Terminal", "Close Terminal")};
+    QAction nextTerminal{QCoreApplication::translate("QtC::Terminal", "Next Terminal")};
+    QAction prevTerminal{QCoreApplication::translate("QtC::Terminal", "Previous Terminal")};
+    QAction minMax{QCoreApplication::translate("QtC::Terminal", "Minimize/Maximize Terminal")};
 };
 
 class TerminalCommands
