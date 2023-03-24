@@ -41,4 +41,11 @@ private:
     bool m_isCmakeProject = false;
 };
 
+class REMOTELINUX_EXPORT MakeInstallStepFactory
+    : public ProjectExplorer::BuildStepFactory
+{
+public:
+    MakeInstallStepFactory();
+};
+
 } // namespace RemoteLinux

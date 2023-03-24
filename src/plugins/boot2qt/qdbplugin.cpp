@@ -100,16 +100,14 @@ void registerFlashAction(QObject *parentForAction)
     toolsContainer->addAction(flashCommand, flashActionId);
 }
 
-template <class Step>
-class QdbDeployStepFactory : public ProjectExplorer::BuildStepFactory
+template <class Factory>
+class QdbDeployStepFactory : public Factory
 {
 public:
-    explicit QdbDeployStepFactory(Id id)
+    QdbDeployStepFactory()
     {
-        registerStep<Step>(id);
-        setDisplayName(Step::displayName());
-        setSupportedConfiguration(Constants::QdbDeployConfigurationId);
-        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        Factory::setSupportedConfiguration(Constants::QdbDeployConfigurationId);
+        Factory::setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     }
 };
 
@@ -125,12 +123,9 @@ public:
     QdbStopApplicationStepFactory m_stopApplicationStepFactory;
     QdbMakeDefaultAppStepFactory m_makeDefaultAppStepFactory;
 
-    QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep>
-        m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
-    QdbDeployStepFactory<RemoteLinux::RsyncDeployStep>
-        m_rsyncDeployStepFactory{RemoteLinux::Constants::RsyncDeployStepId};
-    QdbDeployStepFactory<RemoteLinux::MakeInstallStep>
-        m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
+    QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStepFactory> m_directUploadStepFactory;
+    QdbDeployStepFactory<RemoteLinux::RsyncDeployStepFactory> m_rsyncDeployStepFactory;
+    QdbDeployStepFactory<RemoteLinux::MakeInstallStepFactory> m_makeInstallStepFactory;
 
     const QList<Id> supportedRunConfigs {
         m_runConfigFactory.runConfigurationId(),

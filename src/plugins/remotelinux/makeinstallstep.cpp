@@ -281,4 +281,12 @@ bool MakeInstallStep::fromMap(const QVariantMap &map)
     return true;
 }
 
-} // namespace RemoteLinux
+// Factory
+
+MakeInstallStepFactory::MakeInstallStepFactory()
+{
+    registerStep<MakeInstallStep>(Constants::MakeInstallStepId);
+    setDisplayName(Tr::tr("Install into temporary host directory"));
+}
+
+} // RemoteLinux

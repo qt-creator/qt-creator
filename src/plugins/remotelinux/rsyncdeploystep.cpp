@@ -137,4 +137,12 @@ QString RsyncDeployStep::displayName()
     return Tr::tr("Deploy files via rsync");
 }
 
+// Factory
+
+RsyncDeployStepFactory::RsyncDeployStepFactory()
+{
+    registerStep<RsyncDeployStep>(Constants::RsyncDeployStepId);
+    setDisplayName(Tr::tr("Deploy files via rsync"));
+}
+
 } // RemoteLinux

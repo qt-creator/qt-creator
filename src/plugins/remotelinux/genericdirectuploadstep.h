@@ -28,4 +28,11 @@ private:
     class GenericDirectUploadStepPrivate *d;
 };
 
+class REMOTELINUX_EXPORT GenericDirectUploadStepFactory
+    : public ProjectExplorer::BuildStepFactory
+{
+public:
+    GenericDirectUploadStepFactory();
+};
+
 } // RemoteLinux

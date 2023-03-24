@@ -33,4 +33,11 @@ private:
     QString m_flags;
 };
 
+class REMOTELINUX_EXPORT RsyncDeployStepFactory
+    : public ProjectExplorer::BuildStepFactory
+{
+public:
+    RsyncDeployStepFactory();
+};
+
 } // namespace RemoteLinux

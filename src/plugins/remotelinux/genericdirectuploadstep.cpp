@@ -332,4 +332,12 @@ QString GenericDirectUploadStep::displayName()
     return Tr::tr("Upload files via SFTP");
 }
 
+// Factory
+
+GenericDirectUploadStepFactory::GenericDirectUploadStepFactory()
+{
+    registerStep<GenericDirectUploadStep>(Constants::DirectUploadStepId);
+    setDisplayName(Tr::tr("Upload files via SFTP"));
+}
+
 } //namespace RemoteLinux
