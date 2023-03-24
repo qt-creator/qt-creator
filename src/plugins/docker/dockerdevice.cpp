@@ -164,7 +164,6 @@ public:
                                   const std::optional<Environment> &env = std::nullopt,
                                   const std::optional<FilePath> &workDir = std::nullopt,
                                   bool interactive = false,
-                                  bool includeMarker = true,
                                   bool withPty = false);
 
     bool prepareForBuild(const Target *target);
@@ -315,16 +314,17 @@ void DockerProcessImpl::start()
     if (m_setup.m_lowPriority)
         m_process.setLowPriority();
 
+    const bool inTerminal = m_setup.m_terminalMode != TerminalMode::Off;
+
     const bool interactive = m_setup.m_processMode == ProcessMode::Writer
-                             || !m_setup.m_writeData.isEmpty();
+                             || !m_setup.m_writeData.isEmpty() || inTerminal;
 
     const CommandLine fullCommandLine
         = m_devicePrivate->withDockerExecCmd(m_setup.m_commandLine,
                                              m_setup.m_environment,
                                              m_setup.m_workingDirectory,
                                              interactive,
-                                             true,
-                                             m_setup.m_ptyData.has_value());
+                                             inTerminal);
 
     m_process.setCommand(fullCommandLine);
     m_process.start();
@@ -472,7 +472,6 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
                                                    const std::optional<Environment> &env,
                                                    const std::optional<FilePath> &workDir,
                                                    bool interactive,
-                                                   bool includeMarker,
                                                    bool withPty)
 {
     if (!m_settings)
@@ -501,20 +500,16 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
 
     dockerCmd.addArg(m_container);
 
-    if (includeMarker) {
-        dockerCmd.addArgs({"/bin/sh", "-c"});
+    dockerCmd.addArgs({"/bin/sh", "-c"});
 
-        CommandLine exec("exec");
-        exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
+    CommandLine exec("exec");
+    exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
 
-        CommandLine echo("echo");
-        echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
-        echo.addCommandLineWithAnd(exec);
+    CommandLine echo("echo");
+    echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
+    echo.addCommandLineWithAnd(exec);
 
-        dockerCmd.addCommandLineAsSingleArg(echo);
-    } else {
-        dockerCmd.addCommandLineAsArgs(cmd, CommandLine::Raw);
-    }
+    dockerCmd.addCommandLineAsSingleArg(echo);
 
     return dockerCmd;
 }

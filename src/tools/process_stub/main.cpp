@@ -137,6 +137,11 @@ void sendMsg(const QByteArray &msg)
     }
 }
 
+void sendQtcMarker(const QByteArray &marker)
+{
+    sendMsg(QByteArray("qtc: ") + marker + "\n");
+}
+
 void sendPid(int inferiorPid)
 {
     sendMsg(QString("pid %1\n").arg(inferiorPid).toUtf8());
@@ -273,6 +278,26 @@ void setupPidPollTimer()
     pollPidTimer.start();
 #endif
 }
+
+enum class Out { StdOut, StdErr };
+
+void writeToOut(const QByteArray &data, Out out)
+{
+#ifdef Q_OS_WIN
+    static const HANDLE outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    static const HANDLE errHandle = GetStdHandle(STD_ERROR_HANDLE);
+    WriteFile(out == Out::StdOut ? outHandle : errHandle,
+              data.constData(),
+              data.size(),
+              nullptr,
+              nullptr);
+#else
+    auto fp = out == Out::StdOut ? stdout : stderr;
+    ::fwrite(data.constData(), 1, data.size(), fp);
+    ::fflush(fp);
+#endif
+}
+
 void startProcess(const QString &executable, const QStringList &arguments, const QString &workingDir)
 {
     setupPidPollTimer();
@@ -292,7 +317,32 @@ void startProcess(const QString &executable, const QStringList &arguments, const
                      QCoreApplication::instance(),
                      &onInferiorStarted);
 
-    inferiorProcess.setProcessChannelMode(QProcess::ForwardedChannels);
+    inferiorProcess.setProcessChannelMode(QProcess::SeparateChannels);
+
+    QObject::connect(&inferiorProcess,
+                     &QProcess::readyReadStandardOutput,
+                     QCoreApplication::instance(),
+                     [] {
+                         const QByteArray data = inferiorProcess.readAllStandardOutput();
+                         static bool isFirst = true;
+                         if (isFirst) {
+                             isFirst = false;
+                             if (data.startsWith("__qtc")) {
+                                 int lineBreak = data.indexOf("\r\n");
+                                 sendQtcMarker(data.mid(0, lineBreak));
+                                 if (lineBreak != -1)
+                                     writeToOut(data.mid(lineBreak + 2), Out::StdOut);
+                                 return;
+                             }
+                         }
+                         writeToOut(data, Out::StdOut);
+                     });
+
+    QObject::connect(&inferiorProcess,
+                     &QProcess::readyReadStandardError,
+                     QCoreApplication::instance(),
+                     [] { writeToOut(inferiorProcess.readAllStandardOutput(), Out::StdErr); });
+
     if (!(testMode && debugMode))
         inferiorProcess.setInputChannelMode(QProcess::ForwardedInputChannel);
     inferiorProcess.setWorkingDirectory(workingDir);
