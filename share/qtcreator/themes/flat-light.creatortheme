@@ -363,7 +363,7 @@ QmlDesigner_ScrollBarHandleColor=ffcccccc
 
 TerminalForeground=ff000000
 TerminalBackground=ffffffff
-TerminalSelection=7fffffff
+TerminalSelection=3f000000
 TerminalAnsi0=000000
 TerminalAnsi1=8b1b10
 TerminalAnsi2=4aa32e
@@ -375,7 +375,7 @@ TerminalAnsi7=bfbfbf
 TerminalAnsi8=666666
 TerminalAnsi9=d22d1f
 TerminalAnsi10=62d63f
-TerminalAnsi11=e5e54b
+TerminalAnsi11=dac911
 TerminalAnsi12=0000fe
 TerminalAnsi13=d22dde
 TerminalAnsi14=69e2e4
