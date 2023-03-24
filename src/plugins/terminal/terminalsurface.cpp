@@ -68,10 +68,14 @@ struct TerminalSurfacePrivate
                 auto p = static_cast<TerminalSurfacePrivate *>(user);
                 return p->movecursor(pos, oldpos, visible);
             };
-
         m_vtermScreenCallbacks.sb_clear = [](void *user) {
             auto p = static_cast<TerminalSurfacePrivate *>(user);
             return p->sb_clear();
+        };
+        m_vtermScreenCallbacks.bell = [](void *user) {
+            auto p = static_cast<TerminalSurfacePrivate *>(user);
+            emit p->q->bell();
+            return 1;
         };
 
         vterm_screen_set_callbacks(m_vtermScreen, &m_vtermScreenCallbacks, this);

@@ -332,6 +332,7 @@ void TerminalWidget::setupSurface()
     connect(m_surface.get(), &Internal::TerminalSurface::unscroll, this, [this] {
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
     });
+    connect(m_surface.get(), &Internal::TerminalSurface::bell, this, [] { QApplication::beep(); });
     if (m_shellIntegration) {
         connect(m_shellIntegration.get(),
                 &ShellIntegration::commandChanged,
