@@ -494,6 +494,12 @@ void Environment::set(const QString &key, const QString &value, bool enabled)
                  std::tuple<QString, QString, bool>{key, value, enabled}});
 }
 
+void Environment::setFallback(const QString &key, const QString &value)
+{
+    addItem(Item{std::in_place_index_t<SetFallbackValue>(),
+                 std::tuple<QString, QString>{key, value}});
+}
+
 void Environment::unset(const QString &key)
 {
     addItem(Item{std::in_place_index_t<UnsetValue>(), key});
@@ -536,17 +542,31 @@ const NameValueDictionary &Environment::resolved() const
     if (m_dict.size() != 0)
         return m_dict;
 
+    m_fullDict = false;
     for (const Item &item : m_changeItems) {
         switch (item.index()) {
         case SetSystemEnvironment:
             m_dict = Environment::systemEnvironment().toDictionary();
+            m_fullDict = true;
             break;
         case SetFixedDictionary:
             m_dict = std::get<SetFixedDictionary>(item);
+            m_fullDict = true;
             break;
         case SetValue: {
             auto [key, value, enabled] = std::get<SetValue>(item);
             m_dict.set(key, value, enabled);
+            break;
+        }
+        case SetFallbackValue: {
+            auto [key, value] = std::get<SetFallbackValue>(item);
+            if (m_fullDict) {
+                if (m_dict.value(key).isEmpty())
+                    m_dict.set(key, value, true);
+            } else {
+                QTC_ASSERT(false, qDebug() << "operating on partial dictionary");
+                m_dict.set(key, value, true);
+            }
             break;
         }
         case UnsetValue:

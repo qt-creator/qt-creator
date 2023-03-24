@@ -1069,11 +1069,9 @@ bool RunControl::showPromptToStopDialog(const QString &title,
 
 void RunControl::provideAskPassEntry(Environment &env)
 {
-    if (env.value("SUDO_ASKPASS").isEmpty()) {
-        const FilePath askpass = SshSettings::askpassFilePath();
-        if (askpass.exists())
-            env.set("SUDO_ASKPASS", askpass.toUserOutput());
-    }
+    const FilePath askpass = SshSettings::askpassFilePath();
+    if (askpass.exists())
+        env.setFallback("SUDO_ASKPASS", askpass.toUserOutput());
 }
 
 bool RunControlPrivate::isAllowedTransition(RunControlState from, RunControlState to)

@@ -33,6 +33,7 @@ public:
     bool hasKey(const QString &key) const;
 
     void set(const QString &key, const QString &value, bool enabled = true);
+    void setFallback(const QString &key, const QString &value);
     void unset(const QString &key);
     void modify(const NameValueItems &items);
 
@@ -55,6 +56,7 @@ public:
     void appendToPath(const FilePaths &values);
 
     void setupEnglishOutput();
+    void setupSudoAskPass(const FilePath &askPass);
 
     FilePath searchInPath(const QString &executable,
                           const FilePaths &additionalDirs = FilePaths(),
@@ -95,22 +97,25 @@ public:
         SetSystemEnvironment,
         SetFixedDictionary,
         SetValue,
+        SetFallbackValue,
         UnsetValue,
         PrependOrSet,
         AppendOrSet,
         Modify,
-        SetupEnglishOutput,
+        SetupEnglishOutput
     };
 
     using Item = std::variant<
         std::monostate,                          // SetSystemEnvironment dummy
         NameValueDictionary,                     // SetFixedDictionary
         std::tuple<QString, QString, bool>,      // SetValue (key, value, enabled)
+        std::tuple<QString, QString>,            // SetFallbackValue (key, value)
         QString,                                 // UnsetValue (key)
         std::tuple<QString, QString, QString>,   // PrependOrSet (key, value, separator)
         std::tuple<QString, QString, QString>,   // AppendOrSet (key, value, separator)
         NameValueItems,                          // Modify
-        std::monostate                           // SetupEnglishOutput
+        std::monostate,                          // SetupEnglishOutput
+        FilePath                                 // SetupSudoAskPass (file path of qtc-askpass or ssh-askpass)
     >;
 
     void addItem(const Item &item);
@@ -122,6 +127,7 @@ public:
 private:
     mutable QList<Item> m_changeItems;
     mutable NameValueDictionary m_dict; // Latest resolved.
+    mutable bool m_fullDict = false;
 };
 
 using EnviromentChange = Environment;
