@@ -362,7 +362,7 @@ QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
 QmlDesigner_ScrollBarHandleColor=ffcccccc
 
 TerminalForeground=ff000000
-TerminalBackground=ffffffff
+TerminalBackground=normalBackground
 TerminalSelection=3f000000
 TerminalFindMatch=7fffff00
 TerminalAnsi0=000000
