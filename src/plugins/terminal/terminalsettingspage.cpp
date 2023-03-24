@@ -378,9 +378,10 @@ QWidget *TerminalSettingsPage::widget()
     Column {
         Group {
             title(Tr::tr("General")),
-            Row {
+            Column {
                 settings.enableTerminal, st,
-                settings.sendEscapeToTerminal, st
+                settings.sendEscapeToTerminal, st,
+                settings.audibleBell, st,
             },
         },
         Group {

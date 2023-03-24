@@ -104,12 +104,19 @@ TerminalSettings::TerminalSettings()
                "instead of closing the terminal."));
     sendEscapeToTerminal.setDefaultValue(false);
 
+    audibleBell.setSettingsKey("AudibleBell");
+    audibleBell.setLabelText(Tr::tr("Audible bell"));
+    audibleBell.setToolTip(Tr::tr("If enabled, the terminal will beep when a bell "
+                                  "character is received."));
+    audibleBell.setDefaultValue(true);
+
     registerAspect(&font);
     registerAspect(&fontSize);
     registerAspect(&shell);
     registerAspect(&allowBlinkingCursor);
     registerAspect(&enableTerminal);
     registerAspect(&sendEscapeToTerminal);
+    registerAspect(&audibleBell);
 
     setupColor(this,
                foregroundColor,

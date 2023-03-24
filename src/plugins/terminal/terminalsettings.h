@@ -29,6 +29,7 @@ public:
     Utils::BoolAspect allowBlinkingCursor;
 
     Utils::BoolAspect sendEscapeToTerminal;
+    Utils::BoolAspect audibleBell;
 };
 
 } // namespace Terminal
