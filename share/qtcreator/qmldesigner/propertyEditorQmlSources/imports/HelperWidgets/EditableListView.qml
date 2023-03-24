@@ -95,6 +95,7 @@ Item {
                 tooltip: root.extraButtonToolTip
                 onClicked: root.extraButtonClicked(index)
                 visible: root.extraButtonIcon !== ""
+                enabled: root.model[index]
             }
 
             IconIndicator {
