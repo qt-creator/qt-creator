@@ -23,27 +23,21 @@ public:
     InsertionLocation(const Utils::FilePath &filePath, const QString &prefix,
                       const QString &suffix, int line, int column);
 
-    const Utils::FilePath &filePath() const
-    { return m_filePath; }
+    const Utils::FilePath &filePath() const { return m_filePath; }
 
-    /// \returns The prefix to insert before any other text.
-    QString prefix() const
-    { return m_prefix; }
+    /// Returns the prefix to insert before any other text.
+    QString prefix() const { return m_prefix; }
 
-    /// \returns The suffix to insert after the other inserted text.
-    QString suffix() const
-    { return m_suffix; }
+    /// Returns the suffix to insert after the other inserted text.
+    QString suffix() const { return m_suffix; }
 
-    /// \returns The line where to insert. The line number is 1-based.
-    int line() const
-    { return m_line; }
+    /// Returns the line where to insert. The line number is 1-based.
+    int line() const { return m_line; }
 
-    /// \returns The column where to insert. The column number is 1-based.
-    int column() const
-    { return m_column; }
+    /// Returns the column where to insert. The column number is 1-based.
+    int column() const { return m_column; }
 
-    bool isValid() const
-    { return !m_filePath.isEmpty() && m_line > 0 && m_column > 0; }
+    bool isValid() const { return !m_filePath.isEmpty() && m_line > 0 && m_column > 0; }
 
 private:
     Utils::FilePath m_filePath;

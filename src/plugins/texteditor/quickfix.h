@@ -35,8 +35,7 @@ public:
     virtual ~QuickFixOperation();
 
     /*!
-        \returns The priority for this quick-fix. See the QuickFixCollector for more
-                 information.
+        Returns The priority for this quick-fix. See the QuickFixCollector for more information.
      */
     virtual int priority() const;
 
@@ -44,8 +43,7 @@ public:
     void setPriority(int priority);
 
     /*!
-        \returns The description for this quick-fix. This description is shown to the
-                 user.
+        Returns The description for this quick-fix. This description is shown to the user.
      */
     virtual QString description() const;
 

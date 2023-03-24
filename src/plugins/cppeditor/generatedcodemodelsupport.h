@@ -20,7 +20,7 @@ public:
                               const Utils::FilePath &generatedFile);
     ~GeneratedCodeModelSupport() override;
 
-    /// \returns the contents encoded in UTF-8.
+    /// Returns the contents encoded in UTF-8.
     QByteArray contents() const override;
     Utils::FilePath filePath() const override; // The generated file
     Utils::FilePath sourceFilePath() const override;

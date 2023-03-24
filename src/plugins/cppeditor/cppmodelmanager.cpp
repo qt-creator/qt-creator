@@ -1000,7 +1000,7 @@ Document::Ptr CppModelManager::document(const FilePath &filePath) const
 
 /// Replace the document in the snapshot.
 ///
-/// \returns true if successful, false if the new document is out-dated.
+/// Returns true if successful, false if the new document is out-dated.
 bool CppModelManager::replaceDocument(Document::Ptr newDoc)
 {
     QMutexLocker locker(&d->m_snapshotMutex);

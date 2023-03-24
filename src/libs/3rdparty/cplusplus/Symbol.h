@@ -66,10 +66,10 @@ public:
     /// Returns this Symbol's source location.
     int sourceLocation() const { return _sourceLocation; }
 
-    /// \returns this Symbol's line number. The line number is 1-based.
+    /// Returns this Symbol's line number. The line number is 1-based.
     int line() const { return _line; }
 
-    /// \returns this Symbol's column number. The column number is 1-based.
+    /// Returns this Symbol's column number. The column number is 1-based.
     int column() const { return _column; }
 
     /// Returns this Symbol's file name.

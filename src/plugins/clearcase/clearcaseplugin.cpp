@@ -488,7 +488,7 @@ FileStatus::Status ClearCasePluginPrivate::getFileStatus(const QString &fileName
 /// "cleartool pwv" returns the values for "set view" and "working directory view", also for
 /// snapshot views.
 ///
-/// \returns The ClearCase topLevel/VOB directory for this directory
+/// Returns the ClearCase topLevel/VOB directory for this directory.
 QString ClearCasePluginPrivate::ccManagesDirectory(const FilePath &directory) const
 {
     const CommandResult result = runCleartoolProc(directory, {"pwv"});

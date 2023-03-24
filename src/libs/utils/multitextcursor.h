@@ -28,15 +28,15 @@ public:
 
     ~MultiTextCursor();
 
-    /// replace all cursors with \param cursors and the last one will be the new main cursors
+    /// Replaces all cursors with \param cursors and the last one will be the new main cursors.
     void setCursors(const QList<QTextCursor> &cursors);
     const QList<QTextCursor> cursors() const;
 
-    /// \returns whether this multi cursor contains any cursor
+    /// Returns whether this multi cursor contains any cursor.
     bool isNull() const;
-    /// \returns whether this multi cursor contains more than one cursor
+    /// Returns whether this multi cursor contains more than one cursor.
     bool hasMultipleCursors() const;
-    /// \returns the number of cursors handled by this cursor
+    /// Returns the number of cursors handled by this cursor.
     int cursorCount() const;
 
     /// the \param cursor that is appended by added by \brief addCursor
@@ -46,9 +46,9 @@ public:
     /// convenience function that removes the old main cursor and appends
     /// \param cursor as the new main cursor
     void replaceMainCursor(const QTextCursor &cursor);
-    /// \returns the main cursor
+    /// Returns the main cursor.
     QTextCursor mainCursor() const;
-    /// \returns the main cursor and removes it from this multi cursor
+    /// Returns the main cursor and removes it from this multi cursor.
     QTextCursor takeMainCursor();
 
     void beginEditBlock();
@@ -62,10 +62,10 @@ public:
     /// with the move \param mode
     void movePosition(QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode, int n = 1);
 
-    /// \returns whether any cursor has a selection
+    /// Returns whether any cursor has a selection.
     bool hasSelection() const;
-    /// \returns the selected text of all cursors that have a selection separated by
-    /// a newline character
+    /// Returns the selected text of all cursors that have a selection separated by
+    /// a newline character.
     QString selectedText() const;
     /// removes the selected text of all cursors that have a selection from the document
     void removeSelectedText();
