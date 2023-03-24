@@ -41132,7 +41132,7 @@ The affected files are:
     </message>
     <message>
         <source>Platform:</source>
-        <translation type="unfinished">Plattform:</translation>
+        <translation>Plattform:</translation>
     </message>
     <message>
         <source>Library inside &quot;debug&quot; or &quot;release&quot; subfolder</source>
@@ -41334,19 +41334,19 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>The process &quot;%1&quot; exited normally.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; wurde normal beendet.</translation>
+        <translation>Der Prozess &quot;%1&quot; wurde normal beendet.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited with code %2.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; wurde mit dem Rückgabewert %2 beendet.</translation>
+        <translation>Der Prozess &quot;%1&quot; wurde mit dem Rückgabewert %2 beendet.</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1&quot; %2.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
+        <translation>Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; crashed.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; ist abgestürzt.</translation>
+        <translation>Der Prozess &quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>ABIs:</source>
@@ -41399,19 +41399,19 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Run</source>
-        <translation type="unfinished">Ausführen</translation>
+        <translation>Ausführen</translation>
     </message>
     <message>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorieren</translation>
     </message>
     <message>
         <source>Use global setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellung verwenden</translation>
     </message>
     <message>
         <source>qmake system() behavior when parsing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verhalten von qmake system() beim Auswerten:</translation>
     </message>
     <message>
         <source>General</source>
@@ -41482,11 +41482,11 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Cannot parse project &quot;%1&quot;: The currently selected kit &quot;%2&quot; does not have a valid Qt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung des Projekts &quot;%1&quot; ist fehlgeschlagen: Das ausgewählte Kit &quot;%2&quot; hat keine gültige Qt-Version.</translation>
     </message>
     <message>
         <source>Cannot parse project &quot;%1&quot;: No kit selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung des Projekts &quot;%1&quot; ist fehlgeschlagen: Kein Kit ausgewählt.</translation>
     </message>
     <message>
         <source>No Qt version set in kit.</source>
@@ -41506,35 +41506,35 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Generate Xcode project (via qmake)</source>
-        <translation type="unfinished"></translation>
+        <translation>Xcode-Projekt generieren (mittels qmake)</translation>
     </message>
     <message>
         <source>Generate Visual Studio project (via qmake)</source>
-        <translation type="unfinished"></translation>
+        <translation>Visual Studio-Projekt generieren (mittels qmake)</translation>
     </message>
     <message>
         <source>qmake generator failed: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>qmake-Generator fehlgeschlagen: %1.</translation>
     </message>
     <message>
         <source>No Qt in kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Qt im Kit</translation>
     </message>
     <message>
         <source>No valid qmake executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine gültige ausführbare qmake-Datei</translation>
     </message>
     <message>
         <source>No qmake step in active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein qmake-Build-Schritt in der aktiven Build-Konfiguration</translation>
     </message>
     <message>
         <source>Cannot create output directory &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausgabeverzeichnis &quot;%1&quot; konnte nicht angelegt werden</translation>
     </message>
     <message>
         <source>Running in %1: %2</source>
-        <translation type="unfinished">Führe in %1 aus: %2 {1:?}</translation>
+        <translation>Führe in %1 aus: %2</translation>
     </message>
     <message>
         <source>Build</source>
@@ -41656,7 +41656,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>The build directory is not at the same level as the source directory, which could be the reason for the build failure.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis liegt nicht auf der gleichen Ebene wie das Quellverzeichnis, was der Grund für den Fehler beim Erstellen sein könnte.</translation>
     </message>
     <message>
         <source>Qt mkspec</source>
@@ -41680,7 +41680,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Mkspec configured for qmake by the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mkspec, die im Kit für qmake konfiguriert ist.</translation>
     </message>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
@@ -41688,43 +41688,43 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Warn if a project&apos;s source and build directories are not at the same level</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnen, wenn das Quell- und das Build-Verzeichnis eines Projekts nicht auf der gleichen Ebene liegen</translation>
     </message>
     <message>
         <source>Qmake has subtle bugs that can be triggered if source and build directory are not at the same level.</source>
-        <translation type="unfinished"></translation>
+        <translation>In qmake können subtile Fehler ausgelöst werden, wenn das Quell- und das Build-Verzeichnis nicht auf der gleichen Ebene liegen.</translation>
     </message>
     <message>
         <source>Run qmake on every build</source>
-        <translation type="unfinished"></translation>
+        <translation>qmake bei jedem Erstellen ausführen</translation>
     </message>
     <message>
         <source>This option can help to prevent failures on incremental builds, but might slow them down unnecessarily in the general case.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Einstellung kann Fehler beim inkrementellen Erstellen verhindern, aber das Erstellen im Allgemeinen unnötig verlangsamen.</translation>
     </message>
     <message>
         <source>Ignore qmake&apos;s system() function when parsing a project</source>
-        <translation type="unfinished"></translation>
+        <translation>Qmakes system()-Funktion beim Auswerten eines Projektes ignorieren</translation>
     </message>
     <message>
         <source>Checking this option avoids unwanted side effects, but may result in inexact parsing results.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Einstellung verhindert ungewollte Nebeneffekte, kann aber zu ungenauen Resultaten beim Auswerten führen.</translation>
     </message>
     <message>
         <source>Qmake</source>
-        <translation type="unfinished"></translation>
+        <translation>Qmake</translation>
     </message>
     <message>
         <source>Required Qt features not present.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benötigte Qt-Funktionen sind nicht vorhanden.</translation>
     </message>
     <message>
         <source>Qt version does not target the expected platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version unterstützt die erwartete Plattform nicht als Ziel.</translation>
     </message>
     <message>
         <source>Qt version does not provide all features.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version stellt nicht alle Funktionen zur Verfügung.</translation>
     </message>
 </context>
 <context>
