@@ -5,11 +5,13 @@
 
 #include "shellmodel.h"
 #include "terminalcommands.h"
+#include "terminalsettings.h"
 #include "terminaltr.h"
 #include "terminalwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -127,6 +129,30 @@ TerminalPane::TerminalPane(QObject *parent)
     connect(m_openSettingsButton, &QToolButton::clicked, m_openSettingsButton, []() {
         TerminalCommands::openSettingsAction()->trigger();
     });
+
+    auto updateEscButton = [this] {
+        m_escSettingButton->setChecked(TerminalSettings::instance().sendEscapeToTerminal.value());
+        if (TerminalSettings::instance().sendEscapeToTerminal.value()) {
+            m_escSettingButton->setText("⎋");
+            m_escSettingButton->setToolTip(Tr::tr("Sending ESC to terminal instead of Qt Creator"));
+        } else {
+            m_escSettingButton->setText("⇧+⎋");
+            m_escSettingButton->setToolTip(Tr::tr("Press ⇧+⎋ to send ESC to terminal"));
+        }
+    };
+
+    m_escSettingButton = new QToolButton();
+    m_escSettingButton->setCheckable(true);
+
+    updateEscButton();
+
+    connect(m_escSettingButton, &QToolButton::toggled, this, [this] {
+        TerminalSettings::instance().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
+        TerminalSettings::instance().apply();
+        TerminalSettings::instance().writeSettings(Core::ICore::settings());
+    });
+
+    connect(&TerminalSettings::instance(), &TerminalSettings::applied, this, updateEscButton);
 }
 
 TerminalPane::~TerminalPane()
@@ -252,15 +278,15 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
             m_tabWidget->setTabText(index, exe + " - " + cwd.fileName());
     };
 
-    connect(terminal, &TerminalWidget::started, [setTabText, terminal](qint64 /*pid*/) {
+    connect(terminal, &TerminalWidget::started, this, [setTabText, terminal](qint64 /*pid*/) {
         setTabText(terminal);
     });
 
-    connect(terminal, &TerminalWidget::cwdChanged, [setTabText, terminal]() {
+    connect(terminal, &TerminalWidget::cwdChanged, this, [setTabText, terminal]() {
         setTabText(terminal);
     });
 
-    connect(terminal, &TerminalWidget::commandChanged, [setTabText, terminal]() {
+    connect(terminal, &TerminalWidget::commandChanged, this, [setTabText, terminal]() {
         setTabText(terminal);
     });
 
@@ -274,7 +300,7 @@ QList<QWidget *> TerminalPane::toolBarWidgets() const
     widgets.prepend(m_newTerminalButton);
     widgets.prepend(m_closeTerminalButton);
 
-    return widgets << m_openSettingsButton;
+    return widgets << m_openSettingsButton << m_escSettingButton;
 }
 
 QString TerminalPane::displayName() const

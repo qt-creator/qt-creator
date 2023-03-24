@@ -808,6 +808,7 @@ bool TerminalWidget::paintFindMatches(QPainter &p,
         }
         break;
     }
+
     if (it == m_search->hits().constEnd())
         return false;
 
@@ -821,13 +822,11 @@ bool TerminalWidget::paintSelection(QPainter &p, const QRectF &cellRect, const Q
     bool isInSelection = false;
     const int pos = m_surface->gridToPos(gridPos);
 
-    if (m_selection) {
+    if (m_selection)
         isInSelection = pos >= m_selection->start && pos < m_selection->end;
-    }
 
-    if (isInSelection) {
+    if (isInSelection)
         p.fillRect(cellRect, m_currentColors[ColorIndex::Selection]);
-    }
 
     return isInSelection;
 }
@@ -1049,6 +1048,19 @@ void TerminalWidget::keyPressEvent(QKeyEvent *event)
     }
 
     if (event->key() == Qt::Key_Escape) {
+        bool sendToTerminal = TerminalSettings::instance().sendEscapeToTerminal.value();
+        bool send = false;
+        if (sendToTerminal && event->modifiers() == Qt::NoModifier)
+            send = true;
+        else if (!sendToTerminal && event->modifiers() == Qt::ShiftModifier)
+            send = true;
+
+        if (send) {
+            event->setModifiers(Qt::NoModifier);
+            m_surface->sendKey(event);
+            return;
+        }
+
         if (m_selection)
             TerminalCommands::widgetActions().clearSelection.trigger();
         else {

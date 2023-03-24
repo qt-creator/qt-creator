@@ -27,6 +27,8 @@ public:
     Utils::ColorAspect colors[16];
 
     Utils::BoolAspect allowBlinkingCursor;
+
+    Utils::BoolAspect sendEscapeToTerminal;
 };
 
 } // namespace Terminal

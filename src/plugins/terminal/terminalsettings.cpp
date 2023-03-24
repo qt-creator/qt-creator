@@ -97,6 +97,20 @@ TerminalSettings::TerminalSettings()
     shell.setToolTip(Tr::tr("The shell executable to be started as terminal"));
     shell.setDefaultValue(defaultShell());
 
+    sendEscapeToTerminal.setSettingsKey("SendEscapeToTerminal");
+    sendEscapeToTerminal.setLabelText(Tr::tr("Send escape key to terminal"));
+    sendEscapeToTerminal.setToolTip(
+        Tr::tr("If enabled, pressing the escape key will send it to the terminal "
+               "instead of closing the terminal."));
+    sendEscapeToTerminal.setDefaultValue(false);
+
+    registerAspect(&font);
+    registerAspect(&fontSize);
+    registerAspect(&shell);
+    registerAspect(&allowBlinkingCursor);
+    registerAspect(&enableTerminal);
+    registerAspect(&sendEscapeToTerminal);
+
     setupColor(this,
                foregroundColor,
                "Foreground",
@@ -138,12 +152,6 @@ TerminalSettings::TerminalSettings()
 
     setupColor(this, colors[7], "7", Utils::creatorTheme()->color(Theme::TerminalAnsi7));
     setupColor(this, colors[15], "15", Utils::creatorTheme()->color(Theme::TerminalAnsi15));
-
-    registerAspect(&font);
-    registerAspect(&fontSize);
-    registerAspect(&shell);
-    registerAspect(&allowBlinkingCursor);
-    registerAspect(&enableTerminal);
 }
 
 } // namespace Terminal

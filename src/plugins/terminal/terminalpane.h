@@ -53,6 +53,7 @@ private:
     QToolButton *m_newTerminalButton{nullptr};
     QToolButton *m_closeTerminalButton{nullptr};
     QToolButton *m_openSettingsButton{nullptr};
+    QToolButton *m_escSettingButton{nullptr};
 
     bool m_widgetInitialized{false};
 };
