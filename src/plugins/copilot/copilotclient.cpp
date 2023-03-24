@@ -108,6 +108,11 @@ void CopilotClient::scheduleRequest(TextEditorWidget *editor)
     m_scheduledRequests[editor].timer->start(500);
 }
 
+CopilotClient::ScheduleData::~ScheduleData()
+{
+    delete timer;
+}
+
 void CopilotClient::requestCompletions(TextEditorWidget *editor)
 {
     Utils::MultiTextCursor cursor = editor->multiTextCursor();
