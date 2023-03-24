@@ -642,7 +642,7 @@
             native debugger.
         \li \l{Troubleshooting Debugger}
 
-            \l {Directly Interacting with Native Debuggers}
+            \l {Debugger Log}
      \row
         \li Disassembler
         \li View disassembled code for the current function.
@@ -1065,20 +1065,45 @@
     \previouspage creator-registers-view.html
     \nextpage creator-disassembler-view.html
 
-    \title Directly Interacting with Native Debuggers
+    \title Debugger Log
 
-    In some cases, it is convenient to directly interact with the command line
-    of the native debugger. In \QC, you can use the left pane of the
-    \uicontrol {Debugger Log} view for that purpose. When you press
-    \key {Ctrl+Enter}, the contents of the line under the text cursor are sent
-    directly to the native debugger. Alternatively, you can use the line edit at
-    the bottom of the view. Output is displayed in the right pane of the
-    \uicontrol {Debugger Log} view.
+    You can view debug output in the \uicontrol {Debugger Log} view to
+    \l {Debugger Does Not Work}{troubleshoot the debugger}.
+
+    \image qtcreator-debugger-log-view.webp {Debugger Log view}
+
+    If debug output is sent to the system log, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Debugger > \uicontrol General >
+    \uicontrol {Force logging to console} check box.
+
+    Right-click the view to select the following actions:
+
+    \list
+        \li Copy, paste, cut, and delete log contents.
+        \li Undo and redo editing actions.
+        \li Select all log contents.
+        \li Clear log contents.
+        \li Save log contents as a file.
+        \li Log time stamps.
+        \li Reload debugging helpers after \l{Adding Custom Debugging Helpers}
+            {adding custom debugging helpers}.
+        \li Set \l{Debugger Preferences}{debugger preferences}.
+    \endlist
+
+    \section1 Directly Interacting with Native Debuggers
+
+    You can use the left pane of the \uicontrol {Debugger Log} view to directly
+    interact with the command line of the native debugger.
+
+    Press \key {Ctrl+Enter} to send the contents of the line under the
+    text cursor to the native debugger. Or, enter the command in the
+    \uicontrol Command field. The right side pane of the
+    \uicontrol {Debugger Log} view shows the command output.
 
     \note Usually, you do not need this feature because \QC offers better ways to
     handle the task. For example, instead of using the GDB
     \c print command from the command line, you can evaluate an expression in
-    the \uicontrol {Expressions} view.
+    the \l {Evaluating Expressions}{Expressions} view.
 */
 
 /*!
@@ -1088,22 +1113,38 @@
 
     \title Viewing Disassembled Code
 
+    A \e disassembler translates machine language into assembly language for
+    human-readability.
+
     The \uicontrol Disassembler view displays disassembled code for the current
-    function.
+    function. It is useful for low-level commands for checking single
+    instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
 
-    The \uicontrol Disassembler view is useful for low-level commands for checking
-    single instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
-    By default, the \uicontrol Disassembler view is hidden.
-
-    To access the \uicontrol Disassembler view, check
-    \uicontrol Debug > \uicontrol {Operate by Instruction} while the debugger is
-    running. Alternatively, click the
-    \inlineimage icons/debugger_singleinstructionmode.png
-    (\uicontrol {Operate by Instruction}) tool button on the debugger toolbar.
+    \image qtcreator-debugger-disassembler-view.webp {Disassembler view}
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,
     select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol GDB > \uicontrol {Use Intel style disassembly}.
+
+    To open the \uicontrol Disassembler view:
+
+    \list
+        \li Select \uicontrol Debug > \uicontrol {Operate by Instruction} while
+            the debugger is running.
+        \li Select the \inlineimage icons/debugger_singleinstructionmode.png
+            (\uicontrol {Operate by Instruction}) tool button on the debugger
+            toolbar.
+        \li In the \l {Viewing and Editing Register State}{Registers} view,
+            select a value, and then select \uicontrol {Open Disassembler at <value>}
+            in the context menu.
+    \endlist
+
+    \section1 Starting Disassembler
+
+    To start a disassembler from the \uicontrol Registers view, select
+    \uicontrol {Open Disassembler} and  set the disassembler address:
+
+    \image qcreator-debugger-select-start-address.webp {Select Start Address dialog}
 */
 
 /*!
@@ -1250,7 +1291,7 @@
     The custom debugging helpers will be automatically picked up from
     \c personaltypes.py when you start a debugging session in \QC or select
     \uicontrol {Reload Debugging Helpers} from the context menu of the
-    \uicontrol {Debugger Log} view.
+    \l {Debugger Log} view.
 
     \section2 Debugging Helper Overview
 
@@ -1796,7 +1837,7 @@
 
         \li In the \uicontrol Debug mode, select \uicontrol View >
             \uicontrol Views > \uicontrol {Debugger Log} to open the
-            \uicontrol {Debugger Log} view. Browse the contents of the pane on
+            \l {Debugger Log} view. Browse the contents of the pane on
             the right hand side to find out what went wrong. Always attach the
             contents of the pane to debugger-related questions to the \QC
             mailing list (qt-creator@qt-project.org) or paste them to a
@@ -1854,7 +1895,7 @@
 
     \section2 Disabling Incremental Linking
 
-    Incremental linking can affect debugging. If the debugger log has
+    Incremental linking can affect debugging. If the \l {Debugger Log} view shows
     the \e {Unable to verify checksum of module} message, disable incremental
     linking.
 
