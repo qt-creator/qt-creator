@@ -290,15 +290,14 @@ void TerminalPane::clearContents()
 
 void TerminalPane::visibilityChanged(bool visible)
 {
-    Q_UNUSED(visible);
+    if (visible)
+        TerminalCommands::instance().registerOpenCloseTerminalPaneCommand();
 }
 
 void TerminalPane::setFocus()
 {
     if (const auto t = currentTerminal())
         t->setFocus();
-
-    TerminalCommands::instance().registerOpenCloseTerminalPaneCommand();
 }
 
 bool TerminalPane::hasFocus() const
