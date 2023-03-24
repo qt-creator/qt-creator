@@ -7,6 +7,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/find/textfindconstants.h>
+#include <coreplugin/locator/locatorconstants.h>
 
 #include <utils/hostosinfo.h>
 
@@ -175,6 +176,7 @@ void TerminalCommands::lazyInitCommands()
     lazyInitCommand(Core::Constants::FIND_IN_DOCUMENT);
     lazyInitCommand(Core::Constants::FIND_NEXT);
     lazyInitCommand(Core::Constants::FIND_PREVIOUS);
+    lazyInitCommand(Core::Constants::LOCATE);
 }
 
 } // namespace Terminal
