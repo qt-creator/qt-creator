@@ -756,8 +756,12 @@ static QRectF replacementBoundingRect(const QTextDocument *replacement)
 
 QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
-    if (QTextDocument *replacement = replacementDocument(block))
+    if (QTextDocument *replacement = replacementDocument(block)) {
+        // since multiple code paths expects that we have a valid block layout after requesting the
+        // block bounding rect explicitly create that layout here
+        ensureBlockLayout(block);
         return replacementBoundingRect(replacement);
+    }
 
     QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
 
