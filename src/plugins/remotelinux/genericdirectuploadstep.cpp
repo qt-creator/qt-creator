@@ -288,20 +288,16 @@ Group GenericDirectUploadStep::deployRecipe()
     return root;
 }
 
-GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id id,
-                                                 bool offerIncrementalDeployment)
+GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id),
       d(new GenericDirectUploadStepPrivate(this))
 {
-    BoolAspect *incremental = nullptr;
-    if (offerIncrementalDeployment) {
-        incremental = addAspect<BoolAspect>();
-        incremental->setSettingsKey("RemoteLinux.GenericDirectUploadStep.Incremental");
-        incremental->setLabel(Tr::tr("Incremental deployment"),
-                              BoolAspect::LabelPlacement::AtCheckBox);
-        incremental->setValue(true);
-        incremental->setDefaultValue(true);
-    }
+    auto incremental = addAspect<BoolAspect>();
+    incremental->setSettingsKey("RemoteLinux.GenericDirectUploadStep.Incremental");
+    incremental->setLabel(Tr::tr("Incremental deployment"),
+                          BoolAspect::LabelPlacement::AtCheckBox);
+    incremental->setValue(true);
+    incremental->setDefaultValue(true);
 
     auto ignoreMissingFiles = addAspect<BoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles");
@@ -310,12 +306,8 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id i
     ignoreMissingFiles->setValue(false);
 
     setInternalInitializer([this, incremental, ignoreMissingFiles] {
-        if (incremental) {
-            d->m_incremental = incremental->value()
-                ? IncrementalDeployment::Enabled : IncrementalDeployment::Disabled;
-        } else {
-            d->m_incremental = IncrementalDeployment::NotSupported;
-        }
+        d->m_incremental = incremental->value()
+            ? IncrementalDeployment::Enabled : IncrementalDeployment::Disabled;
         d->m_ignoreMissingFiles = ignoreMissingFiles->value();
         return isDeploymentPossible();
     });

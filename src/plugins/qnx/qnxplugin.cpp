@@ -46,7 +46,7 @@ namespace Qnx::Internal {
 class QnxUploadStep : public RemoteLinux::GenericDirectUploadStep
 {
 public:
-    QnxUploadStep(BuildStepList *bsl, Utils::Id id) : GenericDirectUploadStep(bsl, id, false) {}
+    QnxUploadStep(BuildStepList *bsl, Utils::Id id) : GenericDirectUploadStep(bsl, id) {}
     static Utils::Id stepId() { return "Qnx.DirectUploadStep"; }
 };
 

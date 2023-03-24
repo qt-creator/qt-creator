@@ -14,8 +14,7 @@ class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDep
     Q_OBJECT
 
 public:
-    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id,
-                            bool offerIncrementalDeployment = true);
+    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~GenericDirectUploadStep() override;
 
     bool isDeploymentNecessary() const final;
