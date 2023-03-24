@@ -791,4 +791,26 @@ MetaInfo {
             toolTip: qsTr("A sound object in 3D space.")
         }
     }
+
+    Type {
+        name: "QtQuick3D.BakedLightmap"
+        icon: ":/ItemLibrary/images/item-default-icon.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: false
+        }
+
+        ItemLibraryEntry {
+            name: "Baked Lightmap"
+            category: "Components"
+            libraryIcon: ":/ItemLibrary/images/item-default-icon.png"
+            version: "6.5"
+            requiredImport: "QtQuick3D"
+            toolTip: qsTr("An object to specify details about baked lightmap of a model.")
+
+            Property { name: "loadPrefix"; type: "string"; value: "lightmaps"; }
+        }
+    }
 }

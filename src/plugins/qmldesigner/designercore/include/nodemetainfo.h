@@ -118,6 +118,7 @@ public:
     bool isQtMultimediaSoundEffect() const;
     bool isQtObject() const;
     bool isQtQuick3D() const;
+    bool isQtQuick3DBakedLightmap() const;
     bool isQtQuick3DBuffer() const;
     bool isQtQuick3DCamera() const;
     bool isQtQuick3DCommand() const;

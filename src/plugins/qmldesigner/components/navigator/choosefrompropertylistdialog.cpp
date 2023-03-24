@@ -42,6 +42,8 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     //  -> Model
     // Effect
     //  -> Item
+    // BakedLightmap
+    //  -> Model
 
     if (insertInfo.isQtQuick3DTexture()) {
         if (parentInfo.isQtQuick3DDefaultMaterial() || parentInfo.isQtQuick3DPrincipledMaterial()
@@ -101,6 +103,9 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     } else if (insertInfo.isEffectMaker()) {
         if (parentInfo.isQtQuickItem())
             propertyList.append("effect");
+    } else if (insertInfo.isQtQuick3DBakedLightmap()) {
+        if (parentInfo.isQtQuick3DModel())
+            propertyList.append("bakedLightmap");
     }
 }
 
