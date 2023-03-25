@@ -5,9 +5,12 @@
 #include "terminalcommands.h"
 
 #include <QElapsedTimer>
+#include <QLoggingCategory>
 #include <QRegularExpression>
 
 #include <chrono>
+
+Q_LOGGING_CATEGORY(terminalSearchLog, "qtc.terminal.search", QtWarningMsg)
 
 using namespace std::chrono_literals;
 
@@ -205,7 +208,7 @@ void TerminalSearch::debouncedUpdateHits()
         emit changed();
     }
     if (!m_currentSearchString.isEmpty())
-        qDebug() << "Search took" << t.elapsed() << "ms";
+        qCDebug(terminalSearchLog) << "Search took" << t.elapsed() << "ms";
 }
 
 Core::FindFlags TerminalSearch::supportedFindFlags() const
