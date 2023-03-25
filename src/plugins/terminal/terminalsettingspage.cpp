@@ -423,8 +423,9 @@ QWidget *TerminalSettingsPage::widget()
                 }
             },
         },
-        Row {
+        Column {
             settings.shell,
+            settings.shellArguments,
         },
         st,
     }.attachTo(widget);

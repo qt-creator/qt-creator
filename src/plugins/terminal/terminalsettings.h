@@ -18,6 +18,7 @@ public:
     Utils::StringAspect font;
     Utils::IntegerAspect fontSize;
     Utils::StringAspect shell;
+    Utils::StringAspect shellArguments;
 
     Utils::ColorAspect foregroundColor;
     Utils::ColorAspect backgroundColor;

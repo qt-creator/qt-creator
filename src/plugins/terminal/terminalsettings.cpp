@@ -35,11 +35,15 @@ static int defaultFontSize()
 
 static QString defaultShell()
 {
-    if (Utils::HostOsInfo::isMacHost())
-        return "/bin/zsh";
-    if (Utils::HostOsInfo::isAnyUnixHost())
-        return "/bin/bash";
-    return qtcEnvironmentVariable("COMSPEC");
+    if (HostOsInfo::isWindowsHost())
+        return qtcEnvironmentVariable("COMSPEC");
+
+    QString defaultShell = qtcEnvironmentVariable("SHELL");
+    if (FilePath::fromUserInput(defaultShell).isExecutableFile())
+        return defaultShell;
+
+    Utils::FilePath shPath = Utils::Environment::systemEnvironment().searchInPath("sh");
+    return shPath.nativePath();
 }
 
 TerminalSettings &TerminalSettings::instance()
@@ -97,6 +101,14 @@ TerminalSettings::TerminalSettings()
     shell.setToolTip(Tr::tr("The shell executable to be started as terminal"));
     shell.setDefaultValue(defaultShell());
 
+    shellArguments.setSettingsKey("ShellArguments");
+    shellArguments.setLabelText(Tr::tr("Shell arguments:"));
+    shellArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    shellArguments.setHistoryCompleter("Terminal.Shell.History");
+    shellArguments.setToolTip(Tr::tr("The arguments to be passed to the shell"));
+    if (!HostOsInfo::isWindowsHost())
+        shellArguments.setDefaultValue(QString("-l"));
+
     sendEscapeToTerminal.setSettingsKey("SendEscapeToTerminal");
     sendEscapeToTerminal.setLabelText(Tr::tr("Send escape key to terminal"));
     sendEscapeToTerminal.setToolTip(
@@ -117,6 +129,7 @@ TerminalSettings::TerminalSettings()
     registerAspect(&enableTerminal);
     registerAspect(&sendEscapeToTerminal);
     registerAspect(&audibleBell);
+    registerAspect(&shellArguments);
 
     setupColor(this,
                foregroundColor,
