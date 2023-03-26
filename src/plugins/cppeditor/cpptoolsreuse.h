@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,12 +16,6 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Token.h>
 
-QT_BEGIN_NAMESPACE
-class QChar;
-class QFileInfo;
-class QTextCursor;
-QT_END_NAMESPACE
-
 namespace CPlusPlus {
 class Macro;
 class Symbol;
@@ -31,6 +25,7 @@ class LookupContext;
 namespace TextEditor { class AssistInterface; }
 
 namespace CppEditor {
+
 class CppRefactoringFile;
 class ProjectInfo;
 class CppCompletionAssistProcessor;
@@ -63,8 +58,10 @@ CppCompletionAssistProcessor CPPEDITOR_EXPORT *getCppCompletionAssistProcessor()
 
 enum class CacheUsage { ReadWrite, ReadOnly };
 
-QString CPPEDITOR_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = nullptr,
-                                                    CacheUsage cacheUsage = CacheUsage::ReadWrite);
+Utils::FilePath CPPEDITOR_EXPORT correspondingHeaderOrSource(
+     const Utils::FilePath &filePath, bool *wasHeader = nullptr,
+     CacheUsage cacheUsage = CacheUsage::ReadWrite);
+
 void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSplit,
                                  Utils::Id editorId = {});
 class CppCodeModelSettings;
@@ -75,7 +72,7 @@ bool CPPEDITOR_EXPORT preferLowerCaseFileNames();
 UsePrecompiledHeaders CPPEDITOR_EXPORT getPchUsage();
 
 int indexerFileSizeLimitInMb();
-bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb);
+bool fileSizeExceedsLimit(const Utils::FilePath &filePath, int sizeLimitInMb);
 
 ProjectExplorer::Project CPPEDITOR_EXPORT *projectForProjectInfo(const ProjectInfo &info);
 ProjectExplorer::Project CPPEDITOR_EXPORT *projectForProjectPart(const ProjectPart &part);

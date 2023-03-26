@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbssession.h"
 
@@ -156,10 +156,10 @@ void QbsSession::initialize()
     d->qbsProcess->setProcessMode(ProcessMode::Writer);
     d->qbsProcess->setEnvironment(env);
     connect(d->qbsProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
-        d->packetReader->handleData(d->qbsProcess->readAllStandardOutput());
+        d->packetReader->handleData(d->qbsProcess->readAllRawStandardOutput());
     });
     connect(d->qbsProcess, &QtcProcess::readyReadStandardError, this, [this] {
-        qCDebug(qbsPmLog) << "[qbs stderr]: " << d->qbsProcess->readAllStandardError();
+        qCDebug(qbsPmLog) << "[qbs stderr]: " << d->qbsProcess->readAllRawStandardError();
     });
     connect(d->qbsProcess, &QtcProcess::done, this, [this] {
         if (d->qbsProcess->result() == ProcessResult::StartFailed) {

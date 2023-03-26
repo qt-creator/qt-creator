@@ -1,14 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iosprobe.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 
-#include <QDir>
 #include <QFileInfo>
-#include <QFileInfoList>
 #include <QLoggingCategory>
 
 static Q_LOGGING_CATEGORY(probeLog, "qtc.ios.probe", QtWarningMsg)

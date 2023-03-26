@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mclonevisitor.h"
 
@@ -64,7 +64,7 @@ void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
     QMT_CHECK(m_cloned);
     auto cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_ASSERT(cloned, return);
-    foreach (const DElement *element, diagram->diagramElements()) {
+    for (const DElement *element : diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
         DElement *clonedElement = visitor.cloned();
@@ -187,7 +187,7 @@ void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
     QMT_CHECK(m_cloned);
     auto cloned = dynamic_cast<MDiagram *>(m_cloned);
     QMT_ASSERT(cloned, return);
-    foreach (const DElement *element, diagram->diagramElements()) {
+    for (const DElement *element : diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
         DElement *clonedElement = visitor.cloned();

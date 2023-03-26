@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectcontroller.h"
 
@@ -8,15 +8,17 @@
 
 #include "qmt/model/mpackage.h"
 
+#include "../../modelinglibtr.h"
+
 namespace qmt {
 
 NoFileNameException::NoFileNameException()
-    : Exception(ProjectController::tr("Missing file name."))
+    : Exception(Tr::tr("Missing file name."))
 {
 }
 
 ProjectIsModifiedException::ProjectIsModifiedException()
-    : Exception(ProjectController::tr("Project is modified."))
+    : Exception(Tr::tr("Project is modified."))
 {
 }
 
@@ -33,7 +35,7 @@ void ProjectController::newProject(const QString &fileName)
 {
     m_project.reset(new Project());
     auto rootPackage = new MPackage();
-    rootPackage->setName(tr("Model"));
+    rootPackage->setName(Tr::tr("Model"));
     m_project->setRootPackage(rootPackage);
     m_project->setFileName(fileName);
     m_isModified = false;

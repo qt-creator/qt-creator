@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeconfigitem.h"
 
@@ -194,7 +194,17 @@ QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
 
 QString CMakeConfigItem::expandedValue(const Utils::MacroExpander *expander) const
 {
-    return expander ? expander->expand(QString::fromUtf8(value)) : QString::fromUtf8(value);
+    QString expandedValue = expander ? expander->expand(QString::fromUtf8(value))
+                                     : QString::fromUtf8(value);
+
+    // Make sure we have CMake paths using / instead of \\ on Windows
+    // %{buildDir} returns \\ on Windows
+    if (type == CMakeConfigItem::FILEPATH || type == CMakeConfigItem::PATH) {
+        const FilePaths paths = transform(expandedValue.split(";"), &FilePath::fromUserInput);
+        expandedValue = transform(paths, &FilePath::path).join(";");
+    }
+
+    return expandedValue;
 }
 
 bool CMakeConfigItem::less(const CMakeConfigItem &a, const CMakeConfigItem &b)
@@ -424,9 +434,7 @@ QString CMakeConfigItem::toString(const Utils::MacroExpander *expander) const
         break;
     }
 
-    const QString expandedValue
-            = expander ? expander->expand(QString::fromUtf8(value)) : QString::fromUtf8(value);
-    return QString::fromUtf8(key) + QLatin1Char(':') + typeStr + QLatin1Char('=') + expandedValue;
+    return QString("%1:%2=%3").arg(QString::fromUtf8(key), typeStr, expandedValue(expander));
 }
 
 QString CMakeConfigItem::toArgument() const

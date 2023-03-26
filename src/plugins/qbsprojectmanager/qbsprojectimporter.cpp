@@ -1,9 +1,10 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbsprojectimporter.h"
 
 #include "qbspmlogging.h"
+#include "qbsprojectmanagerconstants.h"
 #include "qbssession.h"
 
 #include <coreplugin/documentmanager.h>
@@ -23,6 +24,9 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace PEConstants = ProjectExplorer::Constants;
+namespace QbsConstants = QbsProjectManager::Constants;
 
 namespace QbsProjectManager::Internal {
 
@@ -178,9 +182,9 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
     return createTemporaryKit(qtVersionData,[this, bgData](Kit *k) -> void {
         QList<ToolChainData> tcData;
         if (!bgData->cxxCompilerPath.isEmpty())
-            tcData << findOrCreateToolChains({bgData->cxxCompilerPath, Constants::CXX_LANGUAGE_ID});
+            tcData << findOrCreateToolChains({bgData->cxxCompilerPath, PEConstants::CXX_LANGUAGE_ID});
         if (!bgData->cCompilerPath.isEmpty())
-            tcData << findOrCreateToolChains({bgData->cCompilerPath, Constants::C_LANGUAGE_ID});
+            tcData << findOrCreateToolChains({bgData->cCompilerPath, PEConstants::C_LANGUAGE_ID});
         for (const ToolChainData &tc : std::as_const(tcData)) {
             if (!tc.tcs.isEmpty())
                 ToolChainKitAspect::setToolChain(k, tc.tcs.first());
@@ -194,8 +198,9 @@ const QList<BuildInfo> QbsProjectImporter::buildInfoList(void *directoryData) co
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
     BuildInfo info;
     info.displayName = bgData->bgFilePath.completeBaseName();
-    info.buildType = bgData->buildVariant == "debug"
-            ? BuildConfiguration::Debug : BuildConfiguration::Release;
+    info.buildType = bgData->buildVariant == QbsConstants::QBS_VARIANT_PROFILING
+            ? BuildConfiguration::Profile : bgData->buildVariant == QbsConstants::QBS_VARIANT_RELEASE
+            ? BuildConfiguration::Release : BuildConfiguration::Debug;
     info.buildDirectory = bgData->bgFilePath.parentDir().parentDir();
     QVariantMap config = bgData->overriddenProperties;
     config.insert("configName", info.displayName);

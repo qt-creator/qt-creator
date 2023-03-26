@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,6 +10,7 @@
 #include <utils/filepath.h>
 
 #include <QAbstractListModel>
+#include <QCoreApplication>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -42,7 +43,7 @@ class ProjectWelcomePage : public Core::IWelcomePage
 public:
     ProjectWelcomePage();
 
-    QString title() const override { return tr("Projects"); }
+    QString title() const override { return QCoreApplication::translate("QtC::ProjectExplorer", "Projects"); }
     int priority() const override { return 20; }
     Utils::Id id() const override;
     QWidget *createWidget() const override;

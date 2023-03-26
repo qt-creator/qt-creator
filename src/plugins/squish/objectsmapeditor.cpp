@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "objectsmapeditor.h"
 
@@ -40,7 +40,7 @@ ObjectsMapEditorFactory::ObjectsMapEditorFactory()
     setId(Constants::OBJECTSMAP_EDITOR_ID);
     setDisplayName(Tr::tr("Squish Object Map Editor"));
     addMimeType(Constants::SQUISH_OBJECTSMAP_MIMETYPE);
-    setEditorCreator([]() {
+    setEditorCreator([] {
         return new ObjectsMapEditor(QSharedPointer<ObjectsMapDocument>(new ObjectsMapDocument));
     });
 }

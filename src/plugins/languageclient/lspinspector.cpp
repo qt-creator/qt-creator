@@ -1,15 +1,18 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "lspinspector.h"
 
 #include "client.h"
 #include "languageclientmanager.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
+
 #include <languageserverprotocol/jsonkeys.h>
 #include <languageserverprotocol/jsonrpcmessages.h>
+
 #include <utils/jsontreeitem.h>
 #include <utils/listmodel.h>
 
@@ -75,7 +78,7 @@ QTreeView *createJsonTreeView()
 {
     auto view = new QTreeView;
     view->setContextMenuPolicy(Qt::ActionsContextMenu);
-    auto action = new QAction(LspInspector::tr("Expand All"), view);
+    auto action = new QAction(Tr::tr("Expand All"), view);
     QObject::connect(action, &QAction::triggered, view, &QTreeView::expandAll);
     view->addAction(action);
     view->setAlternatingRowColors(true);
@@ -105,7 +108,6 @@ private:
 
 class LspCapabilitiesWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(LspCapabilitiesWidget)
 public:
     LspCapabilitiesWidget();
     void setCapabilities(const Capabilities &serverCapabilities);
@@ -124,20 +126,20 @@ LspCapabilitiesWidget::LspCapabilitiesWidget()
 {
     auto mainLayout = new QHBoxLayout;
 
-    auto group = new QGroupBox(tr("Capabilities:"));
+    auto group = new QGroupBox(Tr::tr("Capabilities:"));
     QLayout *layout = new QHBoxLayout;
     m_capabilitiesView = createJsonTreeView();
     layout->addWidget(m_capabilitiesView);
     group->setLayout(layout);
     mainLayout->addWidget(group);
 
-    m_dynamicCapabilitiesGroup = new QGroupBox(tr("Dynamic Capabilities:"));
+    m_dynamicCapabilitiesGroup = new QGroupBox(Tr::tr("Dynamic Capabilities:"));
     layout = new QVBoxLayout;
-    auto label = new QLabel(tr("Method:"));
+    auto label = new QLabel(Tr::tr("Method:"));
     layout->addWidget(label);
     m_dynamicCapabilitiesView = new QListWidget();
     layout->addWidget(m_dynamicCapabilitiesView);
-    label = new QLabel(tr("Options:"));
+    label = new QLabel(Tr::tr("Options:"));
     layout->addWidget(label);
     m_dynamicOptionsView = createJsonTreeView();
     layout->addWidget(m_dynamicOptionsView);
@@ -155,7 +157,7 @@ LspCapabilitiesWidget::LspCapabilitiesWidget()
 void LspCapabilitiesWidget::setCapabilities(const Capabilities &serverCapabilities)
 {
     m_capabilitiesView->setModel(
-        createJsonModel(tr("Server Capabilities"), QJsonObject(serverCapabilities.capabilities)));
+        createJsonModel(Tr::tr("Server Capabilities"), QJsonObject(serverCapabilities.capabilities)));
     m_dynamicCapabilities = serverCapabilities.dynamicCapabilities;
     const QStringList &methods = m_dynamicCapabilities.registeredMethods();
     if (methods.isEmpty()) {
@@ -208,7 +210,7 @@ LspLogWidget::LspLogWidget()
 
     m_clientDetails = new MessageDetailWidget;
     m_clientDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_clientDetails->setTitle(LspInspector::tr("Client Message"));
+    m_clientDetails->setTitle(Tr::tr("Client Message"));
     addWidget(m_clientDetails);
     setStretchFactor(0, 1);
 
@@ -216,7 +218,7 @@ LspLogWidget::LspLogWidget()
     m_messages = new QListView;
     m_messages->setModel(&m_model);
     m_messages->setAlternatingRowColors(true);
-    m_model.setHeader({LspInspector::tr("Messages")});
+    m_model.setHeader({Tr::tr("Messages")});
     m_messages->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     m_messages->setSelectionMode(QAbstractItemView::MultiSelection);
     addWidget(m_messages);
@@ -224,7 +226,7 @@ LspLogWidget::LspLogWidget()
 
     m_serverDetails = new MessageDetailWidget;
     m_serverDetails->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_serverDetails->setTitle(LspInspector::tr("Server Message"));
+    m_serverDetails->setTitle(Tr::tr("Server Message"));
     addWidget(m_serverDetails);
     setStretchFactor(2, 1);
 
@@ -306,7 +308,7 @@ void LspLogWidget::saveLog()
         stream << "\n\n";
     });
 
-    const FilePath filePath = FileUtils::getSaveFilePath(this, LspInspector::tr("Log File"));
+    const FilePath filePath = FileUtils::getSaveFilePath(this, Tr::tr("Log File"));
     if (filePath.isEmpty())
         return;
     FileSaver saver(filePath, QIODevice::Text);
@@ -317,7 +319,6 @@ void LspLogWidget::saveLog()
 
 class LspInspectorWidget : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(LspInspectorWidget)
 public:
     explicit LspInspectorWidget(LspInspector *inspector);
 
@@ -393,7 +394,7 @@ QList<QString> LspInspector::clients() const
 LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     : m_inspector(inspector), m_tabWidget(new QTabWidget(this))
 {
-    setWindowTitle(tr("Language Client Inspector"));
+    setWindowTitle(Tr::tr("Language Client Inspector"));
 
     connect(inspector, &LspInspector::newMessage, this, &LspInspectorWidget::addMessage);
     connect(inspector, &LspInspector::capabilitiesUpdated,
@@ -411,13 +412,13 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
     mainSplitter->addWidget(m_tabWidget);
     mainSplitter->setStretchFactor(0, 0);
     mainSplitter->setStretchFactor(1, 1);
-    m_tabWidget->addTab(new LspLogWidget, tr("Log"));
-    m_tabWidget->addTab(new LspCapabilitiesWidget, tr("Capabilities"));
+    m_tabWidget->addTab(new LspLogWidget, Tr::tr("Log"));
+    m_tabWidget->addTab(new LspCapabilitiesWidget, Tr::tr("Capabilities"));
     mainLayout->addWidget(mainSplitter);
 
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
-    const auto clearButton = buttonBox->addButton(tr("Clear"), QDialogButtonBox::ResetRole);
+    const auto clearButton = buttonBox->addButton(Tr::tr("Clear"), QDialogButtonBox::ResetRole);
     connect(clearButton, &QPushButton::clicked, this, [this] {
         m_inspector->clear();
         if (m_clients->currentItem())

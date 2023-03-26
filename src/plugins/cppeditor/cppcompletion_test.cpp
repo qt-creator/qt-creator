@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcompletion_test.h"
 
@@ -26,9 +26,11 @@
 /*!
     Tests for code completion.
  */
+
+using namespace Core;
 using namespace CPlusPlus;
 using namespace TextEditor;
-using namespace Core;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 namespace {
@@ -53,11 +55,11 @@ public:
         m_temporaryDir.reset(new CppEditor::Tests::TemporaryDir());
         QVERIFY(m_temporaryDir->isValid());
         const QByteArray fileExt = isObjC ? "mm" : "h";
-        const QString fileName = m_temporaryDir->createFile("file." + fileExt, m_source);
-        QVERIFY(!fileName.isEmpty());
+        const FilePath filePath = m_temporaryDir->createFile("file." + fileExt, m_source);
+        QVERIFY(!filePath.isEmpty());
 
         // Open in editor
-        m_editor = EditorManager::openEditor(Utils::FilePath::fromString(fileName));
+        m_editor = EditorManager::openEditor(filePath);
         QVERIFY(m_editor);
         closeEditorAtEndOfTestCase(m_editor);
         m_editorWidget = TextEditorWidget::fromEditor(m_editor);
@@ -66,7 +68,7 @@ public:
         m_textDocument = m_editorWidget->document();
 
         // Get Document
-        const Document::Ptr document = waitForFileInGlobalSnapshot(fileName);
+        const Document::Ptr document = waitForFileInGlobalSnapshot(filePath);
         QVERIFY(document);
         QVERIFY(document->diagnosticMessages().isEmpty());
 
@@ -86,17 +88,19 @@ public:
         QTextCursor textCursor = m_editorWidget->textCursor();
         textCursor.setPosition(m_position);
         m_editorWidget->setTextCursor(textCursor);
-        CppCompletionAssistInterface *ai
-            = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath(),
-                                               m_editorWidget,
-                                               ExplicitlyInvoked, m_snapshot,
-                                               ProjectExplorer::HeaderPaths(),
-                                               languageFeatures);
+        std::unique_ptr<CppCompletionAssistInterface> ai(
+            new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath(),
+                                             m_editorWidget,
+                                             ExplicitlyInvoked,
+                                             m_snapshot,
+                                             ProjectExplorer::HeaderPaths(),
+                                             languageFeatures));
         ai->prepareForAsyncUse();
         ai->recreateTextDocument();
         InternalCppCompletionAssistProcessor processor;
+        processor.setupAssistInterface(std::move(ai));
 
-        const QScopedPointer<IAssistProposal> proposal(processor.perform(ai));
+        const QScopedPointer<IAssistProposal> proposal(processor.performAsync());
         if (!proposal)
             return completions;
         ProposalModelPtr model = proposal->model();

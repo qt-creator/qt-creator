@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,7 +17,7 @@ class TestOutputReader : public QObject
 {
     Q_OBJECT
 public:
-    TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
+    TestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                      Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory);
     virtual ~TestOutputReader();
     void processStdOutput(const QByteArray &outputLine);
@@ -33,6 +33,7 @@ public:
 
     void resetCommandlineColor();
 signals:
+    void newResult(const TestResult &result);
     void newOutputLineAvailable(const QByteArray &outputLine, OutputChannel channel);
 protected:
     static Utils::FilePath constructSourceFilePath(const Utils::FilePath &base,
@@ -40,20 +41,19 @@ protected:
 
     QString removeCommandlineColors(const QString &original);
     virtual void processOutputLine(const QByteArray &outputLine) = 0;
-    virtual TestResultPtr createDefaultResult() const = 0;
+    virtual TestResult createDefaultResult() const = 0;
     void checkForSanitizerOutput(const QByteArray &line);
     void sendAndResetSanitizerResult();
 
-    void reportResult(const TestResultPtr &result);
-    QFutureInterface<TestResultPtr> m_futureInterface;
-    Utils::QtcProcess *m_testApplication;  // not owned
+    void reportResult(const TestResult &result);
+    QFutureInterface<TestResult> m_futureInterface;
     Utils::FilePath m_buildDir;
     QString m_id;
     QHash<ResultType, int> m_summary;
     int m_disabled = -1;
 private:
     enum class SanitizerOutputMode { None, Asan, Ubsan};
-    TestResultPtr m_sanitizerResult;
+    TestResult m_sanitizerResult;
     QStringList m_sanitizerLines;
     SanitizerOutputMode m_sanitizerOutputMode = SanitizerOutputMode::None;
     bool m_hadValidOutput = false;

@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "baremetalconstants.h"
 
@@ -596,8 +596,8 @@ Toolchains KeilToolChainFactory::autoDetect(const ToolchainDetector &detector) c
         if (!productKey.startsWith("App"))
             continue;
         registry.beginGroup(productKey);
-        const FilePath productPath(FilePath::fromString(registry.value("ProductDir")
-                                                        .toString()));
+        const FilePath productPath(FilePath::fromUserInput(registry.value("ProductDir")
+                                                           .toString()));
         // Fetch the toolchain executable path.
         FilePath compilerPath;
         if (productPath.endsWith("ARM"))

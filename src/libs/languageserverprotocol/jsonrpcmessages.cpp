@@ -1,10 +1,11 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jsonrpcmessages.h"
 
-#include "lsputils.h"
 #include "initializemessages.h"
+#include "languageserverprotocoltr.h"
+#include "lsputils.h"
 
 #include <utils/qtcassert.h>
 
@@ -76,9 +77,11 @@ JsonRpcMessage::JsonRpcMessage(const BaseMessage &message)
     if (doc.isObject())
         m_jsonObject = doc.object();
     else if (doc.isNull())
-        m_parseError = tr("Could not parse JSON message \"%1\".").arg(error.errorString());
+        m_parseError =
+            Tr::tr("Could not parse JSON message \"%1\".").arg(error.errorString());
     else
-        m_parseError = tr("Expected a JSON object, but got a JSON \"%1\" value.").arg(docType(doc));
+        m_parseError =
+            Tr::tr("Expected a JSON object, but got a JSON \"%1\" value.").arg(docType(doc));
 }
 
 JsonRpcMessage::JsonRpcMessage(const QJsonObject &jsonObject)

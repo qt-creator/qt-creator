@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "TypePrettyPrinter.h"
 
@@ -361,11 +361,13 @@ static bool endsWithPtrOrRef(const QString &type)
 
 void TypePrettyPrinter::visit(Function *type)
 {
-    if (_overview->showTemplateParameters) {
+    bool showTemplateParameters = _overview->showTemplateParameters;
         QStringList nameParts = _name.split("::");
         int i = nameParts.length() - 1;
         for (Scope *s = type->enclosingScope(); s && i >= 0; s = s->enclosingScope()) {
-            if (Template *templ = s->asTemplate()) {
+            if (s->asClass())
+                showTemplateParameters = true;
+            if (Template *templ = s->asTemplate(); templ && showTemplateParameters) {
                 QString &n = nameParts[i];
                 const int paramCount = templ->templateParameterCount();
                 if (paramCount > 0) {
@@ -388,7 +390,6 @@ void TypePrettyPrinter::visit(Function *type)
                 --i;
         }
         _name = nameParts.join("::");
-    }
 
     if (_needsParens) {
         _text.prepend(QLatin1Char('('));

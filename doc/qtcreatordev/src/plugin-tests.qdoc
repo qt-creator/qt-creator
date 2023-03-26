@@ -1,0 +1,103 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page plugin-tests.html
+    \title Adding Tests
+
+    There are two main ways of testing your plugin code:
+
+    \list
+        \li \l{Plugin Tests}
+        \li \l{Auto Tests}
+    \endlist
+
+    Both have their specific use cases and setup, which is described in the
+    following sections.
+
+    \section1 Setting up CMake
+
+    Before adding tests, prepare your build files. They need to look for the
+    QtTest dependency and have a CMake option for building your plugin with
+    tests:
+
+    \snippet exampleplugin/CMakeLists.txt 5
+
+    \section1 Plugin Tests
+
+    Plugin tests are deeply integrated into your plugin and its
+    interaction with \QC. To add a test for something that requires
+    the infrastructure of \QC or your plugin to be set up, write a plugin
+    test.
+
+    Plugin tests are executed by starting \QC with the \c{-test <pluginname>}
+    command line argument. \QC then fully loads your plugin and all the plugins
+    that it depends on, going through the normal \l{Plugin Life Cycle}. After
+    your plugin and all dependencies are fully initialized, your tests are
+    executed. Afterwards, \QC automatically closes. Therefore, your plugin
+    tests have access to all exported functionality of all \QC plugins that
+    your plugin depends on, like \c{Core::ICore}. Use QtTest's normal test
+    macros, like \c{QVERIFY} or \c{QCOMPARE} to report your test's success or
+    failure.
+
+    To add plugin tests, add a QObject based class with private slots for your
+    tests, and register it with \l{ExtensionSystem::IPlugin::addTest()} in your
+    plugin's \l{ExtensionSystem::IPlugin::initialized()} method. Guard all test
+    related code with a check for \c{WITH_TESTS}, to avoid shipping a binary
+    release of your plugin with test functions.
+
+    Include QtTest:
+
+    \snippet exampleplugin/example.cpp test include
+
+    Then implement the test functions:
+
+    \snippet exampleplugin/example.cpp plugin tests
+
+    Register your test in ExtensionSystem::IPlugin::initialize():
+
+    \snippet exampleplugin/example.cpp register tests
+
+    If you declared the test object in the source file, like in this example,
+    also include the \c{.moc} file that is required for Qt's meta object
+    compiler:
+
+    \snippet exampleplugin/example.cpp include moc
+
+    \section1 Auto Tests
+
+    To add a test that does not depend on a running \QC infrastructure, use an
+    auto test that lives independent of your plugin interface. Parsers are a
+    common example, but you can test many things in this way if they have been
+    written in a modular way.
+
+    Even though your test does not live in your plugin interface,
+    like with plugin tests, you can still link the test to libraries and also
+    your plugin library itself, to avoid code duplication or duplicate
+    compilation of code.
+
+    In principle you can use any auto test framework,
+    but QtTest is a simple one that integrates well with Qt, and is also used
+    for the \l{plugin tests}{Plugin Tests}.
+
+    To add your test, add the test's C++ file, and use \c{add_qtc_test} in your
+    CMake file to add the test target. If your test uses your plugin library,
+    add it as a dependency with \c{DEPENDS}.
+
+    In the following example, the plugin exports a function \c{addOne}:
+
+    \quotefile exampleplugin/examplefunctions.h
+
+    And implements it in a source file:
+
+    \snippet exampleplugin/example.cpp exported function
+
+    The test is linked against the plugin library target with \c{DEPENDS}:
+
+    \snippet exampleplugin/CMakeLists.txt 6
+
+    The QtTest based test then includes the header from the plugin and
+    tests the function:
+
+    \quotefile exampleplugin/tst_mytest.cpp
+*/

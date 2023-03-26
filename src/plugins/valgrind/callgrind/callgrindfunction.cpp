@@ -1,12 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "callgrindfunction.h"
 #include "callgrindfunction_p.h"
 
-#include "callgrindfunctioncall.h"
 #include "callgrindcostitem.h"
+#include "callgrindfunctioncall.h"
 #include "callgrindparsedata.h"
+#include "../valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
@@ -181,9 +182,9 @@ QString Function::location() const
     if (f.isEmpty() || f == "???")
         return o;
     if (pos.isEmpty())
-        return QCoreApplication::translate("Valgrind", "%1 in %2").arg(f, o);
+        return Tr::tr("%1 in %2").arg(f, o);
 
-    return QCoreApplication::translate("Valgrind", "%1:%2 in %3").arg(f, pos, o);
+    return Tr::tr("%1:%2 in %3").arg(f, pos, o);
 }
 
 int Function::lineNumber() const

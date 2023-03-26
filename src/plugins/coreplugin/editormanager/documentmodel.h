@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -32,7 +32,7 @@ public:
     struct CORE_EXPORT Entry {
         Entry();
         ~Entry();
-        Utils::FilePath fileName() const;
+        Utils::FilePath filePath() const;
         QString displayName() const;
         QString plainDisplayName() const;
         QString uniqueDisplayName() const;

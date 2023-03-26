@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QDir>
 #include <QProcess>
@@ -126,7 +126,7 @@ void tst_CodeSize::cleanup()
 
 void tst_CodeSize::codesize()
 {
-    QFETCH(Suite, suite);
+    QFETCH(const Suite, suite);
     static int suiteCount = 0;
     ++suiteCount;
 
@@ -148,7 +148,7 @@ void tst_CodeSize::codesize()
                "}\n");
     mainCpp.close();
 
-    foreach (const Case &c, suite.cases) {
+    for (const Case &c : suite.cases) {
         QByteArray caseProName = c.file + ".pro";
         bigPro.write("\nSUBDIRS += " + caseProName);
         mainPro.write("\nLIBS += -l" + c.file);
@@ -223,7 +223,7 @@ void tst_CodeSize::codesize()
 
     bool ok = true;
     int i = 0;
-    foreach (const Case &c, suite.cases) {
+    for (const Case &c : std::as_const(suite.cases)) {
         ++i;
         cout << "\n\n===================== VARIANT " << suiteCount << '.' << i << ' '
              << " ================================"
@@ -241,7 +241,7 @@ void tst_CodeSize::codesize()
 #endif
         const int index = suite.cmd.indexOf(' ');
         QString command = suite.cmd.left(index);
-        arguments = QString::fromLatin1(suite.cmd.mid(index + 1)) + arguments;
+        arguments = QString::fromLatin1(suite.cmd.mid(index + 1)) + ' ' + arguments;
         QProcess final;
         final.setWorkingDirectory(t->buildPath);
         final.setProcessEnvironment(m_env);

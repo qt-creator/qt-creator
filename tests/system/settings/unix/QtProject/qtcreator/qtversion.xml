@@ -33,6 +33,16 @@
   </valuemap>
  </data>
  <data>
+  <variable>QtVersion.3</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">18</value>
+   <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="QMakePath">SQUISH_QTOI_BASEPATH/6.2.4/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>Version</variable>
   <value type="int">1</value>
  </data>

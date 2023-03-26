@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -15,8 +15,8 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():
-    if not openDocument("untitled.untitled.qml\\.qrc./.main\\.qml"):
-        test.fatal("Could not open main.qml")
+    if not openDocument("untitled.appuntitled.Main\\.qml"):
+        test.fatal("Could not open Main.qml")
         return None
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     isDarwin = platform.system() == 'Darwin'

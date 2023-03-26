@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -26,7 +26,7 @@ public:
     ~QmlComponentChain();
 
     Document::Ptr document() const;
-    QList<const QmlComponentChain *> instantiatingComponents() const;
+    const QList<const QmlComponentChain *> instantiatingComponents() const;
 
     const ObjectValue *idScope() const;
     const ObjectValue *rootObjectScope() const;
@@ -62,7 +62,7 @@ public:
     QSharedPointer<const QmlComponentChain> qmlComponentChain() const;
     void setQmlComponentChain(const QSharedPointer<const QmlComponentChain> &qmlComponentChain);
 
-    QList<const ObjectValue *> qmlScopeObjects() const;
+    const QList<const ObjectValue *> qmlScopeObjects() const;
     void setQmlScopeObjects(const QList<const ObjectValue *> &qmlScopeObjects);
 
     const TypeScope *qmlTypes() const;

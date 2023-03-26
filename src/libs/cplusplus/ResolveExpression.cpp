@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ResolveExpression.h"
 
@@ -27,6 +27,7 @@
 #include <map>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 static const bool debug = qEnvironmentVariableIsSet("QTC_LOOKUPCONTEXT_DEBUG");
 
@@ -666,7 +667,7 @@ class ExpressionDocumentHelper
 public:
     // Set up an expression document with an external Control
     ExpressionDocumentHelper(const QByteArray &utf8code, Control *control)
-        : document(Document::create(QLatin1String("<completion>")))
+        : document(Document::create(FilePath::fromPathPart(u"<completion>")))
     {
         Control *oldControl = document->swapControl(control);
         delete oldControl->diagnosticClient();
@@ -724,7 +725,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
 
             TypeOfExpression exprTyper;
             exprTyper.setExpandTemplates(true);
-            Document::Ptr doc = _context.snapshot().document(QString::fromLocal8Bit(decl->fileName()));
+            Document::Ptr doc = _context.snapshot().document(decl->filePath());
             exprTyper.init(doc, _context.snapshot(), _context.bindings(),
                            QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "outputformatter.h"
 
@@ -8,7 +8,8 @@
 #include "fileinprojectfinder.h"
 #include "link.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
+#include "stringutils.h"
+#include "stylehelper.h"
 #include "theme/theme.h"
 
 #include <QDir>
@@ -115,13 +116,13 @@ FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath) const
 {
     if (filePath.isEmpty())
         return filePath;
-    if (filePath.toFileInfo().isAbsolute())
+    if (filePath.isAbsolutePath())
         return filePath.cleanPath();
     FilePaths candidates;
     for (const FilePath &dir : searchDirectories()) {
-        FilePath candidate = dir.pathAppended(filePath.toString());
+        FilePath candidate = dir.resolvePath(filePath);
         if (candidate.exists() || d->skipFileExistsCheck) {
-            candidate = FilePath::fromString(QDir::cleanPath(candidate.toString()));
+            candidate = candidate.cleanPath();
             if (!candidates.contains(candidate))
                 candidates << candidate;
         }
@@ -273,6 +274,14 @@ void OutputFormatter::overridePostPrintAction(const PostPrintAction &postPrintAc
     d->postPrintAction = postPrintAction;
 }
 
+static void checkAndFineTuneColors(QTextCharFormat *format)
+{
+    QTC_ASSERT(format, return);
+    const QColor fgColor = StyleHelper::ensureReadableOn(format->background().color(),
+                                                         format->foreground().color());
+    format->setForeground(fgColor);
+}
+
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
     QTextCharFormat charFmt = charFormat(format);
@@ -292,6 +301,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
                 ? *res.formatOverride : outputTypeForParser(involvedParsers.last(), format);
         if (formatForParser != format && cleanLine == text && formattedText.length() == 1) {
             charFmt = charFormat(formatForParser);
+            checkAndFineTuneColors(&charFmt);
             formattedText.first().format = charFmt;
         }
     }
@@ -302,8 +312,10 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
     }
 
     const QList<FormattedText> linkified = linkifiedText(formattedText, res.linkSpecs);
-    for (const FormattedText &output : linkified)
+    for (FormattedText output : linkified) {
+        checkAndFineTuneColors(&output.format);
         append(output.text, output.format);
+    }
     if (linkified.isEmpty())
         append({}, charFmt); // This might cause insertion of a newline character.
 
@@ -624,7 +636,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         d->prependCarriageReturn = false;
         out.prepend('\r');
     }
-    out = QtcProcess::normalizeNewlines(out);
+    out = Utils::normalizeNewlines(out);
     if (out.endsWith('\r')) {
         d->prependCarriageReturn = true;
         out.chop(1);

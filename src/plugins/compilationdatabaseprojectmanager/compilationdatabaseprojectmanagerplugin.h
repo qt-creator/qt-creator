@@ -1,12 +1,11 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <extensionsystem/iplugin.h>
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -15,11 +14,9 @@ class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IP
 
     ~CompilationDatabaseProjectManagerPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    QVector<QObject *> createTestObjects() const final;
+    void initialize() final;
 
     class CompilationDatabaseProjectManagerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Internal

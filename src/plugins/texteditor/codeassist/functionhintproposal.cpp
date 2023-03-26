@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "functionhintproposal.h"
 #include "ifunctionhintproposalmodel.h"
@@ -12,9 +12,7 @@ using namespace TextEditor;
 FunctionHintProposal::FunctionHintProposal(int cursorPos, FunctionHintProposalModelPtr model)
     : IAssistProposal(functionHintId, cursorPos)
     , m_model(model)
-{
-    setFragile(true);
-}
+{}
 
 FunctionHintProposal::~FunctionHintProposal() = default;
 

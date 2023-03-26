@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <QtTest>
 #include <QDebug>
 #include <QRandomGenerator>
+#include <QtTest>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -13,12 +13,12 @@
 using namespace Utils;
 
 namespace QTest {
-    template<>
-    char *toString(const FilePath &filePath)
-    {
-        return qstrdup(filePath.toString().toLocal8Bit().constData());
-    }
+template<>
+char *toString(const FilePath &filePath)
+{
+    return qstrdup(filePath.toString().toLocal8Bit().constData());
 }
+} // namespace QTest
 
 class tst_fileutils : public QObject
 {
@@ -58,6 +58,9 @@ private slots:
     void fromString_data();
     void fromString();
 
+    void fromUserInput_data();
+    void fromUserInput();
+
     void toString_data();
     void toString();
 
@@ -84,8 +87,10 @@ private slots:
 
     void bytesAvailableFromDF_data();
     void bytesAvailableFromDF();
+
     void rootLength_data();
     void rootLength();
+
     void schemeAndHostLength_data();
     void schemeAndHostLength();
 
@@ -96,8 +101,8 @@ private slots:
     void onDevice_data();
     void onDevice();
 
-    void plus();
-    void plus_data();
+    void stringAppended();
+    void stringAppended_data();
     void url();
     void url_data();
 
@@ -109,6 +114,12 @@ private slots:
 
     void hostSpecialChars_data();
     void hostSpecialChars();
+
+    void tmp_data();
+    void tmp();
+
+    void filePathInfoFromTriple_data();
+    void filePathInfoFromTriple();
 
 private:
     QTemporaryDir tempDir;
@@ -203,7 +214,7 @@ void tst_fileutils::parentDir()
     QFETCH(QString, parentPath);
     QFETCH(QString, expectFailMessage);
 
-    FilePath result = FilePath::fromString(path).parentDir();
+    FilePath result = FilePath::fromUserInput(path).parentDir();
     if (!expectFailMessage.isEmpty())
         QEXPECT_FAIL("", expectFailMessage.toUtf8().constData(), Continue);
     QCOMPARE(result.toString(), parentPath);
@@ -243,8 +254,8 @@ void tst_fileutils::isChildOf()
     QFETCH(QString, childPath);
     QFETCH(bool, result);
 
-    const FilePath child = FilePath::fromString(childPath);
-    const FilePath parent = FilePath::fromString(path);
+    const FilePath child = FilePath::fromUserInput(childPath);
+    const FilePath parent = FilePath::fromUserInput(path);
 
     QCOMPARE(child.isChildOf(parent), result);
 }
@@ -574,8 +585,8 @@ void tst_fileutils::fromString_data()
     QTest::newRow("unix-folder-with-trailing-slash") << D("/tmp/", "", "", "/tmp/");
 
     QTest::newRow("windows-root") << D("c:", "", "", "c:");
-    QTest::newRow("windows-folder") << D("c:\\Windows", "", "", "c:/Windows");
-    QTest::newRow("windows-folder-with-trailing-slash") << D("c:\\Windows\\", "", "", "c:/Windows/");
+    QTest::newRow("windows-folder") << D("c:/Windows", "", "", "c:/Windows");
+    QTest::newRow("windows-folder-with-trailing-slash") << D("c:/Windows/", "", "", "c:/Windows/");
     QTest::newRow("windows-folder-slash") << D("C:/Windows", "", "", "C:/Windows");
 
     QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
@@ -614,6 +625,88 @@ void tst_fileutils::fromString()
     QFETCH(FromStringData, data);
 
     FilePath filePath = FilePath::fromString(data.input);
+
+    bool expectFail = ((data.expectedPass & FailOnLinux) && !HostOsInfo::isWindowsHost())
+                   || ((data.expectedPass & FailOnWindows) && HostOsInfo::isWindowsHost());
+
+    if (expectFail) {
+        QString actual = filePath.scheme() + '|' + filePath.host() + '|' + filePath.path();
+        QString expected = data.scheme + '|' + data.host + '|' + data.path;
+        QEXPECT_FAIL("", "", Continue);
+        QCOMPARE(actual, expected);
+        return;
+    }
+
+    QCOMPARE(filePath.scheme(), data.scheme);
+    QCOMPARE(filePath.host(), data.host);
+    QCOMPARE(filePath.path(), data.path);
+}
+
+void tst_fileutils::fromUserInput_data()
+{
+    using D = FromStringData;
+    QTest::addColumn<D>("data");
+
+    QTest::newRow("empty") << D("", "", "", "");
+    QTest::newRow("single-colon") << D(":", "", "", ":");
+    QTest::newRow("single-slash") << D("/", "", "", "/");
+    QTest::newRow("single-char") << D("a", "", "", "a");
+    QTest::newRow("relative") << D("./rel", "", "", "rel");
+    QTest::newRow("qrc") << D(":/test.txt", "", "", ":/test.txt");
+    QTest::newRow("qrc-no-slash") << D(":test.txt", "", "", ":test.txt");
+
+    QTest::newRow("unc-incomplete") << D("//", "", "", "//");
+    QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server");
+    QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "", "", "//server/");
+    QTest::newRow("unc-server-and-share") << D("//server/share", "", "", "//server/share");
+    QTest::newRow("unc-server-and-share-2") << D("//server/share/", "", "", "//server/share");
+    QTest::newRow("unc-full") << D("//server/share/test.txt", "", "", "//server/share/test.txt");
+
+    QTest::newRow("unix-root") << D("/", "", "", "/");
+    QTest::newRow("unix-folder") << D("/tmp", "", "", "/tmp");
+    QTest::newRow("unix-folder-with-trailing-slash") << D("/tmp/", "", "", "/tmp");
+
+    QTest::newRow("windows-root") << D("c:", "", "", "c:");
+    QTest::newRow("windows-folder") << D("c:/Windows", "", "", "c:/Windows");
+    QTest::newRow("windows-folder-with-trailing-slash") << D("c:\\Windows\\", "", "", "c:/Windows");
+    QTest::newRow("windows-folder-slash") << D("C:/Windows", "", "", "C:/Windows");
+
+    QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
+    QTest::newRow("docker-root-url-special-linux") << D("/__qtc_devices__/docker/1234/", "docker", "1234", "/");
+    QTest::newRow("docker-root-url-special-win") << D("c:/__qtc_devices__/docker/1234/", "docker", "1234", "/");
+    QTest::newRow("docker-relative-path") << D("docker://1234/./rel", "docker", "1234", "rel", FailEverywhere);
+
+    QTest::newRow("qtc-dev-linux") << D("/__qtc_devices__", "", "", "/__qtc_devices__");
+    QTest::newRow("qtc-dev-win") << D("c:/__qtc_devices__", "", "", "c:/__qtc_devices__");
+    QTest::newRow("qtc-dev-type-linux") << D("/__qtc_devices__/docker", "", "", "/__qtc_devices__/docker");
+    QTest::newRow("qtc-dev-type-win") << D("c:/__qtc_devices__/docker", "", "", "c:/__qtc_devices__/docker");
+    QTest::newRow("qtc-dev-type-dev-linux") << D("/__qtc_devices__/docker/1234", "docker", "1234", "/");
+    QTest::newRow("qtc-dev-type-dev-win") << D("c:/__qtc_devices__/docker/1234", "docker", "1234", "/");
+
+    // "Remote Windows" is currently truly not supported.
+    QTest::newRow("cross-os-linux")
+        << D("/__qtc_devices__/docker/1234/c:/test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-win")
+        << D("c:/__qtc_devices__/docker/1234/c:/test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-unclean-linux")
+        << D("/__qtc_devices__/docker/1234/c:\\test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-unclean-win")
+        << D("c:/__qtc_devices__/docker/1234/c:\\test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+
+    QTest::newRow("unc-full-in-docker-linux")
+        << D("/__qtc_devices__/docker/1234//server/share/test.txt", "docker", "1234", "//server/share/test.txt", FailEverywhere);
+    QTest::newRow("unc-full-in-docker-win")
+        << D("c:/__qtc_devices__/docker/1234//server/share/test.txt", "docker", "1234", "//server/share/test.txt", FailEverywhere);
+
+    QTest::newRow("unc-dos-1") << D("//?/c:", "", "", "c:");
+    QTest::newRow("unc-dos-com") << D("//./com1", "", "", "//./com1");
+}
+
+void tst_fileutils::fromUserInput()
+{
+    QFETCH(FromStringData, data);
+
+    FilePath filePath = FilePath::fromUserInput(data.input);
 
     bool expectFail = ((data.expectedPass & FailOnLinux) && !HostOsInfo::isWindowsHost())
                    || ((data.expectedPass & FailOnWindows) && HostOsInfo::isWindowsHost());
@@ -685,8 +778,8 @@ void tst_fileutils::comparison()
     HostOsInfo::setOverrideFileNameCaseSensitivity(
         hostSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
-    FilePath l = FilePath::fromString(left);
-    FilePath r = FilePath::fromString(right);
+    FilePath l = FilePath::fromUserInput(left);
+    FilePath r = FilePath::fromUserInput(right);
     QCOMPARE(l == r, expected);
 }
 
@@ -712,13 +805,10 @@ void tst_fileutils::linkFromString()
 {
     QFETCH(QString, testFile);
     QFETCH(Utils::FilePath, filePath);
-    QFETCH(QString, postfix);
     QFETCH(int, line);
     QFETCH(int, column);
-    QString extractedPostfix;
-    Link link = Link::fromString(testFile, true, &extractedPostfix);
+    const Link link = Link::fromString(testFile, true);
     QCOMPARE(link.targetFilePath, filePath);
-    QCOMPARE(extractedPostfix, postfix);
     QCOMPARE(link.targetLine, line);
     QCOMPARE(link.targetColumn, column);
 }
@@ -727,58 +817,41 @@ void tst_fileutils::linkFromString_data()
 {
     QTest::addColumn<QString>("testFile");
     QTest::addColumn<Utils::FilePath>("filePath");
-    QTest::addColumn<QString>("postfix");
     QTest::addColumn<int>("line");
     QTest::addColumn<int>("column");
 
-    QTest::newRow("no-line-no-column")
-        << QString("someFile.txt") << FilePath("someFile.txt")
-        << QString() << -1 << -1;
+    QTest::newRow("no-line-no-column") << QString("someFile.txt")
+                                       << FilePath("someFile.txt") << -1 << -1;
     QTest::newRow(": at end") << QString::fromLatin1("someFile.txt:")
-                              << FilePath("someFile.txt")
-                              << QString::fromLatin1(":") << 0 << -1;
+                              << FilePath("someFile.txt") << 0 << -1;
     QTest::newRow("+ at end") << QString::fromLatin1("someFile.txt+")
-                              << FilePath("someFile.txt")
-                              << QString::fromLatin1("+") << 0 << -1;
+                              << FilePath("someFile.txt") << 0 << -1;
     QTest::newRow(": for column") << QString::fromLatin1("someFile.txt:10:")
-                                  << FilePath("someFile.txt")
-                                  << QString::fromLatin1(":10:") << 10 << -1;
+                                  << FilePath("someFile.txt") << 10 << -1;
     QTest::newRow("+ for column") << QString::fromLatin1("someFile.txt:10+")
-                                  << FilePath("someFile.txt")
-                                  << QString::fromLatin1(":10+") << 10 << -1;
-    QTest::newRow(": and + at end")
-        << QString::fromLatin1("someFile.txt:+") << FilePath("someFile.txt")
-        << QString::fromLatin1(":+") << 0 << -1;
+                                  << FilePath("someFile.txt") << 10 << -1;
+    QTest::newRow(": and + at end") << QString::fromLatin1("someFile.txt:+")
+                                    << FilePath("someFile.txt") << 0 << -1;
     QTest::newRow("empty line") << QString::fromLatin1("someFile.txt:+10")
-                                << FilePath("someFile.txt")
-                                << QString::fromLatin1(":+10") << 0 << 9;
+                                << FilePath("someFile.txt") << 0 << 9;
     QTest::newRow(":line-no-column") << QString::fromLatin1("/some/path/file.txt:42")
-                                     << FilePath("/some/path/file.txt")
-                                     << QString::fromLatin1(":42") << 42 << -1;
+                                     << FilePath("/some/path/file.txt") << 42 << -1;
     QTest::newRow("+line-no-column") << QString::fromLatin1("/some/path/file.txt+42")
-                                     << FilePath("/some/path/file.txt")
-                                     << QString::fromLatin1("+42") << 42 << -1;
+                                     << FilePath("/some/path/file.txt") << 42 << -1;
     QTest::newRow(":line-:column") << QString::fromLatin1("/some/path/file.txt:42:3")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1(":42:3") << 42 << 2;
+                                   << FilePath("/some/path/file.txt") << 42 << 2;
     QTest::newRow(":line-+column") << QString::fromLatin1("/some/path/file.txt:42+33")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1(":42+33") << 42 << 32;
+                                   << FilePath("/some/path/file.txt")  << 42 << 32;
     QTest::newRow("+line-:column") << QString::fromLatin1("/some/path/file.txt+142:30")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1("+142:30") << 142 << 29;
+                                   << FilePath("/some/path/file.txt") << 142 << 29;
     QTest::newRow("+line-+column") << QString::fromLatin1("/some/path/file.txt+142+33")
-                                   << FilePath("/some/path/file.txt")
-                                   << QString::fromLatin1("+142+33") << 142 << 32;
+                                   << FilePath("/some/path/file.txt") << 142 << 32;
     QTest::newRow("( at end") << QString::fromLatin1("/some/path/file.txt(")
-                              << FilePath("/some/path/file.txt")
-                              << QString::fromLatin1("(") << -1 << -1;
+                              << FilePath("/some/path/file.txt") << -1 << -1;
     QTest::newRow("(42 at end") << QString::fromLatin1("/some/path/file.txt(42")
-                                << FilePath("/some/path/file.txt")
-                                << QString::fromLatin1("(42") << 42 << -1;
+                                << FilePath("/some/path/file.txt") << 42 << -1;
     QTest::newRow("(42) at end") << QString::fromLatin1("/some/path/file.txt(42)")
-                                 << FilePath("/some/path/file.txt")
-                                 << QString::fromLatin1("(42)") << 42 << -1;
+                                 << FilePath("/some/path/file.txt") << 42 << -1;
 }
 
 void tst_fileutils::pathAppended()
@@ -789,7 +862,6 @@ void tst_fileutils::pathAppended()
 
     const FilePath fleft = FilePath::fromString(left);
     const FilePath fexpected = FilePath::fromString(expected);
-
     const FilePath result = fleft.pathAppended(right);
 
     QCOMPARE(result, fexpected);
@@ -852,6 +924,8 @@ void tst_fileutils::resolvePath_data()
     QTest::newRow("s4") << FilePath("/a") << FilePath("/b") << FilePath("/b");
     QTest::newRow("s5") << FilePath("a") << FilePath("/b") << FilePath("/b");
     QTest::newRow("s6") << FilePath("/a") << FilePath("b") << FilePath("/a/b");
+    QTest::newRow("s7") << FilePath("/a") << FilePath(".") << FilePath("/a");
+    QTest::newRow("s8") << FilePath("/a") << FilePath("./b") << FilePath("/a/b");
 }
 
 void tst_fileutils::resolvePath()
@@ -938,7 +1012,7 @@ void tst_fileutils::asyncLocalCopy()
     const FilePath orig = FilePath::fromString(rootPath).pathAppended("x/y/fileToCopy.txt");
     QVERIFY(orig.exists());
     const FilePath dest = FilePath::fromString(rootPath).pathAppended("x/fileToCopyDest.txt");
-    auto afterCopy = [&orig, &dest, this] (bool result) {
+    auto afterCopy = [&orig, &dest, this](expected_str<void> result) {
         QVERIFY(result);
         // check existence, size and content
         QVERIFY(dest.exists());
@@ -995,7 +1069,7 @@ void tst_fileutils::onDevice()
     QCOMPARE(path.onDevice(templatePath), expected);
 }
 
-void tst_fileutils::plus_data()
+void tst_fileutils::stringAppended_data()
 {
     QTest::addColumn<FilePath>("left");
     QTest::addColumn<QString>("right");
@@ -1011,13 +1085,13 @@ void tst_fileutils::plus_data()
     QTest::newRow("slash-trailing-slash") << FilePath::fromString("/a/") << QString("b/") << FilePath("/a/b/");
 }
 
-void tst_fileutils::plus()
+void tst_fileutils::stringAppended()
 {
     QFETCH(FilePath, left);
     QFETCH(QString, right);
     QFETCH(FilePath, expected);
 
-    const FilePath result = left + right;
+    const FilePath result = left.stringAppended(right);
 
     QCOMPARE(expected, result);
 }
@@ -1235,6 +1309,107 @@ void tst_fileutils::hostSpecialChars()
     QCOMPARE(toFromActual, fp);
     QCOMPARE(toFromExpected, expected);
 }
+
+void tst_fileutils::tmp_data()
+{
+    QTest::addColumn<QString>("templatepath");
+    QTest::addColumn<bool>("expected");
+
+    QTest::addRow("empty") << "" << true;
+    QTest::addRow("no-template") << "foo" << true;
+    QTest::addRow("realtive-template") << "my-file-XXXXXXXX" << true;
+    QTest::addRow("absolute-template") << QDir::tempPath() + "/my-file-XXXXXXXX" << true;
+    QTest::addRow("non-existing-dir") << "/this/path/does/not/exist/my-file-XXXXXXXX" << false;
+
+    QTest::addRow("on-device") << "device://test/./my-file-XXXXXXXX" << true;
+}
+
+void tst_fileutils::tmp()
+{
+    QFETCH(QString, templatepath);
+    QFETCH(bool, expected);
+
+    FilePath fp = FilePath::fromString(templatepath);
+
+    const auto result = fp.createTempFile();
+    QCOMPARE(result.has_value(), expected);
+
+    if (result.has_value()) {
+        QVERIFY(result->exists());
+        QVERIFY(result->removeFile());
+    }
+}
+
+void tst_fileutils::filePathInfoFromTriple_data()
+{
+    QTest::addColumn<QString>("statoutput");
+    QTest::addColumn<FilePathInfo>("expected");
+
+    QTest::newRow("empty") << QString() << FilePathInfo();
+
+    QTest::newRow("linux-root") << QString("41ed 1676354359 4096")
+                                << FilePathInfo{4096,
+                                                FilePathInfo::FileFlags(
+                                                    FilePathInfo::ReadOwnerPerm
+                                                    | FilePathInfo::WriteOwnerPerm
+                                                    | FilePathInfo::ExeOwnerPerm
+                                                    | FilePathInfo::ReadGroupPerm
+                                                    | FilePathInfo::ExeGroupPerm
+                                                    | FilePathInfo::ReadOtherPerm
+                                                    | FilePathInfo::ExeOtherPerm
+                                                    | FilePathInfo::DirectoryType
+                                                    | FilePathInfo::ExistsFlag),
+                                                QDateTime::fromSecsSinceEpoch(1676354359)};
+
+    QTest::newRow("linux-grep-bin")
+        << QString("81ed 1668852790 808104")
+        << FilePathInfo{808104,
+                        FilePathInfo::FileFlags(
+                            FilePathInfo::ReadOwnerPerm | FilePathInfo::WriteOwnerPerm
+                            | FilePathInfo::ExeOwnerPerm | FilePathInfo::ReadGroupPerm
+                            | FilePathInfo::ExeGroupPerm | FilePathInfo::ReadOtherPerm
+                            | FilePathInfo::ExeOtherPerm | FilePathInfo::FileType
+                            | FilePathInfo::ExistsFlag),
+                        QDateTime::fromSecsSinceEpoch(1668852790)};
+
+    QTest::newRow("linux-disk") << QString("61b0 1651167746 0")
+                                << FilePathInfo{0,
+                                                FilePathInfo::FileFlags(
+                                                    FilePathInfo::ReadOwnerPerm
+                                                    | FilePathInfo::WriteOwnerPerm
+                                                    | FilePathInfo::ReadGroupPerm
+                                                    | FilePathInfo::WriteGroupPerm
+                                                    | FilePathInfo::LocalDiskFlag
+                                                    | FilePathInfo::ExistsFlag),
+                                                QDateTime::fromSecsSinceEpoch(1651167746)};
+}
+
+void tst_fileutils::filePathInfoFromTriple()
+{
+    QFETCH(QString, statoutput);
+    QFETCH(FilePathInfo, expected);
+
+    const FilePathInfo result = FileUtils::filePathInfoFromTriple(statoutput);
+
+    QCOMPARE(result, expected);
+}
+
+QT_BEGIN_NAMESPACE
+namespace QTest {
+template<>
+char *toString(const FilePathInfo &filePathInfo)
+{
+    QByteArray ba = "FilePathInfo(";
+    ba += QByteArray::number(filePathInfo.fileSize);
+    ba += ", ";
+    ba += QByteArray::number(filePathInfo.fileFlags, 16);
+    ba += ", ";
+    ba += filePathInfo.lastModified.toString().toUtf8();
+    ba += ")";
+    return qstrdup(ba.constData());
+}
+
+} // namespace QTest
 
 QTEST_GUILESS_MAIN(tst_fileutils)
 

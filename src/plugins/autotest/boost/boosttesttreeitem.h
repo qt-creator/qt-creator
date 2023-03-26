@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -27,8 +27,8 @@ public:
     Q_DECLARE_FLAGS(TestStates, TestState)
 
     explicit BoostTestTreeItem(ITestFramework *framework,
-                               const QString &name = QString(),
-                               const Utils::FilePath &filePath = Utils::FilePath(),
+                               const QString &name = {},
+                               const Utils::FilePath &filePath = {},
                                Type type = Root)
         : TestTreeItem(framework, name, filePath, type)
     {}

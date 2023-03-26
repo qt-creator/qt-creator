@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "command.h"
 
@@ -10,12 +10,12 @@ bool Command::isValid() const
     return !m_executable.isEmpty();
 }
 
-QString Command::executable() const
+Utils::FilePath Command::executable() const
 {
     return m_executable;
 }
 
-void Command::setExecutable(const QString &executable)
+void Command::setExecutable(const Utils::FilePath &executable)
 {
     m_executable = executable;
 }
@@ -28,6 +28,11 @@ QStringList Command::options() const
 void Command::addOption(const QString &option)
 {
     m_options << option;
+}
+
+void Command::addOptions(const QStringList &options)
+{
+    m_options += options;
 }
 
 Command::Processing Command::processing() const

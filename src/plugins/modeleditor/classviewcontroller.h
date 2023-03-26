@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,7 +19,7 @@ public:
     explicit ClassViewController(QObject *parent = nullptr);
     ~ClassViewController() = default;
 
-    QSet<QString> findClassDeclarations(const QString &fileName, int line = -1, int column = -1);
+    QSet<QString> findClassDeclarations(const Utils::FilePath &filePath, int line = -1, int column = -1);
 
 private:
     void appendClassDeclarationsFromDocument(CPlusPlus::Document::Ptr document, int line, int column,

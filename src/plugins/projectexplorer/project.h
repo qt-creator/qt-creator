@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -161,6 +161,16 @@ public:
     bool isModified() const;
 
     virtual bool isEditModePreferred() const;
+
+    void registerGenerator(Utils::Id id, const QString &displayName,
+                           const std::function<void()> &runner);
+    const QList<QPair<Utils::Id, QString>> allGenerators() const;
+    void runGenerator(Utils::Id id);
+
+    static void addVariablesToMacroExpander(const QByteArray &prefix,
+                                            const QString &descriptor,
+                                            Utils::MacroExpander *expander,
+                                            const std::function<Project *()> &projectGetter);
 
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);

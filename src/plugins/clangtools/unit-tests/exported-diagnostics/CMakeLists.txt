@@ -20,4 +20,4 @@ add_executable(clangtools
   tidy.modernize-use-nullptr.cpp
 )
 
-target_link_libraries(clangtools PRIVATE Qt5::Widgets)
+target_link_libraries(clangtools PRIVATE Qt::Widgets)

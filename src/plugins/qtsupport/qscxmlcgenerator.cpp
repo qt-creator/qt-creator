@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qscxmlcgenerator.h"
 
@@ -33,7 +33,8 @@ QScxmlcGenerator::QScxmlcGenerator(const Project *project,
 Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 {
     Tasks issues;
-    foreach (const QByteArray &line, processStderr.split('\n')) {
+    const QList<QByteArray> lines = processStderr.split('\n');
+    for (const QByteArray &line : lines) {
         QByteArrayList tokens = line.split(':');
 
         if (tokens.length() > 4) {

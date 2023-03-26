@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "toolchainoptionspage.h"
+
 #include "toolchain.h"
 #include "abi.h"
 #include "projectexplorerconstants.h"
-#include "projectexplorericons.h"
+#include "projectexplorertr.h"
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
@@ -77,11 +78,11 @@ public:
             case Qt::ToolTipRole: {
                 QString toolTip;
                 if (toolChain->isValid()) {
-                    toolTip = ToolChainOptionsPage::tr("<nobr><b>ABI:</b> %1").arg(
-                                changed ? ToolChainOptionsPage::tr("not up-to-date")
+                    toolTip = Tr::tr("<nobr><b>ABI:</b> %1").arg(
+                                changed ? Tr::tr("not up-to-date")
                                         : toolChain->targetAbi().toString());
                 } else {
-                    toolTip = ToolChainOptionsPage::tr("This toolchain is invalid.");
+                    toolTip = Tr::tr("This toolchain is invalid.");
                 }
                 return QVariant("<div style=\"white-space:pre\">" + toolTip + "</div>");
             }
@@ -103,11 +104,11 @@ public:
     DetectionSettingsDialog(const ToolchainDetectionSettings &settings, QWidget *parent)
         : QDialog(parent)
     {
-        setWindowTitle(ToolChainOptionsPage::tr("Toolchain Auto-detection Settings"));
+        setWindowTitle(Tr::tr("Toolchain Auto-detection Settings"));
         const auto layout = new QVBoxLayout(this);
-        m_detectX64AsX32CheckBox.setText(ToolChainOptionsPage::tr("Detect x86_64 GCC compilers "
-                                                                  "as x86_64 and x86"));
-        m_detectX64AsX32CheckBox.setToolTip(ToolChainOptionsPage::tr("If checked, %1 will "
+        m_detectX64AsX32CheckBox.setText(Tr::tr("Detect x86_64 GCC compilers "
+                                                "as x86_64 and x86"));
+        m_detectX64AsX32CheckBox.setToolTip(Tr::tr("If checked, %1 will "
             "set up two instances of each x86_64 compiler:\nOne for the native x86_64 target, and "
             "one for a plain x86 target.\nEnable this if you plan to create 32-bit x86 binaries "
             "without using a dedicated cross compiler.").arg(Core::Constants::IDE_DISPLAY_NAME));
@@ -143,7 +144,7 @@ public:
         m_factories = Utils::filtered(ToolChainFactory::allToolChainFactories(),
                     [](ToolChainFactory *factory) { return factory->canCreate();});
 
-        m_model.setHeader({ToolChainOptionsPage::tr("Name"), ToolChainOptionsPage::tr("Type")});
+        m_model.setHeader({Tr::tr("Name"), Tr::tr("Type")});
         auto autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
         auto manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
@@ -173,7 +174,7 @@ public:
         m_toolChainView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
         m_toolChainView->expandAll();
 
-        m_addButton = new QPushButton(ToolChainOptionsPage::tr("Add"), this);
+        m_addButton = new QPushButton(Tr::tr("Add"), this);
         auto addMenu = new QMenu;
         for (ToolChainFactory *factory : std::as_const(m_factories)) {
             QList<Utils::Id> languages = factory->supportedLanguages();
@@ -195,12 +196,12 @@ public:
         if (HostOsInfo::isMacHost())
             m_addButton->setStyleSheet("text-align:center;");
 
-        m_cloneButton = new QPushButton(ToolChainOptionsPage::tr("Clone"), this);
+        m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
         connect(m_cloneButton, &QAbstractButton::clicked, [this] { cloneToolChain(); });
 
-        m_delButton = new QPushButton(ToolChainOptionsPage::tr("Remove"), this);
+        m_delButton = new QPushButton(Tr::tr("Remove"), this);
 
-        m_removeAllButton = new QPushButton(ToolChainOptionsPage::tr("Remove All"), this);
+        m_removeAllButton = new QPushButton(Tr::tr("Remove All"), this);
         connect(m_removeAllButton, &QAbstractButton::clicked, this,
                 [this] {
             QList<ToolChainTreeItem *> itemsToRemove;
@@ -215,12 +216,11 @@ public:
                 markForRemoval(tcItem);
         });
 
-        m_redetectButton = new QPushButton(ToolChainOptionsPage::tr("Re-detect"), this);
+        m_redetectButton = new QPushButton(Tr::tr("Re-detect"), this);
         connect(m_redetectButton, &QAbstractButton::clicked,
                 this, &ToolChainOptionsWidget::redetectToolchains);
 
-        m_detectionSettingsButton = new QPushButton(
-                    ToolChainOptionsPage::tr("Auto-detection Settings..."), this);
+        m_detectionSettingsButton = new QPushButton(Tr::tr("Auto-detection Settings..."), this);
         connect(m_detectionSettingsButton, &QAbstractButton::clicked, this,
                 [this] {
             DetectionSettingsDialog dlg(m_detectionSettings, this);
@@ -471,19 +471,19 @@ void ToolChainOptionsWidget::apply()
 
     if (removedTcs.count() == 1) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             ToolChainOptionsPage::tr("Duplicate Compilers Detected"),
-                             ToolChainOptionsPage::tr("The following compiler was already configured:<br>"
-                                                      "&nbsp;%1<br>"
-                                                      "It was not configured again.")
-                                                      .arg(removedTcs.at(0)));
+                             Tr::tr("Duplicate Compilers Detected"),
+                             Tr::tr("The following compiler was already configured:<br>"
+                                    "&nbsp;%1<br>"
+                                    "It was not configured again.")
+                                 .arg(removedTcs.at(0)));
 
     } else if (!removedTcs.isEmpty()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             ToolChainOptionsPage::tr("Duplicate Compilers Detected"),
-                             ToolChainOptionsPage::tr("The following compilers were already configured:<br>"
-                                                      "&nbsp;%1<br>"
-                                                      "They were not configured again.")
-                                                      .arg(removedTcs.join(QLatin1String(",<br>&nbsp;"))));
+                             Tr::tr("Duplicate Compilers Detected"),
+                             Tr::tr("The following compilers were already configured:<br>"
+                                    "&nbsp;%1<br>"
+                                    "They were not configured again.")
+                                 .arg(removedTcs.join(QLatin1String(",<br>&nbsp;"))));
     }
     ToolChainManager::setDetectionSettings(m_detectionSettings);
 }
@@ -518,8 +518,7 @@ void ToolChainOptionsWidget::cloneToolChain()
         return;
 
     tc->setDetection(ToolChain::ManualDetection);
-    tc->setDisplayName(QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
-                        .arg(current->toolChain->displayName()));
+    tc->setDisplayName(Tr::tr("Clone of %1").arg(current->toolChain->displayName()));
 
     auto item = insertToolChain(tc, true);
     m_toAddList.append(item);
@@ -555,7 +554,7 @@ ToolChainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 ToolChainOptionsPage::ToolChainOptionsPage()
 {
     setId(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
-    setDisplayName(ToolChainOptionsPage::tr("Compilers"));
+    setDisplayName(Tr::tr("Compilers"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new ToolChainOptionsWidget; });
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,9 +7,6 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <languageutils/fakemetaobject.h>
-
-// for Q_DECLARE_TR_FUNCTIONS
-#include <QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
@@ -28,8 +25,6 @@ class UiScriptBinding;
 
 class QMLJS_EXPORT TypeDescriptionReader
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::TypeDescriptionReader)
-
 public:
     explicit TypeDescriptionReader(const QString &fileName, const QString &data);
     ~TypeDescriptionReader();

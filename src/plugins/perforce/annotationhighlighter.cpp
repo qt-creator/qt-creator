@@ -1,10 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "annotationhighlighter.h"
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 PerforceAnnotationHighlighter::PerforceAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                              QTextDocument *document) :
@@ -17,5 +16,4 @@ QString PerforceAnnotationHighlighter::changeNumber(const QString &block) const
     return pos > 1 ? block.left(pos) : QString();
 }
 
-} // Internal
-} // Perforce
+} // Perforce::Internal

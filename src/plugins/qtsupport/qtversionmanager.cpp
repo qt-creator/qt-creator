@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtversionmanager.h"
 
@@ -127,8 +127,7 @@ void QtVersionManager::triggerQtVersionRestore()
         m_configFileWatcher = new FileSystemWatcher(m_instance);
         connect(m_configFileWatcher, &FileSystemWatcher::fileChanged,
                 m_fileWatcherTimer, QOverload<>::of(&QTimer::start));
-        m_configFileWatcher->addFile(configFileName.toString(),
-                                     FileSystemWatcher::WatchModifiedDate);
+        m_configFileWatcher->addFile(configFileName, FileSystemWatcher::WatchModifiedDate);
     } // exists
 
     const QtVersions vs = versions();
@@ -226,8 +225,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     const FilePath path = globalSettingsFileName();
     // Handle overwritting of data:
     if (m_configFileWatcher) {
-        m_configFileWatcher->removeFile(path.toString());
-        m_configFileWatcher->addFile(path.toString(), FileSystemWatcher::WatchModifiedDate);
+        m_configFileWatcher->removeFile(path);
+        m_configFileWatcher->addFile(path, FileSystemWatcher::WatchModifiedDate);
     }
 
     QList<int> added;
@@ -375,7 +374,7 @@ static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringLis
     p.start();
     p.waitForFinished();
     const bool success = p.exitCode() == 0;
-    return success ? p.readAllStandardOutput().split('\n') : QList<QByteArray>();
+    return success ? p.readAllRawStandardOutput().split('\n') : QList<QByteArray>();
 }
 
 // Asks qtchooser for the qmake path of a given version
@@ -421,8 +420,7 @@ static void findSystemQt()
         if (BuildableHelperLibrary::isQtChooser(qmakePath))
             continue;
         const auto isSameQmake = [qmakePath](const QtVersion *version) {
-            return Environment::systemEnvironment().
-                    isSameExecutable(qmakePath.toString(), version->qmakeFilePath().toString());
+            return qmakePath.isSameExecutable(version->qmakeFilePath());
         };
         if (contains(m_versions, isSameQmake))
             continue;

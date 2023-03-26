@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cpptoolsjsextension.h"
 
@@ -134,15 +134,13 @@ bool CppToolsJsExtension::hasQObjectParent(const QString &klassName) const
     // Find class in AST.
     const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
     const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
-    QByteArray source = workingCopy.source(item->fileName());
+    QByteArray source = workingCopy.source(item->filePath());
     if (source.isEmpty()) {
-        QFile file(item->fileName());
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-            return false;
-        source = file.readAll();
+        const Utils::expected_str<QByteArray> contents = item->filePath().fileContents();
+        QTC_ASSERT_EXPECTED(contents, return false);
+        source = *contents;
     }
-    const auto doc = snapshot.preprocessedDocument(source,
-                                                   Utils::FilePath::fromString(item->fileName()));
+    const auto doc = snapshot.preprocessedDocument(source, item->filePath());
     if (!doc)
         return false;
     doc->check();

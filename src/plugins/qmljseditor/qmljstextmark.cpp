@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljseditortr.h"
 #include "qmljstextmark.h"
@@ -33,9 +33,10 @@ static bool isWarning(QmlJS::Severity::Enum kind)
     return false;
 }
 
-static Utils::Id cartegoryForSeverity(QmlJS::Severity::Enum kind)
+static TextMarkCategory cartegoryForSeverity(QmlJS::Severity::Enum kind)
 {
-    return isWarning(kind) ? QMLJS_WARNING : QMLJS_ERROR;
+    return isWarning(kind) ? TextMarkCategory{"QML Warning", QMLJS_WARNING}
+                           : TextMarkCategory{"QML Error", QMLJS_ERROR};
 }
 
 QmlJSTextMark::QmlJSTextMark(const FilePath &fileName,

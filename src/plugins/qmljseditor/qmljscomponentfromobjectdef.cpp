@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljscomponentnamedialog.h"
@@ -58,24 +58,22 @@ public:
         setDescription(Tr::tr("Move Component into Separate File"));
     }
 
-    Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-              UiObjectDefinition *objDef)
-        : QmlJSQuickFixOperation(interface, 0),
-          m_idName(idOfObject(objDef)),
-          m_firstSourceLocation(objDef->firstSourceLocation()),
-          m_lastSourceLocation(objDef->lastSourceLocation()),
-          m_initializer(objDef->initializer)
+    Operation(const Internal::QmlJSQuickFixAssistInterface *interface, UiObjectDefinition *objDef)
+        : QmlJSQuickFixOperation(interface, 0)
+        , m_idName(idOfObject(objDef))
+        , m_firstSourceLocation(objDef->firstSourceLocation())
+        , m_lastSourceLocation(objDef->lastSourceLocation())
+        , m_initializer(objDef->initializer)
     {
         init();
     }
 
-    Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-              UiObjectBinding *objDef)
-        : QmlJSQuickFixOperation(interface, 0),
-          m_idName(idOfObject(objDef)),
-          m_firstSourceLocation(objDef->qualifiedTypeNameId->firstSourceLocation()),
-          m_lastSourceLocation(objDef->lastSourceLocation()),
-          m_initializer(objDef->initializer)
+    Operation(const Internal::QmlJSQuickFixAssistInterface *interface, UiObjectBinding *objDef)
+        : QmlJSQuickFixOperation(interface, 0)
+        , m_idName(idOfObject(objDef))
+        , m_firstSourceLocation(objDef->qualifiedTypeNameId->firstSourceLocation())
+        , m_lastSourceLocation(objDef->lastSourceLocation())
+        , m_initializer(objDef->initializer)
     {
         init();
     }
@@ -223,7 +221,7 @@ public:
 } // end of anonymous namespace
 
 
-void matchComponentFromObjectDefQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+void matchComponentFromObjectDefQuickFix(const QmlJSQuickFixAssistInterface *interface, QuickFixOperations &result)
 {
     const int pos = interface->currentFile()->cursor().position();
 
@@ -254,8 +252,7 @@ void performComponentFromObjectDef(const QString &fileName, QmlJS::AST::UiObject
                                         QmlJS::ModelManagerInterface::instance()->snapshot());
     QmlJSRefactoringFilePtr current = refactoring.file(Utils::FilePath::fromString(fileName));
 
-    QmlJSQuickFixInterface interface;
-    Operation operation(interface, objDef);
+    Operation operation(nullptr, objDef);
 
     operation.performChanges(current, refactoring);
 }

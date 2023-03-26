@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscodestylepreferencesfactory.h"
 
@@ -7,11 +7,9 @@
 #include "qmljscodestylesettingspage.h"
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
-
+#include "qmljstoolstr.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
-
-#include <QLayout>
 
 using namespace QmlJSTools;
 
@@ -42,7 +40,7 @@ Utils::Id QmlJSCodeStylePreferencesFactory::languageId()
 
 QString QmlJSCodeStylePreferencesFactory::displayName()
 {
-    return QLatin1String(Constants::QML_JS_SETTINGS_NAME);
+    return Tr::tr("Qt Quick");
 }
 
 TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeStyle() const

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
@@ -34,10 +34,9 @@ Item {
     property alias noteReadonly: noteEdit.readOnly
 
     signal recenterOnItem
-    signal clearSelection
     signal updateNote(string text)
 
-    visible: dialogTitle.length > 0 || model.length > 0
+    visible: dialogTitle.length > 0
 
     width: dragHandle.x + dragHandle.width
     height: contentArea.height + titleBar.height
@@ -88,7 +87,7 @@ Item {
             implicitHeight: typeTitle.height
             visible: !rangeDetails.noteReadonly
             onClicked: noteEdit.focus = true
-            ToolTip.text: qsTranslate("Tracing", "Edit note")
+            ToolTip.text: qsTranslate("QtC::Tracing", "Edit note")
         }
 
         ImageToolButton {
@@ -98,7 +97,7 @@ Item {
             anchors.right: closeIcon.left
             implicitHeight: typeTitle.height
             onClicked: rangeDetails.locked = !rangeDetails.locked
-            ToolTip.text: qsTranslate("Tracing", "View event information on mouseover.")
+            ToolTip.text: qsTranslate("QtC::Tracing", "View event information on mouseover.")
         }
 
         ImageToolButton {
@@ -106,9 +105,10 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             implicitHeight: typeTitle.height
-            imageSource: "image://icons/close_window"
-            onClicked: rangeDetails.clearSelection()
-            ToolTip.text: qsTranslate("Tracing", "Close")
+            imageSource: "image://icons/arrow" + (col.visible ? "up" : "down")
+            onClicked: col.visible = !col.visible
+            ToolTip.text: col.visible ? qsTranslate("QtC::Tracing", "Collapse")
+                                      : qsTranslate("QtC::Tracing", "Expand")
         }
     }
 
@@ -133,6 +133,8 @@ Item {
         anchors.topMargin: rangeDetails.innerMargin
         anchors.leftMargin: rangeDetails.outerMargin
         anchors.rightMargin: rangeDetails.outerMargin
+
+        height: visible ? implicitHeight : 0
 
         spacing: rangeDetails.innerMargin
         columns: 2

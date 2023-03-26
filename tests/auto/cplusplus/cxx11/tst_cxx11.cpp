@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <cplusplus/CPlusPlus.h>
 #include <cplusplus/CppDocument.h>
@@ -12,6 +12,7 @@
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
+using namespace Utils;
 
 #define VERIFY_ERRORS() \
     do { \
@@ -113,7 +114,7 @@ class tst_cxx11: public QObject
 
     Document::Ptr document(const QString &fileName, QByteArray *errors = 0, bool c99Enabled = false)
     {
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(FilePath::fromString(fileName));
         QFile file(testdata(fileName));
         if (file.open(QFile::ReadOnly)) {
             LanguageFeatures features;
@@ -274,7 +275,7 @@ void tst_cxx11::lambdaType()
     features.cxxEnabled = true;
 
     QByteArray errors;
-    Document::Ptr doc = Document::create(QLatin1String("testFile"));
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
     processDocument(doc, source.toUtf8(), features, &errors);
 
     const bool hasErrors = !errors.isEmpty();

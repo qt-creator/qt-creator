@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,7 +7,7 @@
 #include "diffeditorwidgetcontroller.h"
 #include "selectabletexteditorwidget.h" // TODO: we need DiffSelections here only
 
-#include <QFutureWatcher>
+#include <QFutureInterface>
 #include <QWidget>
 
 namespace Core { class IContext; }
@@ -15,6 +15,11 @@ namespace Core { class IContext; }
 namespace TextEditor {
 class FontSettings;
 class TextEditorWidget;
+}
+
+namespace Utils {
+template <typename R>
+class AsyncTask;
 }
 
 QT_BEGIN_NAMESPACE
@@ -138,7 +143,7 @@ private:
     };
     using ShowResults = std::array<ShowResult, SideCount>;
 
-    std::unique_ptr<QFutureWatcher<ShowResults>> m_watcher;
+    std::unique_ptr<Utils::AsyncTask<ShowResults>> m_asyncTask;
 };
 
 } // namespace Internal

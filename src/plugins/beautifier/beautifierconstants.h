@@ -1,12 +1,11 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <QtGlobal>
 
-namespace Beautifier {
-namespace Constants {
+namespace Beautifier::Constants {
 
 const char ACTION_ID[]              = "Beautifier.Action";
 const char MENU_ID[]                = "Beautifier.Menu";
@@ -20,5 +19,4 @@ const char DOCUMENTATION_XMLKEYS[]  = "keys";
 const char DOCUMENTATION_XMLKEY[]   = "key";
 const char DOCUMENTATION_XMLDOC[]   = "doc";
 
-} // namespace Constants
-} // namespace Beautifier
+} // Beautifier::Constants

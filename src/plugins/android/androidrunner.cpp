@@ -1,6 +1,6 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
@@ -162,7 +162,8 @@ void AndroidRunner::launchAVD()
     if (!m_target || !m_target->project())
         return;
 
-    QStringList androidAbis = AndroidManager::applicationAbis(m_target);
+    // TODO: is this still needed?
+    AndroidManager::applicationAbis(m_target);
 
     // Get AVD info
     const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -136,8 +136,6 @@ public:
 
 class QTCREATOR_UTILS_EXPORT ElfReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::ElfReader)
-
 public:
     explicit ElfReader(const FilePath &binary);
     enum Result { Ok, NotElf, Corrupt };

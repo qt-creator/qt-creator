@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "indexitem.h"
 
-#include <utils/fileutils.h>
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -17,7 +17,7 @@ IndexItem::Ptr IndexItem::create(const QString &symbolName, const QString &symbo
     ptr->m_symbolType = symbolType;
     ptr->m_symbolScope = symbolScope;
     ptr->m_type = type;
-    ptr->m_fileName = fileName;
+    ptr->m_filePath = FilePath::fromString(fileName);
     ptr->m_line = line;
     ptr->m_column = column;
     ptr->m_icon = icon;
@@ -29,7 +29,7 @@ IndexItem::Ptr IndexItem::create(const QString &fileName, int sizeHint)
 {
     Ptr ptr(new IndexItem);
 
-    ptr->m_fileName = fileName;
+    ptr->m_filePath = FilePath::fromString(fileName);
     ptr->m_type = Declaration;
     ptr->m_line = 0;
     ptr->m_column = 0;
@@ -66,7 +66,7 @@ QString IndexItem::representDeclaration() const
 
 QString IndexItem::shortNativeFilePath() const
 {
-    return Utils::FilePath::fromString(m_fileName).shortNativePath();
+    return m_filePath.shortNativePath();
 }
 
 void IndexItem::squeeze()
@@ -76,4 +76,4 @@ void IndexItem::squeeze()
         m_children[i]->squeeze();
 }
 
-} // CppEditor namespace
+} // CppEditor

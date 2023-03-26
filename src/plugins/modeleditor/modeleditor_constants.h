@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,7 +9,7 @@ namespace ModelEditor {
 namespace Constants {
 
 const char MODEL_EDITOR_ID[] = "Editors.ModelEditor";
-const char MODEL_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Model Editor");
+const char MODEL_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Model Editor");
 
 const char REMOVE_SELECTED_ELEMENTS[] = "ModelEditor.RemoveSelectedElements";
 const char DELETE_SELECTED_ELEMENTS[] = "ModelEditor.DeleteSelectedElements";

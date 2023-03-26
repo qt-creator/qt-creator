@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "scripthelper.h"
 
@@ -144,7 +144,9 @@ bool ScriptHelper::writeScriptFile(const Utils::FilePath &outScriptFile,
     for (const QByteArray &line : functionFooter(m_language))
         data.append(line).append('\n');
 
-    return outScriptFile.writeFileContents(data);
+    const Utils::expected_str<qint64> result = outScriptFile.writeFileContents(data);
+    QTC_ASSERT_EXPECTED(result, return false);
+    return true;
 }
 
 } // namespace Internal

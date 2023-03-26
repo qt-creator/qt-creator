@@ -23,6 +23,7 @@ QtcPlugin {
         "bazaarplugin.h",
         "bazaarsettings.cpp",
         "bazaarsettings.h",
+        "bazaartr.h",
         "branchinfo.cpp",
         "branchinfo.h",
         "commiteditor.cpp",

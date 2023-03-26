@@ -1,5 +1,5 @@
 add_qtc_plugin(ProjectExplorer
-  DEPENDS Qt5::Qml
+  DEPENDS Qt::Qml
   PLUGIN_DEPENDS Core TextEditor
   PLUGIN_TEST_DEPENDS GenericProjectManager
   SOURCES
@@ -51,7 +51,6 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/desktopprocesssignaloperation.cpp devicesupport/desktopprocesssignaloperation.h
     devicesupport/devicecheckbuildstep.cpp devicesupport/devicecheckbuildstep.h
     devicesupport/devicefactoryselectiondialog.cpp devicesupport/devicefactoryselectiondialog.h
-    devicesupport/devicefilesystemmodel.cpp devicesupport/devicefilesystemmodel.h
     devicesupport/devicemanager.cpp devicesupport/devicemanager.h
     devicesupport/devicemanagermodel.cpp devicesupport/devicemanagermodel.h
     devicesupport/deviceprocessesdialog.cpp devicesupport/deviceprocessesdialog.h

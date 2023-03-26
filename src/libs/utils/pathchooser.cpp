@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pathchooser.h"
 
@@ -9,11 +9,13 @@
 #include "guard.h"
 #include "hostosinfo.h"
 #include "macroexpander.h"
+#include "optionpushbutton.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
+#include "utilstr.h"
 
-#include <QGuiApplication>
 #include <QFileDialog>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QPushButton>
@@ -175,6 +177,9 @@ public:
     const MacroExpander *m_macroExpander = globalMacroExpander();
     std::function<void()> m_openTerminal;
     bool m_allowPathFromDevice = false;
+
+    QMenu *m_contextMenu = nullptr;
+    OptionPushButton *m_browseButton = nullptr;
     Guard m_callGuard;
 };
 
@@ -256,7 +261,15 @@ PathChooser::PathChooser(QWidget *parent) :
     d->m_hLayout->addWidget(d->m_lineEdit);
     d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    addButton(browseButtonLabel(), this, [this] { slotBrowse(); });
+    d->m_browseButton = new OptionPushButton;
+    d->m_browseButton->setText(browseButtonLabel());
+    connect(d->m_browseButton, &OptionPushButton::clicked, this, [this] { slotBrowse(false); });
+
+    d->m_contextMenu = new QMenu(d->m_browseButton);
+    d->m_contextMenu->addAction(Tr::tr("Local"), this, [this] { slotBrowse(false); });
+    d->m_contextMenu->addAction(Tr::tr("Remote"), this, [this] { slotBrowse(true); });
+
+    insertButton(d->m_buttons.count(), d->m_browseButton);
 
     setLayout(d->m_hLayout);
     setFocusProxy(d->m_lineEdit);
@@ -279,18 +292,23 @@ void PathChooser::addButton(const QString &text, QObject *context, const std::fu
     insertButton(d->m_buttons.count(), text, context, callback);
 }
 
+void PathChooser::insertButton(int index, QAbstractButton *button)
+{
+    d->m_hLayout->insertWidget(index + 1 /*line edit*/, button);
+    d->m_buttons.insert(index, button);
+}
+
 void PathChooser::insertButton(int index, const QString &text, QObject *context, const std::function<void ()> &callback)
 {
     auto button = new QPushButton;
     button->setText(text);
     connect(button, &QAbstractButton::clicked, context, callback);
-    d->m_hLayout->insertWidget(index + 1/*line edit*/, button);
-    d->m_buttons.insert(index, button);
+    insertButton(index, button);
 }
 
 QString PathChooser::browseButtonLabel()
 {
-    return HostOsInfo::isMacHost() ? tr("Choose...") : tr("Browse...");
+    return HostOsInfo::isMacHost() ? Tr::tr("Choose...") : Tr::tr("Browse...");
 }
 
 QAbstractButton *PathChooser::buttonAtIndex(int index) const
@@ -304,6 +322,11 @@ void PathChooser::setBaseDirectory(const FilePath &base)
         return;
     d->m_baseDirectory = base;
     triggerChanged();
+}
+
+void PathChooser::setEnvironment(const Environment &env)
+{
+    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
 }
 
 FilePath PathChooser::baseDirectory() const
@@ -336,20 +359,6 @@ FilePath PathChooser::absoluteFilePath() const
     return d->m_baseDirectory.resolvePath(filePath());
 }
 
-// FIXME: try to remove again
-QString PathChooser::expandedDirectory(const QString &input, const Environment &env,
-                                       const QString &baseDir)
-{
-    if (input.isEmpty())
-        return input;
-    const QString path = QDir::cleanPath(env.expandVariables(input));
-    if (path.isEmpty())
-        return path;
-    if (!baseDir.isEmpty() && QFileInfo(path).isRelative())
-        return QFileInfo(baseDir + '/' + path).absoluteFilePath();
-    return path;
-}
-
 void PathChooser::setPath(const QString &path)
 {
     QTC_ASSERT(!d->m_callGuard.isLocked(), return);
@@ -377,7 +386,7 @@ void PathChooser::setReadOnly(bool b)
         button->setEnabled(!b);
 }
 
-void PathChooser::slotBrowse()
+void PathChooser::slotBrowse(bool remote)
 {
     emit beforeBrowsing();
 
@@ -393,50 +402,61 @@ void PathChooser::slotBrowse()
             predefined.clear();
     }
 
+    remote = remote || filePath().needsDevice();
+
     // Prompt for a file/dir
     FilePath newPath;
     switch (d->m_acceptingKind) {
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
         newPath = FileUtils::getExistingDirectory(this,
-                                                  makeDialogTitle(tr("Choose Directory")),
-                                                  predefined, {}, d->m_allowPathFromDevice);
+                                                  makeDialogTitle(Tr::tr("Choose Directory")),
+                                                  predefined,
+                                                  {},
+                                                  d->m_allowPathFromDevice,
+                                                  remote);
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
         newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(tr("Choose Executable")),
+                                             makeDialogTitle(Tr::tr("Choose Executable")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
                                              {},
-                                             d->m_allowPathFromDevice);
+                                             d->m_allowPathFromDevice,
+                                             remote);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
         newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(tr("Choose File")),
+                                             makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
                                              {},
-                                             d->m_allowPathFromDevice);
+                                             d->m_allowPathFromDevice,
+                                             remote);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
         newPath = FileUtils::getSaveFilePath(this,
-                                             makeDialogTitle(tr("Choose File")),
-                                             predefined,
-                                             d->m_dialogFilter);
-        break;
-    case PathChooser::Any: {
-        newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(tr("Choose File")),
+                                             makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
                                              {},
-                                             d->m_allowPathFromDevice);
+                                             remote);
+        break;
+    case PathChooser::Any: {
+        newPath = FileUtils::getOpenFilePath(this,
+                                             makeDialogTitle(Tr::tr("Choose File")),
+                                             predefined,
+                                             d->m_dialogFilter,
+                                             nullptr,
+                                             {},
+                                             d->m_allowPathFromDevice,
+                                             remote);
         break;
     }
     default:
@@ -507,6 +527,16 @@ void PathChooser::setDefaultValue(const QString &defaultValue)
     d->m_lineEdit->validate();
 }
 
+void PathChooser::setPlaceholderText(const QString &placeholderText)
+{
+    d->m_lineEdit->setPlaceholderText(placeholderText);
+}
+
+void PathChooser::setToolTip(const QString &toolTip)
+{
+    d->m_lineEdit->setToolTip(toolTip);
+}
+
 FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
 {
     return std::bind(&PathChooser::validatePath, this, std::placeholders::_1, std::placeholders::_2);
@@ -521,7 +551,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
             input = d->m_defaultValue;
         } else {
             if (errorMessage)
-                *errorMessage = tr("The path must not be empty.");
+                *errorMessage = Tr::tr("The path must not be empty.");
             return false;
         }
     }
@@ -529,7 +559,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     const FilePath filePath = d->expandedPath(FilePath::fromUserInput(input));
     if (filePath.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("The path \"%1\" expanded to an empty string.").arg(input);
+            *errorMessage = Tr::tr("The path \"%1\" expanded to an empty string.").arg(input);
         return false;
     }
 
@@ -538,68 +568,68 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     case PathChooser::ExistingDirectory:
         if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (!filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::File:
         if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (!filePath.isFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::SaveFile:
         if (!filePath.parentDir().exists()) {
             if (errorMessage)
-                *errorMessage = tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (filePath.exists() && filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::ExistingCommand:
         if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (!filePath.isExecutableFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::Directory:
         if (filePath.exists() && !filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;
         }
         if (HostOsInfo::isWindowsHost() && !filePath.startsWithDriveLetter()
                 && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
             if (errorMessage)
-                *errorMessage = tr("Invalid path \"%1\".").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::Command:
         if (filePath.exists() && !filePath.isExecutableFile()) {
             if (errorMessage)
-                *errorMessage = tr("Cannot execute \"%1\".").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("Cannot execute \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
         break;
@@ -609,7 +639,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     }
 
     if (errorMessage)
-        *errorMessage = tr("Full path: \"%1\"").arg(filePath.toUserOutput());
+        *errorMessage = Tr::tr("Full path: \"%1\"").arg(filePath.toUserOutput());
     return true;
 }
 
@@ -620,7 +650,7 @@ void PathChooser::setValidationFunction(const FancyLineEdit::ValidationFunction 
 
 QString PathChooser::label()
 {
-    return tr("Path:");
+    return Tr::tr("Path:");
 }
 
 FilePath PathChooser::homePath()
@@ -746,6 +776,11 @@ void PathChooser::setCommandVersionArguments(const QStringList &arguments)
 void PathChooser::setAllowPathFromDevice(bool allow)
 {
     d->m_allowPathFromDevice = allow;
+
+    if (allow && FileUtils::hasNativeFileDialog())
+        d->m_browseButton->setOptionalMenu(d->m_contextMenu);
+    else
+        d->m_browseButton->setOptionalMenu(nullptr);
 }
 
 bool PathChooser::allowPathFromDevice() const

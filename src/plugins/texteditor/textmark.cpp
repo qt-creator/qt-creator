@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "textmark.h"
 
@@ -7,6 +7,7 @@
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditorplugin.h"
+#include "texteditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
@@ -62,8 +63,8 @@ private:
 
 TextMarkRegistry *m_instance = nullptr;
 
-TextMark::TextMark(const FilePath &fileName, int lineNumber, Id category)
-    : m_fileName(fileName)
+TextMark::TextMark(const FilePath &filePath, int lineNumber, TextMarkCategory category)
+    : m_fileName(filePath)
     , m_lineNumber(lineNumber)
     , m_visible(true)
     , m_category(category)
@@ -81,18 +82,18 @@ TextMark::~TextMark()
     m_baseTextDocument = nullptr;
 }
 
-FilePath TextMark::fileName() const
+FilePath TextMark::filePath() const
 {
     return m_fileName;
 }
 
-void TextMark::updateFileName(const FilePath &fileName)
+void TextMark::updateFilePath(const FilePath &filePath)
 {
-    if (fileName == m_fileName)
+    if (filePath == m_fileName)
         return;
     if (!m_fileName.isEmpty())
         TextMarkRegistry::remove(this);
-    m_fileName = fileName;
+    m_fileName = filePath;
     if (!m_fileName.isEmpty())
         TextMarkRegistry::add(this);
 }
@@ -278,10 +279,27 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     QList<QAction *> actions{m_actions.begin(), m_actions.end()};
     if (m_actionsProvider)
         actions = m_actionsProvider();
+    if (m_category.id.isValid() && !m_lineAnnotation.isEmpty()) {
+        auto visibilityAction = new QAction;
+        const bool isHidden = TextDocument::marksAnnotationHidden(m_category.id);
+        visibilityAction->setIcon(Utils::Icons::EYE_OPEN_TOOLBAR.icon());
+        const QString tooltip = (isHidden ? Tr::tr("Show inline annotations for %1")
+                                          : Tr::tr("Temporarily hide inline annotations for %1"))
+                                    .arg(m_category.displayName);
+        visibilityAction->setToolTip(tooltip);
+        auto callback = [id = m_category.id, isHidden] {
+            if (isHidden)
+                TextDocument::showMarksAnnotation(id);
+            else
+                TextDocument::temporaryHideMarksAnnotation(id);
+        };
+        QObject::connect(visibilityAction, &QAction::triggered, Core::ICore::instance(), callback);
+        actions.append(visibilityAction);
+    }
     if (m_settingsPage.isValid()) {
         auto settingsAction = new QAction;
         settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
-        settingsAction->setToolTip(tr("Show Diagnostic Settings"));
+        settingsAction->setToolTip(Tr::tr("Show Diagnostic Settings"));
         QObject::connect(settingsAction, &QAction::triggered, Core::ICore::instance(),
             [id = m_settingsPage] { Core::ICore::showOptionsDialog(id); },
             Qt::QueuedConnection);
@@ -433,14 +451,14 @@ TextMarkRegistry::TextMarkRegistry(QObject *parent)
 
 void TextMarkRegistry::add(TextMark *mark)
 {
-    instance()->m_marks[mark->fileName()].insert(mark);
-    if (TextDocument *document = TextDocument::textDocumentForFilePath(mark->fileName()))
+    instance()->m_marks[mark->filePath()].insert(mark);
+    if (TextDocument *document = TextDocument::textDocumentForFilePath(mark->filePath()))
         document->addMark(mark);
 }
 
 bool TextMarkRegistry::remove(TextMark *mark)
 {
-    return instance()->m_marks[mark->fileName()].remove(mark);
+    return instance()->m_marks[mark->filePath()].remove(mark);
 }
 
 TextMarkRegistry *TextMarkRegistry::instance()
@@ -482,7 +500,7 @@ void TextMarkRegistry::documentRenamed(IDocument *document,
     m_marks[newPath].unite(toBeMoved);
 
     for (TextMark *mark : std::as_const(toBeMoved))
-        mark->updateFileName(newPath);
+        mark->updateFilePath(newPath);
 }
 
 void TextMarkRegistry::allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath)
@@ -496,7 +514,7 @@ void TextMarkRegistry::allDocumentsRenamed(const FilePath &oldPath, const FilePa
     m_marks[oldPath].clear();
 
     for (TextMark *mark : oldFileNameMarks)
-        mark->updateFileName(newPath);
+        mark->updateFilePath(newPath);
 }
 
 QHash<AnnotationColors::SourceColors, AnnotationColors> AnnotationColors::m_colorCache;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,7 +9,6 @@
 #include <functional>
 
 #include <QAction>
-#include <QCoreApplication>
 
 namespace VcsBase {
 
@@ -22,8 +21,6 @@ class VcsBasePluginPrivate;
 
 class VCSBASE_EXPORT VcsSubmitEditorFactory : public Core::IEditorFactory
 {
-    Q_DECLARE_TR_FUNCTIONS(VcsBase::VcsSubmitEditorFactory)
-
 public:
     typedef std::function<VcsBaseSubmitEditor *()> EditorCreator;
 

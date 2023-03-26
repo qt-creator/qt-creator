@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <cppeditor/cppselectionchanger.h>
 
@@ -9,11 +9,14 @@
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/pp-engine.h>
 
+#include <utils/filepath.h>
+
 #include <QtTest>
 #include <QTextDocument>
 
 using namespace CPlusPlus;
 using namespace CppEditor;
+using namespace Utils;
 
 //TESTED_COMPONENT=src/plugins/cppeditor
 
@@ -175,7 +178,7 @@ inline void tst_CppSelectionChanger::doShrink(QTextCursor& cursor, const QString
 QByteArray tst_CppSelectionChanger::preprocess(const QByteArray &source, const QString &fileName)
 {
     Client *client = 0; // no client.
-    Environment env;
+    CPlusPlus::Environment env;
     Preprocessor preprocess(client, &env);
     preprocess.setKeepComments(true);
     return preprocess.run(fileName, source);
@@ -193,7 +196,7 @@ void tst_CppSelectionChanger::initTestCase()
     textDocument.setPlainText(cppFileString);
 
     // Create the CPP document and preprocess the source, just like how the CppEditor does it.
-    cppDocument = Document::create(fileName);
+    cppDocument = Document::create(FilePath::fromString(fileName));
     const QByteArray preprocessedSource = preprocess(cppFileString.toUtf8(), fileName);
     cppDocument->setUtf8Source(preprocessedSource);
     cppDocument->parse();

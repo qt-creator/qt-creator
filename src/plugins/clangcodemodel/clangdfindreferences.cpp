@@ -1,28 +1,34 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdfindreferences.h"
 
+#include "clangcodemodeltr.h"
 #include "clangdast.h"
 #include "clangdclient.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
+
 #include <cplusplus/FindUsages.h>
+
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppfindreferences.h>
 #include <cppeditor/cpptoolsreuse.h>
+
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageserverprotocol/lsptypes.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/basefilefind.h>
-#include <utils/filepath.h>
 
 #include <QCheckBox>
+#include <QFile>
 #include <QMap>
 #include <QSet>
 
@@ -51,6 +57,27 @@ public:
     QSet<Utils::FilePath> fileRenameCandidates;
 };
 
+class ClangdFindReferences::CheckUnusedData
+{
+public:
+    CheckUnusedData(ClangdFindReferences *q, const Link &link, SearchResult *search,
+                    const LinkHandler &callback)
+        : q(q), link(link), linkAsPosition(link.targetLine, link.targetColumn), search(search),
+          callback(callback) {}
+    ~CheckUnusedData();
+
+    ClangdFindReferences * const q;
+    const Link link;
+    const Position linkAsPosition;
+    const QPointer<SearchResult> search;
+    const LinkHandler callback;
+    QList<SearchResultItem> declDefItems;
+    bool openedExtraFileForLink = false;
+    bool declHasUsedTag = false;
+    bool recursiveCallDetected = false;
+    bool serverRestarted = false;
+};
+
 class ClangdFindReferences::Private
 {
 public:
@@ -67,24 +94,27 @@ public:
     void finishSearch();
     void reportAllSearchResultsAndFinish();
     void addSearchResultsForFile(const FilePath &file, const ReferencesFileData &fileData);
-    std::optional<QString> getContainingFunctionName(const ClangdAstPath &astPath,
-                                                       const Range& range);
+    ClangdAstNode getContainingFunction(const ClangdAstPath &astPath, const Range& range);
 
     ClangdFindReferences * const q;
     QMap<DocumentUri, ReferencesFileData> fileData;
     QList<MessageId> pendingAstRequests;
     QPointer<SearchResult> search;
     std::optional<ReplacementData> replacementData;
+    QString searchTerm;
+    std::optional<CheckUnusedData> checkUnusedData;
     bool canceled = false;
     bool categorize = false;
 };
 
 ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
-        const std::optional<QString> &replacement, bool categorize)
+        const std::optional<QString> &replacement, const std::function<void()> &callback,
+        bool categorize)
     : QObject(client), d(new ClangdFindReferences::Private(this))
 {
     d->categorize = categorize;
+    d->searchTerm = searchTerm;
     if (replacement) {
         ReplacementData replacementData;
         replacementData.oldSymbolName = searchTerm;
@@ -95,12 +125,14 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
     }
 
     d->search = SearchResultWindow::instance()->startNewSearch(
-                tr("C++ Usages:"),
+                Tr::tr("C++ Usages:"),
                 {},
                 searchTerm,
                 replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
                 SearchResultWindow::PreserveCaseDisabled,
                 "CppEditor");
+    if (callback)
+        d->search->makeNonInteractive(callback);
     if (categorize)
         d->search->setFilter(new CppSearchResultFilter);
     if (d->replacementData) {
@@ -121,7 +153,8 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
     connect(d->search, &SearchResult::activated, [](const SearchResultItem& item) {
         EditorManager::openEditorAtSearchResult(item);
     });
-    SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
+    if (d->search->isInteractive())
+        SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
     const std::optional<MessageId> requestId = client->symbolSupport().findUsages(
                 document, cursor, [self = QPointer(this)](const QList<Location> &locations) {
@@ -143,6 +176,60 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
     connect(client, &ClangdClient::initialized, this, [this] {
         // On a client crash, report all search results found so far.
         d->reportAllSearchResultsAndFinish();
+    });
+}
+
+ClangdFindReferences::ClangdFindReferences(ClangdClient *client, const Link &link,
+                                           SearchResult *search, const LinkHandler &callback)
+    : QObject(client), d(new Private(this))
+{
+    d->checkUnusedData.emplace(this, link, search, callback);
+    d->categorize = true;
+    d->search = search;
+
+    if (!client->documentForFilePath(link.targetFilePath)) {
+        QFile f(link.targetFilePath.toString());
+        if (!f.open(QIODevice::ReadOnly)) {
+            d->finishSearch();
+            return;
+        }
+        const QString contents = QString::fromUtf8(f.readAll());
+        QTextDocument doc(contents);
+        QTextCursor cursor(&doc);
+        cursor.setPosition(Text::positionInText(&doc, link.targetLine, link.targetColumn + 1));
+        cursor.select(QTextCursor::WordUnderCursor);
+        d->searchTerm = cursor.selectedText();
+        client->openExtraFile(link.targetFilePath, contents);
+        d->checkUnusedData->openedExtraFileForLink = true;
+    }
+    const TextDocumentIdentifier documentId(client->hostPathToServerUri(link.targetFilePath));
+    const Position pos(link.targetLine - 1, link.targetColumn);
+    ReferenceParams params(TextDocumentPositionParams(documentId, pos));
+    params.setContext(ReferenceParams::ReferenceContext(true));
+    FindReferencesRequest request(params);
+    request.setResponseCallback([self = QPointer(this)]
+                                (const FindReferencesRequest::Response &response) {
+        if (self) {
+            const LanguageClientArray<Location> locations = response.result().value_or(nullptr);
+            self->d->handleFindUsagesResult(locations.isNull() ? QList<Location>()
+                                                               : locations.toList());
+        }
+    });
+
+    client->sendMessage(request, ClangdClient::SendDocUpdates::Ignore);
+    QObject::connect(d->search, &SearchResult::canceled, this, [this, client, id = request.id()] {
+        client->cancelRequest(id);
+        d->canceled = true;
+        d->finishSearch();
+    });
+    QObject::connect(d->search, &SearchResult::destroyed, this, [this, client, id = request.id()] {
+        client->cancelRequest(id);
+        d->canceled = true;
+        d->finishSearch();
+    });
+    connect(client, &ClangdClient::initialized, this, [this] {
+        d->checkUnusedData->serverRestarted = true;
+        d->finishSearch();
     });
 }
 
@@ -202,7 +289,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     for (const Location &loc : locations)
         fileData[loc.uri()].rangesAndLineText.push_back({loc.range(), {}});
     for (auto it = fileData.begin(); it != fileData.end();) {
-        const Utils::FilePath filePath = it.key().toFilePath();
+        const Utils::FilePath filePath = client()->serverUriToHostPath(it.key());
         if (!filePath.exists()) { // https://github.com/clangd/clangd/issues/935
             it = fileData.erase(it);
             continue;
@@ -225,15 +312,19 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     }
 
     for (auto it = fileData.begin(); it != fileData.end(); ++it) {
-        const TextDocument * const doc = client()->documentForFilePath(it.key().toFilePath());
-        if (!doc)
-            client()->openExtraFile(it.key().toFilePath(), it->fileContent);
+        const FilePath filePath = client()->serverUriToHostPath(it.key());
+        const TextDocument * const doc = client()->documentForFilePath(filePath);
+        const bool openExtraFile = !doc && (!checkUnusedData
+                || !checkUnusedData->openedExtraFileForLink
+                || checkUnusedData->link.targetFilePath != filePath);
+        if (openExtraFile)
+            client()->openExtraFile(filePath, it->fileContent);
         it->fileContent.clear();
         const auto docVariant = doc ? ClangdClient::TextDocOrFile(doc)
-                                    : ClangdClient::TextDocOrFile(it.key().toFilePath());
-        const auto astHandler = [sentinel = QPointer(q), this, loc = it.key()](
+                                    : ClangdClient::TextDocOrFile(filePath);
+        const auto astHandler = [sentinel = QPointer(q), this, loc = it.key(), filePath](
                 const ClangdAstNode &ast, const MessageId &reqId) {
-            qCDebug(clangdLog) << "AST for" << loc.toFilePath();
+            qCDebug(clangdLog) << "AST for" << filePath;
             if (!sentinel)
                 return;
             if (!search || canceled)
@@ -242,23 +333,28 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
             data.ast = ast;
             pendingAstRequests.removeOne(reqId);
             qCDebug(clangdLog) << pendingAstRequests.size() << "AST requests still pending";
-            addSearchResultsForFile(loc.toFilePath(), data);
+            addSearchResultsForFile(filePath, data);
             fileData.remove(loc);
-            if (pendingAstRequests.isEmpty()) {
-                qDebug(clangdLog) << "retrieved all ASTs";
+            if (pendingAstRequests.isEmpty() && !canceled) {
+                qCDebug(clangdLog) << "retrieved all ASTs";
                 finishSearch();
             }
         };
         const MessageId reqId = client()->getAndHandleAst(
                     docVariant, astHandler, ClangdClient::AstCallbackMode::AlwaysAsync, {});
         pendingAstRequests << reqId;
-        if (!doc)
-            client()->closeExtraFile(it.key().toFilePath());
+        if (openExtraFile)
+            client()->closeExtraFile(filePath);
     }
 }
 
 void ClangdFindReferences::Private::finishSearch()
 {
+    if (checkUnusedData) {
+        q->deleteLater();
+        return;
+    }
+
     if (!client()->testingEnabled() && search) {
         search->finishSearch(canceled);
         search->disconnect(q);
@@ -267,10 +363,10 @@ void ClangdFindReferences::Private::finishSearch()
                         search->additionalReplaceWidget());
             QTC_CHECK(renameCheckBox);
             const QSet<Utils::FilePath> files = replacementData->fileRenameCandidates;
-            renameCheckBox->setText(tr("Re&name %n files", nullptr, files.size()));
+            renameCheckBox->setText(Tr::tr("Re&name %n files", nullptr, files.size()));
             const QStringList filesForUser = Utils::transform<QStringList>(files,
                         [](const Utils::FilePath &fp) { return fp.toUserOutput(); });
-            renameCheckBox->setToolTip(tr("Files:\n%1").arg(filesForUser.join('\n')));
+            renameCheckBox->setToolTip(Tr::tr("Files:\n%1").arg(filesForUser.join('\n')));
             renameCheckBox->setVisible(true);
             search->setUserData(QVariant::fromValue(*replacementData));
         }
@@ -281,32 +377,78 @@ void ClangdFindReferences::Private::finishSearch()
 
 void ClangdFindReferences::Private::reportAllSearchResultsAndFinish()
 {
-    for (auto it = fileData.begin(); it != fileData.end(); ++it)
-        addSearchResultsForFile(it.key().toFilePath(), it.value());
+    if (!checkUnusedData) {
+        for (auto it = fileData.begin(); it != fileData.end(); ++it)
+            addSearchResultsForFile(client()->serverUriToHostPath(it.key()), it.value());
+    }
     finishSearch();
 }
 
-static Usage::Type getUsageType(const ClangdAstPath &path);
+static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &searchTerm,
+                                const QStringList &expectedDeclTypes);
 
 void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file,
                                                             const ReferencesFileData &fileData)
 {
     QList<SearchResultItem> items;
     qCDebug(clangdLog) << file << "has valid AST:" << fileData.ast.isValid();
+    const auto expectedDeclTypes = [this]() -> QStringList {
+        if (checkUnusedData)
+            return {"Function", "CXXMethod"};
+        return {};
+    }();
     for (const auto &rangeWithText : fileData.rangesAndLineText) {
         const Range &range = rangeWithText.first;
         const ClangdAstPath astPath = getAstPath(fileData.ast, range);
-        const Usage::Type usageType = fileData.ast.isValid() ? getUsageType(astPath)
-                                                             : Usage::Type::Other;
-
+        const Usage::Tags usageType = fileData.ast.isValid()
+                ? getUsageType(astPath, searchTerm, expectedDeclTypes)
+                : Usage::Tags();
+        if (checkUnusedData) {
+            bool isProperUsage = false;
+            if (usageType.testFlag(Usage::Tag::Declaration)) {
+                checkUnusedData->declHasUsedTag = checkUnusedData->declHasUsedTag
+                        || usageType.testFlag(Usage::Tag::Used);
+                isProperUsage = usageType.testAnyFlags({
+                        Usage::Tag::Override, Usage::Tag::MocInvokable,
+                        Usage::Tag::ConstructorDestructor, Usage::Tag::Template,
+                        Usage::Tag::Operator});
+            } else {
+                bool isRecursiveCall = false;
+                if (checkUnusedData->link.targetFilePath == file) {
+                    const ClangdAstNode containingFunction = getContainingFunction(astPath, range);
+                    isRecursiveCall = containingFunction.hasRange()
+                            && containingFunction.range().contains(checkUnusedData->linkAsPosition);
+                }
+                checkUnusedData->recursiveCallDetected = checkUnusedData->recursiveCallDetected
+                        || isRecursiveCall;
+                isProperUsage = !isRecursiveCall;
+            }
+            if (isProperUsage) {
+                qCDebug(clangdLog) << "proper usage at" << rangeWithText.second;
+                canceled = true;
+                finishSearch();
+                return;
+            }
+        }
         SearchResultItem item;
-        item.setUserData(int(usageType));
+        item.setUserData(usageType.toInt());
         item.setStyle(CppEditor::colorStyleForUsageType(usageType));
         item.setFilePath(file);
         item.setMainRange(SymbolSupport::convertRange(range));
         item.setUseTextEditorFont(true);
         item.setLineText(rangeWithText.second);
-        item.setContainingFunctionName(getContainingFunctionName(astPath, range));
+        if (checkUnusedData) {
+            if (rangeWithText.second.contains("template<>")) {
+                // Hack: Function specializations are not detectable in the AST.
+                canceled = true;
+                finishSearch();
+                return;
+            }
+            qCDebug(clangdLog) << "collecting decl/def" << rangeWithText.second;
+            checkUnusedData->declDefItems << item;
+            continue;
+        }
+        item.setContainingFunctionName(getContainingFunction(astPath, range).detail());
 
         if (search->supportsReplace()) {
             const bool fileInSession = SessionManager::projectForFile(file);
@@ -320,12 +462,12 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
     }
     if (client()->testingEnabled())
         emit q->foundReferences(items);
-    else
+    else if (!checkUnusedData)
         search->addResults(items, SearchResult::AddOrdered);
 }
 
-std::optional<QString> ClangdFindReferences::Private::getContainingFunctionName(
-    const ClangdAstPath &astPath, const Range& range)
+ClangdAstNode ClangdFindReferences::Private::getContainingFunction(
+        const ClangdAstPath &astPath, const Range& range)
 {
     const ClangdAstNode* containingFuncNode{nullptr};
     const ClangdAstNode* lastCompoundStmtNode{nullptr};
@@ -344,37 +486,63 @@ std::optional<QString> ClangdFindReferences::Private::getContainingFunctionName(
     }
 
     if (!containingFuncNode || !containingFuncNode->isValid())
-        return std::nullopt;
+        return {};
 
-    return containingFuncNode->detail();
+    return *containingFuncNode;
 }
 
-static Usage::Type getUsageType(const ClangdAstPath &path)
+static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &searchTerm,
+                                const QStringList &expectedDeclTypes)
 {
     bool potentialWrite = false;
     bool isFunction = false;
     const bool symbolIsDataType = path.last().role() == "type" && path.last().kind() == "Record";
+    QString invokedConstructor;
+    if (path.last().role() == "expression" && path.last().kind() == "CXXConstruct")
+        invokedConstructor = path.last().detail().value_or(QString());
+
+    // Sometimes (TM), it can happen that none of the AST nodes have a range,
+    // so path construction fails.
+    if (path.last().kind() == "TranslationUnit")
+        return Usage::Tag::Used;
+
     const auto isPotentialWrite = [&] { return potentialWrite && !isFunction; };
+    const auto isSomeSortOfTemplate = [&](auto declPathIt) {
+        if (declPathIt->kind() == "Function") {
+            const auto children = declPathIt->children().value_or(QList<ClangdAstNode>());
+            for (const ClangdAstNode &child : children) {
+                if (child.role() == "template argument")
+                    return true;
+            }
+        }
+        for (; declPathIt != path.rend(); ++declPathIt) {
+            if (declPathIt->kind() == "FunctionTemplate" || declPathIt->kind() == "ClassTemplate"
+                    || declPathIt->kind() == "ClassTemplatePartialSpecialization") {
+                return true;
+            }
+        }
+        return false;
+    };
     for (auto pathIt = path.rbegin(); pathIt != path.rend(); ++pathIt) {
         if (pathIt->arcanaContains("non_odr_use_unevaluated"))
-            return Usage::Type::Other;
+            return {};
         if (pathIt->kind() == "CXXDelete")
-            return Usage::Type::Write;
+            return Usage::Tag::Write;
         if (pathIt->kind() == "CXXNew")
-            return Usage::Type::Other;
+            return {};
         if (pathIt->kind() == "Switch" || pathIt->kind() == "If")
-            return Usage::Type::Read;
+            return Usage::Tag::Read;
         if (pathIt->kind() == "Call")
-            return isFunction ? Usage::Type::Other
-                              : potentialWrite ? Usage::Type::WritableRef : Usage::Type::Read;
+            return isFunction ? Usage::Tags()
+                              : potentialWrite ? Usage::Tag::WritableRef : Usage::Tag::Read;
         if (pathIt->kind() == "CXXMemberCall") {
             const auto children = pathIt->children();
             if (children && children->size() == 1
                     && children->first() == path.last()
                     && children->first().arcanaContains("bound member function")) {
-                return Usage::Type::Other;
+                return {};
             }
-            return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
+            return isPotentialWrite() ? Usage::Tag::WritableRef : Usage::Tag::Read;
         }
         if ((pathIt->kind() == "DeclRef" || pathIt->kind() == "Member")
                 && pathIt->arcanaContains("lvalue")) {
@@ -385,25 +553,54 @@ static Usage::Type getUsageType(const ClangdAstPath &path)
         }
         if (pathIt->role() == "declaration") {
             if (symbolIsDataType)
-                return Usage::Type::Other;
+                return {};
+            if (!expectedDeclTypes.isEmpty() && !expectedDeclTypes.contains(pathIt->kind()))
+                return {};
+            if (!invokedConstructor.isEmpty() && invokedConstructor == searchTerm)
+                return Usage::Tag::ConstructorDestructor;
             if (pathIt->arcanaContains("cinit")) {
                 if (pathIt == path.rbegin())
-                    return Usage::Type::Initialization;
+                    return {Usage::Tag::Declaration, Usage::Tag::Write};
                 if (pathIt->childContainsRange(0, path.last().range()))
-                    return Usage::Type::Initialization;
+                    return {Usage::Tag::Declaration, Usage::Tag::Write};
                 if (isFunction)
-                    return Usage::Type::Read;
+                    return Usage::Tag::Read;
                 if (!pathIt->hasConstType())
-                    return Usage::Type::WritableRef;
-                return Usage::Type::Read;
+                    return Usage::Tag::WritableRef;
+                return Usage::Tag::Read;
             }
-            return Usage::Type::Declaration;
+            Usage::Tags tags = Usage::Tag::Declaration;
+            if (pathIt->arcanaContains(" used ") || pathIt->arcanaContains(" referenced "))
+                tags |= Usage::Tag::Used;
+            if (pathIt->kind() == "CXXConstructor" || pathIt->kind() == "CXXDestructor")
+                tags |= Usage::Tag::ConstructorDestructor;
+            const auto children = pathIt->children().value_or(QList<ClangdAstNode>());
+            for (const ClangdAstNode &child : children) {
+                if (child.role() == "attribute") {
+                    if (child.kind() == "Override" || child.kind() == "Final")
+                        tags |= Usage::Tag::Override;
+                    else if (child.kind() == "Annotate" && child.arcanaContains("qt_"))
+                        tags |= Usage::Tag::MocInvokable;
+                }
+            }
+            if (isSomeSortOfTemplate(pathIt))
+                tags |= Usage::Tag::Template;
+            if (pathIt->kind() == "Function" || pathIt->kind() == "CXXMethod") {
+                const QString detail = pathIt->detail().value_or(QString());
+                static const QString opString(QLatin1String("operator"));
+                if (detail.size() > opString.size() && detail.startsWith(opString)
+                        && !detail.at(opString.size()).isLetterOrNumber()
+                        && detail.at(opString.size()) != '_') {
+                    tags |= Usage::Tag::Operator;
+                }
+            }
+            return tags;
         }
         if (pathIt->kind() == "MemberInitializer")
-            return pathIt == path.rbegin() ? Usage::Type::Write : Usage::Type::Read;
+            return pathIt == path.rbegin() ? Usage::Tag::Write : Usage::Tag::Read;
         if (pathIt->kind() == "UnaryOperator"
                 && (pathIt->detailIs("++") || pathIt->detailIs("--"))) {
-            return Usage::Type::Write;
+            return Usage::Tag::Write;
         }
 
         // LLVM uses BinaryOperator only for built-in types; for classes, CXXOperatorCall
@@ -412,30 +609,45 @@ static Usage::Type getUsageType(const ClangdAstPath &path)
         const bool isBinaryOp = pathIt->kind() == "BinaryOperator";
         const bool isOpCall = pathIt->kind() == "CXXOperatorCall";
         if (isBinaryOp || isOpCall) {
-            if (isOpCall && symbolIsDataType) // Constructor invocation.
-                return Usage::Type::Other;
+            if (isOpCall && symbolIsDataType) { // Constructor invocation.
+                if (searchTerm == invokedConstructor)
+                    return Usage::Tag::ConstructorDestructor;
+                return {};}
 
             const QString op = pathIt->operatorString();
             if (op.endsWith("=") && op != "==") { // Assignment.
                 const int lhsIndex = isBinaryOp ? 0 : 1;
                 if (pathIt->childContainsRange(lhsIndex, path.last().range()))
-                    return Usage::Type::Write;
-                return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
+                    return Usage::Tag::Write;
+                return isPotentialWrite() ? Usage::Tag::WritableRef : Usage::Tag::Read;
             }
-            return Usage::Type::Read;
+            return Usage::Tag::Read;
         }
 
         if (pathIt->kind() == "ImplicitCast") {
             if (pathIt->detailIs("FunctionToPointerDecay"))
-                return Usage::Type::Other;
+                return {};
             if (pathIt->hasConstType())
-                return Usage::Type::Read;
+                return Usage::Tag::Read;
             potentialWrite = true;
             continue;
         }
     }
 
-    return Usage::Type::Other;
+    return {};
+}
+
+ClangdFindReferences::CheckUnusedData::~CheckUnusedData()
+{
+    if (!serverRestarted) {
+        if (openedExtraFileForLink && q->d->client() && q->d->client()->reachable()
+                && !q->d->client()->documentForFilePath(link.targetFilePath)) {
+            q->d->client()->closeExtraFile(link.targetFilePath);
+        }
+        if (!q->d->canceled && (!declHasUsedTag || recursiveCallDetected) && QTC_GUARD(search))
+            search->addResults(declDefItems, SearchResult::AddOrdered);
+    }
+    callback(link);
 }
 
 class ClangdFindLocalReferences::Private
@@ -444,7 +656,7 @@ public:
     Private(ClangdFindLocalReferences *q, TextDocument *document, const QTextCursor &cursor,
             const RenameCallback &callback)
         : q(q), document(document), cursor(cursor), callback(callback),
-          uri(DocumentUri::fromFilePath(document->filePath())),
+          uri(client()->hostPathToServerUri(document->filePath())),
           revision(document->document()->revision())
     {}
 
@@ -546,7 +758,12 @@ void ClangdFindLocalReferences::Private::checkDefinitionAst(const ClangdAstNode 
 void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> &references)
 {
     qCDebug(clangdLog) << "found" << references.size() << "local references";
-    const Utils::Links links = Utils::transform(references, &Location::toLink);
+
+    const auto transformLocation = [mapper = client()->hostPathMapper()](const Location &loc) {
+        return loc.toLink(mapper);
+    };
+
+    const Utils::Links links = Utils::transform(references, transformLocation);
 
     // The callback only uses the symbol length, so we just create a dummy.
     // Note that the calculation will be wrong for identifiers with

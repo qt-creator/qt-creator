@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsreformatter.h"
 #include "qmljscodeformatter.h"
@@ -273,7 +273,7 @@ protected:
             const int minContentLength = 10;
 
             qreal result = badnessFromSplits;
-            foreach (const QString &line, lines) {
+            for (const QString &line : std::as_const(lines)) {
                 // really long lines should be avoided at all cost
                 if (line.size() > strongMaxLineLength) {
                     result += 50 + (line.size() - strongMaxLineLength);

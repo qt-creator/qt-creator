@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -13,44 +13,29 @@
 #include <utils/temporarydirectory.h>
 
 #include <QElapsedTimer>
-#include <QFutureInterface>
 #include <QSet>
-#include <QStringList>
+
+namespace Utils { class TaskTree; }
 
 namespace ClangTools {
 namespace Internal {
 
-class ClangToolRunner;
+struct AnalyzeOutputData;
+class ClangTool;
 class ProjectBuilder;
-
-struct AnalyzeUnit {
-    AnalyzeUnit(const FileInfo &fileInfo,
-                const Utils::FilePath &clangResourceDir,
-                const QString &clangVersion);
-
-    QString file;
-    QStringList arguments; // without file itself and "-o somePath"
-};
-using AnalyzeUnits = QList<AnalyzeUnit>;
-
-using RunnerCreator = std::function<ClangToolRunner*()>;
-
-struct QueueItem {
-    AnalyzeUnit unit;
-    RunnerCreator runnerCreator;
-};
-using QueueItems = QList<QueueItem>;
 
 class ClangToolRunWorker : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
+    ClangToolRunWorker(ClangTool *tool,
+                       ProjectExplorer::RunControl *runControl,
                        const RunSettings &runSettings,
                        const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                        const FileInfos &fileInfos,
                        bool buildBeforeAnalysis);
+    ~ClangToolRunWorker();
 
     int filesAnalyzed() const { return m_filesAnalyzed.size(); }
     int filesNotAnalyzed() const { return m_filesNotAnalyzed.size(); }
@@ -61,30 +46,14 @@ signals:
     void runnerFinished();
     void startFailed();
 
-protected:
-    void onRunnerFinishedWithSuccess(ClangToolRunner *runner, const QString &filePath);
-    void onRunnerFinishedWithFailure(ClangToolRunner *runner, const QString &errorMessage,
-                                     const QString &errorDetails);
-
 private:
     void start() final;
     void stop() final;
-
-    QList<RunnerCreator> runnerCreators();
-    template <class T> ClangToolRunner *createRunner();
-
-    AnalyzeUnits unitsToAnalyze(const Utils::FilePath &clangIncludeDir,
-                                const QString &clangVersion);
-    void analyzeNextFile();
-
-    void handleFinished(ClangToolRunner *runner);
-
-    void onProgressCanceled();
-    void updateProgressValue();
-
+    void onDone(const AnalyzeOutputData &output);
     void finalize();
 
 private:
+    ClangTool * const m_tool;
     RunSettings m_runSettings;
     CppEditor::ClangDiagnosticConfig m_diagnosticConfig;
     FileInfos m_fileInfos;
@@ -98,13 +67,10 @@ private:
     QString m_targetTriple;
     Utils::Id m_toolChainType;
 
-    QFutureInterface<void> m_progress;
-    QueueItems m_queue;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
     QSet<Utils::FilePath> m_projectFiles;
-    QSet<ClangToolRunner *> m_runners;
-    int m_initialQueueSize = 0;
-    QSet<QString> m_filesAnalyzed;
-    QSet<QString> m_filesNotAnalyzed;
+    QSet<Utils::FilePath> m_filesAnalyzed;
+    QSet<Utils::FilePath> m_filesNotAnalyzed;
 
     QElapsedTimer m_elapsed;
 };

@@ -1,10 +1,14 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "webassemblyplugin.h"
+
+#ifdef WITH_TESTS
+#include "webassembly_test.h"
+#endif // WITH_TESTS
 #include "webassemblyconstants.h"
 #include "webassemblydevice.h"
 #include "webassemblyoptionspage.h"
-#include "webassemblyplugin.h"
 #include "webassemblyqtversion.h"
 #include "webassemblyrunconfiguration.h"
 #include "webassemblytoolchain.h"
@@ -25,8 +29,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 class WebAssemblyPluginPrivate
 {
@@ -35,11 +38,7 @@ public:
     WebAssemblyDeviceFactory deviceFactory;
     WebAssemblyQtVersionFactory qtVersionFactory;
     EmrunRunConfigurationFactory emrunRunConfigurationFactory;
-    RunWorkerFactory emrunRunWorkerFactory{
-        makeEmrunWorker(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN}
-    };
+    EmrunRunWorkerFactory emrunRunWorkerFactory;
     WebAssemblyOptionsPage optionsPage;
 };
 
@@ -56,14 +55,13 @@ WebAssemblyPlugin::~WebAssemblyPlugin()
     dd = nullptr;
 }
 
-bool WebAssemblyPlugin::initialize(const QStringList& arguments, QString* errorString)
+void WebAssemblyPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     dd = new WebAssemblyPluginPrivate;
 
-    return true;
+#ifdef WITH_TESTS
+    addTest<WebAssemblyTest>();
+#endif // WITH_TESTS
 }
 
 void WebAssemblyPlugin::extensionsInitialized()
@@ -94,5 +92,4 @@ void WebAssemblyPlugin::askUserAboutEmSdkSetup()
     ICore::infoBar()->addInfo(info);
 }
 
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal

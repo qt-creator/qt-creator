@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Alexis Jeandet.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,7 +17,7 @@ public:
     ~MesonProjectPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     class MesonProjectPluginPrivate *d = nullptr;
 };

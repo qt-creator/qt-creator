@@ -1,12 +1,12 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iossettingswidget.h"
 
 #include "createsimulatordialog.h"
 #include "iosconfigurations.h"
-
 #include "iosconfigurations.h"
+#include "iostr.h"
 #include "simulatorcontrol.h"
 #include "simulatorinfomodel.h"
 #include "simulatoroperationdialog.h"
@@ -16,7 +16,6 @@
 #include <utils/pathchooser.h>
 #include <utils/runextensions.h>
 
-#include <QApplication>
 #include <QCheckBox>
 #include <QDateTime>
 #include <QGroupBox>
@@ -29,11 +28,11 @@
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 
-static const int simStartWarnCount = 4;
+using namespace std::placeholders;
 
 namespace Ios::Internal {
 
-using namespace std::placeholders;
+const int simStartWarnCount = 4;
 
 static SimulatorInfoList selectedSimulators(const QTreeView *deviceTreeView)
 {
@@ -53,29 +52,29 @@ static void onSimOperation(const SimulatorInfo &simInfo, SimulatorOperationDialo
 IosSettingsWidget::IosSettingsWidget()
 {
     resize(622, 456);
-    setWindowTitle(tr("iOS Configuration"));
+    setWindowTitle(Tr::tr("iOS Configuration"));
 
-    m_deviceAskCheckBox = new QCheckBox(tr("Ask about devices not in developer mode"));
+    m_deviceAskCheckBox = new QCheckBox(Tr::tr("Ask about devices not in developer mode"));
     m_deviceAskCheckBox->setChecked(!IosConfigurations::ignoreAllDevices());
 
-    m_renameButton = new QPushButton(tr("Rename"));
+    m_renameButton = new QPushButton(Tr::tr("Rename"));
     m_renameButton->setEnabled(false);
-    m_renameButton->setToolTip(tr("Rename a simulator device."));
+    m_renameButton->setToolTip(Tr::tr("Rename a simulator device."));
 
-    m_deleteButton = new QPushButton(tr("Delete"));
+    m_deleteButton = new QPushButton(Tr::tr("Delete"));
     m_deleteButton->setEnabled(false);
-    m_deleteButton->setToolTip(tr("Delete simulator devices."));
+    m_deleteButton->setToolTip(Tr::tr("Delete simulator devices."));
 
-    m_resetButton = new QPushButton(tr("Reset"));
+    m_resetButton = new QPushButton(Tr::tr("Reset"));
     m_resetButton->setEnabled(false);
-    m_resetButton->setToolTip(tr("Reset contents and settings of simulator devices."));
+    m_resetButton->setToolTip(Tr::tr("Reset contents and settings of simulator devices."));
 
-    auto createButton = new QPushButton(tr("Create"));
-    createButton->setToolTip(tr("Create a new simulator device."));
+    auto createButton = new QPushButton(Tr::tr("Create"));
+    createButton->setToolTip(Tr::tr("Create a new simulator device."));
 
-    m_startButton = new QPushButton(tr("Start"));
+    m_startButton = new QPushButton(Tr::tr("Start"));
     m_startButton->setEnabled(false);
-    m_startButton->setToolTip(tr("Start simulator devices."));
+    m_startButton->setToolTip(Tr::tr("Start simulator devices."));
 
     auto proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(new SimulatorInfoModel(this));
@@ -92,17 +91,17 @@ IosSettingsWidget::IosSettingsWidget()
     m_pathWidget->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_pathWidget->lineEdit()->setReadOnly(true);
     m_pathWidget->setFilePath(IosConfigurations::screenshotDir());
-    m_pathWidget->addButton(tr("Screenshot"), this,
-                                std::bind(&IosSettingsWidget::onScreenshot, this));
+    m_pathWidget->addButton(Tr::tr("Screenshot"), this,
+                            std::bind(&IosSettingsWidget::onScreenshot, this));
 
     using namespace Utils::Layouting;
     Column {
         Group {
-            title(tr("Devices")),
+            title(Tr::tr("Devices")),
             Row { m_deviceAskCheckBox }
         },
         Group {
-            title(tr("Simulator")),
+            title(Tr::tr("Simulator")),
             Column {
                 Row {
                     m_deviceView,
@@ -117,7 +116,7 @@ IosSettingsWidget::IosSettingsWidget()
                     },
                 },
                 hr,
-                Row { tr("Screenshot directory:"), m_pathWidget }
+                Row { Tr::tr("Screenshot directory:"), m_pathWidget }
             }
         }
     }.attachTo(this);
@@ -151,10 +150,11 @@ void IosSettingsWidget::onStart()
         return;
 
     if (simulatorInfoList.count() > simStartWarnCount) {
-        const QString message = tr("You are trying to launch %n simulators simultaneously. This "
-                                   "will take significant system resources. Do you really want to "
-                                   "continue?", "", simulatorInfoList.count());
-        const int buttonCode = QMessageBox::warning(this, tr("Simulator Start"), message,
+        const QString message =
+            Tr::tr("You are trying to launch %n simulators simultaneously. This "
+                                       "will take significant system resources. Do you really want to "
+                                       "continue?", "", simulatorInfoList.count());
+        const int buttonCode = QMessageBox::warning(this, Tr::tr("Simulator Start"), message,
                                                     QMessageBox::Ok | QMessageBox::Abort,
                                                     QMessageBox::Abort);
 
@@ -164,19 +164,19 @@ void IosSettingsWidget::onStart()
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
-    statusDialog->addMessage(tr("Starting %n simulator device(s)...", "", simulatorInfoList.count()),
+    statusDialog->addMessage(Tr::tr("Starting %n simulator device(s)...", "", simulatorInfoList.count()),
                              Utils::NormalMessageFormat);
 
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         if (!info.isShutdown()) {
-            statusDialog->addMessage(tr("Cannot start simulator (%1, %2) in current state: %3")
+            statusDialog->addMessage(Tr::tr("Cannot start simulator (%1, %2) in current state: %3")
                                     .arg(info.name).arg(info.runtimeName).arg(info.state),
                                     Utils::StdErrFormat);
         } else {
             futureList << QFuture<void>(Utils::onResultReady(
                 SimulatorControl::startSimulator(info.identifier),
-                std::bind(onSimOperation, info, statusDialog, tr("simulator start"), _1)));
+                std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator start"), _1)));
         }
     }
 
@@ -192,14 +192,14 @@ void IosSettingsWidget::onCreate()
 {
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
-    statusDialog->addMessage(tr("Creating simulator device..."), Utils::NormalMessageFormat);
+    statusDialog->addMessage(Tr::tr("Creating simulator device..."), Utils::NormalMessageFormat);
     const auto onSimulatorCreate = [statusDialog](const QString &name,
             const SimulatorControl::ResponseData &response) {
         if (response.success) {
-            statusDialog->addMessage(tr("Simulator device (%1) created.\nUDID: %2")
+            statusDialog->addMessage(Tr::tr("Simulator device (%1) created.\nUDID: %2")
                                     .arg(name).arg(response.simUdid), Utils::StdOutFormat);
         } else {
-            statusDialog->addMessage(tr("Simulator device (%1) creation failed.\nError: %2").
+            statusDialog->addMessage(Tr::tr("Simulator device (%1) creation failed.\nError: %2").
                                     arg(name).arg(response.commandOutput),
                                     Utils::StdErrFormat);
         }
@@ -227,8 +227,8 @@ void IosSettingsWidget::onReset()
     if (simulatorInfoList.isEmpty())
         return;
 
-    const int userInput = QMessageBox::question(this, tr("Reset"),
-                                          tr("Do you really want to reset the contents and settings"
+    const int userInput = QMessageBox::question(this, Tr::tr("Reset"),
+                                      Tr::tr("Do you really want to reset the contents and settings"
                                              " of the %n selected device(s)?", "",
                                              simulatorInfoList.count()));
     if (userInput == QMessageBox::No)
@@ -236,13 +236,14 @@ void IosSettingsWidget::onReset()
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
-    statusDialog->addMessage(tr("Resetting contents and settings..."), Utils::NormalMessageFormat);
+    statusDialog->addMessage(Tr::tr("Resetting contents and settings..."),
+                             Utils::NormalMessageFormat);
 
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
             SimulatorControl::resetSimulator(info.identifier),
-            std::bind(onSimOperation, info, statusDialog, tr("simulator reset"), _1)));
+            std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator reset"), _1)));
     }
 
     statusDialog->addFutures(futureList);
@@ -260,17 +261,17 @@ void IosSettingsWidget::onRename()
         return;
 
     const SimulatorInfo &simInfo = simulatorInfoList.at(0);
-    const QString newName = QInputDialog::getText(this, tr("Rename %1").arg(simInfo.name),
-                                            tr("Enter new name:"));
+    const QString newName = QInputDialog::getText(this, Tr::tr("Rename %1").arg(simInfo.name),
+                                                  Tr::tr("Enter new name:"));
     if (newName.isEmpty())
         return;
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
-    statusDialog->addMessage(tr("Renaming simulator device..."), Utils::NormalMessageFormat);
+    statusDialog->addMessage(Tr::tr("Renaming simulator device..."), Utils::NormalMessageFormat);
     QFuture<void> f = QFuture<void>(Utils::onResultReady(
         SimulatorControl::renameSimulator(simInfo.identifier, newName),
-        std::bind(onSimOperation, simInfo, statusDialog, tr("simulator rename"), _1)));
+        std::bind(onSimOperation, simInfo, statusDialog, Tr::tr("simulator rename"), _1)));
     statusDialog->addFutures({f});
     statusDialog->exec(); // Modal dialog returns only when all the operations are done or cancelled.
 }
@@ -285,21 +286,22 @@ void IosSettingsWidget::onDelete()
     if (simulatorInfoList.isEmpty())
         return;
 
-    const int userInput = QMessageBox::question(this, tr("Delete Device"),
-                                                tr("Do you really want to delete the %n selected "
-                                                   "device(s)?", "", simulatorInfoList.count()));
+    const int userInput =
+        QMessageBox::question(this, Tr::tr("Delete Device"),
+                                    Tr::tr("Do you really want to delete the %n selected "
+                                           "device(s)?", "", simulatorInfoList.count()));
     if (userInput == QMessageBox::No)
         return;
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
-    statusDialog->addMessage(tr("Deleting %n simulator device(s)...", "", simulatorInfoList.count()),
+    statusDialog->addMessage(Tr::tr("Deleting %n simulator device(s)...", "", simulatorInfoList.count()),
                              Utils::NormalMessageFormat);
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
             SimulatorControl::deleteSimulator(info.identifier),
-            std::bind(onSimOperation, info, statusDialog, tr("simulator delete"), _1)));
+            std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator delete"), _1)));
     }
 
     statusDialog->addFutures(futureList);
@@ -324,13 +326,13 @@ void IosSettingsWidget::onScreenshot()
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
-    statusDialog->addMessage(tr("Capturing screenshots from %n device(s)...", "",
-                                simulatorInfoList.count()), Utils::NormalMessageFormat);
+    statusDialog->addMessage(Tr::tr("Capturing screenshots from %n device(s)...", "",
+                                    simulatorInfoList.count()), Utils::NormalMessageFormat);
     QList<QFuture<void>> futureList;
     for (const SimulatorInfo &info : simulatorInfoList) {
         futureList << QFuture<void>(Utils::onResultReady(
             SimulatorControl::takeSceenshot(info.identifier, generatePath(info)),
-            std::bind(onSimOperation, info, statusDialog, tr("simulator screenshot"), _1)));
+            std::bind(onSimOperation, info, statusDialog, Tr::tr("simulator screenshot"), _1)));
     }
 
     statusDialog->addFutures(futureList);

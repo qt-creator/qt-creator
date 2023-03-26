@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsoutputwindow.h"
 
+#include "vcsbasetr.h"
 #include "vcsoutputformatter.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -12,14 +13,12 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QContextMenuEvent>
-#include <QDir>
-#include <QFileInfo>
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QPoint>
@@ -125,7 +124,7 @@ QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos
     cursor.select(QTextCursor::BlockUnderCursor);
     if (!cursor.hasSelection())
         return QString();
-    QString block = cursor.selectedText();
+    const QString block = cursor.selectedText();
     // Determine cursor position within line and find blank-delimited word
     const int cursorPos = cursorDocumentPos - cursor.block().position();
     const int blockSize = block.size();
@@ -162,7 +161,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
             repo = repo.pathAppended(token);
         if (repo.isFile())  {
             menu->addSeparator();
-            openAction = menu->addAction(VcsOutputWindow::tr("Open \"%1\"").arg(repo.nativePath()));
+            openAction = menu->addAction(Tr::tr("Open \"%1\"").arg(repo.nativePath()));
             openAction->setData(repo.absoluteFilePath().toVariant());
         }
     }
@@ -170,7 +169,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
     if (href.isEmpty()) {
         // Add 'clear'
         menu->addSeparator();
-        clearAction = menu->addAction(VcsOutputWindow::tr("Clear"));
+        clearAction = menu->addAction(Tr::tr("Clear"));
     }
 
     // Run
@@ -330,7 +329,7 @@ QWidget *VcsOutputWindow::outputWidget(QWidget *parent)
 
 QString VcsOutputWindow::displayName() const
 {
-    return tr("Version Control");
+    return Tr::tr("Version Control");
 }
 
 int VcsOutputWindow::priorityInStatusBar() const
@@ -444,8 +443,8 @@ QString VcsOutputWindow::msgExecutionLogEntry(const FilePath &workingDir, const 
     const QString maskedCmdline = ProcessArgs::quoteArg(command.executable().toUserOutput())
             + ' ' + formatArguments(command.splitArguments());
     if (workingDir.isEmpty())
-        return tr("Running: %1").arg(maskedCmdline) + '\n';
-    return tr("Running in %1: %2").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
+        return Tr::tr("Running: %1").arg(maskedCmdline) + '\n';
+    return Tr::tr("Running in %1: %2").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
 }
 
 void VcsOutputWindow::appendShellCommandLine(const QString &text)

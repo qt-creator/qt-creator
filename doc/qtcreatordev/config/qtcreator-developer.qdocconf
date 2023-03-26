@@ -16,12 +16,14 @@ headerdirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
                           ../../../src/libs/extensionsystem \
+                          ../../../src/libs/utils \
                           ../../../src/plugins/coreplugin
 
 sourcedirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \
                           ../../../src/libs/extensionsystem \
+                          ../../../src/libs/utils \
                           ../../../src/plugins/coreplugin
 
 

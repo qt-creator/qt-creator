@@ -1,11 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gtestframework.h"
 
 #include "../autotesttr.h"
 #include "gtesttreeitem.h"
 #include "gtestparser.h"
+
+#include <QRegularExpression>
 
 namespace Autotest {
 namespace Internal {
@@ -25,10 +27,7 @@ ITestParser *GTestFramework::createTestParser()
 
 ITestTreeItem *GTestFramework::createRootNode()
 {
-    return new GTestTreeItem(
-                this,
-                displayName(),
-                Utils::FilePath(), ITestTreeItem::Root);
+    return new GTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 const char *GTestFramework::name() const
@@ -60,6 +59,16 @@ QString GTestFramework::groupingToolTip() const
 GTest::Constants::GroupMode GTestFramework::groupMode()
 {
     return GTest::Constants::GroupMode(g_settings->groupMode.itemValue().toInt());
+}
+
+QStringList GTestFramework::testNameForSymbolName(const QString &symbolName) const
+{
+    static const QRegularExpression r("^(.+::)?((DISABLED_)?.+?)_((DISABLED_)?.+)_Test::TestBody$");
+    const QRegularExpressionMatch match = r.match(symbolName);
+    if (!match.hasMatch())
+        return {};
+
+    return { match.captured(2), match.captured(4) };
 }
 
 } // namespace Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -29,7 +29,7 @@ public:
     CppEditor::BaseEditorDocumentParser::Configuration parserConfig();
 
 public:
-    static ClangEditorDocumentProcessor *get(const QString &filePath);
+    static ClangEditorDocumentProcessor *get(const Utils::FilePath &filePath);
 
 signals:
     void parserConfigChanged(const Utils::FilePath &filePath,

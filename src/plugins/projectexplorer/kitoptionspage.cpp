@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "kitoptionspage.h"
 
@@ -7,7 +7,7 @@
 #include "kitmodel.h"
 #include "kit.h"
 #include "projectexplorerconstants.h"
-#include "projectexplorericons.h"
+#include "projectexplorertr.h"
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
@@ -29,8 +29,6 @@ namespace Internal {
 
 class KitOptionsPageWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjextExplorer::Internal::KitOptionsPageWidget)
-
 public:
     KitOptionsPageWidget();
 
@@ -66,14 +64,14 @@ KitOptionsPageWidget::KitOptionsPageWidget()
     m_kitsView->setSizePolicy(m_kitsView->sizePolicy().horizontalPolicy(),
                               QSizePolicy::Ignored);
 
-    m_addButton = new QPushButton(tr("Add"), this);
-    m_cloneButton = new QPushButton(tr("Clone"), this);
-    m_delButton = new QPushButton(tr("Remove"), this);
-    m_makeDefaultButton = new QPushButton(tr("Make Default"), this);
-    m_filterButton = new QPushButton(tr("Settings Filter..."), this);
-    m_filterButton->setToolTip(tr("Choose which settings to display for this kit."));
-    m_defaultFilterButton = new QPushButton(tr("Default Settings Filter..."), this);
-    m_defaultFilterButton->setToolTip(tr("Choose which kit settings to display by default."));
+    m_addButton = new QPushButton(Tr::tr("Add"), this);
+    m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
+    m_delButton = new QPushButton(Tr::tr("Remove"), this);
+    m_makeDefaultButton = new QPushButton(Tr::tr("Make Default"), this);
+    m_filterButton = new QPushButton(Tr::tr("Settings Filter..."), this);
+    m_filterButton->setToolTip(Tr::tr("Choose which settings to display for this kit."));
+    m_defaultFilterButton = new QPushButton(Tr::tr("Default Settings Filter..."), this);
+    m_defaultFilterButton->setToolTip(Tr::tr("Choose which kit settings to display by default."));
 
     auto buttonLayout = new QVBoxLayout;
     buttonLayout->setSpacing(6);
@@ -247,9 +245,9 @@ KitOptionsPage::KitOptionsPage()
 {
     theKitOptionsPage = this;
     setId(Constants::KITS_SETTINGS_PAGE_ID);
-    setDisplayName(Internal::KitOptionsPageWidget::tr("Kits"));
+    setDisplayName(Tr::tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Kits"));
+    setDisplayCategory(Tr::tr("Kits"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");
 }
 

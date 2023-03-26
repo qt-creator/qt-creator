@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -21,9 +21,9 @@ public:
 
     void update();
 
-    Utils::FilePath overlayFilePath();
-    Utils::FilePath autoSavedFilePath(Core::IDocument *doc);
-    Utils::FilePath originalFilePath(const Utils::FilePath &file);
+    Utils::FilePath overlayFilePath() const;
+    Utils::FilePath autoSavedFilePath(Core::IDocument *doc) const;
+    Utils::FilePath originalFilePath(const Utils::FilePath &file) const;
 
 private:
     Utils::TemporaryDirectory m_root;

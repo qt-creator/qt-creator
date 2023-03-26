@@ -1,7 +1,8 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcukitinformation.h"
+#include "mcusupporttr.h"
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <utils/algorithm.h>
@@ -21,7 +22,7 @@ public:
 
     void makeReadOnly() override {}
     void refresh() override {}
-    void addToLayout(Utils::LayoutBuilder &) override {}
+    void addToLayout(Utils::Layouting::LayoutBuilder &) override {}
 };
 
 } // anonymous namespace
@@ -33,8 +34,8 @@ McuDependenciesKitAspect::McuDependenciesKitAspect()
 {
     setObjectName(QLatin1String("McuDependenciesKitAspect"));
     setId(McuDependenciesKitAspect::id());
-    setDisplayName(tr("MCU Dependencies"));
-    setDescription(tr("Paths to 3rd party dependencies"));
+    setDisplayName(Tr::tr("MCU Dependencies"));
+    setDescription(Tr::tr("Paths to 3rd party dependencies"));
     setPriority(28500);
 }
 
@@ -48,7 +49,7 @@ Tasks McuDependenciesKitAspect::validate(const Kit *kit) const
     if (!checkFormat.isValid() || checkFormat.isNull())
         return result;
     if (!checkFormat.canConvert(QVariant::List))
-        return {BuildSystemTask(Task::Error, tr("The MCU dependencies setting value is invalid."))};
+        return {BuildSystemTask(Task::Error, Tr::tr("The MCU dependencies setting value is invalid."))};
 
     // check paths defined in cmake variables for given dependencies exist
     const auto cMakeEntries = Utils::NameValueDictionary(configuration(kit));
@@ -56,12 +57,12 @@ Tasks McuDependenciesKitAspect::validate(const Kit *kit) const
         auto givenPath = Utils::FilePath::fromUserInput(cMakeEntries.value(dependency.name));
         if (givenPath.isEmpty()) {
             result << BuildSystemTask(Task::Warning,
-                                      tr("CMake variable %1 not defined.").arg(dependency.name));
+                                      Tr::tr("CMake variable %1 not defined.").arg(dependency.name));
         } else {
             const auto detectionPath = givenPath.resolvePath(dependency.value);
             if (!detectionPath.exists()) {
                 result << BuildSystemTask(Task::Warning,
-                                          tr("CMake variable %1: path %2 does not exist.")
+                                          Tr::tr("CMake variable %1: path %2 does not exist.")
                                               .arg(dependency.name, detectionPath.toUserOutput()));
             }
         }

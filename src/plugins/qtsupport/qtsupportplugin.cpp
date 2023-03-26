@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtsupportplugin.h"
 
 #include "codegenerator.h"
 #include "codegensettingspage.h"
+#include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
 #include "profilereader.h"
 #include "qscxmlcgenerator.h"
@@ -27,9 +28,12 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <proparser/qmakeevaluator.h>
+
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcprocess.h>
 
 using namespace Core;
 using namespace Utils;
@@ -58,6 +62,9 @@ public:
 
     UicGeneratorFactory uicGeneratorFactory;
     QScxmlcGeneratorFactory qscxmlcGeneratorFactory;
+
+    DesignerExternalEditor designerEditor;
+    LinguistEditor linguistEditor;
 };
 
 QtSupportPlugin::~QtSupportPlugin()
@@ -65,10 +72,28 @@ QtSupportPlugin::~QtSupportPlugin()
     delete d;
 }
 
-bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+static void processRunnerCallback(ProcessData *data)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+    FilePath rootPath = FilePath::fromString(data->deviceRoot);
+
+    QtcProcess proc;
+    proc.setProcessChannelMode(data->processChannelMode);
+    proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
+    proc.setWorkingDirectory(FilePath::fromString(data->workingDirectory));
+    proc.setEnvironment(Environment(data->environment.toStringList(), OsTypeLinux));
+
+    proc.runBlocking();
+
+    data->exitCode = proc.exitCode();
+    data->exitStatus = proc.exitStatus();
+    data->stdErr = proc.readAllRawStandardError();
+    data->stdOut = proc.readAllRawStandardOutput();
+}
+
+void QtSupportPlugin::initialize()
+{
+    theProcessRunner() = processRunnerCallback;
+
     QMakeParser::initialize();
     ProFileEvaluator::initialize();
     new ProFileCacheManager(this);
@@ -80,8 +105,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     d = new QtSupportPluginPrivate;
 
     QtVersionManager::initialized();
-
-    return true;
 }
 
 const char kLinkWithQtInstallationSetting[] = "LinkWithQtInstallation";

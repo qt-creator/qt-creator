@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iassistproposal.h"
 
@@ -63,16 +63,6 @@ int IAssistProposal::basePosition() const
     return m_basePosition;
 }
 
-bool IAssistProposal::isFragile() const
-{
-    return m_isFragile;
-}
-
-bool IAssistProposal::supportsPrefix() const
-{
-    return m_supportsPrefix;
-}
-
 /*!
     \fn bool TextEditor::IAssistProposal::isCorrective() const
 
@@ -96,16 +86,6 @@ bool IAssistProposal::isCorrective(TextEditorWidget *editorWidget) const
 void IAssistProposal::makeCorrection(TextEditorWidget *editorWidget)
 {
     Q_UNUSED(editorWidget)
-}
-
-void IAssistProposal::setFragile(bool fragile)
-{
-    m_isFragile = fragile;
-}
-
-void IAssistProposal::setSupportsPrefix(bool supportsPrefix)
-{
-    m_supportsPrefix = supportsPrefix;
 }
 
 /*!

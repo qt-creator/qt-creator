@@ -1,12 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <extensionsystem/iplugin.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerSettings;
 
@@ -22,10 +21,8 @@ private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
-    QVector<QObject *> createTestObjects() const final;
 
     class QmlProfilerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // QmlProfiler::Internal

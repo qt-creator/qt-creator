@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlproject.h"
 
@@ -7,6 +7,7 @@
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagerconstants.h"
+#include "qmlprojectmanagertr.h"
 #include "qmlprojectnodes.h"
 
 #include <coreplugin/coreconstants.h>
@@ -132,7 +133,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                                   });
                               } else {
                                   Utils::FilePaths uiFiles = collectUiQmlFilesForFolder(
-                                      projectDirectory() + "/content");
+                                      projectDirectory().pathAppended("content"));
                                   if (uiFiles.isEmpty())
                                       uiFiles = collectUiQmlFilesForFolder(projectDirectory());
 
@@ -173,7 +174,8 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
 // FIXME: Check. Probably bogus after the BuildSystem move.
 //    // addedTarget calls updateEnabled on the runconfigurations
 //    // which needs to happen after refresh
-//    foreach (Target *t, targets())
+//    const QLis<Target> targetList = targets();
+//    for (Target *t : targetList)
 //        addedTarget(t);
 
     connect(target->project(), &Project::activeTargetChanged,
@@ -221,14 +223,14 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
 
             } else {
                 MessageManager::writeFlashing(
-                    tr("Error while loading project file %1.").arg(projectFilePath().toUserOutput()));
+                    Tr::tr("Error while loading project file %1.").arg(projectFilePath().toUserOutput()));
                 MessageManager::writeSilently(errorMessage);
             }
         }
         if (m_projectItem) {
-            m_projectItem->setSourceDirectory(canonicalProjectDir().toString());
+            m_projectItem->setSourceDirectory(canonicalProjectDir());
             if (m_projectItem->targetDirectory().isEmpty())
-                m_projectItem->setTargetDirectory(canonicalProjectDir().toString());
+                m_projectItem->setTargetDirectory(canonicalProjectDir());
 
             if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
                 QStringList files = m_projectItem->files();
@@ -246,7 +248,7 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
                 Utils::FileReader reader;
                 QString errorMessage;
                 if (!reader.fetch(Utils::FilePath::fromString(mainFilePath), &errorMessage)) {
-                    MessageManager::writeFlashing(tr("Warning while loading project file %1.")
+                    MessageManager::writeFlashing(Tr::tr("Warning while loading project file %1.")
                                                       .arg(projectFilePath().toUserOutput()));
                     MessageManager::writeSilently(errorMessage);
                 }
@@ -260,7 +262,9 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
     }
 }
 
-bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting, const Utils::FilePath &mainFilePath, const QString &oldFile)
+bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
+                                                 const FilePath &mainFilePath,
+                                                 const FilePath &oldFile)
 {
     // make sure to change it also in the qmlproject file
     const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
@@ -293,7 +297,7 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting, const U
         auto index = fileContent.lastIndexOf("}");
         fileContent.insert(index, addedText);
     } else {
-        QString originalFileName = oldFile;
+        QString originalFileName = oldFile.path();
         originalFileName.replace(".", "\\.");
         const QRegularExpression expression(QString("%1\\s*\"(%2)\"").arg(settingQmlCode).arg(originalFileName));
 
@@ -338,53 +342,52 @@ void QmlBuildSystem::refresh(RefreshOptions options)
     emit projectChanged();
 }
 
-QString QmlBuildSystem::mainFile() const
+FilePath QmlBuildSystem::mainFile() const
 {
     if (m_projectItem)
-        return m_projectItem->mainFile();
-    return QString();
+        return FilePath::fromString(m_projectItem->mainFile());
+    return {};
 }
 
-QString QmlBuildSystem::mainUiFile() const
+FilePath QmlBuildSystem::mainUiFile() const
 {
     if (m_projectItem)
-        return m_projectItem->mainUiFile();
-    return QString();
+        return FilePath::fromString(m_projectItem->mainUiFile());
+    return {};
 }
 
-Utils::FilePath QmlBuildSystem::mainFilePath() const
+FilePath QmlBuildSystem::mainFilePath() const
 {
     const auto mainFileString = mainFile();
 
     if (mainFileString.isEmpty())
         return {};
 
-    return projectDirectory().pathAppended(mainFileString);
+    return projectDirectory().resolvePath(mainFileString);
 }
 
-Utils::FilePath QmlBuildSystem::mainUiFilePath() const
+FilePath QmlBuildSystem::mainUiFilePath() const
 {
     const auto mainUiFileString = mainUiFile();
 
     if (mainUiFileString.isEmpty())
         return {};
 
-    return projectDirectory().pathAppended(mainUiFileString);
+    return projectDirectory().resolvePath(mainUiFileString);
 }
 
-bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)
+bool QmlBuildSystem::setMainFileInProjectFile(const FilePath &newMainFilePath)
 {
-
     return setFileSettingInProjectFile("mainFile", newMainFilePath, mainFile());
 }
 
-bool QmlBuildSystem::setMainUiFileInProjectFile(const Utils::FilePath &newMainUiFilePath)
+bool QmlBuildSystem::setMainUiFileInProjectFile(const FilePath &newMainUiFilePath)
 {
     return setMainUiFileInMainFile(newMainUiFilePath)
            && setFileSettingInProjectFile("mainUiFile", newMainUiFilePath, mainUiFile());
 }
 
-bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFilePath)
+bool QmlBuildSystem::setMainUiFileInMainFile(const FilePath &newMainUiFilePath)
 {
     Core::FileChangeBlocker fileChangeBlocker(mainFilePath());
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(mainFilePath());
@@ -437,23 +440,22 @@ void QmlBuildSystem::setMainFile(const QString &mainFilePath)
         m_projectItem->setMainFile(mainFilePath);
 }
 
-Utils::FilePath QmlBuildSystem::targetDirectory() const
+FilePath QmlBuildSystem::targetDirectory() const
 {
     if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return canonicalProjectDir();
 
-    return m_projectItem ? Utils::FilePath::fromString(m_projectItem->targetDirectory())
-                         : Utils::FilePath();
+    return m_projectItem ? m_projectItem->targetDirectory() : FilePath();
 }
 
-Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) const
+FilePath QmlBuildSystem::targetFile(const FilePath &sourceFile) const
 {
-    const QDir sourceDir(m_projectItem ? m_projectItem->sourceDirectory()
-                                       : canonicalProjectDir().toString());
-    const QDir targetDir(targetDirectory().toString());
-    const QString relative = sourceDir.relativeFilePath(sourceFile.toString());
-    return Utils::FilePath::fromString(QDir::cleanPath(targetDir.absoluteFilePath(relative)));
+    const FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
+                                             : canonicalProjectDir();
+    const FilePath targetDir = targetDirectory();
+    const FilePath relative = sourceFile.relativePathFrom(sourceDir);
+    return targetDir.resolvePath(relative);
 }
 
 Utils::EnvironmentItems QmlBuildSystem::environment() const
@@ -555,14 +557,14 @@ Tasks QmlProject::projectIssues(const Kit *k) const
 
     const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version)
-        result.append(createProjectTask(Task::TaskType::Warning, tr("No Qt version set in kit.")));
+        result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     if (dev.isNull())
-        result.append(createProjectTask(Task::TaskType::Error, tr("Kit has no device.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
 
     if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
-        result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is too old.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is too old.")));
 
     if (dev.isNull() || !version)
         return result; // No need to check deeper than this
@@ -571,12 +573,12 @@ Tasks QmlProject::projectIssues(const Kit *k) const
         if (version->type() == QtSupport::Constants::DESKTOPQT) {
             if (version->qmlRuntimeFilePath().isEmpty()) {
                 result.append(createProjectTask(Task::TaskType::Error,
-                                                tr("Qt version has no QML utility.")));
+                                                Tr::tr("Qt version has no QML utility.")));
             }
         } else {
             // Non-desktop Qt on a desktop device? We don't support that.
             result.append(createProjectTask(Task::TaskType::Error,
-                                            tr("Non-desktop Qt is used with a desktop device.")));
+                                            Tr::tr("Non-desktop Qt is used with a desktop device.")));
         }
     } else {
         // If not a desktop device, don't check the Qt version for qml runtime binary.
@@ -814,9 +816,9 @@ bool QmlBuildSystem::deleteFiles(Node *context, const FilePaths &filePaths)
 bool QmlBuildSystem::renameFile(Node * context, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (dynamic_cast<QmlProjectNode *>(context)) {
-        if (oldFilePath.endsWith(mainFile()))
+        if (oldFilePath.endsWith(mainFile().path()))
             return setMainFileInProjectFile(newFilePath);
-        if (oldFilePath.endsWith(mainUiFile()))
+        if (oldFilePath.endsWith(mainUiFile().path()))
             return setMainUiFileInProjectFile(newFilePath);
 
         return true;

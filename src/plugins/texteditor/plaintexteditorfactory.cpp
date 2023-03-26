@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "plaintexteditorfactory.h"
 #include "basehoverhandler.h"
@@ -12,6 +12,7 @@
 #include "textindenter.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
@@ -36,7 +37,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
     QTC_CHECK(!m_instance);
     m_instance = this;
     setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
     addMimeType(QLatin1String("text/css")); // for some reason freedesktop thinks css is text/x-csrc
     addHoverHandler(new BaseHoverHandler);

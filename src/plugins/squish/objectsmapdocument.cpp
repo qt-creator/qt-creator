@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "objectsmapdocument.h"
 
@@ -26,7 +26,7 @@ ObjectsMapDocument::ObjectsMapDocument()
 {
     setMimeType(Constants::SQUISH_OBJECTSMAP_MIMETYPE);
     setId(Constants::OBJECTSMAP_EDITOR_ID);
-    connect(m_contentModel, &ObjectsMapModel::modelChanged, this, [this]() { setModified(true); });
+    connect(m_contentModel, &ObjectsMapModel::modelChanged, this, [this] { setModified(true); });
 }
 
 Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
@@ -103,7 +103,7 @@ bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
             continue;
 
         const int tabPosition = line.indexOf(kPropertySeparator);
-        const QString objectName = QLatin1String(line.left(tabPosition).trimmed());
+        const QString objectName = QString::fromUtf8(line.left(tabPosition).trimmed());
         if (!objectName.startsWith(ObjectsMapTreeItem::COLON)) {
             qDeleteAll(itemForName);
             return false;

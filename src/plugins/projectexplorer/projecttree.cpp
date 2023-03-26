@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projecttree.h"
 
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectnodes.h"
 #include "projecttreewidget.h"
 #include "session.h"
@@ -197,8 +198,8 @@ void ProjectTree::setCurrent(Node *node, Project *project)
         disconnect(document, &Core::IDocument::changed, this, nullptr);
         if (!node || node->isGenerated()) {
             const QString message = node
-                    ? tr("<b>Warning:</b> This file is generated.")
-                    : tr("<b>Warning:</b> This file is outside the project directory.");
+                    ? Tr::tr("<b>Warning:</b> This file is generated.")
+                    : Tr::tr("<b>Warning:</b> This file is outside the project directory.");
             connect(document, &Core::IDocument::changed, this, [this, document, message] {
                 updateFileWarning(document, message);
             });

@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcodemodelsettings.h"
 
 #include "clangdiagnosticconfigsmodel.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
@@ -68,6 +69,7 @@ static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocume
 static QString clangdSizeThresholdEnabledKey() { return QLatin1String("ClangdSizeThresholdEnabled"); }
 static QString clangdSizeThresholdKey() { return QLatin1String("ClangdSizeThreshold"); }
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
+static QString clangdblockIndexingSettingsKey() { return QLatin1String("blockIndexing"); }
 static QString sessionsWithOneClangdKey() { return QLatin1String("SessionsWithOneClangd"); }
 static QString diagnosticConfigIdKey() { return QLatin1String("diagnosticConfigId"); }
 static QString checkedHardwareKey() { return QLatin1String("checkedHardware"); }
@@ -218,10 +220,10 @@ QString ClangdSettings::priorityToString(const IndexingPriority &priority)
 QString ClangdSettings::priorityToDisplayString(const IndexingPriority &priority)
 {
     switch (priority) {
-    case IndexingPriority::Background: return tr("Background Priority");
-    case IndexingPriority::Normal: return tr("Normal Priority");
-    case IndexingPriority::Low: return tr("Low Priority");
-    case IndexingPriority::Off: return tr("Off");
+    case IndexingPriority::Background: return Tr::tr("Background Priority");
+    case IndexingPriority::Normal: return Tr::tr("Normal Priority");
+    case IndexingPriority::Low: return Tr::tr("Low Priority");
+    case IndexingPriority::Off: return Tr::tr("Off");
     }
     return {};
 }
@@ -331,38 +333,6 @@ void ClangdSettings::setData(const Data &data)
     }
 }
 
-static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
-{
-    Utils::QtcProcess clangdProc;
-    clangdProc.setCommand({clangdFilePath, {"--version"}});
-    clangdProc.start();
-    if (!clangdProc.waitForFinished())
-        return{};
-    const QString output = clangdProc.allOutput();
-    static const QString versionPrefix = "clangd version ";
-    const int prefixOffset = output.indexOf(versionPrefix);
-    if (prefixOffset == -1)
-        return {};
-    return QVersionNumber::fromString(output.mid(prefixOffset + versionPrefix.length()));
-}
-
-QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
-{
-    static QHash<Utils::FilePath, QPair<QDateTime, QVersionNumber>> versionCache;
-    const QDateTime timeStamp = clangdFilePath.lastModified();
-    const auto it = versionCache.find(clangdFilePath);
-    if (it == versionCache.end()) {
-        const QVersionNumber version = getClangdVersion(clangdFilePath);
-        versionCache.insert(clangdFilePath, {timeStamp, version});
-        return version;
-    }
-    if (it->first != timeStamp) {
-        it->first = timeStamp;
-        it->second = getClangdVersion(clangdFilePath);
-    }
-    return it->second;
-}
-
 static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
 {
     const FilePath clangFilePath = clangdFilePath.absolutePath().pathAppended("clang")
@@ -375,7 +345,7 @@ static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
     if (!clang.waitForFinished())
         return {};
     const FilePath resourceDir = FilePath::fromUserInput(QString::fromLocal8Bit(
-            clang.readAllStandardOutput().trimmed()));
+            clang.readAllRawStandardOutput().trimmed()));
     if (resourceDir.isEmpty() || !resourceDir.exists())
         return {};
     const FilePath includeDir = resourceDir.pathAppended("include");
@@ -390,14 +360,18 @@ static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
     if (!headersPath.isEmpty())
         return headersPath;
 
-    const QVersionNumber version = ClangdSettings::clangdVersion(clangdFilePath);
+    const QVersionNumber version = Utils::clangdVersion(clangdFilePath);
     QTC_ASSERT(!version.isNull(), return {});
     static const QStringList libDirs{"lib", "lib64"};
+    const QStringList versionStrings{QString::number(version.majorVersion()), version.toString()};
     for (const QString &libDir : libDirs) {
-        const FilePath includePath = clangdFilePath.absolutePath().parentDir().pathAppended(libDir)
-                .pathAppended("clang").pathAppended(version.toString()).pathAppended("include");
-        if (includePath.exists())
-            return includePath;
+        for (const QString &versionString : versionStrings) {
+            const FilePath includePath = clangdFilePath.absolutePath().parentDir()
+                                             .pathAppended(libDir).pathAppended("clang")
+                                             .pathAppended(versionString).pathAppended("include");
+            if (includePath.exists())
+                return includePath;
+        }
     }
     QTC_CHECK(false);
     return {};
@@ -467,16 +441,18 @@ ClangdProjectSettings::ClangdProjectSettings(ProjectExplorer::Project *project) 
 
 ClangdSettings::Data ClangdProjectSettings::settings() const
 {
-    if (m_useGlobalSettings)
-        return ClangdSettings::instance().data();
-    ClangdSettings::Data data = m_customSettings;
-
+    const ClangdSettings::Data globalData = ClangdSettings::instance().data();
+    ClangdSettings::Data data = globalData;
+    if (!m_useGlobalSettings) {
+        data = m_customSettings;
     // This property is global by definition.
     data.sessionsWithOneClangd = ClangdSettings::instance().data().sessionsWithOneClangd;
 
     // This list exists only once.
     data.customDiagnosticConfigs = ClangdSettings::instance().data().customDiagnosticConfigs;
-
+}
+    if (m_blockIndexing)
+        data.indexingPriority = ClangdSettings::IndexingPriority::Off;
     return data;
 }
 
@@ -501,12 +477,31 @@ void ClangdProjectSettings::setDiagnosticConfigId(Utils::Id configId)
     saveSettings();
 }
 
+void ClangdProjectSettings::blockIndexing()
+{
+    if (m_blockIndexing)
+        return;
+    m_blockIndexing = true;
+    saveSettings();
+    emit ClangdSettings::instance().changed();
+}
+
+void ClangdProjectSettings::unblockIndexing()
+{
+    if (!m_blockIndexing)
+        return;
+    m_blockIndexing = false;
+    saveSettings();
+    // Do not emit changed here since that would restart clients with blocked indexing
+}
+
 void ClangdProjectSettings::loadSettings()
 {
     if (!m_project)
         return;
     const QVariantMap data = m_project->namedSettings(clangdSettingsKey()).toMap();
     m_useGlobalSettings = data.value(clangdUseGlobalSettingsKey(), true).toBool();
+    m_blockIndexing = data.value(clangdblockIndexingSettingsKey(), false).toBool();
     if (!m_useGlobalSettings)
         m_customSettings.fromMap(data);
 }
@@ -519,6 +514,7 @@ void ClangdProjectSettings::saveSettings()
     if (!m_useGlobalSettings)
         data = m_customSettings.toMap();
     data.insert(clangdUseGlobalSettingsKey(), m_useGlobalSettings);
+    data.insert(clangdblockIndexingSettingsKey(), m_blockIndexing);
     m_project->setNamedSettings(clangdSettingsKey(), data);
 }
 

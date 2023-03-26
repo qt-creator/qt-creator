@@ -134,7 +134,7 @@ void ToolBarBackend::goBackward()
 void ToolBarBackend::openFileByIndex(int i)
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_OPEN_FILE);
-    auto fileName = Core::DocumentModel::entries().at(i)->fileName();
+    auto fileName = Core::DocumentModel::entries().at(i)->filePath();
 
     Core::EditorManager::openEditor(fileName, Utils::Id(), Core::EditorManager::DoNotMakeVisible);
 }

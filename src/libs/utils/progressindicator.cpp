@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "progressindicator.h"
 
@@ -72,7 +72,7 @@ static FilePath imageFileNameForIndicatorSize(ProgressIndicatorSize size)
 ProgressIndicatorPainter::ProgressIndicatorPainter(ProgressIndicatorSize size)
 {
     m_timer.setSingleShot(false);
-    QObject::connect(&m_timer, &QTimer::timeout, [this] {
+    QObject::connect(&m_timer, &QTimer::timeout, &m_timer, [this] {
         nextAnimationStep();
         if (m_callback)
             m_callback();

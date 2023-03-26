@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakespecificsettings.h"
 
@@ -23,6 +23,13 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     setSettingsGroup("CMakeSpecificSettings");
     setAutoApply(false);
 
+    registerAspect(&autorunCMake);
+    autorunCMake.setSettingsKey("AutorunCMake");
+    autorunCMake.setDefaultValue(true);
+    autorunCMake.setLabelText(::CMakeProjectManager::Tr::tr("Autorun CMake"));
+    autorunCMake.setToolTip(::CMakeProjectManager::Tr::tr(
+        "Automatically run CMake after changes to CMake project files."));
+
     registerAspect(&afterAddFileSetting);
     afterAddFileSetting.setSettingsKey("ProjectPopupSetting");
     afterAddFileSetting.setDefaultValue(AfterAddFileAction::AskUser);
@@ -41,7 +48,7 @@ CMakeSpecificSettings::CMakeSpecificSettings()
 
     registerAspect(&packageManagerAutoSetup);
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
-    packageManagerAutoSetup.setDefaultValue(false);
+    packageManagerAutoSetup.setDefaultValue(true);
     packageManagerAutoSetup.setLabelText(::CMakeProjectManager::Tr::tr("Package manager auto setup"));
     packageManagerAutoSetup.setToolTip(::CMakeProjectManager::Tr::tr("Add the CMAKE_PROJECT_INCLUDE_BEFORE variable "
         "pointing to a CMake script that will install dependencies from the conanfile.txt, "
@@ -58,12 +65,25 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     showSourceSubFolders.setDefaultValue(true);
     showSourceSubFolders.setLabelText(
                 ::CMakeProjectManager::Tr::tr("Show subfolders inside source group folders"));
+
+    registerAspect(&showAdvancedOptionsByDefault);
+    showAdvancedOptionsByDefault.setSettingsKey("ShowAdvancedOptionsByDefault");
+    showAdvancedOptionsByDefault.setDefaultValue(false);
+    showAdvancedOptionsByDefault.setLabelText(
+                ::CMakeProjectManager::Tr::tr("Show advanced options by default"));
+}
+
+CMakeSpecificSettings *CMakeSpecificSettings::instance()
+{
+    static CMakeSpecificSettings theSettings;
+    return &theSettings;
 }
 
 // CMakeSpecificSettingsPage
 
-CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
+CMakeSpecificSettingsPage::CMakeSpecificSettingsPage()
 {
+    CMakeSpecificSettings *settings = CMakeSpecificSettings::instance();
     setId(Constants::Settings::GENERAL_ID);
     setDisplayName(::CMakeProjectManager::Tr::tr("General"));
     setDisplayCategory("CMake");
@@ -79,9 +99,11 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
                 title(::CMakeProjectManager::Tr::tr("Adding Files")),
                 Column { s.afterAddFileSetting }
             },
+            s.autorunCMake,
             s.packageManagerAutoSetup,
             s.askBeforeReConfigureInitialParams,
             s.showSourceSubFolders,
+            s.showAdvancedOptionsByDefault,
             st
         }.attachTo(widget);
     });

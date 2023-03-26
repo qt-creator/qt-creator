@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "resourcenode.h"
+
 #include "resourceeditorconstants.h"
+#include "resourceeditortr.h"
 #include "qrceditor/resourcefile_p.h"
 
 #include <coreplugin/documentmanager.h>
@@ -433,9 +435,7 @@ bool ResourceTopLevelNode::removeNonExistingFiles()
 
 FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const FilePaths &files, Node *context) const
 {
-    QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
-            .arg(filePath().fileName())
-            .arg(QLatin1Char('/'));
+    const QString name = Tr::tr("%1 Prefix: %2").arg(filePath().fileName()).arg(QLatin1Char('/'));
 
     int p = getPriorityFromContextNode(this, context);
     if (p == -1 && hasPriority(files)) { // images/* and qml/js mimetypes
@@ -574,8 +574,7 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
 
 FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const FilePaths &files, Node *context) const
 {
-    QString name = QCoreApplication::translate("ResourceTopLevelNode", "%1 Prefix: %2")
-            .arg(m_topLevelNode->filePath().fileName())
+    const QString name = Tr::tr("%1 Prefix: %2").arg(m_topLevelNode->filePath().fileName())
             .arg(displayName());
 
     int p = getPriorityFromContextNode(this, context);

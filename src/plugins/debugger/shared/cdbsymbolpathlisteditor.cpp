@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cdbsymbolpathlisteditor.h"
 
@@ -129,7 +129,7 @@ CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
 bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, FilePath *cacheDirectory)
 {
     CacheDirectoryDialog dialog(parent);
-    dialog.setPath(TemporaryDirectory::masterDirectoryFilePath() + "/symbolcache");
+    dialog.setPath(TemporaryDirectory::masterDirectoryFilePath() / "symbolcache");
     if (dialog.exec() != QDialog::Accepted)
         return false;
     *cacheDirectory = dialog.path();
@@ -155,7 +155,7 @@ void CdbSymbolPathListEditor::setupSymbolPaths()
     if (path.isEmpty() && indexOfSymbolCache != -1)
         path = FilePath::fromString(currentPaths.at(indexOfSymbolCache));
     if (path.isEmpty())
-        path = TemporaryDirectory::masterDirectoryFilePath() + "/symbolcache";
+        path = TemporaryDirectory::masterDirectoryFilePath() / "symbolcache";
 
     bool useSymbolServer = true;
     bool useSymbolCache = true;

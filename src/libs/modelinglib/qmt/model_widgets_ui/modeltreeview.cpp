@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modeltreeview.h"
 
@@ -12,6 +12,8 @@
 #include "qmt/model_ui/sortedtreemodel.h"
 #include "qmt/model_ui/treemodel.h"
 #include "qmt/tasks/ielementtasks.h"
+
+#include "../../modelinglibtr.h"
 
 #include <QPainter>
 #include <QMimeData>
@@ -51,7 +53,8 @@ QList<QModelIndex> ModelTreeView::selectedSourceModelIndexes() const
 {
     QList<QModelIndex> indexes;
     if (selectionModel()) {
-        foreach (const QModelIndex &index, selectionModel()->selection().indexes())
+        const QModelIndexList indexList = selectionModel()->selection().indexes();
+        for (const QModelIndex &index : indexList)
             indexes.append(m_sortedTreeModel->mapToSource(index));
     }
     return indexes;
@@ -101,16 +104,15 @@ void ModelTreeView::startDrag(Qt::DropActions supportedActions)
         indexes = selectedSourceModelIndexes();
     else if (currentSourceModelIndex().isValid())
         indexes.append(currentSourceModelIndex());
-    if (!indexes.isEmpty()) {
-        foreach (const QModelIndex &index, indexes) {
-            MElement *element = treeModel->element(index);
-            if (element) {
-                dataStream << element->uid().toString();
-                if (dragIcon.isNull()) {
-                    QIcon icon = treeModel->icon(index);
-                    if (!icon.isNull())
-                        dragIcon = icon;
-                }
+
+    for (const QModelIndex &index : std::as_const(indexes)) {
+        MElement *element = treeModel->element(index);
+        if (element) {
+            dataStream << element->uid().toString();
+            if (dragIcon.isNull()) {
+                QIcon icon = treeModel->icon(index);
+                if (!icon.isNull())
+                    dragIcon = icon;
             }
         }
     }
@@ -228,17 +230,17 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         QMenu menu;
         bool addSeparator = false;
         if (m_elementTasks->hasClassDefinition(melement)) {
-            menu.addAction(new ContextMenuAction(tr("Show Definition"), "showDefinition", &menu));
+            menu.addAction(new ContextMenuAction(Tr::tr("Show Definition"), "showDefinition", &menu));
             addSeparator = true;
         }
         if (m_elementTasks->hasDiagram(melement)) {
-            menu.addAction(new ContextMenuAction(tr("Open Diagram"), "openDiagram", &menu));
+            menu.addAction(new ContextMenuAction(Tr::tr("Open Diagram"), "openDiagram", &menu));
             addSeparator = true;
         }
         if (melement->owner()) {
             if (addSeparator)
                 menu.addSeparator();
-            menu.addAction(new ContextMenuAction(tr("Delete"),
+            menu.addAction(new ContextMenuAction(Tr::tr("Delete"),
                                                  "delete",
                                                  QKeySequence(Qt::CTRL | Qt::Key_D),
                                                  &menu));

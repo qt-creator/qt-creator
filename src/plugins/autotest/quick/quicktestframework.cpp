@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "quicktestframework.h"
 #include "quicktestparser.h"
@@ -20,8 +20,7 @@ ITestParser *QuickTestFramework::createTestParser()
 
 ITestTreeItem *QuickTestFramework::createRootNode()
 {
-    return new QuickTestTreeItem(this, displayName(),
-                                 Utils::FilePath(), ITestTreeItem::Root);
+    return new QuickTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 const char *QuickTestFramework::name() const

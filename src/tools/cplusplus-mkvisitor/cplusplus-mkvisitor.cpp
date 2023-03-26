@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTVisitor.h>
@@ -17,6 +17,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
+
+#include <utils/filepath.h>
 
 #include "utils.h"
 
@@ -450,7 +452,7 @@ int main(int argc, char *argv[])
     const QByteArray source = file.readAll();
     file.close();
 
-    Document::Ptr doc = Document::create(fileName);
+    Document::Ptr doc = Document::create(Utils::FilePath::fromString(fileName));
     //doc->control()->setDiagnosticClient(0);
     doc->setUtf8Source(source);
     doc->parse();

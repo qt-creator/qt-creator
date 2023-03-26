@@ -1,5 +1,23 @@
 {
     "custom-styles": {
+        "Diff": {
+            "Added line": {
+                "selected-text-color": "#98c379",
+                "text-color": "#98c379"
+            },
+            "Changed line (new)": {
+                "selected-text-color": "#98c379",
+                "text-color": "#98c379"
+            },
+            "Changed line (old)": {
+                "selected-text-color": "#e06c75",
+                "text-color": "#e06c75"
+            },
+            "Removed line": {
+                "selected-text-color": "#e06c75",
+                "text-color": "#e06c75"
+            }
+        },
         "Go": {
             "Predeclared Identifier": {
                 "selected-text-color": "#d19a66",
@@ -214,7 +232,7 @@
         ],
         "license": "SPDX-License-Identifier: MIT",
         "name": "Atom One Dark",
-        "revision": 2
+        "revision": 3
     },
     "text-styles": {
         "Alert": {

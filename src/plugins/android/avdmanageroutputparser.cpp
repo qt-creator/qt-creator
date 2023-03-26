@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "avdmanageroutputparser.h"
 
@@ -86,19 +86,19 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
     return {};
 }
 
-AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorPaths)
+AndroidDeviceInfoList parseAvdList(const QString &output, Utils::FilePaths *avdErrorPaths)
 {
     QTC_CHECK(avdErrorPaths);
     AndroidDeviceInfoList avdList;
     QStringList avdInfo;
-    using ErrorPath = QString;
+    using ErrorPath = Utils::FilePath;
     using AvdResult = std::variant<std::monostate, AndroidDeviceInfo, ErrorPath>;
     const auto parseAvdInfo = [](const QStringList &avdInfo) {
         if (!avdInfo.filter(avdManufacturerError).isEmpty()) {
             for (const QString &line : avdInfo) {
                 QString value;
                 if (valueForKey(avdInfoPathKey, line, &value))
-                    return AvdResult(value); // error path
+                    return AvdResult(Utils::FilePath::fromString(value)); // error path
             }
         } else if (std::optional<AndroidDeviceInfo> avd = parseAvd(avdInfo)) {
             // armeabi-v7a devices can also run armeabi code
@@ -152,6 +152,14 @@ int platformNameToApiLevel(const QString &platformName)
         }
     }
     return apiLevel;
+}
+
+QString convertNameToExtension(const QString &name)
+{
+    if (name.endsWith("ext4"))
+        return " Extension 4";
+
+    return {};
 }
 
 } // namespace Internal

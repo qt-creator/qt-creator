@@ -1,25 +1,29 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcodestylesettingspage.h"
 
+#include "cppcodeformatter.h"
 #include "cppcodestylepreferences.h"
 #include "cppcodestylesnippets.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cpppointerdeclarationformatter.h"
-#include "cppqtstyleindenter.h"
 #include "cpptoolssettings.h"
-#include <ui_cppcodestylesettingspage.h>
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/displaysettings.h>
 #include <texteditor/snippets/snippetprovider.h>
+#include <texteditor/snippets/snippeteditor.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/tabsettingswidget.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <cplusplus/Overview.h>
@@ -27,10 +31,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <QCheckBox>
+#include <QTabWidget>
 #include <QTextBlock>
-#include <QTextStream>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 
@@ -38,12 +44,13 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
                               const CppCodeStyleSettings &settings)
 {
     // Preprocess source
-    Environment env;
+    CPlusPlus::Environment env;
     Preprocessor preprocess(nullptr, &env);
+    FilePath noFileFile = FilePath::fromPathPart(u"<no-file>");
     const QByteArray preprocessedSource
-        = preprocess.run(QLatin1String("<no-file>"), textDocument->toPlainText().toUtf8());
+        = preprocess.run(noFileFile, textDocument->toPlainText().toUtf8());
 
-    Document::Ptr cppDocument = Document::create(QLatin1String("<no-file>"));
+    Document::Ptr cppDocument = Document::create(noFileFile);
     cppDocument->setUtf8Source(preprocessedSource);
     cppDocument->parse(Document::ParseTranlationUnit);
     cppDocument->check();
@@ -74,74 +81,241 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
 
 // ------------------ CppCodeStyleSettingsWidget
 
+class CppCodeStylePreferencesWidgetPrivate
+{
+public:
+    CppCodeStylePreferencesWidgetPrivate(CppCodeStylePreferencesWidget *widget)
+        : q(widget)
+        , m_indentAccessSpecifiers(createCheckBox(Tr::tr("\"public\", \"protected\" and\n"
+                                                         "\"private\" within class body")))
+        , m_indentDeclarationsRelativeToAccessSpecifiers(
+              createCheckBox(Tr::tr("Declarations relative to \"public\",\n"
+                                "\"protected\" and \"private\"")))
+        , m_indentFunctionBody(createCheckBox(Tr::tr("Statements within function body")))
+        , m_indentBlockBody(createCheckBox(Tr::tr("Statements within blocks")))
+        , m_indentNamespaceBody(createCheckBox(Tr::tr("Declarations within\n"
+                                                  "\"namespace\" definition")))
+        , m_indentClassBraces(createCheckBox(Tr::tr("Class declarations")))
+        , m_indentNamespaceBraces(createCheckBox(Tr::tr("Namespace declarations")))
+        , m_indentEnumBraces(createCheckBox(Tr::tr("Enum declarations")))
+        , m_indentFunctionBraces(createCheckBox(Tr::tr("Function declarations")))
+        , m_indentBlockBraces(createCheckBox(Tr::tr("Blocks")))
+        , m_indentSwitchLabels(createCheckBox(Tr::tr("\"case\" or \"default\"")))
+        , m_indentCaseStatements(createCheckBox(Tr::tr("Statements relative to\n"
+                                                   "\"case\" or \"default\"")))
+        , m_indentCaseBlocks(createCheckBox(Tr::tr("Blocks relative to\n"
+                                               "\"case\" or \"default\"")))
+        , m_indentCaseBreak(createCheckBox(Tr::tr("\"break\" statement relative to\n"
+                                              "\"case\" or \"default\"")))
+        , m_alignAssignments(createCheckBox(
+            Tr::tr("Align after assignments"),
+            Tr::tr("<html><head/><body>\n"
+                   "Enables alignment to tokens after =, += etc. When the option is disabled, "
+                     "regular continuation line indentation will be used.<br>\n"
+                   "<br>\n"
+                   "With alignment:\n"
+                   "<pre>\n"
+                   "a = a +\n"
+                   "    b\n"
+                   "</pre>\n"
+                   "Without alignment:\n"
+                   "<pre>\n"
+                   "a = a +\n"
+                   "        b\n"
+                   "</pre>\n"
+                   "</body></html>")))
+        , m_extraPaddingConditions(createCheckBox(
+            Tr::tr("Add extra padding to conditions\n"
+                   "if they would align to the next line"),
+            Tr::tr("<html><head/><body>\n"
+                   "Adds an extra level of indentation to multiline conditions in the switch, "
+                     "if, while and foreach statements if they would otherwise have the same or "
+                     "less indentation than a nested statement.\n"
+                   "\n"
+                   "For four-spaces indentation only if statement conditions are affected. "
+                     "Without extra padding:\n"
+                   "<pre>\n"
+                   "if (a &&\n"
+                   "    b)\n"
+                   "    c;\n"
+                   "</pre>\n"
+                   "With extra padding:\n"
+                   "<pre>\n"
+                   "if (a &&\n"
+                   "        b)\n"
+                   "    c;\n"
+                   "</pre>\n"
+                   "</body></html>")))
+        , m_bindStarToIdentifier(createCheckBox(
+            Tr::tr("Identifier"),
+            Tr::tr("<html><head/><body>This does not apply to the star and reference symbol "
+                     "in pointer/reference to functions and arrays, e.g.:\n"
+               "<pre>   int (&rf)() = ...;\n"
+               "   int (*pf)() = ...;\n"
+               "\n"
+               "   int (&ra)[2] = ...;\n"
+               "   int (*pa)[2] = ...;\n"
+               "\n"
+               "</pre></body></html>")))
+        , m_bindStarToTypeName(createCheckBox(Tr::tr("Type name")))
+        , m_bindStarToLeftSpecifier(createCheckBox(Tr::tr("Left const/volatile")))
+        , m_bindStarToRightSpecifier(createCheckBox(Tr::tr("Right const/volatile"),
+                                                    Tr::tr("This does not apply to references.")))
+        , m_categoryTab(new QTabWidget)
+        , m_tabSettingsWidget(new TabSettingsWidget)
+    {
+        m_categoryTab->setProperty("_q_custom_style_disabled", true);
+
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(m_tabSettingsWidget->sizePolicy().hasHeightForWidth());
+        m_tabSettingsWidget->setSizePolicy(sizePolicy);
+        m_tabSettingsWidget->setFocusPolicy(Qt::TabFocus);
+        QObject::connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+                         q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
+
+        using namespace Utils::Layouting;
+
+        const Group contentGroup {
+            title(Tr::tr("Indent")),
+            Column {
+                m_indentAccessSpecifiers,
+                m_indentDeclarationsRelativeToAccessSpecifiers,
+                m_indentFunctionBody,
+                m_indentBlockBody,
+                m_indentNamespaceBody,
+                st
+            }
+        };
+
+        const Group bracesGroup {
+            title(Tr::tr("Indent Braces")),
+            Column {
+                m_indentClassBraces,
+                m_indentNamespaceBraces,
+                m_indentEnumBraces,
+                m_indentFunctionBraces,
+                m_indentBlockBraces,
+                st
+            }
+        };
+
+        const Group switchGroup {
+            title(Tr::tr("Indent within \"switch\"")),
+            Column {
+                m_indentSwitchLabels,
+                m_indentCaseStatements,
+                m_indentCaseBlocks,
+                m_indentCaseBreak,
+                st
+            }
+        };
+
+        const Group alignmentGroup {
+            title(Tr::tr("Align")),
+            Column {
+                m_alignAssignments,
+                m_extraPaddingConditions,
+                st
+            }
+        };
+
+        const Group typesGroup {
+            title(Tr::tr("Bind '*' and '&&' in types/declarations to")),
+            Column {
+                m_bindStarToIdentifier,
+                m_bindStarToTypeName,
+                m_bindStarToLeftSpecifier,
+                m_bindStarToRightSpecifier,
+                st
+            }
+        };
+
+        Row {
+            TabWidget { m_categoryTab, {
+                Tab { Tr::tr("General"),
+                    Row { Column { m_tabSettingsWidget, st }, createPreview(0) }
+                },
+                Tab { Tr::tr("Content"), Row { contentGroup, createPreview(1) } },
+                Tab { Tr::tr("Braces"), Row { bracesGroup, createPreview(2) } },
+                Tab { Tr::tr("\"switch\""), Row { switchGroup, createPreview(3) } },
+                Tab { Tr::tr("Alignment"), Row { alignmentGroup, createPreview(4) } },
+                Tab { Tr::tr("Pointers and References"), Row { typesGroup, createPreview(5) } }
+            } }
+        }.attachTo(q);
+
+        m_controllers.append(m_tabSettingsWidget);
+        m_controllers.append(contentGroup.widget);
+        m_controllers.append(bracesGroup.widget);
+        m_controllers.append(switchGroup.widget);
+        m_controllers.append(alignmentGroup.widget);
+        m_controllers.append(typesGroup.widget);
+    }
+
+    QCheckBox *createCheckBox(const QString &text, const QString &toolTip = {})
+    {
+        QCheckBox *checkBox = new QCheckBox(text);
+        checkBox->setToolTip(toolTip);
+        QObject::connect(checkBox, &QCheckBox::toggled,
+                         q, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
+        return checkBox;
+    }
+
+    SnippetEditorWidget *createPreview(int i)
+    {
+        SnippetEditorWidget *editor = new SnippetEditorWidget;
+        editor->setPlainText(QLatin1String(Constants::DEFAULT_CODE_STYLE_SNIPPETS[i]));
+        m_previews.append(editor);
+        return editor;
+    }
+
+    CppCodeStylePreferencesWidget *q = nullptr;
+
+    QCheckBox *m_indentAccessSpecifiers = nullptr;
+    QCheckBox *m_indentDeclarationsRelativeToAccessSpecifiers = nullptr;
+    QCheckBox *m_indentFunctionBody = nullptr;
+    QCheckBox *m_indentBlockBody = nullptr;
+    QCheckBox *m_indentNamespaceBody = nullptr;
+    QCheckBox *m_indentClassBraces = nullptr;
+    QCheckBox *m_indentNamespaceBraces = nullptr;
+    QCheckBox *m_indentEnumBraces = nullptr;
+    QCheckBox *m_indentFunctionBraces = nullptr;
+    QCheckBox *m_indentBlockBraces = nullptr;
+    QCheckBox *m_indentSwitchLabels = nullptr;
+    QCheckBox *m_indentCaseStatements = nullptr;
+    QCheckBox *m_indentCaseBlocks = nullptr;
+    QCheckBox *m_indentCaseBreak = nullptr;
+    QCheckBox *m_alignAssignments = nullptr;
+    QCheckBox *m_extraPaddingConditions = nullptr;
+    QCheckBox *m_bindStarToIdentifier = nullptr;
+    QCheckBox *m_bindStarToTypeName = nullptr;
+    QCheckBox *m_bindStarToLeftSpecifier = nullptr;
+    QCheckBox *m_bindStarToRightSpecifier = nullptr;
+
+    QList<SnippetEditorWidget *> m_previews;
+    QList<QWidget *> m_controllers;
+
+    QTabWidget *m_categoryTab = nullptr;
+    TabSettingsWidget *m_tabSettingsWidget = nullptr;
+};
+
 CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     : TextEditor::CodeStyleEditorWidget(parent),
-      m_ui(new Ui::CppCodeStyleSettingsPage)
+      d(new CppCodeStylePreferencesWidgetPrivate(this))
 {
-    m_ui->setupUi(this);
-    m_ui->categoryTab->setProperty("_q_custom_style_disabled", true);
-
-    m_previews << m_ui->previewTextEditGeneral << m_ui->previewTextEditContent
-               << m_ui->previewTextEditBraces << m_ui->previewTextEditSwitch
-               << m_ui->previewTextEditPadding << m_ui->previewTextEditPointerReferences;
-    for (int i = 0; i < m_previews.size(); ++i)
-        m_previews[i]->setPlainText(QLatin1String(Constants::DEFAULT_CODE_STYLE_SNIPPETS[i]));
-
     decorateEditors(TextEditorSettings::fontSettings());
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &CppCodeStylePreferencesWidget::decorateEditors);
 
     setVisualizeWhitespace(true);
 
-    connect(m_ui->tabSettingsWidget, &TabSettingsWidget::settingsChanged,
-            this, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
-    connect(m_ui->indentBlockBraces, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentBlockBody, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentClassBraces, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentNamespaceBraces, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentEnumBraces, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentNamespaceBody, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentSwitchLabels, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentCaseStatements, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentCaseBlocks, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentCaseBreak, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentAccessSpecifiers, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentDeclarationsRelativeToAccessSpecifiers, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentFunctionBody, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->indentFunctionBraces, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->extraPaddingConditions, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->alignAssignments, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->bindStarToIdentifier, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->bindStarToTypeName, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->bindStarToLeftSpecifier, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-    connect(m_ui->bindStarToRightSpecifier, &QCheckBox::toggled,
-            this, &CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged);
-
-    m_ui->categoryTab->setCurrentIndex(0);
+//    m_ui->categoryTab->setCurrentIndex(0);
 }
 
 CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
 {
-    delete m_ui;
+    delete d;
 }
 
 void CppCodeStylePreferencesWidget::setCodeStyle(CppCodeStylePreferences *codeStylePreferences)
@@ -175,64 +349,64 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
 {
     CppCodeStyleSettings set;
 
-    set.indentBlockBraces = m_ui->indentBlockBraces->isChecked();
-    set.indentBlockBody = m_ui->indentBlockBody->isChecked();
-    set.indentClassBraces = m_ui->indentClassBraces->isChecked();
-    set.indentEnumBraces = m_ui->indentEnumBraces->isChecked();
-    set.indentNamespaceBraces = m_ui->indentNamespaceBraces->isChecked();
-    set.indentNamespaceBody = m_ui->indentNamespaceBody->isChecked();
-    set.indentAccessSpecifiers = m_ui->indentAccessSpecifiers->isChecked();
-    set.indentDeclarationsRelativeToAccessSpecifiers = m_ui->indentDeclarationsRelativeToAccessSpecifiers->isChecked();
-    set.indentFunctionBody = m_ui->indentFunctionBody->isChecked();
-    set.indentFunctionBraces = m_ui->indentFunctionBraces->isChecked();
-    set.indentSwitchLabels = m_ui->indentSwitchLabels->isChecked();
-    set.indentStatementsRelativeToSwitchLabels = m_ui->indentCaseStatements->isChecked();
-    set.indentBlocksRelativeToSwitchLabels = m_ui->indentCaseBlocks->isChecked();
-    set.indentControlFlowRelativeToSwitchLabels = m_ui->indentCaseBreak->isChecked();
-    set.bindStarToIdentifier = m_ui->bindStarToIdentifier->isChecked();
-    set.bindStarToTypeName = m_ui->bindStarToTypeName->isChecked();
-    set.bindStarToLeftSpecifier = m_ui->bindStarToLeftSpecifier->isChecked();
-    set.bindStarToRightSpecifier = m_ui->bindStarToRightSpecifier->isChecked();
-    set.extraPaddingForConditionsIfConfusingAlign = m_ui->extraPaddingConditions->isChecked();
-    set.alignAssignments = m_ui->alignAssignments->isChecked();
+    set.indentBlockBraces = d->m_indentBlockBraces->isChecked();
+    set.indentBlockBody = d->m_indentBlockBody->isChecked();
+    set.indentClassBraces = d->m_indentClassBraces->isChecked();
+    set.indentEnumBraces = d->m_indentEnumBraces->isChecked();
+    set.indentNamespaceBraces = d->m_indentNamespaceBraces->isChecked();
+    set.indentNamespaceBody = d->m_indentNamespaceBody->isChecked();
+    set.indentAccessSpecifiers = d->m_indentAccessSpecifiers->isChecked();
+    set.indentDeclarationsRelativeToAccessSpecifiers = d->m_indentDeclarationsRelativeToAccessSpecifiers->isChecked();
+    set.indentFunctionBody = d->m_indentFunctionBody->isChecked();
+    set.indentFunctionBraces = d->m_indentFunctionBraces->isChecked();
+    set.indentSwitchLabels = d->m_indentSwitchLabels->isChecked();
+    set.indentStatementsRelativeToSwitchLabels = d->m_indentCaseStatements->isChecked();
+    set.indentBlocksRelativeToSwitchLabels = d->m_indentCaseBlocks->isChecked();
+    set.indentControlFlowRelativeToSwitchLabels = d->m_indentCaseBreak->isChecked();
+    set.bindStarToIdentifier = d->m_bindStarToIdentifier->isChecked();
+    set.bindStarToTypeName = d->m_bindStarToTypeName->isChecked();
+    set.bindStarToLeftSpecifier = d->m_bindStarToLeftSpecifier->isChecked();
+    set.bindStarToRightSpecifier = d->m_bindStarToRightSpecifier->isChecked();
+    set.extraPaddingForConditionsIfConfusingAlign = d->m_extraPaddingConditions->isChecked();
+    set.alignAssignments = d->m_alignAssignments->isChecked();
 
     return set;
 }
 
 void CppCodeStylePreferencesWidget::setTabSettings(const TabSettings &settings)
 {
-    m_ui->tabSettingsWidget->setTabSettings(settings);
+    d->m_tabSettingsWidget->setTabSettings(settings);
 }
 
 TextEditor::TabSettings CppCodeStylePreferencesWidget::tabSettings() const
 {
-    return m_ui->tabSettingsWidget->tabSettings();
+    return d->m_tabSettingsWidget->tabSettings();
 }
 
 void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
 {
     const bool wasBlocked = m_blockUpdates;
     m_blockUpdates = true;
-    m_ui->indentBlockBraces->setChecked(s.indentBlockBraces);
-    m_ui->indentBlockBody->setChecked(s.indentBlockBody);
-    m_ui->indentClassBraces->setChecked(s.indentClassBraces);
-    m_ui->indentEnumBraces->setChecked(s.indentEnumBraces);
-    m_ui->indentNamespaceBraces->setChecked(s.indentNamespaceBraces);
-    m_ui->indentNamespaceBody->setChecked(s.indentNamespaceBody);
-    m_ui->indentAccessSpecifiers->setChecked(s.indentAccessSpecifiers);
-    m_ui->indentDeclarationsRelativeToAccessSpecifiers->setChecked(s.indentDeclarationsRelativeToAccessSpecifiers);
-    m_ui->indentFunctionBody->setChecked(s.indentFunctionBody);
-    m_ui->indentFunctionBraces->setChecked(s.indentFunctionBraces);
-    m_ui->indentSwitchLabels->setChecked(s.indentSwitchLabels);
-    m_ui->indentCaseStatements->setChecked(s.indentStatementsRelativeToSwitchLabels);
-    m_ui->indentCaseBlocks->setChecked(s.indentBlocksRelativeToSwitchLabels);
-    m_ui->indentCaseBreak->setChecked(s.indentControlFlowRelativeToSwitchLabels);
-    m_ui->bindStarToIdentifier->setChecked(s.bindStarToIdentifier);
-    m_ui->bindStarToTypeName->setChecked(s.bindStarToTypeName);
-    m_ui->bindStarToLeftSpecifier->setChecked(s.bindStarToLeftSpecifier);
-    m_ui->bindStarToRightSpecifier->setChecked(s.bindStarToRightSpecifier);
-    m_ui->extraPaddingConditions->setChecked(s.extraPaddingForConditionsIfConfusingAlign);
-    m_ui->alignAssignments->setChecked(s.alignAssignments);
+    d->m_indentBlockBraces->setChecked(s.indentBlockBraces);
+    d->m_indentBlockBody->setChecked(s.indentBlockBody);
+    d->m_indentClassBraces->setChecked(s.indentClassBraces);
+    d->m_indentEnumBraces->setChecked(s.indentEnumBraces);
+    d->m_indentNamespaceBraces->setChecked(s.indentNamespaceBraces);
+    d->m_indentNamespaceBody->setChecked(s.indentNamespaceBody);
+    d->m_indentAccessSpecifiers->setChecked(s.indentAccessSpecifiers);
+    d->m_indentDeclarationsRelativeToAccessSpecifiers->setChecked(s.indentDeclarationsRelativeToAccessSpecifiers);
+    d->m_indentFunctionBody->setChecked(s.indentFunctionBody);
+    d->m_indentFunctionBraces->setChecked(s.indentFunctionBraces);
+    d->m_indentSwitchLabels->setChecked(s.indentSwitchLabels);
+    d->m_indentCaseStatements->setChecked(s.indentStatementsRelativeToSwitchLabels);
+    d->m_indentCaseBlocks->setChecked(s.indentBlocksRelativeToSwitchLabels);
+    d->m_indentCaseBreak->setChecked(s.indentControlFlowRelativeToSwitchLabels);
+    d->m_bindStarToIdentifier->setChecked(s.bindStarToIdentifier);
+    d->m_bindStarToTypeName->setChecked(s.bindStarToTypeName);
+    d->m_bindStarToLeftSpecifier->setChecked(s.bindStarToLeftSpecifier);
+    d->m_bindStarToRightSpecifier->setChecked(s.bindStarToRightSpecifier);
+    d->m_extraPaddingConditions->setChecked(s.extraPaddingForConditionsIfConfusingAlign);
+    d->m_alignAssignments->setChecked(s.alignAssignments);
     m_blockUpdates = wasBlocked;
     if (preview)
         updatePreview();
@@ -241,12 +415,9 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
 void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview)
 {
     const bool enable = !preferences->isReadOnly();
-    m_ui->tabSettingsWidget->setEnabled(enable);
-    m_ui->contentGroupBox->setEnabled(enable);
-    m_ui->bracesGroupBox->setEnabled(enable);
-    m_ui->switchGroupBox->setEnabled(enable);
-    m_ui->alignmentGroupBox->setEnabled(enable);
-    m_ui->pointerReferencesGroupBox->setEnabled(enable);
+    for (QWidget *widget : d->m_controllers)
+        widget->setEnabled(enable);
+
     if (preview)
         updatePreview();
 }
@@ -289,7 +460,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
     const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
     const TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
-    for (SnippetEditorWidget *preview : std::as_const(m_previews)) {
+    for (SnippetEditorWidget *preview : std::as_const(d->m_previews)) {
         preview->textDocument()->setTabSettings(ts);
         preview->setCodeStyle(cppCodeStylePreferences);
 
@@ -311,7 +482,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
 
 void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSettings)
 {
-    for (SnippetEditorWidget *editor : std::as_const(m_previews)) {
+    for (SnippetEditorWidget *editor : std::as_const(d->m_previews)) {
         editor->textDocument()->setFontSettings(fontSettings);
         SnippetProvider::decorateEditor(editor, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
     }
@@ -319,7 +490,7 @@ void CppCodeStylePreferencesWidget::decorateEditors(const FontSettings &fontSett
 
 void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 {
-    for (SnippetEditorWidget *editor : std::as_const(m_previews)) {
+    for (SnippetEditorWidget *editor : std::as_const(d->m_previews)) {
         DisplaySettings displaySettings = editor->displaySettings();
         displaySettings.m_visualizeWhitespace = on;
         editor->setDisplaySettings(displaySettings);
@@ -331,8 +502,8 @@ void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tab
     if (!page)
         return;
 
-    m_ui->categoryTab->insertTab(0, page, tabName);
-    m_ui->categoryTab->setCurrentIndex(0);
+    d->m_categoryTab->insertTab(0, page, tabName);
+    d->m_categoryTab->setCurrentIndex(0);
 
     connect(page, &CppEditor::CppCodeStyleWidget::codeStyleSettingsChanged,
             this, [this](const CppEditor::CppCodeStyleSettings &settings) {
@@ -382,7 +553,7 @@ void CppCodeStylePreferencesWidget::finish()
 CppCodeStyleSettingsPage::CppCodeStyleSettingsPage()
 {
     setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("CppEditor", Constants::CPP_CODE_STYLE_SETTINGS_NAME));
+    setDisplayName(Tr::tr("Code Style"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
 }
 

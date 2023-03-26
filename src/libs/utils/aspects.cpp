@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "aspects.h"
 
@@ -10,6 +10,7 @@
 #include "pathchooser.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
+#include "utilstr.h"
 #include "variablechooser.h"
 
 #include <QAction>
@@ -27,6 +28,8 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QTextEdit>
+
+using namespace Utils::Layouting;
 
 namespace Utils {
 namespace Internal {
@@ -51,7 +54,7 @@ public:
 
     bool m_visible = true;
     bool m_enabled = true;
-    bool m_readOnly = true;
+    bool m_readOnly = false;
     bool m_autoApply = true;
     int m_spanX = 1;
     int m_spanY = 1;
@@ -206,17 +209,17 @@ void BaseAspect::setupLabel()
     registerSubWidget(d->m_label);
 }
 
-void BaseAspect::addLabeledItem(LayoutBuilder &builder, QWidget *widget)
+void BaseAspect::addLabeledItem(Layouting::LayoutBuilder &builder, QWidget *widget)
 {
     setupLabel();
     if (QLabel *l = label()) {
         l->setBuddy(widget);
         builder.addItem(l);
-        LayoutBuilder::LayoutItem item(widget);
+        LayoutItem item(widget);
         item.span = std::max(d->m_spanX - 1, 1);
         builder.addItem(item);
     } else {
-        builder.addItem(LayoutBuilder::LayoutItem(widget));
+        builder.addItem(LayoutItem(widget));
     }
 }
 
@@ -417,7 +420,7 @@ QAction *BaseAspect::action()
     Adds the visual representation of this aspect to a layout using
     a layout builder.
 */
-void BaseAspect::addToLayout(LayoutBuilder &)
+void BaseAspect::addToLayout(Layouting::LayoutBuilder &)
 {
 }
 
@@ -799,6 +802,11 @@ void StringAspect::setValue(const QString &val)
     }
 }
 
+QString StringAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toString();
+}
+
 void StringAspect::setDefaultValue(const QString &val)
 {
     BaseAspect::setDefaultValue(val);
@@ -967,6 +975,11 @@ void StringAspect::setEnvironmentChange(const EnvironmentChange &change)
         d->m_pathChooserDisplay->setEnvironmentChange(change);
 }
 
+void StringAspect::setEnvironment(const Environment &env)
+{
+    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
+}
+
 void StringAspect::setBaseFileName(const FilePath &baseFileName)
 {
     d->m_baseFileName = baseFileName;
@@ -1037,7 +1050,7 @@ void StringAspect::setUncheckedSemantics(StringAspect::UncheckedSemantics semant
     d->m_uncheckedSemantics = semantics;
 }
 
-void StringAspect::addToLayout(LayoutBuilder &builder)
+void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
         d->m_checker->addToLayout(builder);
@@ -1066,7 +1079,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         if (defaultValue() == value())
-            d->m_pathChooserDisplay->setDefaultValue(defaultValue().toString());
+            d->m_pathChooserDisplay->setDefaultValue(defaultValue());
         else
             d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
         // do not override default value with placeholder, but use placeholder if default is empty
@@ -1102,6 +1115,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         if (d->m_validator)
             d->m_lineEditDisplay->setValidationFunction(d->m_validator);
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
+        d->m_lineEditDisplay->setReadOnly(isReadOnly());
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
         addLabeledItem(builder, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
@@ -1125,10 +1139,10 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
             }
         }
         if (d->m_useResetButton) {
-            auto resetButton = createSubWidget<QPushButton>(tr("Reset"));
+            auto resetButton = createSubWidget<QPushButton>(Tr::tr("Reset"));
             resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
             connect(resetButton, &QPushButton::clicked, this, [this] {
-                d->m_lineEditDisplay->setText(defaultValue().toString());
+                d->m_lineEditDisplay->setText(defaultValue());
             });
             connect(d->m_lineEditDisplay, &QLineEdit::textChanged, this, [this, resetButton] {
                 resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
@@ -1143,6 +1157,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_textEditDisplay->setAcceptRichText(d->m_acceptRichText);
         d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
         d->m_textEditDisplay->setText(displayedString);
+        d->m_textEditDisplay->setReadOnly(isReadOnly());
         d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
         addLabeledItem(builder, d->m_textEditDisplay);
         useMacroExpander(d->m_textEditDisplay);
@@ -1175,17 +1190,17 @@ QVariant StringAspect::volatileValue() const
     case PathChooserDisplay:
         QTC_ASSERT(d->m_pathChooserDisplay, return {});
         if (d->m_pathChooserDisplay->filePath().isEmpty())
-            return defaultValue().toString();
+            return defaultValue();
         return d->m_pathChooserDisplay->filePath().toString();
     case LineEditDisplay:
         QTC_ASSERT(d->m_lineEditDisplay, return {});
         if (d->m_lineEditDisplay->text().isEmpty())
-            return defaultValue().toString();
+            return defaultValue();
         return d->m_lineEditDisplay->text();
     case TextEditDisplay:
         QTC_ASSERT(d->m_textEditDisplay, return {});
         if (d->m_textEditDisplay->document()->isEmpty())
-            return defaultValue().toString();
+            return defaultValue();
         return d->m_textEditDisplay->document()->toPlainText();
     case LabelDisplay:
         break;
@@ -1223,7 +1238,7 @@ void StringAspect::update()
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
 
     if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
+        d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     }
 
@@ -1305,7 +1320,7 @@ BoolAspect::~BoolAspect() = default;
 /*!
     \reimp
 */
-void BoolAspect::addToLayout(LayoutBuilder &builder)
+void BoolAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
     d->m_checkBox = createSubWidget<QCheckBox>();
@@ -1316,7 +1331,7 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
         break;
     case LabelPlacement::AtCheckBox: {
         d->m_checkBox->setText(labelText());
-        LayoutBuilder::LayoutType type = builder.layoutType();
+        Layouting::LayoutBuilder::LayoutType type = builder.layoutType();
         if (type == LayoutBuilder::FormLayout)
             builder.addItem(createSubWidget<QLabel>());
         builder.addItem(d->m_checkBox.data());
@@ -1406,6 +1421,11 @@ void BoolAspect::setValue(bool value)
     }
 }
 
+bool BoolAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toBool();
+}
+
 void BoolAspect::setDefaultValue(bool val)
 {
     BaseAspect::setDefaultValue(val);
@@ -1453,7 +1473,7 @@ SelectionAspect::~SelectionAspect() = default;
 /*!
     \reimp
 */
-void SelectionAspect::addToLayout(LayoutBuilder &builder)
+void SelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
@@ -1565,6 +1585,11 @@ void SelectionAspect::setStringValue(const QString &val)
     setValue(index);
 }
 
+int SelectionAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toInt();
+}
+
 void SelectionAspect::setDefaultValue(int val)
 {
     BaseAspect::setDefaultValue(val);
@@ -1652,7 +1677,7 @@ MultiSelectionAspect::~MultiSelectionAspect() = default;
 /*!
     \reimp
 */
-void MultiSelectionAspect::addToLayout(LayoutBuilder &builder)
+void MultiSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_listView == nullptr);
     if (d->m_allValues.isEmpty())
@@ -1761,7 +1786,7 @@ IntegerAspect::~IntegerAspect() = default;
 /*!
     \reimp
 */
-void IntegerAspect::addToLayout(LayoutBuilder &builder)
+void IntegerAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QSpinBox>();
@@ -1812,6 +1837,11 @@ void IntegerAspect::setValue(qint64 value)
         emit valueChanged(value);
         //qDebug() << "SetValue: Changed" << labelText() << " to " << value;
     }
+}
+
+qint64 IntegerAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toLongLong();
 }
 
 void IntegerAspect::setRange(qint64 min, qint64 max)
@@ -1890,7 +1920,7 @@ DoubleAspect::~DoubleAspect() = default;
 /*!
     \reimp
 */
-void DoubleAspect::addToLayout(LayoutBuilder &builder)
+void DoubleAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QDoubleSpinBox>();
@@ -1931,6 +1961,11 @@ double DoubleAspect::value() const
 void DoubleAspect::setValue(double value)
 {
     BaseAspect::setValue(value);
+}
+
+double DoubleAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toDouble();
 }
 
 void DoubleAspect::setRange(double min, double max)
@@ -1975,14 +2010,14 @@ void DoubleAspect::setSingleStep(double step)
     Its visual representation is a QComboBox with three items.
 */
 
-TriStateAspect::TriStateAspect(const QString onString, const QString &offString,
+TriStateAspect::TriStateAspect(const QString &onString, const QString &offString,
                                const QString &defaultString)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
     setDefaultValue(TriState::Default);
-    addOption(onString);
-    addOption(offString);
-    addOption(defaultString);
+    addOption(onString.isEmpty() ? Tr::tr("Enable") : onString);
+    addOption(offString.isEmpty() ? Tr::tr("Disable") : offString);
+    addOption(defaultString.isEmpty() ? Tr::tr("Leave at Default") : defaultString);
 }
 
 TriState TriStateAspect::value() const
@@ -1993,6 +2028,11 @@ TriState TriStateAspect::value() const
 void TriStateAspect::setValue(TriState value)
 {
     SelectionAspect::setValue(value.toInt());
+}
+
+TriState TriStateAspect::defaultValue() const
+{
+    return TriState::fromVariant(BaseAspect::defaultValue());
 }
 
 void TriStateAspect::setDefaultValue(TriState value)
@@ -2034,7 +2074,7 @@ StringListAspect::~StringListAspect() = default;
 /*!
     \reimp
 */
-void StringListAspect::addToLayout(LayoutBuilder &builder)
+void StringListAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     Q_UNUSED(builder)
     // TODO - when needed.
@@ -2104,7 +2144,7 @@ IntegersAspect::~IntegersAspect() = default;
 /*!
     \reimp
 */
-void IntegersAspect::addToLayout(LayoutBuilder &builder)
+void IntegersAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     Q_UNUSED(builder)
     // TODO - when needed.
@@ -2124,6 +2164,12 @@ QList<int> IntegersAspect::value() const
 void IntegersAspect::setValue(const QList<int> &value)
 {
     BaseAspect::setValue(transform(value, &QVariant::fromValue<int>));
+}
+
+QList<int> IntegersAspect::defaultValue() const
+{
+    return transform(BaseAspect::defaultValue().toList(),
+                     [](QVariant v) { return v.toInt(); });
 }
 
 void IntegersAspect::setDefaultValue(const QList<int> &value)

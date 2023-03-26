@@ -1,5 +1,5 @@
 # Copyright (C) 2022 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -54,7 +54,7 @@ def main():
         with TestSection("Testing project template %s -> %s" % (category, template)):
             displayedPlatforms = __createProject__(category, template)
             if template == "Qt Quick Application":
-                qtVersionsForQuick = ["5.14"]
+                qtVersionsForQuick = ["6.2"]
                 for counter, qtVersion in enumerate(qtVersionsForQuick):
                     def additionalFunc(displayedPlatforms, qtVersion):
                         requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
@@ -109,17 +109,22 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         safeClickButton("Cancel")
         return
 
-    for counter, buildSystem in enumerate(availableBuildSystems):
+    fixedBuildSystems = list(availableBuildSystems)
+    if template == 'Qt Quick Application':
+        fixedBuildSystems.remove('qmake')
+        test.log("Skipped qmake (not supported).")
+
+    for counter, buildSystem in enumerate(fixedBuildSystems):
         test.log("Using build system '%s'" % buildSystem)
         selectFromCombo(combo, buildSystem)
         clickButton(waitForObject(":Next_QPushButton"))
         if specialHandlingFunc:
             specialHandlingFunc(displayedPlatforms, *args)
-        if not ('Plain C' in template):
+        if not ('Plain C' in template or 'Qt Quick' in template):
             __createProjectHandleTranslationSelection__()
         verifyKitCheckboxes(kits, displayedPlatforms)
         safeClickButton("Cancel")
-        if counter < len(availableBuildSystems) - 1:
+        if counter < len(fixedBuildSystems) - 1:
             displayedPlatforms = __createProject__(category, template)
 
 def __createProject__(category, template):

@@ -1,9 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "targetsettingspanel.h"
 
-#include "buildconfiguration.h"
 #include "buildmanager.h"
 #include "buildsettingspropertiespage.h"
 #include "ipotentialkit.h"
@@ -11,8 +10,8 @@
 #include "kitmanager.h"
 #include "panelswidget.h"
 #include "project.h"
-#include "projectexplorer.h"
 #include "projectexplorericons.h"
+#include "projectexplorertr.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
 #include "session.h"
@@ -53,8 +52,6 @@ namespace Internal {
 
 class TargetSetupPageWrapper : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
-
 public:
     explicit TargetSetupPageWrapper(Project *project);
 
@@ -114,7 +111,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     auto box = new QDialogButtonBox(this);
 
     m_configureButton = new QPushButton(this);
-    m_configureButton->setText(tr("&Configure Project"));
+    m_configureButton->setText(Tr::tr("&Configure Project"));
     box->addButton(m_configureButton, QDialogButtonBox::AcceptRole);
 
     auto hbox = new QHBoxLayout;
@@ -156,8 +153,6 @@ void TargetSetupPageWrapper::addTargetSetupPage()
 
 class TargetGroupItemPrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelItem)
-
 public:
     TargetGroupItemPrivate(TargetGroupItem *q, Project *project);
     ~TargetGroupItemPrivate() override;
@@ -190,7 +185,7 @@ void TargetGroupItemPrivate::ensureWidget()
         m_noKitLabel->setFocusPolicy(Qt::NoFocus);
 
         auto label = new QLabel;
-        label->setText(tr("No kit defined in this project."));
+        label->setText(Tr::tr("No kit defined in this project."));
         QFont f = label->font();
         f.setPointSizeF(f.pointSizeF() * 1.4);
         f.setBold(true);
@@ -207,7 +202,7 @@ void TargetGroupItemPrivate::ensureWidget()
 
     if (!m_configurePage) {
         m_targetSetupPageWrapper = new TargetSetupPageWrapper(m_project);
-        m_configurePage = new PanelsWidget(tr("Configure Project"), m_targetSetupPageWrapper);
+        m_configurePage = new PanelsWidget(Tr::tr("Configure Project"), m_targetSetupPageWrapper);
         m_configurePage->setFocusProxy(m_targetSetupPageWrapper);
     }
     m_targetSetupPageWrapper->ensureSetupPage();
@@ -219,7 +214,7 @@ void TargetGroupItemPrivate::ensureWidget()
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(label);
         layout->addStretch(10);
-        m_configuredPage = new PanelsWidget(tr("Configure Project"), widget);
+        m_configuredPage = new PanelsWidget(Tr::tr("Configure Project"), widget);
     }
 }
 
@@ -228,8 +223,6 @@ void TargetGroupItemPrivate::ensureWidget()
 //
 class TargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
 {
-    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
-
 public:
     enum { DefaultPage = 0 }; // Build page.
 
@@ -300,9 +293,9 @@ public:
                 break;
             const QString extraText = [this] {
                 if (m_kitErrorsForProject)
-                    return QString("<h3>" + tr("Kit is unsuited for project") + "</h3>");
+                    return QString("<h3>" + Tr::tr("Kit is unsuited for project") + "</h3>");
                 if (!isEnabled())
-                    return QString("<h3>" + tr("Click to activate") + "</h3>");
+                    return QString("<h3>" + Tr::tr("Click to activate") + "</h3>");
                 return QString();
             }();
             return k->toHtml(m_kitIssues, extraText);
@@ -374,14 +367,14 @@ public:
         QTC_ASSERT(kit, return);
         const QString projectName = m_project->displayName();
 
-        QAction *enableAction = menu->addAction(tr("Enable Kit for Project \"%1\"").arg(projectName));
+        QAction *enableAction = menu->addAction(Tr::tr("Enable Kit for Project \"%1\"").arg(projectName));
         enableAction->setEnabled(isSelectable && m_kitId.isValid() && !isEnabled());
         QObject::connect(enableAction, &QAction::triggered, [this, kit] {
             m_project->addTargetForKit(kit);
         });
 
         QAction * const enableForAllAction
-                = menu->addAction(tr("Enable Kit for All Projects"));
+                = menu->addAction(Tr::tr("Enable Kit for All Projects"));
         enableForAllAction->setEnabled(isSelectable);
         QObject::connect(enableForAllAction, &QAction::triggered, [kit] {
             for (Project * const p : SessionManager::projects()) {
@@ -390,7 +383,7 @@ public:
             }
         });
 
-        QAction *disableAction = menu->addAction(tr("Disable Kit for Project \"%1\"").arg(projectName));
+        QAction *disableAction = menu->addAction(Tr::tr("Disable Kit for Project \"%1\"").arg(projectName));
         disableAction->setEnabled(isSelectable && m_kitId.isValid() && isEnabled());
         QObject::connect(disableAction, &QAction::triggered, m_project, [this] {
             Target *t = target();
@@ -398,12 +391,12 @@ public:
             QString kitName = t->displayName();
             if (BuildManager::isBuilding(t)) {
                 QMessageBox box;
-                QPushButton *closeAnyway = box.addButton(tr("Cancel Build and Disable Kit in This Project"), QMessageBox::AcceptRole);
-                QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
+                QPushButton *closeAnyway = box.addButton(Tr::tr("Cancel Build and Disable Kit in This Project"), QMessageBox::AcceptRole);
+                QPushButton *cancelClose = box.addButton(Tr::tr("Do Not Remove"), QMessageBox::RejectRole);
                 box.setDefaultButton(cancelClose);
-                box.setWindowTitle(tr("Disable Kit \"%1\" in This Project?").arg(kitName));
-                box.setText(tr("The kit <b>%1</b> is currently being built.").arg(kitName));
-                box.setInformativeText(tr("Do you want to cancel the build process and remove the kit anyway?"));
+                box.setWindowTitle(Tr::tr("Disable Kit \"%1\" in This Project?").arg(kitName));
+                box.setText(Tr::tr("The kit <b>%1</b> is currently being built.").arg(kitName));
+                box.setInformativeText(Tr::tr("Do you want to cancel the build process and remove the kit anyway?"));
                 box.exec();
                 if (box.clickedButton() != closeAnyway)
                     return;
@@ -415,7 +408,7 @@ public:
             m_project->removeTarget(t);
         });
 
-        QAction *disableForAllAction = menu->addAction(tr("Disable Kit for All Projects"));
+        QAction *disableForAllAction = menu->addAction(Tr::tr("Disable Kit for All Projects"));
         disableForAllAction->setEnabled(isSelectable);
         QObject::connect(disableForAllAction, &QAction::triggered, [kit] {
             for (Project * const p : SessionManager::projects()) {
@@ -428,7 +421,7 @@ public:
             }
         });
 
-        QMenu *copyMenu = menu->addMenu(tr("Copy Steps From Another Kit..."));
+        QMenu *copyMenu = menu->addMenu(Tr::tr("Copy Steps From Another Kit..."));
         if (m_kitId.isValid() && m_project->target(m_kitId)) {
             const QList<Kit *> kits = KitManager::kits();
             for (Kit *kit : kits) {
@@ -504,8 +497,6 @@ private:
 
 class BuildOrRunItem : public TreeItem
 {
-    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
-
 public:
     enum SubIndex { BuildPage = 0, RunPage = 1 };
 
@@ -529,9 +520,9 @@ public:
         case Qt::DisplayRole: {
             switch (m_subIndex) {
             case BuildPage:
-                return tr("Build");
+                return Tr::tr("Build");
             case RunPage:
-                return tr("Run");
+                return Tr::tr("Run");
             }
             break;
         }
@@ -589,10 +580,8 @@ public:
     {
         if (!m_panel) {
             m_panel = (m_subIndex == RunPage)
-                    ? new PanelsWidget(RunSettingsWidget::tr("Run Settings"),
-                                       new RunSettingsWidget(target()))
-                    : new PanelsWidget(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"),
-                                       new BuildSettingsWidget(target()));
+                    ? new PanelsWidget(Tr::tr("Run Settings"), new RunSettingsWidget(target()))
+                    : new PanelsWidget(Tr::tr("Build Settings"), new BuildSettingsWidget(target()));
         }
         return m_panel;
     }
@@ -609,8 +598,6 @@ public:
 //
 class PotentialKitItem : public TypedTreeItem<TreeItem, TargetGroupItem>
 {
-    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelWidget)
-
 public:
     PotentialKitItem(Project *project, IPotentialKit *potentialKit)
         : m_project(project), m_potentialKit(potentialKit)
@@ -635,7 +622,7 @@ public:
         Q_UNUSED(column)
         if (role == ContextMenuItemAdderRole) {
             auto *menu = data.value<QMenu *>();
-            auto enableAction = menu->addAction(tr("Enable Kit"));
+            auto enableAction = menu->addAction(Tr::tr("Enable Kit"));
             enableAction->setEnabled(!isEnabled());
             QObject::connect(enableAction, &QAction::triggered, [this] {
                 m_potentialKit->executeFromMenu();

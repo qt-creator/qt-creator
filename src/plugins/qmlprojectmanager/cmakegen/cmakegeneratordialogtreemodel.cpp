@@ -1,9 +1,10 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakegeneratordialogtreemodel.h"
 #include "generatecmakelistsconstants.h"
 #include "checkablefiletreeitem.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <utils/utilsicons.h>
 
@@ -49,11 +50,9 @@ QVariant CMakeGeneratorDialogTreeModel::data(const QModelIndex &index, int role)
         }
         else if (role == Qt::ToolTipRole) {
             if (node->isFile())
-                return QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                "This file already exists and will be overwritten.");
+                return Tr::tr("This file already exists and will be overwritten.");
             if (!node->toFilePath().exists())
-                return QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                "This file or folder will be created.");
+                return Tr::tr("This file or folder will be created.");
         }
     }
 

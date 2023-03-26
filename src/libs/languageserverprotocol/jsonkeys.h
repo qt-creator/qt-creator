@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,6 +16,8 @@ constexpr char16_t appliedKey[] = u"applied";
 constexpr char16_t applyEditKey[] = u"applyEdit";
 constexpr char16_t argumentsKey[] = u"arguments";
 constexpr char16_t blueKey[] = u"blue";
+constexpr char16_t callHierarchyKey[] = u"callHierarchy";
+constexpr char16_t callHierarchyProviderKey[] = u"callHierarchyProvider";
 constexpr char16_t cancellableKey[] = u"cancellable";
 constexpr char16_t capabilitiesKey[] = u"capabilities";
 constexpr char16_t chKey[] = u"ch";
@@ -88,6 +90,8 @@ constexpr char16_t filterTextKey[] = u"filterText";
 constexpr char16_t firstTriggerCharacterKey[] = u"firstTriggerCharacter";
 constexpr char16_t formatsKey[] = u"formats";
 constexpr char16_t formattingKey[] = u"formatting";
+constexpr char16_t fromKey[] = u"from";
+constexpr char16_t fromRangesKey[] = u"fromRanges";
 constexpr char16_t fullKey[] = u"full";
 constexpr char16_t greenKey[] = u"green";
 constexpr char16_t hierarchicalDocumentSymbolSupportKey[] = u"hierarchicalDocumentSymbolSupport";
@@ -104,6 +108,7 @@ constexpr char16_t insertSpaceKey[] = u"insertSpace";
 constexpr char16_t insertTextFormatKey[] = u"insertTextFormat";
 constexpr char16_t insertTextKey[] = u"insertText";
 constexpr char16_t isIncompleteKey[] = u"isIncomplete";
+constexpr char16_t itemKey[] = u"item";
 constexpr char16_t itemsKey[] = u"items";
 constexpr char16_t jsonRpcVersionKey[] = u"jsonrpc";
 constexpr char16_t kindKey[] = u"kind";
@@ -190,6 +195,7 @@ constexpr char16_t textEditKey[] = u"textEdit";
 constexpr char16_t textKey[] = u"text";
 constexpr char16_t titleKey[] = u"title";
 constexpr char16_t tokenKey[] = u"token";
+constexpr char16_t toKey[] = u"to";
 constexpr char16_t tokenModifiersKey[] = u"tokenModifiers";
 constexpr char16_t tokenTypesKey[] = u"tokenTypes";
 constexpr char16_t traceKey[] = u"trace";

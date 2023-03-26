@@ -1,33 +1,26 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "devicemanager.h"
 
 #include "idevicefactory.h"
+#include "../projectexplorertr.h"
+#include "../projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/persistentsettings.h>
-#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
-#include <QDateTime>
-#include <QFileInfo>
 #include <QHash>
-#include <QList>
 #include <QMutex>
 #include <QMutexLocker>
-#include <QString>
 #include <QVariantList>
 
 #include <limits>
@@ -42,14 +35,12 @@ const char DeviceManagerKey[] = "DeviceManager";
 const char DeviceListKey[] = "DeviceList";
 const char DefaultDevicesKey[] = "DefaultDevices";
 
-template <class ...Args> using Continuation = std::function<void(Args...)>;
-
 class DeviceManagerPrivate
 {
 public:
     DeviceManagerPrivate() = default;
 
-    int indexForId(Utils::Id id) const
+    int indexForId(Id id) const
     {
         for (int i = 0; i < devices.count(); ++i) {
             if (devices.at(i)->id() == id)
@@ -68,8 +59,8 @@ public:
 
     mutable QMutex mutex;
     QList<IDevice::Ptr> devices;
-    QHash<Utils::Id, Utils::Id> defaultDevices;
-    Utils::PersistentSettingsWriter *writer = nullptr;
+    QHash<Id, Id> defaultDevices;
+    PersistentSettingsWriter *writer = nullptr;
 };
 DeviceManager *DeviceManagerPrivate::clonedInstance = nullptr;
 
@@ -160,9 +151,9 @@ void DeviceManager::load()
     // Only create writer now: We do not want to save before the settings were read!
     d->writer = new PersistentSettingsWriter(settingsFilePath("devices.xml"), "QtCreatorDevices");
 
-    Utils::PersistentSettingsReader reader;
+    PersistentSettingsReader reader;
     // read devices file from global settings path
-    QHash<Utils::Id, Utils::Id> defaultDevices;
+    QHash<Id, Id> defaultDevices;
     QList<IDevice::Ptr> sdkDevices;
     if (reader.load(systemSettingsFilePath("devices.xml")))
         sdkDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
@@ -199,7 +190,7 @@ void DeviceManager::load()
 
 static const IDeviceFactory *restoreFactory(const QVariantMap &map)
 {
-    const Utils::Id deviceType = IDevice::typeFromMap(map);
+    const Id deviceType = IDevice::typeFromMap(map);
     IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
         [&map, deviceType](IDeviceFactory *factory) {
             return factory->canRestore(map) && factory->deviceType() == deviceType;
@@ -212,15 +203,14 @@ static const IDeviceFactory *restoreFactory(const QVariantMap &map)
     return factory;
 }
 
-QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map,
-                                           QHash<Utils::Id, Utils::Id> *defaultDevices)
+QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map, QHash<Id, Id> *defaultDevices)
 {
     QList<IDevice::Ptr> devices;
 
     if (defaultDevices) {
         const QVariantMap defaultDevsMap = map.value(DefaultDevicesKey).toMap();
         for (auto it = defaultDevsMap.constBegin(); it != defaultDevsMap.constEnd(); ++it)
-            defaultDevices->insert(Utils::Id::fromString(it.key()), Utils::Id::fromSetting(it.value()));
+            defaultDevices->insert(Id::fromString(it.key()), Id::fromSetting(it.value()));
     }
     const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
     for (const QVariant &v : deviceList) {
@@ -240,11 +230,9 @@ QVariantMap DeviceManager::toMap() const
 {
     QVariantMap map;
     QVariantMap defaultDeviceMap;
-    using TypeIdHash = QHash<Utils::Id, Utils::Id>;
-    for (TypeIdHash::ConstIterator it = d->defaultDevices.constBegin();
-             it != d->defaultDevices.constEnd(); ++it) {
+    for (auto it = d->defaultDevices.constBegin(); it != d->defaultDevices.constEnd(); ++it)
         defaultDeviceMap.insert(it.key().toString(), it.value().toSetting());
-    }
+
     map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
     QVariantList deviceList;
     for (const IDevice::Ptr &device : std::as_const(d->devices))
@@ -286,31 +274,29 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
         }
         emit deviceAdded(device->id());
 
-        if (FSEngine::isAvailable()) {
-            Utils::FSEngine::addDevice(device->rootPath());
-        }
+        if (FSEngine::isAvailable())
+            FSEngine::addDevice(device->rootPath());
     }
 
     emit updated();
 }
 
-void DeviceManager::removeDevice(Utils::Id id)
+void DeviceManager::removeDevice(Id id)
 {
     const IDevice::Ptr device = mutableDevice(id);
     QTC_ASSERT(device, return);
     QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
-    const Utils::Id deviceType = device->type();
+    const Id deviceType = device->type();
     {
         QMutexLocker locker(&d->mutex);
         d->devices.removeAt(d->indexForId(id));
     }
     emit deviceRemoved(device->id());
 
-    if (FSEngine::isAvailable()) {
-        Utils::FSEngine::removeDevice(device->rootPath());
-    }
+    if (FSEngine::isAvailable())
+        FSEngine::removeDevice(device->rootPath());
 
     if (wasDefault) {
         for (int i = 0; i < d->devices.count(); ++i) {
@@ -327,7 +313,7 @@ void DeviceManager::removeDevice(Utils::Id id)
     emit updated();
 }
 
-void DeviceManager::setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState)
+void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState deviceState)
 {
     // To see the state change in the DeviceSettingsWidget. This has to happen before
     // the pos check below, in case the device is only present in the cloned instance.
@@ -378,7 +364,7 @@ IDevice::ConstPtr DeviceManager::defaultDesktopDevice()
     return m_instance->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
 }
 
-void DeviceManager::setDefaultDevice(Utils::Id id)
+void DeviceManager::setDefaultDevice(Id id)
 {
     QTC_ASSERT(this != instance(), return);
 
@@ -414,23 +400,33 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return leftDevice == rightDevice;
     };
 
-    deviceHooks.fileAccess = [](const FilePath &filePath) -> DeviceFileAccess * {
+    deviceHooks.localSource = [](const FilePath &file) -> expected_str<FilePath> {
+        auto device = DeviceManager::deviceForPath(file);
+        if (!device)
+            return make_unexpected(Tr::tr("No device for path \"%1\"").arg(file.toUserOutput()));
+        return device->localSource(file);
+    };
+
+    deviceHooks.fileAccess = [](const FilePath &filePath) -> expected_str<DeviceFileAccess *> {
         if (!filePath.needsDevice())
             return DesktopDeviceFileAccess::instance();
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return nullptr);
+        if (!device) {
+            return make_unexpected(
+                QString("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+        }
         return device->fileAccess();
     };
 
     deviceHooks.environment = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return Environment{});
+        QTC_ASSERT(device, qDebug() << filePath.toString(); return Environment{});
         return device->systemEnvironment();
     };
 
     deviceHooks.deviceDisplayName = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return QString());
+        QTC_ASSERT(device, return filePath.toUserOutput());
         return device->displayName();
     };
 
@@ -438,6 +434,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
         return device->ensureReachable(other);
+    };
+
+    deviceHooks.openTerminal = [](const FilePath &filePath, const Environment &env) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return);
+        device->openTerminal(env, filePath);
     };
 
     DeviceProcessHooks processHooks;
@@ -471,7 +473,7 @@ IDevice::ConstPtr DeviceManager::deviceAt(int idx) const
     return d->devices.at(idx);
 }
 
-IDevice::Ptr DeviceManager::mutableDevice(Utils::Id id) const
+IDevice::Ptr DeviceManager::mutableDevice(Id id) const
 {
     const int index = d->indexForId(id);
     return index == -1 ? IDevice::Ptr() : d->devices.at(index);
@@ -484,15 +486,15 @@ bool DeviceManager::hasDevice(const QString &name) const
     });
 }
 
-IDevice::ConstPtr DeviceManager::find(Utils::Id id) const
+IDevice::ConstPtr DeviceManager::find(Id id) const
 {
     const int index = d->indexForId(id);
     return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
 }
 
-IDevice::ConstPtr DeviceManager::defaultDevice(Utils::Id deviceType) const
+IDevice::ConstPtr DeviceManager::defaultDevice(Id deviceType) const
 {
-    const Utils::Id id = d->defaultDevices.value(deviceType);
+    const Id id = d->defaultDevices.value(deviceType);
     return id.isValid() ? find(id) : IDevice::ConstPtr();
 }
 
@@ -512,20 +514,17 @@ class TestDevice : public IDevice
 public:
     TestDevice()
     {
-        setupId(AutoDetected, Utils::Id::fromString(QUuid::createUuid().toString()));
+        setupId(AutoDetected, Id::fromString(QUuid::createUuid().toString()));
         setType(testTypeId());
         setMachineType(Hardware);
         setOsType(HostOsInfo::hostOs());
         setDisplayType("blubb");
     }
 
-    static Utils::Id testTypeId() { return "TestType"; }
+    static Id testTypeId() { return "TestType"; }
+
 private:
     IDeviceWidget *createWidget() override { return nullptr; }
-    DeviceProcessSignalOperation::Ptr signalOperation() const override
-    {
-        return DeviceProcessSignalOperation::Ptr();
-    }
 };
 
 class TestDeviceFactory final : public IDeviceFactory

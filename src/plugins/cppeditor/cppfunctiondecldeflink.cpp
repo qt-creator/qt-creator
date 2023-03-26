@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppfunctiondecldeflink.h"
 
 #include "cppcodestylesettings.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cpplocalsymbols.h"
 #include "cppquickfixassistant.h"
@@ -147,10 +148,7 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
         return noResult;
 
     // parse the target file to get the linked decl/def
-    const QString targetFileName = QString::fromUtf8(
-                target->fileName(), target->fileNameLength());
-    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(
-        Utils::FilePath::fromString(targetFileName));
+    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(target->filePath());
     if (!targetFile->isValid())
         return noResult;
 
@@ -198,8 +196,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 
     // find the start/end offsets
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr sourceFile = refactoringChanges.file(
-        Utils::FilePath::fromString(doc->fileName()));
+    CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->filePath());
     sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
@@ -274,7 +271,7 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
         newTargetFile->apply();
     } else {
         ToolTip::show(editor->toolTipPosition(linkSelection),
-                     tr("Target file was changed, could not apply changes"));
+                      Tr::tr("Target file was changed, could not apply changes"));
     }
 }
 
@@ -309,9 +306,9 @@ void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
 
     QString message;
     if (targetDeclaration->asFunctionDefinition())
-        message = tr("Apply changes to definition");
+        message = Tr::tr("Apply changes to definition");
     else
-        message = tr("Apply changes to declaration");
+        message = Tr::tr("Apply changes to declaration");
 
     Core::Command *quickfixCommand = Core::ActionManager::command(TextEditor::Constants::QUICKFIX_THIS);
     if (quickfixCommand)
@@ -525,7 +522,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
     newDeclText.append(QLatin1String("{}"));
     const QByteArray newDeclTextPreprocessed = typeOfExpression.preprocess(newDeclText.toUtf8());
 
-    Document::Ptr newDeclDoc = Document::create(QLatin1String("<decl>"));
+    Document::Ptr newDeclDoc = Document::create(FilePath::fromPathPart(u"<decl>"));
     newDeclDoc->setUtf8Source(newDeclTextPreprocessed);
     newDeclDoc->parse(Document::ParseDeclaration);
     newDeclDoc->check();

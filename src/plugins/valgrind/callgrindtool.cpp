@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "callgrindtool.h"
 
@@ -19,7 +19,6 @@
 #include <valgrind/callgrind/callgrindparser.h>
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
-#include <valgrind/valgrindplugin.h>
 #include <valgrind/valgrindsettings.h>
 
 #include <debugger/debuggerconstants.h>
@@ -64,7 +63,6 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QMenu>
 #include <QSortFilterProxyModel>
@@ -79,14 +77,23 @@ using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
 const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
 const char CALLGRIND_RUN_MODE[]           = "CallgrindTool.CallgrindRunMode";
 
-class CallgrindToolPrivate : public QObject
+class CallgrindToolRunnerFactory final : public RunWorkerFactory
+{
+public:
+    CallgrindToolRunnerFactory()
+    {
+        setProduct<CallgrindToolRunner>();
+        addSupportedRunMode(CALLGRIND_RUN_MODE);
+    }
+};
+
+class CallgrindToolPrivate final : public QObject
 {
     Q_OBJECT
 
@@ -196,10 +203,7 @@ public:
 
     Perspective m_perspective{"Callgrind.Perspective", Tr::tr("Callgrind")};
 
-    RunWorkerFactory callgrindRunWorkerFactory{
-        RunWorkerFactory::make<CallgrindToolRunner>(),
-        {CALLGRIND_RUN_MODE}
-    };
+    CallgrindToolRunnerFactory callgrindRunWorkerFactory;
 };
 
 CallgrindToolPrivate::CallgrindToolPrivate()
@@ -828,7 +832,7 @@ void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line
 {
     // Find callgrind text mark that corresponds to this editor's file and line number
     for (CallgrindTextMark *textMark : std::as_const(m_textMarks)) {
-        if (textMark->fileName() == widget->textDocument()->filePath() && textMark->lineNumber() == line) {
+        if (textMark->filePath() == widget->textDocument()->filePath() && textMark->lineNumber() == line) {
             const Function *func = textMark->function();
             QAction *action = menu->addAction(Tr::tr("Select This Function in the Analyzer Output"));
             connect(action, &QAction::triggered, this, [this, func] { selectFunction(func); });
@@ -966,7 +970,6 @@ CallgrindTool::~CallgrindTool()
     delete dd;
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal
 
 #include "callgrindtool.moc"

@@ -1,18 +1,18 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "qmljseditor_global.h"
 
 #include <qmljstools/qmljssemanticinfo.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
-#include <texteditor/codeassist/assistinterface.h>
-
 
 #include <QStringList>
 #include <QScopedPointer>
@@ -51,13 +51,13 @@ public:
 };
 
 
-class QmlJSCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class QmlJSCompletionAssistProcessor : public TextEditor::AsyncProcessor
 {
 public:
     QmlJSCompletionAssistProcessor();
     ~QmlJSCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync() override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;
@@ -73,7 +73,6 @@ private:
                           const QStringList &patterns = QStringList());
 
     int m_startPosition;
-    QScopedPointer<const QmlJSCompletionAssistInterface> m_interface;
     QList<TextEditor::AssistProposalItemInterface *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
 };

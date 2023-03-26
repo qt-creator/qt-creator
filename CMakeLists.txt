@@ -54,7 +54,7 @@ set(CMAKE_AUTOUIC ON)
 
 if (WITH_TESTS)
   set(QT_TEST_COMPONENT Test)
-  set(IMPLICIT_DEPENDS Qt5::Test)
+  set(IMPLICIT_DEPENDS Qt::Test)
 endif()
 
 # suppress bogus warning
@@ -70,37 +70,23 @@ find_package(Qt5
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
   REQUIRED
 )
-if (Qt5_VERSION VERSION_LESS 6.0.0)
-  install(TARGETS Qt6Core5Compat EXPORT QtCreator)
 
-  # Specify standards conformance mode to MSVC 2017 and later
-  # Qt6 has the values as part of the Qt6::Platform target interface
-  if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
-    add_compile_options(/permissive- /Zc:__cplusplus)
-  endif()
-  if (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-    add_compile_options(-Wno-missing-field-initializers)
-  endif()
-else()
-  # Common intermediate directory for QML modules which are defined via qt_add_qml_module()
-  set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml_modules")
+# Common intermediate directory for QML modules which are defined via qt_add_qml_module()
+set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml_modules")
 
-  # This includes the code that will enable higher compiler warnings level (/W3 for MSVC, -Wall -Wextra for GCC)
-  # This is controlled by QT_COMPILE_OPTIONS_DISABLE_WARNINGS target property.
-  include(QtCompilerFlags)
+# This includes the code that will enable higher compiler warnings level (/W3 for MSVC, -Wall -Wextra for GCC)
+# This is controlled by QT_COMPILE_OPTIONS_DISABLE_WARNINGS target property.
+include(QtCompilerFlags)
 
-  if (MSVC AND QT_FEATURE_static_runtime)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  endif()
+if (MSVC AND QT_FEATURE_static_runtime)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
+
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
 find_package(Qt5 COMPONENTS Quick QuickWidgets Designer DesignerComponents Help SerialPort Svg Tools QUIET)
 
 find_package(Threads)
 find_package(Clang QUIET)
-if (Qt5_VERSION VERSION_LESS 6.0.0)
-  find_package(KF5SyntaxHighlighting QUIET)
-endif()
 
 # Crashpad
 set(CRASHPAD_BACKEND_URL "" CACHE STRING "Crashpad backend URL")
@@ -124,12 +110,12 @@ function (set_if_target var target)
    set(${var} "${_result}" PARENT_SCOPE)
 endfunction()
 
-set_if_target(_has_svg_target Qt5::Svg)
+set_if_target(_has_svg_target Qt::Svg)
 option(ENABLE_SVG_SUPPORT "Enable SVG support" "${_has_svg_target}")
 
 add_library(OptionalSvg INTERFACE)
-if (TARGET Qt5::Svg AND ENABLE_SVG_SUPPORT)
-  target_link_libraries(OptionalSvg INTERFACE Qt5::Svg)
+if (TARGET Qt::Svg AND ENABLE_SVG_SUPPORT)
+  target_link_libraries(OptionalSvg INTERFACE Qt::Svg)
 else()
   target_compile_definitions(OptionalSvg INTERFACE QT_NO_SVG)
 endif()

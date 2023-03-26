@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sidebysidediffeditorwidget.h"
 
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorplugin.h"
-#include "diffutils.h"
+#include "diffeditortr.h"
 
 #include <QMenu>
 #include <QPainter>
@@ -25,7 +25,8 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/runextensions.h>
+#include <utils/asynctask.h>
+#include <utils/mathutils.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -365,7 +366,7 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
         diffText[RightSide].replace('\r', ' ');
         output.side[LeftSide].diffText += diffText[LeftSide];
         output.side[RightSide].diffText += diffText[RightSide];
-        fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
+        fi.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
         if (fi.isCanceled())
             return {};
     }
@@ -550,10 +551,10 @@ void SideDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 static QString skippedText(int skippedNumber)
 {
     if (skippedNumber > 0)
-        return SideBySideDiffEditorWidget::tr("Skipped %n lines...", nullptr, skippedNumber);
+        return Tr::tr("Skipped %n lines...", nullptr, skippedNumber);
     if (skippedNumber == -2)
-        return SideBySideDiffEditorWidget::tr("Binary files differ");
-    return SideBySideDiffEditorWidget::tr("Skipped unknown number of lines...");
+        return Tr::tr("Binary files differ");
+    return Tr::tr("Skipped unknown number of lines...");
 }
 
 void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
@@ -588,8 +589,7 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
                 if (!fileInfo.fileName.isEmpty()) {
                     const QString fileNameText = fileInfo.typeInfo.isEmpty()
                             ? fileInfo.fileName
-                            : tr("[%1] %2").arg(fileInfo.typeInfo)
-                              .arg(fileInfo.fileName);
+                            : Tr::tr("[%1] %2").arg(fileInfo.typeInfo, fileInfo.fileName);
                     paintSeparator(painter, m_fileLineForeground,
                                    fileNameText, currentBlock, top);
                 }
@@ -780,13 +780,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     setFocusProxy(m_editor[LeftSide]);
 }
 
-SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
-{
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::addFuture(m_watcher->future());
-    }
-}
+SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget() = default;
 
 TextEditorWidget *SideBySideDiffEditorWidget::sideEditorWidget(DiffSide side) const
 {
@@ -814,10 +808,8 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
     setDiff({});
     for (SideDiffEditorWidget *editor : m_editor)
         editor->clearAll(message);
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::addFuture(m_watcher->future());
-        m_watcher.reset();
+    if (m_asyncTask) {
+        m_asyncTask.reset();
         m_controller.setBusyShowing(false);
     }
 }
@@ -826,11 +818,11 @@ void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
     for (SideDiffEditorWidget *editor : m_editor)
-        editor->clearAll(tr("Waiting for data..."));
+        editor->clearAll(Tr::tr("Waiting for data..."));
 
     m_controller.m_contextFileData = diffFileList;
     if (m_controller.m_contextFileData.isEmpty()) {
-        const QString msg = tr("No difference.");
+        const QString msg = Tr::tr("No difference.");
         for (SideDiffEditorWidget *editor : m_editor)
             editor->setPlainText(msg);
     } else {
@@ -877,15 +869,16 @@ void SideBySideDiffEditorWidget::restoreState()
 
 void SideBySideDiffEditorWidget::showDiff()
 {
-    m_watcher.reset(new QFutureWatcher<ShowResults>());
+    m_asyncTask.reset(new AsyncTask<ShowResults>());
+    m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
     m_controller.setBusyShowing(true);
 
-    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
-        if (m_watcher->isCanceled()) {
+    connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
+        if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {
             for (SideDiffEditorWidget *editor : m_editor)
-                editor->clearAll(tr("Retrieving data failed."));
+                editor->clearAll(Tr::tr("Retrieving data failed."));
         } else {
-            const ShowResults results = m_watcher->result();
+            const ShowResults results = m_asyncTask->result();
             m_editor[LeftSide]->setDiffData(results[LeftSide].diffData);
             m_editor[RightSide]->setDiffData(results[RightSide].diffData);
             TextDocumentPtr leftDoc(results[LeftSide].textDocument);
@@ -915,7 +908,7 @@ void SideBySideDiffEditorWidget::showDiff()
             m_editor[RightSide]->setSelections(results[RightSide].selections);
             setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
-        m_watcher.release()->deleteLater();
+        m_asyncTask.release()->deleteLater();
         m_controller.setBusyShowing(false);
     });
 
@@ -959,7 +952,7 @@ void SideBySideDiffEditorWidget::showDiff()
                 const QString package = output.side[side].diffText.mid(currentPos, packageSize);
                 cursor.insertText(package);
                 currentPos += package.size();
-                fi.setProgressValue(DiffUtils::interpolate(currentPos, 0, diffSize, progressMin, progressMax));
+                fi.setProgressValue(MathUtils::interpolateLinear(currentPos, 0, diffSize, progressMin, progressMax));
                 if (fi.isCanceled())
                     return;
             }
@@ -984,8 +977,9 @@ void SideBySideDiffEditorWidget::showDiff()
         futureInterface.reportResult(result);
     };
 
-    m_watcher->setFuture(runAsync(getDocument));
-    ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
+    m_asyncTask->setAsyncCallData(getDocument);
+    m_asyncTask->start();
+    ProgressManager::addTask(m_asyncTask->future(), Tr::tr("Rendering diff"), "DiffEditor");
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)

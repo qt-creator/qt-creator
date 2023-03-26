@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debugmessagesmodel.h"
 #include "qmlprofilerconstants.h"
@@ -27,11 +27,11 @@ QRgb DebugMessagesModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "Debug Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Warning Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Critical Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Fatal Message"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Info Message"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Debug Message"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Warning Message"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Critical Message"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Fatal Message"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Info Message"),
 };
 
 QString DebugMessagesModel::messageType(uint i)

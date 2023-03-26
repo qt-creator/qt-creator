@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -62,7 +62,7 @@ private slots:
 
 private:
     typedef QList<CppClass> CppClass::*HierarchyMember;
-    void performFromExpression(const QString &expression, const QString &fileName);
+    void performFromExpression(const QString &expression, const Utils::FilePath &filePath);
     QStandardItem *buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
                                   bool isRoot, HierarchyMember member);
     void showNoTypeHierarchyLabel();

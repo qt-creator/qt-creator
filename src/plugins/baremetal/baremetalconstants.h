@@ -1,6 +1,6 @@
 // Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -13,6 +13,10 @@ const char ACTION_ID[] = "BareMetal.Action";
 const char MENU_ID[] = "BareMetal.Menu";
 
 const char DEBUG_SERVER_PROVIDERS_SETTINGS_ID[] = "EE.BareMetal.DebugServerProvidersOptions";
+
+//FIXME: The values were wrong after c654677bf729369e, but we keep them for now.
+const char BAREMETAL_CUSTOMRUNCONFIG_ID[] = "BareMetal"; // Sic!
+const char BAREMETAL_RUNCONFIG_ID[] = "BareMetalCustom"; // Sic!
 
 // GDB Debugger Server Provider Ids.
 const char GDBSERVER_OPENOCD_PROVIDER_ID[] = "BareMetal.GdbServerProvider.OpenOcd";

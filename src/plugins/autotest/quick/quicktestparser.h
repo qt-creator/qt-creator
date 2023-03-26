@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -29,9 +29,12 @@ public:
     bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                          const Utils::FilePath &fileName) override;
     Utils::FilePath projectFileForMainCppFile(const Utils::FilePath &fileName) const;
+    QStringList supportedExtensions() const override { return {"qml"}; };
+
 private:
     bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> &futureInterface,
-                           CPlusPlus::Document::Ptr document, ITestFramework *framework);
+                           CPlusPlus::Document::Ptr document,
+                           ITestFramework *framework);
     void handleDirectoryChanged(const QString &directory);
     void doUpdateWatchPaths(const QStringList &directories);
     QString quickTestName(const CPlusPlus::Document::Ptr &doc) const;
@@ -41,6 +44,7 @@ private:
     QFileSystemWatcher m_directoryWatcher;
     QMap<QString, QMap<QString, QDateTime> > m_watchedFiles;
     QMap<Utils::FilePath, Utils::FilePath> m_mainCppFiles;
+    bool m_checkForDerivedTests = false;
 };
 
 } // namespace Internal

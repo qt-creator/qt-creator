@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "stereotypesitem.h"
 
@@ -25,7 +25,7 @@ QString StereotypesItem::format(const QList<QString> &stereotypes)
     if (!stereotypes.isEmpty()) {
         text = QString::fromUtf8("«");
         bool first = true;
-        foreach (const QString &stereotype, stereotypes) {
+        for (const QString &stereotype : stereotypes) {
             if (!first)
                 text += ", ";
             text += stereotype;

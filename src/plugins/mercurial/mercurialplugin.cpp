@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mercurialplugin.h"
 
@@ -120,7 +120,7 @@ public:
     bool vcsMove(const FilePath &from, const FilePath &to) final;
     bool vcsCreateRepository(const FilePath &directory) final;
     void vcsAnnotate(const FilePath &filePath, int line) final;
-    void vcsDescribe(const FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
+    void vcsDescribe(const FilePath &source, const QString &id) final { m_client.view(source, id); }
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,
                                              const Utils::FilePath &baseDirectory,
@@ -136,7 +136,7 @@ public:
 
 private:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
-    bool submitEditorAboutToClose() final;
+    bool activateCommit() final;
 
     // File menu action slots
     void addCurrentFile();
@@ -226,10 +226,9 @@ MercurialPlugin::~MercurialPlugin()
     dd = nullptr;
 }
 
-bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * /*errorMessage */)
+void MercurialPlugin::initialize()
 {
     dd = new MercurialPluginPrivate;
-    return true;
 }
 
 void MercurialPlugin::extensionsInitialized()
@@ -351,7 +350,7 @@ void MercurialPluginPrivate::annotateCurrentFile()
         currentLine = editor->currentLine();
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), currentLine);
+    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), currentLine);
 }
 
 void MercurialPluginPrivate::diffCurrentFile()
@@ -365,8 +364,7 @@ void MercurialPluginPrivate::logCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
-                 QStringList(), true);
+    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), {}, true);
 }
 
 void MercurialPluginPrivate::revertCurrentFile()
@@ -634,7 +632,7 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const QString branch = vcsTopic(m_submitRepository);
-    commitEditor->setFields(QFileInfo(m_submitRepository.toString()), branch,
+    commitEditor->setFields(m_submitRepository, branch,
                             m_settings.userName.value(),
                             m_settings.userEmail.value(), status);
 }
@@ -644,7 +642,7 @@ void MercurialPluginPrivate::diffFromEditorSelected(const QStringList &files)
     m_client.diff(m_submitRepository, files);
 }
 
-bool MercurialPluginPrivate::submitEditorAboutToClose()
+bool MercurialPluginPrivate::activateCommit()
 {
     auto commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);
@@ -775,7 +773,7 @@ bool MercurialPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_client.annotate(filePath.parentDir(), filePath.fileName(), QString(), line);
+    m_client.annotate(filePath.parentDir(), filePath.fileName(), line);
 }
 
 VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,

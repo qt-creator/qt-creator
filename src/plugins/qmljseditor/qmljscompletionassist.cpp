@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscompletionassist.h"
 #include "qmljseditor.h"
@@ -315,14 +315,9 @@ QStringList qmlJSAutoComplete(QTextDocument *textDocument,
     QmlJSCompletionAssistProcessor processor;
     QTextCursor cursor(textDocument);
     cursor.setPosition(position);
-    QScopedPointer<IAssistProposal> proposal(processor.perform( /* The processor takes ownership. */
-                                                 new QmlJSCompletionAssistInterface(
-                                                     cursor,
-                                                     fileName,
-                                                     reason,
-                                                     info)));
-
-    if (proposal) {
+    std::unique_ptr<QmlJSCompletionAssistInterface>
+        interface = std::make_unique<QmlJSCompletionAssistInterface>(cursor, fileName, reason, info);
+    if (QScopedPointer<IAssistProposal> proposal{processor.start(std::move(interface))}) {
         GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
 
         int basePosition = proposal->basePosition();
@@ -525,21 +520,19 @@ IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(
     return new FunctionHintProposal(m_startPosition, model);
 }
 
-IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *assistInterface)
+IAssistProposal *QmlJSCompletionAssistProcessor::performAsync()
 {
-    m_interface.reset(static_cast<const QmlJSCompletionAssistInterface *>(assistInterface));
-
-    if (assistInterface->reason() == IdleEditor && !acceptsIdleEditor())
+    if (interface()->reason() == IdleEditor && !acceptsIdleEditor())
         return nullptr;
 
-    m_startPosition = assistInterface->position();
-    while (isIdentifierChar(m_interface->textDocument()->characterAt(m_startPosition - 1), false, false))
+    m_startPosition = interface()->position();
+    while (isIdentifierChar(interface()->textDocument()->characterAt(m_startPosition - 1), false, false))
         --m_startPosition;
-    const bool onIdentifier = m_startPosition != assistInterface->position();
+    const bool onIdentifier = m_startPosition != interface()->position();
 
     m_completions.clear();
 
-    auto qmlInterface = static_cast<const QmlJSCompletionAssistInterface *>(assistInterface);
+    auto qmlInterface = static_cast<const QmlJSCompletionAssistInterface *>(interface());
     const SemanticInfo &semanticInfo = qmlInterface->semanticInfo();
     if (!semanticInfo.isValid())
         return nullptr;
@@ -547,10 +540,10 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
     const Document::Ptr document = semanticInfo.document;
 
     bool isQmlFile = false;
-    if (m_interface->filePath().endsWith(".qml"))
+    if (interface()->filePath().endsWith(".qml"))
         isQmlFile = true;
 
-    const QList<AST::Node *> path = semanticInfo.rangePath(m_interface->position());
+    const QList<AST::Node *> path = semanticInfo.rangePath(interface()->position());
     const ContextPtr &context = semanticInfo.context;
     const ScopeChain &scopeChain = semanticInfo.scopeChain(path);
 
@@ -561,7 +554,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
     // a +b<complete> -> '+'
     QChar completionOperator;
     if (m_startPosition > 0)
-        completionOperator = m_interface->textDocument()->characterAt(m_startPosition - 1);
+        completionOperator = interface()->textDocument()->characterAt(m_startPosition - 1);
 
     QTextCursor startPositionCursor(qmlInterface->textDocument());
     startPositionCursor.setPosition(m_startPosition);
@@ -709,7 +702,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
                 }
             } else if (value
                        && completionOperator == QLatin1Char('(')
-                       && m_startPosition == m_interface->position()) {
+                       && m_startPosition == interface()->position()) {
                 // function completion
                 if (const FunctionValue *f = value->asFunctionValue()) {
                     QString functionName = expressionUnderCursor.text();
@@ -733,7 +726,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
     }
 
     // global completion
-    if (onIdentifier || assistInterface->reason() == ExplicitlyInvoked) {
+    if (onIdentifier || interface()->reason() == ExplicitlyInvoked) {
 
         bool doGlobalCompletion = true;
         bool doQmlKeywordCompletion = true;
@@ -845,14 +838,14 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
 
 bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
 {
-    const int cursorPos = m_interface->position();
+    const int cursorPos = interface()->position();
 
     bool maybeAccept = false;
-    const QChar &charBeforeCursor = m_interface->textDocument()->characterAt(cursorPos - 1);
+    const QChar &charBeforeCursor = interface()->textDocument()->characterAt(cursorPos - 1);
     if (isActivationChar(charBeforeCursor)) {
         maybeAccept = true;
     } else {
-        const QChar &charUnderCursor = m_interface->textDocument()->characterAt(cursorPos);
+        const QChar &charUnderCursor = interface()->textDocument()->characterAt(cursorPos);
         if (isValidIdentifierChar(charUnderCursor))
             return false;
         if (isIdentifierChar(charBeforeCursor)
@@ -863,12 +856,12 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
 
             int startPos = cursorPos - 1;
             for (; startPos != -1; --startPos) {
-                if (!isIdentifierChar(m_interface->textDocument()->characterAt(startPos)))
+                if (!isIdentifierChar(interface()->textDocument()->characterAt(startPos)))
                     break;
             }
             ++startPos;
 
-            const QString &word = m_interface->textAt(startPos, cursorPos - startPos);
+            const QString &word = interface()->textAt(startPos, cursorPos - startPos);
             if (word.length() >= TextEditorSettings::completionSettings().m_characterThreshold
                     && isIdentifierChar(word.at(0), true)) {
                 for (int i = 1; i < word.length(); ++i) {
@@ -881,15 +874,15 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
     }
 
     if (maybeAccept) {
-        QTextCursor tc(m_interface->textDocument());
-        tc.setPosition(m_interface->position());
+        QTextCursor tc(interface()->textDocument());
+        tc.setPosition(interface()->position());
         const QTextBlock &block = tc.block();
         const QString &blockText = block.text();
         const int blockState = qMax(0, block.previous().userState()) & 0xff;
 
         Scanner scanner;
         const QList<Token> tokens = scanner(blockText, blockState);
-        const int column = block.position() - m_interface->position();
+        const int column = block.position() - interface()->position();
         for (const Token &tk : tokens) {
             if (column >= tk.begin() && column <= tk.end()) {
                 if (charBeforeCursor == QLatin1Char('/') && tk.is(Token::String))

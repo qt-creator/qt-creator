@@ -1,11 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "cppeditor_global.h"
 
-#include <QString>
+#include <utils/filepath.h>
 
 namespace Utils { class FilePath; }
 
@@ -31,7 +31,7 @@ public:
     };
 
     ProjectFile() = default;
-    ProjectFile(const QString &filePath, Kind kind, bool active = true);
+    ProjectFile(const Utils::FilePath &filePath, Kind kind, bool active = true);
 
     static Kind classifyByMimeType(const QString &mt);
     static Kind classify(const QString &filePath);
@@ -46,6 +46,7 @@ public:
     static bool isCxx(Kind kind);
     static bool isAmbiguousHeader(const QString &filePath);
     static bool isObjC(const QString &filePath);
+    static bool isObjC(Kind kind);
 
     bool isHeader() const;
     bool isSource() const;
@@ -57,7 +58,7 @@ public:
     friend QDebug operator<<(QDebug stream, const CppEditor::ProjectFile &projectFile);
 
 public:
-    QString path;
+    Utils::FilePath path;
     Kind kind = Unclassified;
     bool active = true;
 };
@@ -66,4 +67,4 @@ using ProjectFiles = QVector<ProjectFile>;
 
 const char *projectFileKindToText(ProjectFile::Kind kind);
 
-} // namespace CppEditor
+} // CppEditor

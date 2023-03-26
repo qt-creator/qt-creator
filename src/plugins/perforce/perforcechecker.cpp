@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perforcechecker.h"
+
+#include "perforcetr.h"
 
 #include <utils/qtcassert.h>
 
@@ -56,7 +58,7 @@ void PerforceChecker::start(const FilePath &binary, const FilePath &workingDirec
         return;
     }
     if (binary.isEmpty()) {
-        emitFailed(tr("No executable specified"));
+        emitFailed(Tr::tr("No executable specified"));
         return;
     }
     m_binary = binary;
@@ -87,7 +89,7 @@ void PerforceChecker::slotTimeOut()
     m_timedOut = true;
     m_process.stop();
     m_process.waitForFinished();
-    emitFailed(tr("\"%1\" timed out after %2 ms.").arg(m_binary.toUserOutput()).arg(m_timeOutMS));
+    emitFailed(Tr::tr("\"%1\" timed out after %2 ms.").arg(m_binary.toUserOutput()).arg(m_timeOutMS));
 }
 
 void PerforceChecker::slotDone()
@@ -95,18 +97,18 @@ void PerforceChecker::slotDone()
     if (m_timedOut)
         return;
     if (m_process.error() == QProcess::FailedToStart) {
-        emitFailed(tr("Unable to launch \"%1\": %2").
+        emitFailed(Tr::tr("Unable to launch \"%1\": %2").
                    arg(m_binary.toUserOutput(), m_process.errorString()));
         return;
     }
     switch (m_process.exitStatus()) {
     case QProcess::CrashExit:
-        emitFailed(tr("\"%1\" crashed.").arg(m_binary.toUserOutput()));
+        emitFailed(Tr::tr("\"%1\" crashed.").arg(m_binary.toUserOutput()));
         break;
     case QProcess::NormalExit:
         if (m_process.exitCode()) {
             const QString stdErr = m_process.cleanedStdErr();
-            emitFailed(tr("\"%1\" terminated with exit code %2: %3").
+            emitFailed(Tr::tr("\"%1\" terminated with exit code %2: %3").
                    arg(m_binary.toUserOutput()).arg(m_process.exitCode()).arg(stdErr));
         } else {
             parseOutput(m_process.cleanedStdOut());
@@ -118,22 +120,22 @@ void PerforceChecker::slotDone()
 static inline QString findTerm(const QString& in, const QLatin1String& term)
 {
     QRegularExpression regExp(QString("(\\n|\\r\\n|\\r)%1\\s*(.*)(\\n|\\r\\n|\\r)").arg(term));
-    QTC_ASSERT(regExp.isValid(), return QString());
+    QTC_ASSERT(regExp.isValid(), return {});
     QRegularExpressionMatch match = regExp.match(in);
     if (match.hasMatch())
         return match.captured(2).trimmed();
-    return QString();
+    return {};
 }
 
 // Parse p4 client output for the top level
 static inline QString clientRootFromOutput(const QString &in)
 {
-    QString root = findTerm(in, QLatin1String("Root:"));
+    const QString root = findTerm(in, QLatin1String("Root:"));
     if (!root.isNull()) {
         // Normalize slashes and capitalization of Windows drive letters for caching.
         return QFileInfo(root).absoluteFilePath();
     }
-    return QString();
+    return {};
 }
 
 // When p4 port and p4 user is set a preconfigured Root: is given, which doesn't relate with
@@ -141,16 +143,15 @@ static inline QString clientRootFromOutput(const QString &in)
 // invalid case.
 static inline bool clientAndHostAreEqual(const QString &in)
 {
-    QString client = findTerm(in, QLatin1String("Client:"));
-    QString host = findTerm(in, QLatin1String("Host:"));
-
+    const QString client = findTerm(in, QLatin1String("Client:"));
+    const QString host = findTerm(in, QLatin1String("Host:"));
     return client == host;
 }
 
 void PerforceChecker::parseOutput(const QString &response)
 {
     if (!response.contains(QLatin1String("View:")) && !response.contains(QLatin1String("//depot/"))) {
-        emitFailed(tr("The client does not seem to contain any mapped files."));
+        emitFailed(Tr::tr("The client does not seem to contain any mapped files."));
         return;
     }
 
@@ -163,14 +164,14 @@ void PerforceChecker::parseOutput(const QString &response)
     const QString repositoryRoot = clientRootFromOutput(response);
     if (repositoryRoot.isEmpty()) {
         //: Unable to determine root of the p4 client installation
-        emitFailed(tr("Unable to determine the client root."));
+        emitFailed(Tr::tr("Unable to determine the client root."));
         return;
     }
     // Check existence. No precise check here, might be a symlink
     if (QFileInfo::exists(repositoryRoot)) {
         emitSucceeded(repositoryRoot);
     } else {
-        emitFailed(tr("The repository \"%1\" does not exist.").
+        emitFailed(Tr::tr("The repository \"%1\" does not exist.").
                    arg(QDir::toNativeSeparators(repositoryRoot)));
     }
 }

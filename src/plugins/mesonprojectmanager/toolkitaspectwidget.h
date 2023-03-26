@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Alexis Jeandet.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
 #include "mesontoolkitaspect.h"
@@ -36,7 +36,7 @@ private:
 
     void makeReadOnly() override { m_toolsComboBox->setEnabled(false); }
 
-    void addToLayout(Utils::LayoutBuilder &builder) override
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override
     {
         addMutableAction(m_toolsComboBox);
         builder.addItem(m_toolsComboBox);

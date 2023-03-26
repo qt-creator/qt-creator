@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggerruncontrol.h"
 
@@ -131,7 +131,7 @@ private:
             m_tempCoreFile.setFileName(m_tempCoreFilePath.path());
             m_tempCoreFile.open(QFile::WriteOnly);
             connect(&m_coreUnpackProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
-                m_tempCoreFile.write(m_coreUnpackProcess.readAllStandardOutput());
+                m_tempCoreFile.write(m_coreUnpackProcess.readAllRawStandardOutput());
             });
             m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
             reportStarted();
@@ -706,7 +706,7 @@ DebugServerPortsGatherer *DebuggerRunTool::portsGatherer() const
     return d->portsGatherer;
 }
 
-void DebuggerRunTool::setSolibSearchPath(const QStringList &list)
+void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
 {
     m_runParameters.solibSearchPath = list;
 }
@@ -786,11 +786,11 @@ bool DebuggerRunTool::fixupParameters()
     }
 
     if (HostOsInfo::isWindowsHost()) {
+        // Otherwise command lines with '> tmp.log' hang.
         ProcessArgs::SplitError perr;
-        rp.inferior.command.setArguments(
-                ProcessArgs::prepareArgs(rp.inferior.command.arguments(), &perr,
-                                         HostOsInfo::hostOs(), nullptr,
-                                         &rp.inferior.workingDirectory).toWindowsArgs());
+        ProcessArgs::prepareArgs(rp.inferior.command.arguments(), &perr,
+                                 HostOsInfo::hostOs(), nullptr,
+                                 &rp.inferior.workingDirectory).toWindowsArgs();
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
@@ -942,7 +942,7 @@ void DebuggerRunTool::addSolibSearchDir(const QString &str)
 {
     QString path = str;
     path.replace("%{sysroot}", m_runParameters.sysRoot.toString());
-    m_runParameters.solibSearchPath.append(path);
+    m_runParameters.solibSearchPath.append(FilePath::fromString(path));
 }
 
 DebuggerRunTool::~DebuggerRunTool()
@@ -1073,4 +1073,14 @@ void DebugServerRunner::setAttachPid(ProcessHandle pid)
     m_pid = pid;
 }
 
-} // namespace Debugger
+// DebuggerRunWorkerFactory
+
+DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
+{
+    setProduct<DebuggerRunTool>();
+    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    addSupportedDeviceType("DockerDeviceType");
+}
+
+} // Debugger

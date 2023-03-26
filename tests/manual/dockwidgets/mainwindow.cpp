@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdockarrows.h"
 #include "mainwindow.h"
@@ -29,7 +29,7 @@ protected:
         QStyleOptionTabV2 opt;
         opt.initFrom(this);
         opt.shape = QTabBar::RoundedWest;
-        opt.text = tr("Hello");
+        opt.text = "Hello";
 
         QStylePainter p(this);
         p.drawControl(QStyle::CE_TabBarTab, opt);
@@ -49,7 +49,7 @@ private:
 
 MainWindow::MainWindow()
 {
-    centralWidget = new QLabel(tr("Central Widget"));
+    centralWidget = new QLabel("Central Widget");
     setCentralWidget(centralWidget);
 
     QToolBar *tb = this->addToolBar("Normal Toolbar");
@@ -62,7 +62,7 @@ MainWindow::MainWindow()
 
     createDockWindows();
 
-    setWindowTitle(tr("Dock Widgets"));
+    setWindowTitle("Dock Widgets");
 }
 
 void MainWindow::createDockWindows()
@@ -71,10 +71,10 @@ void MainWindow::createDockWindows()
 
     for (int i=0; i<5; ++i) {
         QArrowManagedDockWidget *dock = new QArrowManagedDockWidget(manager);
-        QLabel *label = new QLabel(tr("Widget %1").arg(i), dock);
-        label->setWindowTitle(tr("Widget %1").arg(i));
-        label->setObjectName(tr("widget_%1").arg(i));
-        dock->setObjectName(tr("dock_%1").arg(i));
+        QLabel *label = new QLabel(QString("Widget %1").arg(i), dock);
+        label->setWindowTitle(QString("Widget %1").arg(i));
+        label->setObjectName(QString("widget_%1").arg(i));
+        dock->setObjectName(QString("dock_%1").arg(i));
         dock->setWidget(label);
         addDockWidget(Qt::RightDockWidgetArea, dock);
     }

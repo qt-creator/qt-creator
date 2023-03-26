@@ -1,9 +1,10 @@
 // Copyright (C) 2016 Petar Perisin <petar.perisin@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <QDialog>
+#include <QSet>
 #include <QTimer>
 
 #include <utils/processinfo.h>
@@ -67,6 +68,7 @@ private:
     QCheckBox *m_continueOnAttachCheckBox;
     QPushButton *m_watchingPushButton;
     Utils::ProcessInfo m_process;
+    QSet<int> m_excluded;
     QTimer m_timer;
 };
 

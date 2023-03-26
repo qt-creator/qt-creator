@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,6 +11,8 @@
 #include <QVariant>
 #include <QStringList>
 #include <QIcon>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QFont;
@@ -53,6 +55,8 @@ public:
     void setSearchAgainSupported(bool supported);
     QWidget *additionalReplaceWidget() const;
     void setAdditionalReplaceWidget(QWidget *widget);
+    void makeNonInteractive(const std::function<void()> &callback);
+    bool isInteractive() const { return !m_finishedHandler; }
 
 public slots:
     void addResult(const SearchResultItem &item);
@@ -83,6 +87,7 @@ private:
 private:
     Internal::SearchResultWidget *m_widget;
     QVariant m_userData;
+    std::function<void()> m_finishedHandler;
 };
 
 class CORE_EXPORT SearchResultWindow : public IOutputPane
@@ -100,7 +105,6 @@ public:
         PreserveCaseDisabled
     };
 
-
     SearchResultWindow(QWidget *newSearchPanel);
     ~SearchResultWindow() override;
     static SearchResultWindow *instance();
@@ -108,7 +112,7 @@ public:
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget*> toolBarWidgets() const override;
 
-    QString displayName() const override { return tr("Search Results"); }
+    QString displayName() const override;
     int priorityInStatusBar() const override;
     void visibilityChanged(bool visible) override;
     bool hasFocus() const override;

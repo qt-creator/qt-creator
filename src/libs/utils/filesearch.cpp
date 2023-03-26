@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filesearch.h"
 
@@ -8,8 +8,8 @@
 #include "mapreduce.h"
 #include "qtcassert.h"
 #include "stringutils.h"
+#include "utilstr.h"
 
-#include <QCoreApplication>
 #include <QLoggingCategory>
 #include <QMutex>
 #include <QRegularExpression>
@@ -23,16 +23,14 @@ using namespace Utils;
 
 static inline QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
-    return QCoreApplication::translate("Utils::FileSearch",
-                                       "%1: canceled. %n occurrences found in %2 files.",
-                                       nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
+    return Tr::tr("%1: canceled. %n occurrences found in %2 files.",
+                  nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
 static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
-    return QCoreApplication::translate("Utils::FileSearch",
-                                       "%1: %n occurrences found in %2 files.",
-                                       nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
+    return Tr::tr("%1: %n occurrences found in %2 files.",
+                  nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
 namespace {
@@ -55,7 +53,7 @@ static bool getFileContent(const FilePath &filePath,
     if (fileToContentsMap.contains(filePath)) {
         *tempString = fileToContentsMap.value(filePath);
     } else {
-        const std::optional<QByteArray> content = filePath.fileContents();
+        const expected_str<QByteArray> content = filePath.fileContents();
         if (!content)
             return false;
         *tempString = QTC_GUARD(encoding) ? encoding->toUnicode(*content)
@@ -532,19 +530,18 @@ QStringList splitFilterUiText(const QString &text)
 
 QString msgFilePatternLabel()
 {
-    return QCoreApplication::translate("Utils::FileSearch", "Fi&le pattern:");
+    return Tr::tr("Fi&le pattern:");
 }
 
 QString msgExclusionPatternLabel()
 {
-    return QCoreApplication::translate("Utils::FileSearch", "Excl&usion pattern:");
+    return Tr::tr("Excl&usion pattern:");
 }
 
 QString msgFilePatternToolTip()
 {
-    return QCoreApplication::translate("Utils::FileSearch",
-                                       "List of comma separated wildcard filters. "
-                                       "Files with file name or full file path matching any filter are included.");
+    return Tr::tr("List of comma separated wildcard filters. "
+                  "Files with file name or full file path matching any filter are included.");
 }
 
 QString matchCaseReplacement(const QString &originalText, const QString &replaceText)

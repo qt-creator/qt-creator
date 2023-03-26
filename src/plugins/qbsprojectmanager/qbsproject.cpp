@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbsproject.h"
 
@@ -175,7 +175,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
         CppEditor::GeneratedCodeModelSupport::update(m_extraCompilers);
         for (ExtraCompiler *compiler : m_extraCompilers) {
             if (compiler->isDirty())
-                compiler->run();
+                compiler->compileFile();
         }
         m_sourcesForGeneratedFiles.clear();
     });
@@ -296,7 +296,6 @@ bool QbsBuildSystem::renameFile(Node *context,
 QVariant QbsBuildSystem::additionalData(Id id) const
 {
     if (id == "QmlDesignerImportPath") {
-        QStringList designerImportPaths;
         const QJsonObject project = session()->projectData();
         QStringList paths;
         forAllProducts(project, [&paths](const QJsonObject &product) {
@@ -499,7 +498,7 @@ FilePath QbsBuildSystem::installRoot()
             if (!step->enabled())
                 continue;
             if (const auto qbsInstallStep = qobject_cast<const QbsInstallStep *>(step))
-                return FilePath::fromString(qbsInstallStep->installRoot());
+                return FilePath::fromUserInput(qbsInstallStep->installRoot());
         }
     }
     const QbsBuildStep * const buildStep = m_buildConfiguration->qbsStep();
@@ -585,6 +584,11 @@ void QbsBuildSystem::delayParsing()
 {
     if (m_buildConfiguration->isActive())
         requestDelayedParse();
+}
+
+ExtraCompiler *QbsBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filter) const
+{
+    return Utils::findOrDefault(m_extraCompilers, filter);
 }
 
 void QbsBuildSystem::parseCurrentBuildConfiguration()
@@ -848,6 +852,132 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
     }
 }
 
+static RawProjectPart generateProjectPart(
+        const QJsonObject &product,
+        const QJsonObject &group,
+        const std::shared_ptr<const ToolChain> &cToolChain,
+        const std::shared_ptr<const ToolChain> &cxxToolChain,
+        QtMajorVersion qtVersion,
+        QString cPch,
+        QString cxxPch,
+        QString objcPch,
+        QString objcxxPch
+        )
+{
+    const QString productName = product.value("full-display-name").toString();
+    const QString groupName = group.isEmpty() ? productName + "_generated_qtc_internal"
+                                              : group.value("name").toString();
+    const QJsonObject &groupOrProduct = group.isEmpty() ? product : group;
+    RawProjectPart rpp;
+    rpp.setQtVersion(qtVersion);
+    QJsonObject props = group.value("module-properties").toObject();
+    if (props.isEmpty())
+        props = product.value("module-properties").toObject();
+    rpp.setCallGroupId(groupLocationToCallGroupId(groupOrProduct.value("location").toObject()));
+
+    QStringList cFlags;
+    QStringList cxxFlags;
+    getExpandedCompilerFlags(cFlags, cxxFlags, props);
+    rpp.setFlagsForC({cToolChain.get(), cFlags, {}});
+    rpp.setFlagsForCxx({cxxToolChain.get(), cxxFlags, {}});
+
+    const QStringList defines = arrayToStringList(props.value("cpp.defines"))
+            + arrayToStringList(props.value("cpp.platformDefines"));
+    rpp.setMacros(transform<QVector>(defines,
+            [](const QString &s) { return Macro::fromKeyValue(s); }));
+
+    ProjectExplorer::HeaderPaths headerPaths;
+    QStringList list = arrayToStringList(props.value("cpp.includePaths"));
+    list.removeDuplicates();
+    for (const QString &p : std::as_const(list))
+        headerPaths += HeaderPath::makeUser(FilePath::fromUserInput(p));
+    list = arrayToStringList(props.value("cpp.distributionIncludePaths"))
+            + arrayToStringList(props.value("cpp.systemIncludePaths"));
+    list.removeDuplicates();
+    for (const QString &p : std::as_const(list))
+        headerPaths += HeaderPath::makeSystem(FilePath::fromUserInput(p));
+    list = arrayToStringList(props.value("cpp.frameworkPaths"));
+    list.append(arrayToStringList(props.value("cpp.systemFrameworkPaths")));
+    list.removeDuplicates();
+    for (const QString &p : std::as_const(list))
+        headerPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
+    rpp.setHeaderPaths(headerPaths);
+    rpp.setDisplayName(groupName);
+    const QJsonObject location = groupOrProduct.value("location").toObject();
+    rpp.setProjectFileLocation(location.value("file-path").toString(),
+                               location.value("line").toInt(),
+                               location.value("column").toInt());
+    rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(product));
+    if (product.value("is-runnable").toBool()) {
+        rpp.setBuildTargetType(BuildTargetType::Executable);
+    } else {
+        const QJsonArray pType = product.value("type").toArray();
+        if (pType.contains("staticlibrary") || pType.contains("dynamiclibrary")
+                || pType.contains("loadablemodule")) {
+            rpp.setBuildTargetType(BuildTargetType::Library);
+        } else {
+            rpp.setBuildTargetType(BuildTargetType::Unknown);
+        }
+    }
+    rpp.setSelectedForBuilding(groupOrProduct.value("is-enabled").toBool());
+
+    QHash<QString, QJsonObject> filePathToSourceArtifact;
+    bool hasCFiles = false;
+    bool hasCxxFiles = false;
+    bool hasObjcFiles = false;
+    bool hasObjcxxFiles = false;
+    const auto artifactWorker = [&](const QJsonObject &source) {
+        const QString filePath = source.value("file-path").toString();
+        filePathToSourceArtifact.insert(filePath, source);
+        for (const QJsonValue &tag : source.value("file-tags").toArray()) {
+            if (tag == "c")
+                hasCFiles = true;
+            else if (tag == "cpp")
+                hasCxxFiles = true;
+            else if (tag == "objc")
+                hasObjcFiles = true;
+            else if (tag == "objcpp")
+                hasObjcxxFiles = true;
+        }
+    };
+    if (!group.isEmpty())
+        forAllArtifacts(group, artifactWorker);
+    else
+        forAllArtifacts(product, ArtifactType::Generated, artifactWorker);
+
+    QSet<QString> pchFiles;
+    if (hasCFiles && props.value("cpp.useCPrecompiledHeader").toBool()
+            && !cPch.isEmpty()) {
+        pchFiles << cPch;
+    }
+    if (hasCxxFiles && props.value("cpp.useCxxPrecompiledHeader").toBool()
+            && !cxxPch.isEmpty()) {
+        pchFiles << cxxPch;
+    }
+    if (hasObjcFiles && props.value("cpp.useObjcPrecompiledHeader").toBool()
+            && !objcPch.isEmpty()) {
+        pchFiles << objcPch;
+    }
+    if (hasObjcxxFiles
+            && props.value("cpp.useObjcxxPrecompiledHeader").toBool()
+            && !objcxxPch.isEmpty()) {
+        pchFiles << objcxxPch;
+    }
+    if (pchFiles.count() > 1) {
+        qCWarning(qbsPmLog) << "More than one pch file enabled for source files in group"
+                            << groupName << "in product" << productName;
+        qCWarning(qbsPmLog) << "Expect problems with code model";
+    }
+    rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
+    rpp.setIncludedFiles(arrayToStringList(props.value("cpp.prefixHeaders")));
+    rpp.setFiles(filePathToSourceArtifact.keys(), {},
+                 [filePathToSourceArtifact](const QString &filePath) {
+        // Keep this lambda thread-safe!
+        return getMimeType(filePathToSourceArtifact.value(filePath));
+    });
+    return rpp;
+}
+
 static RawProjectParts generateProjectParts(
         const QJsonObject &projectData,
         const std::shared_ptr<const ToolChain> &cToolChain,
@@ -857,7 +987,6 @@ static RawProjectParts generateProjectParts(
 {
     RawProjectParts rpps;
     forAllProducts(projectData, [&](const QJsonObject &prd) {
-        const QString productName = prd.value("full-display-name").toString();
         QString cPch;
         QString cxxPch;
         QString objcPch;
@@ -874,123 +1003,23 @@ static RawProjectParts generateProjectParts(
                 objcxxPch = artifact.value("file-path").toString();
         };
         forAllArtifacts(prd, ArtifactType::All, pchFinder);
-
         const Utils::QtMajorVersion qtVersionForPart
             = prd.value("module-properties").toObject().value("Qt.core.version").isUndefined()
                   ? Utils::QtMajorVersion::None
                   : qtVersion;
-
         const QJsonArray groups = prd.value("groups").toArray();
+        const auto appendIfNotEmpty = [&rpps](const RawProjectPart &rpp) {
+            if (!rpp.files.isEmpty())
+                rpps << rpp;
+        };
         for (const QJsonValue &g : groups) {
-            const QJsonObject grp = g.toObject();
-            const QString groupName = grp.value("name").toString();
-
-            RawProjectPart rpp;
-            rpp.setQtVersion(qtVersionForPart);
-            QJsonObject props = grp.value("module-properties").toObject();
-            if (props.isEmpty())
-                props = prd.value("module-properties").toObject();
-            rpp.setCallGroupId(groupLocationToCallGroupId(grp.value("location").toObject()));
-
-            QStringList cFlags;
-            QStringList cxxFlags;
-            getExpandedCompilerFlags(cFlags, cxxFlags, props);
-            rpp.setFlagsForC({cToolChain.get(), cFlags, {}});
-            rpp.setFlagsForCxx({cxxToolChain.get(), cxxFlags, {}});
-
-            const QStringList defines = arrayToStringList(props.value("cpp.defines"))
-                    + arrayToStringList(props.value("cpp.platformDefines"));
-            rpp.setMacros(transform<QVector>(defines,
-                    [](const QString &s) { return Macro::fromKeyValue(s); }));
-
-            ProjectExplorer::HeaderPaths grpHeaderPaths;
-            QStringList list = arrayToStringList(props.value("cpp.includePaths"));
-            list.removeDuplicates();
-            for (const QString &p : std::as_const(list))
-                grpHeaderPaths += HeaderPath::makeUser(FilePath::fromUserInput(p));
-            list = arrayToStringList(props.value("cpp.distributionIncludePaths"))
-                    + arrayToStringList(props.value("cpp.systemIncludePaths"));
-            list.removeDuplicates();
-            for (const QString &p : std::as_const(list))
-                grpHeaderPaths += HeaderPath::makeSystem(FilePath::fromUserInput(p));
-            list = arrayToStringList(props.value("cpp.frameworkPaths"));
-            list.append(arrayToStringList(props.value("cpp.systemFrameworkPaths")));
-            list.removeDuplicates();
-            for (const QString &p : std::as_const(list))
-                grpHeaderPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
-            rpp.setHeaderPaths(grpHeaderPaths);
-            rpp.setDisplayName(groupName);
-            const QJsonObject location = grp.value("location").toObject();
-            rpp.setProjectFileLocation(location.value("file-path").toString(),
-                                       location.value("line").toInt(),
-                                       location.value("column").toInt());
-            rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(prd));
-            if (prd.value("is-runnable").toBool()) {
-                rpp.setBuildTargetType(BuildTargetType::Executable);
-            } else {
-                const QJsonArray pType = prd.value("type").toArray();
-                if (pType.contains("staticlibrary") || pType.contains("dynamiclibrary")
-                        || pType.contains("loadablemodule")) {
-                    rpp.setBuildTargetType(BuildTargetType::Library);
-                } else {
-                    rpp.setBuildTargetType(BuildTargetType::Unknown);
-                }
-            }
-            rpp.setSelectedForBuilding(grp.value("is-enabled").toBool());
-
-            QHash<QString, QJsonObject> filePathToSourceArtifact;
-            bool hasCFiles = false;
-            bool hasCxxFiles = false;
-            bool hasObjcFiles = false;
-            bool hasObjcxxFiles = false;
-            const auto artifactWorker = [&](const QJsonObject &source) {
-                const QString filePath = source.value("file-path").toString();
-                filePathToSourceArtifact.insert(filePath, source);
-                for (const QJsonValue &tag : source.value("file-tags").toArray()) {
-                    if (tag == "c")
-                        hasCFiles = true;
-                    else if (tag == "cpp")
-                        hasCxxFiles = true;
-                    else if (tag == "objc")
-                        hasObjcFiles = true;
-                    else if (tag == "objcpp")
-                        hasObjcxxFiles = true;
-                }
-            };
-            forAllArtifacts(grp, artifactWorker);
-
-            QSet<QString> pchFiles;
-            if (hasCFiles && props.value("cpp.useCPrecompiledHeader").toBool()
-                    && !cPch.isEmpty()) {
-                pchFiles << cPch;
-            }
-            if (hasCxxFiles && props.value("cpp.useCxxPrecompiledHeader").toBool()
-                    && !cxxPch.isEmpty()) {
-                pchFiles << cxxPch;
-            }
-            if (hasObjcFiles && props.value("cpp.useObjcPrecompiledHeader").toBool()
-                    && !objcPch.isEmpty()) {
-                pchFiles << objcPch;
-            }
-            if (hasObjcxxFiles
-                    && props.value("cpp.useObjcxxPrecompiledHeader").toBool()
-                    && !objcxxPch.isEmpty()) {
-                pchFiles << objcxxPch;
-            }
-            if (pchFiles.count() > 1) {
-                qCWarning(qbsPmLog) << "More than one pch file enabled for source files in group"
-                                    << groupName << "in product" << productName;
-                qCWarning(qbsPmLog) << "Expect problems with code model";
-            }
-            rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
-            rpp.setIncludedFiles(arrayToStringList(props.value("cpp.prefixHeaders")));
-            rpp.setFiles(filePathToSourceArtifact.keys(), {},
-                         [filePathToSourceArtifact](const QString &filePath) {
-                // Keep this lambda thread-safe!
-                return getMimeType(filePathToSourceArtifact.value(filePath));
-            });
-            rpps.append(rpp);
+            appendIfNotEmpty(generateProjectPart(
+                                 prd, g.toObject(), cToolChain, cxxToolChain, qtVersionForPart,
+                                 cPch, cxxPch, objcPch, objcxxPch));
         }
+        appendIfNotEmpty(generateProjectPart(
+                             prd, {}, cToolChain, cxxToolChain, qtVersionForPart,
+                             cPch, cxxPch, objcPch, objcxxPch));
     });
     return rpps;
 }
@@ -1153,7 +1182,7 @@ void QbsBuildSystem::updateDeploymentInfo()
             const QJsonObject installData = artifact.value("install-data").toObject();
             if (installData.value("is-installable").toBool()) {
                 deploymentData.addFile(
-                            FilePath::fromVariant(artifact.value("file-path")),
+                            FilePath::fromSettings(artifact.value("file-path")),
                             QFileInfo(installData.value("install-file-path").toString()).path(),
                             artifact.value("is-executable").toBool()
                                 ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 // NOTE: Don't add dependencies to other files.
 // This is used in the debugger auto-tests.
@@ -15,104 +15,90 @@
 
 namespace Debugger::Internal {
 
-bool isPointerType(const QString &type)
+const QStringView inameLocal = u"local.";
+const QStringView inameWatch = u"watch.";
+const QStringView inameInspect = u"inspect.";
+
+bool isPointerType(const QStringView type)
 {
-    return type.endsWith('*') || type.endsWith("* const");
+    return type.endsWith('*') || type.endsWith(u"* const");
 }
 
-bool isIntType(const QString &type)
+bool isIntType(const QStringView type)
 {
     if (type.isEmpty())
         return false;
     switch (type.at(0).unicode()) {
         case 'b':
-            return type == "bool";
+            return type == u"bool";
         case 'c':
-            return type.startsWith("char") &&
-                    (  type == "char"
-                    || type == "char8_t"
-                    || type == "char16_t"
-                    || type == "char32_t" );
+            return type.startsWith(u"char") &&
+                    (  type == u"char"
+                    || type == u"char8_t"
+                    || type == u"char16_t"
+                    || type == u"char32_t" );
         case 'i':
-            return type.startsWith("int") &&
-                    (  type == "int"
-                    || type == "int8_t"
-                    || type == "int16_t"
-                    || type == "int32_t"
-                    || type == "int64_t");
+            return type.startsWith(u"int") &&
+                    (  type == u"int"
+                    || type == u"int8_t"
+                    || type == u"int16_t"
+                    || type == u"int32_t"
+                    || type == u"int64_t");
         case 'l':
-            return type == "long"
-                || type == "long int"
-                || type == "long unsigned int";
+            return type == u"long"
+                || type == u"long int"
+                || type == u"long unsigned int";
         case 'p':
-            return type == "ptrdiff_t";
+            return type == u"ptrdiff_t";
         case 'q':
-            return type == "qint8" || type == "quint8"
-                || type == "qint16" || type == "quint16"
-                || type == "qint32" || type == "quint32"
-                || type == "qint64" || type == "quint64"
-                || type == "qlonglong" || type == "qulonglong";
+            return type == u"qint8" || type == u"quint8"
+                || type == u"qint16" || type == u"quint16"
+                || type == u"qint32" || type == u"quint32"
+                || type == u"qint64" || type == u"quint64"
+                || type == u"qlonglong" || type == u"qulonglong";
         case 's':
-            return type == "short"
-                || type == "signed"
-                || type == "size_t"
-                || type == "std::size_t"
-                || type == "std::ptrdiff_t"
-                || (type.startsWith("signed") &&
-                    (  type == "signed char"
-                    || type == "signed short"
-                    || type == "signed short int"
-                    || type == "signed long"
-                    || type == "signed long int"
-                    || type == "signed long long"
-                    || type == "signed long long int"));
+            return type == u"short"
+                || type == u"signed"
+                || type == u"size_t"
+                || type == u"std::size_t"
+                || type == u"std::ptrdiff_t"
+                || (type.startsWith(u"signed") &&
+                    (  type == u"signed char"
+                    || type == u"signed short"
+                    || type == u"signed short int"
+                    || type == u"signed long"
+                    || type == u"signed long int"
+                    || type == u"signed long long"
+                    || type == u"signed long long int"));
         case 'u':
-            return type == "unsigned"
-                || (type.startsWith("unsigned") &&
-                    (  type == "unsigned char"
-                    || type == "unsigned short"
-                    || type == "unsigned short int"
-                    || type == "unsigned int"
-                    || type == "unsigned long"
-                    || type == "unsigned long int"
-                    || type == "unsigned long long"
-                    || type == "unsigned long long int"))
-                || (type.startsWith("uint") &&
-                    (  type == "uint8_t"
-                    || type == "uint16_t"
-                    || type == "uint32_t"
-                    || type == "uint64_t"));
+            return type == u"unsigned"
+                || (type.startsWith(u"unsigned") &&
+                    (  type == u"unsigned char"
+                    || type == u"unsigned short"
+                    || type == u"unsigned short int"
+                    || type == u"unsigned int"
+                    || type == u"unsigned long"
+                    || type == u"unsigned long int"
+                    || type == u"unsigned long long"
+                    || type == u"unsigned long long int"))
+                || (type.startsWith(u"uint") &&
+                    (  type == u"uint8_t"
+                    || type == u"uint16_t"
+                    || type == u"uint32_t"
+                    || type == u"uint64_t"));
         default:
             return false;
     }
 }
 
-bool isFloatType(const QString &type)
+bool isFloatType(const QStringView type)
 {
-    return type == "float" || type == "double" || type == "qreal" || type == "number";
+    return type == u"float" || type == u"double" || type == u"qreal" || type == u"number";
 }
 
-bool isIntOrFloatType(const QString &type)
+bool isIntOrFloatType(const QStringView type)
 {
     return isIntType(type) || isFloatType(type);
-}
-
-WatchItem::WatchItem() :
-    id(WatchItem::InvalidId),
-    address(0),
-    origaddr(0),
-    size(0),
-    bitpos(0),
-    bitsize(0),
-    elided(0),
-    arrayIndex(-1),
-    sortGroup(0),
-    wantsChildren(false),
-    valueEnabled(true),
-    valueEditable(true),
-    autoDerefCount(0),
-    outdated(false)
-{
 }
 
 bool WatchItem::isVTablePointer() const
@@ -326,7 +312,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
     if (mi.isValid()) {
         address = mi.toAddress();
         if (exp.isEmpty()) {
-            if (iname.startsWith("local.") && iname.count('.') == 1)
+            if (iname.startsWith(inameLocal) && iname.count('.') == 1)
                 // Solve one common case of adding 'class' in
                 // *(class X*)0xdeadbeef for gdb.
                 exp = name;
@@ -523,7 +509,7 @@ bool WatchItem::isLocal() const
     if (arrayIndex >= 0)
         if (const WatchItem *p = parent())
             return p->isLocal();
-    return iname.startsWith("local.");
+    return iname.startsWith(inameLocal);
 }
 
 bool WatchItem::isWatcher() const
@@ -531,7 +517,7 @@ bool WatchItem::isWatcher() const
     if (arrayIndex >= 0)
         if (const WatchItem *p = parent())
             return p->isWatcher();
-    return iname.startsWith("watch.");
+    return iname.startsWith(inameWatch);
 }
 
 bool WatchItem::isInspect() const
@@ -539,7 +525,7 @@ bool WatchItem::isInspect() const
     if (arrayIndex >= 0)
         if (const WatchItem *p = parent())
             return p->isInspect();
-    return iname.startsWith("inspect.");
+    return iname.startsWith(inameInspect);
 }
 
 QString WatchItem::internalName() const

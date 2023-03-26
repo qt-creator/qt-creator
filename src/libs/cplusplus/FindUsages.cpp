@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "FindUsages.h"
 
@@ -118,14 +118,18 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
         lineText = matchingLine(tk);
     const int len = tk.utf16chars();
 
-    const Usage u(Utils::FilePath::fromString(_doc->fileName()), lineText,
-                  getContainingFunction(line, col), getType(line, col, tokenIndex),
-                  line, col - 1, len);
+    QString callerName;
+    const Function * const caller = getContainingFunction(line, col);
+    if (caller)
+        callerName = Overview().prettyName(caller->name());
+    Usage u(_doc->filePath(), lineText, callerName, getTags(line, col, tokenIndex),
+            line, col - 1, len);
+    u.containingFunctionSymbol = caller;
     _usages.append(u);
     _references.append(tokenIndex);
 }
 
-QString FindUsages::getContainingFunction(int line, int column)
+Function *FindUsages::getContainingFunction(int line, int column)
 {
     const QList<AST *> astPath = ASTPath(_doc)(line, column);
     bool hasBlock = false;
@@ -135,132 +139,174 @@ QString FindUsages::getContainingFunction(int line, int column)
         if (const auto func = (*it)->asFunctionDefinition()) {
             if (!hasBlock)
                 return {};
-            if (!func->symbol)
-                return {};
-            return Overview().prettyName(func->symbol->name());
+            return func->symbol;
         }
     }
     return {};
 }
 
-class FindUsages::GetUsageType
+class FindUsages::GetUsageTags
 {
 public:
-    GetUsageType(FindUsages *findUsages, const QList<AST *> &astPath, int tokenIndex)
+    GetUsageTags(FindUsages *findUsages, const QList<AST *> &astPath, int tokenIndex)
         : m_findUsages(findUsages), m_astPath(astPath), m_tokenIndex(tokenIndex)
     {
     }
 
-    Usage::Type getUsageType() const
+    Usage::Tags getTags() const
     {
         if (m_astPath.size() < 2 || !m_astPath.last()->asSimpleName())
-            return Usage::Type::Other;
+            return {};
 
         for (auto it = m_astPath.rbegin() + 1; it != m_astPath.rend(); ++it) {
             if ((*it)->asExpressionStatement())
-                return Usage::Type::Read;
+                return Usage::Tag::Read;
             if ((*it)->asSwitchStatement())
-                return Usage::Type::Read;
+                return Usage::Tag::Read;
             if ((*it)->asCaseStatement())
-                return Usage::Type::Read;
+                return Usage::Tag::Read;
             if ((*it)->asIfStatement())
-                return Usage::Type::Read;
+                return Usage::Tag::Read;
             if ((*it)->asLambdaCapture())
-                return Usage::Type::Other;
+                return {};
             if ((*it)->asTypenameTypeParameter())
-                return Usage::Type::Declaration;
+                return Usage::Tag::Declaration;
             if ((*it)->asNewExpression())
-                return Usage::Type::Other;
+                return {};
             if (ClassSpecifierAST *classSpec = (*it)->asClassSpecifier()) {
                 if (classSpec->name == *(it - 1))
-                    return Usage::Type::Declaration;
+                    return Usage::Tag::Declaration;
                 continue;
             }
             if (const auto memInitAst = (*it)->asMemInitializer()) {
                 if (memInitAst->name == *(it - 1))
-                    return Usage::Type::Write;
-                return Usage::Type::Read;
+                    return Usage::Tag::Write;
+                return Usage::Tag::Read;
             }
             if ((*it)->asCall())
-                return checkPotentialWrite(getUsageTypeForCall(it), it + 1);
+                return checkPotentialWrite(getTagsForCall(it), it + 1);
             if ((*it)->asDeleteExpression())
-                return Usage::Type::Write;
+                return Usage::Tag::Write;
             if (const auto binExpr = (*it)->asBinaryExpression()) {
                 if (binExpr->left_expression == *(it - 1) && isAssignment(binExpr->binary_op_token))
-                    return checkPotentialWrite(Usage::Type::Write, it + 1);
+                    return checkPotentialWrite(Usage::Tag::Write, it + 1);
                 const std::optional<LookupItem> item = getTypeOfExpr(binExpr->left_expression,
                                                                      it + 1);
                 if (!item)
-                    return Usage::Type::Other;
-                return checkPotentialWrite(getUsageTypeFromLhsAndRhs(
+                    return {};
+                return checkPotentialWrite(getTagsFromLhsAndRhs(
                                                item->type(), binExpr->right_expression, it),
                                            it + 1);
             }
             if (const auto unaryOp = (*it)->asUnaryExpression()) {
                 switch (m_findUsages->tokenKind(unaryOp->unary_op_token)) {
                 case T_PLUS_PLUS: case T_MINUS_MINUS:
-                    return checkPotentialWrite(Usage::Type::Write, it + 1);
+                    return checkPotentialWrite(Usage::Tag::Write, it + 1);
                 case T_AMPER: case T_STAR:
                     continue;
                 default:
-                    return Usage::Type::Read;
+                    return Usage::Tag::Read;
                 }
             }
             if (const auto sizeofExpr = (*it)->asSizeofExpression()) {
                 if (containsToken(sizeofExpr->expression))
-                    return Usage::Type::Read;
-                return Usage::Type::Other;
+                    return Usage::Tag::Read;
+                return {};
             }
             if (const auto arrayExpr = (*it)->asArrayAccess()) {
                 if (containsToken(arrayExpr->expression))
-                    return Usage::Type::Read;
+                    return Usage::Tag::Read;
                 continue;
             }
             if (const auto postIncrDecrOp = (*it)->asPostIncrDecr())
-                return checkPotentialWrite(Usage::Type::Write, it + 1);
+                return checkPotentialWrite(Usage::Tag::Write, it + 1);
             if (const auto declaratorId = (*it)->asDeclaratorId()) {
                 // We don't want to classify constructors and destructors as declarations
                 // when listing class usages.
                 if (m_findUsages->_declSymbol->asClass())
-                    return Usage::Type::Other;
+                    return Usage::Tag::ConstructorDestructor;
                 continue;
             }
             if (const auto declarator = (*it)->asDeclarator()) {
+                Usage::Tags tags;
                 if (containsToken(declarator->core_declarator)) {
                     if (declarator->initializer && declarator->equal_token
                             && (!declarator->postfix_declarator_list
                             || !declarator->postfix_declarator_list->value
                             || !declarator->postfix_declarator_list->value->asFunctionDeclarator())) {
-                        return Usage::Type::Initialization;
+                        return {Usage::Tag::Declaration, Usage::Tag::Write};
                     }
-                    return Usage::Type::Declaration;
+                    tags = Usage::Tag::Declaration;
+                    if (declarator->postfix_declarator_list
+                            && declarator->postfix_declarator_list->value) {
+                        if (const FunctionDeclaratorAST * const funcDecl = declarator
+                                ->postfix_declarator_list->value->asFunctionDeclarator()) {
+                            for (SpecifierListAST *iter = funcDecl->cv_qualifier_list; iter;
+                                 iter = iter->next) {
+                                if (!iter->value)
+                                    continue;
+                                if (const auto simpleSpec = iter->value->asSimpleSpecifier();
+                                        simpleSpec && simpleSpec->specifier_token) {
+                                    const Control * const ctl = m_findUsages->control();
+                                    const Identifier * const id = m_findUsages->translationUnit()
+                                            ->tokenAt(simpleSpec->specifier_token).identifier;
+                                    if (id && (id->equalTo(ctl->cpp11Override())
+                                               || id->equalTo(ctl->cpp11Final()))) {
+                                        tags |= Usage::Tag::Override;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (const auto declId = declarator->core_declarator->asDeclaratorId()) {
+                        if (declId->name && declId->name->asOperatorFunctionId())
+                            tags |= Usage::Tag::Operator;
+                    }
                 }
                 if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
+                    if (tags.toInt() && decl->qt_invokable_token)
+                        return tags |= Usage::Tag::MocInvokable;
                     if (decl->symbols && decl->symbols->value) {
-                        return checkPotentialWrite(
-                                    getUsageTypeFromLhsAndRhs(decl->symbols->value->type(),
-                                                              declarator->initializer, it + 1),
-                                    it + 1);
+                        if (!tags) {
+                            return checkPotentialWrite(
+                                        getTagsFromLhsAndRhs(decl->symbols->value->type(),
+                                                             declarator->initializer, it + 1),
+                                        it + 1);
+                        }
+                        Class *clazz = decl->symbols->value->enclosingClass();
+                        if (clazz && clazz->name()
+                                && decl->symbols->value->name()->match(clazz->name())) {
+                            return tags |= Usage::Tag::ConstructorDestructor;
+                        }
+                        if (const auto func = decl->symbols->value->type()->asFunctionType()) {
+                            if (func->isSignal() || func->isSlot() || func->isInvokable())
+                                return tags |= Usage::Tag::MocInvokable;
+                        }
                     }
                 }
-                return Usage::Type::Other;
+                for (auto it2 = it; it2 != m_astPath.rend(); ++it2) {
+                    if ((*it2)->asTemplateDeclaration())
+                        return tags |= Usage::Tag::Template;
+                }
+                return tags;
             }
             if (const auto retStmt = (*it)->asReturnStatement()) {
                 for (auto funcIt = it + 1; funcIt != m_astPath.rend(); ++funcIt) {
                     if (FunctionDefinitionAST * const funcAst = (*funcIt)->asFunctionDefinition()) {
                         if (funcAst->symbol) {
                             return checkPotentialWrite(
-                                        getUsageTypeFromLhsAndRhs(funcAst->symbol->type(),
+                                        getTagsFromLhsAndRhs(funcAst->symbol->type(),
                                                                   retStmt->expression, funcIt),
                                         funcIt + 1);
                         }
                     }
                 }
-                return Usage::Type::Other;
+                return {};
             }
         }
 
-        return Usage::Type::Other;
+        return {};
     }
 
 private:
@@ -286,27 +332,27 @@ private:
     // This is called for the type of the LHS of an (initialization) assignment.
     // We consider the RHS to be writable through the LHS if the LHS is a pointer
     // that is non-const at any element level, or if it is a a non-const reference.
-    static Usage::Type getUsageTypeFromDataType(FullySpecifiedType type)
+    static Usage::Tags getTagsFromDataType(FullySpecifiedType type)
     {
         if (type.isAuto())
-            return Usage::Type::Other;
+            return {};
         if (const auto refType = type->asReferenceType())
-            return refType->elementType().isConst() ? Usage::Type::Read : Usage::Type::WritableRef;
+            return refType->elementType().isConst() ? Usage::Tag::Read : Usage::Tag::WritableRef;
         while (type->asPointerType()) {
             type = type->asPointerType()->elementType();
             if (!type.isConst())
-                return Usage::Type::WritableRef;
+                return Usage::Tag::WritableRef;
         }
-        return Usage::Type::Read;
+        return Usage::Tag::Read;
     }
 
     // If we found a potential write access inside a lambda, we have to check whether the variable
     // was captured by value. If so, it's not really a write access.
     // FIXME: The parser does not record whether the capture was by reference.
-    Usage::Type checkPotentialWrite(Usage::Type usageType, Iterator startIt) const
+    Usage::Tags checkPotentialWrite(Usage::Tags tags, Iterator startIt) const
     {
-        if (usageType != Usage::Type::Write && usageType != Usage::Type::WritableRef)
-            return usageType;
+        if (tags != Usage::Tag::Write && tags != Usage::Tag::WritableRef)
+            return tags;
         for (auto it = startIt; it != m_astPath.rend(); ++it) {
             if ((*it)->firstToken() > m_tokenIndex)
                 break;
@@ -324,10 +370,10 @@ private:
                                      capList->value->identifier->name)) {
                      continue;
                  }
-                 return capList->value->amper_token ? usageType : Usage::Type::Read;
+                 return capList->value->amper_token ? tags : Usage::Tag::Read;
              }
         }
-        return usageType;
+        return tags;
     }
 
     const QList<LookupItem> getTypesOfExpr(ExpressionAST *expr, Iterator scopeSearchPos) const
@@ -356,21 +402,21 @@ private:
         return std::optional<LookupItem>(items.first());
     }
 
-    Usage::Type getUsageTypeFromLhsAndRhs(const FullySpecifiedType &lhsType, ExpressionAST *rhs,
+    Usage::Tags getTagsFromLhsAndRhs(const FullySpecifiedType &lhsType, ExpressionAST *rhs,
                                           Iterator scopeSearchPos) const
     {
-        const Usage::Type usageType = getUsageTypeFromDataType(lhsType);
-        if (usageType != Usage::Type::Other)
-            return usageType;
+        const Usage::Tags tags = getTagsFromDataType(lhsType);
+        if (tags.toInt())
+            return tags;
 
         // If the lhs has type auto, we use the RHS type.
         const std::optional<LookupItem> item = getTypeOfExpr(rhs, scopeSearchPos);
         if (!item)
-            return Usage::Type::Other;
-        return getUsageTypeFromDataType(item->type());
+            return {};
+        return getTagsFromDataType(item->type());
     }
 
-    Usage::Type getUsageTypeForCall(Iterator callIt) const
+    Usage::Tags getTagsForCall(Iterator callIt) const
     {
         CallAST * const call = (*callIt)->asCall();
 
@@ -383,11 +429,11 @@ private:
                 if (!memberAccess || !memberAccess->member_name || !memberAccess->member_name->name)
                     continue;
                 if (memberAccess->member_name == *(it - 1))
-                    return Usage::Type::Other;
+                    return {};
                 const std::optional<LookupItem> item = getTypeOfExpr(memberAccess->base_expression,
                                                                      it);
                 if (!item)
-                    return Usage::Type::Other;
+                    return {};
                 FullySpecifiedType baseExprType = item->type();
                 if (const auto refType = baseExprType->asReferenceType())
                     baseExprType = refType->elementType();
@@ -406,21 +452,21 @@ private:
                     }
                 }
                 if (!klass)
-                    return Usage::Type::Other;
+                    return {};
                 items = context.lookup(memberAccess->member_name->name, klass);
                 if (items.isEmpty())
-                    return Usage::Type::Other;
+                    return {};
                 for (const LookupItem &item : std::as_const(items)) {
                     if (item.type()->asFunctionType()) {
                         if (item.type().isConst())
-                            return Usage::Type::Read;
+                            return Usage::Tag::Read;
                         if (item.type().isStatic())
-                            return Usage::Type::Other;
-                        return Usage::Type::WritableRef;
+                            return {};
+                        return Usage::Tag::WritableRef;
                     }
                 }
             }
-            return Usage::Type::Other;
+            return {};
         }
 
         // Check whether our symbol is passed as an argument to the function.
@@ -433,27 +479,27 @@ private:
             match = argList->value == *(callIt - 1);
         }
         if (!match)
-            return Usage::Type::Other;
+            return {};
 
         // If we find more than one overload with a matching number of arguments,
         // and they have conflicting usage types, then we give up and report Type::Other.
         // We could do better by trying to match the types manually and finding out
         // which overload is the right one, but that would be an inordinate amount
         // of effort and we'd still have no guarantee that the result is correct.
-        Usage::Type currentType = Usage::Type::Other;
+        Usage::Tags currentTags;
         for (const LookupItem &item : getTypesOfExpr(call->base_expression, callIt + 1)) {
             Function * const func = item.type()->asFunctionType();
             if (!func || func->argumentCount() <= argPos)
                 continue;
-            const Usage::Type newType = getUsageTypeFromLhsAndRhs(
+            const Usage::Tags newTags = getTagsFromLhsAndRhs(
                         func->argumentAt(argPos)->type(), (*(callIt - 1))->asExpression(), callIt);
-            if (newType != Usage::Type::Other && newType != currentType) {
-                if (currentType != Usage::Type::Other)
-                    return Usage::Type::Other;
-                currentType = newType;
+            if (newTags.toInt() && newTags != currentTags) {
+                if (currentTags.toInt())
+                    return {};
+                currentTags = newTags;
             }
         }
-        return currentType;
+        return currentTags;
     }
 
     FindUsages * const m_findUsages;
@@ -461,11 +507,11 @@ private:
     const int m_tokenIndex;
 };
 
-Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
+Usage::Tags FindUsages::getTags(int line, int column, int tokenIndex)
 {
     if (!_categorize)
-        return Usage::Type::Other;
-    return GetUsageType(this, ASTPath(_doc)(line, column), tokenIndex).getUsageType();
+        return {};
+    return GetUsageTags(this, ASTPath(_doc)(line, column), tokenIndex).getTags();
 }
 
 QString FindUsages::matchingLine(const Token &tk) const

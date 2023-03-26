@@ -1,5 +1,5 @@
 // Copyright (C) 2018 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
@@ -29,9 +29,6 @@
 #include <utils/url.h>
 
 #include <QDate>
-#include <QDir>
-#include <QDirIterator>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QScopeGuard>
 #include <QRegularExpression>
@@ -137,14 +134,6 @@ static QString gdbServerArch(const QString &androidAbi)
     return androidAbi;
 }
 
-static QString lldbServerArch(const QString &androidAbi)
-{
-    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
-        return {ProjectExplorer::Constants::ANDROID_ABI_ARMEABI};
-    // Correct for arm64-v8a, x86 and x86_64, and best guess at anything that will evolve:
-    return androidAbi; // arm64-v8a, x86, x86_64
-}
-
 static QString lldbServerArch2(const QString &androidAbi)
 {
     if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
@@ -172,27 +161,18 @@ static FilePath debugServer(bool useLldb, const Target *target)
         // The new, built-in LLDB.
         const QDir::Filters dirFilter = HostOsInfo::isWindowsHost() ? QDir::Files
                                                                     : QDir::Files|QDir::Executable;
-        QDirIterator it(prebuilt.toString(), dirFilter, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            it.next();
-            const QString filePath = it.filePath();
-            if (filePath.endsWith(abiNeedle + "/lldb-server")) {
-                return FilePath::fromString(filePath);
+        FilePath lldbServer;
+        const auto handleLldbServerCandidate = [&abiNeedle, &lldbServer] (const FilePath &path) {
+            if (path.parentDir().fileName() == abiNeedle) {
+                lldbServer = path;
+                return IterationPolicy::Stop;
             }
-        }
-
-        // Older: Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
-        const QStringList packages = config.defaultEssentials();
-        for (const QString &package : packages) {
-            if (package.startsWith("lldb;")) {
-                const QString lldbVersion = package.mid(5);
-                const FilePath path = config.sdkLocation()
-                        / QString("lldb/%1/android/%2/lldb-server")
-                                .arg(lldbVersion, lldbServerArch(preferredAbi));
-                if (path.exists())
-                    return path;
-            }
-        }
+            return IterationPolicy::Continue;
+        };
+        prebuilt.iterateDirectory(handleLldbServerCandidate,
+                                  {{"lldb-server"}, dirFilter, QDirIterator::Subdirectories});
+        if (!lldbServer.isEmpty())
+            return lldbServer;
     } else {
         // Search suitable gdbserver binary.
         const FilePath path = config.ndkLocation(qtVersion)
@@ -234,7 +214,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         qCDebug(androidRunWorkerLog) << "QML debugging enabled";
         QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost),
+        const bool isListening = server.listen(QHostAddress::LocalHost);
+        QTC_ASSERT(isListening,
                    qDebug() << Tr::tr("No free ports available on host for QML debugging."));
         m_qmlServer.setScheme(Utils::urlTcpScheme());
         m_qmlServer.setHost(server.serverAddress().toString());
@@ -281,7 +262,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     for (const QString &shellCmd : postFinishCmdList.toStringList())
         m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
-    m_debugServerPath = debugServer(m_useLldb, target).toString();
+    m_debugServerPath = debugServer(m_useLldb, target);
     qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << m_deviceSerialNumber
                                            << ", API level:" << m_apiLevel
                                            << ", Extra Start Args:" << m_amStartExtraArgs
@@ -339,7 +320,7 @@ bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
     });
 
     // Copy gdbserver to temp location
-    if (!runAdb({"push", m_debugServerPath , tempDebugServerPath})) {
+    if (!runAdb({"push", m_debugServerPath.toString(), tempDebugServerPath})) {
         qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed";
         return false;
     }
@@ -349,8 +330,9 @@ bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
         qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed";
         return false;
     }
-    QTC_ASSERT(runAdb({"shell", "run-as", m_packageName, "chmod", "777", debugServerFileName}),
-                   qCDebug(androidRunWorkerLog) << "Debug server chmod 777 failed.");
+
+    const bool ok = runAdb({"shell", "run-as", m_packageName, "chmod", "777", debugServerFileName});
+    QTC_ASSERT(ok, qCDebug(androidRunWorkerLog) << "Debug server chmod 777 failed.");
     return true;
 }
 
@@ -545,7 +527,7 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
-        if (!QFileInfo::exists(m_debugServerPath)) {
+        if (!m_debugServerPath.exists()) {
             QString msg = Tr::tr("Cannot find C++ debug server in NDK installation.");
             if (m_useLldb)
                 msg += "\n" + Tr::tr("The lldb-server binary has not been found.");
@@ -623,7 +605,7 @@ void AndroidRunnerWorker::asyncStartHelper()
              << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
     }
 
-    if (m_extraEnvVars.isValid()) {
+    if (m_extraEnvVars.hasChanges()) {
         args << "-e" << "extraenvvars"
              << QString::fromLatin1(m_extraEnvVars.toStringList().join('\t')
                                     .toUtf8().toBase64());
@@ -753,10 +735,10 @@ void AndroidRunnerWorker::handleJdbSettled()
 {
     qCDebug(androidRunWorkerLog) << "Handle JDB settled";
     auto waitForCommand = [this] {
-        for (int i= 0; i < 5 && m_jdbProcess->state() == QProcess::Running; ++i) {
+        for (int i = 0; i < 120 && m_jdbProcess->state() == QProcess::Running; ++i) {
             m_jdbProcess->waitForReadyRead(500);
             QByteArray lines = m_jdbProcess->readAll();
-            const auto linesList =  lines.split('\n');
+            const auto linesList = lines.split('\n');
             for (const auto &line : linesList) {
                 auto msg = line.trimmed();
                 if (msg.startsWith(">"))
@@ -765,24 +747,29 @@ void AndroidRunnerWorker::handleJdbSettled()
         }
         return false;
     };
-    if (waitForCommand()) {
-        m_jdbProcess->write("cont\n");
-        if (m_jdbProcess->waitForBytesWritten(5000) && waitForCommand()) {
-            m_jdbProcess->write("exit\n");
-            m_jdbProcess->waitForBytesWritten(5000);
-            if (!m_jdbProcess->waitForFinished(5000)) {
-                m_jdbProcess->terminate();
-                if (!m_jdbProcess->waitForFinished(5000)) {
-                    qCDebug(androidRunWorkerLog) << "Killing JDB process";
-                    m_jdbProcess->kill();
-                    m_jdbProcess->waitForFinished();
-                }
-            } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
-                qCDebug(androidRunWorkerLog) << "JDB settled";
-                return;
-            }
+
+    const QStringList commands{"threads", "cont", "exit"};
+    const int jdbTimeout = 5000;
+
+    for (const QString &command : commands) {
+        if (waitForCommand()) {
+            m_jdbProcess->write(QString("%1\n").arg(command).toLatin1());
+            m_jdbProcess->waitForBytesWritten(jdbTimeout);
         }
     }
+
+    if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
+        m_jdbProcess->terminate();
+        if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
+            qCDebug(androidRunWorkerLog) << "Killing JDB process";
+            m_jdbProcess->kill();
+            m_jdbProcess->waitForFinished();
+        }
+    } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
+        qCDebug(androidRunWorkerLog) << "JDB settled";
+        return;
+    }
+
     emit remoteProcessFinished(Tr::tr("Cannot attach JDB to the running application."));
 }
 

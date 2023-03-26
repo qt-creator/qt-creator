@@ -1,13 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "ui_submitpanel.h"
 #include <vcsbase/submiteditorwidget.h>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
+
+class SubmitPanel;
 
 /* Submit editor widget with additional information pane
  * at the top. */
@@ -19,9 +19,7 @@ public:
     void setData(const QString &change, const QString &client, const QString &userName);
 
 private:
-    QGroupBox *m_submitPanel;
-    Ui::SubmitPanel m_submitPanelUi;
+    SubmitPanel *m_submitPanel;
 };
 
-} // namespace Internal
-} // namespace Perforce
+} // Perforce::Internal

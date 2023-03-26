@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "remotedialog.h"
 
@@ -18,7 +18,6 @@
 #include <QApplication>
 #include <QDialogButtonBox>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMessageBox>
@@ -96,7 +95,7 @@ public:
             Span(2, buttonBox)
         }.attachTo(this);
 
-        connect(m_nameEdit, &QLineEdit::textChanged, [this, buttonBox] {
+        connect(m_nameEdit, &QLineEdit::textChanged, this, [this, buttonBox] {
             buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_nameEdit->isValid());
         });
 

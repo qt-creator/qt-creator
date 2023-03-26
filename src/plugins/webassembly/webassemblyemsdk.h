@@ -1,30 +1,23 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include <utils/fileutils.h>
-
-#include <QCache>
 #include <QVersionNumber>
 
 namespace Utils {
 class Environment;
+class FilePath;
 }
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal::WebAssemblyEmSdk {
 
-class WebAssemblyEmSdk
-{
-public:
-    static bool isValid(const Utils::FilePath &sdkRoot);
-    static void addToEnvironment(const Utils::FilePath &sdkRoot, Utils::Environment &env);
-    static QVersionNumber version(const Utils::FilePath &sdkRoot);
-    static void registerEmSdk(const Utils::FilePath &sdkRoot);
-    static Utils::FilePath registeredEmSdk();
-    static void clearCaches();
-};
+bool isValid(const Utils::FilePath &sdkRoot);
+void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Utils::Environment &env);
+void addToEnvironment(const Utils::FilePath &sdkRoot, Utils::Environment &env);
+QVersionNumber version(const Utils::FilePath &sdkRoot);
+void registerEmSdk(const Utils::FilePath &sdkRoot);
+Utils::FilePath registeredEmSdk();
+void clearCaches();
 
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal::WebAssemblyEmSdk

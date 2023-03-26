@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <qmakevfs.h>
 #include <qmakeparser.h>
@@ -454,7 +454,8 @@ void tst_ProFileWriter::adds()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(QStringView(input),
+    ProFile *proFile = parser.parsedProBlock(QString(), // device
+                                             QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);
@@ -628,7 +629,8 @@ void tst_ProFileWriter::removes()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(QStringView(input),
+    ProFile *proFile = parser.parsedProBlock(QString(), // device
+                                             QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);
@@ -660,7 +662,8 @@ void tst_ProFileWriter::multiVar()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(QStringView(input),
+    ProFile *proFile = parser.parsedProBlock(QString(), // device
+                                             QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);
@@ -683,7 +686,8 @@ void tst_ProFileWriter::addFiles()
 
         QMakeVfs vfs;
         QMakeParser parser(0, &vfs, &parseHandler);
-        ProFile *proFile = parser.parsedProBlock(QStringView(input),
+        ProFile *proFile = parser.parsedProBlock(QString(), // device
+                                                 QStringView(input),
                                                  0,
                                                  BASE_DIR "/test.pro",
                                                  1);
@@ -709,7 +713,8 @@ void tst_ProFileWriter::removeFiles()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(QStringView(input),
+    ProFile *proFile = parser.parsedProBlock(QString(), // device
+                                             QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);

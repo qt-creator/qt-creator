@@ -1,9 +1,9 @@
 add_qtc_executable(iostool
   DESTINATION ${IDE_LIBEXEC_PATH}/ios
   DEPENDS
-    Qt5::Core
-    Qt5::Xml
-    Qt5::Network
+    Qt::Core
+    Qt::Xml
+    Qt::Network
     ${FWCoreFoundation}
     ${FWCoreServices}
     ${FWIOKit}

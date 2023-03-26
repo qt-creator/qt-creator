@@ -1,11 +1,13 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcheckplugin.h"
+
 #include "cppcheckconstants.h"
 #include "cppcheckdiagnosticview.h"
 #include "cppchecktextmarkmanager.h"
 #include "cppchecktool.h"
+#include "cppchecktr.h"
 #include "cppchecktrigger.h"
 #include "cppcheckdiagnosticsmodel.h"
 #include "cppcheckmanualrundialog.h"
@@ -26,32 +28,28 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckPluginPrivate final : public QObject
 {
 public:
     explicit CppcheckPluginPrivate();
+
     CppcheckTextMarkManager marks;
-    CppcheckTool tool;
-    CppcheckTrigger trigger;
-    CppcheckOptionsPage options;
+    CppcheckTool tool{marks, Constants::CHECK_PROGRESS_ID};
+    CppcheckTrigger trigger{marks, tool};
+    CppcheckOptionsPage options{tool, trigger};
     DiagnosticsModel manualRunModel;
-    CppcheckTool manualRunTool;
-    Utils::Perspective perspective{Constants::PERSPECTIVE_ID,
-                                   ::Cppcheck::Internal::CppcheckPlugin::tr("Cppcheck")};
+    CppcheckTool manualRunTool{manualRunModel, Constants::MANUAL_CHECK_PROGRESS_ID};
+    Utils::Perspective perspective{Constants::PERSPECTIVE_ID, ::Cppcheck::Tr::tr("Cppcheck")};
+
     QAction *manualRunAction;
 
     void startManualRun();
     void updateManualRunAction();
 };
 
-CppcheckPluginPrivate::CppcheckPluginPrivate() :
-    tool(marks, Constants::CHECK_PROGRESS_ID),
-    trigger(marks, tool),
-    options(tool, trigger),
-    manualRunTool(manualRunModel, Constants::MANUAL_CHECK_PROGRESS_ID)
+CppcheckPluginPrivate::CppcheckPluginPrivate()
 {
     manualRunTool.updateOptions(tool.options());
 
@@ -64,7 +62,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate() :
         auto action = new QAction(this);
         action->setEnabled(false);
         action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
-        action->setToolTip(CppcheckPlugin::tr("Go to previous diagnostic."));
+        action->setToolTip(Tr::tr("Go to previous diagnostic."));
         connect(action, &QAction::triggered,
                 manualRunView, &Debugger::DetailedErrorView::goBack);
         connect (&manualRunModel, &DiagnosticsModel::hasDataChanged,
@@ -77,7 +75,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate() :
         auto action = new QAction(this);
         action->setEnabled(false);
         action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
-        action->setToolTip(CppcheckPlugin::tr("Go to next diagnostic."));
+        action->setToolTip(Tr::tr("Go to next diagnostic."));
         connect(action, &QAction::triggered,
                 manualRunView, &Debugger::DetailedErrorView::goNext);
         connect (&manualRunModel, &DiagnosticsModel::hasDataChanged,
@@ -90,7 +88,7 @@ CppcheckPluginPrivate::CppcheckPluginPrivate() :
         auto action = new QAction(this);
         action->setEnabled(false);
         action->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
-        action->setToolTip(CppcheckPlugin::tr("Clear"));
+        action->setToolTip(Tr::tr("Clear"));
         connect(action, &QAction::triggered,
                 &manualRunModel, &DiagnosticsModel::clear);
         connect (&manualRunModel, &DiagnosticsModel::hasDataChanged,
@@ -135,18 +133,15 @@ CppcheckPlugin::CppcheckPlugin() = default;
 
 CppcheckPlugin::~CppcheckPlugin() = default;
 
-bool CppcheckPlugin::initialize(const QStringList &arguments, QString *errorString)
+void CppcheckPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d.reset(new CppcheckPluginPrivate);
 
     using namespace Core;
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
 
     {
-        auto action = new QAction(tr("Cppcheck..."), this);
+        auto action = new QAction(Tr::tr("Cppcheck..."), this);
         menu->addAction(ActionManager::registerAction(action, Constants::MANUAL_RUN_ACTION),
                         Debugger::Constants::G_ANALYZER_TOOLS);
         connect(action, &QAction::triggered,
@@ -158,9 +153,6 @@ bool CppcheckPlugin::initialize(const QStringList &arguments, QString *errorStri
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             d.get(), &CppcheckPluginPrivate::updateManualRunAction);
     d->updateManualRunAction();
-
-    return true;
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

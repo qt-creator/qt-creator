@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "compileroptionsbuilder.h"
 
@@ -167,7 +167,7 @@ void CompilerOptionsBuilder::addSyntaxOnly()
     isClStyle() ? add("/Zs") : add("-fsyntax-only");
 }
 
-QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
+QStringList createLanguageOptionGcc(Language language, ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList options;
 
@@ -176,23 +176,22 @@ QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
     case ProjectFile::Unsupported:
         break;
     case ProjectFile::CHeader:
-        if (objcExt)
-            options += "objective-c-header";
-        else
-            options += "c-header";
+    case ProjectFile::AmbiguousHeader:
+        if (language == Language::C)
+            options += QLatin1String(objcExt ? "objective-c-header" : "c-header");
+        else if (language == Language::Cxx)
+            options += QLatin1String(objcExt ? "objective-c++-header" : "c++-header");
         break;
     case ProjectFile::CXXHeader:
-    default:
-        if (!objcExt) {
-            options += "c++-header";
-            break;
-        }
-        Q_FALLTHROUGH();
+        options += QLatin1String(objcExt ? "objective-c++-header" : "c++-header");
+        break;
     case ProjectFile::ObjCHeader:
+        options += QLatin1String(language == Language::C ? "objective-c-header"
+                                                         : "objective-c++-header");
+        break;
     case ProjectFile::ObjCXXHeader:
         options += "objective-c++-header";
         break;
-
     case ProjectFile::CSource:
         if (!objcExt) {
             options += "c";
@@ -427,7 +426,7 @@ void CompilerOptionsBuilder::addMacros(const Macros &macros)
 
 void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
 {
-    if (isClStyle()) {
+    if (isClStyle() && !ProjectFile::isObjC(fileKind)) {
         QString option;
         if (ProjectFile::isC(fileKind))
             option = "/TC";
@@ -447,7 +446,7 @@ void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
     }
 
     const bool objcExt = m_projectPart.languageExtensions & LanguageExtension::ObjectiveC;
-    const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
+    const QStringList options = createLanguageOptionGcc(m_projectPart.language, fileKind, objcExt);
     if (options.isEmpty())
         return;
 

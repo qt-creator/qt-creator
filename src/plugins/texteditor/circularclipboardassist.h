@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -13,7 +13,6 @@ class ClipboardAssistProvider: public IAssistProvider
 {
 public:
     ClipboardAssistProvider(QObject *parent = nullptr) : IAssistProvider(parent) {}
-    IAssistProvider::RunType runType() const override;
     IAssistProcessor *createProcessor(const AssistInterface *) const override;
 };
 

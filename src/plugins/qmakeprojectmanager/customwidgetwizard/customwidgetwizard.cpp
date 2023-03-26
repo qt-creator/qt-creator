@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customwidgetwizard.h"
 #include "customwidgetwizarddialog.h"
@@ -9,12 +9,11 @@
 #include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/filepath.h>
-
-#include <QCoreApplication>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -23,8 +22,7 @@ CustomWidgetWizard::CustomWidgetWizard()
 {
     setId("P.Qt4CustomWidget");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-             ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
+    setDisplayCategory(ProjectExplorer::Tr::tr(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
     setDisplayName(Tr::tr("Qt Custom Designer Widget"));
     setDescription(Tr::tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."));
     setIcon(themedIcon(":/wizards/images/gui.png"));

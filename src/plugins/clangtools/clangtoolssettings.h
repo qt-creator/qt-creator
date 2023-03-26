@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -57,11 +57,8 @@ public:
     static ClangToolsSettings *instance();
     void writeSettings();
 
-    Utils::FilePath clangTidyExecutable() const { return m_clangTidyExecutable; }
-    void setClangTidyExecutable(const Utils::FilePath &path);
-
-    Utils::FilePath clazyStandaloneExecutable() const { return m_clazyStandaloneExecutable; }
-    void setClazyStandaloneExecutable(const Utils::FilePath &path);
+    Utils::FilePath executable(CppEditor::ClangToolType tool) const;
+    void setExecutable(CppEditor::ClangToolType tool, const Utils::FilePath &path);
 
     CppEditor::ClangDiagnosticConfigs diagnosticConfigs() const { return m_diagnosticConfigs; }
     void setDiagnosticConfigs(const CppEditor::ClangDiagnosticConfigs &configs)

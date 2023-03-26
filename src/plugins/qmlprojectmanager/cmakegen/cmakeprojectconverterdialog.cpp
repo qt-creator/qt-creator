@@ -1,7 +1,8 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeprojectconverterdialog.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <coreplugin/documentmanager.h>
 
@@ -10,7 +11,6 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
-#include <QLayout>
 #include <QPushButton>
 #include <QRegularExpression>
 
@@ -31,17 +31,9 @@ static bool dirValidationFunction(FancyLineEdit *editor, QString *)
     return FilePath::fromString(editor->text()).isWritableDir();
 }
 
-const QString EXPLANATION_TEXT = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "This process creates a copy of the existing project. The new project's folder structure is adjusted for CMake build process and necessary related new files are generated.\n\nThe new project can be opened in Qt Creator using the main CMakeLists.txt file.");
-
-const QString PROJECT_NAME_LABEL = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Name:");
-
-const QString PARENT_DIR_LABEL = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Create in:");
+const QString EXPLANATION_TEXT = Tr::tr("This process creates a copy of the existing project. The new project's folder structure is adjusted for CMake build process and necessary related new files are generated.\n\nThe new project can be opened in Qt Creator using the main CMakeLists.txt file.");
+const QString PROJECT_NAME_LABEL = Tr::tr("Name:");
+const QString PARENT_DIR_LABEL = Tr::tr("Create in:");
 
 CmakeProjectConverterDialog::CmakeProjectConverterDialog(const QmlProjectManager::QmlProject *oldProject)
     : QDialog()
@@ -122,28 +114,14 @@ const QString CmakeProjectConverterDialog::startsWithBlacklisted(const QString &
     return {};
 }
 
-const QString ERROR_TEXT_NAME_EMPTY = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Name is empty.");
-const QString ERROR_TEXT_NAME_BAD_START = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Name must not start with \"%1\".");
-const QString ERROR_TEXT_NAME_LOWERCASE_START = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Name must begin with a capital letter");
-const QString ERROR_TEXT_NAME_BAD_CHARACTERS = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Name must contain only letters, numbers or characters - _.");
+const QString ERROR_TEXT_NAME_EMPTY = Tr::tr("Name is empty.");
+const QString ERROR_TEXT_NAME_BAD_START = Tr::tr("Name must not start with \"%1\".");
+const QString ERROR_TEXT_NAME_LOWERCASE_START = Tr::tr("Name must begin with a capital letter");
+const QString ERROR_TEXT_NAME_BAD_CHARACTERS = Tr::tr("Name must contain only letters, numbers or characters - _.");
 
-const QString ERROR_DIR_NOT_DIR = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Target is not a directory.");
-const QString ERROR_DIR_NOT_WRITABLE = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Cannot write to target directory.");
-const QString ERROR_DIR_EXISTS = QCoreApplication::translate(
-            "QmlDesigner::CmakeProjectConverterDialog",
-            "Project directory already exists.");
+const QString ERROR_DIR_NOT_DIR = Tr::tr("Target is not a directory.");
+const QString ERROR_DIR_NOT_WRITABLE = Tr::tr("Cannot write to target directory.");
+const QString ERROR_DIR_EXISTS = Tr::tr("Project directory already exists.");
 
 const QString CmakeProjectConverterDialog::errorText() const
 {

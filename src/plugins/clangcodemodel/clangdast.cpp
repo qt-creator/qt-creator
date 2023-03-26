@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdast.h"
 
@@ -387,7 +387,7 @@ MessageId requestAst(Client *client, const FilePath &filePath, const Range range
         explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
     };
 
-    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)),
+    AstRequest request(AstParams(TextDocumentIdentifier(client->hostPathToServerUri(filePath)),
                                  range));
     request.setResponseCallback([handler, reqId = request.id()](AstRequest::Response response) {
         const auto result = response.result();

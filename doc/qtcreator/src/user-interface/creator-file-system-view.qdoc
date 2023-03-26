@@ -11,6 +11,11 @@
     If you cannot see a file in the \l Projects view, switch to the
     \uicontrol {File System} view, which shows all the files in the file system.
 
+    \note Usually, \l{Searching with the Locator}{searching with the locator}
+    is the fastest way to find a particular project, file, class, or function,
+    or almost anything else in your project. Use the \e {file system (f)} filter
+    to open files from anywhere in the file system.
+
     \if defined(qtdesignstudio)
     The following image displays the \uicontrol {File System} view in the
     \uicontrol Design mode:
@@ -53,7 +58,7 @@
         \li Open a project located in the selected directory.
         \li Show the file or directory in the file explorer.
         \li Open a terminal window in the selected directory or in the directory
-            that contains the file. To specify the terminal to use on Linux and
+            that has the file. To specify the terminal to use on Linux and
             \macos, select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol System.
         \li Search from the selected directory.
@@ -83,7 +88,7 @@
 
     \image qtcreator-filesystem-view.webp "File System view in the sidebar"
     \else
-    The toolbar in the \uicontrol {File System} view contains additional
+    The toolbar in the \uicontrol {File System} view has additional
     options.
     \endif
 

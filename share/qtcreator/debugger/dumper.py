@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import os
 import codecs
@@ -167,6 +167,7 @@ class DumperBase():
         self.isGdb = False
         self.isLldb = False
         self.isCli = False
+        self.isDebugBuild = None
 
         # Later set, or not set:
         self.stringCutOff = 10000
@@ -2495,7 +2496,10 @@ class DumperBase():
         try:
             if funcname.startswith('qdump__'):
                 typename = funcname[7:]
-                spec = inspect.getargspec(function)
+                if sys.version_info > (3,):
+                    spec = inspect.getfullargspec(function)
+                else:
+                    spec = inspect.getargspec(function)
                 if len(spec.args) == 2:
                     self.qqDumpers[typename] = function
                 elif len(spec.args) == 3 and len(spec.defaults) == 1:
@@ -2788,6 +2792,8 @@ class DumperBase():
             return
 
         self.putAddress(value.address())
+        if value.lbitsize is not None:
+            self.putField('size', value.lbitsize // 8)
 
         if typeobj.code == TypeCode.Function:
             #DumperBase.warn('FUNCTION VALUE: %s' % value)
@@ -3306,13 +3312,13 @@ class DumperBase():
                 else:
                     val = self.dumper.nativeValueDereferenceReference(self)
             elif self.type.code == TypeCode.Pointer:
-                if self.nativeValue is None:
+                try:
+                    val = self.dumper.nativeValueDereferencePointer(self)
+                except:
                     val.laddress = self.pointer()
                     val._type = self.type.dereference()
                     if self.dumper.useDynamicType:
                         val._type = self.dumper.nativeDynamicType(val.laddress, val.type)
-                else:
-                    val = self.dumper.nativeValueDereferencePointer(self)
             else:
                 raise RuntimeError("WRONG: %s" % self.type.code)
             #DumperBase.warn("DEREFERENCING FROM: %s" % self)

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 /*
 The main algorithm "diffMyers()" is based on "An O(ND) Difference Algorithm
@@ -11,12 +11,13 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 
 #include "differ.h"
 
+#include "utilstr.h"
+
 #include <QList>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QMap>
 #include <QPair>
-#include <QCoreApplication>
 #include <QFutureInterfaceBase>
 
 namespace Utils {
@@ -920,10 +921,10 @@ bool Diff::operator!=(const Diff &other) const
 QString Diff::commandString(Command com)
 {
     if (com == Delete)
-        return QCoreApplication::translate("Diff", "Delete");
+        return ::Utils::Tr::tr("Delete");
     else if (com == Insert)
-        return QCoreApplication::translate("Diff", "Insert");
-    return QCoreApplication::translate("Diff", "Equal");
+        return ::Utils::Tr::tr("Insert");
+    return ::Utils::Tr::tr("Equal");
 }
 
 QString Diff::toString() const
@@ -1356,18 +1357,17 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
     return squashedDiffList;
 }
 
-struct EqualityData
-{
-    int equalityIndex;
-    int textCount;
-    int deletesBefore;
-    int insertsBefore;
-    int deletesAfter;
-    int insertsAfter;
-};
-
 QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
 {
+    struct EqualityData
+    {
+        int equalityIndex = 0;
+        int textCount = 0;
+        int deletesBefore = 0;
+        int insertsBefore = 0;
+        int deletesAfter = 0;
+        int insertsAfter = 0;
+    };
     int deletes = 0;
     int inserts = 0;
     // equality index, equality data
@@ -1390,7 +1390,6 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
                 data.deletesBefore = deletes;
                 data.insertsBefore = inserts;
                 equalities.append(data);
-
                 deletes = 0;
                 inserts = 0;
             }

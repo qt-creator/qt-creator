@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -31,6 +31,9 @@ bool LANGUAGECLIENT_EXPORT
 applyTextDocumentEdit(const Client *client, const LanguageServerProtocol::TextDocumentEdit &edit);
 bool LANGUAGECLIENT_EXPORT applyTextEdits(const Client *client,
                                           const LanguageServerProtocol::DocumentUri &uri,
+                                          const QList<LanguageServerProtocol::TextEdit> &edits);
+bool LANGUAGECLIENT_EXPORT applyTextEdits(const Client *client,
+                                          const Utils::FilePath &filePath,
                                           const QList<LanguageServerProtocol::TextEdit> &edits);
 void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
                                          const LanguageServerProtocol::TextEdit &edit,

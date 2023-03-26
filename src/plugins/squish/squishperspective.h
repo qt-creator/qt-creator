@@ -1,7 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
+
+#include "squishconstants.h"
 
 #include <debugger/debuggermainwindow.h>
 
@@ -28,8 +30,7 @@ class SquishPerspective : public Utils::Perspective
 {
     Q_OBJECT
 public:
-    enum PerspectiveMode { NoMode, Interrupted, Running, Recording, Querying };
-    enum StepMode { Continue, StepIn, StepOver, StepOut };
+    enum PerspectiveMode { NoMode, Interrupted, Running, Recording, Querying, Configuring };
 
     SquishPerspective();
     void initPerspective();
@@ -45,7 +46,7 @@ signals:
     void stopRequested();
     void stopRecordRequested();
     void interruptRequested();
-    void runRequested(SquishPerspective::StepMode mode);
+    void runRequested(StepMode mode);
 
 private:
     void onStopTriggered();

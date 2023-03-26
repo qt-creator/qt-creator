@@ -1,11 +1,12 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "desktoprunconfiguration.h"
 
 #include "buildsystem.h"
 #include "localenvironmentaspect.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
 
@@ -26,8 +27,6 @@ namespace Internal {
 
 class DesktopRunConfiguration : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::DesktopRunConfiguration)
-
 protected:
     enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
 
@@ -94,7 +93,7 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         FilePath profile = FilePath::fromString(buildKey());
         if (profile.isEmpty())
-            setDefaultDisplayName(tr("Qt Run Configuration"));
+            setDefaultDisplayName(Tr::tr("Qt Run Configuration"));
         else
             setDefaultDisplayName(profile.completeBaseName());
 
@@ -139,7 +138,7 @@ FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetI
     if (deployedAppFilePath.isEmpty())
         return appInBuildDir;
 
-    const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() + deployedAppFilePath;
+    const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() / deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
 }
 

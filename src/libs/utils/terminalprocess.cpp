@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "terminalprocess_p.h"
 
@@ -9,6 +9,7 @@
 #include "qtcassert.h"
 #include "qtcprocess.h"
 #include "terminalcommand.h"
+#include "utilstr.h"
 
 #include <QCoreApplication>
 #include <QLocalServer>
@@ -58,44 +59,44 @@ static QString modeOption(TerminalMode m)
 
 static QString msgCommChannelFailed(const QString &error)
 {
-    return QtcProcess::tr("Cannot set up communication channel: %1").arg(error);
+    return Tr::tr("Cannot set up communication channel: %1").arg(error);
 }
 
 static QString msgPromptToClose()
 {
     // Shown in a terminal which might have a different character set on Windows.
-    return QtcProcess::tr("Press <RETURN> to close this window...");
+    return Tr::tr("Press <RETURN> to close this window...");
 }
 
 static QString msgCannotCreateTempFile(const QString &why)
 {
-    return QtcProcess::tr("Cannot create temporary file: %1").arg(why);
+    return Tr::tr("Cannot create temporary file: %1").arg(why);
 }
 
 static QString msgCannotWriteTempFile()
 {
-    return QtcProcess::tr("Cannot write temporary file. Disk full?");
+    return Tr::tr("Cannot write temporary file. Disk full?");
 }
 
 static QString msgCannotCreateTempDir(const QString & dir, const QString &why)
 {
-    return QtcProcess::tr("Cannot create temporary directory \"%1\": %2").arg(dir, why);
+    return Tr::tr("Cannot create temporary directory \"%1\": %2").arg(dir, why);
 }
 
 static QString msgUnexpectedOutput(const QByteArray &what)
 {
-    return QtcProcess::tr("Unexpected output from helper program (%1).")
+    return Tr::tr("Unexpected output from helper program (%1).")
         .arg(QString::fromLatin1(what));
 }
 
 static QString msgCannotChangeToWorkDir(const FilePath &dir, const QString &why)
 {
-    return QtcProcess::tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
+    return Tr::tr("Cannot change to working directory \"%1\": %2").arg(dir.toString(), why);
 }
 
 static QString msgCannotExecute(const QString & p, const QString &why)
 {
-    return QtcProcess::tr("Cannot execute \"%1\": %2").arg(p, why);
+    return Tr::tr("Cannot execute \"%1\": %2").arg(p, why);
 }
 
 class TerminalProcessPrivate
@@ -290,7 +291,7 @@ void TerminalImpl::start()
     if (!success) {
         delete d->m_pid;
         d->m_pid = nullptr;
-        const QString msg = QtcProcess::tr("The process \"%1\" could not be started: %2")
+        const QString msg = Tr::tr("The process \"%1\" could not be started: %2")
                                 .arg(cmdLine, winErrorMessage(GetLastError()));
         cleanupAfterStartFailure(msg);
         return;
@@ -315,14 +316,14 @@ void TerminalImpl::start()
         pcmd = m_setup.m_commandLine.executable().toString();
     } else {
         if (perr != ProcessArgs::FoundMeta) {
-            emitError(QProcess::FailedToStart, QtcProcess::tr("Quoting error in command."));
+            emitError(QProcess::FailedToStart, Tr::tr("Quoting error in command."));
             return;
         }
         if (m_setup.m_terminalMode == TerminalMode::Debug) {
             // FIXME: QTCREATORBUG-2809
             emitError(QProcess::FailedToStart,
-                      QtcProcess::tr("Debugging complex shell commands in a terminal"
-                                     " is currently not supported."));
+                      Tr::tr("Debugging complex shell commands in a terminal"
+                             " is currently not supported."));
             return;
         }
         pcmd = qtcEnvironmentVariable("SHELL", "/bin/sh");
@@ -341,8 +342,8 @@ void TerminalImpl::start()
     if (qerr != ProcessArgs::SplitOk) {
         emitError(QProcess::FailedToStart,
                   qerr == ProcessArgs::BadQuoting
-                      ? QtcProcess::tr("Quoting error in terminal command.")
-                      : QtcProcess::tr("Terminal command may not be a shell command."));
+                      ? Tr::tr("Quoting error in terminal command.")
+                      : Tr::tr("Terminal command may not be a shell command."));
         return;
     }
 
@@ -391,15 +392,15 @@ void TerminalImpl::start()
         allArgs = QStringList { ProcessArgs::joinArgs(allArgs) };
 
     d->m_process.setEnvironment(m_setup.m_environment);
-    d->m_process.setCommand({FilePath::fromString(terminal.command), allArgs});
+    d->m_process.setCommand({terminal.command, allArgs});
     d->m_process.setProcessImpl(m_setup.m_processImpl);
     d->m_process.setReaperTimeout(m_setup.m_reaperTimeout);
 
     d->m_process.start();
     if (!d->m_process.waitForStarted()) {
-        const QString msg = QtcProcess::tr("Cannot start the terminal emulator \"%1\", change the "
+        const QString msg = Tr::tr("Cannot start the terminal emulator \"%1\", change the "
                                            "setting in the Environment preferences. (%2)")
-                                .arg(terminal.command).arg(d->m_process.errorString());
+                                .arg(terminal.command.toUserOutput(), d->m_process.errorString());
         cleanupAfterStartFailure(msg);
         return;
     }
@@ -433,6 +434,9 @@ void TerminalImpl::sendControlSignal(ControlSignal controlSignal)
         break;
     case ControlSignal::KickOff:
         sendCommand('c');
+        break;
+    case ControlSignal::CloseWriteChannel:
+        QTC_CHECK(false);
         break;
     }
 }
@@ -525,7 +529,7 @@ QString TerminalImpl::stubServerListen()
     const QString stubServer = stubFifoDir + QLatin1String("/stub-socket");
     if (!d->m_stubServer.listen(stubServer)) {
         ::rmdir(d->m_stubServerDir.constData());
-        return QtcProcess::tr("Cannot create socket \"%1\": %2")
+        return Tr::tr("Cannot create socket \"%1\": %2")
             .arg(stubServer, d->m_stubServer.errorString());
     }
     return {};
@@ -598,7 +602,7 @@ void TerminalImpl::readStubOutput()
                     FALSE, d->m_processId);
             if (d->m_hInferior == NULL) {
                 emitError(QProcess::FailedToStart,
-                          QtcProcess::tr("Cannot obtain a handle to the inferior: %1")
+                          Tr::tr("Cannot obtain a handle to the inferior: %1")
                               .arg(winErrorMessage(GetLastError())));
                 // Uhm, and now what?
                 continue;
@@ -609,7 +613,7 @@ void TerminalImpl::readStubOutput()
 
                 if (!GetExitCodeProcess(d->m_hInferior, &chldStatus))
                     emitError(QProcess::UnknownError,
-                              QtcProcess::tr("Cannot obtain exit status from inferior: %1")
+                              Tr::tr("Cannot obtain exit status from inferior: %1")
                                   .arg(winErrorMessage(GetLastError())));
                 cleanupInferior();
                 emitFinished(chldStatus, QProcess::NormalExit);

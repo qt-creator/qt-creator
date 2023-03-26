@@ -1,8 +1,9 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "createsimulatordialog.h"
 
+#include "iostr.h"
 #include "simulatorcontrol.h"
 
 #include <utils/algorithm.h>
@@ -22,7 +23,7 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
     : QDialog(parent)
 {
     resize(320, 160);
-    setWindowTitle(tr("Create Simulator"));
+    setWindowTitle(Tr::tr("Create Simulator"));
 
     m_nameEdit = new QLineEdit(this);
     m_deviceTypeCombo = new QComboBox(this);
@@ -35,9 +36,9 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
 
     Column {
         Form {
-            tr("Simulator name:"), m_nameEdit, br,
-            tr("Device type:"), m_deviceTypeCombo, br,
-            tr("OS version:"), m_runtimeCombo, br,
+            Tr::tr("Simulator name:"), m_nameEdit, br,
+            Tr::tr("Device type:"), m_deviceTypeCombo, br,
+            Tr::tr("OS version:"), m_runtimeCombo, br,
         },
         buttonBox
     }.attachTo(this);
@@ -110,7 +111,7 @@ DeviceTypeInfo CreateSimulatorDialog::deviceType() const
 void CreateSimulatorDialog::populateDeviceTypes(const QList<DeviceTypeInfo> &deviceTypes)
 {
     m_deviceTypeCombo->clear();
-    m_deviceTypeCombo->addItem(tr("None"));
+    m_deviceTypeCombo->addItem(Tr::tr("None"));
 
     if (deviceTypes.isEmpty())
         return;
@@ -146,7 +147,7 @@ void CreateSimulatorDialog::populateDeviceTypes(const QList<DeviceTypeInfo> &dev
 void CreateSimulatorDialog::populateRuntimes(const DeviceTypeInfo &deviceType)
 {
     m_runtimeCombo->clear();
-    m_runtimeCombo->addItem(tr("None"));
+    m_runtimeCombo->addItem(Tr::tr("None"));
 
     if (deviceType.name.isEmpty())
         return;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fileiconprovider.h"
 
@@ -27,7 +27,7 @@ using namespace Utils;
 Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
 
 /*!
-  \namespace Utils::FileIconProvider
+  \class Utils::FileIconProvider
   \inmodule QtCreator
   \brief Provides functions for registering custom overlay icons for system
   icons.
@@ -174,8 +174,7 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
         return unknownFileIcon();
 
     // Check if its one of the virtual devices directories
-    if (filePath.path().startsWith(
-            FilePath::specialPath(FilePath::SpecialPathComponent::RootPath))) {
+    if (filePath.path().startsWith(FilePath::specialRootPath())) {
         // If the filepath does not need a device, it is a virtual device directory
         if (!filePath.needsDevice())
             return dirIcon();
@@ -221,7 +220,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
         return unknownFileIcon();
 
     // Check if its one of the virtual devices directories
-    if (filePath.path().startsWith(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath))) {
+    if (filePath.path().startsWith(FilePath::specialRootPath())) {
         // If the filepath does not need a device, it is a virtual device directory
         if (!filePath.needsDevice())
             return dirIcon();

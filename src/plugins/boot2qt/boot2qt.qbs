@@ -33,6 +33,7 @@ QtcPlugin {
             "qdbplugin.h",
             "qdbstopapplicationstep.cpp",
             "qdbstopapplicationstep.h",
+            "qdbtr.h",
             "qdbqtversion.cpp",
             "qdbqtversion.h",
             "qdbrunconfiguration.cpp",

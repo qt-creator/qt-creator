@@ -39,14 +39,14 @@
 
     \section1 Boot2Qt
 
-    The Boot2Qt stack can be made to run on a variety of hardware. For
-    license holders, tooling is provided to customize the contents of the stack
-    as well as to take it into desired production hardware.
+    The Boot2Qt stack runs on a variety of hardware. License holders can use
+    tools to customize the contents of the stack and to take it into
+    production hardware.
 
-    Either Windows 10 64-bit or later or Ubuntu Linux 64-bit 20.04 LTS
-    or later is required to install and use Boot2Qt.
+    You need either Windows 10 64-bit or later or Ubuntu Linux 64-bit 20.04 LTS
+    or later to install and use Boot2Qt.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for Boot2Qt devices:
 
     \list
@@ -66,7 +66,7 @@
     You must have a tool chain for building applications for embedded Linux
     devices installed on the development PC.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for remote Linux devices:
 
     \list
@@ -84,7 +84,7 @@
     necessary for bare metal software development on devices based on the Arm
     Cortex-M processors.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for MCUs:
 
     \list
@@ -95,12 +95,12 @@
 
     \section1 QNX
 
-    The QNX Neutrino RTOS should provide a few additional command line tools
+    The QNX Neutrino RTOS has more command line tools
     and services, as described in \l {Qt for QNX}.
 
     \note In Qt 6, \QC support for QNX is considered experimental.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for QNX devices:
 
     \list

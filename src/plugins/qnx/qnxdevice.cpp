@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxdevice.h"
 
@@ -42,7 +42,7 @@ static std::atomic_int s_pidFileCounter = 1;
 
 QnxProcessImpl::QnxProcessImpl(const LinuxDevice *linuxDevice)
     : SshProcessInterface(linuxDevice)
-    , m_pidFile(QString::fromLatin1("/var/run/qtc.%1.pid").arg(s_pidFileCounter.fetch_add(1)))
+    , m_pidFile(QString("%1/qtc.%2.pid").arg(Constants::QNX_TMP_DIR).arg(s_pidFileCounter.fetch_add(1)))
 {
 }
 
@@ -110,7 +110,7 @@ void QnxDevice::updateVersionNumber() const
     versionNumberProcess.setCommand({filePath("uname"), {"-r"}});
     versionNumberProcess.runBlocking(EventLoopMode::On);
 
-    QByteArray output = versionNumberProcess.readAllStandardOutput();
+    QByteArray output = versionNumberProcess.readAllRawStandardOutput();
     QString versionMessage = QString::fromLatin1(output);
     const QRegularExpression versionNumberRegExp("(\\d+)\\.(\\d+)\\.(\\d+)");
     const QRegularExpressionMatch match = versionNumberRegExp.match(versionMessage);

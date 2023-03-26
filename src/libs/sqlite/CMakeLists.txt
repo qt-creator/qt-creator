@@ -1,7 +1,9 @@
 add_qtc_library(SqliteC OBJECT
     PROPERTIES AUTOMOC OFF AUTOUIC OFF QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON POSITION_INDEPENDENT_CODE ON
-    CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
     DEFINES SQLITE_CORE SQLITE_CUSTOM_INCLUDE=config.h $<$<CONFIG:Debug>:SQLITE_DEBUG>
+    PROPERTIES COMPILE_OPTIONS $<IF:$<CXX_COMPILER_ID:MSVC>,/FIconfig.h,-includeconfig.h>
+    PUBLIC_INCLUDES
+      ../3rdparty/sqlite
     SOURCES
       ../3rdparty/sqlite
       ../3rdparty/sqlite/sqlite3.c
@@ -14,12 +16,10 @@ add_qtc_library(SqliteC OBJECT
 
 add_qtc_library(Sqlite
   PROPERTIES AUTOMOC OFF AUTOUIC OFF
-  DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteC
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
+  DEPENDS Qt::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteC
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
-    ../3rdparty/sqlite
-  DEFINES SQLITE_LIBRARY SQLITE_CUSTOM_INCLUDE=config.h $<$<CONFIG:Debug>:SQLITE_REVERSE>
+  DEFINES SQLITE_CUSTOM_INCLUDE=config.h $<$<CONFIG:Debug>:SQLITE_REVERSE>
   SOURCES
     constraints.h
     createtablesqlstatementbuilder.h

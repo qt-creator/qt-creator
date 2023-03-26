@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "icore.h"
 
@@ -196,13 +196,15 @@ ICore::ICore(MainWindow *mainwindow)
     // Save settings once after all plugins are initialized:
     connect(PluginManager::instance(), &PluginManager::initializationDone,
             this, [] { ICore::saveSettings(ICore::InitializationDone); });
-    connect(PluginManager::instance(), &PluginManager::testsFinished, [this] (int failedTests) {
+    connect(PluginManager::instance(), &PluginManager::testsFinished,
+            this, [this](int failedTests) {
         emit coreAboutToClose();
         if (failedTests != 0)
             qWarning("Test run was not successful: %d test(s) failed.", failedTests);
         QCoreApplication::exit(failedTests);
     });
-    connect(PluginManager::instance(), &PluginManager::scenarioFinished, [this] (int exitCode) {
+    connect(PluginManager::instance(), &PluginManager::scenarioFinished,
+            this, [this](int exitCode) {
         emit coreAboutToClose();
         QCoreApplication::exit(exitCode);
     });
@@ -618,10 +620,10 @@ QString ICore::versionString()
 {
     QString ideVersionDescription;
     if (QLatin1String(Constants::IDE_VERSION_LONG) != QLatin1String(Constants::IDE_VERSION_DISPLAY))
-        ideVersionDescription = tr(" (%1)").arg(QLatin1String(Constants::IDE_VERSION_LONG));
-    return tr("%1 %2%3").arg(QLatin1String(Constants::IDE_DISPLAY_NAME),
-                             QLatin1String(Constants::IDE_VERSION_DISPLAY),
-                             ideVersionDescription);
+        ideVersionDescription = Tr::tr(" (%1)").arg(QLatin1String(Constants::IDE_VERSION_LONG));
+    return Tr::tr("%1 %2%3").arg(QLatin1String(Constants::IDE_DISPLAY_NAME),
+                                 QLatin1String(Constants::IDE_VERSION_DISPLAY),
+                                 ideVersionDescription);
 }
 
 /*!
@@ -629,7 +631,7 @@ QString ICore::versionString()
 */
 QString ICore::buildCompatibilityString()
 {
-    return tr("Based on Qt %1 (%2, %3)").arg(QLatin1String(qVersion()),
+    return Tr::tr("Based on Qt %1 (%2, %3)").arg(QLatin1String(qVersion()),
                                                  compilerString(),
                                                  QSysInfo::buildCpuArchitecture());
 }

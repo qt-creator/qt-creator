@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <sqlitedatabase.h>
+#include "sqlitedatabase.h"
 
 namespace Sqlite::FunctionRegistry {
 

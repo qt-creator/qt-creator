@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxsettingspage.h"
 
@@ -130,8 +130,7 @@ void QnxSettingsWidget::addConfiguration()
         return;
 
     QnxConfiguration *config = new QnxConfiguration(envFile);
-    if (m_qnxConfigManager->configurations().contains(config)
-            || !config->isValid()) {
+    if (m_qnxConfigManager->configurations().contains(config) || !config->isValid()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              Tr::tr("Warning"),
                              Tr::tr("Configuration already exists or is invalid."));
@@ -184,7 +183,7 @@ void QnxSettingsWidget::updateInformation()
             m_configsCombo->itemData(currentIndex).value<void*>());
 
     // update the checkbox
-    m_generateKitsCheckBox->setEnabled(config ? config->canCreateKits() : false);
+    m_generateKitsCheckBox->setEnabled(config ? config->isValid() : false);
     m_generateKitsCheckBox->setChecked(config ? config->isActive() : false);
 
     // update information
@@ -197,11 +196,11 @@ void QnxSettingsWidget::updateInformation()
 void QnxSettingsWidget::populateConfigsCombo()
 {
     m_configsCombo->clear();
-    foreach (QnxConfiguration *config, m_qnxConfigManager->configurations()) {
+    const QList<QnxConfiguration *> configList = m_qnxConfigManager->configurations();
+    for (QnxConfiguration *config : configList) {
         m_configsCombo->addItem(config->displayName(),
-                                       QVariant::fromValue(static_cast<void*>(config)));
+                                QVariant::fromValue(static_cast<void*>(config)));
     }
-
     updateInformation();
 }
 

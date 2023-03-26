@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "devicefactoryselectiondialog.h"
 
-#include "idevice.h"
 #include "idevicefactory.h"
+#include "../projectexplorertr.h"
 
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -22,11 +22,11 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     resize(420, 330);
     m_listWidget = new QListWidget;
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    m_buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start Wizard"));
+    m_buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Start Wizard"));
 
     using namespace Utils::Layouting;
     Column {
-        tr("Available device types:"),
+        Tr::tr("Available device types:"),
         m_listWidget,
         m_buttonBox,
     }.attachTo(this);

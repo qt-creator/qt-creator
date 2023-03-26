@@ -1,10 +1,11 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "commandbuilderaspect.h"
 
 #include "cmakecommandbuilder.h"
 #include "incredibuildconstants.h"
+#include "incredibuildtr.h"
 #include "makecommandbuilder.h"
 
 #include <projectexplorer/abstractprocessstep.h>
@@ -16,15 +17,13 @@
 #include <utils/pathchooser.h>
 
 #include <QComboBox>
-#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class CommandBuilderAspectPrivate
 {
@@ -111,7 +110,7 @@ void CommandBuilderAspectPrivate::tryToMigrate()
     }
 }
 
-void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
+void CommandBuilderAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     if (!d->commandBuilder) {
         d->commandBuilder = new QComboBox;
@@ -144,8 +143,8 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
     }
 
     if (!d->label) {
-        d->label = new QLabel(tr("Command Helper:"));
-        d->label->setToolTip(tr("Select a helper to establish the build command."));
+        d->label = new QLabel(Tr::tr("Command Helper:"));
+        d->label->setToolTip(Tr::tr("Select a helper to establish the build command."));
     }
 
     // On first creation of the step, attempt to detect and migrate from preceding steps
@@ -153,8 +152,8 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
         d->tryToMigrate();
 
     builder.addRow({d->label.data(), d->commandBuilder.data()});
-    builder.addRow({tr("Make command:"), d->makePathChooser.data()});
-    builder.addRow({tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
+    builder.addRow({Tr::tr("Make command:"), d->makePathChooser.data()});
+    builder.addRow({Tr::tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
 
     updateGui();
 }
@@ -198,5 +197,4 @@ void CommandBuilderAspect::updateGui()
     d->makeArgumentsLineEdit->setText(d->m_activeCommandBuilder->arguments());
 }
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

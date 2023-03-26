@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -60,9 +60,12 @@ private:
     void startLocalRenaming(const CppEditor::CursorInEditor &data,
                             const CppEditor::ProjectPart *projectPart,
                             CppEditor::RenameCallback &&renameSymbolsCallback) override;
-    void globalRename(const CppEditor::CursorInEditor &cursor, const QString &replacement) override;
+    void globalRename(const CppEditor::CursorInEditor &cursor, const QString &replacement,
+                      const std::function<void()> &callback) override;
     void findUsages(const CppEditor::CursorInEditor &cursor) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
+    void checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                     const Utils::LinkHandler &callback) override;
 
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);

@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "subversioneditor.h"
 #include "subversionplugin.h"
 
 #include "annotationhighlighter.h"
 #include "subversionconstants.h"
+#include "subversiontr.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/diffandloghighlighter.h>
@@ -35,7 +36,7 @@ SubversionEditorWidget::SubversionEditorWidget() :
     */
     setDiffFilePattern("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$");
     setLogEntryPattern("^(r\\d+) \\|");
-    setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
+    setAnnotateRevisionTextFormat(Tr::tr("Annotate revision \"%1\""));
     setAnnotationEntryPattern("^(\\d+):");
 }
 
@@ -46,7 +47,7 @@ QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
     cursor.select(QTextCursor::LineUnderCursor);
     if (!cursor.hasSelection())
         return QString();
-    QString change = cursor.selectedText();
+    const QString change = cursor.selectedText();
     const int pos = c.position() - cursor.selectionStart() + 1;
     // Annotation output has number, log output has revision numbers,
     // both at the start of the line.

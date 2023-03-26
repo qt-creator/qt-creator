@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "navigationwidget.h"
 #include "actionmanager/actionmanager.h"
@@ -228,9 +228,9 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
         const Id actionId = id.withPrefix("QtCreator.Sidebar.");
 
         if (!ActionManager::command(actionId)) {
-            QAction *action = new QAction(tr("Activate %1 View").arg(factory->displayName()), this);
+            QAction *action = new QAction(Tr::tr("Activate %1 View").arg(factory->displayName()), this);
             d->m_actionMap.insert(action, id);
-            connect(action, &QAction::triggered, this, [this, action]() {
+            connect(action, &QAction::triggered, this, [this, action] {
                 NavigationWidget::activateSubWidget(d->m_actionMap[action], Side::Left);
             });
             Command *cmd = ActionManager::registerAction(action, actionId, navicontext);

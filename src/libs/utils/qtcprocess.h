@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,6 +7,7 @@
 
 #include "commandline.h"
 #include "processenums.h"
+#include "tasktree.h"
 
 #include <QProcess>
 
@@ -31,7 +32,7 @@ class QTCREATOR_UTILS_EXPORT QtcProcess final : public QObject
     Q_OBJECT
 
 public:
-    QtcProcess(QObject *parent = nullptr);
+    explicit QtcProcess(QObject *parent = nullptr);
     ~QtcProcess();
 
     // ProcessInterface related
@@ -42,11 +43,15 @@ public:
     void kill();
     void interrupt();
     void kickoffProcess();
+    void closeWriteChannel();
     void close();
     void stop();
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
+    QString readAllStandardOutput();
+    QString readAllStandardError();
+
+    QByteArray readAllRawStandardOutput();
+    QByteArray readAllRawStandardError();
 
     qint64 write(const QString &input);
     qint64 writeRaw(const QByteArray &input);
@@ -122,13 +127,6 @@ public:
     // These (or some of them) may be potentially moved outside of the class.
     // For some we may aggregate in another public utils class (or subclass of QtcProcess)?
 
-    // TODO: How below 2 methods relate to QtcProcess?
-    // Action: move/merge them somewhere else, FilePath::searchInPath() ?
-    // Helpers to find binaries. Do not use it for other path variables
-    // and file types.
-    static QString locateBinary(const QString &path, const QString &binary);
-    static QString normalizeNewlines(const QString &text);
-
     // TODO: Unused currently? Should it serve as a compartment for contrary of remoteEnvironment?
     static Environment systemEnvironmentForBinary(const FilePath &filePath);
 
@@ -202,4 +200,13 @@ public:
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcProcessAdapter : public Tasking::TaskAdapter<QtcProcess>
+{
+public:
+    QtcProcessAdapter();
+    void start() final;
+};
+
 } // namespace Utils
+
+QTC_DECLARE_CUSTOM_TASK(Process, Utils::QtcProcessAdapter);

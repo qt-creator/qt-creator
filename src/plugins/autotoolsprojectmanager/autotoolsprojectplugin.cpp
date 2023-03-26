@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Openismus GmbH.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "autotoolsprojectplugin.h"
 
@@ -63,15 +63,10 @@ AutotoolsProjectPlugin::~AutotoolsProjectPlugin()
 void AutotoolsProjectPlugin::extensionsInitialized()
 { }
 
-bool AutotoolsProjectPlugin::initialize(const QStringList &arguments, QString *errorString)
+void AutotoolsProjectPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new AutotoolsProjectPluginPrivate;
     ProjectExplorer::ProjectManager::registerProjectType<AutotoolsProject>(Constants::MAKEFILE_MIMETYPE);
-
-    return true;
 }
 
 } // AutotoolsProjectManager::Internal

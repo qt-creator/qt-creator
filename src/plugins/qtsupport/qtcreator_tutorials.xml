@@ -70,10 +70,6 @@
       <description><![CDATA[Creating a simple widget-based application and running it on your development machine using Qt Creator 5.0.]]></description>
       <tags>qt creator,widgets,2021</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubemAhwHsGdJuI.webp" difficulty="" projectPath="" name="Online: Creating a simple Qt Quick app" isVideo="true" videoUrl="https://youtu.be/mAhwHsGdJuI" videoLength="8:21">
-      <description><![CDATA[Creating a simple Qt Quick application and running it on your development machine using Qt Creator 5.0.]]></description>
-      <tags>qt creator,qt quick,2021</tags>
-    </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/youtube2RvhhEAZQxM.webp" difficulty="" projectPath="" name="Online: Qt Widgets or Qt Quick" isVideo="true" videoUrl="https://youtu.be/2RvhhEAZQxM" videoLength="5:00">
       <description><![CDATA[Learning the differences between Qt Widgets and Qt Quick and making the right choice for your application needs.]]></description>
       <tags>qt quick,widgets,ui,video,2021</tags>

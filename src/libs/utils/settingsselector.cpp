@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "settingsselector.h"
+
+#include "utilstr.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -27,9 +29,9 @@ SettingsSelector::SettingsSelector(QWidget *parent) :
     m_configurationCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_configurationCombo->setMinimumContentsLength(80);
 
-    m_addButton = new QPushButton(tr("Add"), this);
-    m_removeButton = new QPushButton(tr("Remove"), this);
-    m_renameButton = new QPushButton(tr("Rename"), this);
+    m_addButton = new QPushButton(Tr::tr("Add"), this);
+    m_removeButton = new QPushButton(Tr::tr("Remove"), this);
+    m_renameButton = new QPushButton(Tr::tr("Rename"), this);
 
     m_label = new QLabel(this);
     m_label->setMinimumWidth(200);
@@ -111,8 +113,8 @@ void SettingsSelector::removeButtonClicked()
     int pos = currentIndex();
     if (pos < 0)
         return;
-    const QString title = tr("Remove");
-    const QString message = tr("Do you really want to delete the configuration <b>%1</b>?")
+    const QString title = Tr::tr("Remove");
+    const QString message = Tr::tr("Do you really want to delete the configuration <b>%1</b>?")
                                 .arg(m_configurationCombo->currentText());
     QMessageBox msgBox(QMessageBox::Question, title, message, QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
@@ -135,9 +137,9 @@ void SettingsSelector::renameButtonClicked()
     QString baseName = model->data(idx, Qt::EditRole).toString();
 
     bool ok;
-    const QString message = tr("New name for configuration <b>%1</b>:").arg(baseName);
+    const QString message = Tr::tr("New name for configuration <b>%1</b>:").arg(baseName);
 
-    QString name = QInputDialog::getText(this, tr("Rename..."), message,
+    QString name = QInputDialog::getText(this, Tr::tr("Rename..."), message,
                                          QLineEdit::Normal, baseName, &ok);
     if (!ok)
         return;

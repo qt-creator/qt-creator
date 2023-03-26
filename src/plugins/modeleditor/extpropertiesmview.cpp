@@ -1,7 +1,9 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "extpropertiesmview.h"
+
+#include "modeleditortr.h"
 
 #include "qmt/model/mpackage.h"
 #include "qmt/project/project.h"
@@ -37,14 +39,14 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
         qmt::Project *project = m_projectController->project();
         if (!m_configPath) {
             m_configPath = new Utils::PathChooser(m_topWidget);
-            m_configPath->setPromptDialogTitle(tr("Select Custom Configuration Folder"));
+            m_configPath->setPromptDialogTitle(Tr::tr("Select Custom Configuration Folder"));
             m_configPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
             m_configPath->setValidationFunction([=](Utils::FancyLineEdit *edit, QString *errorMessage) {
                 return edit->text().isEmpty() || m_configPath->defaultValidationFunction()(edit, errorMessage);
             });
             m_configPath->setInitialBrowsePathBackup(
                 Utils::FilePath::fromString(project->fileName()).absolutePath());
-            addRow(tr("Config path:"), m_configPath, "configpath");
+            addRow(Tr::tr("Config path:"), m_configPath, "configpath");
             connect(m_configPath, &Utils::PathChooser::textChanged,
                     this, &ExtPropertiesMView::onConfigPathChanged);
         }
@@ -88,7 +90,7 @@ void ExtPropertiesMView::onConfigPathChanged()
         }
     }
     if (modified && m_configPathInfo)
-        m_configPathInfo->setText(tr("<font color=red>Model file must be reloaded.</font>"));
+        m_configPathInfo->setText(Tr::tr("<font color=red>Model file must be reloaded.</font>"));
 }
 
 } // namespace Interal

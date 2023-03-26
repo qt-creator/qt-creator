@@ -1,23 +1,37 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdbqtversion.h"
 
 #include "qdbconstants.h"
+#include "qdbtr.h"
 
-namespace Qdb {
-namespace Internal {
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtsupporttr.h>
 
-QString QdbQtVersion::description() const
+namespace Qdb::Internal {
+
+class QdbQtVersion : public QtSupport::QtVersion
 {
-    return QCoreApplication::translate("QtVersion", "Boot2Qt", "Qt version is used for Boot2Qt development");
+public:
+    QString description() const final
+    {
+        return QtSupport::Tr::tr("Boot2Qt", "Qt version is used for Boot2Qt development");
+    }
+    QSet<Utils::Id> targetDeviceTypes() const final
+    {
+        return {Utils::Id(Constants::QdbLinuxOsType)};
+    }
+};
+
+QdbQtVersionFactory::QdbQtVersionFactory()
+{
+    setQtVersionCreator([] { return new QdbQtVersion; });
+    setSupportedType("Qdb.EmbeddedLinuxQt");
+    setPriority(99);
+    setRestrictionChecker([](const SetupData &setup) {
+        return setup.platforms.contains("boot2qt");
+    });
 }
 
-QSet<Utils::Id> QdbQtVersion::targetDeviceTypes() const
-{
-    return {Utils::Id(Constants::QdbLinuxOsType)};
-
-}
-
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

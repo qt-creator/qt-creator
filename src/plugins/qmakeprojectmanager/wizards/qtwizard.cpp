@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtwizard.h"
 
@@ -208,7 +208,7 @@ void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name,
     if (!m_targetSetupPage)
         return;
 
-    const Utils::FilePath proFile = path / name / name + ".pro";
+    const Utils::FilePath proFile = path / name / (name + ".pro");
 
     m_targetSetupPage->setProjectPath(proFile);
 }

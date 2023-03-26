@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtoptionspage.h"
 
@@ -29,7 +29,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -253,6 +252,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_nameEdit = new QLineEdit;
 
     m_qmakePath = new QLabel;
+    m_qmakePath->setObjectName("qmakePath"); // for Squish
     m_qmakePath->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_qmakePath->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
 
@@ -414,7 +414,6 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     if (toRemove.isEmpty())
         return;
 
-
     if (QMessageBox::warning(nullptr, Tr::tr("Remove Invalid Qt Versions"),
                              Tr::tr("Do you want to remove all invalid Qt Versions?<br>"
                                     "<ul><li>%1</li></ul><br>"
@@ -422,7 +421,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    foreach (QtVersionItem *item, toRemove)
+    for (QtVersionItem *item : std::as_const(toRemove))
         m_model->destroyItem(item);
 
     updateCleanUpButton();
@@ -531,8 +530,10 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
         return toolChains;
 
     QSet<QByteArray> ids;
-    foreach (const Abi &a, version->qtAbis()) {
-        foreach (ToolChain *tc, ToolChainManager::findToolChains(a)) {
+    const Abis abis = version->qtAbis();
+    for (const Abi &a : abis) {
+        const Toolchains tcList = ToolChainManager::findToolChains(a);
+        for (ToolChain *tc : tcList) {
             if (ids.contains(tc->id()))
                 continue;
             ids.insert(tc->id());
@@ -591,11 +592,11 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
     });
 
     // Remove changed/removed items:
-    foreach (QtVersionItem *item, toRemove)
+    for (QtVersionItem *item : std::as_const(toRemove))
         m_model->destroyItem(item);
 
     // Add changed/added items:
-    foreach (int a, toAdd) {
+    for (int a : std::as_const(toAdd)) {
         QtVersion *version = QtVersionManager::version(a)->clone();
         auto *item = new QtVersionItem(version);
 
@@ -825,7 +826,7 @@ static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
         const QVariant value = QSettings(installSettingsFilePath, QSettings::IniFormat)
                                    .value(kInstallSettingsKey);
         if (value.isValid())
-            return FilePath::fromVariant(value);
+            return FilePath::fromSettings(value);
     }
     return {};
 }
@@ -851,14 +852,6 @@ static bool canLinkWithQt(QString *toolTip)
         tip << Tr::tr("%1's resource directory is not writable.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME);
     }
-    // guard against redirecting Qt Creator that is part of a Qt installations
-    // TODO this fails for pre-releases in the online installer
-    // TODO this will fail when make Qt Creator non-required in the Qt installers
-    if (installSettingsExist && !installSettingsValue) {
-        canLink = false;
-        tip << Tr::tr("%1 is part of a Qt installation.")
-                   .arg(Core::Constants::IDE_DISPLAY_NAME);
-    }
     const FilePath link = installSettingsValue ? *installSettingsValue : FilePath();
     if (!link.isEmpty())
         tip << Tr::tr("%1 is currently linked to \"%2\".")
@@ -871,7 +864,8 @@ static bool canLinkWithQt(QString *toolTip)
 void QtOptionsPageWidget::setupLinkWithQtButton()
 {
     QString tip;
-    canLinkWithQt(&tip);
+    const bool canLink = canLinkWithQt(&tip);
+    m_linkWithQtButton->setEnabled(canLink);
     m_linkWithQtButton->setToolTip(tip);
     connect(m_linkWithQtButton, &QPushButton::clicked, this, &QtOptionsPage::linkWithQt);
 }
@@ -1034,9 +1028,17 @@ void QtOptionsPageWidget::linkWithQt()
         const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
                                                                         pathInput->rawFilePath());
         if (QTC_GUARD(settingsDir)) {
-            QSettings settings(settingsFile(Core::ICore::resourcePath().toString()),
-                               QSettings::IniFormat);
+            const QString settingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
+            QSettings settings(settingsFilePath, QSettings::IniFormat);
             settings.setValue(kInstallSettingsKey, settingsDir->toVariant());
+            settings.sync();
+            if (settings.status() == QSettings::AccessError) {
+                QMessageBox::critical(Core::ICore::dialogParent(),
+                                      Tr::tr("Error Linking With Qt"),
+                                      Tr::tr("Could not write to \"%1\".").arg(settingsFilePath));
+                return;
+            }
+
             askForRestart = true;
         }
     }

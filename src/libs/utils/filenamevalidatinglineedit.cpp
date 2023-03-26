@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filenamevalidatinglineedit.h"
+
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QRegularExpression>
 
@@ -87,7 +89,7 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
 {
     if (name.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("Name is empty.");
+            *errorMessage = Tr::tr("Name is empty.");
         return false;
     }
     // Characters
@@ -97,9 +99,9 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
             if (errorMessage) {
                 const QChar qc = QLatin1Char(*c);
                 if (qc.isSpace())
-                    *errorMessage = tr("Name contains white space.");
+                    *errorMessage = Tr::tr("Name contains white space.");
                 else
-                    *errorMessage = tr("Invalid character \"%1\".").arg(qc);
+                    *errorMessage = Tr::tr("Invalid character \"%1\".").arg(qc);
             }
             return false;
         }
@@ -109,7 +111,7 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         const QLatin1String notAllowedSubString(notAllowedSubStrings[s]);
         if (name.contains(notAllowedSubString)) {
             if (errorMessage)
-                *errorMessage = tr("Invalid characters \"%1\".").arg(QString(notAllowedSubString));
+                *errorMessage = Tr::tr("Invalid characters \"%1\".").arg(QString(notAllowedSubString));
             return false;
         }
     }
@@ -119,10 +121,10 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         matchesWinDevice = name.contains(windowsDeviceSubDirPattern());
     if (matchesWinDevice) {
         if (errorMessage)
-            *errorMessage = tr("Name matches MS Windows device"
-                               " (CON, AUX, PRN, NUL,"
-                               " COM1, COM2, ..., COM9,"
-                               " LPT1, LPT2, ..., LPT9)");
+            *errorMessage = Tr::tr("Name matches MS Windows device"
+                                   " (CON, AUX, PRN, NUL,"
+                                   " COM1, COM2, ..., COM9,"
+                                   " LPT1, LPT2, ..., LPT9)");
         return false;
     }
     return true;
@@ -154,9 +156,9 @@ bool FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileNa
 
         if (errorMessage) {
             if (requiredExtensions.count() == 1)
-                *errorMessage = tr("File extension %1 is required:").arg(requiredExtensions.first());
+                *errorMessage = Tr::tr("File extension %1 is required:").arg(requiredExtensions.first());
             else
-                *errorMessage = tr("File extensions %1 are required:").arg(requiredExtensions.join(QLatin1String(", ")));
+                *errorMessage = Tr::tr("File extensions %1 are required:").arg(requiredExtensions.join(QLatin1String(", ")));
         }
 
         return false;

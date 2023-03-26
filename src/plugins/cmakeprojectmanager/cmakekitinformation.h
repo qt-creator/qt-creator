@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Canonical Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -93,7 +93,8 @@ public:
 
     static void setKitDefaultConfigHash(ProjectExplorer::Kit *k);
     static CMakeConfigItem kitDefaultConfigHashItem(const ProjectExplorer::Kit *k);
-    static QByteArray computeDefaultConfigHash(const CMakeConfig &config);
+    static QByteArray computeDefaultConfigHash(const CMakeConfig &config,
+                                               const Utils::FilePath &cmakeBinary);
 
     // KitAspect interface
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;

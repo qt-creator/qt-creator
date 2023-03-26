@@ -1,7 +1,9 @@
 // Copyright (C) 2020 Miklos Marton <martonmiklosqdev@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsoutputformatter.h"
+
+#include "vcsbasetr.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -72,12 +74,11 @@ void VcsOutputLineParser::fillLinkContextMenu(
 {
     QTC_ASSERT(!href.isEmpty(), return);
     if (href.startsWith("http://") || href.startsWith("https://")) {
-        QAction *action = menu->addAction(
-                    tr("&Open \"%1\"").arg(href),
-                    [href] { QDesktopServices::openUrl(QUrl(href)); });
+        QAction *action = menu->addAction(Tr::tr("&Open \"%1\"").arg(href),
+                                          [href] { QDesktopServices::openUrl(QUrl(href)); });
         menu->setDefaultAction(action);
-        menu->addAction(tr("&Copy to clipboard: \"%1\"").arg(href),
-                    [href] { setClipboardAndSelection(href); });
+        menu->addAction(Tr::tr("&Copy to clipboard: \"%1\"").arg(href),
+                        [href] { setClipboardAndSelection(href); });
         return;
     }
     if (Core::IVersionControl *vcs = Core::VcsManager::findVersionControlForDirectory(workingDirectory))

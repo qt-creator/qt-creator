@@ -1,19 +1,21 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdbutils.h"
 
+#include "qdbtr.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <utils/environment.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
+using namespace Utils;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 static QString executableBaseName(QdbTool tool)
 {
@@ -27,7 +29,7 @@ static QString executableBaseName(QdbTool tool)
     return QString();
 }
 
-Utils::FilePath findTool(QdbTool tool)
+FilePath findTool(QdbTool tool)
 {
     QString filePath = Utils::qtcEnvironmentVariable(overridingEnvironmentVariable(tool));
 
@@ -39,17 +41,15 @@ Utils::FilePath findTool(QdbTool tool)
     }
 
     if (filePath.isEmpty()) {
-        filePath = Utils::HostOsInfo::withExecutableSuffix(
-                    QCoreApplication::applicationDirPath()
-#ifdef Q_OS_MACOS
-                    + QLatin1String("/../../../Tools/b2qt/")
-#else
-                    + QLatin1String("/../../b2qt/")
-#endif
-                    + executableBaseName(tool));
+        filePath = QCoreApplication::applicationDirPath();
+        if (HostOsInfo::isMacHost())
+            filePath += "/../../../Tools/b2qt/";
+        else
+            filePath += "/../../b2qt/";
+        filePath = HostOsInfo::withExecutableSuffix(filePath + executableBaseName(tool));
     }
 
-    return Utils::FilePath::fromString(QDir::cleanPath(filePath));
+    return FilePath::fromUserInput(filePath);
 }
 
 QString overridingEnvironmentVariable(QdbTool tool)
@@ -65,7 +65,7 @@ QString overridingEnvironmentVariable(QdbTool tool)
 
 void showMessage(const QString &message, bool important)
 {
-    const QString fullMessage = QCoreApplication::translate("Boot2Qt", "Boot2Qt: %1").arg(message);
+    const QString fullMessage = Tr::tr("Boot2Qt: %1").arg(message);
     if (important)
         Core::MessageManager::writeFlashing(fullMessage);
     else
@@ -88,5 +88,4 @@ QString settingsKey(QdbTool tool)
     QTC_ASSERT(false, return QString());
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

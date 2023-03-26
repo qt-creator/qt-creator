@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <utils/filepath.h>
 #include <utils/fsengine/fsengine.h>
@@ -76,26 +76,24 @@ void tst_fsengine::testFilePathFromToString()
     QCOMPARE(p.path(), u"/test.txt");
 
     QString asString = p.toFSPathString();
-    QCOMPARE(asString,
-             FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath)
-                 + "/test/test.txt");
+    QCOMPARE(asString, FilePath::specialDeviceRootPath() + "/test/test.txt");
 
     FilePath p2 = FilePath::fromString(asString);
-    QCOMPARE(p.scheme(), u"device");
-    QCOMPARE(p.host(), u"test");
-    QCOMPARE(p.path(), u"/test.txt");
+    QCOMPARE(p2.scheme(), u"device");
+    QCOMPARE(p2.host(), u"test");
+    QCOMPARE(p2.path(), u"/test.txt");
 }
 
 void tst_fsengine::testRootPathContainsFakeDir()
 {
     const QStringList rootList = QDir::root().entryList();
-    QVERIFY(rootList.contains(FilePath::specialPath(FilePath::SpecialPathComponent::RootName)));
+    QVERIFY(rootList.contains(FilePath::specialRootName()));
 
-    QDir schemes(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath));
+    QDir schemes(FilePath::specialRootPath());
     const QStringList schemeList = schemes.entryList();
     QVERIFY(schemeList.contains("device"));
 
-    QDir deviceRoot(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test" + startWithSlash(QDir::rootPath()));
+    QDir deviceRoot(FilePath::specialDeviceRootPath() + "/test" + startWithSlash(QDir::rootPath()));
     const QStringList deviceRootList = deviceRoot.entryList();
     QVERIFY(!deviceRootList.isEmpty());
 }
@@ -127,12 +125,10 @@ void tst_fsengine::testCreateDir()
 
 QString tst_fsengine::makeTestPath(QString path, bool asUrl)
 {
-    if (asUrl) {
+    if (asUrl)
         return QString("device://test%1/tst_fsengine/%2").arg(tempFolder, path);
-    }
 
-    return QString(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath)
-                   + "/test%1/tst_fsengine/%2")
+    return QString(FilePath::specialDeviceRootPath() + "/test%1/tst_fsengine/%2")
         .arg(startWithSlash(tempFolder), path);
 }
 
@@ -193,8 +189,7 @@ void tst_fsengine::testRead()
     tmp.write(data);
     tmp.flush();
 
-    QFile file(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test"
-               + tmp.fileName());
+    QFile file(FilePath::specialDeviceRootPath() + "/test" + tmp.fileName());
     QVERIFY(file.open(QIODevice::ReadOnly));
     QCOMPARE(file.readAll(), data);
 }
@@ -205,8 +200,7 @@ void tst_fsengine::testWrite()
     const QString path = dir.path() + "/testWrite.txt";
     const QByteArray data = "Hello World!";
     {
-        QFile file(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test"
-                   + path);
+        QFile file(FilePath::specialDeviceRootPath() + "/test" + path);
         QVERIFY(file.open(QIODevice::WriteOnly));
         QCOMPARE(file.write(data), qint64(data.size()));
     }

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "plugin1.h"
 
@@ -22,7 +22,8 @@ bool MyPlugin1::initialize(const QStringList & /*arguments*/, QString *errorStri
 
     bool found2 = false;
     bool found3 = false;
-    foreach (QObject *object, ExtensionSystem::PluginManager::instance()->allObjects()) {
+    const QList<QObject *> objects = ExtensionSystem::PluginManager::instance()->allObjects();
+    for (QObject *object : objects) {
         if (object->objectName() == "MyPlugin2")
             found2 = true;
         else if (object->objectName() == "MyPlugin3")

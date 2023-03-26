@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -33,6 +33,13 @@ public:
     int minimumNDK() const;
 
     static Utils::FilePath androidDeploymentSettings(const ProjectExplorer::Target *target);
+
+    struct BuiltWith {
+        int apiVersion = -1;
+        QVersionNumber ndkVersion;
+    };
+    static BuiltWith parseBuiltWith(const QByteArray &modulesCoreJsonData, bool *ok = nullptr);
+    BuiltWith builtWith(bool *ok = nullptr) const;
 
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;

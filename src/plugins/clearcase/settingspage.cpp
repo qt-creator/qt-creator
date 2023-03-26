@@ -1,5 +1,5 @@
 // Copyright (C) 2016 AudioCodes Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "settingspage.h"
 
@@ -53,7 +53,7 @@ SettingsPageWidget::SettingsPageWidget()
     resize(512, 589);
 
     commandPathChooser = new PathChooser;
-    commandPathChooser->setPromptDialogTitle(Tr::Tr::tr("ClearCase Command"));
+    commandPathChooser->setPromptDialogTitle(Tr::tr("ClearCase Command"));
     commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
     commandPathChooser->setHistoryCompleter("ClearCase.Command.History");
 

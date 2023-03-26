@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfprofilertr.h"
 #include "perftracepointdialog.h"
@@ -116,11 +116,11 @@ void PerfTracePointDialog::handleProcessDone()
     } else if ((m_process->exitStatus() == QProcess::CrashExit) || (m_process->exitCode() != 0)) {
         message = Tr::tr("Failed to create trace points.");
     } else {
-        message = Tr::tr("Created trace points for: %1").arg(QString::fromUtf8(
-            m_process->readAllStandardOutput().trimmed().replace('\n', ", ")));
+        message = Tr::tr("Created trace points for: %1").arg(
+            m_process->readAllStandardOutput().trimmed().replace('\n', ", "));
     }
     m_label->setText(message);
-    m_textEdit->setHtml(QString::fromUtf8(m_process->readAllStandardError()));
+    m_textEdit->setHtml(m_process->readAllStandardError());
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
 }

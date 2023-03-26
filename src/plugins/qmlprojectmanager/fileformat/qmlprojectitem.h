@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "filefilteritems.h"
 
 #include <utils/environment.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QSet>
@@ -21,10 +22,10 @@ class QmlProjectItem : public QObject
     Q_OBJECT
 
 public:
-    QString sourceDirectory() const { return m_sourceDirectory; }
-    void setSourceDirectory(const QString &directoryPath);
-    QString targetDirectory() const { return m_targetDirectory; }
-    void setTargetDirectory(const QString &directoryPath);
+    const Utils::FilePath &sourceDirectory() const { return m_sourceDirectory; }
+    void setSourceDirectory(const Utils::FilePath &directoryPath);
+    const Utils::FilePath &targetDirectory() const { return m_targetDirectory; }
+    void setTargetDirectory(const Utils::FilePath &directoryPath);
 
     bool qtForMCUs() const { return m_qtForMCUs; }
     void setQtForMCUs(bool qtForMCUs);
@@ -80,8 +81,8 @@ signals:
     void qmlFilesChanged(const QSet<QString> &, const QSet<QString> &);
 
 protected:
-    QString m_sourceDirectory;
-    QString m_targetDirectory;
+    Utils::FilePath m_sourceDirectory;
+    Utils::FilePath m_targetDirectory;
     QStringList m_importPaths;
     QStringList m_fileSelectors;
     bool m_multilanguageSupport;

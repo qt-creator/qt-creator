@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientoutline.h"
 
@@ -13,6 +13,7 @@
 #include <texteditor/outlinefactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditortr.h>
 #include <utils/dropsupport.h>
 #include <utils/itemviews.h>
 #include <utils/navigationtreeview.h>
@@ -195,14 +196,14 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     : m_client(client)
     , m_editor(editor)
     , m_view(this)
-    , m_uri(DocumentUri::fromFilePath(editor->textDocument()->filePath()))
+    , m_uri(m_client->hostPathToServerUri(editor->textDocument()->filePath()))
 {
     connect(client->documentSymbolCache(),
             &DocumentSymbolCache::gotSymbols,
             this,
             &LanguageClientOutlineWidget::handleResponse);
     connect(client, &Client::documentUpdated, this, [this](TextEditor::TextDocument *document) {
-        if (m_client && m_uri == DocumentUri::fromFilePath(document->filePath()))
+        if (m_client && m_uri == m_client->hostPathToServerUri(document->filePath()))
             m_client->documentSymbolCache()->requestSymbols(m_uri, Schedule::Delayed);
     });
 
@@ -346,7 +347,6 @@ TextEditor::IOutlineWidget *LanguageClientOutlineWidgetFactory::createWidget(Cor
 
 class OutlineComboBox : public Utils::TreeViewComboBox
 {
-    Q_DECLARE_TR_FUNCTIONS(LanguageClient::OutlineComboBox)
 public:
     OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
 
@@ -375,7 +375,7 @@ Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(
 OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
     : m_client(client)
     , m_editorWidget(editor->editorWidget())
-    , m_uri(DocumentUri::fromFilePath(editor->document()->filePath()))
+    , m_uri(m_client->hostPathToServerUri(editor->document()->filePath()))
 {
     m_model.setSymbolStringifier(client->symbolStringifier());
     m_proxyModel.setSourceModel(&m_model);
@@ -389,9 +389,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     setMaxVisibleItems(40);
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
-    const QString sortActionText
-        = QCoreApplication::translate("TextEditor::Internal::OutlineWidgetStack",
-                                      "Sort Alphabetically");
+    const QString sortActionText = ::TextEditor::Tr::tr("Sort Alphabetically");
     auto sortAction = new QAction(sortActionText, this);
     sortAction->setCheckable(true);
     sortAction->setChecked(sorted);

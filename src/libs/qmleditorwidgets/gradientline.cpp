@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gradientline.h"
 #include <QPainter>
@@ -77,7 +77,8 @@ void GradientLine::readGradient()
     if (m_useGradient) {
         m_colorList.clear();
         m_stops.clear();
-        foreach (const QGradientStop &stop, m_gradient.stops()) {
+        const QGradientStops stops = m_gradient.stops();
+        for (const QGradientStop &stop : stops) {
             m_stops << stop.first;
             m_colorList << stop.second;
         }

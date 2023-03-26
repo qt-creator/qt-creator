@@ -23,12 +23,14 @@
 **
 ****************************************************************************/
 
-#include <tracing/timelineformattime.h>
 #include "quick3dframemodel.h"
-#include "quick3dmodel.h"
-#include "qmlprofilermodelmanager.h"
-#include "qmlprofilerconstants.h"
 
+#include "qmlprofilerconstants.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilertr.h"
+#include "quick3dmodel.h"
+
+#include <tracing/timelineformattime.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -234,19 +236,19 @@ QVariant Quick3DFrameModel::headerData(int section, Qt::Orientation orientation,
     case Qt::DisplayRole:
         switch (section) {
         case Frame:
-            result = QVariant::fromValue(tr("Frame"));
+            result = QVariant::fromValue(Tr::tr("Frame"));
             break;
         case Duration:
-            result = QVariant::fromValue(tr("Duration"));
+            result = QVariant::fromValue(Tr::tr("Duration"));
             break;
         case Timestamp:
-            result = QVariant::fromValue(tr("Timestamp"));
+            result = QVariant::fromValue(Tr::tr("Timestamp"));
             break;
         case FrameDelta:
-            result = QVariant::fromValue(tr("Frame Delta"));
+            result = QVariant::fromValue(Tr::tr("Frame Delta"));
             break;
         case View3D:
-            result = QVariant::fromValue(tr("View3D"));
+            result = QVariant::fromValue(Tr::tr("View3D"));
             break;
         }
         break;
@@ -441,7 +443,7 @@ QList<int> Quick3DFrameModel::frameIndices(const QString &view3DFilter) const
 {
     QList<int> ret;
     int key = -1;
-    if (view3DFilter != tr("All")) {
+    if (view3DFilter != Tr::tr("All")) {
         for (int v3d : m_frameTimes.keys()) {
             if (m_modelManager->eventType(m_eventData[v3d]).data() == view3DFilter) {
                 key = v3d;
@@ -463,17 +465,17 @@ QStringList Quick3DFrameModel::frameNames(const QString &view3D) const
     QStringList ret;
     for (auto index : indices) {
         const Item &item = m_data[index];
-        ret << QString(tr("Frame") + QLatin1Char(' ') + QString::number(item.data));
+        ret << QString(Tr::tr("Frame") + QLatin1Char(' ') + QString::number(item.data));
     }
     return ret;
 }
 
 void Quick3DFrameModel::setFilterFrame(const QString &frame)
 {
-    if (frame == tr("None")) {
+    if (frame == Tr::tr("None")) {
         m_filterFrame = -1;
     } else {
-        QString title = tr("Frame");
+        QString title = Tr::tr("Frame");
         QString number = frame.right(frame.length() - title.length());
         m_filterFrame = number.toInt();
     }
@@ -482,7 +484,7 @@ void Quick3DFrameModel::setFilterFrame(const QString &frame)
 void Quick3DFrameModel::setFilterView3D(const QString &view3D)
 {
     int key = -1;
-    if (view3D != tr("All")) {
+    if (view3D != Tr::tr("All")) {
         for (int v3d : m_frameTimes.keys()) {
             if (m_modelManager->eventType(m_eventData[v3d]).data() == view3D) {
                 key = v3d;

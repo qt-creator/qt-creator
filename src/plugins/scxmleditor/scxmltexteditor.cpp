@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "scxmltexteditor.h"
 #include "mainwidget.h"
@@ -29,9 +29,9 @@ void ScxmlTextEditor::finalizeInitialization()
     // Revert to saved/load externally modified files.
     auto document = qobject_cast<const ScxmlEditorDocument*>(textDocument());
     connect(document, &ScxmlEditorDocument::reloadRequested,
-        [this](QString *errorString, const QString &fileName) {
-            open(errorString, fileName, fileName);
-        });
+            this, [this](QString *errorString, const QString &fileName) {
+        open(errorString, fileName, fileName);
+    });
 }
 
 bool ScxmlTextEditor::open(QString *errorString, const QString &fileName, const QString & /*realFileName*/)

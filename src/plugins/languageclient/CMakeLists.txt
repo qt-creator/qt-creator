@@ -1,7 +1,8 @@
 add_qtc_plugin(LanguageClient
-  PUBLIC_DEPENDS LanguageServerProtocol Qt5::Core app_version
+  PUBLIC_DEPENDS LanguageServerProtocol Qt::Core app_version
   PLUGIN_DEPENDS ProjectExplorer Core TextEditor
   SOURCES
+    callhierarchy.cpp callhierarchy.h
     client.cpp client.h
     diagnosticmanager.cpp diagnosticmanager.h
     documentsymbolcache.cpp documentsymbolcache.h

@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "dockerplugin.h"
 
@@ -53,14 +53,9 @@ DockerPlugin::~DockerPlugin()
     delete d;
 }
 
-bool DockerPlugin::initialize(const QStringList &arguments, QString *errorString)
+void DockerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new DockerPluginPrivate;
-
-    return true;
 }
 
 } // Docker::Interanl

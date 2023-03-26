@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "helpwidget.h"
 
@@ -20,19 +20,19 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/sidebar.h>
 #include <coreplugin/minisplitter.h>
+#include <coreplugin/sidebar.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
 #include <QComboBox>
-#include <QCoreApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -221,20 +221,18 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     }
     if (style != SideBarWidget) {
-        m_toggleSideBarAction = new QAction(Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon(),
-                                            QCoreApplication::translate("Core", Core::Constants::TR_SHOW_LEFT_SIDEBAR),
-                                            toolBar);
+        m_toggleSideBarAction
+            = new QAction(Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon(),
+                          Tr::tr(Core::Constants::TR_SHOW_LEFT_SIDEBAR), toolBar);
         m_toggleSideBarAction->setCheckable(true);
         m_toggleSideBarAction->setChecked(false);
         cmd = Core::ActionManager::registerAction(m_toggleSideBarAction,
                                                   Core::Constants::TOGGLE_LEFT_SIDEBAR, context);
-        connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction,
-                [this](bool checked) {
-                    m_toggleSideBarAction->setText(
-                        QCoreApplication::translate("Core",
-                                                    checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
-                                                            : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
-                });
+        connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction, [this](bool checked) {
+            m_toggleSideBarAction->setText(::Core::Tr::tr(
+                                               checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
+                                                       : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
+        });
         addSideBar();
         m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));
         connect(m_toggleSideBarAction, &QAction::triggered, m_sideBar, &Core::SideBar::setVisible);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -834,9 +834,10 @@ QXmlInArchive::XmlTag QXmlInArchive::readTag()
 
     while (!m_stream.atEnd()) {
         switch (m_stream.readNext()) {
-        case QXmlStreamReader::StartElement:
+        case QXmlStreamReader::StartElement: {
             xmlTag.m_tagName = m_stream.name().toString();
-            foreach (const QXmlStreamAttribute &attribute, m_stream.attributes()) {
+            const QXmlStreamAttributes attrList = m_stream.attributes();
+            for (const QXmlStreamAttribute &attribute : attrList) {
                 if (attribute.name() == QLatin1String("id")) {
                     bool ok = false;
                     int id = attribute.value().toString().toInt(&ok);
@@ -848,8 +849,8 @@ QXmlInArchive::XmlTag QXmlInArchive::readTag()
                                                attribute.value().toString());
                 }
             }
-
             return xmlTag;
+        }
         case QXmlStreamReader::EndElement:
             xmlTag.m_tagName = m_stream.name().toString();
             xmlTag.m_isEndTag = true;

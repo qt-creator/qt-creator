@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtoolspreconfiguredsessiontests.h"
 
@@ -31,6 +31,7 @@
 
 using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 static bool processEventsUntil(const std::function<bool()> condition, int timeOutInMs = 30000)
 {
@@ -51,7 +52,7 @@ static bool processEventsUntil(const std::function<bool()> condition, int timeOu
 class WaitForParsedProjects : public QObject
 {
 public:
-    WaitForParsedProjects(const QStringList &projects)
+    WaitForParsedProjects(const FilePaths &projects)
         : m_projectsToWaitFor(projects)
     {
         connect(SessionManager::instance(),
@@ -61,7 +62,7 @@ public:
 
     void onProjectFinishedParsing(ProjectExplorer::Project *project)
     {
-        m_projectsToWaitFor.removeOne(project->projectFilePath().toString());
+        m_projectsToWaitFor.removeOne(project->projectFilePath());
     }
 
     bool wait()
@@ -70,7 +71,7 @@ public:
     }
 
 private:
-    QStringList m_projectsToWaitFor;
+    FilePaths m_projectsToWaitFor;
 };
 
 namespace ClangTools {
@@ -86,7 +87,7 @@ void PreconfiguredSessionTests::initTestCase()
         QSKIP("Session must not be already active.");
 
     // Load session
-    const QStringList projects = SessionManager::projectsForSessionName(preconfiguredSessionName);
+    const FilePaths projects = SessionManager::projectsForSessionName(preconfiguredSessionName);
     WaitForParsedProjects waitForParsedProjects(projects);
     QVERIFY(SessionManager::loadSession(preconfiguredSessionName));
     QVERIFY(waitForParsedProjects.wait());
@@ -99,13 +100,15 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
     QVERIFY(switchToProjectAndTarget(project, target));
 
-    ClangTool::instance()->startTool(ClangTool::FileSelectionType::AllFiles);
-    QSignalSpy waitUntilAnalyzerFinished(ClangTool::instance(), SIGNAL(finished(bool)));
-    QVERIFY(waitUntilAnalyzerFinished.wait(30000));
-    const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
-    const bool analyzerFinishedSuccessfully = arguments.first().toBool();
-    QVERIFY(analyzerFinishedSuccessfully);
-    QCOMPARE(ClangTool::instance()->diagnostics().count(), 0);
+    for (ClangTool * const tool : {ClangTidyTool::instance(), ClazyTool::instance()}) {
+        tool->startTool(ClangTool::FileSelectionType::AllFiles);
+        QSignalSpy waitUntilAnalyzerFinished(tool, SIGNAL(finished(bool)));
+        QVERIFY(waitUntilAnalyzerFinished.wait(30000));
+        const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
+        const bool analyzerFinishedSuccessfully = arguments.first().toBool();
+        QVERIFY(analyzerFinishedSuccessfully);
+        QCOMPARE(tool->diagnostics().count(), 0);
+    }
 }
 
 static const QList<Project *> validProjects(const QList<Project *> projectsOfSession)

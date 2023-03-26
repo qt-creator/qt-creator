@@ -1,12 +1,13 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientsettings.h"
 
 #include "client.h"
-#include "languageclientmanager.h"
 #include "languageclient_global.h"
 #include "languageclientinterface.h"
+#include "languageclientmanager.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
@@ -126,7 +127,6 @@ private:
 
 class LanguageClientSettingsPage : public Core::IOptionsPage
 {
-    Q_DECLARE_TR_FUNCTIONS(LanguageClientSettingsPage)
 public:
     LanguageClientSettingsPage();
     ~LanguageClientSettingsPage() override;
@@ -172,7 +172,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &LanguageClientSettingsPageWidget::currentChanged);
     auto buttonLayout = new QVBoxLayout();
-    auto addButton = new QPushButton(LanguageClientSettingsPage::tr("&Add"));
+    auto addButton = new QPushButton(Tr::tr("&Add"));
     auto addMenu = new QMenu;
     addMenu->clear();
     for (const ClientType &type : clientTypes()) {
@@ -181,7 +181,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
         addMenu->addAction(action);
     }
     addButton->setMenu(addMenu);
-    auto deleteButton = new QPushButton(LanguageClientSettingsPage::tr("&Delete"));
+    auto deleteButton = new QPushButton(Tr::tr("&Delete"));
     connect(deleteButton, &QPushButton::pressed, this, &LanguageClientSettingsPageWidget::deleteItem);
     mainLayout->addLayout(layout);
     setLayout(mainLayout);
@@ -267,10 +267,9 @@ void LanguageClientSettingsPageWidget::deleteItem()
 LanguageClientSettingsPage::LanguageClientSettingsPage()
 {
     setId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
-    setDisplayName(tr("General"));
+    setDisplayName(Tr::tr("General"));
     setCategory(Constants::LANGUAGECLIENT_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("LanguageClient",
-                                                   Constants::LANGUAGECLIENT_SETTINGS_TR));
+    setDisplayCategory(Tr::tr(Constants::LANGUAGECLIENT_SETTINGS_TR));
     setCategoryIconPath(":/languageclient/images/settingscategory_languageclient.png");
     connect(&m_model, &LanguageClientSettingsModel::dataChanged, [this](const QModelIndex &index) {
         if (BaseSettings *setting = m_model.settingForIndex(index))
@@ -736,7 +735,7 @@ bool StdIOSettings::isValid() const
 QVariantMap StdIOSettings::toMap() const
 {
     QVariantMap map = BaseSettings::toMap();
-    map.insert(executableKey, m_executable.toVariant());
+    map.insert(executableKey, m_executable.toSettings());
     map.insert(argumentsKey, m_arguments);
     return map;
 }
@@ -744,7 +743,7 @@ QVariantMap StdIOSettings::toMap() const
 void StdIOSettings::fromMap(const QVariantMap &map)
 {
     BaseSettings::fromMap(map);
-    m_executable = Utils::FilePath::fromVariant(map[executableKey]);
+    m_executable = Utils::FilePath::fromSettings(map[executableKey]);
     m_arguments = map[argumentsKey].toString();
 }
 
@@ -791,12 +790,11 @@ static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
 {
     switch (behavior) {
     case BaseSettings::AlwaysOn:
-        return QCoreApplication::translate("LanguageClient::BaseSettings", "Always On");
+        return Tr::tr("Always On");
     case BaseSettings::RequiresFile:
-        return QCoreApplication::translate("LanguageClient::BaseSettings", "Requires an Open File");
+        return Tr::tr("Requires an Open File");
     case BaseSettings::RequiresProject:
-        return QCoreApplication::translate("LanguageClient::BaseSettings",
-                                           "Start Server per Project");
+        return Tr::tr("Start Server per Project");
     default:
         break;
     }
@@ -814,22 +812,24 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     int row = 0;
     auto *mainLayout = new QGridLayout;
 
-    mainLayout->addWidget(new QLabel(tr("Name:")), row, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Name:")), row, 0);
     mainLayout->addWidget(m_name, row, 1);
     auto chooser = new Utils::VariableChooser(this);
     chooser->addSupportedWidget(m_name);
 
-    mainLayout->addWidget(new QLabel(tr("Language:")), ++row, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Language:")), ++row, 0);
     auto mimeLayout = new QHBoxLayout;
     mimeLayout->addWidget(m_mimeTypes);
     mimeLayout->addStretch();
-    auto addMimeTypeButton = new QPushButton(tr("Set MIME Types..."), this);
+    auto addMimeTypeButton = new QPushButton(Tr::tr("Set MIME Types..."), this);
     mimeLayout->addWidget(addMimeTypeButton);
     mainLayout->addLayout(mimeLayout, row, 1);
-    m_filePattern->setPlaceholderText(tr("File pattern"));
+    m_filePattern->setPlaceholderText(Tr::tr("File pattern"));
+    m_filePattern->setToolTip(
+        Tr::tr("List of file patterns.\nExample: *.cpp%1*.h").arg(filterSeparator));
     mainLayout->addWidget(m_filePattern, ++row, 1);
 
-    mainLayout->addWidget(new QLabel(tr("Startup behavior:")), ++row, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Startup behavior:")), ++row, 0);
     for (int behavior = 0; behavior < BaseSettings::LastSentinel ; ++behavior)
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
     m_startupBehavior->setCurrentIndex(settings->m_startBehavior);
@@ -839,7 +839,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     connect(addMimeTypeButton, &QPushButton::pressed,
             this, &BaseSettingsWidget::showAddMimeTypeDialog);
 
-    mainLayout->addWidget(new QLabel(tr("Initialization options:")), ++row, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Initialization options:")), ++row, 0);
     mainLayout->addWidget(m_initializationOptions, row, 1);
     chooser->addSupportedWidget(m_initializationOptions);
     m_initializationOptions->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
@@ -853,7 +853,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
 
         if (json.isNull()) {
             if (errorMessage)
-                *errorMessage = tr("Failed to parse JSON at %1: %2")
+                *errorMessage = Tr::tr("Failed to parse JSON at %1: %2")
                     .arg(parseInfo.offset)
                     .arg(parseInfo.errorString());
             return false;
@@ -861,7 +861,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
         return true;
     });
     m_initializationOptions->setText(settings->m_initializationOptions);
-    m_initializationOptions->setPlaceholderText(tr("Language server-specific JSON to pass via "
+    m_initializationOptions->setPlaceholderText(Tr::tr("Language server-specific JSON to pass via "
                                                    "\"initializationOptions\" field of \"initialize\" "
                                                    "request."));
 
@@ -927,12 +927,11 @@ public:
 
 class MimeTypeDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(MimeTypeDialog)
 public:
     explicit MimeTypeDialog(const QStringList &selectedMimeTypes, QWidget *parent = nullptr)
         : QDialog(parent)
     {
-        setWindowTitle(tr("Select MIME Types"));
+        setWindowTitle(Tr::tr("Select MIME Types"));
         auto mainLayout = new QVBoxLayout;
         auto filter = new Utils::FancyLineEdit(this);
         filter->setFiltering(true);
@@ -943,7 +942,7 @@ public:
         mainLayout->addWidget(buttons);
         setLayout(mainLayout);
 
-        filter->setPlaceholderText(tr("Filter"));
+        filter->setPlaceholderText(Tr::tr("Filter"));
         connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         auto proxy = new QSortFilterProxyModel(this);
@@ -990,9 +989,9 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
     auto mainLayout = qobject_cast<QGridLayout *>(layout());
     QTC_ASSERT(mainLayout, return);
     const int baseRows = mainLayout->rowCount();
-    mainLayout->addWidget(new QLabel(tr("Executable:")), baseRows, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Executable:")), baseRows, 0);
     mainLayout->addWidget(m_executable, baseRows, 1);
-    mainLayout->addWidget(new QLabel(tr("Arguments:")), baseRows + 1, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Arguments:")), baseRows + 1, 0);
     m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_executable->setFilePath(settings->m_executable);
     mainLayout->addWidget(m_arguments, baseRows + 1, 1);
@@ -1058,8 +1057,11 @@ TextEditor::BaseTextEditor *jsonEditor()
     widget->setCodeFoldingSupported(false);
     QObject::connect(document, &TextDocument::contentsChanged, widget, [document](){
         const Utils::Id jsonMarkId("LanguageClient.JsonTextMarkId");
-        qDeleteAll(
-            Utils::filtered(document->marks(), Utils::equal(&TextMark::category, jsonMarkId)));
+        const TextMarks marks = document->marks();
+        for (TextMark *mark : marks) {
+            if (mark->category().id == jsonMarkId)
+                delete mark;
+        }
         const QString content = document->plainText().trimmed();
         if (content.isEmpty())
             return;
@@ -1071,7 +1073,9 @@ TextEditor::BaseTextEditor *jsonEditor()
             = Utils::Text::convertPosition(document->document(), error.offset);
         if (!lineColumn.has_value())
             return;
-        auto mark = new TextMark(Utils::FilePath(), lineColumn->line, jsonMarkId);
+        auto mark = new TextMark(Utils::FilePath(),
+                                 lineColumn->line,
+                                 {::LanguageClient::Tr::tr("JSON Error"), jsonMarkId});
         mark->setLineAnnotation(error.errorString());
         mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
         mark->setIcon(Utils::Icons::CODEMODEL_ERROR.icon());

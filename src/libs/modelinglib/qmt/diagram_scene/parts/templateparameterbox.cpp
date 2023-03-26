@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "templateparameterbox.h"
 
@@ -55,7 +55,7 @@ void TemplateParameterBox::updateText()
 {
     QString templateText;
     bool first = true;
-    foreach (const QString &parameter, m_templateParameters) {
+    for (const QString &parameter : std::as_const(m_templateParameters)) {
         if (!first) {
             if (m_breakLines)
                 templateText += QLatin1Char('\n');

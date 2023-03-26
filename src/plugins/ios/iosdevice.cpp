@@ -1,15 +1,20 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iosdevice.h"
+
 #include "iosconfigurations.h"
 #include "iosconstants.h"
 #include "iossimulator.h"
 #include "iostoolhandler.h"
+#include "iostr.h"
+
 #include <coreplugin/helpmanager.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitinformation.h>
+
 #include <utils/portlist.h>
 
 #include <QFormLayout>
@@ -38,9 +43,6 @@
 
 using namespace ProjectExplorer;
 
-static const char kDeviceName[] = "deviceName";
-static const char kUniqueDeviceId[] = "uniqueDeviceId";
-
 namespace {
 static Q_LOGGING_CATEGORY(detectLog, "qtc.ios.deviceDetect", QtWarningMsg)
 }
@@ -68,8 +70,10 @@ static QString CFStringRef2QString(CFStringRef s)
 }
 #endif
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
+
+const char kDeviceName[] = "deviceName";
+const char kUniqueDeviceId[] = "uniqueDeviceId";
 
 class IosDeviceInfoWidget : public IDeviceWidget
 {
@@ -84,7 +88,7 @@ IosDevice::IosDevice(CtorHelper)
 {
     setType(Constants::IOS_DEVICE_TYPE);
     setDefaultDisplayName(IosDevice::name());
-    setDisplayType(tr("iOS"));
+    setDisplayType(Tr::tr("iOS"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeMac);
     setDeviceState(DeviceDisconnected);
@@ -121,11 +125,6 @@ IDevice::DeviceInfo IosDevice::deviceInformation() const
 IDeviceWidget *IosDevice::createWidget()
 {
     return new IosDeviceInfoWidget(sharedFromThis());
-}
-
-DeviceProcessSignalOperation::Ptr IosDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr();
 }
 
 void IosDevice::fromMap(const QVariantMap &map)
@@ -165,7 +164,7 @@ QString IosDevice::uniqueInternalDeviceId() const
 
 QString IosDevice::name()
 {
-    return QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device");
+    return Tr::tr("iOS Device");
 }
 
 QString IosDevice::osVersion() const
@@ -200,15 +199,15 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
     if (translationMap)
         return *translationMap;
     TranslationMap &tMap = *new TranslationMap;
-    tMap[kDeviceName] = tr("Device name");
+    tMap[kDeviceName] = Tr::tr("Device name");
     //: Whether the device is in developer mode.
-    tMap[QLatin1String("developerStatus")] = tr("Developer status");
-    tMap[QLatin1String("deviceConnected")] = tr("Connected");
-    tMap[QLatin1String("YES")]             = tr("yes");
-    tMap[QLatin1String("NO")]              = tr("no");
-    tMap[QLatin1String("YES")]             = tr("yes");
-    tMap[QLatin1String("*unknown*")]       = tr("unknown");
-    tMap[QLatin1String("osVersion")]       = tr("OS version");
+    tMap[QLatin1String("developerStatus")] = Tr::tr("Developer status");
+    tMap[QLatin1String("deviceConnected")] = Tr::tr("Connected");
+    tMap[QLatin1String("YES")]             = Tr::tr("yes");
+    tMap[QLatin1String("NO")]              = Tr::tr("no");
+    tMap[QLatin1String("YES")]             = Tr::tr("yes");
+    tMap[QLatin1String("*unknown*")]       = Tr::tr("unknown");
+    tMap[QLatin1String("osVersion")]       = Tr::tr("OS version");
     translationMap = &tMap;
     return tMap;
 }
@@ -312,8 +311,8 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
             if (devStatus == QLatin1String("*off*")) {
                 if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
                     QMessageBox mBox;
-                    mBox.setText(tr("An iOS device in user mode has been detected."));
-                    mBox.setInformativeText(tr("Do you want to see how to set it up for development?"));
+                    mBox.setText(Tr::tr("An iOS device in user mode has been detected."));
+                    mBox.setInformativeText(Tr::tr("Do you want to see how to set it up for development?"));
                     mBox.setStandardButtons(QMessageBox::NoAll | QMessageBox::No | QMessageBox::Yes);
                     mBox.setDefaultButton(QMessageBox::Yes);
                     int ret = mBox.exec();
@@ -498,7 +497,6 @@ void IosDeviceManager::monitorAvailableDevices()
 #endif
 }
 
-
 IosDeviceManager::IosDeviceManager(QObject *parent) :
     QObject(parent)
 {
@@ -568,11 +566,10 @@ IosDeviceInfoWidget::IosDeviceInfoWidget(const IDevice::Ptr &device)
     formLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(formLayout);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(IosDevice::tr("Device name:"), new QLabel(iosDevice->deviceName()));
-    formLayout->addRow(IosDevice::tr("Identifier:"), new QLabel(iosDevice->uniqueInternalDeviceId()));
-    formLayout->addRow(IosDevice::tr("OS Version:"), new QLabel(iosDevice->osVersion()));
-    formLayout->addRow(IosDevice::tr("CPU Architecture:"), new QLabel(iosDevice->cpuArchitecture()));
+    formLayout->addRow(Tr::tr("Device name:"), new QLabel(iosDevice->deviceName()));
+    formLayout->addRow(Tr::tr("Identifier:"), new QLabel(iosDevice->uniqueInternalDeviceId()));
+    formLayout->addRow(Tr::tr("OS Version:"), new QLabel(iosDevice->osVersion()));
+    formLayout->addRow(Tr::tr("CPU Architecture:"), new QLabel(iosDevice->cpuArchitecture()));
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

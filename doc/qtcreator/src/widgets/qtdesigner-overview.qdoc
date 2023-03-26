@@ -21,7 +21,7 @@
 
     For more information about \QD, see the \l{Qt Designer Manual}.
 
-    Generally, the integrated \QD contains the same functions as the standalone
+    Generally, the integrated \QD has the same functions as the standalone
     \QD. The following sections describe the differences.
 
     \section1 Code Editor Integration
@@ -38,7 +38,7 @@
 
     In standalone \QD, image resources are created using the built-in
     \uicontrol {Resource Editor}. In \QC, .ui files are usually part of a project,
-    which may contain several resource files (.qrc). They are created and
+    which may have several resource files (.qrc). They are created and
     maintained by using the \QC Resource Editor. The \QD \uicontrol {Resource Editor}
     is de-activated and the image resources are displayed in the \QD
     \uicontrol {Resource Browser}.

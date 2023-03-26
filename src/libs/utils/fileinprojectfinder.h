@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,7 +19,7 @@ class QTCREATOR_UTILS_EXPORT FileInProjectFinder
 {
 public:
 
-    using FileHandler = std::function<void(const QString &, int)>;
+    using FileHandler = std::function<void(const FilePath &, int)>;
     using DirectoryHandler = std::function<void(const QStringList &, int)>;
 
     FileInProjectFinder();
@@ -34,7 +34,7 @@ public:
     void addMappedPath(const FilePath &localFilePath, const QString &remoteFilePath);
 
     FilePaths findFile(const QUrl &fileUrl, bool *success = nullptr) const;
-    bool findFileOrDirectory(const QString &originalPath, FileHandler fileHandler = nullptr,
+    bool findFileOrDirectory(const FilePath &originalPath, FileHandler fileHandler = nullptr,
                              DirectoryHandler directoryHandler = nullptr) const;
 
     FilePaths searchDirectories() const;
@@ -49,7 +49,7 @@ private:
     };
 
     struct CacheEntry {
-        QStringList paths;
+        FilePaths paths;
         int matchLength = 0;
     };
 
@@ -63,14 +63,14 @@ private:
         mutable QHash<FilePath, QSharedPointer<QrcParser>> m_parserCache;
     };
 
-    CacheEntry findInSearchPaths(const QString &filePath, FileHandler fileHandler,
+    CacheEntry findInSearchPaths(const FilePath &filePath, FileHandler fileHandler,
                                  DirectoryHandler directoryHandler) const;
-    static CacheEntry findInSearchPath(const QString &searchPath, const QString &filePath,
+    static CacheEntry findInSearchPath(const FilePath &searchPath, const FilePath &filePath,
                                        FileHandler fileHandler, DirectoryHandler directoryHandler);
     QStringList filesWithSameFileName(const QString &fileName) const;
     QStringList pathSegmentsWithSameName(const QString &path) const;
 
-    bool handleSuccess(const QString &originalPath, const QStringList &found, int confidence,
+    bool handleSuccess(const FilePath &originalPath, const FilePaths &found, int confidence,
                        const char *where) const;
 
     static int commonPostFixLength(const QString &candidatePath, const QString &filePathToFind);
@@ -82,7 +82,7 @@ private:
     FilePaths m_searchDirectories;
     PathMappingNode m_pathMapRoot;
 
-    mutable QHash<QString, CacheEntry> m_cache;
+    mutable QHash<FilePath, CacheEntry> m_cache;
     QrcUrlFinder m_qrcUrlFinder;
 };
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gitsubmiteditor.h"
 
@@ -115,10 +115,8 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message
 
     m_model = new GitSubmitFileModel(this);
-    m_model->setRepositoryRoot(d.panelInfo.repository.toString());
-    m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData)
-                                    -> SubmitFileModel::FileStatusHint
-    {
+    m_model->setRepositoryRoot(d.panelInfo.repository);
+    m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData) {
         const FileStates state = static_cast<FileStates>(extraData.toInt());
         if (state & (UnmergedFile | UnmergedThem | UnmergedUs))
             return SubmitFileModel::FileUnmerged;
@@ -190,7 +188,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
 void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
-        GitClient::instance()->show(m_workingDirectory.toString(), commit);
+        GitClient::instance()->show(m_workingDirectory, commit);
 }
 
 void GitSubmitEditor::updateFileModel()
@@ -205,6 +203,7 @@ void GitSubmitEditor::updateFileModel()
     if (w->updateInProgress() || m_workingDirectory.isEmpty())
         return;
     w->setUpdateInProgress(true);
+    // TODO: Check if fetch works OK from separate thread, refactor otherwise
     m_fetchWatcher.setFuture(Utils::runAsync(&CommitDataFetchResult::fetch,
                                              m_commitType, m_workingDirectory));
     Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),
@@ -246,7 +245,7 @@ GitSubmitEditorPanelData GitSubmitEditor::panelData() const
 
 QString GitSubmitEditor::amendSHA1() const
 {
-    QString commit = submitEditorWidget()->amendSHA1();
+    const QString commit = submitEditorWidget()->amendSHA1();
     return commit.isEmpty() ? m_amendSHA1 : commit;
 }
 

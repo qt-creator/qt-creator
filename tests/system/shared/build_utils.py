@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 def getBuildIssues():
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
@@ -56,7 +56,7 @@ def waitForCompile(timeout=60000):
 def dumpBuildIssues(listModel):
     issueDump = []
     for index in dumpIndices(listModel):
-        issueDump.extend([[index.data(role).toString() for role
+        issueDump.extend([[str(index.data(role).toString()) for role
                            in range(Qt.UserRole, Qt.UserRole + 6)]])
     return issueDump
 

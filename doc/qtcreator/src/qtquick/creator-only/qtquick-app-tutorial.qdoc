@@ -22,12 +22,12 @@
 
     For more examples, see \l{Qt Quick Examples and Tutorials}.
 
-    You can develop Qt Quick applications also in \QDS. For more information,
-    see \l{Qt Design Studio Manual}.
+    You can use a visual editor to develop Qt Quick applications in \QDS. For
+    more information, see \l{Qt Design Studio Manual}.
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
-    \QC generates a component file, \e main.qml, and opens it in the
+    \QC generates a component file, \e Main.qml, and opens it in the
     \uicontrol Edit mode.
 
     \section1 Deploying Applications
@@ -66,7 +66,7 @@
         \li Select \uicontrol Finish to create \e Page.qml.
     \endlist
 
-    \QC opens \e Page.qml in the \uicontrol Edit mode. It contains a root item
+    \QC opens \e Page.qml in the \uicontrol Edit mode. It has a root item
     of the type \l Item that we replace with a \l Rectangle type. We give the
     type the ID \e page, anchor it to the parent item on all sides, and set
     its color to white:
@@ -106,7 +106,7 @@
     \printuntil border.color
 
     We anchor the rectangles to their parent to position them in its
-    top-left and and bottom-left corners, as well as the vertical center
+    top-left and bottom-left corners, as well as the vertical center
     of its right edge. The following code snippet anchors a rectangle to
     the top-left corner of its parent:
 

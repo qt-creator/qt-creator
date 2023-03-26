@@ -1,10 +1,9 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class Diagnostic;
 
@@ -15,5 +14,4 @@ public:
     virtual void add(const Diagnostic &diagnostic) = 0;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

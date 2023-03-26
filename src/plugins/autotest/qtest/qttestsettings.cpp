@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qttestsettings.h"
 
@@ -72,13 +72,21 @@ QtTestSettings::QtTestSettings()
     maxWarnings.setDefaultValue(2000);
     maxWarnings.setSpecialValueText(Tr::tr("Unlimited"));
     maxWarnings.setEnabler(&limitWarnings);
+
+    registerAspect(&quickCheckForDerivedTests);
+    quickCheckForDerivedTests.setSettingsKey("QuickCheckForDerivedTests");
+    quickCheckForDerivedTests.setDefaultValue(false);
+    quickCheckForDerivedTests.setLabelText(Tr::tr("Check for derived Qt Quick tests"));
+    quickCheckForDerivedTests.setToolTip(
+        Tr::tr("Search for Qt Quick tests that are derived from TestCase.\nWarning: Enabling this "
+               "feature significantly increases scan time."));
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)
 {
     switch (type) {
     case MetricsType::Walltime:
-        return QString();
+        return {};
     case MetricsType::TickCounter:
         return QString("-tickcounter");
     case MetricsType::EventCounter:
@@ -88,7 +96,7 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
     case MetricsType::Perf:
         return QString("-perf");
     }
-    return QString();
+    return {};
 }
 
 QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
@@ -114,6 +122,8 @@ QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
                 title(Tr::tr("Benchmark Metrics")),
                 Column { s.metrics }
             },
+            br,
+            s.quickCheckForDerivedTests,
         };
 
         Column { Row { col, st }, st }.attachTo(widget);

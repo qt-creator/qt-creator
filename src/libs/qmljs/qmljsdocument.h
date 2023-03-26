@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -154,13 +154,13 @@ public:
     QByteArray fingerprint() const
     { return _fingerprint; }
 
-    QList<QmlDirParser::Component> components() const
+    const QList<QmlDirParser::Component> components() const
     { return _components; }
 
     QList<QmlDirParser::Plugin> plugins() const
     { return _plugins; }
 
-    QStringList typeInfos() const
+    const QStringList typeInfos() const
     { return _typeinfos; }
 
     FakeMetaObjectList metaObjects() const
@@ -169,7 +169,7 @@ public:
     void setMetaObjects(const FakeMetaObjectList &objects)
     { _metaObjects = objects; }
 
-    QList<ModuleApiInfo> moduleApis() const
+    const QList<ModuleApiInfo> moduleApis() const
     { return _moduleApis; }
 
     void setModuleApis(const QList<ModuleApiInfo> &apis)

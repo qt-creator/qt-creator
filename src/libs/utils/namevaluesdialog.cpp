@@ -1,10 +1,11 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "namevaluesdialog.h"
 
 #include "environment.h"
 #include "hostosinfo.h"
+#include "utilstr.h"
 
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -74,8 +75,8 @@ NameValuesDialog::NameValuesDialog(const QString &windowTitle, const QString &he
     auto box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                     Qt::Horizontal,
                                     this);
-    box->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
-    box->button(QDialogButtonBox::Cancel)->setText(tr("&Cancel"));
+    box->button(QDialogButtonBox::Ok)->setText(Tr::tr("&OK"));
+    box->button(QDialogButtonBox::Cancel)->setText(Tr::tr("&Cancel"));
     connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);
 

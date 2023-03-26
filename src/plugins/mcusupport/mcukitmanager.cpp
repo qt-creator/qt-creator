@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcukitmanager.h"
 #include "mculegacyconstants.h"
@@ -114,7 +114,8 @@ public:
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
             k->setDeviceTypeForIcon(DEVICE_TYPE);
         k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
-        k->setValue(QtSupport::KitQmlImportPath::id(), (sdkPath / "include/qul").toVariant());
+        // FIXME: This is treated as a pathlist in CMakeBuildSystem::updateQmlJSCodeModel
+        k->setValue(QtSupport::KitQmlImportPath::id(), (sdkPath / "include/qul").toString());
         k->setValue(QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), true);
         QSet<Id> irrelevant = {
             SysRootKitAspect::id(),
@@ -287,7 +288,7 @@ public:
                              cMakeToolchainFile.toString().toUtf8());
             if (!cMakeToolchainFile.exists()) {
                 printMessage(
-                    McuTarget::tr(
+                    Tr::tr(
                         "Warning for target %1: missing CMake toolchain file expected at %2.")
                         .arg(generateKitNameFromTarget(mcuTarget),
                              cMakeToolchainFile.toUserOutput()),
@@ -299,7 +300,7 @@ public:
             "/lib/cmake/Qul/QulGenerators.cmake");
         configMap.insert("QUL_GENERATORS", generatorsPath.toString().toUtf8());
         if (!generatorsPath.exists()) {
-            printMessage(McuTarget::tr(
+            printMessage(Tr::tr(
                              "Warning for target %1: missing QulGenerators expected at %2.")
                              .arg(generateKitNameFromTarget(mcuTarget),
                                   generatorsPath.toUserOutput()),
@@ -492,14 +493,14 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             if (!qtForMCUsPackage->isValidStatus()) {
                 switch (qtForMCUsPackage->status()) {
                 case McuAbstractPackage::Status::ValidPathInvalidPackage: {
-                    printMessage(McuPackage::tr("Path %1 exists, but does not contain %2.")
+                    printMessage(Tr::tr("Path %1 exists, but does not contain %2.")
                                      .arg(qtForMCUsPackage->path().toUserOutput(),
                                           qtForMCUsPackage->detectionPath().toUserOutput()),
                                  true);
                     break;
                 }
                 case McuAbstractPackage::Status::InvalidPath: {
-                    printMessage(McuPackage::tr(
+                    printMessage(Tr::tr(
                                      "Path %1 does not exist. Add the path in Edit > Preferences > "
                                      "Devices > MCU.")
                                      .arg(qtForMCUsPackage->path().toUserOutput()),
@@ -508,7 +509,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
                     printMessage(
-                        McuPackage::tr(
+                        Tr::tr(
                             "Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
                             .arg(qtForMCUsPackage->detectionPath().toUserOutput()),
                         true);
@@ -522,7 +523,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
 
             if (CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty()) {
                 printMessage(
-                    McuPackage::tr(
+                    Tr::tr(
                         "No CMake tool was detected. Add a CMake tool in Edit > Preferences > "
                         "Kits > CMake."),
                     true);
@@ -679,6 +680,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
                 if (cfgItem.key == "QUL_GENERATORS") {
                     auto idx = cfgItem.value.indexOf("/lib/cmake/Qul");
                     auto qulDir = cfgItem.value.left(idx);
+                    // FIXME: This is treated as a pathlist in CMakeBuildSystem::updateQmlJSCodeModel
                     kit->setValue(kitQmlImportPath, QVariant(qulDir + "/include/qul"));
                     break;
                 }

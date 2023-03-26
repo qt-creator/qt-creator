@@ -26,28 +26,24 @@
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Iniciar depurador</translation>
     </message>
     <message>
-        <location/>
         <source>Core File:</source>
         <translation>Archivo core:</translation>
     </message>
     <message>
-        <location/>
         <source>Attach to Process ID:</source>
         <translation>Adjuntar al ID de proceso:</translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>Clear</source>
         <translation>Limpiar</translation>
     </message>
@@ -78,7 +74,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Deshacer</translation>
@@ -89,28 +85,24 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Agregar marcador</translation>
     </message>
     <message>
-        <location/>
         <source>Bookmark:</source>
         <translation>Marcador:</translation>
     </message>
     <message>
-        <location/>
         <source>Add in Folder:</source>
         <translation>Agregar en directorio:</translation>
     </message>
     <message>
-        <location/>
         <source>+</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>New Folder</source>
         <translation>Nuevo directorio</translation>
     </message>
@@ -236,13 +228,12 @@
         <translation>Condición:</translation>
     </message>
     <message>
-        <location/>
         <source>Ignore count:</source>
         <translation>Ignorar cuenta:</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished"></translation>
@@ -422,7 +413,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Seleccione símbolo&gt;</translation>
@@ -439,23 +430,19 @@
         <translation>Estas opciones surtirán efecto en el próximo inicio de Qt Creator.</translation>
     </message>
     <message>
-        <location/>
         <source>Cdb</source>
         <extracomment>Placeholder</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>Debugger Paths</source>
         <translation>Rutas del depurador</translation>
     </message>
     <message>
-        <location/>
         <source>Symbol paths:</source>
         <translation>Rutas de símbolos:</translation>
     </message>
     <message>
-        <location/>
         <source>Source paths:</source>
         <translation>Rutas de fuentes:</translation>
     </message>
@@ -468,7 +455,6 @@
         </translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
         <translation>Ruta:</translation>
     </message>
@@ -490,7 +476,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Verbose Symbol Loading</source>
         <translation type="unfinished"></translation>
     </message>
@@ -502,18 +487,16 @@
         <translation>Ubicación del repositorio:</translation>
     </message>
     <message>
-        <location/>
         <source>Select</source>
         <translation>Seleccionar</translation>
     </message>
     <message>
-        <location/>
         <source>Change:</source>
         <translation>Cambiar:</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation></translation>
@@ -559,7 +542,6 @@
         <translation>Pegar:</translation>
     </message>
     <message>
-        <location/>
         <source>Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -572,37 +554,30 @@
         <translation>Usuario:</translation>
     </message>
     <message>
-        <location/>
         <source>Copy Paste URL to clipboard</source>
         <translation>Copiar URL al portapapeles</translation>
     </message>
     <message>
-        <location/>
         <source>Display Output Pane after sending a post</source>
         <translation>Desplegar panel de salida luego de enviar</translation>
     </message>
     <message>
-        <location/>
         <source>General</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>CodePaster</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>Default Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Pastebin.ca</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Pastebin.com</source>
         <translation type="unfinished"></translation>
     </message>
@@ -614,23 +589,19 @@
         <translation>Interfaz de usuario</translation>
     </message>
     <message>
-        <location/>
         <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
         <translation>Seleccionando esto hará que la vista de código fuente sea rellenada automáticamente pero puede hacer la depuración considerablemente mas lenta.</translation>
     </message>
     <message>
-        <location/>
         <source>Populate source file view automatically</source>
         <translation>Rellenar vista de código fuente automáticamente</translation>
     </message>
     <message>
-        <location/>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
         <translation>Cuando esta opción se selecciona, &apos;Paso adentro&apos; comprime varios pasos en uno solo en determinadas situaciones, lo que hace la depuración menos verbosa. Así, por ejemplo, el código de conteo atómico de referencias será omitido, y un solo &apos;Paso adentro&apos; para la emisión de una señal terminará directamente en el slot conectado a ella.</translation>
     </message>
     <message>
-        <location/>
         <source>Skip known frames when stepping</source>
         <translation>Saltar frames conocidos al avanzar</translation>
     </message>
@@ -639,17 +610,14 @@
         <translation type="obsolete">Usar tooltips durante depuración</translation>
     </message>
     <message>
-        <location/>
         <source>Maximal stack depth:</source>
         <translation>Profundidad máxima de pila:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;unlimited&gt;</source>
         <translation>&lt;ilimitado&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Use alternating row colors in debug views</source>
         <translation>Alternar colores de filas</translation>
     </message>
@@ -658,60 +626,51 @@
         <translation type="obsolete">Si marca esto se activarán los tooltips para valores de variables durante la depuración. Dado que hace lenta la depuración y no arroja información confiable ya que no usa información del alcance, es desactivada por defecto.</translation>
     </message>
     <message>
-        <location/>
         <source>Enable reverse debugging</source>
         <translation>Habilitar depuración inversa</translation>
     </message>
     <message>
-        <location/>
         <source>Show a message box when receiving a signal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use tooltips in main editor while debugging</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation>Completado de código</translation>
     </message>
     <message>
-        <location/>
         <source>Do a case-sensitive match for completion items.</source>
         <translation>Distinguir MAYÚS/minús en items de autocompletado.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Case-sensitive completion</source>
         <translation>&amp;Completado distingue MAYÚS/minús</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically insert (, ) and ; when appropriate.</source>
         <translation>Insertar (,) y (;) automáticamente cuando sea apropiado.</translation>
     </message>
     <message>
-        <location/>
         <source>Insert the common prefix of available completion items.</source>
         <translation>Insertar el prefijo común de los items de completado disponibles.</translation>
     </message>
     <message>
-        <location/>
         <source>Autocomplete common &amp;prefix</source>
         <translation>Autocompletar &amp;prefijo común</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Automatically insert brackets</source>
         <translation>&amp;Automáticamente insertar corchetes</translation>
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Abrir vínculo</translation>
@@ -722,7 +681,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Falla generando archivo</translation>
@@ -771,9 +730,6 @@
 Would you like to overwrite them?</source>
         <translation>Los siguientes archivos ya existen en el directorio %1: %2. ¿Quiere sobreescribirlos?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Revertir a la copia guardada</translation>
@@ -1006,9 +962,6 @@ Would you like to overwrite them?</source>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expande a&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nombre de archivo&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;número de línea actual&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;número de columna actual&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;posición x  del editor en pantalla&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;posición y  del editor en pantalla&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;ancho del editor en pixeles&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;altura del editor en pixeles&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;ancho del editor en caracteres&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;altura del editor en caracteres&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
     <message>
         <source>Can&apos;t save file</source>
         <translation type="obsolete">No se pudo guardar el archivo</translation>
@@ -1037,23 +990,14 @@ Would you like to overwrite them?</source>
         <source>Save File As</source>
         <translation>Guardar archivo como</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
     <message>
         <source>Activate %1</source>
         <translation>Activar %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Edición</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
     <message>
         <source>Split Left/Right</source>
         <translation>Dividir Izquierda/Derecha</translation>
@@ -1083,16 +1027,8 @@ Would you like to overwrite them?</source>
         <translation>Documento previo</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Next Document</source>
         <translation>Documento siguiente</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Previous Group</source>
@@ -1110,9 +1046,6 @@ Would you like to overwrite them?</source>
         <source>Move Document to Next Group</source>
         <translation>Mover documento al grupo siguiente</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
     <message id="===============EditorView====================">
         <source>Go Back</source>
         <translation type="unfinished">Ir atrás</translation>
@@ -1127,14 +1060,6 @@ Would you like to overwrite them?</source>
         <translation>Suplente</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation>Hacer escribible</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>El archivo es escribible</translation>
     </message>
@@ -1142,9 +1067,6 @@ Would you like to overwrite them?</source>
         <source>Copy full path to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>General</source>
         <translation></translation>
@@ -1162,58 +1084,45 @@ Would you like to overwrite them?</source>
         <translation>Ajustes generales</translation>
     </message>
     <message>
-        <location/>
         <source>User &amp;interface color:</source>
         <translation>Color de &amp;interfaz de usuario:</translation>
     </message>
     <message>
-        <location/>
         <source>Reset to default</source>
         <translation>Restablecer a predefinidos</translation>
     </message>
     <message>
-        <location/>
         <source>R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Terminal:</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>External editor:</source>
         <translation>Editor externo:</translation>
     </message>
     <message>
-        <location/>
         <source>?</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>When files are externally modified:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Always ask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Reload all modified files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Ignore modifications</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>Qt Creator</source>
         <translation></translation>
@@ -1367,53 +1276,18 @@ Would you like to overwrite them?</source>
         <comment>Title of dialog</comment>
         <translation>Nuevo...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
-    <message>
-        <source>General</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation>Activar %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Dividir</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>Activar panel %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Nuevo proyecto</translation>
     </message>
     <message>
-        <location/>
         <source>1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Documentos abiertos</translation>
@@ -1438,26 +1312,13 @@ Would you like to overwrite them?</source>
         <source>Close All Editors</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>Abrir archivo &apos;%1&apos; con:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
-    <message>
-        <source>Output</source>
-        <translation>Salida</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -1475,9 +1336,6 @@ Would you like to overwrite them?</source>
         <source>Output &amp;Panes</source>
         <translation>&amp;Paneles de salida</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Detalles</translation>
@@ -1486,10 +1344,6 @@ Would you like to overwrite them?</source>
         <source>Error Details</source>
         <translatorcomment>Fehlermeldungen zu %1</translatorcomment>
         <translation>Detalles de errores</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
     </message>
     <message>
         <source>Installed Plugins</source>
@@ -1503,16 +1357,10 @@ Would you like to overwrite them?</source>
         <source>Plugin Errors of %1</source>
         <translation>Errores del plugin %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Procesos</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Don&apos;t Save</source>
         <translation type="obsolete">No guardar</translation>
@@ -1533,16 +1381,9 @@ Would you like to overwrite them?</source>
         <source>Save Selected</source>
         <translation>Guardar seleccionado</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Teclado</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation>Entorno</translation>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
@@ -1556,20 +1397,6 @@ Would you like to overwrite them?</source>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Exportar esquema de mapeado de teclas</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Dividir</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>Acerca de Qt Creator</translation>
@@ -1589,7 +1416,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Projects</source>
         <translation type="obsolete">Proyectos</translation>
@@ -1790,14 +1617,11 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::ModeManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation>Alternar al modo %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -1808,9 +1632,6 @@ Would you like to overwrite them?</source>
         <source>Unknown error</source>
         <translation>Error desconocido</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translatorcomment>TODO: Grammatical case problem</translatorcomment>
@@ -1818,7 +1639,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>El nombre de clase no debe contener delimitadores de namespaces.</translation>
@@ -1831,9 +1652,6 @@ Would you like to overwrite them?</source>
         <source>The class name contains invalid characters.</source>
         <translation>El nombre de clase contiene caracteres inválidos.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>No se pudo establecer canal de comunicación: %1</translation>
@@ -1882,9 +1700,6 @@ Would you like to overwrite them?</source>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>No se pudo obtener el estado de salida del inferior: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation>El nombre no puede dejarse vacío</translation>
@@ -1901,9 +1716,6 @@ Would you like to overwrite them?</source>
         <source>The name must not match that of a MS Windows device. (%1).</source>
         <translation>El nombre no debe coincidir con el nombre de dispositivo de MS Windows. (%1).</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -1925,9 +1737,6 @@ Would you like to overwrite them?</source>
             <numerusform>%1: %n coincidencias encontradas en %2 de %3 archivos.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Invalid base class name</source>
         <translation>Nombre de clase base inválido</translation>
@@ -1949,38 +1758,29 @@ Would you like to overwrite them?</source>
         <translation>Nombre de clase:</translation>
     </message>
     <message>
-        <location/>
         <source>Base class:</source>
         <translation>Clase base:</translation>
     </message>
     <message>
-        <location/>
         <source>Header file:</source>
         <translation>Archivo de encabezado:</translation>
     </message>
     <message>
-        <location/>
         <source>Source file:</source>
         <translation>Archivo de fuentes:</translation>
     </message>
     <message>
-        <location/>
         <source>Generate form:</source>
         <translation>Generar formulario:</translation>
     </message>
     <message>
-        <location/>
         <source>Form file:</source>
         <translation>Archivo de formulario:</translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
         <translation>Ruta:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Elegir...</translation>
@@ -2017,9 +1817,6 @@ Would you like to overwrite them?</source>
         <source>Path:</source>
         <translation>Ruta:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Insertar...</translation>
@@ -2040,9 +1837,6 @@ Would you like to overwrite them?</source>
         <source>From &quot;%1&quot;</source>
         <translation>Desde &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>&lt;Enter_Name&gt;</source>
         <translation>&lt;Introduzca_nombre&gt;</translation>
@@ -2060,59 +1854,33 @@ Would you like to overwrite them?</source>
         <translation>Introducción y ubicación del proyecto</translation>
     </message>
     <message>
-        <location/>
         <source>Name:</source>
         <translation>Nombre:</translation>
     </message>
     <message>
-        <location/>
         <source>Create in:</source>
         <translation>Crear en:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation>El nombre no puede contener el caracter &apos;.&apos; (punto).</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Enviar a Subversion</translation>
     </message>
     <message>
-        <location/>
         <source>Des&amp;cription</source>
         <translation>Des&amp;cripción</translation>
     </message>
     <message>
-        <location/>
         <source>F&amp;iles</source>
         <translation>Arch&amp;ivos</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation>Seleccione ubicación</translation>
     </message>
-    <message>
-        <location/>
-        <source>Name:</source>
-        <translation>Nombre:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Path:</source>
-        <translation>Ruta:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>El archivo fue modificado</translation>
@@ -2127,7 +1895,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation>Ordenar alfabeticamente</translation>
@@ -2148,9 +1916,6 @@ Would you like to overwrite them?</source>
         <source>Reformat Document</source>
         <translation type="obsolete">Reformatear documento</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation>Introduzca nombre de clase</translation>
@@ -2163,30 +1928,18 @@ Would you like to overwrite them?</source>
         <source>Configure...</source>
         <translation>Configurar...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Error generando el contenido del archivo.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>Asistente de Clases C++</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation>Sin filtro</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++</source>
         <translation></translation>
@@ -2235,9 +1988,6 @@ Would you like to overwrite them?</source>
         <source>Rename Symbol under Cursor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
     <message>
         <source>Header suffix:</source>
         <translation>Sufijo para encabezados:</translation>
@@ -2247,35 +1997,25 @@ Would you like to overwrite them?</source>
         <translation type="obsolete">Convenciones de nomenclatura de archivos</translation>
     </message>
     <message>
-        <location/>
         <source>Source suffix:</source>
         <translation>Sufijo para fuentes:</translation>
     </message>
     <message>
-        <location/>
         <source>Lower case file names</source>
         <translation>Nombres de archivos en minúsculas</translation>
     </message>
     <message>
-        <location/>
         <source>File Naming Conventions</source>
         <translation>Convenciones de nomenclatura de archivos</translation>
     </message>
     <message>
-        <location/>
         <source>License Template:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: No existe el archivo ó directorio</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppModelManager</name>
     <message>
         <source>Scanning</source>
         <translation type="unfinished"></translation>
@@ -2283,13 +2023,6 @@ Would you like to overwrite them?</source>
     <message>
         <source>Indexing</source>
         <translation>Indizando</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools</name>
-    <message>
-        <source>File naming conventions</source>
-        <translation type="obsolete">Convenciones de nomenclatura de archivos</translation>
     </message>
     <message>
         <source>File Naming Conventions</source>
@@ -2299,9 +2032,6 @@ Would you like to overwrite them?</source>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Completado</translation>
@@ -2310,37 +2040,22 @@ Would you like to overwrite them?</source>
         <source>Text Editor</source>
         <translation>Editor de texto</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
     <message>
         <source>Classes</source>
         <translation>Clases</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>Methods in current Document</source>
         <translation type="unfinished">Métodos en el documento actual</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods</source>
         <translation>Métodos</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>Clases y métodos</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation></translation>
@@ -2349,9 +2064,6 @@ Would you like to overwrite them?</source>
         <source>Switch Header/Source</source>
         <translation>Alternar entre declaración/definición</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindClassDeclarations</name>
     <message>
         <source>Search class</source>
         <translation type="unfinished">Buscar clase</translation>
@@ -2360,9 +2072,6 @@ Would you like to overwrite them?</source>
         <source>Class Declarations</source>
         <translation type="unfinished">Declaración de clase</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindFunctionCalls</name>
     <message>
         <source>Search functions</source>
         <translation type="unfinished">Buscar funciones</translation>
@@ -2371,16 +2080,13 @@ Would you like to overwrite them?</source>
         <source>Function calls</source>
         <translation type="unfinished">Llamadas a función</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 de %2</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Common</source>
         <translation>Común</translation>
@@ -2393,9 +2099,6 @@ Would you like to overwrite them?</source>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Error de codificación&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
         <translation type="unfinished"></translation>
@@ -2418,9 +2121,6 @@ Would you like to overwrite them?</source>
             <numerusform>%n tipos conocidos, versión de Qt: %1, namespace Qt: %2</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select Core File</source>
         <translation>Seleccione archivo principal</translation>
@@ -2525,9 +2225,6 @@ Would you like to overwrite them?</source>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
         <translation>El punto de ruptura se alcanzará luego de ser ignorado ésta cantidad de veces.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Puntos de ruptura</translation>
@@ -2584,9 +2281,6 @@ Would you like to overwrite them?</source>
         <source>Conditions on Breakpoint %1</source>
         <translation>Condiciones en punto de ruptura %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Imposible cargar librería del depurador &apos;%1&apos;: %2</translation>
@@ -2701,9 +2395,6 @@ Would you like to overwrite them?</source>
         <source>Thread %1: No debug information available (%2).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>injection</source>
         <translation>inyección</translation>
@@ -2748,9 +2439,6 @@ Would you like to overwrite them?</source>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation>Solicitando volcado de &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -2772,9 +2460,6 @@ Would you like to overwrite them?</source>
         <source>Autodetection</source>
         <translation>Autodetección</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Servidor de símbolos...</translation>
@@ -2787,16 +2472,10 @@ Would you like to overwrite them?</source>
         <source>Pick a local cache directory</source>
         <translation>Seleccione un directorio local para el caché</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Depuración</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Continue</source>
         <translation>Continuar</translation>
@@ -3165,9 +2844,6 @@ Would you like to overwrite them?</source>
         <source>Execute line</source>
         <translation>Ejecutar línea</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Asistende de depuración</translation>
@@ -3180,9 +2856,6 @@ Would you like to overwrite them?</source>
         <source>Ctrl+Shift+F11</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Disassembler</source>
         <translation type="obsolete">Desensamblador</translation>
@@ -3195,9 +2868,6 @@ Would you like to overwrite them?</source>
         <source>Always reload disassembler listing</source>
         <translation type="obsolete">Siempre recargar desensamblado</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>El inicio del proceso Gdb ha fallado. Puede que el programa invocado &apos;%1&apos; no exista o que no tenga suficientes permisos para invocarlo.</translation>
@@ -3609,9 +3279,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Loading dumpers via debugger call (%1)...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Choose Gdb Location</source>
         <translation>Seleccione ubicación de Gdb</translation>
@@ -3620,9 +3287,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation>Seleccione ubicación del script de inicio</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Nombre del módulo</translation>
@@ -3699,9 +3363,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>Símbolos en &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Cannot create temporary file: %2</source>
         <translation type="obsolete">No se pudo crear archivo temporal: %2</translation>
@@ -3718,9 +3379,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>No se pudo abrir FIFO %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Name</source>
         <translation>Nombre</translation>
@@ -3729,9 +3387,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Value (base %1)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Registros</translation>
@@ -3780,9 +3435,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
         <translation>Rehusando cobardemente a evaluar expresión &apos;%1&apos; con posibles efectos colaterales</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">Nombre interno</translation>
@@ -3804,7 +3456,7 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>Archivos de fuente</translation>
@@ -3821,9 +3473,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Open file &quot;%1&quot;&apos;</source>
         <translation>Abrir archivo &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>...</source>
         <translation></translation>
@@ -3872,9 +3521,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Address</source>
         <translation>Dirección</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Thread: %1</source>
         <translation>Hilo: %1</translation>
@@ -4032,9 +3678,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>&lt;Edit&gt;</source>
         <translation type="obsolete">&lt;Editar&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Limpiar contenido</translation>
@@ -4051,39 +3694,33 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <translation>Esto activará el despliegue legible de objetos Qt y STL en la vista Locales &amp; Observadores</translation>
     </message>
     <message>
-        <location/>
         <source>Use debugging helper</source>
         <translation>Usar asistente de depuración</translation>
     </message>
     <message>
-        <location/>
         <source>This will load a dumper library</source>
         <translation>Esto cargará la librería de volcado</translation>
     </message>
     <message>
-        <location/>
         <source>Use debugging helper from custom location</source>
         <translation>Usar asistente de depuración desde la ubicación indicada</translation>
     </message>
     <message>
-        <location/>
         <source>Location: </source>
         <translation>Localización:</translation>
     </message>
     <message>
-        <location/>
         <source>Debug debugging helper</source>
         <translatorcomment>???</translatorcomment>
         <translation type="unfinished">Asistente de depuración</translation>
     </message>
     <message>
-        <location/>
         <source>Debugging helper</source>
         <translation>Asistente de depuración</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation>No fue posible agregar la dependencia</translation>
@@ -4092,9 +3729,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>This would create a circular dependency.</source>
         <translation>Esto creará una dependencia circular.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation type="unfinished"></translation>
@@ -4117,7 +3751,7 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation>El nombre de archivo está vacío.</translation>
@@ -4159,12 +3793,10 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <translation>Elija un nombre para la clase</translation>
     </message>
     <message>
-        <location/>
         <source>Class</source>
         <translation>Clase</translation>
     </message>
     <message>
-        <location/>
         <source>Configure...</source>
         <translation>Configurar...</translation>
     </message>
@@ -4388,18 +4020,16 @@ Reconstruir el proyecto puede ayudar.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
+    <name>QtC::Help</name>
     <message>
         <source>Registered Documentation</source>
         <translation>Documentación registrada</translation>
     </message>
     <message>
-        <location/>
         <source>Add...</source>
         <translation>Agregar...</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Suprimir</translation>
     </message>
@@ -4441,7 +4071,6 @@ Reconstruir el proyecto puede ayudar.</translation>
         <translation>Piel:</translation>
     </message>
     <message>
-        <location/>
         <source>Use Virtual Box
 Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.
 It also automatically sets the correct Qt version.</source>
@@ -4451,71 +4080,55 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
     </message>
     <message>
-        <location/>
         <source>Version:</source>
         <translation>Versión:</translation>
     </message>
     <message>
-        <location/>
         <source>Compatibility Version:</source>
         <translation>Versión compatible:</translation>
     </message>
     <message>
-        <location/>
         <source>Vendor:</source>
         <translation>Vendedor:</translation>
     </message>
     <message>
-        <location/>
         <source>Url:</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>Location:</source>
         <translation>Localización:</translation>
     </message>
     <message>
-        <location/>
         <source>Description:</source>
         <translation>Descripción:</translation>
     </message>
     <message>
-        <location/>
         <source>Copyright:</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>License:</source>
         <translation>Licencia:</translation>
     </message>
     <message>
-        <location/>
         <source>Dependencies:</source>
         <translation>Dependencias:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Estado:</translation>
     </message>
     <message>
-        <location/>
         <source>Error Message:</source>
         <translation>Mensaje de error:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation>El archivo no existe: %1</translation>
@@ -4528,36 +4141,26 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Error interpretando el archivo %1: %2, en línea %3, columna %4</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation>Estado</translation>
     </message>
     <message>
-        <location/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location/>
         <source>Version</source>
         <translation>Versión</translation>
     </message>
     <message>
-        <location/>
         <source>Vendor</source>
         <translation>Vendedor</translation>
     </message>
     <message>
-        <location/>
         <source>Location</source>
         <translation>Localización</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Inválido</translation>
@@ -4626,9 +4229,6 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
         <source>Plugin ended it&apos;s life cycle and was deleted</source>
         <translation type="obsolete">El plugin culminó su ciclo de vida y fue removido</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -4657,7 +4257,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation>Activar/desactivar edición al estilo Vim</translation>
@@ -4666,9 +4266,6 @@ Razón: %3</translation>
         <source>FakeVim properties...</source>
         <translation>Ajustes de FakeVim...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation>No implementado en FakeVim</translation>
@@ -4752,9 +4349,6 @@ Razón: %3</translation>
         <source>Already at newest change</source>
         <translation>Ya está en el cambio mas reciente</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation></translation>
@@ -4763,9 +4357,6 @@ Razón: %3</translation>
         <source>FakeVim</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Quit FakeVim</source>
         <translation>Salir de FakeVim</translation>
@@ -4789,90 +4380,71 @@ Razón: %3</translation>
         <source>FakeVim Information</source>
         <translation>Información sobre FakeVim</translation>
     </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Usar FakeVim</translation>
     </message>
     <message>
-        <location/>
         <source>Vim style settings</source>
         <translation>Ajustes de estilo Vim</translation>
     </message>
     <message>
-        <location/>
         <source>vim&apos;s &quot;expandtab&quot; option</source>
         <translation>Opción &quot;expandtab&quot; de Vim</translation>
     </message>
     <message>
-        <location/>
         <source>Expand tabulators:</source>
         <translation>Expandir tabulaciones:</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight search results:</source>
         <translation>Resaltar resultados de búsquedas:</translation>
     </message>
     <message>
-        <location/>
         <source>Shift width:</source>
         <translation>Número de espacios por nivel de indentación (shiftwidth):</translation>
     </message>
     <message>
-        <location/>
         <source>Smart tabulators:</source>
         <translation>Tabulaciones inteligentes:</translation>
     </message>
     <message>
-        <location/>
         <source>Start of line:</source>
         <translation>Principio de línea:</translation>
     </message>
     <message>
-        <location/>
         <source>vim&apos;s &quot;tabstop&quot; option</source>
         <translation>Opción &quot;tabstop&quot; de Vim</translation>
     </message>
     <message>
-        <location/>
         <source>Tabulator size:</source>
         <translation>Tamaño de tabulación:</translation>
     </message>
     <message>
-        <location/>
         <source>Backspace:</source>
         <translation>Retroceso:</translation>
     </message>
     <message>
-        <location/>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
         <translation>Opción &quot;autoindent&quot; de Vim</translation>
     </message>
     <message>
-        <location/>
         <source>Automatic indentation:</source>
         <translation>Indentación automática:</translation>
     </message>
     <message>
-        <location/>
         <source>Copy text editor settings</source>
         <translation>Copiar ajustes de editor de texto</translation>
     </message>
     <message>
-        <location/>
         <source>Set Qt style</source>
         <translation>Establecer estilo predefinido de Qt</translation>
     </message>
     <message>
-        <location/>
         <source>Set plain style</source>
         <translation>Establecer estilo simple</translation>
     </message>
     <message>
-        <location/>
         <source>Incremental search:</source>
         <translation>Búsqueda incremental:</translation>
     </message>
@@ -4884,7 +4456,6 @@ Razón: %3</translation>
         <translation>Agregar nombre de filtro</translation>
     </message>
     <message>
-        <location/>
         <source>Filter Name:</source>
         <translation>Nombre de filtro:</translation>
     </message>
@@ -4896,65 +4467,52 @@ Razón: %3</translation>
         <translation>Filtros</translation>
     </message>
     <message>
-        <location/>
         <source>1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Agregar</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Suprimir</translation>
     </message>
     <message>
-        <location/>
         <source>Attributes</source>
         <translation>Atributos</translation>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Buscar...</translation>
     </message>
     <message>
-        <location/>
         <source>Sc&amp;ope:</source>
         <translation>&amp;Alcance:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Search</source>
         <translation>&amp;Buscar</translation>
     </message>
     <message>
-        <location/>
         <source>Search &amp;for:</source>
         <translation>Te&amp;xto:</translation>
     </message>
     <message>
-        <location/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Case sensitive</source>
         <translation>Distin&amp;guir MAYÚS/minús</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Whole words only</source>
         <translation>Palabras &amp;completas solamente</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Buscar/Reemplazar</translation>
@@ -4971,9 +4529,6 @@ Razón: %3</translation>
         <source>Ctrl+Shift+F</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation>Documento actual</translation>
@@ -5022,36 +4577,26 @@ Razón: %3</translation>
         <source>Use Regular Expressions</source>
         <translation>Usar expresiones regulares</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Buscar</translation>
     </message>
     <message>
-        <location/>
         <source>Find:</source>
         <translation>Buscar:</translation>
     </message>
     <message>
-        <location/>
         <source>Replace with:</source>
         <translation>Reemplazar con:</translation>
     </message>
     <message>
-        <location/>
         <source>All</source>
         <translation>Todo</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>Search Results</source>
         <translation>Resultados de búsqueda</translation>
@@ -5078,93 +4623,77 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation>Interacción con Gdb</translation>
     </message>
     <message>
-        <location/>
         <source>Gdb location:</source>
         <translation>Ubicación de Gdb:</translation>
     </message>
     <message>
-        <location/>
         <source>Environment:</source>
         <translation>Entorno:</translation>
     </message>
     <message>
-        <location/>
         <source>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</source>
         <translation>Esto debe dejarse en blanco o bien indicando la ruta a un archivo conteniendo comandos de Gdb que serán ejecutados inmediatamente luego del inicio.</translation>
     </message>
     <message>
-        <location/>
         <source>Gdb startup script:</source>
         <translation>Script de inicio de Gdb:</translation>
     </message>
     <message>
-        <location/>
         <source>Behaviour of breakpoint setting in plugins</source>
         <translation>Comportamiento de puntos de ruptura en plugins</translation>
     </message>
     <message>
-        <location/>
         <source>This is the slowest but safest option.</source>
         <translation>Ésta es la opción mas lenta, pero también la más segura.</translation>
     </message>
     <message>
-        <location/>
         <source>Try to set breakpoints in plugins always automatically.</source>
         <translation>Siempre intentar establecer puntos de ruptura en plugins automáticamente.</translation>
     </message>
     <message>
-        <location/>
         <source>Try to set breakpoints in selected plugins</source>
         <translation>Intentar establecer puntos de ruptura en los plugins seleccionados</translation>
     </message>
     <message>
-        <location/>
         <source>Matching regular expression: </source>
         <translation>Expresión regular coincidente:</translation>
     </message>
     <message>
-        <location/>
         <source>Never set breakpoints in plugins automatically</source>
         <translation>Nunca establecer puntos de ruptura en plugins automáticamente</translation>
     </message>
     <message>
-        <location/>
         <source>This is either a full absolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
         <translation>Indique aquí la ruta absoluta al binario de Gdb que prefiere usar, de lo contrario se ajustará al binario que se detecte en la variable PATH.</translation>
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>Redefinir %1:</translation>
     </message>
     <message>
-        <location/>
         <source>Make arguments:</source>
         <translation>Argumentos para make:</translation>
     </message>
     <message>
-        <location/>
         <source>Targets:</source>
         <translation>Objetivos:</translation>
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;nuevo&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="unfinished"></translation>
@@ -5177,9 +4706,6 @@ Razón: %3</translation>
         <source>New Configuration Name:</source>
         <translation type="unfinished">Nombre para nueva configuración:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Directorio de construcción:</translation>
@@ -5192,9 +4718,6 @@ Razón: %3</translation>
         <source>Generic Manager</source>
         <translation>Gestor genérico</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Redefinir %1:</translation>
@@ -5203,9 +4726,6 @@ Razón: %3</translation>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation>Importado de un proyecto basado en Makefile</translation>
@@ -5222,9 +4742,6 @@ Razón: %3</translation>
         <source>The project %1 could not be opened.</source>
         <translation>El proyecto %1 no pudo ser abierto.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation>Importado de proyecto basado en Makefile</translation>
@@ -5247,7 +4764,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Checkout</source>
         <translation>Recuperar (Checkout)</translation>
@@ -5297,17 +4814,14 @@ Razón: %3</translation>
         <translation>Ramas</translation>
     </message>
     <message>
-        <location/>
         <source>General information</source>
         <translation>Información general</translation>
     </message>
     <message>
-        <location/>
         <source>Repository:</source>
         <translation>Repositorio:</translation>
     </message>
     <message>
-        <location/>
         <source>Remote branches</source>
         <translation>Ramas remotas</translation>
     </message>
@@ -5692,32 +5206,26 @@ Razón: %3</translation>
         <translation>Información general</translation>
     </message>
     <message>
-        <location/>
         <source>repository</source>
         <translation>repositorio</translation>
     </message>
     <message>
-        <location/>
         <source>Branch:</source>
         <translation>Rama:</translation>
     </message>
     <message>
-        <location/>
         <source>branch</source>
         <translation>rama</translation>
     </message>
     <message>
-        <location/>
         <source>Commit Information</source>
         <translation>Información del commit</translation>
     </message>
     <message>
-        <location/>
         <source>Author:</source>
         <translation>Autor:</translation>
     </message>
     <message>
-        <location/>
         <source>Email:</source>
         <translation>Email:</translation>
     </message>
@@ -5742,47 +5250,38 @@ Razón: %3</translation>
         <translation>Variables de entorno</translation>
     </message>
     <message>
-        <location/>
         <source>PATH:</source>
         <translation>PATH:</translation>
     </message>
     <message>
-        <location/>
         <source>From system</source>
         <translation>Desde el sistema</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nota:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Git needs to find Perl in the environment as well.</source>
         <translation>Git necesita encontrar Perl en el entorno.</translation>
     </message>
     <message>
-        <location/>
         <source>Log commit display count:</source>
         <translation>Número de entradas del histórico:</translation>
     </message>
     <message>
-        <location/>
         <source>Note that huge amount of commits might take some time.</source>
         <translation>Tenga en cuenta que un gran número de entradas tomará cierto tiempo.</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout (seconds):</source>
         <translation>Expirar en (segundos):</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
     </message>
     <message>
-        <location/>
         <source>Omit date from annotation output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5842,7 +5341,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Add new page</source>
         <translation>Agregar nueva página</translation>
@@ -5900,16 +5399,8 @@ Razón: %3</translation>
         <translation>Filtros</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Ayuda</translation>
-    </message>
-    <message>
         <source>Help index</source>
         <translation>Índice de la ayuda</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Ayuda</translation>
     </message>
     <message>
         <source>Contents</source>
@@ -6068,29 +5559,21 @@ Skipping file.</source>
     </message>
 </context>
 <context>
-    <name>IndexWindow</name>
+    <name>QtC::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Buscar:</translation>
     </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Abrir vínculo</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation>Abrir vínculo en nueva pestaña</translation>
-    </message>
 </context>
 <context>
-    <name>InputPane</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Teclee Ctrl-&lt;Intro&gt; para ejecutar una línea.</translation>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filters</source>
         <translation>Filtros</translation>
@@ -6216,16 +5699,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Redefinir %1:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Make arguments:</source>
-        <translation>Argumentos para make:</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -6241,30 +5715,27 @@ en su archivo .pro.</translation>
         <translation>Apodos</translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>Clear</source>
         <translation>Limpiar</translation>
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Abrir archivo con...</translation>
     </message>
     <message>
-        <location/>
         <source>Open file extension with:</source>
         <translation>Abrir extensión de archivo con:</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>No se especificó ejecutable</translation>
@@ -6289,32 +5760,23 @@ en su archivo .pro.</translation>
         <source>The client does not seem to contain any mapped files.</source>
         <translation>El cliente no parece contener ningún archivo mapeado.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
     <message>
         <source>Change Number</source>
         <translation>Modificar número</translation>
     </message>
     <message>
-        <location/>
         <source>Change Number:</source>
         <translation>Modificar número:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Modificaciones pendientes de P4</translation>
     </message>
     <message>
-        <location/>
         <source>Submit</source>
         <translation>Enviar</translation>
     </message>
     <message>
-        <location/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
@@ -6322,9 +5784,6 @@ en su archivo .pro.</translation>
         <source>Change %1: %2</source>
         <translation>Modificar %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceOutputWindow</name>
     <message>
         <source>Perforce Output</source>
         <translation type="obsolete">Salida de Perforce</translation>
@@ -6333,9 +5792,6 @@ en su archivo .pro.</translation>
         <source>Diff</source>
         <translation type="obsolete">Diferencias</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -6618,54 +6074,39 @@ en su archivo .pro.</translation>
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation>Error ejecutando &quot;where&quot; en %1: El archivo no esta mapeado</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Envío a Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Interacción con Perforce</translation>
     </message>
     <message>
-        <location/>
         <source>OK</source>
         <translation>Ok</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>P4 Command:</source>
         <translation>Comando P4:</translation>
     </message>
     <message>
-        <location/>
         <source>Use default P4 environment variables</source>
         <translation>Usar variables de entorno predefinidas de P4</translation>
     </message>
     <message>
-        <location/>
         <source>Environment variables</source>
         <translation>Variables de entorno</translation>
     </message>
     <message>
-        <location/>
         <source>P4 Client:</source>
         <translation>Cliente P4:</translation>
     </message>
     <message>
-        <location/>
         <source>P4 User:</source>
         <translation>Usuario P4:</translation>
     </message>
     <message>
-        <location/>
         <source>P4 Port:</source>
         <translation>Puerto P4:</translation>
     </message>
@@ -6678,13 +6119,9 @@ en su archivo .pro.</translation>
         <translation>Probar</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
         <translation>Probando...</translation>
@@ -6697,54 +6134,28 @@ en su archivo .pro.</translation>
         <source>Perforce Command</source>
         <translation>Comando Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
     <message>
-        <source>Submit</source>
-        <translation>Enviar</translation>
-    </message>
-    <message>
-        <location/>
         <source>Change:</source>
         <translation>Modificación:</translation>
     </message>
     <message>
-        <location/>
         <source>Client:</source>
         <translation>Cliente:</translation>
     </message>
     <message>
-        <location/>
         <source>User:</source>
         <translation>Usuario:</translation>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Detalles</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Error Details</source>
         <translation>Detalles de errores</translation>
     </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Plugins instalados</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Detalles del plugin %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Errores del plugin %1</translation>
-    </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>El plugin &apos;%1&apos; no existe.</translation>
@@ -6757,9 +6168,6 @@ en su archivo .pro.</translation>
         <source>The option %1 requires an argument.</source>
         <translation>La opción %1 requiere un argumento.</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>&apos;%1&apos; carece del atributo &apos;%2&apos;</translation>
@@ -6832,7 +6240,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -6851,9 +6259,6 @@ Nombre base de librería: %1</translation>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;No se pudo arrancar el proceso %1 &lt;/b&gt;&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Construcción cancelada.&lt;/font&gt;</translation>
@@ -6885,9 +6290,6 @@ Nombre base de librería: %1</translation>
         <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
         <translation>&lt;b&gt;Ejecutando los pasos para construir el proyecto %2...&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation>Ejecutable indicado</translation>
@@ -6900,16 +6302,6 @@ Nombre base de librería: %1</translation>
         <source>Run %1</source>
         <translation>Ejecutar %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Ejecutable indicado</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="unfinished"></translation>
@@ -6930,9 +6322,6 @@ Nombre base de librería: %1</translation>
         <source>&lt;VALUE&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation type="unfinished">&amp;Editar</translation>
@@ -6961,16 +6350,10 @@ Nombre base de librería: %1</translation>
         <source>Summary: No changes to Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation>Archivos en cualquier proyecto</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Todos los proyectos</translation>
@@ -6979,9 +6362,6 @@ Nombre base de librería: %1</translation>
         <source>File &amp;pattern:</source>
         <translation>&amp;Patrón de archivos:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ApplicationLauncher</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation type="obsolete">Fallo intentando iniciar el programa. ¿Ruta o permisos incorrectos?</translation>
@@ -6994,16 +6374,10 @@ Nombre base de librería: %1</translation>
         <source>Some error has occurred while running the program.</source>
         <translation type="obsolete">Ocurrió un error mientras se ejecutaba el programa.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ApplicationRunConfigurationRunner</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Ejecutar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ApplicationRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="obsolete">Iniciando %1...</translation>
@@ -7012,23 +6386,14 @@ Nombre base de librería: %1</translation>
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 finalizó retornando %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
         <source>Build Settings</source>
         <translation>Ajustes de construcción</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPropertiesPage</name>
     <message>
         <source>Configurations</source>
         <translation type="obsolete">Ajustes</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>Create &amp;New</source>
         <translation type="obsolete">Crear &amp;nuevo</translation>
@@ -7081,9 +6446,6 @@ Nombre base de librería: %1</translation>
         <source>Clone configuration</source>
         <translation>Clonar configuración</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>No Build Steps</source>
         <translation type="unfinished"></translation>
@@ -7105,23 +6467,9 @@ Nombre base de librería: %1</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Build Steps</source>
-        <translation>Etapas de construcción</translation>
-    </message>
-    <message>
-        <source>Clean Steps</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
         <source>Compile Output</source>
         <translation>Salida del compilador</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>Cancelar construcción y cerrar</translation>
@@ -7146,16 +6494,10 @@ Nombre base de librería: %1</translation>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
         <translation>¿Quiere cancelar la construcción y cerrar Qt Creator de todos modos?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in current project</source>
         <translation>Archivos en el proyecto actual</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>Proyecto actual</translation>
@@ -7164,9 +6506,6 @@ Nombre base de librería: %1</translation>
         <source>File &amp;pattern:</source>
         <translation>&amp;Patrón de archivo:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
@@ -7219,16 +6558,10 @@ Nombre base de librería: %1</translation>
         <source>Base environment for this runconfiguration:</source>
         <translation type="unfinished">Entorno base para éste ajuste de ejecución:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
     <message>
         <source>Dependencies</source>
         <translation>Dependencias</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
     <message>
         <source>%1 of project %2</source>
         <translation>%1, del proyecto %2</translation>
@@ -7241,23 +6574,17 @@ Nombre base de librería: %1</translation>
         <source>Renaming file %1 to %2 failed.</source>
         <translation>El renombrado del archivo %1 a %2 ha fallado.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
     <message>
         <source>Editor Settings</source>
         <translation>Ajustes de edición</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Default File Encoding:</source>
         <translation>Codificación de caracteres predefinida:</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>Sistema de archivos</translation>
@@ -7268,7 +6595,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>New session name</source>
         <translation>Nuevo nombre de sesión</translation>
@@ -7277,9 +6604,6 @@ Nombre base de librería: %1</translation>
         <source>Enter the name of the new session:</source>
         <translation>Introduzca el nombre para la nueva sesión:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Switch to session</source>
         <translation type="unfinished"></translation>
@@ -7293,28 +6617,21 @@ Nombre base de librería: %1</translation>
         <translation type="obsolete">Seleccione su sesión</translation>
     </message>
     <message>
-        <location/>
         <source>Create New Session</source>
         <translation>Crear nueva sesión</translation>
     </message>
     <message>
-        <location/>
         <source>Clone Session</source>
         <translation>Clonar sesión</translation>
     </message>
     <message>
-        <location/>
         <source>Delete Session</source>
         <translation>Eliminar sesión</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;¿Qué es una sesión?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
     <message>
         <source>Re-run this run-configuration</source>
         <translation>Volver a ejecutar con esta configuración</translation>
@@ -7339,16 +6656,10 @@ Nombre base de librería: %1</translation>
         <source>Unable to close</source>
         <translation>Imposible cerrar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
     <message>
         <source>Application Output Window</source>
         <translation>Ventana de salida de la aplicación</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
     <message>
         <source>Custom Process Step</source>
         <translation>Etapa de construcción definida por el usuario</translation>
@@ -7358,9 +6669,6 @@ Nombre base de librería: %1</translation>
         <comment>item in combobox</comment>
         <translation type="unfinished">Etapa de construcción definida por el usuario</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
         <translation type="unfinished"></translation>
@@ -7369,40 +6677,26 @@ Nombre base de librería: %1</translation>
         <source>(disabled)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Enable custom process step</source>
         <translation type="obsolete">Permitir etapa de construcción personalizada</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>Nombre:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Command:</source>
         <translation>Comando:</translation>
     </message>
     <message>
-        <location/>
         <source>Working Directory:</source>
         <translation>Directorio de trabajo:</translation>
     </message>
     <message>
-        <location/>
         <source>Command Arguments:</source>
         <translation>Argumentos del comando:</translation>
     </message>
     <message>
-        <location/>
         <source>Enable Custom Process Step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
         <source>Build and Run</source>
         <translation>Construir y ejecutar</translation>
@@ -7415,16 +6709,10 @@ Nombre base de librería: %1</translation>
         <source>Projectexplorer</source>
         <translation type="obsolete">Explorador de proyecto</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
         <translation>No se pudo abrir el siguiente proyecto: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Failed to add one or more files to project
 &apos;%1&apos; (%2).</source>
@@ -7435,9 +6723,6 @@ Nombre base de librería: %1</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>Fallo al agregar &apos;%1&apos; al sistema de control de versiones.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation>Simplificar árbol</translation>
@@ -7450,9 +6735,6 @@ Nombre base de librería: %1</translation>
         <source>Synchronize with Editor</source>
         <translation>Sincronizar con el editor</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Proyectos</translation>
@@ -7461,9 +6743,6 @@ Nombre base de librería: %1</translation>
         <source>Filter tree</source>
         <translation>Filtrar árbol</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Project Explorer</source>
         <translation type="obsolete">Explorardor de proyecto</translation>
@@ -7488,9 +6767,6 @@ Nombre base de librería: %1</translation>
         <source>No project loaded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation>Agregar al &amp;VCS (%1)</translation>
@@ -7499,9 +6775,6 @@ Nombre base de librería: %1</translation>
         <source>Files to be added:</source>
         <translation>Archivos a ser agregados:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi</name>
     <message>
         <source>Save all files before Build</source>
         <translation type="obsolete">Guardar todos los archivos antes de construir</translation>
@@ -7514,49 +6787,26 @@ Nombre base de librería: %1</translation>
         <source>Build and Run</source>
         <translation type="obsolete">Construir y ejecutar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Suprimir archivo</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Delete file permanently</source>
         <translation>&amp;Eliminar archivo permanentemente</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Remove from Version Control</source>
         <translation>&amp;Remover del control de versiones</translation>
     </message>
     <message>
-        <location/>
         <source>File to remove:</source>
         <translation>Archivo a suprimir:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
     <message>
         <source>Run Settings</source>
         <translation>Ajustes de ejecución</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished">Agregar</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <source>Run &amp;configuration:</source>
         <translation type="obsolete">Ajuste de eje&amp;cución:</translation>
@@ -7566,7 +6816,6 @@ Nombre base de librería: %1</translation>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>-</source>
         <translation></translation>
     </message>
@@ -7575,13 +6824,9 @@ Nombre base de librería: %1</translation>
         <translation type="obsolete">Ajustes</translation>
     </message>
     <message>
-        <location/>
         <source>Edit run configuration:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
     <message>
         <source>Session</source>
         <translation>Sesión</translation>
@@ -7591,16 +6836,10 @@ Nombre base de librería: %1</translation>
         <comment>default file name to display</comment>
         <translation>Sin título</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Archivo no encontrado: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
         <translation>Construcción</translation>
@@ -7613,9 +6852,6 @@ Nombre base de librería: %1</translation>
         <source>Show Warnings</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation>El proceso no pudo ser iniciado!</translation>
@@ -7624,30 +6860,23 @@ Nombre base de librería: %1</translation>
         <source>Cannot retrieve debugging output!</source>
         <translation>No se pudo obtener salida de depurado!</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation>Gestor de proyectos</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Add to Project</source>
         <translation>&amp;Agregar al proyecto</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Project</source>
         <translation>&amp;Proyecto</translation>
     </message>
     <message>
-        <location/>
         <source>Add to &amp;version control</source>
         <translation>Agregar al control de &amp;versiones</translation>
     </message>
     <message>
-        <location/>
         <source>The following files will be added:
 
 
@@ -7658,13 +6887,6 @@ Nombre base de librería: %1</translation>
 
 
 </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation>Proyectos</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -7729,10 +6951,6 @@ Nombre base de librería: %1</translation>
     <message>
         <source>Close All Projects</source>
         <translation>Cerrar todos los proyectos</translation>
-    </message>
-    <message>
-        <source>Session</source>
-        <translation>Sesión</translation>
     </message>
     <message>
         <source>Set Build Configuration</source>
@@ -7948,9 +7166,6 @@ al control de versiones (%2)?</translation>
         <source>Could not delete file %1.</source>
         <translation>No se pudo eliminar el archivo %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Error restaurando sesión</translation>
@@ -8036,28 +7251,24 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>Ajustes de construcción QMake:</translation>
     </message>
     <message>
-        <location/>
         <source>debug</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>release</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>Additional arguments:</source>
         <translation>Argumentos adicionales:</translation>
     </message>
     <message>
-        <location/>
         <source>Effective qmake call:</source>
         <translation>Llamada qmake efectiva:</translation>
     </message>
@@ -8136,7 +7347,7 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation>Aplicación QML</translation>
@@ -8153,9 +7364,6 @@ al control de versiones (%2)?</translation>
         <source>The project %1 could not be opened.</source>
         <translation>El proyecto %1 no pudo ser abierto.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation>Nuevo proyecto QML</translation>
@@ -8164,9 +7372,6 @@ al control de versiones (%2)?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation>Este asistente genera un proyecto de aplicación QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation>Importación de directorio existente con QML</translation>
@@ -8175,17 +7380,6 @@ al control de versiones (%2)?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation>Crea un proyecto a partir de un directorio existente conteniendo archivos QML.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation>Proyectos</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation>El proyecto %1 no pudo ser abierto.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation>Importación de proyecto QML</translation>
@@ -8202,9 +7396,6 @@ al control de versiones (%2)?</translation>
         <source>Location:</source>
         <translation>Localización:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <source>QML Viewer</source>
         <translation>Visualizador QML</translation>
@@ -8227,7 +7418,7 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulario</translation>
@@ -8237,33 +7428,28 @@ al control de versiones (%2)?</translation>
         <translation>Agregar</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location/>
         <source>Properties</source>
         <translation>Propiedades</translation>
     </message>
     <message>
-        <location/>
         <source>Prefix:</source>
         <translation>Prefijo:</translation>
     </message>
     <message>
-        <location/>
         <source>Language:</source>
         <translation>Idioma:</translation>
     </message>
     <message>
-        <location/>
         <source>Alias:</source>
         <translation>Alias:</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation>Aplicación Qt4 de consola</translation>
@@ -8373,17 +7559,14 @@ al control de versiones (%2)?</translation>
         <translation>Nuevo</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Suprimir</translation>
     </message>
     <message>
-        <location/>
         <source>Up</source>
         <translation>Arriba</translation>
     </message>
     <message>
-        <location/>
         <source>Down</source>
         <translation>Abajo</translation>
     </message>
@@ -8544,7 +7727,6 @@ al control de versiones (%2)?</translation>
         <translation>Nombre de configuración:</translation>
     </message>
     <message>
-        <location/>
         <source>Qt Version:</source>
         <translation>Versión de Qt:</translation>
     </message>
@@ -8553,22 +7735,18 @@ al control de versiones (%2)?</translation>
         <translation type="obsolete">Gestionar versiones de Qt</translation>
     </message>
     <message>
-        <location/>
         <source>This Qt-Version is invalid.</source>
         <translation>Ésta versión de Qt es inválida.</translation>
     </message>
     <message>
-        <location/>
         <source>Shadow Build:</source>
         <translation>Construcción en sombra (shadow build):</translation>
     </message>
     <message>
-        <location/>
         <source>Build Directory:</source>
         <translation>Directorio de construcción:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;import&quot;&gt;Importar ajuste existente&lt;/a&gt;</translation>
     </message>
@@ -8601,7 +7779,6 @@ al control de versiones (%2)?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Tool Chain:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8763,17 +7940,14 @@ al control de versiones (%2)?</translation>
         <translation>Versiones de Qt</translation>
     </message>
     <message>
-        <location/>
         <source>+</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>-</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
@@ -8782,47 +7956,38 @@ al control de versiones (%2)?</translation>
         <translation type="obsolete">Ruta</translation>
     </message>
     <message>
-        <location/>
         <source>Debugging Helper</source>
         <translation>Asistente de depuración</translation>
     </message>
     <message>
-        <location/>
         <source>Version Name:</source>
         <translation>Nombre de versión:</translation>
     </message>
     <message>
-        <location/>
         <source>MinGW Directory:</source>
         <translation>Directorio de MinGW:</translation>
     </message>
     <message>
-        <location/>
         <source>Debugging Helper:</source>
         <translation>Asistente de depuración:</translation>
     </message>
     <message>
-        <location/>
         <source>Show &amp;Log</source>
         <translation>Mostrar &amp;registro</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Rebuild</source>
         <translation>&amp;Reconstruir</translation>
     </message>
     <message>
-        <location/>
         <source>Default Qt Version:</source>
         <translation>Versión preferida de Qt:</translation>
     </message>
     <message>
-        <location/>
         <source>MSVC Version:</source>
         <translation>Versión de MSVC:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -8835,17 +8000,14 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Imposible detectar versión de MSVC.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>QMake Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>QMake Location:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>MWC Directory:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8858,67 +8020,54 @@ p, li { white-space: pre-wrap; }
         <translation>Editar variable</translation>
     </message>
     <message>
-        <location/>
         <source>Variable Name:</source>
         <translation>Nombre de variable:</translation>
     </message>
     <message>
-        <location/>
         <source>Assignment Operator:</source>
         <translation>Operador de asignación:</translation>
     </message>
     <message>
-        <location/>
         <source>Variable:</source>
         <translation>Variable:</translation>
     </message>
     <message>
-        <location/>
         <source>Append (+=)</source>
         <translation>Añadir (+=)</translation>
     </message>
     <message>
-        <location/>
         <source>Remove (-=)</source>
         <translation>Eliminar (-=)</translation>
     </message>
     <message>
-        <location/>
         <source>Replace (~=)</source>
         <translation>Reemplazar (~=)</translation>
     </message>
     <message>
-        <location/>
         <source>Set (=)</source>
         <translation>Establecer (=)</translation>
     </message>
     <message>
-        <location/>
         <source>Unique (*=)</source>
         <translation>Único (*=)</translation>
     </message>
     <message>
-        <location/>
         <source>Select Item</source>
         <translation>Seleccionar item</translation>
     </message>
     <message>
-        <location/>
         <source>Edit Item</source>
         <translation>Editar item</translation>
     </message>
     <message>
-        <location/>
         <source>Select Items</source>
         <translation>Seleccionar items</translation>
     </message>
     <message>
-        <location/>
         <source>Edit Items</source>
         <translation>Editar items</translation>
     </message>
     <message>
-        <location/>
         <source>New</source>
         <translation>Nuevo</translation>
     </message>
@@ -9204,7 +8353,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Locator::ILocatorFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Filtro de configuración</translation>
@@ -9217,9 +8366,6 @@ p, li { white-space: pre-wrap; }
         <source>Prefix:</source>
         <translation>Prefijo:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Filtro genérico de directorios</translation>
@@ -9247,118 +8393,80 @@ p, li { white-space: pre-wrap; }
         <source>%1 filter update: canceled</source>
         <translation>Filtro %1 actualiza: cancelado</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
     </message>
     <message>
-        <location/>
         <source>File Types:</source>
         <translation>Tipos de archivo:</translation>
     </message>
     <message>
-        <location/>
         <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
         <translation>Especifique filtros para nombres de archivos, separados por comas. Los filtros pueden contener comodines.</translation>
     </message>
     <message>
-        <location/>
         <source>Prefix:</source>
         <translation>Prefijo:</translation>
     </message>
     <message>
-        <location/>
         <source>Limit to prefix</source>
         <translation>Límite para el prefijo</translation>
     </message>
     <message>
-        <location/>
         <source>Add...</source>
         <translation>Agregar...</translation>
     </message>
     <message>
-        <location/>
         <source>Edit...</source>
         <translation>Editar...</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Suprimir</translation>
     </message>
     <message>
-        <location/>
         <source>Directories:</source>
         <translation>Directorios:</translation>
     </message>
     <message>
-        <location/>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Especifique una palabra corta o abreviatura que pueda usarse para restringir el completado de archivos de este arbol de directorios.
 Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y luego la palabra a buscar.</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
     <message>
         <source>Files in file system</source>
         <translation>Archivos en el sistema de archivos</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation>Ajustes de filtros</translation>
     </message>
     <message>
-        <location/>
-        <source>Prefix:</source>
-        <translation>Prefijo:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Limit to prefix</source>
         <translation>Limite para el prefijo</translation>
     </message>
     <message>
-        <location/>
         <source>Include hidden files</source>
         <translation>Incluir archivos ocultos</translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation>Documentos abiertos</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Filtros disponibles</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Indexing</source>
         <translation>Indizando</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Refrescar</translation>
@@ -9379,81 +8487,33 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>&lt;type here&gt;</source>
         <translation>&lt;escribalo aquí&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsDialog</name>
     <message>
         <source>Configure Filters</source>
         <translation>Ajustar filtros</translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Agregar</translation>
     </message>
     <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
-    </message>
-    <message>
-        <location/>
         <source> min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Refresh now!</source>
         <translation>Refrescar ahora!</translation>
     </message>
     <message>
-        <location/>
-        <source>Edit...</source>
-        <translation>Editar...</translation>
-    </message>
-    <message>
-        <location/>
         <source>Refresh Interval:</source>
         <translation>Intervalo de refresco:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (Prefix: %2)</source>
         <translation>%1 (Prefijo: %2)</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
-        <source>Configure Filters</source>
-        <translation>Ajustar filtros</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Add</source>
-        <translation>Agregar</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
-    </message>
-    <message>
-        <location/>
         <source>Edit</source>
         <translation>Editar</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Refresh Interval:</source>
-        <translation>Intervalo de refresco:</translation>
-    </message>
-    <message>
-        <location/>
-        <source> min</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9540,7 +8600,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Create a Qt Resource file (.qrc).</source>
         <translation type="obsolete">Crear un archivo de recursos Qt (.qrc).</translation>
@@ -9565,27 +8625,22 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>&amp;Redo</source>
         <translation>&amp;Rehacer</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>sin título</translation>
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Guardar cambios</translation>
     </message>
     <message>
-        <location/>
         <source>The following files have unsaved changes:</source>
         <translation>Los siguientes archivos tienen cambios sin guardar:</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically save all files before building</source>
         <translation>Guardar cambios automáticamente antes de construir</translation>
     </message>
@@ -9597,13 +8652,12 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <translation>Opciones</translation>
     </message>
     <message>
-        <location/>
         <source>0</source>
         <translation></translation>
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Agregar archivos</translation>
@@ -9652,9 +8706,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Could not copy the file to %1.</source>
         <translation>No se pudo copiar el archivo a %1.</translation>
     </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation>Agregar archivos...</translation>
@@ -9700,78 +8751,51 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <translation>Cambiar idioma</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation>Idioma:</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation>Cambiar alias de archivo</translation>
     </message>
-    <message>
-        <source>Alias:</source>
-        <translation>Alias:</translation>
-    </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Atajos de teclado</translation>
     </message>
     <message>
-        <location/>
-        <source>Filter:</source>
-        <translation>Filtro:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Command</source>
         <translation>Comando</translation>
     </message>
     <message>
-        <location/>
         <source>Label</source>
         <translation>Etiqueta</translation>
     </message>
     <message>
-        <location/>
         <source>Shortcut</source>
         <translation>Atajo</translation>
     </message>
     <message>
-        <location/>
         <source>Defaults</source>
         <translation>Predefinidos</translation>
     </message>
     <message>
-        <location/>
         <source>Import...</source>
         <translation>Importar...</translation>
     </message>
     <message>
-        <location/>
         <source>Export...</source>
         <translation>Exportar...</translation>
     </message>
     <message>
-        <location/>
         <source>Key Sequence</source>
         <translation>Secuencia de teclas</translation>
     </message>
     <message>
-        <location/>
         <source>Shortcut:</source>
         <translation>Atajo:</translation>
     </message>
     <message>
-        <location/>
         <source>Reset</source>
         <translation>Restablecer</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
     </message>
 </context>
 <context>
@@ -9783,86 +8807,50 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Snippets</source>
         <translation>Fragmentos</translation>
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsWindow</name>
+    <name>QtC::Debugger</name>
     <message>
-        <source>Snippets</source>
-        <translation>Fragmentos</translation>
-    </message>
-</context>
-<context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Iniciar depurador</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Executable:</source>
-        <translation>Ejecutable:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Arguments:</source>
-        <translation>Argumentos:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Break at &apos;main&apos;:</source>
         <translation>Interrumpir en &apos;main&apos;:</translation>
     </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
     <message>
-        <source>Start Debugger</source>
-        <translation>Iniciar depurador</translation>
-    </message>
-    <message>
-        <location/>
         <source>Architecture:</source>
         <translation>Arquitectura:</translation>
     </message>
     <message>
-        <location/>
         <source>Host and port:</source>
         <translation>Anfitrión y puerto:</translation>
     </message>
     <message>
-        <location/>
         <source>Use server start script:</source>
         <translation>Usar guion de inicio en servidor:</translation>
     </message>
     <message>
-        <location/>
         <source>Server start script:</source>
         <translation>Guión de inicio:</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Subversion Command:</source>
         <translation>Comando Subversion:</translation>
     </message>
     <message>
-        <location/>
         <source>Authentication</source>
         <translation>Autenticación</translation>
     </message>
     <message>
-        <location/>
         <source>User name:</source>
         <translation>Nombre de usuario:</translation>
     </message>
     <message>
-        <location/>
         <source>Password:</source>
         <translation>Contraseña:</translation>
     </message>
@@ -9874,16 +8862,10 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Comando Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionOutputWindow</name>
     <message>
         <source>Subversion Output</source>
         <translation type="obsolete">Salida de Subversion</translation>
@@ -9892,9 +8874,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Subversion</source>
         <translation type="obsolete">Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation></translation>
@@ -10080,16 +9059,13 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation>Subversion no ha respondido en el tiempo esperado (%1 ms). </translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Envíar a Subversion</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 encontrado</translation>
@@ -10102,9 +9078,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Use Regular E&amp;xpressions</source>
         <translation>Usar &amp;expresiones regulares</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>sin título</translation>
@@ -10113,9 +9086,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation>&lt;em&gt;Datos binarios&lt;/em&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Print Document</source>
         <translation>Imprimir documento</translation>
@@ -10128,9 +9098,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Select Encoding</source>
         <translation>Seleccióne codificación</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>Línea: %1, Col: %2</translation>
@@ -10139,178 +9106,138 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Line: %1, Col: 999</source>
         <translation>Línea: %1, Col: 999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Storage</source>
         <translation>Almacenamiento</translation>
     </message>
     <message>
-        <location/>
         <source>Removes trailing whitespace on saving.</source>
         <translation>Suprime espacios en blanco al guardar.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Clean whitespace</source>
         <translation>Suprimir espa&amp;cios en blanco</translation>
     </message>
     <message>
-        <location/>
         <source>Clean whitespace in entire document instead of only for changed parts.</source>
         <translation>Suprimir espacios en blanco en todo el documento en vez de solo en partes modificadas.</translation>
     </message>
     <message>
-        <location/>
         <source>In entire &amp;document</source>
         <translation>En todo el &amp;documento</translation>
     </message>
     <message>
-        <location/>
         <source>Correct leading whitespace according to tab settings.</source>
         <translation>Corregir sangrado conforme a ajustes.</translation>
     </message>
     <message>
-        <location/>
         <source>Clean indentation</source>
         <translation>Indentación limpia</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Ensure newline at end of file</source>
         <translation>Pon&amp;er un salto de línea al final del archivo</translation>
     </message>
     <message>
-        <location/>
         <source>Tabs and Indentation</source>
         <translation>Sangrado e indentación</translation>
     </message>
     <message>
-        <location/>
         <source>Ta&amp;b size:</source>
         <translation>Tamaño de ta&amp;bulación:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Indent size:</source>
         <translation>Tamaño de &amp;indentación:</translation>
     </message>
     <message>
-        <location/>
         <source>Backspace will go back one indentation level instead of one space.</source>
         <translation>La tecla retroceso remueve un nivel de indentación en vez de un espacio.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Backspace follows indentation</source>
         <translation>Tecla retr&amp;oceso sigue la indentación</translation>
     </message>
     <message>
-        <location/>
         <source>Insert &amp;spaces instead of tabs</source>
         <translation>Insertar e&amp;spacios en vez de tabulaciones</translation>
     </message>
     <message>
-        <location/>
         <source>Enable automatic &amp;indentation</source>
         <translation>Activar i&amp;ndentación automática</translation>
     </message>
     <message>
-        <location/>
         <source>Tab key performs auto-indent:</source>
         <translation>La tecla de tabulación autoindentará:</translation>
     </message>
     <message>
-        <location/>
         <source>Never</source>
         <translation>Nunca</translation>
     </message>
     <message>
-        <location/>
         <source>Always</source>
         <translation>Siempre</translation>
     </message>
     <message>
-        <location/>
         <source>In leading white space</source>
         <translation>Cuando empiece con un espacio</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Mostrar</translation>
     </message>
     <message>
-        <location/>
         <source>Display line &amp;numbers</source>
         <translation>Mostrar &amp;números de línea</translation>
     </message>
     <message>
-        <location/>
         <source>Display &amp;folding markers</source>
         <translation>Mostrar marcadores de ple&amp;gado</translation>
     </message>
     <message>
-        <location/>
         <source>Show tabs and spaces.</source>
         <translation>Mostrar tabulaciones y espacios.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Visualize whitespace</source>
         <translation>&amp;Visualizar espacios en blanco</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight current &amp;line</source>
         <translation>Resaltar &amp;línea actual</translation>
     </message>
     <message>
-        <location/>
         <source>Text Wrapping</source>
         <translation>Ajuste de texto</translation>
     </message>
     <message>
-        <location/>
         <source>Enable text &amp;wrapping</source>
         <translation>Activar ajuste de te&amp;xto</translation>
     </message>
     <message>
-        <location/>
         <source>Display right &amp;margin at column:</source>
         <translation>Mostrar &amp;margen derecho en columna:</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight &amp;blocks</source>
         <translation>Resaltar &amp;bloques</translation>
     </message>
     <message>
-        <location/>
         <source>Animate matching parentheses</source>
         <translation>Animar pareo de paréntesis</translation>
     </message>
     <message>
-        <location/>
         <source>Navigation</source>
         <translation>Navegación</translation>
     </message>
     <message>
-        <location/>
         <source>Enable &amp;mouse navigation</source>
         <translation>Activar navegación con el &amp;ratón</translation>
     </message>
     <message>
-        <location/>
         <source>Mark text changes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation>Fuentes &amp; colores</translation>
@@ -10356,9 +9283,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         This is only an example.</source>
         <translation type="obsolete">Esto es simplemente un ejemplo.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Codificación de caracteres</translation>
@@ -10380,16 +9304,10 @@ The following encodings are likely to fit:</source>
         <source>Save with Encoding</source>
         <translation>Guardar con codificación</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Archivo actual</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on Disk</source>
         <translation>Archivos en disco</translation>
@@ -10410,25 +9328,19 @@ The following encodings are likely to fit:</source>
         <source>Directory to search</source>
         <translation>Directorio a buscar</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Fuente</translation>
     </message>
     <message>
-        <location/>
         <source>Family:</source>
         <translation>Familia:</translation>
     </message>
     <message>
-        <location/>
         <source>Size:</source>
         <translation>Tamaño:</translation>
     </message>
     <message>
-        <location/>
         <source>Color Scheme</source>
         <translation>Esquema de colores</translation>
     </message>
@@ -10457,23 +9369,17 @@ The following encodings are likely to fit:</source>
         <translation type="obsolete">Previsualización:</translation>
     </message>
     <message>
-        <location/>
         <source>Antialias</source>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>Copy...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Delete</source>
         <translation type="unfinished">Suprimir</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in current document</source>
         <translation>Línea en el documento actual</translation>
@@ -10482,9 +9388,6 @@ The following encodings are likely to fit:</source>
         <source>Line %1</source>
         <translation>Línea %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation>Crea un archivo de texto (.txt).</translation>
@@ -10517,9 +9420,6 @@ The following encodings are likely to fit:</source>
         <source>Alt+Return</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>Des&amp;hacer</translation>
@@ -10704,9 +9604,6 @@ The following encodings are likely to fit:</source>
         <source>&lt;line number&gt;</source>
         <translation>&lt;número de línea&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Texto</translation>
@@ -10833,7 +9730,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Elija un tópico para &lt;b&gt;%1&lt;/b&gt;:</translation>
@@ -10843,23 +9740,20 @@ The following encodings are likely to fit:</source>
         <translation>Elegir tópico</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Topics</source>
         <translation>&amp;Tópicos</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Display</source>
         <translation>&amp;Desplegar</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Close</source>
         <translation>&amp;Cerrar</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Control de versiones</translation>
@@ -10868,9 +9762,6 @@ The following encodings are likely to fit:</source>
         <source>Common</source>
         <translation>Común</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Nombre</translation>
@@ -10891,9 +9782,6 @@ The following encodings are likely to fit:</source>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation>No se pudo abrir &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Estado</translation>
@@ -10902,16 +9790,10 @@ The following encodings are likely to fit:</source>
         <source>File</source>
         <translation>Archivo</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Describe change %1</source>
         <translation>Describa modificaciones %1</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation>Mensaje para la revisión</translation>
@@ -10944,60 +9826,39 @@ The following encodings are likely to fit:</source>
         <source>The check script returned exit code %1.</source>
         <translation>El script de comprobación retornó el valor %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Preguntar antes de enviar</translation>
     </message>
     <message>
-        <source>Common</source>
-        <translation>Común</translation>
-    </message>
-    <message>
-        <location/>
         <source>Wrap submit message at:</source>
         <translation>Longitud máxima de líneas (en caracteres):</translation>
     </message>
     <message>
-        <location/>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
         <translation>Un ejecutable que es invocado con un archivo (temporal, conteniendo el mensaje) como primer argumento. Para indicar falla, debe retornar un valor distinto de 0 y volcar un mensaje en la salida de error estándar.</translation>
     </message>
     <message>
-        <location/>
         <source>Submit message check script:</source>
         <translation>Script de comprobación de mensaje de envío:</translation>
     </message>
     <message>
-        <location/>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
         <translation>Una lista de nombres de usuario y direcciones de email en un formato mailmap de 4 columnas:
 nombre &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>User/alias configuration file:</source>
         <translation>Archivo de configuración usuario/alias:</translation>
     </message>
     <message>
-        <location/>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
         <translation>Un archivo simple conteniendo líneas con campos como &quot;Revisado-Por:&quot; que será agregado al editor de mensajes.</translation>
     </message>
     <message>
-        <location/>
         <source>User fields configuration file:</source>
         <translation>Archivo de configuración de campos de usuario:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Control de versiones</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -11032,22 +9893,18 @@ Nota: Puede que se elimine la copia local del archivo.</translation>
         <translation>Enviar a CodePaster</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Username:</source>
         <translation>&amp;Usuario:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;Username&gt;</source>
         <translation>&lt;Usuario&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Description:</source>
         <translation>&amp;Descripción:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;Description&gt;</source>
         <translation>&lt;Descripción&gt;</translation>
     </message>
@@ -11066,22 +9923,18 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Partes a enviar a CodePaster</translation>
     </message>
     <message>
-        <location/>
         <source>Patch 1</source>
         <translation>Parche 1</translation>
     </message>
     <message>
-        <location/>
         <source>Patch 2</source>
         <translation>Parche 2</translation>
     </message>
     <message>
-        <location/>
         <source>Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -11090,7 +9943,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Parts to send to server</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11102,56 +9954,48 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Text1:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>N/A</source>
         <translation type="unfinished">No presente</translation>
     </message>
     <message>
-        <location/>
         <source>Text2:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Text3:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>CheckBox</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <location/>
         <source>Server Prefix:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -11162,33 +10006,28 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
     </message>
     <message>
-        <location/>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Describe all files matching commit id:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>CVS Command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>CVS Root:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Diff Options:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11198,90 +10037,75 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <location/>
         <source>Gdb</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Symbian ARM gdb location:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Cygwin location:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Communication</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Serial Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Bluetooth</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Device:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <location/>
         <source>Embedding of the UI Class</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation as a pointer member</source>
         <translation type="unfinished">Agregar como miempro puntero</translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation</source>
         <translation type="unfinished">Agregar como miembro</translation>
     </message>
     <message>
-        <location/>
         <source>Multiple Inheritance</source>
         <translation type="unfinished">Herencia múltiple</translation>
     </message>
     <message>
-        <location/>
         <source>Code Generation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Support for changing languages at runtime</source>
         <translation type="unfinished">Permitir el cambio de idioma en tiempo de ejecución</translation>
     </message>
     <message>
-        <location/>
         <source>Use Qt module name in #include-directive</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11316,17 +10140,14 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation type="unfinished">Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Keep updating</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11346,12 +10167,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation type="unfinished">Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11393,157 +10212,127 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
+    <name>QtC::Help</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <location/>
         <source>Font</source>
         <translation type="unfinished">Fuente</translation>
     </message>
     <message>
-        <location/>
         <source>Family:</source>
         <translation type="unfinished">Familia:</translation>
     </message>
     <message>
-        <location/>
         <source>Style:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Size:</source>
         <translation type="unfinished">Tamaño:</translation>
     </message>
     <message>
-        <location/>
         <source>Startup</source>
         <translation type="unfinished">Inicio</translation>
     </message>
     <message>
-        <location/>
         <source>On context help:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show side-by-side if possible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Always show side-by-side</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Always start full help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>On help start:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show my home page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show a blank page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show my tabs from last session</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Home Page:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use &amp;Current Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use &amp;Blank Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Restore to Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Help Bookmarks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Import...</source>
         <translation type="unfinished">Importar...</translation>
     </message>
     <message>
-        <location/>
         <source>Export...</source>
         <translation type="unfinished">Exportar...</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation type="unfinished">Construir y ejecutar</translation>
     </message>
     <message>
-        <location/>
         <source>Save all files before Build</source>
         <translation type="unfinished">Guardar todos los archivos antes de construir</translation>
     </message>
     <message>
-        <location/>
         <source>Always build Project before Running</source>
         <translation type="unfinished">Siempre construir el proyecto antes de ejecutar</translation>
     </message>
     <message>
-        <location/>
         <source>Show Compiler Output on building</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use jom instead of nmake</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <location/>
         <source>Manage Sessions...</source>
         <translation type="unfinished">Gestionar sesiones...</translation>
     </message>
     <message>
-        <location/>
         <source>Create New Project...</source>
         <translation type="unfinished">Crear un nuevo proyecto...</translation>
     </message>
@@ -11565,130 +10354,107 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <location/>
         <source>The header file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget librar&amp;y:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget project &amp;file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget h&amp;eader file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>The header file has to be specified in source code.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widge&amp;t source file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget &amp;base class:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>QWidget</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin class &amp;name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin &amp;header file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin sou&amp;rce file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Icon file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Link library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Create s&amp;keleton</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Include pro&amp;ject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>G&amp;roup:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Tooltip:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>W&amp;hat&apos;s this:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>The widget is a &amp;container</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Property defa&amp;ults</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>dom&amp;XML:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11705,42 +10471,34 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin and Collection Class Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Specify the properties of the plugin library and the collection class.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Collection class:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Collection header file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Collection source file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Resource file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>icons.qrc</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11749,30 +10507,25 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Custom Widget List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget &amp;Classes:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Specify the list of custom widgets and their properties.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
-        <location/>
         <source>Examples not installed</source>
         <translation type="unfinished">Ejemplos no instalados</translation>
     </message>
     <message>
-        <location/>
         <source>Open</source>
         <translation type="unfinished">Abrir</translation>
     </message>
@@ -11895,24 +10648,20 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
-        <location/>
         <source>Installed S60 SDKs:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>SDK Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Qt Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Refresh</source>
         <translation type="unfinished">Refrescar</translation>
     </message>
@@ -11922,56 +10671,49 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation type="unfinished">Negritas</translation>
     </message>
     <message>
-        <location/>
         <source>Italic</source>
         <translation type="unfinished">Itálicas</translation>
     </message>
     <message>
-        <location/>
         <source>Background:</source>
         <translation type="unfinished">Fondo:</translation>
     </message>
     <message>
-        <location/>
         <source>Foreground:</source>
         <translation type="unfinished">Texto:</translation>
     </message>
     <message>
-        <location/>
         <source>Erase background</source>
         <translation type="unfinished">Limpiar fondo</translation>
     </message>
     <message>
-        <location/>
         <source>x</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Checkout Directory:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
         <translation type="unfinished">Ruta:</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="unfinished">Novedades desde los laboratorios de Qt</translation>
@@ -12012,7 +10754,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>#headerFrame {
     border-image: url(:/welcome/images/center_frame_header.png) 0;
     border-width: 0;
@@ -12021,12 +10762,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Help us make Qt Creator even better</source>
         <translation type="unfinished">Ayúdenos a hacer Qt Creator aún mejor</translation>
     </message>
     <message>
-        <location/>
         <source>Feedback</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12036,14 +10775,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::DetailsButton</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Show Details</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation type="unfinished"></translation>
@@ -12060,9 +10799,6 @@ p, li { white-space: pre-wrap; }
         <source>.pro File Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
@@ -12073,7 +10809,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>No such paste</source>
         <translation type="unfinished"></translation>
@@ -12086,27 +10822,14 @@ p, li { white-space: pre-wrap; }
         <source>Server:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComProtocol</name>
     <message>
         <source>Error during paste</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComSettings</name>
     <message>
         <source>Pastebin.com</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PasteView</name>
     <message>
         <source>Paste</source>
         <translation type="unfinished">Pegar</translation>
@@ -12125,7 +10848,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -12152,16 +10875,13 @@ p, li { white-space: pre-wrap; }
         <source>Cannot write to %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="unfinished"></translation>
@@ -12416,7 +11136,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Memory $</source>
         <translation type="unfinished"></translation>
@@ -12435,9 +11155,6 @@ p, li { white-space: pre-wrap; }
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Attached to core temporarily.</source>
         <translation type="unfinished"></translation>
@@ -12626,14 +11343,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>untitled</source>
         <translation type="unfinished">sin título</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="unfinished"></translation>
@@ -12692,7 +11409,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>General settings</source>
         <translation type="unfinished">Ajustes generales</translation>
@@ -12727,7 +11444,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation type="unfinished">Fallo intentando iniciar el programa. ¿Ruta o permisos incorrectos?</translation>
@@ -12740,16 +11457,10 @@ p, li { white-space: pre-wrap; }
         <source>Some error has occurred while running the program.</source>
         <translation type="unfinished">Ocurrió un error mientras se ejecutaba el programa.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="unfinished">Ejecutar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="unfinished">Iniciando %1...</translation>
@@ -12758,9 +11469,6 @@ p, li { white-space: pre-wrap; }
         <source>%1 exited with code %2</source>
         <translation type="unfinished">%1 finalizó retornando %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation type="unfinished"></translation>
@@ -12800,23 +11508,14 @@ Reason: %2</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation type="unfinished">Desarrollar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
     <message>
         <source>Active run configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
     <message>
         <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
@@ -12825,9 +11524,6 @@ Reason: %2</source>
         <source>No Project loaded</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
     <message>
         <source>Select Project</source>
         <translation type="unfinished"></translation>
@@ -12926,14 +11622,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation type="unfinished"></translation>
@@ -12972,14 +11668,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="unfinished">Comenzar con Qt</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>%1 on Device</source>
         <translation type="unfinished"></translation>
@@ -13180,7 +11876,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation type="unfinished"></translation>
@@ -13189,9 +11885,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Subversion Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository, checkout directory and path.</source>
         <translation type="unfinished"></translation>
@@ -13202,21 +11895,18 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation type="unfinished"></translation>
@@ -13241,9 +11931,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>The process terminated with exit code %1.</source>
         <translation type="unfinished"></translation>
@@ -13260,9 +11947,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Stopping...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout started...</source>
         <translation type="unfinished"></translation>
@@ -13275,9 +11959,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Succeeded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Clear</source>
         <translation type="unfinished">Limpiar</translation>
@@ -13288,7 +11969,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Community</source>
         <translation type="unfinished">Comunidad</translation>

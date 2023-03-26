@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfprofilerstatisticsmodel.h"
 #include "perfprofilertr.h"
@@ -12,19 +12,19 @@ namespace PerfProfiler {
 namespace Internal {
 
 static const char *headerLabels[] = {
-    QT_TRANSLATE_NOOP("PerfProfiler", "Address"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Function"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Source Location"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Binary Location"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Caller"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Callee"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Occurrences"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Occurrences in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Recursion in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Samples"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Samples in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Self Samples"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Self in Percent")
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Address"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Function"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Source Location"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Binary Location"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Caller"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Callee"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Occurrences"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Occurrences in Percent"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Recursion in Percent"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Samples"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Samples in Percent"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Self Samples"),
+    QT_TRANSLATE_NOOP("QtC::PerfProfiler", "Self in Percent")
 };
 
 Q_STATIC_ASSERT(sizeof(headerLabels) ==

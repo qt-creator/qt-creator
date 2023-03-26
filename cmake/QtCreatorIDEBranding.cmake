@@ -1,7 +1,7 @@
-set(IDE_VERSION "9.0.2")                              # The IDE version.
-set(IDE_VERSION_COMPAT "9.0.0")                       # The IDE Compatibility version.
-set(IDE_VERSION_DISPLAY "9.0.2")                      # The IDE display version.
-set(IDE_COPYRIGHT_YEAR "2022")                        # The IDE current copyright year.
+set(IDE_VERSION "10.0.0")                             # The IDE version.
+set(IDE_VERSION_COMPAT "10.0.0")                      # The IDE Compatibility version.
+set(IDE_VERSION_DISPLAY "10.0.0")                     # The IDE display version.
+set(IDE_COPYRIGHT_YEAR "2023")                        # The IDE current copyright year.
 
 set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
 set(IDE_DISPLAY_NAME "Qt Creator")                    # The IDE display name.

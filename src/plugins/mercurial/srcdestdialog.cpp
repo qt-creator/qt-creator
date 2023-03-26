@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "authenticationdialog.h"
 
@@ -89,13 +89,13 @@ QString SrcDestDialog::getRepositoryString() const
             if (authDialog->exec()== 0)
                 return repoUrl.toString();
 
-            QString user = authDialog->getUserName();
+            const QString user = authDialog->getUserName();
             if (user.isEmpty())
                 return repoUrl.toString();
             if (user != repoUrl.userName())
                 repoUrl.setUserName(user);
 
-            QString pass = authDialog->getPassword();
+            const QString pass = authDialog->getPassword();
             if (!pass.isEmpty() && pass != repoUrl.password())
                 repoUrl.setPassword(pass);
         }

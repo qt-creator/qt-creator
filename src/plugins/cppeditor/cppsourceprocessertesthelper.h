@@ -1,10 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <QtGlobal>
 #include <QString>
+
+namespace Utils { class FilePath; }
 
 namespace CppEditor::Tests::Internal {
 
@@ -16,8 +18,8 @@ public:
     static QString includeBaseDirectory();
     static QString globalQtCoreIncludePath();
     static QString globalIncludePath();
-    static QString directoryOfTestFile();
-    static QString testFilePath(const QString &fileName = QLatin1String("file.cpp"));
+    static Utils::FilePath directoryOfTestFile();
+    static Utils::FilePath testFilePath(const QString &fileName = QLatin1String("file.cpp"));
 };
 
-} // namespace CppEditor::Tests::Internal
+} // CppEditor::Tests::Internal

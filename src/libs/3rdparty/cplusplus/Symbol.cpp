@@ -34,7 +34,9 @@
 
 #include <utils/link.h>
 
-using namespace CPlusPlus;
+using namespace Utils;
+
+namespace CPlusPlus {
 
 class Symbol::HashCode: protected NameVisitor
 {
@@ -166,6 +168,12 @@ const char *Symbol::fileName() const
 int Symbol::fileNameLength() const
 { return _fileId ? _fileId->size() : 0; }
 
+Utils::FilePath Symbol::filePath() const
+{
+    return _fileId ? Utils::FilePath::fromUtf8(_fileId->chars(), _fileId->size())
+                   : Utils::FilePath();
+}
+
 const Name *Symbol::unqualifiedName() const
 {
     if (! _name)
@@ -280,10 +288,8 @@ void Symbol::copy(Symbol *other)
     _isDeprecated = other->_isDeprecated;
 }
 
-Utils::Link Symbol::toLink() const
+Link Symbol::toLink() const
 {
-    const QString filename = QString::fromUtf8(fileName(), fileNameLength());
-
     int line = this->line();
     int column = this->column();
 
@@ -293,5 +299,7 @@ Utils::Link Symbol::toLink() const
     if (isGenerated())
         column = 0;
 
-    return Utils::Link(Utils::FilePath::fromString(filename), line, column);
+    return Link(filePath(), line, column);
 }
+
+} // CPlusPlus

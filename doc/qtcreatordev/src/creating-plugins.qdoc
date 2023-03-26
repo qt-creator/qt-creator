@@ -38,6 +38,12 @@
         \li \l{Distributing Plugins}
     \endlist
 
+    \section1 Topics
+
+    \list
+        \li \l{Adding Tests}
+    \endlist
+
     \section1 Design Principles
 
     \list

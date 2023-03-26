@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -76,6 +76,7 @@ public:
     static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
     static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
+    static PluginSpec *specForPlugin(IPlugin *plugin);
 
     // Settings
     static void setSettings(Utils::QtcSettings *settings);

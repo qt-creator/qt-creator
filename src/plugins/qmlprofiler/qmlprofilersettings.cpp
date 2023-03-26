@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerplugin.h"
@@ -9,6 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <debugger/analyzer/analyzericons.h>
+#include <debugger/debuggertr.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -82,7 +83,7 @@ QmlProfilerOptionsPage::QmlProfilerOptionsPage()
     setId(Constants::SETTINGS);
     setDisplayName(Tr::tr("QML Profiler"));
     setCategory("T.Analyzer");
-    setDisplayCategory(Tr::tr("Analyzer"));
+    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 }
 

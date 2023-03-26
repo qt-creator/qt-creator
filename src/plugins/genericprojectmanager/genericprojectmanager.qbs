@@ -33,6 +33,7 @@ QtcPlugin {
         "genericprojectconstants.h",
         "genericprojectfileseditor.cpp",
         "genericprojectfileseditor.h",
+        "genericprojectmanagertr.h",
         "genericprojectplugin.cpp",
         "genericprojectplugin.h",
         "genericprojectwizard.cpp",

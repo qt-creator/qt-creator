@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeeditor.h"
 
@@ -10,6 +10,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreplugintr.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 
@@ -219,12 +220,12 @@ static TextDocument *createCMakeDocument()
 CMakeEditorFactory::CMakeEditorFactory()
 {
     setId(Constants::CMAKE_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "CMake Editor"));
+    setDisplayName(::Core::Tr::tr("CMake Editor"));
     addMimeType(Constants::CMAKE_MIMETYPE);
     addMimeType(Constants::CMAKE_PROJECT_MIMETYPE);
 
-    setEditorCreator([]() { return new CMakeEditor; });
-    setEditorWidgetCreator([]() { return new CMakeEditorWidget; });
+    setEditorCreator([] { return new CMakeEditor; });
+    setEditorWidgetCreator([] { return new CMakeEditorWidget; });
     setDocumentCreator(createCMakeDocument);
     setIndenterCreator([](QTextDocument *doc) { return new CMakeIndenter(doc); });
     setUseGenericHighlighter(true);
@@ -232,7 +233,7 @@ CMakeEditorFactory::CMakeEditorFactory()
     setCodeFoldingSupported(true);
 
     setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
-    setAutoCompleterCreator([]() { return new CMakeAutoCompleter; });
+    setAutoCompleterCreator([] { return new CMakeAutoCompleter; });
 
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor

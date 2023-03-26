@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nodeinstancesignalspy.h"
 #include "objectnodeinstance.h"
@@ -87,7 +87,8 @@ int NodeInstanceSignalSpy::qt_metacall(QMetaObject::Call call, int methodId, voi
         ObjectNodeInstance::Pointer nodeInstance = m_objectNodeInstance.toStrongRef();
 
         if (nodeInstance && nodeInstance->nodeInstanceServer() && nodeInstance->isValid()) {
-            foreach (const PropertyName &propertyName, m_indexPropertyHash.values(methodId))
+            const QList<PropertyName> values = m_indexPropertyHash.values(methodId);
+            for (const PropertyName &propertyName : values)
                 nodeInstance->nodeInstanceServer()->notifyPropertyChange(nodeInstance->instanceId(), propertyName);
         }
 

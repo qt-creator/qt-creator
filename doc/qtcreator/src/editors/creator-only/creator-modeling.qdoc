@@ -15,10 +15,9 @@
     \title Modeling
 
     You can use the model editor to create Universal Modeling Language (UML)
-    style models with structured and behavioral diagrams that provide different
-    views of your system. However, the editor uses a variant of UML and only a
-    subset of properties are provided for specifying the appearance of model
-    elements.
+    style models with structured and behavioral diagrams that offer different
+    views to your system. However, the editor uses a variant of UML and has only
+    a subset of properties for specifying the appearance of model elements.
 
     Structural diagrams represent the static aspect of the system and are
     therefore stable, whereas behavioral diagrams have both static and dynamic
@@ -31,9 +30,9 @@
             and visualize how the system is packaged.
         \li Class diagrams, which consists of classes, dependencies,
             inheritance, associations, aggregation, and composition, and
-            provide an object-oriented view of a system.
+            show a system in an object-oriented way.
         \li Component diagrams, which represent a set of components and their
-            relationships, and provide an implementation view of a system.
+            relationships, and show the implementation of a system.
         \li Deployment diagrams, which represent a set of software and hardware
             components and their relationships, and visualize the deployment
             of a system.
@@ -52,7 +51,7 @@
 
     \section1 Using the Model Editor
 
-    You can create models that contain several different structural or
+    You can create models that have several different structural or
     behavioral diagrams.
     You can add elements to the diagrams and specify properties for them. You
     can either use standard model elements or add your own elements with custom
@@ -388,7 +387,7 @@
 
     \section1 Adding Custom Elements
 
-    The model editor provides the following built-in element types: package,
+    The model editor has the following built-in element types: package,
     component, class, and item. For package, component, and class elements, you
     can specify custom icons. The color, size, and form of the icon are
     determined by a stereotype. If you attach the stereotype to an element, the
@@ -432,7 +431,7 @@
 
     You can add your own definition file and save it with the file extension
     \e .def to add custom colors and icons for stereotypes, elements, or tool
-    bars. Either store this file in the the same directory as the
+    bars. Either store this file in the same directory as the
     \e standard.def file or select the root element of a model and apply your
     \e .def file to the property \uicontrol {Config path}.
 

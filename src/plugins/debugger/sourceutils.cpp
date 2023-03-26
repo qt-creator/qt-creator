@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sourceutils.h"
 
 #include "debuggerinternalconstants.h"
 #include "debuggerengine.h"
+#include "debuggertr.h"
 #include "disassemblerlines.h"
 #include "watchdata.h"
 #include "watchutils.h"
@@ -220,10 +221,10 @@ QStringList getUninitializedVariables(const Snapshot &snapshot,
     return result;
 }
 
-QString cppFunctionAt(const QString &fileName, int line, int column)
+QString cppFunctionAt(const FilePath &filePath, int line, int column)
 {
     const Snapshot snapshot = CppModelManager::instance()->snapshot();
-    if (const Document::Ptr document = snapshot.document(fileName))
+    if (const Document::Ptr document = snapshot.document(filePath))
         return document->functionAt(line, column);
 
     return QString();
@@ -238,9 +239,9 @@ QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
     if (function)
         function->clear();
 
-    const QString fileName = editorWidget->textDocument()->filePath().toString();
+    const FilePath filePath = editorWidget->textDocument()->filePath();
     const Snapshot snapshot = CppModelManager::instance()->snapshot();
-    const Document::Ptr document = snapshot.document(fileName);
+    const Document::Ptr document = snapshot.document(filePath);
     QTextCursor tc = editorWidget->textCursor();
     QString expr;
     if (tc.hasSelection() && pos >= tc.selectionStart() && pos <= tc.selectionEnd()) {
@@ -333,7 +334,9 @@ class DebuggerValueMark : public TextEditor::TextMark
 {
 public:
     DebuggerValueMark(const FilePath &fileName, int lineNumber, const QString &value)
-        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_VALUE)
+        : TextMark(fileName,
+                   lineNumber,
+                   {Tr::tr("Debugger Value"), Constants::TEXT_MARK_CATEGORY_VALUE})
     {
         setPriority(TextEditor::TextMark::HighPriority);
         setToolTipProvider([] { return QString(); });
@@ -374,7 +377,7 @@ static void setValueAnnotationsHelper(BaseTextEditor *textEditor,
     TextDocument *textDocument = widget->textDocument();
     const FilePath filePath = loc.fileName();
     const Snapshot snapshot = CppModelManager::instance()->snapshot();
-    const Document::Ptr cppDocument = snapshot.document(filePath.toString());
+    const Document::Ptr cppDocument = snapshot.document(filePath);
     if (!cppDocument) // For non-C++ documents.
         return;
 

@@ -57,7 +57,7 @@
 
     \section1 Additional Build Commands
 
-    The \uicontrol Build menu contains additional commands for building,
+    The \uicontrol Build menu has additional commands for building,
     rebuilding, and cleaning projects.
 
     To build the current project in all its configurations, that
@@ -99,11 +99,11 @@
 
     \QC automatically runs CMake when you make changes to \c {CMakeLists.txt}
     files. To disable this feature, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol Tools. Select the
+    \uicontrol Preferences > \uicontrol CMake > \uicontrol General. Select the
     CMake executable to edit, and then deselect the \uicontrol {Autorun CMake}
     check box.
 
-    \image qtcreator-preferences-cmake-tools.png "Tools tab in CMake Preferences"
+    \image qtcreator-preferences-cmake-tools.webp "Tools tab in CMake Preferences"
 
     For more information, see \l {Setting Up CMake}.
 

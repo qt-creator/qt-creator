@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -170,7 +170,7 @@ private:
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::LookupContext _context;
     CPlusPlus::TypeOfExpression typeOfExpression;
-    QString _fileName;
+    Utils::FilePath _filePath;
     QSet<QByteArray> _potentialTypes;
     QSet<QByteArray> _potentialFields;
     QSet<QByteArray> _potentialFunctions;

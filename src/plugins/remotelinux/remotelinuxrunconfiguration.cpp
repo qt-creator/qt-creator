@@ -1,12 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "remotelinuxrunconfiguration.h"
 
 #include "remotelinux_constants.h"
 #include "remotelinuxenvironmentaspect.h"
 #include "remotelinuxtr.h"
-#include "x11forwardingaspect.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -63,7 +62,10 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
         const FilePath localExecutable = bti.targetFilePath;
         DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
 
-        exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+        if (depFile.localFilePath().needsDevice()) // a full remote build
+            exeAspect->setExecutable(depFile.localFilePath());
+        else
+            exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
         symbolsAspect->setFilePath(localExecutable);
 
         const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
@@ -91,7 +93,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 
 RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
 {
-    registerRunConfiguration<RemoteLinuxRunConfiguration>("RemoteLinuxRunConfiguration:");
+    registerRunConfiguration<RemoteLinuxRunConfiguration>(Constants::RunConfigId);
     setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }

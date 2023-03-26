@@ -21,7 +21,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>復原(&amp;U)</translation>
@@ -32,7 +32,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>新增書籤</translation>
@@ -159,18 +159,18 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新設置</translation>
+        <translation>新組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱:</translation>
+        <translation>新組態名稱:</translation>
     </message>
     <message>
         <source>Run cmake</source>
@@ -178,7 +178,7 @@
     </message>
     <message>
         <source>Reconfigure project:</source>
-        <translation>重新設置專案:</translation>
+        <translation>重新組態專案:</translation>
     </message>
     <message>
         <source>&amp;Change</source>
@@ -214,7 +214,7 @@
     </message>
     <message>
         <source>Base environment for this runconfiguration:</source>
-        <translation>本次執行設置的基本環境變數:</translation>
+        <translation>本次執行組態的基本環境變數:</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -238,7 +238,7 @@
     </message>
     <message>
         <source>Generator:</source>
-        <translation>建立器:</translation>
+        <translation>產生器:</translation>
     </message>
     <message>
         <source>Run CMake</source>
@@ -247,10 +247,6 @@
     <message>
         <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used tool chain here and rerun CMake. Or simply finish the wizard directly.</source>
         <translation type="obsolete">目錄 %1 已存在一份足夠新的 cbp 檔。您可以在此傳送特殊參數，或是變更所使用的工具鍊，然後重新執行 CMake。或者您也可以直接結束此精靈。</translation>
-    </message>
-    <message>
-        <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments and rerun CMake. Or simply finish the wizard directly.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
@@ -262,7 +258,7 @@
     </message>
     <message>
         <source>The directory %1 specified in a build-configuration, does not contain a cbp file. Qt Creator needs to recreate this file, by running CMake. Some projects require command line arguments to the initial CMake call. Note that CMake remembers command line arguments from the previous runs.</source>
-        <translation>在建置設置中指定的目錄 %1 中未包含 cbp 檔案。Qt Creator 需要執行 CMake 以重新建立此檔案。某些專案需要命令列參數來初始化 CMake 的呼叫。如果您想新增額外的命令列參數，請新增在下面。注意 CMake 會記住上次執行時的命令列參數。</translation>
+        <translation>在建置組態中指定的目錄 %1 中未包含 cbp 檔案。Qt Creator 需要執行 CMake 以重新建立此檔案。某些專案需要命令列參數來初始化 CMake 的呼叫。如果您想新增額外的命令列參數，請新增在下面。注意 CMake 會記住上次執行時的命令列參數。</translation>
     </message>
     <message>
         <source>Qt Creator needs to run CMake in the new build directory. Some projects require command line arguments to the initial CMake call.</source>
@@ -274,15 +270,15 @@
     </message>
     <message>
         <source>MinGW Generator (%1)</source>
-        <translation type="obsolete">MinGW 建立器 (%1)</translation>
+        <translation type="obsolete">MinGW 產生器 (%1)</translation>
     </message>
     <message>
         <source>Unix Generator (%1)</source>
-        <translation type="obsolete">Unix 建立器 (%1)</translation>
+        <translation type="obsolete">Unix 產生器 (%1)</translation>
     </message>
     <message>
         <source>No generator selected.</source>
-        <translation>沒有選擇建立器。</translation>
+        <translation>沒有選擇產生器。</translation>
     </message>
     <message>
         <source>CMake exited with errors. Please check CMake output.</source>
@@ -290,7 +286,7 @@
     </message>
     <message>
         <source>NMake Generator (%1)</source>
-        <translation type="obsolete">NMake 建立器(%1)</translation>
+        <translation type="obsolete">NMake 產生器(%1)</translation>
     </message>
     <message>
         <source>No valid cmake executable specified.</source>
@@ -318,10 +314,6 @@
         <translation>Make</translation>
     </message>
     <message>
-        <source>&lt;b&gt;No build configuration found on this target.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Unknown tool chain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;未知的工具鍊&lt;/b&gt;</translation>
     </message>
@@ -335,7 +327,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;選擇符號&gt;</translation>
@@ -346,7 +338,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>貼上代碼(&amp;C)</translation>
@@ -376,22 +368,6 @@
         <translation>Alt+C,Alt+F</translation>
     </message>
     <message>
-        <source>Meta+C,Meta+F</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fetch from URL...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fetch from URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter URL:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>接收到 &quot;%1&quot; 的空片段。</translation>
     </message>
@@ -413,7 +389,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>開啟連結</translation>
@@ -424,7 +400,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>產生檔案失敗</translation>
@@ -455,9 +431,6 @@
         <translation>專案目錄 %1 存在無法被覆蓋的檔案:
 %2。</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>回復到已儲存的狀態</translation>
@@ -563,22 +536,6 @@
         <translation>移除所有的分割</translation>
     </message>
     <message>
-        <source>Meta+E,1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+E,1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+E,o</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+E,o</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save %1 &amp;As...</source>
         <translation>另存 %1 為 (&amp;A)...</translation>
     </message>
@@ -603,14 +560,6 @@
         <translation>&lt;b&gt;警告：&lt;/b&gt; 您正在變更一個唯讀檔。</translation>
     </message>
     <message>
-        <source>Next Open Document in History</source>
-        <translation>歷史紀錄中下一個開啟文件</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>歷史紀錄中前一個開啟文件</translation>
-    </message>
-    <message>
         <source>Go Back</source>
         <translation>返回</translation>
     </message>
@@ -621,10 +570,6 @@
     <message>
         <source>Meta+E</source>
         <translation type="obsolete">Meta+E</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="obsolete">Ctrl+E</translation>
     </message>
     <message>
         <source>%1,2</source>
@@ -742,16 +687,10 @@
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>編輯</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -851,13 +790,6 @@
         <source>min</source>
         <extracomment>unit for minutes</extracomment>
         <translation>分</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>Exit Full Screen</source>
@@ -1000,10 +932,6 @@
         <translation>縮放</translation>
     </message>
     <message>
-        <source>Show Sidebar</source>
-        <translation>顯示邊欄</translation>
-    </message>
-    <message>
         <source>Ctrl+0</source>
         <translation>Ctrl+0</translation>
     </message>
@@ -1048,27 +976,10 @@
         <source>Settings...</source>
         <translation>設定...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>一般訊息</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>新專案</translation>
@@ -1105,23 +1016,14 @@
         <source>Supported Platforms</source>
         <translation>支援的平台</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>開啟文件</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>開啟檔案 &apos;%1&apos; 的方式：</translation>
@@ -1134,9 +1036,6 @@
         <source>Open file extension with:</source>
         <translation>開啟此副檔名的方式：</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>輸出</translation>
@@ -1181,9 +1080,6 @@
         <source>Output &amp;Panes</source>
         <translation>輸出窗格(&amp;P)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>詳情</translation>
@@ -1191,10 +1087,6 @@
     <message>
         <source>Error Details</source>
         <translation>錯誤詳情</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -1205,23 +1097,9 @@
         <translation>已安裝的外掛程式</translation>
     </message>
     <message>
-        <source>Plugin Details of %1</source>
-        <translation>%1 的外掛程式詳情</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>%1 的外掛程式錯誤</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
-    <message>
         <source>Processes</source>
         <translation>行程</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Do not Save</source>
         <translation>不要儲存</translation>
@@ -1229,10 +1107,6 @@
     <message>
         <source>Save All</source>
         <translation>全部儲存</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>儲存</translation>
     </message>
     <message>
         <source>Save Selected</source>
@@ -1250,9 +1124,6 @@
         <source>Automatically save all files before building</source>
         <translation>建置前自動儲存所有檔案</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>鍵盤</translation>
@@ -1281,20 +1152,6 @@
         <source>Export Keyboard Mapping Scheme</source>
         <translation>匯出鍵盤映射機制</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>關於 Qt Creator</translation>
@@ -1312,16 +1169,10 @@
         <source>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;基於 Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;建置於 %5 %4 &lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. 保留所有權利。&lt;br/&gt;&lt;br/&gt;此程式以「目前現況」（As-is）釋出，不做任何形式的保固，包括不做設計瑕疵上的保固、不保證適於銷售（Merchantability），也不保證適用於任何目的等等。&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>切換至 &lt;b&gt;%1&lt;/b&gt; 模式 </translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -1331,16 +1182,13 @@
         <source>Unknown error</source>
         <translation>未知的錯誤</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>新增 %1 </translation>
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>類別名稱不能包含命名空間分隔符。</translation>
@@ -1353,9 +1201,6 @@
         <source>The class name contains invalid characters.</source>
         <translation>類別名稱中含有無效字元。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>無法設定通訊頻道：%1</translation>
@@ -1424,9 +1269,6 @@
         <source>Cannot create socket &apos;%1&apos;: %2</source>
         <translation>無法建立 socket &apos;%1&apos;：%2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>Name is empty.</source>
         <translation>名稱是空的。</translation>
@@ -1455,9 +1297,6 @@
         <source>File extensions %1 are required:</source>
         <translation>需要副檔名 %1：</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -1476,9 +1315,6 @@
             <numerusform>%1：在 %3 個檔案中的 %2 個找到了 %n 個結果。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Invalid base class name</source>
         <translation>無效的基礎類別名稱</translation>
@@ -1547,9 +1383,6 @@
         <source>Inherits QDeclarativeItem</source>
         <translation>繼承自 QDeclarativeItem</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>選擇...</translation>
@@ -1610,9 +1443,6 @@
         <source>Path:</source>
         <translation>路徑：</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>插入...</translation>
@@ -1633,9 +1463,6 @@
         <source>From &quot;%1&quot;</source>
         <translation>從 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>&lt;Enter_Name&gt;</source>
         <translation>&lt;輸入名稱&gt;</translation>
@@ -1668,16 +1495,10 @@
         <source>Project:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>Invalid character &apos;.&apos;.</source>
         <translation>無效字元 &apos;.&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion 提交</translation>
@@ -1714,24 +1535,10 @@
         <source>Check a&amp;ll</source>
         <translation>全部勾選(&amp;L)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
-    <message>
-        <source>Name:</source>
-        <translation>名稱：</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>路徑：</translation>
-    </message>
     <message>
         <source>Choose the Location</source>
         <translation>選擇位置</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>檔案已變更</translation>
@@ -1746,7 +1553,7 @@
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::ClassNamePage</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Enter Class Name</source>
         <translation>輸入類別名稱</translation>
@@ -1755,16 +1562,10 @@
         <source>The header and source file names will be derived from the class name</source>
         <translation>標頭檔和源碼檔名將取自類別名稱</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>產生檔案內容時發生錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>C++ 類別精靈</translation>
@@ -1773,9 +1574,6 @@
         <source>Details</source>
         <translation>詳情</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++ Header File</source>
         <translation>C++ 標頭檔</translation>
@@ -1844,26 +1642,17 @@
         <source>Ctrl+Shift+U</source>
         <translation>Ctrl+Shift+U</translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1：檔案或目錄不存在</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppModelManager</name>
     <message>
         <source>Parsing</source>
         <translation>剖析中</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Code Style</source>
-        <translation>源碼樣式</translation>
+        <translation>程式碼樣式</translation>
     </message>
     <message>
         <source>File Naming</source>
@@ -1873,9 +1662,6 @@
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>補完</translation>
@@ -1972,23 +1758,14 @@
         <source>Add leading asterisks</source>
         <translation>新增開頭的星號</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods and Functions</source>
         <translation>方法與函式</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>類別與方法</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>C++(&amp;C)</translation>
@@ -1999,7 +1776,7 @@
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
@@ -2017,9 +1794,6 @@
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>系統找到一個已過期的除錯小助手函式庫 (%1)，需要的版號為 %2。</translation>
@@ -2082,9 +1856,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>&lt;none&gt;</source>
         <translation>&lt;無&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation type="unfinished"></translation>
@@ -2133,9 +1904,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Override &amp;start script:</source>
         <translation>覆寫啟動腳本(&amp;S)：</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Process ID</source>
         <translation type="obsolete">行程代碼</translation>
@@ -2144,9 +1912,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Refresh</source>
         <translation type="obsolete">刷新</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>選擇開始位址</translation>
@@ -2155,9 +1920,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Enter an address: </source>
         <translation>輸入位址：</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>標記檔案：</translation>
@@ -2436,9 +2198,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>This is useful to catch runtime error messages, for example caused by assert().</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>符號伺服器...</translation>
@@ -2453,7 +2212,7 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; 除錯工具沒有被設置成使用公開的&lt;a href=&quot;%1&quot;&gt;微軟符號伺服器&lt;/a&gt;。建議您使用符號伺服器，以便取得作業系統函式庫中的符號。&lt;/p&gt;&lt;p&gt;&lt;i&gt;注意：&lt;/i&gt;此項工作需要一個快速的網際網路連線，才能讓此工作較順暢。同時，第一次連結可能造成延遲。&lt;/p&gt;&lt;p&gt;您要設置符號伺服器嗎?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; 除錯工具沒有被組態成使用公開的&lt;a href=&quot;%1&quot;&gt;微軟符號伺服器&lt;/a&gt;。建議您使用符號伺服器，以便取得作業系統函式庫中的符號。&lt;/p&gt;&lt;p&gt;&lt;i&gt;注意：&lt;/i&gt;此項工作需要一個快速的網際網路連線，才能讓此工作較順暢。同時，第一次連結可能造成延遲。&lt;/p&gt;&lt;p&gt;您要設置符號伺服器嗎?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Symbol Server</source>
@@ -2463,9 +2222,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Do not ask again</source>
         <translation>不要再問我</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>將除錯工具切換至 「聰明指令操作」（instruction wise operation）模式。它會在單步執行時在源碼檢視中同時顯示反組譯指令。</translation>
@@ -2662,9 +2418,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Checking this will show a column with address information in the stack view during debugging.</source>
         <translation>勾選此選項會在除錯時於堆疊檢視中顯示一個位址資訊的欄位。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -2707,9 +2460,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Show Qt&apos;s namespace for types</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>An exception was triggered.</source>
         <translation>觸發了一個例外情形。</translation>
@@ -3151,9 +2901,6 @@ This might yield incorrect results.</source>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;沒有資訊&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -3331,9 +3078,6 @@ at debugger startup.</source>
         <source>GDB</source>
         <translation>GDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>yes</source>
         <translation type="obsolete">是</translation>
@@ -3378,9 +3122,6 @@ at debugger startup.</source>
         <source>fast</source>
         <translation type="obsolete">快速</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Modules</source>
         <translation>模組</translation>
@@ -3397,9 +3138,6 @@ at debugger startup.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>無法開啟 Fifo %1：%2</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -3408,16 +3146,10 @@ at debugger startup.</source>
         <source>Value (Base %1)</source>
         <translation>值 (%1進位)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Registers</source>
         <translation>暫存器</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Error:</source>
         <translation>錯誤：</translation>
@@ -3446,9 +3178,6 @@ at debugger startup.</source>
         <source>Stopped.</source>
         <translation>已停止。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>源碼檔</translation>
@@ -3513,9 +3242,6 @@ at debugger startup.</source>
         <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in separate packages.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>執行緒&amp;nbsp;代碼：</translation>
@@ -3572,9 +3298,6 @@ at debugger startup.</source>
         <source>Break at &apos;&amp;main&apos;:</source>
         <translation type="obsolete">在 main 函式處中斷(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select GDB Start Script</source>
         <translation type="obsolete">選擇 GDB 啟動腳本</translation>
@@ -3949,7 +3672,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>無法新增相依性</translation>
@@ -3960,7 +3683,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="obsolete">檔名為空。</translation>
@@ -4183,7 +3906,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>名稱：</translation>
@@ -4228,9 +3951,6 @@ Rebuilding the project might help.</source>
         <source>URL:</source>
         <translation>網址：</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>狀態：</translation>
@@ -4239,9 +3959,6 @@ Rebuilding the project might help.</source>
         <source>Error message:</source>
         <translation>錯誤訊息：</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Cannot open file %1 for reading: %2</source>
         <translation>無法開啟檔案 %1 以讀取：%2</translation>
@@ -4250,9 +3967,6 @@ Rebuilding the project might help.</source>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>剖析檔案時發生錯誤 %1：%2，於第 %3 行第 %4 欄</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -4269,9 +3983,6 @@ Rebuilding the project might help.</source>
         <source>Load</source>
         <translation>載入</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>無效</translation>
@@ -4336,9 +4047,6 @@ Rebuilding the project might help.</source>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>外掛程式結束了其生命週期並且已被刪除</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -4362,7 +4070,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>使用 Vim 風格編輯</translation>
@@ -4371,9 +4079,6 @@ Reason: %3</source>
         <source>Read .vimrc</source>
         <translation>讀取 .vimrc</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation>在 FakeVim 中尚未實作</translation>
@@ -4462,9 +4167,6 @@ Reason: %3</source>
         <source>Argument must be positive: %1=%2</source>
         <translation>參數必須為正值：%1=%2</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -4476,10 +4178,6 @@ Reason: %3</source>
     <message>
         <source>Use FakeVim</source>
         <translation>使用 FakeVim</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation>讀取 .vimrc</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
@@ -4565,9 +4263,6 @@ Reason: %3</source>
         <source>Use smartcase</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Meta+V,Meta+V</source>
         <translation type="unfinished"></translation>
@@ -4619,7 +4314,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>搜尋(&amp;S)</translation>
@@ -4648,9 +4343,6 @@ Reason: %3</source>
         <source>Search &amp;&amp; &amp;Replace</source>
         <translation>搜尋並取代(&amp;R)</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Find/Replace</source>
         <translation>搜尋/取代</translation>
@@ -4727,9 +4419,6 @@ Reason: %3</source>
         <source>Use Regular Expressions</source>
         <translation>使用正規表示式</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>尋找</translation>
@@ -4747,24 +4436,9 @@ Reason: %3</source>
         <translation>...</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>取代</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>取代並搜尋</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>全部取代</translation>
-    </message>
-    <message>
         <source>Advanced...</source>
         <translation>進階...</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>Search Results</source>
         <translation>搜尋結果</translation>
@@ -4787,22 +4461,19 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新設置</translation>
+        <translation>新組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>建置目錄：</translation>
@@ -4819,9 +4490,6 @@ Reason: %3</source>
         <source>Generic Manager</source>
         <translation>一般管理器</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -4831,9 +4499,6 @@ Reason: %3</source>
         <source>Override %1:</source>
         <translation>覆蓋 %1：</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import Existing Project</source>
         <translation>匯入現有專案</translation>
@@ -4841,13 +4506,6 @@ Reason: %3</source>
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use Qt Creator as a code editor.</source>
         <translation>匯入現有不使用 qmake、CMake 或 Autotools 的專案。這能讓您使用 Qt Creator 做為源碼編輯器。</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>匯入現有專案</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -4875,7 +4533,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Checkout</source>
         <translation type="unfinished">取出</translation>
@@ -4938,7 +4596,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Selected directory is not a Git repository</source>
-        <translation>選擇的目錄並非 Git 主目錄</translation>
+        <translation>選擇的目錄並非 Git 儲存庫</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -4993,7 +4651,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
-        <translation>無法決定 &quot;%1&quot; 的主目錄。</translation>
+        <translation>無法決定 &quot;%1&quot; 的儲存庫。</translation>
     </message>
     <message>
         <source>Cannot parse the file output.</source>
@@ -5129,11 +4787,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>The repository &quot;%1&quot; is not initialized.</source>
-        <translation>主目錄(Repository) &quot;%1&quot; 還沒有被初始化。</translation>
+        <translation>儲存庫 &quot;%1&quot; 還沒有被初始化。</translation>
     </message>
     <message>
         <source>Cannot retrieve last commit data of repository &quot;%1&quot;.</source>
-        <translation>無法取得主目錄 &quot;%1&quot; 上次提交的資料。</translation>
+        <translation>無法取得儲存庫 &quot;%1&quot; 上次提交的資料。</translation>
     </message>
     <message numerus="yes">
         <source>Amended &quot;%1&quot; (%n file(s)).
@@ -5288,7 +4946,7 @@ Reason: %3</source>
     <message>
         <source>Undo all pending changes to the repository
 %1?</source>
-        <translation type="obsolete">是否要復原主目錄
+        <translation type="obsolete">是否要復原儲存庫
 %1
 的所有暫停的變更？</translation>
     </message>
@@ -5314,7 +4972,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Repository Clean</source>
-        <translation>主目錄 (Repository) 清理</translation>
+        <translation>儲存庫清理</translation>
     </message>
     <message>
         <source>Choose Patch</source>
@@ -5430,11 +5088,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>建立主目錄...</translation>
+        <translation>建立儲存庫...</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
-        <translation>儲存您工作的目前狀態，並重置主目錄。</translation>
+        <translation>儲存您工作的目前狀態，並重置儲存庫。</translation>
     </message>
     <message>
         <source>Stashes...</source>
@@ -5458,7 +5116,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>The repository is clean.</source>
-        <translation>主目錄已清理乾淨。</translation>
+        <translation>儲存庫已清理乾淨。</translation>
     </message>
     <message>
         <source>Patches (*.patch *.diff)</source>
@@ -5550,11 +5208,11 @@ Reason: %3</source>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
     <message>
         <source>repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -5638,7 +5296,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Prepend to PATH:</source>
@@ -5654,7 +5312,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Print Document</source>
         <translation>列印文件</translation>
@@ -5933,14 +5591,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>正在建立文件索引中...</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>開啟連結</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新頁面開啟連結</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>複製連結</translation>
     </message>
@@ -5984,24 +5634,13 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>&lt;li&gt;If your computer or network is protected by a firewall or proxy, make sure the application is permitted to access the network.&lt;/li&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>尋找(&amp;L)：</translation>
     </message>
-    <message>
-        <source>Open Link</source>
-        <translation>開啟連結</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新頁面開啟連結</translation>
-    </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>QtC::Core</name>
     <message>
         <source>Locator</source>
         <translation>定位器</translation>
@@ -6015,7 +5654,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>變更數值</translation>
@@ -6024,9 +5663,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Change Number:</source>
         <translation>變更數值：</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 未完成的變更</translation>
@@ -6043,9 +5679,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Change %1: %2</source>
         <translation>變更 %1：%2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>Perforce(&amp;P)</translation>
@@ -6252,11 +5885,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Repository Log</source>
-        <translation>主目錄紀錄</translation>
-    </message>
-    <message>
-        <source>Submit</source>
-        <translation>提交</translation>
+        <translation>儲存庫紀錄</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -6326,11 +5955,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Perforce repository: %1</source>
-        <translation>Perforce 主目錄： %1</translation>
+        <translation>Perforce 儲存庫： %1</translation>
     </message>
     <message>
         <source>Perforce: Unable to determine the repository: %1</source>
-        <translation>Perforce：無法決定主目錄：%1</translation>
+        <translation>Perforce：無法決定儲存庫：%1</translation>
     </message>
     <message>
         <source>The process terminated abnormally.</source>
@@ -6358,7 +5987,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Perforce is not correctly configured.</source>
-        <translation>Perforce 未正確設置。</translation>
+        <translation>Perforce 未正確組態。</translation>
     </message>
     <message>
         <source>p4 diff %1</source>
@@ -6386,16 +6015,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
         <translation>無法提交變更，因為您的工作空間已經過時。已幫您建立了一個「未完成的提交」。</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce 提交</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce 提示</translation>
@@ -6404,9 +6027,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>OK</source>
         <translation>確定</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Perforce</source>
         <translation>Perforce</translation>
@@ -6417,7 +6037,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -6463,9 +6083,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Automatically open files when editing</source>
         <translation>編輯時自動開啟檔案</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
         <translation>測試中...</translation>
@@ -6477,13 +6094,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Perforce Command</source>
         <translation>Perforce 指令</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>提交</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -6499,19 +6109,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>詳情</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>錯誤詳情</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>已安裝的外掛程式</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Plugin Details of %1</source>
         <translation>外掛程式 %1 的詳情</translation>
@@ -6522,7 +6120,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>外掛程式 &apos;%1&apos; 不存在。</translation>
@@ -6539,9 +6137,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Failed Plugins</source>
         <translation>發生錯誤的外掛程式</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>&apos;%1&apos; 缺少屬性 &apos;%2&apos; </translation>
@@ -6608,7 +6203,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>正在啟動：&quot;%1&quot; %2</translation>
@@ -6629,9 +6224,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>無法啟動行程 &quot;%1&quot; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -6672,9 +6264,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Skipping disabled step %1.</source>
         <translation>略過被關閉的步驟 %1 。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation type="obsolete">自訂執行檔</translation>
@@ -6683,32 +6272,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Could not find the executable, please specify one.</source>
         <translation type="obsolete">找不到可執行檔。請指定一個。</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">清理環境變數</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">系統環境變數</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">建置環境變數</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="obsolete">執行 %1 </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation type="obsolete">自訂執行檔</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>編輯(&amp;E)</translation>
@@ -6747,16 +6310,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <extracomment>Yup, word puzzle. The Set/Unset phrases above are appended to this. %1 is &quot;System Environment&quot; or some such.</extracomment>
         <translation>使用 &lt;b&gt;%1&lt;/b&gt; 與</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>任何專案中的檔案</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>所有專案</translation>
@@ -6775,9 +6332,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Fi&amp;le pattern:</source>
         <translation>檔案樣式(&amp;L)：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>&amp;Clone Selected</source>
         <translation>複製選取項目(&amp;C)</translation>
@@ -6788,15 +6342,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Edit build configuration:</source>
-        <translation>編輯建置設定：</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
+        <translation>編輯建置組態：</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -6804,20 +6350,20 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>New name for build configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>建置設置的新名稱 &lt;b&gt;%1&lt;/b&gt;：</translation>
+        <translation>建置組態的新名稱 &lt;b&gt;%1&lt;/b&gt;：</translation>
     </message>
     <message>
         <source>Clone Configuration</source>
         <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>複製設置</translation>
+        <translation>複製組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
-        <translation>取消建置並移除建置設置</translation>
+        <translation>取消建置並移除建置組態</translation>
     </message>
     <message>
         <source>Do Not Remove</source>
@@ -6825,27 +6371,24 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Remove Build Configuration %1?</source>
-        <translation>要移除建置設置 %1 嗎？</translation>
+        <translation>要移除建置組態 %1 嗎？</translation>
     </message>
     <message>
         <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>建置設置 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
+        <translation>建置組態 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
-        <translation>您想要取消建置動作並移除建置設置嗎？</translation>
+        <translation>您想要取消建置動作並移除建置組態嗎？</translation>
     </message>
     <message>
         <source>Remove Build Configuration?</source>
-        <translation>要移除建置設置嗎？</translation>
+        <translation>要移除建置組態嗎？</translation>
     </message>
     <message>
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此建置設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
+        <translation>您確定要刪除此建置組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>Build Steps</source>
         <translation>建置步驟</translation>
@@ -6854,23 +6397,14 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Clean Steps</source>
         <translation>清除步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>編譯輸出</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>目前專案中的檔案</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>目前專案</translation>
@@ -6879,20 +6413,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Project &apos;%1&apos;:</source>
         <translation>專案 &apos;%1&apos;：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation type="obsolete">執行檔：</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">參數：</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">工作目錄：</translation>
     </message>
     <message>
         <source>Run Environment</source>
@@ -6904,23 +6427,8 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">執行設置的基礎環境：</translation>
+        <translation type="obsolete">執行組態的基礎環境：</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">清理的環境變數</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">系統環境變數</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">建置環境變數</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>編輯器設定：</translation>
@@ -6939,7 +6447,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>檔案系統</translation>
@@ -6958,7 +6466,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Session Manager</source>
         <translation>工作階段管理器</translation>
@@ -7003,29 +6511,15 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Restore last session on startup</source>
         <translation>啟動時回復上次的工作階段</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>自訂行程步驟</translation>
-    </message>
     <message>
         <source>Custom Process Step</source>
         <comment>item in combobox</comment>
         <translation>自訂行程步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>Custom Process Step</source>
         <translation>自訂行程步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>指令：</translation>
@@ -7042,32 +6536,11 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Arguments:</source>
         <translation type="unfinished">參數：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
         <translation>專案檔案工廠</translation>
     </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="unfinished">開啟專案失敗</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>所有專案</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;隱式新增&gt;</translation>
@@ -7097,15 +6570,12 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>A version control system repository could not be created in &apos;%1&apos;.</source>
-        <translation>在 %1 裡無法建立版本控制系統主目錄。</translation>
+        <translation>在 %1 裡無法建立版本控制系統儲存庫。</translation>
     </message>
     <message>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>新增 &apos;%1&apos; 到版本控制系統失敗。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify Tree</source>
         <translation>簡化樹狀圖</translation>
@@ -7118,9 +6588,6 @@ to project &apos;%2&apos;.</source>
         <source>Synchronize with Editor</source>
         <translation>與編輯器同步</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>專案</translation>
@@ -7137,9 +6604,6 @@ to project &apos;%2&apos;.</source>
         <source>Filter Tree</source>
         <translation>過濾樹狀圖</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Summary</source>
         <translation>摘要</translation>
@@ -7160,9 +6624,6 @@ to project &apos;%2&apos;.</source>
         <source>Files to be added in</source>
         <translation>要新增到此處的檔案</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation type="obsolete">移除檔案</translation>
@@ -7179,20 +6640,9 @@ to project &apos;%2&apos;.</source>
         <source>File to remove:</source>
         <translation type="obsolete">要移除的檔案：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
     <message>
         <source>Run configuration:</source>
-        <translation>執行設置：</translation>
+        <translation>執行組態：</translation>
     </message>
     <message>
         <source>Run Settings</source>
@@ -7212,62 +6662,48 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
-        <translation>要移除執行設置嗎？</translation>
+        <translation>要移除執行組態嗎？</translation>
     </message>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此執行設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>重新命名...</translation>
+        <translation>您確定要刪除此執行組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>執行設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
+        <translation>執行組態 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation>取消建置並移除佈署設置</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>不要移除</translation>
+        <translation>取消建置並移除佈署組態</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
-        <translation>要移除佈署設置 %1 嗎？</translation>
+        <translation>要移除佈署組態 %1 嗎？</translation>
     </message>
     <message>
         <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>佈署設置 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
+        <translation>佈署組態 &lt;b&gt;%1&lt;/b&gt; 正在建置中。</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
-        <translation>您想要取消建置並移除佈署設置嗎？</translation>
+        <translation>您想要取消建置並移除佈署組態嗎？</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
-        <translation>要移除佈署設置嗎？</translation>
+        <translation>要移除佈署組態嗎？</translation>
     </message>
     <message>
         <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此佈署設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
+        <translation>您確定要刪除此佈署組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>佈署設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
+        <translation>佈署組態 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>找不到檔案：%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Issues</source>
         <translation>問題</translation>
@@ -7280,9 +6716,6 @@ to project &apos;%2&apos;.</source>
         <source>Show Warnings</source>
         <translation>顯示警告</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>The following files will be added:
 
@@ -7296,10 +6729,6 @@ to project &apos;%2&apos;.</source>
 </translation>
     </message>
     <message>
-        <source>Add to &amp;project:</source>
-        <translation>新增到專案(&amp;P)：</translation>
-    </message>
-    <message>
         <source>Add to &amp;version control:</source>
         <translation>新增到版本控制系統(&amp;V)：</translation>
     </message>
@@ -7307,13 +6736,6 @@ to project &apos;%2&apos;.</source>
         <source>Project Management</source>
         <translation>專案管理</translation>
     </message>
-    <message>
-        <source>Manage...</source>
-        <translation>管理...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>建置(&amp;B)</translation>
@@ -7460,7 +6882,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>The target &apos;%1&apos; for the project &apos;%2&apos; has no active run configuration.</source>
-        <translation>專案 &apos;%2&apos; 的目標 &apos;%1&apos; 沒有作用中的執行設置。</translation>
+        <translation>專案 &apos;%2&apos; 的目標 &apos;%1&apos; 沒有作用中的執行組態。</translation>
     </message>
     <message>
         <source>Cannot run &apos;%1&apos;.</source>
@@ -7469,10 +6891,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Run %1</source>
         <translation>執行 %1</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>執行</translation>
     </message>
     <message>
         <source>Sessions</source>
@@ -7493,10 +6911,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Rebuild</source>
         <translation type="unfinished">重新建置</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>重新命名...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -7639,21 +7053,9 @@ Do you want to ignore them?</source>
         <translation>建置前總是先儲存檔案</translation>
     </message>
     <message>
-        <source>Clean</source>
-        <translation>清除</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>建置</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>佈署</translation>
-    </message>
-    <message>
         <source>The project %1 is not configured, skipping it.
 </source>
-        <translation>專案 %1 尚未設置，將跳過。</translation>
+        <translation>專案 %1 尚未組態，將跳過。</translation>
     </message>
     <message>
         <source>No project loaded.</source>
@@ -7665,7 +7067,7 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>The project %1 is not configured.</source>
-        <translation>專案 %1 尚未設置。</translation>
+        <translation>專案 %1 尚未組態。</translation>
     </message>
     <message>
         <source>Project has no build settings.</source>
@@ -7783,9 +7185,6 @@ to version control (%2)?</source>
         <source>Could not delete file %1.</source>
         <translation>無法刪除檔案 %1。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>回復工作階段時發生錯誤</translation>
@@ -7811,10 +7210,6 @@ to version control (%2)?</source>
         <translation>從工作階段中移除專案</translation>
     </message>
     <message>
-        <source>Failed to open project</source>
-        <translation>開啟專案失敗</translation>
-    </message>
-    <message>
         <source>Session</source>
         <translation>工作階段</translation>
     </message>
@@ -7832,7 +7227,7 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>新增</translation>
@@ -7859,7 +7254,7 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt Console Application</source>
         <translation>Qt4 主控台應用程式</translation>
@@ -8148,7 +7543,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Qt4 Run Configuration</source>
-        <translation>Qt4 執行設置</translation>
+        <translation>Qt4 執行組態</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -8168,7 +7563,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>此執行設置的基礎環境：</translation>
+        <translation>此執行組態的基礎環境：</translation>
     </message>
     <message>
         <source>Run Environment</source>
@@ -8197,11 +7592,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator 需要先設定建置設置才能執行建置。請在專案模式下設定工具鍊。</translation>
+        <translation type="obsolete">Qt Creator 需要先設定建置組態才能執行建置。請在專案模式下組態工具鍊。</translation>
     </message>
     <message>
         <source>Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator 需要設置一個工具鍊才能建置。請在專案模式下設定工具鍊。</translation>
+        <translation type="obsolete">Qt Creator 需要設置一個工具鍊才能建置。請在專案模式下組態工具鍊。</translation>
     </message>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
@@ -8209,7 +7604,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation>設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Override %1:</source>
@@ -8229,7 +7624,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>No Qt4 build configuration.</source>
-        <translation type="obsolete">沒有 Qt4 建置設置。</translation>
+        <translation type="obsolete">沒有 Qt4 建置組態。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
@@ -8246,11 +7641,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Configuration is faulty, please check the Issues view for details.</source>
-        <translation>設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping qmake step.</source>
-        <translation>設置沒有改變，將跳過 qmake 步驟。</translation>
+        <translation>組態沒有改變，將跳過 qmake 步驟。</translation>
     </message>
     <message>
         <source>No Qt version.</source>
@@ -8405,10 +7800,10 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Locator::ILocatorFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filter Configuration</source>
-        <translation>過濾器設置</translation>
+        <translation>過濾器組態</translation>
     </message>
     <message>
         <source>Limit to prefix</source>
@@ -8418,16 +7813,9 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Prefix:</source>
         <translation>前置字串：</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>一般目錄過濾</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>過濾器設置</translation>
     </message>
     <message>
         <source>Select Directory</source>
@@ -8447,9 +7835,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>%1 filter update: canceled</source>
         <translation>%1 過濾器更新：已取消</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>名稱：</translation>
@@ -8457,14 +7842,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
         <translation>指定檔案名稱過濾器，用逗號分隔。過濾器可以包含萬用字元符。</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>前置字串：</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>前置字串限制</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -8489,30 +7866,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>新增</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>編輯</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
-    <message>
         <source>Files in File System</source>
         <translation>在檔案系統中的檔案</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">過濾器設置</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>前置字串：</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>前置字串限制</translation>
+        <translation type="obsolete">過濾器組態</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -8526,23 +7885,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Add Filter Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>開啟文件</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>可使用的過濾器</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -8559,16 +7905,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Indexing</source>
         <translation>建立索引中</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation>設置...</translation>
+        <translation>組態...</translation>
     </message>
     <message>
         <source>Locate...</source>
@@ -8582,31 +7925,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>&lt;type here&gt;</source>
         <translation>&lt;在此輸入&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (prefix: %2)</source>
         <translation>%1 (前置字串：%2)</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
-        <translation>過濾器設置</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>編輯</translation>
+        <translation>過濾器組態</translation>
     </message>
     <message>
         <source> min</source>
@@ -8618,7 +7943,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Qt Resource file</source>
         <translation>Qt 資源檔</translation>
@@ -8639,9 +7964,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Recheck existence of referenced files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation type="unfinished">開啟檔案</translation>
@@ -8664,69 +7986,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
-    <message>
-        <source>Add Files</source>
-        <translation type="obsolete">新增檔案</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation type="obsolete">新增前置字串</translation>
-    </message>
-    <message>
-        <source>Choose Copy Location</source>
-        <translation type="obsolete">選擇複製位置</translation>
-    </message>
-    <message>
-        <source>Overwriting Failed</source>
-        <translation type="obsolete">覆寫失敗</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">複製失敗</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="obsolete">複製</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="obsolete">跳過</translation>
-    </message>
-    <message>
-        <source>Abort</source>
-        <translation type="obsolete">終止</translation>
-    </message>
-    <message>
-        <source>Invalid file location</source>
-        <translation type="obsolete">無效的檔案位置</translation>
-    </message>
-    <message>
-        <source>The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.</source>
-        <translation type="obsolete">檔案 %1 沒有在資源檔所在的子目錄中。您可以選擇複製此檔案到一個有效的位置。</translation>
-    </message>
-    <message>
-        <source>Could not overwrite file %1.</source>
-        <translation type="obsolete">無法覆寫檔案 %1。</translation>
-    </message>
-    <message>
-        <source>Could not copy the file to %1.</source>
-        <translation type="obsolete">無法複製檔案到 %1。</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">開啟檔案</translation>
-    </message>
-    <message>
-        <source>All files (*)</source>
-        <translation type="obsolete">所有檔案 (*)</translation>
-    </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Authentication</source>
         <translation>認證</translation>
@@ -8741,7 +8001,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -8775,16 +8035,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Username:</source>
         <translation>使用者名稱：</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Subversion 指令</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>Subversion (&amp;S)</translation>
@@ -8911,7 +8165,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation>復原主目錄...</translation>
+        <translation>復原儲存庫...</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -8939,7 +8193,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Revert repository</source>
-        <translation>復原主目錄</translation>
+        <translation>復原儲存庫</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -8963,19 +8217,19 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation>比較主目錄</translation>
+        <translation>比較儲存庫</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation>主目錄狀態</translation>
+        <translation>儲存庫狀態</translation>
     </message>
     <message>
         <source>Log Repository</source>
-        <translation>主目錄紀錄</translation>
+        <translation>儲存庫紀錄</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation>更新主目錄</translation>
+        <translation>更新儲存庫</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -8983,7 +8237,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>是否要復原主目錄的所有暫停的變更？</translation>
+        <translation>是否要復原儲存庫的所有暫停的變更？</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -9001,16 +8255,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>No subversion executable specified!</source>
         <translation>沒有指定 subversion 執行檔！</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion 提交</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Search</source>
         <translation>搜尋</translation>
@@ -9019,9 +8270,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>List of comma separated wildcard filters</source>
         <translation>以逗號分隔的萬用字元符過濾器列表</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
@@ -9030,9 +8278,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Opening file</source>
         <translation>開啟檔案中</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>行：%1，欄：%2</translation>
@@ -9041,17 +8286,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Line: 9999, Col: 999</source>
         <translation>行：9999，欄：9999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>全域</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>字型與顏色</translation>
@@ -9092,9 +8331,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Discard</source>
         <translation>丟棄</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>文字編碼</translation>
@@ -9117,9 +8353,6 @@ The following encodings are likely to fit:</source>
         <source>Save with Encoding</source>
         <translation>根據編碼儲存</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>目前檔案</translation>
@@ -9134,9 +8367,6 @@ The following encodings are likely to fit:</source>
         <translation>檔案路徑：&apos;%1&apos;
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Family:</source>
         <translation>家族：</translation>
@@ -9162,10 +8392,6 @@ The following encodings are likely to fit:</source>
         <translation>複製...</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>刪除</translation>
-    </message>
-    <message>
         <source>%</source>
         <translation>%</translation>
     </message>
@@ -9173,9 +8399,6 @@ The following encodings are likely to fit:</source>
         <source>Zoom:</source>
         <translation>縮放：</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1</source>
         <translation>行 %1</translation>
@@ -9184,9 +8407,6 @@ The following encodings are likely to fit:</source>
         <source>Line in Current Document</source>
         <translation>目前文件裡的行</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file. The default file extension is &lt;tt&gt;.txt&lt;/tt&gt;. You can specify a different extension as part of the filename.</source>
         <translation>建立文字檔案。預設的副檔名是 &lt;tt&gt;.txt&lt;/tt&gt;。您可以在指定檔名時直接加副檔名。</translation>
@@ -9251,9 +8471,6 @@ The following encodings are likely to fit:</source>
         <source>Current document&apos;s font size in points.</source>
         <translation>目前文件的字型大小，以點為單位。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>復原(&amp;U)</translation>
@@ -9658,9 +8875,6 @@ The following encodings are likely to fit:</source>
         <source>&lt;line number&gt;</source>
         <translation>&lt;行號&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>文字</translation>
@@ -10038,7 +9252,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter</source>
         <translation>過濾器</translation>
@@ -10065,7 +9279,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -10078,9 +9292,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Common</source>
         <translation type="obsolete">共同</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -10101,9 +9312,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Nicknames</source>
         <translation>暱稱</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>狀態</translation>
@@ -10112,9 +9320,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>File</source>
         <translation>檔案</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
         <translation>提交時彈出提示</translation>
@@ -10157,21 +9362,21 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>不要再次詢問</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -10211,7 +9416,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -10315,15 +9520,15 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>Choose a repository of the project &apos;%1&apos;.</source>
-        <translation>請為專案 &apos;%1&apos; 選擇一個主目錄。</translation>
+        <translation>請為專案 &apos;%1&apos; 選擇一個儲存庫。</translation>
     </message>
     <message>
         <source>Mainline Repositories</source>
-        <translation>主線使用的主目錄</translation>
+        <translation>主線使用的儲存庫</translation>
     </message>
     <message>
         <source>Clones</source>
@@ -10331,19 +9536,19 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Baseline Repositories</source>
-        <translation>基線使用的主目錄</translation>
+        <translation>基線使用的儲存庫</translation>
     </message>
     <message>
         <source>Shared Project Repositories</source>
-        <translation>共享專案使用的主目錄</translation>
+        <translation>共享專案使用的儲存庫</translation>
     </message>
     <message>
         <source>Personal Repositories</source>
-        <translation>個人主目錄</translation>
+        <translation>個人儲存庫</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>建置和執行</translation>
@@ -10430,7 +9635,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -10593,7 +9798,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>粗體</translation>
@@ -10624,14 +9829,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Utils::DetailsButton</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Details</source>
         <translation>詳情</translation>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>純文字編輯器</translation>
@@ -10672,20 +9877,13 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>GLSL Editor</source>
         <translation>GLSL 編輯器</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>喜好設定</translation>
     </message>
-    <message>
-        <source>Options</source>
-        <translation>選項</translation>
-    </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>在 CodePaster 喜好設定中沒有定義伺服器。</translation>
@@ -10712,14 +9910,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Methods in Current Document</source>
         <translation>目前文件中的方法</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -10744,9 +9939,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Choose Location for New License Template File</source>
         <translation>為新的版權許可樣本檔案選擇一個位置</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>C++ 用法：</translation>
@@ -10761,10 +9953,10 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
-        <translation>從 CVS 主目錄中取出，並試著載入裡面包含的專案。</translation>
+        <translation>從 CVS 儲存庫中取出，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>CVS Checkout</source>
@@ -10776,11 +9968,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Specify repository and path.</source>
-        <translation>請指定主目錄與路徑。</translation>
+        <translation>請指定儲存庫與路徑。</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
     <message>
         <source>Parsing of the log output failed</source>
@@ -10844,7 +10036,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation>找不到 &apos;%1&apos; 的主目錄</translation>
+        <translation>找不到 &apos;%1&apos; 的儲存庫</translation>
     </message>
     <message>
         <source>Meta+C,Meta+D</source>
@@ -10904,7 +10096,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Unedit Repository</source>
-        <translation>未編輯主目錄</translation>
+        <translation>未編輯儲存庫</translation>
     </message>
     <message>
         <source>Project Status</source>
@@ -10940,23 +10132,23 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Diff Repository</source>
-        <translation>比較主目錄</translation>
+        <translation>比較儲存庫</translation>
     </message>
     <message>
         <source>Repository Status</source>
-        <translation>主目錄狀態</translation>
+        <translation>儲存庫狀態</translation>
     </message>
     <message>
         <source>Repository Log</source>
-        <translation>主目錄紀錄</translation>
+        <translation>儲存庫紀錄</translation>
     </message>
     <message>
         <source>Update Repository</source>
-        <translation>更新主目錄</translation>
+        <translation>更新儲存庫</translation>
     </message>
     <message>
         <source>Revert Repository...</source>
-        <translation>復原主目錄...</translation>
+        <translation>復原儲存庫...</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -10992,11 +10184,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Revert repository</source>
-        <translation>復原主目錄</translation>
+        <translation>復原儲存庫</translation>
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>是否要復原主目錄的所有暫停的變更？</translation>
+        <translation>是否要復原儲存庫的所有暫停的變更？</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -11016,7 +10208,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Would you like to discard your changes to the repository &apos;%1&apos;?</source>
-        <translation>您要丟棄您對主目錄 &apos;%1&apos; 的變更嗎？</translation>
+        <translation>您要丟棄您對儲存庫 &apos;%1&apos; 的變更嗎？</translation>
     </message>
     <message>
         <source>Would you like to discard your changes to the file &apos;%1&apos;?</source>
@@ -11028,7 +10220,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Repository status</source>
-        <translation>主目錄狀態</translation>
+        <translation>儲存庫狀態</translation>
     </message>
     <message>
         <source>The initial revision %1 cannot be described.</source>
@@ -11060,7 +10252,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Attached to core temporarily.</source>
         <translation type="obsolete">暫時附加到 core 檔。</translation>
@@ -11079,21 +10271,21 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation>複製一個 Git 主目錄，並試著載入裡面包含的專案。</translation>
+        <translation>複製一個 Git 儲存庫，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Git Repository Clone</source>
-        <translation>Git 主目錄複製</translation>
+        <translation>Git 儲存庫複製</translation>
     </message>
     <message>
         <source>Location</source>
@@ -11101,7 +10293,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>請指定主目錄網址、取出目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、取出目錄與路徑。</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -11113,7 +10305,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Delete the master branch after checking out the repository.</source>
-        <translation>取出主目錄時刪除 master 分支。</translation>
+        <translation>取出儲存庫時刪除 master 分支。</translation>
     </message>
 </context>
 <context>
@@ -11135,11 +10327,11 @@ Will not be applied to whitespace in comments and strings.</source>
     <name>Gitorious::Internal::GitoriousCloneWizard</name>
     <message>
         <source>Clones a Gitorious repository and tries to load the contained project.</source>
-        <translation>複製一個 Gitorious 主目錄，並試著載入裡面包含的專案。</translation>
+        <translation>複製一個 Gitorious 儲存庫，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Gitorious Repository Clone</source>
-        <translation>Gitorious 主目錄複製</translation>
+        <translation>Gitorious 儲存庫複製</translation>
     </message>
 </context>
 <context>
@@ -11165,7 +10357,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>General Settings</source>
         <translation type="obsolete">一般設定</translation>
@@ -11308,7 +10500,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>啟動程式失敗。路徑或者權限是否有錯誤？</translation>
@@ -11327,16 +10519,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>無法取得除錯輸出。
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation>執行</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>No executable specified.
 </source>
@@ -11355,9 +10537,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>%1 已離開，離開代碼為 %2
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>目標目錄 %1 無法被建立。</translation>
@@ -11385,21 +10564,12 @@ Reason: %2</source>
         <translation>GDB 小助手</translation>
     </message>
     <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 在 PATH 中找不到
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
-    <message>
         <source>Develop</source>
         <translation>開發</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;新類別&gt;</translation>
@@ -11446,11 +10616,11 @@ Reason: %2</source>
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新設置</translation>
+        <translation>新組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
     <message>
         <source>%1 Debug</source>
@@ -11474,47 +10644,41 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation>從 Subversion 主目錄中取出，並試著載入裡面包含的專案。</translation>
+        <translation>從 Subversion 儲存庫中取出，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Subversion Checkout</source>
         <translation>Subversion 取出</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>請指定主目錄網址、取出目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、取出目錄與路徑。</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>不是一個色彩機制檔。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>自訂</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>無法開啟專案</translation>
@@ -11535,9 +10699,6 @@ Reason: %2</source>
         <source>&apos;%1&apos; does not exist.</source>
         <translation>&apos;%1&apos; 不存在。</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>無法啟動 %1：%2</translation>
@@ -11558,9 +10719,6 @@ Reason: %2</source>
         <source>Stopping...</source>
         <translation>正在停止...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>取出</translation>
@@ -11581,9 +10739,6 @@ Reason: %2</source>
         <source>Succeeded.</source>
         <translation>成功。</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>開啟 &quot;%1&quot;</translation>
@@ -11591,10 +10746,6 @@ Reason: %2</source>
     <message>
         <source>Clear</source>
         <translation>清除</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>版本控制</translation>
     </message>
     <message>
         <source>Executing: %1 %2
@@ -11609,7 +10760,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>新聞與支持</translation>
@@ -11671,7 +10822,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Generic Project Configuration File</source>
-        <translation>一般專案設置檔</translation>
+        <translation>一般專案組態檔</translation>
     </message>
     <message>
         <source>Perforce submit template</source>
@@ -11870,18 +11021,18 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>主目錄：</translation>
+        <translation>儲存庫：</translation>
     </message>
     <message>
         <source>repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -11909,7 +11060,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -11997,7 +11148,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Class name:</source>
         <translation>類別名稱：</translation>
@@ -12044,14 +11195,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation>執行 CMake 目標</translation>
     </message>
     <message>
         <source>The executable is not built by the current build configuration</source>
-        <translation>這個可執行檔不是使用目前的建置設置製作出來的</translation>
+        <translation>這個可執行檔不是使用目前的建置組態製作出來的</translation>
     </message>
     <message>
         <source> (disabled)</source>
@@ -12059,7 +11210,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -12078,24 +11229,24 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>貼上代碼</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation>複製一個 Mercurial 主目錄，並試著載入裡面包含的專案。</translation>
+        <translation>複製一個 Mercurial 儲存庫，並試著載入裡面包含的專案。</translation>
     </message>
     <message>
         <source>Mercurial Clone</source>
@@ -12107,7 +11258,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>請指定主目錄網址、取出目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、取出目錄與路徑。</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -12267,7 +11418,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>建立主目錄...</translation>
+        <translation>建立儲存庫...</translation>
     </message>
     <message>
         <source>Pull Source</source>
@@ -12335,7 +11486,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>未指定執行檔</translation>
@@ -12367,11 +11518,11 @@ Reason: %2</source>
     </message>
     <message>
         <source>The repository &quot;%1&quot; does not exist.</source>
-        <translation>主目錄 &quot;%1&quot; 不存在。</translation>
+        <translation>儲存庫 &quot;%1&quot; 不存在。</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -12381,16 +11532,10 @@ Reason: %2</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>untitled</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;工作階段中沒有其他專案&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer</name>
     <message>
         <source>Build &amp; Run</source>
         <translation>建置並執行</translation>
@@ -12425,18 +11570,18 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt Versions</source>
         <translation>Qt 版本</translation>
     </message>
     <message>
         <source>Unconfigured Project</source>
-        <translation type="obsolete">未設置專案</translation>
+        <translation type="obsolete">未組態專案</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>文字編輯器</translation>
@@ -12447,7 +11592,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Stashes</source>
         <translation>暫存檔</translation>
@@ -12482,11 +11627,11 @@ Reason: %2</source>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
-        <translation>&lt;沒有主目錄&gt;</translation>
+        <translation>&lt;沒有儲存庫&gt;</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation>主目錄：%1</translation>
+        <translation>儲存庫：%1</translation>
     </message>
     <message>
         <source>Do you want to delete all stashes?</source>
@@ -12513,12 +11658,12 @@ Reason: %2</source>
     </message>
     <message>
         <source>Repository Modified</source>
-        <translation>主目錄已變更</translation>
+        <translation>儲存庫已變更</translation>
     </message>
     <message>
         <source>%1 cannot be restored since the repository is modified.
 You can choose between stashing the changes or discarding them.</source>
-        <translation>%1 無法還原，因為主目錄已被變更。
+        <translation>%1 無法還原，因為儲存庫已被變更。
 您可以選擇要暫存或是丟棄變更。</translation>
     </message>
     <message>
@@ -12543,14 +11688,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>雙標籤元件</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>目標設定元件</translation>
@@ -12600,7 +11742,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Self-signed certificate</source>
         <translation type="obsolete">自行簽署的憑證</translation>
@@ -12635,7 +11777,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>目錄 %1 無法被刪除。</translation>
@@ -12646,19 +11788,15 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>There were errors when cleaning the repository %1:</source>
-        <translation>清除主目錄 %1 時發生錯誤：</translation>
+        <translation>清除儲存庫 %1 時發生錯誤：</translation>
     </message>
     <message>
         <source>Delete...</source>
         <translation>刪除...</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>名稱</translation>
-    </message>
-    <message>
         <source>Repository: %1</source>
-        <translation>主目錄：%1</translation>
+        <translation>儲存庫：%1</translation>
     </message>
     <message numerus="yes">
         <source>%n bytes, last modified %1</source>
@@ -12686,14 +11824,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>無</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Load on Startup</source>
         <translation>啟動時載入</translation>
@@ -12704,14 +11839,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; 或 &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>file or directory not found</source>
         <translation>找不到檔案或路徑</translation>
@@ -12738,14 +11870,11 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Utils::FileWizardDialog</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>過濾器</translation>
@@ -12754,9 +11883,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Clear text</source>
         <translation>清除文字</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>檔案已經被移除</translation>
@@ -12781,23 +11907,17 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>&amp;Save</source>
         <translation>儲存(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;變數&lt;/th&gt;&lt;th&gt;展開為&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;目前檔案所在目錄&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;檔名 (包含完整路徑)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;檔名 (不含路徑)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>記憶體於 0x%1</translation>
@@ -12900,7 +12020,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -12913,7 +12033,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command</source>
         <translation>指令</translation>
@@ -12922,26 +12042,13 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Label</source>
         <translation>標籤</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>設計</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>Could not open url %1.</source>
         <translation>無法開啟網址 %1。</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
     </message>
     <message>
         <source>Copy Full Path to Clipboard</source>
@@ -12952,16 +12059,12 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>移除分割</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>設為可寫入</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>檔案可寫入</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;註解&gt;</translation>
@@ -12972,14 +12075,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
+    <name>QtC::CppEditor</name>
 </context>
 <context>
-    <name>VCS</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>CVS 提交編輯器</translation>
@@ -13122,14 +12221,14 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>此檔案只能在&lt;b&gt;設計&lt;/b&gt;模式中編輯。</translation>
@@ -13144,14 +12243,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Ex 指令映射</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -13167,7 +12262,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>QtC::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>搜尋/取代(&amp;F)</translation>
@@ -13181,16 +12276,12 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>開啟進階搜尋...</translation>
     </message>
     <message>
-        <source>Advanced...</source>
-        <translation>進階...</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -13201,11 +12292,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
-    </message>
-    <message>
-        <source>Override %1:</source>
-        <translation>覆蓋 %1：</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Make arguments:</source>
@@ -13217,7 +12304,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Blame %1</source>
         <translation>&quot;%1&quot; 的提交紀錄</translation>
@@ -13228,7 +12315,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Error loading: %1</source>
         <translation type="unfinished"></translation>
@@ -13251,7 +12338,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Annotate %1</source>
         <translation>最後註記 %1</translation>
@@ -13262,14 +12349,14 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceEditor</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>註記變更列表 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildConfiguration</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
@@ -13288,9 +12375,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Clean Environment</source>
         <translation>清除環境變數</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>清除系統環境變數</translation>
@@ -13315,7 +12399,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -13324,10 +12408,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Creates a plain C project using qmake, not using the Qt library.</source>
         <translation>使用 qmake 建立純 C 語言的專案，不使用 Qt 的函式庫。</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation>非 Qt 專案</translation>
     </message>
     <message>
         <source>Creates a plain C project using CMake, not using the Qt library.</source>
@@ -13390,10 +12470,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>純 C++ 語言專案</translation>
     </message>
     <message>
-        <source>Libraries</source>
-        <translation>函式庫</translation>
-    </message>
-    <message>
         <source>Qt Creator Plugin</source>
         <translation>Qt Creator 外掛程式</translation>
     </message>
@@ -13441,9 +12517,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Local user settings</source>
         <translation>本地使用者設定</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>路徑：</translation>
@@ -13457,14 +12530,11 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>相依性</translation>
     </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
     <message>
         <source>Editor Settings</source>
         <translation type="obsolete">編輯器設定</translation>
@@ -13486,11 +12556,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
-    <message>
-        <source>Open</source>
-        <translation>開啟</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>開啟 &quot;%1&quot;</translation>
@@ -13517,7 +12583,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <translation>專案</translation>
@@ -13527,24 +12593,8 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation type="obsolete">目標</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>建置</translation>
-    </message>
-    <message>
         <source>Kit</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>佈署</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>執行</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設置</translation>
     </message>
     <message>
         <source>&lt;b&gt;Project:&lt;/b&gt; %1</source>
@@ -13600,29 +12650,12 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
-        <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;專案 &lt;b&gt;%1&lt;/b&gt; 尚未設置。&lt;br/&gt;&lt;br/&gt;您可以在&lt;a href=&quot;projectmode&quot;&gt;專案模式&lt;/a&gt;中設置。&lt;br/&gt;</translation>
+        <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;專案 &lt;b&gt;%1&lt;/b&gt; 尚未組態。&lt;br/&gt;&lt;br/&gt;您可以在&lt;a href=&quot;projectmode&quot;&gt;專案模式&lt;/a&gt;中組態。&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 的複本</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation type="obsolete">目標</translation>
     </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation type="unfinished">建置並執行</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">沒有定義目標。</translation>
@@ -13638,10 +12671,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Cancel Build &amp;&amp; Remove Kit</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>不要移除</translation>
     </message>
     <message>
         <source>Remove Kit %1?</source>
@@ -13684,7 +12713,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -13692,7 +12721,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -13720,7 +12749,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -13854,7 +12883,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>開啟檔案</translation>
@@ -14032,7 +13061,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Creates a QML file.</source>
         <translation>建立一個 QML 檔案。</translation>
@@ -14107,7 +13136,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>載入專案檔案 %1 時發生錯誤。</translation>
@@ -14132,9 +13161,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>No Qt version set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation>新增 Qt Quick 使用者介面專案</translation>
@@ -14143,9 +13169,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>This wizard generates a Qt Quick UI project.</source>
         <translation>此精靈將產生一個 Qt Quick 使用者介面的專案。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
         <source>Qt Quick UI</source>
         <translation>Qt Quick UI</translation>
@@ -14162,9 +13185,6 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
 
 需要 &lt;b&gt;Qt 4.7.4&lt;/b&gt; 或以後的版本。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案已開啟</translation>
@@ -14173,9 +13193,6 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <source>Failed opening project &apos;%1&apos;: Project file is not a file</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案檔本身不是個檔案</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlobserver found.</source>
         <translation type="obsolete">找不到 qmlviewer 或 qmlobserver。</translation>
@@ -14194,16 +13211,10 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <comment>QMLRunConfiguration display name.</comment>
         <translation>QML 檢視器</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;目前檔案&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">執行 QML 腳本</translation>
@@ -14218,7 +13229,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Could not find make command &apos;%1&apos; in the build environment</source>
         <translation type="obsolete">在建置環境中找不到 make 指令 &apos;%1&apos;</translation>
@@ -14288,16 +13299,10 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
 </source>
         <translation type="obsolete">正在啟動：&quot;%1&quot; %2 於 %3</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Create SIS Package</source>
         <translation type="obsolete">建立 SIS 套件</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>self-signed</source>
         <translation type="obsolete">自行簽署</translation>
@@ -14332,7 +13337,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>計算中</translation>
@@ -14355,7 +13360,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>沒有設定 qmake 路徑</translation>
@@ -14418,7 +13423,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>The &quot;Open C/C++ plugin&quot; is not installed in the Symbian SDK or the Symbian SDK path is misconfigured</source>
-        <translation type="obsolete">&quot;開啟 C/C++ 外掛程式&quot; 沒有安裝到 Symbian SDK，或是 Symbian SDK 路徑設定不正確</translation>
+        <translation type="obsolete">&quot;開啟 C/C++ 外掛程式&quot; 沒有安裝到 Symbian SDK，或是 Symbian SDK 路徑組態不正確</translation>
     </message>
     <message>
         <source>SBS was not found.</source>
@@ -14484,7 +13489,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Modules</source>
         <translation>模組</translation>
@@ -14519,25 +13524,21 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditor</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>版本控制</translation>
-    </message>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>檔案 &apos;%1&apos; 無法被刪除。</translation>
     </message>
     <message>
         <source>Choose Repository Directory</source>
-        <translation>請選擇主目錄的存放目錄</translation>
+        <translation>請選擇儲存庫的存放目錄</translation>
     </message>
     <message>
         <source>The directory &apos;%1&apos; is already managed by a version control system (%2). Would you like to specify another directory?</source>
@@ -14549,11 +13550,11 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>Repository Created</source>
-        <translation>主目錄建立成功</translation>
+        <translation>儲存庫建立成功</translation>
     </message>
     <message>
         <source>Repository Creation Failed</source>
-        <translation>主目錄建立失敗</translation>
+        <translation>儲存庫建立失敗</translation>
     </message>
     <message>
         <source>Error: Executable timed out after %1s.</source>
@@ -14561,7 +13562,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>There is no patch-command configured in the common &apos;Version Control&apos; settings.</source>
-        <translation>在「版本控制」設定中沒有設定修補指令。</translation>
+        <translation>在「版本控制」設定中沒有組態修補指令。</translation>
     </message>
     <message>
         <source>Unable to launch &apos;%1&apos;: %2</source>
@@ -14581,15 +13582,15 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
     <message>
         <source>A version control repository has been created in %1.</source>
-        <translation>已在 %1 建立版本控制系統主目錄。</translation>
+        <translation>已在 %1 建立版本控制系統儲存庫。</translation>
     </message>
     <message>
         <source>A version control repository could not be created in %1.</source>
-        <translation>無法在 %1 建立版本控制系統主目錄。</translation>
+        <translation>無法在 %1 建立版本控制系統儲存庫。</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Locked</source>
         <translation>已鎖定</translation>
@@ -14625,7 +13626,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>無法開啟 %1：%2</translation>
@@ -14640,7 +13641,7 @@ with a password, which you can enter below.</source>
     </message>
     <message>
         <source>Please configure a path.</source>
-        <translation>請設置一個路徑。</translation>
+        <translation>請組態一個路徑。</translation>
     </message>
     <message>
         <source>Pasted: %1</source>
@@ -14652,7 +13653,7 @@ with a password, which you can enter below.</source>
     </message>
     <message>
         <source>%1 - Configuration Error</source>
-        <translation>%1 - 設置錯誤</translation>
+        <translation>%1 - 組態錯誤</translation>
     </message>
     <message>
         <source>Settings...</source>
@@ -14660,7 +13661,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>輸入工作階段的名稱：</translation>
@@ -14671,7 +13672,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>預覽 Qt Quick 檔案失敗</translation>
@@ -14684,7 +13685,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation>無法啟動 pdb &apos;%1&apos;：%2</translation>
@@ -14739,15 +13740,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>執行</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>建置</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>QmlDesigner::PropertyEditor</name>
@@ -14769,7 +13762,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>The Symbian SDK and the project sources must reside on the same drive.</source>
         <translation type="obsolete">Symbian SDK 和專案源碼檔必須在同一個磁碟上。</translation>
@@ -14784,7 +13777,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -14797,7 +13790,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake 不支援在源碼目錄下使用建置目錄。</translation>
@@ -14808,7 +13801,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::QuickFix</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>使用 %1 重寫</translation>
@@ -14907,7 +13900,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::Manager</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案已經被開啟</translation>
@@ -14974,7 +13967,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>文字</translation>
@@ -15460,14 +14453,14 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Core::HelpManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Unfiltered</source>
         <translation>未過濾</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source> [New] </source>
         <translation> [新增] </translation>
@@ -15478,7 +14471,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -15507,13 +14500,6 @@ Ids must begin with a lowercase letter.</source>
         <source>10 x 10</source>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>The image is scaled to fit</source>
         <translation>圖像被縮放到合適大小</translation>
@@ -15539,17 +14525,6 @@ Ids must begin with a lowercase letter.</source>
         <translation>影像被一致地縮放到合適大小，如果需要會被裁剪</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
-    <message>
         <source>Gradient</source>
         <translation>漸層</translation>
     </message>
@@ -15558,16 +14533,9 @@ Ids must begin with a lowercase letter.</source>
         <translation>顏色</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>邊框</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -15634,7 +14602,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -15645,10 +14613,10 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">過濾器設置</translation>
+        <translation type="obsolete">過濾器組態</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -15668,7 +14636,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>影像檢視器</translation>
@@ -15687,7 +14655,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -15714,7 +14682,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>函式庫：</translation>
@@ -15793,7 +14761,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>隱藏此工具列。</translation>
@@ -15814,23 +14782,13 @@ Ids must begin with a lowercase letter.</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>隱藏此工具列。該工具列可在選項頁面或內文選單中永久停用。</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation>雙擊以預覽</translation>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::FileWidget</name>
-    <message>
-        <source>Open File</source>
-        <translation>開啟檔案</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJS::Bind</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>兩個數字應該由點分隔</translation>
@@ -15841,7 +14799,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>無法啟動行程：%1</translation>
@@ -15890,7 +14848,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Utils::SynchronousProcess</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>指令 &apos;%1&apos; 已成功完成。</translation>
@@ -15929,14 +14887,14 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>類別檢視</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -15948,18 +14906,11 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation>啟用 %1 窗格</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
+    <name>QtC::Core</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>啟用 %1 窗格</translation>
@@ -15983,7 +14934,7 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>正在檢查連線</translation>
@@ -15994,28 +14945,19 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Expected a namespace-name</source>
         <translation>預期應為命名空間名稱</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>新增 %1 宣告</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>在 %1 新增定義</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>沒有可用的型態階層</translation>
@@ -16028,23 +14970,13 @@ Server list was %2.</source>
         <source>Derived</source>
         <translation>衍生</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>型態階層</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>C++ 符號</translation>
-    </message>
-    <message>
-        <source>Searching</source>
-        <translation>搜尋中</translation>
     </message>
     <message>
         <source>C++ Symbols:</source>
@@ -16086,28 +15018,9 @@ Flags: %3</source>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>型態：</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>類別</translation>
-    </message>
-    <message>
-        <source>Methods</source>
-        <translation>方法</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>列舉</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>宣告</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -16119,7 +15032,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>File name and line number</source>
         <translation>檔名與行號</translation>
@@ -16290,9 +15203,6 @@ This feature is only available for GDB.</source>
         <source>&amp;Message:</source>
         <translation>訊息(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
         <translation type="obsolete">執行檔格式 &apos;%1&apos; 沒有可用的 CDB 執行檔</translation>
@@ -16373,9 +15283,6 @@ This feature is only available for GDB.</source>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation>「選擇要監看的元件」：在狀態 &apos;%1&apos; 時不支援。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>選擇本地快取資料夾</translation>
@@ -16400,9 +15307,6 @@ This feature is only available for GDB.</source>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation>資料夾 &apos;%1&apos; 無法被建立。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>嘗試中斷中。</translation>
@@ -16415,9 +15319,6 @@ This feature is only available for GDB.</source>
         <source>Debugger Test</source>
         <translation>除錯工具測試</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Launching</source>
         <translation>正在啟動</translation>
@@ -16548,9 +15449,6 @@ This feature is only available for GDB.</source>
         <source>Jump to Line %1</source>
         <translation>跳到行 %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debug</source>
         <translation>除錯</translation>
@@ -16585,11 +15483,11 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; required for debugging binaries of the type &apos;%2&apos; is not configured correctly.</source>
-        <translation type="obsolete">除錯型態 &apos;%2&apos; 的執行檔需要使用除錯引擎 &apos;%1&apos;，但是設置不正確。</translation>
+        <translation type="obsolete">除錯型態 &apos;%2&apos; 的執行檔需要使用除錯引擎 &apos;%1&apos;，但是組態不正確。</translation>
     </message>
     <message>
         <source>None of the debugger engines &apos;%1&apos; capable of debugging binaries of the type &apos;%2&apos; is configured correctly.</source>
-        <translation type="obsolete">型態 &apos;%2&apos; 的執行檔適用的除錯引擎 &apos;%1&apos; 設置都不正確。</translation>
+        <translation type="obsolete">型態 &apos;%2&apos; 的執行檔適用的除錯引擎 &apos;%1&apos; 組態都不正確。</translation>
     </message>
     <message>
         <source>The preferred debugger engine for debugging binaries of type &apos;%1&apos; is not available.
@@ -16607,9 +15505,6 @@ Details: %3</source>
         <source>Tries to install missing debug information.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugger</source>
         <translation>除錯工具</translation>
@@ -16646,18 +15541,12 @@ Details: %3</source>
         <source>Close Debugging Session</source>
         <translation>關閉除錯工作階段</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
         <translation type="obsolete">這似乎不是個 &quot;Debug&quot; 的建置。
 依檔名與行號來設定中斷點可能會失敗。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Connection failure: %1.</source>
         <translation>連線失敗：%1。</translation>
@@ -16678,9 +15567,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Remote GDB crashed.</source>
         <translation>遠端 gdb 已崩潰。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>清除內容</translation>
@@ -16689,16 +15575,10 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Save Contents</source>
         <translation>儲存內容</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>按下 Ctrl-&lt;Return&gt; 執行一行。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>除錯工具紀錄</translation>
@@ -16745,9 +15625,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
         <translation type="obsolete">&apos;%1&apos; 的狀態變更為「未連線」。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">內部名稱</translation>
@@ -16766,7 +15643,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -16791,7 +15668,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Show Sidebar</source>
         <translation>顯示邊列</translation>
@@ -16802,7 +15679,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>EditorManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Next Open Document in History</source>
         <translation>歷史紀錄中下一個開啟的檔案</translation>
@@ -16812,28 +15689,12 @@ instead of its installation directory when run outside git bash.</source>
         <translation>歷史紀錄中前一個開啟的檔案</translation>
     </message>
     <message>
-        <source>Go Back</source>
-        <translation>返回</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>前進</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>左右分割</translation>
-    </message>
-    <message>
         <source>Close Document</source>
         <translation>關閉文件</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>複製完整路徑到剪貼簿</translation>
@@ -16844,7 +15705,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>放大</translation>
@@ -16903,7 +15764,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -16945,9 +15806,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>No Build Steps</source>
         <translation>沒有建置步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error: </source>
         <extracomment>Task is of type: error</extracomment>
@@ -16967,9 +15825,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Copy task to clipboard</source>
         <translation>將工作複製到剪貼簿</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
@@ -16981,21 +15836,10 @@ instead of its installation directory when run outside git bash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No deployment</source>
-        <extracomment>Default DeployConfiguration display name</extracomment>
-        <translation type="obsolete">目前無佈署</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
         <source>Deploy Configuration</source>
         <extracomment>Display name of the default deploy configuration</extracomment>
-        <translation>佈署設置</translation>
+        <translation>佈署組態</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Application Still Running</source>
         <translation>應用程式仍然執行中</translation>
@@ -17025,9 +15869,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Do not ask again</source>
         <translation>不要再次詢問</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>&amp;Show in Editor</source>
         <translation>在編輯器中顯示(&amp;S)</translation>
@@ -17036,9 +15877,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Show task location in an editor.</source>
         <translation>在編輯器中顯示工作位置。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>顯示輸出(&amp;O)</translation>
@@ -17047,9 +15885,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Show output generating this issue.</source>
         <translation>顯示產生此問題的輸出。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>目前無佈署</translation>
@@ -17062,9 +15897,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Deploy to Symbian device</source>
         <translation type="obsolete">佈署至 Symbian 裝置</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>最後註記(&amp;A)</translation>
@@ -17075,7 +15907,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Move Component into separate file</source>
         <translation type="obsolete">將組件移到分離的檔案中</translation>
@@ -17186,7 +16018,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>新增函式庫</translation>
@@ -17315,7 +16147,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -17335,7 +16167,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>僅限 Qt 桌面版或者 Qt 模擬器版本使用。</translation>
@@ -17346,11 +16178,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>目標目錄 %1 無法被建立。</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -17363,7 +16191,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Passphrase:</source>
         <translation type="obsolete">密碼片語：</translation>
@@ -17382,7 +16210,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">裝置：</translation>
@@ -17511,9 +16339,6 @@ Reason: %2</source>
         <source>Queries the device for information</source>
         <translation type="obsolete">查詢裝置資訊</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation type="obsolete">現有檔案 &apos;%1&apos; 無法被移除：%2</translation>
@@ -17637,7 +16462,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>SBSv2 build log</source>
         <translation type="obsolete">SBSv2 建置紀錄</translation>
@@ -17677,7 +16502,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>找不到 QML 匯入路徑 &apos;%1&apos;。</translation>
@@ -17766,7 +16591,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>停止監看</translation>
@@ -17775,9 +16600,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>Stop monitoring task files.</source>
         <translation>停止監看工作檔案。</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
         <translation>工作檔讀取器</translation>
@@ -17786,9 +16608,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>File Error</source>
         <translation>檔案錯誤</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>無法開啟工作檔案 %1：%2</translation>
@@ -17800,7 +16619,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::HighlighterSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>一般突顯器</translation>
@@ -17829,9 +16648,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>Not possible to retrieve data.</source>
         <translation>無法取得資料。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -17880,9 +16696,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>Download Selected Definitions</source>
         <translation>下載已選取的定義</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
     <message>
         <source>Registering definitions</source>
         <translation>正在註冊定義</translation>
@@ -17909,9 +16722,6 @@ Please check the directory&apos;s access rights.</source>
         <source>Download Error</source>
         <translation>下載錯誤</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>沒有可用大綱</translation>
@@ -17924,16 +16734,10 @@ Please check the directory&apos;s access rights.</source>
         <source>Filter tree</source>
         <translation>過濾樹狀圖</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>大綱</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>找不到此檔案的突顯定義。您要試著找找看嗎？</translation>
@@ -17944,7 +16748,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -17981,7 +16785,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Stacked</source>
         <translation>已堆疊</translation>
@@ -18020,7 +16824,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Do not use a shared repository, even if available.</source>
-        <translation>即使可以使用，也不要使用共享主目錄。</translation>
+        <translation>即使可以使用，也不要使用共享儲存庫。</translation>
     </message>
     <message>
         <source>Switch the checkout in the current directory to the new branch.</source>
@@ -18036,14 +16840,14 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -18095,7 +16899,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -18175,7 +16979,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>還原</translation>
@@ -18190,7 +16994,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
+    <name>QtC::Core</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -18200,24 +17004,12 @@ Local pulls are not applied to the master branch.</source>
         <translation>新增工具</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
         <source>Remove tool</source>
         <translation>移除工具</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
         <source>Revert tool to default</source>
         <translation>還原為預設工具</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>重置</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -18303,16 +17095,13 @@ Local pulls are not applied to the master branch.</source>
         <source>Add Category</source>
         <translation>新增類別</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert variable</source>
         <translation>插入變數</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -18345,9 +17134,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Description:</source>
         <translation>描述：</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>儲存巨集</translation>
@@ -18356,13 +17142,9 @@ Local pulls are not applied to the master branch.</source>
         <source>Name:</source>
         <translation>名稱：</translation>
     </message>
-    <message>
-        <source>Description:</source>
-        <translation>描述：</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>選擇發佈精靈</translation>
@@ -18381,7 +17163,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>ARM &amp;version:</source>
         <translation type="obsolete">ARM 版本(&amp;V)：</translation>
@@ -18420,7 +17202,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -18435,7 +17217,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentModel</name>
+    <name>QtC::Utils</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;未設定&gt;</translation>
@@ -18458,23 +17240,14 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;值&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation>不是一個合法的 IP 位址。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>命令列發生錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
         <translation type="obsolete">伺服器無法啟動 sftp 子系統。</translation>
@@ -18555,16 +17328,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Error reading local file: %1</source>
         <translation type="obsolete">讀取本地檔案時發生錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshChannelManager</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">無效的頻道代碼 %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">SSH 協定錯誤：%1</translation>
@@ -18580,10 +17347,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
         <translation type="obsolete">無效的伺服器代碼 &apos;%1&apos;。</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">未預期的封包型態 %1。</translation>
     </message>
     <message>
         <source>Password expired.</source>
@@ -18623,7 +17386,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>沒有找到錯誤</translation>
@@ -18656,9 +17419,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Helgrind Thread ID</source>
         <translation>Helgrind 執行緒代碼</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>位置：</translation>
@@ -18667,9 +17427,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Instruction pointer:</source>
         <translation>指令指標：</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>無法剖析從&quot;%1&quot; (%2) 來的十六進位數</translation>
@@ -18722,9 +17479,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Unexpected exception caught during parsing.</source>
         <translation>剖析時抓取到未預期的例外狀況。</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>描述</translation>
@@ -18751,7 +17505,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>分析器</translation>
@@ -18823,7 +17577,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Annotate %1</source>
         <translation>最後註記 %1</translation>
@@ -18958,7 +17712,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Create Repository...</source>
-        <translation>建立主目錄...</translation>
+        <translation>建立儲存庫...</translation>
     </message>
     <message>
         <source>Update</source>
@@ -19014,7 +17768,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>複製一個 Bazaar 分支，並試著載入裡面包含的專案。</translation>
@@ -19025,14 +17779,14 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
     </message>
     <message>
         <source>Specify repository URL, clone directory and path.</source>
-        <translation>請指定主目錄網址、複製目錄與路徑。</translation>
+        <translation>請指定儲存庫網址、複製目錄與路徑。</translation>
     </message>
     <message>
         <source>Clone URL:</source>
@@ -19040,24 +17794,24 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>提交編輯器</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar 指令</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolModel</name>
+    <name>QtC::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>未分類</translation>
@@ -19083,9 +17837,6 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Sample external tool text</extracomment>
         <translation>有用的文字</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
         <translation>從翻譯者翻譯好的 ts 檔產生給應用程式使用的 qm 檔</translation>
@@ -19146,9 +17897,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Edit with vi</source>
         <translation>使用 vi 進行編輯</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -19163,13 +17911,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&apos;%1&apos; finished</source>
         <translation>&apos;%1&apos; 已完成</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
-    <message>
-        <source>Configure...</source>
-        <translation>設置...</translation>
-    </message>
     <message>
         <source>&amp;External</source>
         <translation>外部(&amp;E)</translation>
@@ -19181,13 +17922,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>錯誤：在 %1 的外部工具有重複的代碼</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">魔術標頭檔</translation>
     </message>
     <message>
         <source>Add Magic Header</source>
@@ -19241,9 +17975,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意：取值範圍太大可能影響到 Qt Creator 開啟檔案的效能。&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME 型態</translation>
@@ -19270,13 +18001,6 @@ Local pulls are not applied to the master branch.</source>
             <numerusform>%n 個樣式已在使用中。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Error</source>
-        <translation>錯誤</translation>
-    </message>
     <message>
         <source>No MIME type selected.</source>
         <translation>沒有選中任何 MIME 型態。</translation>
@@ -19293,23 +18017,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Changes will take effect in the next time you start Qt Creator.</source>
         <translation>這些變更將在下次啟動 Qt Creator 時生效。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
-    <message>
-        <source>MIME Types</source>
-        <translation>MIME 型態</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>外部工具</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -19354,7 +18065,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditorWidget</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>按字母排序</translation>
@@ -19367,9 +18078,6 @@ to version control (%2)
         <source>Unused variable</source>
         <translation>未使用的變數</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertQtPropertyMembers</name>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
         <translation type="obsolete">產生遺失的 Q_PROPERTY 成員...</translation>
@@ -19378,9 +18086,6 @@ to version control (%2)
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>全部展開</translation>
@@ -19391,14 +18096,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>條件(&amp;C)：</translation>
@@ -19415,9 +18113,6 @@ to version control (%2)
         <source>&amp;Connection:</source>
         <translation>連線(&amp;C)：</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Memory...</source>
         <translation>記憶體...</translation>
@@ -19426,9 +18121,6 @@ to version control (%2)
         <source>Debugger Toolbar</source>
         <translation>除錯器工具列</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>沒有選擇函式。</translation>
@@ -19880,9 +18572,6 @@ Qt Creator cannot attach to it.</source>
         <source>Qt Sources</source>
         <translation>Qt 源碼</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation type="obsolete">%1 (%2)</translation>
@@ -19891,16 +18580,10 @@ Qt Creator cannot attach to it.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI：&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;除錯工具：&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>目前不支援在 Windows 中對複雜的命令列除錯。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
         <translation type="obsolete">行程已啟動，行程代碼：0x%1，執行緒代碼：0x%2，代碼段：0x%3，資料段：0x%4。</translation>
@@ -19915,16 +18598,10 @@ Qt Creator cannot attach to it.</source>
         <source>Could not obtain device.</source>
         <translation type="obsolete">無法獲得裝置。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>嚴重的引擎錯誤關閉。不相容的二進位檔或 IPC 錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>qtcreator-lldb 無法啟動：%1</translation>
@@ -19937,16 +18614,10 @@ Qt Creator cannot attach to it.</source>
         <source>SSH connection error: %1</source>
         <translation>SSH 連線錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>記憶體在 0x%1</translation>
@@ -19959,9 +18630,6 @@ Qt Creator cannot attach to it.</source>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>因為沒有載入二進制資料檢視器外掛程式，因此無法顯示記憶體內容。</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation type="unfinished">從屬除錯引擎需要整合QML/C++-除錯無法被建立: %1</translation>
@@ -19974,9 +18642,6 @@ Qt Creator cannot attach to it.</source>
         <source>QML debugger activated</source>
         <translation>已啟用 QML 除錯工具</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -20062,7 +18727,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>使用 patience 演算法來計算差異。</translation>
@@ -20117,14 +18782,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -20162,23 +18820,17 @@ Do you want to retry?</source>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation type="unfinished">頂點著色器 (Desktop OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>新增 %1 </translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Macros</source>
         <translation>巨集</translation>
     </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>播放巨集</translation>
@@ -20195,9 +18847,6 @@ Do you want to retry?</source>
         <source>Stop Recording Macro</source>
         <translation>停止錄製巨集</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation>巨集(&amp;M)</translation>
@@ -20213,10 +18862,6 @@ Do you want to retry?</source>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>停止錄製巨集</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -20244,14 +18889,11 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>編譯器路徑(&amp;C)：</translation>
@@ -20260,30 +18902,18 @@ Do you want to retry?</source>
         <source>&amp;ABI:</source>
         <translation>&amp;ABI：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcDebuggerConfigLabel</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
@@ -20297,9 +18927,6 @@ Do you want to retry?</source>
         <source>32-bit version</source>
         <translation type="obsolete">32 位元版本</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>初始化：</translation>
@@ -20312,23 +18939,6 @@ Do you want to retry?</source>
         <source>No 64bit CDB debugger detected.</source>
         <translation type="obsolete">沒有偵測到 64 位元CDB除錯工具。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>專案</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 的複本</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">除錯工具(&amp;D)：</translation>
@@ -20353,17 +18963,6 @@ Do you want to retry?</source>
         <source>Name:</source>
         <translation type="unfinished">名稱：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>自動偵測</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>手動</translation>
-    </message>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
         <translation>&lt;nobr&gt;&lt;b&gt;ABI：&lt;/b&gt; %1</translation>
@@ -20373,32 +18972,12 @@ Do you want to retry?</source>
         <translation>不是最新</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>名稱</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>型態</translation>
     </message>
     <message>
-        <source>Duplicate Compilers Detected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duplicate Tool Chain detected</source>
-        <translation type="obsolete">偵測到工具鍊有重複</translation>
-    </message>
-    <message>
         <source>The following tool chain was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation type="obsolete">已設置以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次設置。</translation>
+        <translation type="obsolete">已組態以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
     </message>
     <message>
         <source>Duplicate Tool Chains detected</source>
@@ -20406,30 +18985,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation type="obsolete">已設置以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次設置。</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
-    <message>
-        <source>Tool Chains</source>
-        <translation type="obsolete">工具鍊</translation>
-    </message>
-    <message>
-        <source>Compilers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
+        <translation type="obsolete">已組態以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次組態。</translation>
     </message>
 </context>
 <context>
@@ -20505,7 +19061,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>新增 %1 </translation>
@@ -20551,7 +19107,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Methods and Functions</source>
         <translation>方法和函式</translation>
@@ -20616,7 +19172,7 @@ Error: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Manage Qt versions...</source>
         <translation type="obsolete">管理 Qt 版本...</translation>
@@ -20647,7 +19203,7 @@ Error: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>目標目錄 %1 無法被建立。</translation>
@@ -20729,7 +19285,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -20784,9 +19340,6 @@ Valid from: %2.</source>
             <numerusform>支援 %n 個裝置：</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -20800,9 +19353,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
         <translation type="obsolete">無法建立自動安裝包因為自動安裝器檔案丟失。請檢查檔案存在於SDK下。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Clean</source>
         <translation type="obsolete">清除</translation>
@@ -20853,9 +19403,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <translation type="obsolete">已建立 %1。
 </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Open Containing Folder</source>
         <translation type="obsolete">開啟包含的資料夾</translation>
@@ -20940,9 +19487,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <source>Global vendor name:</source>
         <translation type="obsolete">全域供應商名稱：</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Publish Qt Symbian Applications to Nokia Store</source>
         <translation type="obsolete">發佈 Qt Symbian 應用程式到 Nokia Store</translation>
@@ -20969,16 +19513,13 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
 
 你的應用程式同樣會因為你採用了未發佈的 Qt 版本而被 Nokia Store 駁回。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Nokia Store</source>
         <translation type="obsolete">發佈到 Nokia Store</translation>
     </message>
     <message>
         <source>Build Configuration</source>
-        <translation type="obsolete">建置設置</translation>
+        <translation type="obsolete">建置組態</translation>
     </message>
     <message>
         <source>Project File Checks</source>
@@ -20990,7 +19531,7 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>WINSCW</source>
         <translation type="obsolete">WINSCW</translation>
@@ -21014,7 +19555,7 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">新增建置來源：</translation>
@@ -21025,7 +19566,7 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
     </message>
     <message>
         <source>Create build configurations:</source>
-        <translation type="obsolete">建立建置設置：</translation>
+        <translation type="obsolete">建立建置組態：</translation>
     </message>
     <message>
         <source>For Each Qt Version One Debug And One Release</source>
@@ -21216,7 +19757,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseTextEditorWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -21249,16 +19790,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>The text is too large to be displayed (%1 MB).</source>
         <translation>文字過大，無法顯示（%1 MB)。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>文字</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>錯誤</translation>
@@ -21279,9 +19810,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>Error reverting snippet.</source>
         <translation>回復片段時發生錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>片段</translation>
@@ -21291,16 +19819,12 @@ You can build the application and deploy it on desktop and mobile target platfor
         <translation>儲存片段收藏時發生錯誤</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>錯誤</translation>
-    </message>
-    <message>
         <source>No snippet selected.</source>
         <translation>沒有選取片段。</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseClient</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>無法啟動行程 &apos;%1&apos;：%2</translation>
@@ -21313,9 +19837,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>Working...</source>
         <translation>工作中...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>最後註記 &quot;%1&quot;</translation>
@@ -21425,11 +19946,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>巨集</translation>
-    </message>
+    <name>QtC::Macros</name>
 </context>
 <context>
     <name>AnchorButtons</name>
@@ -21517,7 +20034,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -21686,7 +20203,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -21741,7 +20258,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML 效能分析器</translation>
@@ -21764,7 +20281,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>用於從基於函式庫的外掛程式中展開 QML 型態資訊。</translation>
@@ -21817,9 +20334,6 @@ if (a &amp;&amp;
         <source>Compiler:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>版本名稱：</translation>
@@ -21832,9 +20346,6 @@ if (a &amp;&amp;
         <source>Edit</source>
         <translation>編輯</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -21857,7 +20368,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation type="unfinished">Suppression 檔案:</translation>
@@ -21874,9 +20385,6 @@ if (a &amp;&amp;
         <source>Save Suppression</source>
         <translation type="unfinished">儲存Suppression</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>一般設定</translation>
@@ -22015,22 +20523,18 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Configuration</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Please configure &lt;b&gt;%1&lt;/b&gt; now.</source>
-        <translation>請現在設置 &lt;b&gt;%1&lt;/b&gt;。</translation>
-    </message>
-    <message>
-        <source>Configure...</source>
-        <translation type="unfinished">設置...</translation>
+        <translation>請現在組態 &lt;b&gt;%1&lt;/b&gt;。</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FileUtils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>拒絕移除根目錄。</translation>
@@ -22136,7 +20640,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -22147,7 +20651,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>建置之後在專案樹中顯示 cmake 檔的變化。</translation>
@@ -22158,7 +20662,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Core::Internal::PromptOverwriteDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>覆寫現有檔案</translation>
@@ -22171,16 +20675,6 @@ Would you like to overwrite them?</source>
 %1 
 中。您要覆寫它們嗎？</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted
 </source>
@@ -22189,7 +20683,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppTools::CppToolsSettings</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -22209,7 +20703,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -22220,14 +20714,11 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Previous</source>
         <translation>前一個</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>在暫存器 &apos;%1&apos; 的記憶體 (0x%2)</translation>
@@ -22238,7 +20729,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>動作</translation>
@@ -22251,20 +20742,13 @@ Would you like to overwrite them?</source>
         <source>User command #%1</source>
         <translation>使用者指令 #%1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
     <message>
         <source>User Command Mapping</source>
         <translation>使用者指令映射</translation>
     </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
-    </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>隱藏符合條件的檔案：</translation>
@@ -22281,35 +20765,13 @@ Would you like to overwrite them?</source>
 
 %1</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>編輯檔案...</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation>編輯檔案</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation>隱藏符合條件的檔案：</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation>套用過濾器</translation>
-    </message>
-    <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation>產生檔案列表中...
-
-%1</translation>
     </message>
     <message numerus="yes">
         <source>Not showing %n files that are outside of the base directory.
@@ -22321,14 +20783,14 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>本地分支</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Cannot open image file %1.</source>
         <translation>無法開啟影像檔 %1。</translation>
@@ -22343,7 +20805,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -22354,21 +20816,18 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;自訂&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>掛接除錯工具到此行程</translation>
@@ -22395,7 +20854,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Re-run this run-configuration</source>
-        <translation>重新執行此執行設置</translation>
+        <translation>重新執行此執行組態</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -22405,12 +20864,9 @@ These files are preserved.</source>
         <source>Application Output Window</source>
         <translation>應用程式輸出視窗</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style Settings</source>
-        <translation type="obsolete">代碼風格設定</translation>
+        <translation type="obsolete">程式碼樣式設定</translation>
     </message>
     <message>
         <source>Code Style</source>
@@ -22421,7 +20877,7 @@ These files are preserved.</source>
     <name>CodeStyleSettingsPanel</name>
     <message>
         <source>Code Style Settings</source>
-        <translation type="obsolete">代碼風格設定</translation>
+        <translation type="obsolete">程式碼樣式設定</translation>
     </message>
     <message>
         <source>Code Style</source>
@@ -22429,7 +20885,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EditorConfiguration</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -22440,9 +20896,6 @@ These files are preserved.</source>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>專案 %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
@@ -22613,10 +21066,10 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Code Style</source>
-        <translation>代碼風格</translation>
+        <translation>程式碼樣式</translation>
     </message>
     <message>
         <source>Qt Quick</source>
@@ -22645,7 +21098,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
@@ -22713,7 +21166,7 @@ Please use the stop button instead.</source>
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
         <translation>QML 效能分析器需要 Qt 4.7.4 或之後的版本。
-您目前作用中的建置設置的 Qt 版本太舊了。
+您目前作用中的建置組態的 Qt 版本太舊了。
 您要繼續嗎？</translation>
     </message>
     <message>
@@ -22804,7 +21257,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -22817,16 +21270,13 @@ Do you want to retry?</source>
         <translation>%1 已離開，離開代碼 %2
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation>執行</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -22916,7 +21366,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Qt Creator is waiting for the CODA application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right IP address and/or port are configured in the project settings.</source>
-        <translation type="obsolete">Qt Creator 正在等待 CODA 應用連接.&lt;br&gt;你確保你手機上應用正在執行並且IP 地址或連接埠已經設置正確.</translation>
+        <translation type="obsolete">Qt Creator 正在等待 CODA 應用連接.&lt;br&gt;你確保你手機上應用正在執行並且IP 地址或連接埠已經組態正確.</translation>
     </message>
     <message>
         <source>Canceled.
@@ -22932,7 +21382,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation type="obsolete">將 %1 佈署至 Symbian 裝置</translation>
@@ -22960,9 +21410,6 @@ Do you want to retry?</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
         <translation type="obsolete">正在執行 %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">沒有偵測到有效的 Qt 版本。&lt;br&gt;請在「選項」─「Qt4」中定義一個有效的 Qt 版本</translation>
@@ -22973,7 +21420,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Choose a build configuration:</source>
-        <translation type="obsolete">選擇一個建置設置：</translation>
+        <translation type="obsolete">選擇一個建置組態：</translation>
     </message>
     <message>
         <source>Choose a tool chain:</source>
@@ -23013,7 +21460,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>S60 SDK:</source>
         <translation type="obsolete">S60 SDK：</translation>
@@ -23048,7 +21495,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation type="unfinished"></translation>
@@ -23085,16 +21532,10 @@ Do you want to retry?</source>
         <source>Version:</source>
         <translation>版本：</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>入門</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;指定一個名稱&gt;</translation>
@@ -23208,16 +21649,13 @@ Do you want to retry?</source>
         <source>SBS v2 directory:</source>
         <translation type="obsolete">SBS v2 目錄：</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW 從 %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation type="obsolete">&lt;沒有設定目標路徑&gt;</translation>
@@ -23230,16 +21668,10 @@ Do you want to retry?</source>
         <source>Remote Directory</source>
         <translation>遠端目錄</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
-        <translation>新的通用型 Linux 裝置設定</translation>
+        <translation>新的通用型 Linux 裝置組態</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>連線資料</translation>
@@ -23248,9 +21680,6 @@ Do you want to retry?</source>
         <source>Generic Linux Device</source>
         <translation>通用 Linux 裝置</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>設定完成</translation>
@@ -23258,27 +21687,21 @@ Do you want to retry?</source>
     <message>
         <source>The new device configuration will now be created.
 In addition, device connectivity will be tested.</source>
-        <translation>將建立新的裝置設置。
+        <translation>將建立新的裝置組態。
 此外，也會測試裝置的連線。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">啟動精靈</translation>
     </message>
     <message>
         <source>Device Configuration Wizard Selection</source>
-        <translation type="obsolete">裝置設置精靈選擇</translation>
+        <translation type="obsolete">裝置組態精靈選擇</translation>
     </message>
     <message>
         <source>Available device types:</source>
         <translation type="obsolete">可用的裝置型態：</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>SDK Connectivity</source>
         <translation>SDK 連接性</translation>
@@ -23287,9 +21710,6 @@ In addition, device connectivity will be tested.</source>
         <source>Mad Developer</source>
         <translation>Mad 開發者</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation>建立 Debian 套件</translation>
@@ -23298,9 +21718,6 @@ In addition, device connectivity will be tested.</source>
         <source>Create RPM Package</source>
         <translation type="obsolete">建立 RPM 套件</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>選擇公開金鑰檔</translation>
@@ -23317,9 +21734,6 @@ In addition, device connectivity will be tested.</source>
         <source>Deployment finished successfully.</source>
         <translation>佈署成功完成。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Preparing remote side...
 </source>
@@ -23342,9 +21756,6 @@ In addition, device connectivity will be tested.</source>
         <source>Not enough free ports on device for debugging.</source>
         <translation type="obsolete">裝置上可用於除錯的連接埠不夠。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>The .pro file is being parsed.</source>
         <translation type="obsolete">正在剖析 .pro 檔案。</translation>
@@ -23359,7 +21770,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>No active build configuration.</source>
-        <translation>沒有作用中的建置設置。</translation>
+        <translation>沒有作用中的建置組態。</translation>
     </message>
     <message>
         <source>Don&apos;t know what to run.</source>
@@ -23388,23 +21799,17 @@ In addition, device connectivity will be tested.</source>
         <source>System Environment</source>
         <translation>系統環境變數</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation> (在遠端通用Linux主機)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>抓取裝置環境</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;管理裝置設置&lt;/a&gt;</translation>
+        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;管理裝置組態&lt;/a&gt;</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Set Debugger&lt;/a&gt;</source>
@@ -23440,7 +21845,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation>執行設置的基礎環境：</translation>
+        <translation>執行組態的基礎環境：</translation>
     </message>
     <message>
         <source>Cancel Fetch Operation</source>
@@ -23454,9 +21859,6 @@ In addition, device connectivity will be tested.</source>
         <source>Fetching environment failed: %1</source>
         <translation>抓取環境失敗：%1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Starting remote process...
 </source>
@@ -23469,37 +21871,31 @@ In addition, device connectivity will be tested.</source>
         <translation type="obsolete">遠端行程執行結束。返回值為 %1。
 </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>在遠端 Linux 裝置上執行</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1/%2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>無法建立使用者片段目錄 %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>效能分析中</translation>
@@ -23510,9 +21906,6 @@ In addition, device connectivity will be tested.</source>
         <translation>分析 %1 的效能中
 </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrind 函式效能分析器</translation>
@@ -23525,9 +21918,6 @@ In addition, device connectivity will be tested.</source>
         <source>Profile Costs of this Function and its Callees</source>
         <translation type="unfinished">分析此項功能和被調用者的花銷</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>呼叫者</translation>
@@ -23644,16 +22034,10 @@ In addition, device connectivity will be tested.</source>
         <source>Populating...</source>
         <translation type="unfinished">填充...</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation type="unfinished">所有功能包含一個成本比%1高的 (%2 被隱藏)</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>記憶體分析中</translation>
@@ -23664,16 +22048,10 @@ In addition, device connectivity will be tested.</source>
         <translation>%1 的記憶體分析中
 </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>於 %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>複製選擇</translation>
@@ -23682,9 +22060,6 @@ In addition, device connectivity will be tested.</source>
         <source>Suppress Error</source>
         <translation type="unfinished">防止錯誤</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部錯誤</translation>
@@ -23749,9 +22124,6 @@ In addition, device connectivity will be tested.</source>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>剖析 valgrind 輸出時發生錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>被呼叫者</translation>
@@ -23768,9 +22140,6 @@ In addition, device connectivity will be tested.</source>
         <source>Calls</source>
         <translation>呼叫</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation type="unfinished">之前的命令還沒有完成.</translation>
@@ -23803,9 +22172,6 @@ In addition, device connectivity will be tested.</source>
         <source>Downloading remote profile data...</source>
         <translation type="unfinished">下載遠端設置數據...</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>函式：</translation>
@@ -23880,9 +22246,6 @@ In addition, device connectivity will be tested.</source>
         <source>Incl. Cost: %1</source>
         <translation type="unfinished">其中花費: %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>於 %2 中的 %1</translation>
@@ -23891,9 +22254,6 @@ In addition, device connectivity will be tested.</source>
         <source>%1:%2 in %3</source>
         <translation>於 %3 中的 %1:%2</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最後等級</translation>
@@ -23950,16 +22310,10 @@ In addition, device connectivity will be tested.</source>
         <source>Position:</source>
         <translation>位置：</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>正在剖析效能分析資料...</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation type="obsolete">找不到用於遠端分析的網路介面。</translation>
@@ -23976,16 +22330,10 @@ In addition, device connectivity will be tested.</source>
         <source>No Network Interface was chosen for remote analysis</source>
         <translation type="obsolete">尚未選擇遠端分析使用的網路介面</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>無法決定遠端的行程代碼。</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind 選項：%1</translation>
@@ -24028,14 +22376,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonSettingsWidget</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>回復差異區塊的指令</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>歡迎</translation>
@@ -24092,7 +22440,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectPlugin</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Open Qt Versions</source>
         <translation>開啟 Qt 版本</translation>
@@ -24131,25 +22479,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     <message>
         <source>text</source>
         <translation>文字</translation>
-    </message>
-</context>
-<context>
-    <name>StatusDisplay</name>
-    <message>
-        <source>No QML events recorded</source>
-        <translation type="obsolete">沒有錄製 QML 事件</translation>
-    </message>
-    <message>
-        <source>Profiling application</source>
-        <translation type="obsolete">效能分析應用程式</translation>
-    </message>
-    <message>
-        <source>Loading data</source>
-        <translation type="obsolete">載入資料中</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation type="obsolete">載入所有資料前應用程式已停止</translation>
     </message>
 </context>
 <context>
@@ -24567,7 +22896,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Tarball creation not possible.</source>
         <translation>無法建立 Tarball 歸檔。</translation>
@@ -24578,7 +22907,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - 外掛程式載入器訊息</translation>
@@ -24593,7 +22922,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation>繪製中</translation>
@@ -24616,7 +22945,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Duration:</source>
         <translation>持續時間：</translation>
@@ -24642,7 +22971,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>繼續</translation>
@@ -24700,7 +23029,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Utils::Ssh</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Password Required</source>
         <translation type="obsolete">需要密碼</translation>
@@ -24709,9 +23038,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Please enter the password for your private key.</source>
         <translation type="obsolete">美請輸入您的私密金鑰的密碼。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>記憶體不足。</translation>
@@ -24722,7 +23048,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>詳細</translation>
@@ -24765,7 +23091,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>QtC::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>啟動檔案瀏覽器失敗</translation>
@@ -24789,10 +23115,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>&apos;%1&apos; 傳回了以下錯誤：
 
 %2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation>設定...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
@@ -24830,9 +23152,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Could not delete file %1.</source>
         <translation type="unfinished">無法刪除檔案 %1。</translation>
     </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>無法建立資料夾 %1。</translation>
@@ -24858,7 +23177,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++ 例外</translation>
@@ -24883,9 +23202,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Output:</source>
         <translation>輸出：</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation>&lt;p&gt;發生了一個未被捕捉到的例外狀況：&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -24904,7 +23220,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Find::IFindFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>區分大小寫</translation>
@@ -24929,16 +23245,9 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters</source>
@@ -24949,16 +23258,8 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>再次搜尋</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation>取代為：</translation>
-    </message>
-    <message>
         <source>Replace all occurrences</source>
         <translation>取代所有出現位置</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>取代</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
@@ -24990,7 +23291,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation>大小應為 %1x%2 像素</translation>
@@ -25085,7 +23386,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SettingsAccessor</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Using Old Project Settings File</source>
         <translation>使用舊的專案設定檔</translation>
@@ -25128,14 +23429,14 @@ If you choose not to continue Qt Creator will not try to load the .shared file.<
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translation></translation>
     </message>
 </context>
 <context>
-    <name>FindExportedCppTypes</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">此種類型名稱字串字面常數僅在 Qt Creator 中的 QML編輯器時可使用</translation>
@@ -25154,7 +23455,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>標頭</translation>
@@ -25225,14 +23526,14 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>不需要執行佈署。將跳過。</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
-        <translation>沒有設定裝置設置。</translation>
+        <translation>沒有設定裝置組態。</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
@@ -25258,9 +23559,6 @@ Is the device connected and set up for network access?</source>
         <source>Connection error: %1</source>
         <translation>連線錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>無法佈署：%1</translation>
@@ -25277,9 +23575,6 @@ Is the device connected and set up for network access?</source>
         <source>Deploy step finished.</source>
         <translation>佈署步驟完成。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>上傳套件檔成功。</translation>
@@ -25292,9 +23587,6 @@ Is the device connected and set up for network access?</source>
         <source>Package installed.</source>
         <translation>套件已安裝。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP 初始化失敗：%1</translation>
@@ -25331,9 +23623,6 @@ Is the device connected and set up for network access?</source>
         <source>Uploading file &apos;%1&apos;...</source>
         <translation>上傳檔案 &apos;%1&apos; 中...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>遞增佈署</translation>
@@ -25342,16 +23631,10 @@ Is the device connected and set up for network access?</source>
         <source>Command line:</source>
         <translation>命令列：</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>通過 SFTP 上傳檔案</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation type="obsolete">通用 Linux</translation>
@@ -25368,23 +23651,17 @@ Is the device connected and set up for network access?</source>
         <source>Deploy Public Key...</source>
         <translation type="obsolete">佈署公開金鑰...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(%1 的預設)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Linux Device Configurations</source>
-        <translation type="obsolete">Linux 裝置設置</translation>
+        <translation type="obsolete">Linux 裝置組態</translation>
     </message>
     <message>
         <source>&amp;Configuration:</source>
-        <translation type="obsolete">設置(&amp;C)：</translation>
+        <translation type="obsolete">組態(&amp;C)：</translation>
     </message>
     <message>
         <source>General</source>
@@ -25426,9 +23703,6 @@ Is the device connected and set up for network access?</source>
         <source>&amp;Generate SSH Key...</source>
         <translation type="obsolete">產生 SSH 金鑰(&amp;G)...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Close</source>
         <translation>關閉</translation>
@@ -25441,9 +23715,6 @@ Is the device connected and set up for network access?</source>
         <source>Device test failed.</source>
         <translation>裝置測試失敗。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>連線到主機...</translation>
@@ -25480,9 +23751,6 @@ Is the device connected and set up for network access?</source>
         <translation>以下指定連接埠現正使用中：%1
 </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>準備建立 SFTP 連線...</translation>
@@ -25499,9 +23767,6 @@ Is the device connected and set up for network access?</source>
         <source>Failed to upload package: %2</source>
         <translation>上傳套件失敗：%2</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>可更新的專案檔</translation>
@@ -25522,16 +23787,10 @@ Is the device connected and set up for network access?</source>
         <source>&amp;Uncheck All</source>
         <translation>全部取消勾選(&amp;U)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>執行自訂的遠端指令</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>沒有指定命令列。</translation>
@@ -25556,9 +23815,6 @@ Is the device connected and set up for network access?</source>
         <source>Remote command finished successfully.</source>
         <translation>遠端指令成功完成。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>佈署到遠端 Linux 主機</translation>
@@ -25575,9 +23831,6 @@ Is the device connected and set up for network access?</source>
         <source>(No device)</source>
         <translation type="obsolete">(沒有裝置)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>執行遠端行程時發生錯誤：%1</translation>
@@ -25588,9 +23841,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>連線失敗：%1</translation>
@@ -25599,9 +23849,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Installing package failed.</source>
         <translation>安裝套件失敗。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>PID</source>
         <translation type="obsolete">行程代碼</translation>
@@ -25628,16 +23875,10 @@ Remote stderr was: %1</source>
         <translation type="obsolete">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
-        <translation type="obsolete">裝置設置</translation>
+        <translation type="obsolete">裝置組態</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">無法啟動遠端行程：%1</translation>
@@ -25656,12 +23897,9 @@ Remote error output was: %1</source>
         <translation type="obsolete">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
-        <translation type="obsolete">SSH 金鑰設置</translation>
+        <translation type="obsolete">SSH 金鑰組態</translation>
     </message>
     <message>
         <source>Options</source>
@@ -25707,9 +23945,6 @@ Remote error output was: %1</source>
         <source>Failed to create directory: &apos;%1&apos;.</source>
         <translation type="obsolete">建立目錄失敗：&apos;%1&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>公開金鑰錯誤：%1</translation>
@@ -25722,9 +23957,6 @@ Remote error output was: %1</source>
         <source>Key deployment failed: %1.</source>
         <translation>佈署金鑰失敗：%1。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">選擇 Sysroot</translation>
@@ -25769,9 +24001,6 @@ Remote error output was: %1</source>
         <source>Running command: %1</source>
         <translation type="obsolete">執行指令：%1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>打包已順利完成。</translation>
@@ -25820,9 +24049,6 @@ Remote error output was: %1</source>
         <source>Create tarball</source>
         <translation>建立 tarball 歸檔</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(預設)</translation>
@@ -25831,9 +24057,6 @@ Remote error output was: %1</source>
         <source>%1 (default)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>找不到 tarball 建立步驟。</translation>
@@ -25844,73 +24067,58 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Edit Code Style</source>
-        <translation>編輯代碼風格</translation>
+        <translation>編輯程式碼樣式</translation>
     </message>
     <message>
         <source>Code style name:</source>
-        <translation>代碼風格名稱：</translation>
+        <translation>程式碼樣式名稱：</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
-        <translation>您不能儲存內建代碼風格的變更。請先複製以建立您自己的版本。</translation>
+        <translation>您不能儲存內建程式碼樣式的變更。請先複製以建立您自己的版本。</translation>
     </message>
     <message>
         <source>Copy Built-in Code Style</source>
-        <translation>複製內建代碼風格</translation>
+        <translation>複製內建程式碼樣式</translation>
     </message>
     <message>
         <source>%1 (Copy)</source>
         <translation>%1 (複製)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
-        <translation>複製代碼風格</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>代碼風格名稱：</translation>
-    </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (複製)</translation>
+        <translation>複製程式碼樣式</translation>
     </message>
     <message>
         <source>Delete Code Style</source>
-        <translation>刪除代碼風格</translation>
+        <translation>刪除程式碼樣式</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
-        <translation>您確定要永久刪除這個代碼風格嗎？</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>刪除</translation>
+        <translation>您確定要永久刪除這個程式碼樣式嗎？</translation>
     </message>
     <message>
         <source>Import Code Style</source>
-        <translation>匯入代碼風格</translation>
+        <translation>匯入程式碼樣式</translation>
     </message>
     <message>
         <source>Code styles (*.xml);;All files (*)</source>
-        <translation>代碼風格 (*.xml);;所有檔案(*)</translation>
+        <translation>程式碼樣式 (*.xml);;所有檔案(*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cannot import code style</source>
-        <translation type="obsolete">無法匯入代碼風格</translation>
+        <translation type="obsolete">無法匯入程式碼樣式</translation>
     </message>
     <message>
         <source>Export Code Style</source>
-        <translation>匯出代碼風格</translation>
+        <translation>匯出程式碼樣式</translation>
     </message>
     <message>
         <source>%1 [proxy: %2]</source>
@@ -25920,9 +24128,6 @@ Remote error output was: %1</source>
         <source>%1 [built-in]</source>
         <translation>%1 [內建]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation>在檔案系統中的檔案</translation>
@@ -25958,7 +24163,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>無法決定維護工具所在位置。請檢查您的安裝，確定您是否沒有手動開啟此外掛程式的支援。</translation>
@@ -25977,14 +24182,14 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>編輯預覽內容來查看目前的設定如何套用到自訂代碼片段。在預覽中的變更並不會影響目前的設定。</translation>
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -26001,9 +24206,6 @@ Filter: %2
 &apos;%1&apos; 已完成 (離開代碼 %2)。
 </translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>錯誤：VCS 在 %1 秒後逾時。</translation>
@@ -26065,18 +24267,10 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandMappings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>指令映射</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation>指令</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>標籤</translation>
     </message>
     <message>
         <source>Target</source>
@@ -26111,17 +24305,6 @@ Filter: %2
         <translation>重置為預設</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>重置</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
-    <message>
         <source>Registered MIME Types</source>
         <translation>已註冊的 MIME 型態</translation>
     </message>
@@ -26130,24 +24313,12 @@ Filter: %2
         <translation>重置所有為預設值。</translation>
     </message>
     <message>
-        <source>Reset All</source>
-        <translation>全部重置</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>詳情</translation>
-    </message>
-    <message>
         <source>Patterns:</source>
         <translation>樣式：</translation>
     </message>
     <message>
         <source>Magic Header</source>
         <translation>魔術標頭</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>型態</translation>
     </message>
     <message>
         <source>Range</source>
@@ -26166,23 +24337,12 @@ Filter: %2
         <translation>編輯...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation>變數</translation>
-    </message>
-    <message>
         <source>Select a variable to insert.</source>
         <translation>選擇要插入的變數。</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -26286,7 +24446,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation>標頭檔後置字串：</translation>
@@ -26305,7 +24465,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>啟動除錯工具</translation>
@@ -26394,9 +24554,6 @@ p, li { white-space: pre-wrap; }
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Enable LLDB</source>
         <translation>開啟 LLDB</translation>
@@ -26405,9 +24562,6 @@ p, li { white-space: pre-wrap; }
         <source>Use GDB Python dumpers</source>
         <translation>使用 GDB python dumpers</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>啟動遠端引擎</translation>
@@ -26434,7 +24588,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Has a passwordless (key-based) login already been set up for this device?</source>
         <translation>此裝置是否已經設定使用金鑰登入而不需要密碼？</translation>
@@ -26449,7 +24603,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -26519,7 +24673,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>選擇</translation>
@@ -26538,14 +24692,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Make 參數：</translation>
     </message>
     <message>
         <source>qmake build configuration:</source>
-        <translation>qmake 建置設置：</translation>
+        <translation>qmake 建置組態：</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -26561,14 +24715,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Details of Certificate</source>
         <translation type="obsolete">憑證詳情</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Main HTML File</source>
         <translation>主 HTML 檔案</translation>
@@ -26635,14 +24789,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>除錯小助手建置紀錄</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>認證型態：</translation>
@@ -26723,16 +24877,13 @@ p, li { white-space: pre-wrap; }
         <source>Machine type:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>精靈頁面</translation>
     </message>
     <message>
         <source>The name to identify this configuration:</source>
-        <translation>用於辨認此設置的名稱：</translation>
+        <translation>用於辨認此組態的名稱：</translation>
     </message>
     <message>
         <source>The device&apos;s host name or IP address:</source>
@@ -26758,27 +24909,21 @@ p, li { white-space: pre-wrap; }
         <source>The file containing the user&apos;s private key:</source>
         <translation>包含使用者私密金鑰的檔案：</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>裝置測試</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
     </message>
     <message>
         <source>Device configuration:</source>
-        <translation type="obsolete">裝置設置：</translation>
+        <translation type="obsolete">裝置組態：</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;管理裝置設置&lt;/a&gt;</translation>
+        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;管理裝置組態&lt;/a&gt;</translation>
     </message>
     <message>
         <source>These show the INSTALLS settings from the project file(s).</source>
@@ -26788,9 +24933,6 @@ p, li { white-space: pre-wrap; }
         <source>Files to install for subproject:</source>
         <translation>為子專案安裝的檔案：</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>List of Remote Processes</source>
         <translation type="obsolete">遠端行程列表</translation>
@@ -26809,14 +24951,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>打字</translation>
@@ -27003,20 +25142,9 @@ Specifies how backspace interacts with indentation.
         <source>Using keyboard shortcut (Alt)</source>
         <translation>使用鍵盤捷徑 (Alt)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>目前設定：</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>複製...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -27033,13 +25161,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Import...</source>
         <translation>匯入...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>顯示</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -27093,13 +25214,6 @@ Specifies how backspace interacts with indentation.
         <source>Display right &amp;margin at column:</source>
         <translation>顯示在欄右邊的邊界(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -27119,23 +25233,12 @@ Specifies how backspace interacts with indentation.
         <translation>使用預設位置</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>行為</translation>
-    </message>
-    <message>
         <source>Alert when a highlight definition is not found</source>
         <translation>當找不到突顯的定義時警示</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
         <translation>被忽略的檔案樣式：</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -27144,10 +25247,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Add</source>
         <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -27160,13 +25259,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Reset All</source>
         <translation>全部重置</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -27244,7 +25336,7 @@ Influences the indentation of continuation lines.
 &lt;/pre&gt;
 &lt;/li&gt;
 
-&lt;li&gt;伴隨規則縮排: 在原設置上使用 tab 或 空格進行對齊。
+&lt;li&gt;伴隨規則縮排: 在原組態上使用 tab 或 空格進行對齊。
 &lt;pre&gt;
 (tab)int i = foo(a, b
 (tab)(tab)(tab)  c, d);
@@ -27266,7 +25358,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -27305,18 +25397,18 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>精靈頁面</translation>
     </message>
     <message>
         <source>Repository</source>
-        <translation>主目錄</translation>
+        <translation>儲存庫</translation>
     </message>
     <message>
         <source>The remote repository to check out.</source>
-        <translation>要取出的遠端主目錄。</translation>
+        <translation>要取出的遠端儲存庫。</translation>
     </message>
     <message>
         <source>Branch:</source>
@@ -27324,11 +25416,11 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>The development branch in the remote repository to check out.</source>
-        <translation>要取出的遠端主目錄中的開發分支。</translation>
+        <translation>要取出的遠端儲存庫中的開發分支。</translation>
     </message>
     <message>
         <source>Retrieve list of branches in repository.</source>
-        <translation>取得主目錄中的分支列表。</translation>
+        <translation>取得儲存庫中的分支列表。</translation>
     </message>
     <message>
         <source>...</source>
@@ -27354,16 +25446,10 @@ Influences the indentation of continuation lines.
         <source>Checkout directory:</source>
         <translation>取出目錄：</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
-        <translation>清除主目錄</translation>
+        <translation>清除儲存庫</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>提交訊息折行在：</translation>
@@ -27388,7 +25474,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     </message>
     <message>
         <source>User/&amp;alias configuration file:</source>
-        <translation type="unfinished">使用者/別名設置檔案(&amp;a):</translation>
+        <translation>使用者/別名組態檔案(&amp;a):</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
@@ -27396,7 +25482,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     </message>
     <message>
         <source>User &amp;fields configuration file:</source>
-        <translation type="unfinished">使用者字段設置檔案(&amp;f):</translation>
+        <translation>使用者字段組態檔案(&amp;f):</translation>
     </message>
     <message>
         <source>&amp;Patch command:</source>
@@ -27405,31 +25491,20 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password, 
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="unfinished">指定一條執行圖形化提示密碼的命令，
-會在代碼倉函式庫要求 SSH 身份驗證的時候用到。（查看 SSH 和環境變數 SSH_ASKPASS 的相關文檔）。</translation>
+        <translation>指定一條執行圖形化提示密碼的命令，
+會在儲存庫要求 SSH 身份驗證的時候用到。（查看 SSH 和環境變數 SSH_ASKPASS 的相關文檔）。</translation>
     </message>
     <message>
         <source>&amp;SSH prompt command:</source>
         <translation>SSH 提示指令(&amp;S)：</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsConfigurationPage</name>
     <message>
         <source>Configure...</source>
-        <translation type="obsolete">設置...</translation>
+        <translation type="obsolete">組態...</translation>
     </message>
 </context>
 <context>
-    <name>develop</name>
-    <message>
-        <source>Develop</source>
-        <translation>開發</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>工作階段</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Recent Projects</source>
         <translation>最近使用的專案</translation>
@@ -27444,7 +25519,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>範例</translation>
@@ -27518,7 +25593,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>教學</translation>
@@ -27551,7 +25626,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -27564,9 +25639,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Delete</source>
         <translation>刪除</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (上次的工作階段)</translation>
@@ -27577,7 +25649,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>StaticAnalysisMessages</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation>不要用 &apos;%1&apos; 做為建構子</translation>
@@ -27849,7 +25921,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Utils::SettingsSelector</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Add</source>
         <translation>新增</translation>
@@ -27864,19 +25936,16 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Do you really want to delete the configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>您確定要刪除此設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
+        <translation>您確定要刪除此組態 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
         <source>New name for configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
+        <translation>組態 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
     <message>
         <source>Rename...</source>
         <translation>重新命名...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SftpFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation type="obsolete">檔案型態</translation>
@@ -27893,9 +25962,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Error listing contents of directory &apos;%1&apos;: %2</source>
         <translation type="obsolete">列出目錄 &apos;%1&apos; 的內容時發生錯誤：%2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
         <translation type="obsolete">行程被信號強行中止</translation>
@@ -27968,7 +26034,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -27980,7 +26046,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Configuration unchanged, skipping autogen step.</source>
-        <translation>設置未變更，跳過 autogen 步驟。</translation>
+        <translation>組態未變更，跳過 autogen 步驟。</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -28002,7 +26068,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
-        <translation>設置未變更，跳過 autoreconf 步驟。</translation>
+        <translation>組態未變更，跳過 autoreconf 步驟。</translation>
     </message>
     <message>
         <source>Autoreconf</source>
@@ -28015,11 +26081,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>New Configuration</source>
-        <translation>新增設置</translation>
+        <translation>新增組態</translation>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新設置名稱：</translation>
+        <translation>新組態名稱：</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -28061,20 +26127,20 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
-        <translation>設置未變更，跳過設置步驟。</translation>
+        <translation>組態未變更，跳過組態步驟。</translation>
     </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
-        <translation>設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>Parsing %1 in directory %2</source>
@@ -28099,7 +26165,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
+        <translation>組態錯誤。請在錯誤檢視中看詳情。</translation>
     </message>
     <message>
         <source>Make</source>
@@ -28112,7 +26178,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>BinEditorDocument</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation type="unfinished"></translation>
@@ -28127,18 +26193,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>建置 CMake 目標</translation>
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
-    <message>
-        <source>File Error</source>
-        <translation>檔案錯誤</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Error while saving file: %1</source>
         <translation>儲存檔案時發生錯誤：%1</translation>
@@ -28176,24 +26238,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">使用 VCS 開啟 (%1)</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation type="obsolete">設為可寫入</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation type="obsolete">另存新檔...</translation>
-    </message>
-    <message>
         <source>Cannot reload %1</source>
         <translation>無法重新載入 %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
         <translation type="obsolete">檔案已經由自動儲存的備份恢復。您可以使用「&lt;i&gt;儲存&lt;/i&gt;」來確認，或是用「&lt;i&gt;回復到已儲存&lt;/i&gt;」來丟棄變更。</translation>
@@ -28204,7 +26251,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>展開函式</translation>
@@ -28223,14 +26270,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>CppTools::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation>類別</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Reset</source>
         <translation>重置</translation>
@@ -28251,9 +26291,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Misc Types</source>
         <translation>其他型態</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>除錯工具設定</translation>
@@ -28278,9 +26315,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Enable Debugging of Subprocesses</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation type="unfinished"></translation>
@@ -28335,7 +26369,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>untracked</source>
         <translation>未追蹤的</translation>
@@ -28378,7 +26412,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Locator::Internal::ExecuteFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
@@ -28411,42 +26445,23 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Edit Environment</source>
         <translation>編輯環境變數</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
-    <message>
-        <source>New session name</source>
-        <translation>新工作階段名稱</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation>除錯工具設定</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK：</translation>
@@ -28461,7 +26476,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Add a comment to suppress this message</source>
         <translation type="obsolete">新增註解以抑制此訊息</translation>
@@ -28492,7 +26507,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -28616,10 +26631,10 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Configure Project</source>
-        <translation>設置專案</translation>
+        <translation>組態專案</translation>
     </message>
     <message>
         <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
@@ -28635,7 +26650,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
     <message>
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses the Qt version: &lt;b&gt;%2&lt;/b&gt; and the tool chain: &lt;b&gt;%3&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;options.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;專案 &lt;b&gt;%1&lt;/b&gt;還沒設置。&lt;/p&gt;&lt;p&gt;Qt Creator 使用的 Qt 版本： &lt;b&gt;%2&lt;/b&gt; 和工具鍊： &lt;b&gt;%3&lt;/b&gt; 來解析專案。 你可以編輯這些 &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;選項.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;專案 &lt;b&gt;%1&lt;/b&gt;還沒組態。&lt;/p&gt;&lt;p&gt;Qt Creator 使用的 Qt 版本： &lt;b&gt;%2&lt;/b&gt; 和工具鍊： &lt;b&gt;%3&lt;/b&gt; 來解析專案。 你可以編輯這些 &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;選項.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Qt Version:</source>
@@ -28647,15 +26662,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
-    <message>
-        <source>Examples</source>
-        <translation>範例</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation>教學</translation>
-    </message>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>是否要複製專案到可寫入的位置？</translation>
@@ -28696,9 +26703,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Failed to open project</source>
         <translation type="obsolete">開啟專案失敗</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>MeeGo/Harmattan</source>
         <translation>MeeGo/Harmattan</translation>
@@ -28729,21 +26733,18 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation>雙擊以編輯專案檔</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CountingLabel</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>找到 %1 </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>開啟文件</translation>
@@ -28764,7 +26765,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Description</source>
         <translation>描述</translation>
@@ -28779,7 +26780,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>待辦事項條目</translation>
@@ -28790,7 +26791,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Open URL in browser...</source>
         <translation type="obsolete">在瀏覽器中打開網址...</translation>
@@ -28807,9 +26808,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Copy URL Location</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send email to...</source>
         <translation type="obsolete">傳送電子郵件至...</translation>
@@ -28831,7 +26829,7 @@ references to elements in other files, loops, etc.)</source>
     <name>QSsh::SshKeyCreationDialog</name>
     <message>
         <source>SSH Key Configuration</source>
-        <translation type="unfinished">SSH 金鑰設置</translation>
+        <translation>SSH 金鑰組態</translation>
     </message>
     <message>
         <source>Options</source>
@@ -28907,7 +26905,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Create new AVD</source>
         <translation type="unfinished"></translation>
@@ -29240,7 +27238,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation type="unfinished"></translation>
@@ -29268,7 +27266,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">設置</translation>
+        <translation>組態</translation>
     </message>
     <message>
         <source>&amp;Command:</source>
@@ -29382,7 +27380,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Core::RemoveFileDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Remove File</source>
         <translation type="unfinished">移除檔案</translation>
@@ -29401,29 +27399,18 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
-        <translation type="unfinished">裝置設置精靈選擇</translation>
+        <translation>裝置組態精靈選擇</translation>
     </message>
     <message>
         <source>Available device types:</source>
         <translation type="unfinished">可用的裝置型態：</translation>
     </message>
     <message>
-        <source>Start Wizard</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
-    <message>
         <source>Linux Device Configurations</source>
-        <translation type="unfinished">Linux 裝置設置</translation>
-    </message>
-    <message>
-        <source>&amp;Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Linux 裝置組態</translation>
     </message>
     <message>
         <source>General</source>
@@ -29438,18 +27425,6 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">型態：</translation>
     </message>
     <message>
-        <source>Auto-detected:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current state:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type Specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Add...</source>
         <translation type="unfinished">新增(&amp;A)...</translation>
     </message>
@@ -29462,20 +27437,12 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">設為預設</translation>
     </message>
     <message>
-        <source>Yes (id is &quot;%1&quot;)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No</source>
         <translation type="unfinished">否</translation>
     </message>
-    <message>
-        <source>Remote Processes</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished">精靈頁面</translation>
@@ -29522,14 +27489,14 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation type="unfinished"></translation>
@@ -29552,7 +27519,7 @@ This option is useful when you want to try your application on devices which don
     </message>
     <message>
         <source>The name to identify this configuration:</source>
-        <translation type="unfinished">用於辨認此設置的名稱：</translation>
+        <translation>用於辨認此組態的名稱：</translation>
     </message>
     <message>
         <source>The device&apos;s host name or IP address:</source>
@@ -29572,7 +27539,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device:</source>
         <translation type="unfinished">裝置：</translation>
@@ -29598,7 +27565,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keyword</source>
         <translation type="unfinished">關鍵字</translation>
@@ -29625,7 +27592,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -29850,14 +27817,11 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Utils::BaseTreeView</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
         <translation type="unfinished"></translation>
@@ -30009,7 +27973,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Error Creating AVD</source>
         <translation type="unfinished"></translation>
@@ -30399,7 +28363,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation type="unfinished"></translation>
@@ -30410,7 +28374,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation type="unfinished"></translation>
@@ -30756,19 +28720,19 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
     <message>
         <source>NMake Generator (%1)</source>
-        <translation type="unfinished">NMake 建立器(%1)</translation>
+        <translation>NMake 產生器 (%1)</translation>
     </message>
     <message>
         <source>MinGW Generator (%1)</source>
-        <translation type="unfinished">MinGW 建立器 (%1)</translation>
+        <translation>MinGW 產生器 (%1)</translation>
     </message>
     <message>
         <source>Unix Generator (%1)</source>
-        <translation type="unfinished">Unix 建立器 (%1)</translation>
+        <translation>Unix 產生器 (%1)</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Choose Cmake Executable</source>
         <translation type="unfinished"></translation>
@@ -30795,7 +28759,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>Meta+O</source>
         <translation type="unfinished"></translation>
@@ -30804,16 +28768,13 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Alt+O</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation type="unfinished">使用 VCS 開啟 (%1)</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation type="unfinished">目標檔案改變，無法套用變更</translation>
@@ -30832,7 +28793,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Delete Breakpoint</source>
         <translation>刪除中斷點</translation>
@@ -30893,9 +28854,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Add Breakpoint</source>
         <translation>新增中斷點</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Server port:</source>
         <translation type="unfinished"></translation>
@@ -30976,9 +28934,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Debugger for &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation type="unfinished"></translation>
@@ -31000,9 +28955,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation type="unfinished">&lt;html&gt;&lt;body&gt;&lt;p&gt;請在此指定 &lt;a href=&quot;%1&quot;&gt;Windows 主控台除錯器執行檔&lt;/a&gt; (%2) 的路徑。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation type="unfinished"></translation>
@@ -31045,14 +28997,14 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation type="unfinished">無法為型態 &apos;%1&apos; 建立除錯引擎</translation>
@@ -31091,9 +29043,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Error Loading Core File</source>
         <translation type="unfinished"></translation>
@@ -31135,9 +29084,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 </source>
         <translation type="unfinished">附加到 core 檔 &quot;%1&quot; 失敗：</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>無法與子行程建立通訊：%1</translation>
@@ -31175,9 +29121,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Interrupting not possible</source>
         <translation>無法中斷</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation type="unfinished">遠端錯誤</translation>
@@ -31226,16 +29169,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Process gdbserver finished. Status: %1</source>
         <translation type="unfinished">gdbserver 行程已完成。狀態：%1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Module Name</source>
         <translation type="unfinished"></translation>
@@ -31317,9 +29254,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;未知&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation type="unfinished">更新模組列表</translation>
@@ -31368,9 +29302,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation type="unfinished">顯示 &quot;%1&quot; 的相依性</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>正在連線到除錯伺服器 %1:%2</translation>
@@ -31404,9 +29335,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Closing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Success: </source>
         <translation type="unfinished"></translation>
@@ -31415,9 +29343,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Properties</source>
         <translation type="unfinished">屬性</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation type="unfinished">第 %2 行第 %3 欄的 %1 屬性必須要重新載入 QML 應用程式才能更改。</translation>
@@ -31442,9 +29367,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Reload QML</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>重新載入暫存器列表</translation>
@@ -31493,9 +29415,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Binary</source>
         <translation>二進位</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>快照</translation>
@@ -31544,9 +29463,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Frame #%1 (%2)</source>
         <translation type="unfinished">框架 #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -31623,7 +29539,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation type="unfinished"></translation>
@@ -31780,7 +29696,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Error Creating Debian Project Templates</source>
         <translation type="unfinished"></translation>
@@ -31833,9 +29749,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation type="unfinished">無法將新的 debian 目錄移動到&apos;%1&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation type="unfinished"></translation>
@@ -31856,9 +29769,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Add Packaging Files to Project</source>
         <translation type="unfinished">新增打包檔到專案中</translation>
@@ -31873,7 +29783,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>&amp;Edit (%1)</source>
         <translation type="unfinished"></translation>
@@ -31884,7 +29794,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Run locally</source>
         <translation type="unfinished"></translation>
@@ -31893,16 +29803,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Desktop</source>
         <translation type="unfinished">桌面</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation type="unfinished">桌面</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
     <message>
         <source>User requested stop. Shutting down...</source>
         <translation type="unfinished"></translation>
@@ -31935,16 +29835,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Remote application finished with exit code 0.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation type="unfinished"></translation>
@@ -31969,16 +29863,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>&amp;Filter:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation type="unfinished">遠端錯誤</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation type="unfinished">行程代碼</translation>
@@ -31987,16 +29875,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Command Line</source>
         <translation type="unfinished">命令列</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation type="unfinished">連線錯誤：%1</translation>
@@ -32019,16 +29897,10 @@ Remote error output was: %1</source>
         <translation type="unfinished">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
     <message>
         <source>Cannot terminate process %1: %2</source>
         <translation type="unfinished"></translation>
@@ -32037,9 +29909,6 @@ Remote error output was: %1</source>
         <source>Cannot open process %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation type="unfinished">連線失敗：%1</translation>
@@ -32074,9 +29943,6 @@ Remote stderr was: %1</source>
         <translation type="unfinished">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
@@ -32093,9 +29959,6 @@ Remote stderr was: %1</source>
         <source>Warning:</source>
         <translation type="unfinished">警告：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation type="unfinished"></translation>
@@ -32104,9 +29967,6 @@ Remote stderr was: %1</source>
         <source>Sys Root</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation type="unfinished"></translation>
@@ -32119,9 +29979,6 @@ Remote stderr was: %1</source>
         <source>No compiler set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation type="unfinished"></translation>
@@ -32130,9 +29987,6 @@ Remote stderr was: %1</source>
         <source>Device type</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>Device does not match device type.</source>
         <translation type="unfinished"></translation>
@@ -32142,16 +29996,9 @@ Remote stderr was: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unconfigured</source>
-        <translation type="unfinished">未設置</translation>
+        <translation>未組態</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
     <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation type="unfinished"></translation>
@@ -32160,9 +30007,6 @@ Remote stderr was: %1</source>
         <source>Sysroot:</source>
         <translation type="unfinished">Sysroot：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
         <translation type="unfinished"></translation>
@@ -32179,9 +30023,6 @@ Remote stderr was: %1</source>
         <source>&lt;No compiler available&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>The type of device to run applications on.</source>
         <translation type="unfinished"></translation>
@@ -32190,38 +30031,9 @@ Remote stderr was: %1</source>
         <source>Device type:</source>
         <translation type="unfinished">裝置型態：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
-    <message>
-        <source>The device to run the applications on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation type="unfinished">管理...</translation>
-    </message>
     <message>
         <source>Device:</source>
         <translation type="unfinished">裝置：</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation type="unfinished">桌面</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="unfinished">名稱：</translation>
-    </message>
-    <message>
-        <source>Kit name and icon.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select Icon</source>
@@ -32231,9 +30043,6 @@ Remote stderr was: %1</source>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>Auto-detected</source>
         <translation type="unfinished">自動偵測</translation>
@@ -32243,32 +30052,12 @@ Remote stderr was: %1</source>
         <translation type="unfinished">手動</translation>
     </message>
     <message>
-        <source>%1 (default)</source>
-        <extracomment>Mark up a kit as the default one.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished">名稱</translation>
     </message>
     <message>
-        <source>Clone of %1</source>
-        <translation type="unfinished">%1 的複本</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add</source>
         <translation type="unfinished">新增</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation type="unfinished">複製</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -32278,23 +30067,17 @@ Remote stderr was: %1</source>
         <source>Make Default</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Unknown error.</source>
         <translation type="unfinished">未知的錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Default build</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="unfinished">此種類型名稱字串字面常數僅在 Qt Creator 中的 QML編輯器時可使用</translation>
@@ -32313,7 +30096,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Source code not available</source>
         <translation type="unfinished">無法使用源碼</translation>
@@ -32396,7 +30179,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation type="unfinished">正在啟動：&quot;%1&quot; %2</translation>
@@ -32415,7 +30198,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished">管理...</translation>
@@ -32440,7 +30223,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Command:</source>
         <translation type="unfinished">指令：</translation>
@@ -32478,7 +30261,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>System Environment</source>
         <translation type="unfinished">系統環境變數</translation>
@@ -32509,7 +30292,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation type="unfinished">新增檔案</translation>
@@ -32558,9 +30341,6 @@ Qt Creator 知道一個相似的URI.</translation>
         <source>Could not copy the file to %1.</source>
         <translation type="unfinished">無法複製檔案到 %1。</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished">檔名為空。</translation>
@@ -32577,9 +30357,6 @@ Qt Creator 知道一個相似的URI.</translation>
         <source>Cannot write file. Disk full?</source>
         <translation type="unfinished">無法寫入檔案。磁碟空間是否已滿？</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation type="unfinished">所有檔案 (*)</translation>

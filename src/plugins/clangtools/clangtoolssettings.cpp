@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtoolssettings.h"
 
@@ -109,8 +109,9 @@ ClangDiagnosticConfigs importDiagnosticConfigsFromCodeModel()
     ClangDiagnosticConfigs clangOnlyConfigs;
     std::tie(tidyClazyConfigs, clangOnlyConfigs)
         = Utils::partition(configs, [](const ClangDiagnosticConfig &config) {
-              return !config.clazyChecks().isEmpty()
-                  || (!config.clangTidyChecks().isEmpty() && config.clangTidyChecks() != "-*");
+              return !config.checks(ClangToolType::Clazy).isEmpty()
+                     || (!config.checks(ClangToolType::Tidy).isEmpty()
+                         && config.checks(ClangToolType::Tidy) != "-*");
           });
     return tidyClazyConfigs;
 }
@@ -126,8 +127,8 @@ void ClangToolsSettings::readSettings()
 
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
-    m_clangTidyExecutable = FilePath::fromVariant(s->value(clangTidyExecutableKey));
-    m_clazyStandaloneExecutable = FilePath::fromVariant(s->value(clazyStandaloneExecutableKey));
+    m_clangTidyExecutable = FilePath::fromSettings(s->value(clangTidyExecutableKey));
+    m_clazyStandaloneExecutable = FilePath::fromSettings(s->value(clazyStandaloneExecutableKey));
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
     QVariantMap map;
@@ -159,8 +160,8 @@ void ClangToolsSettings::writeSettings()
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
 
-    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable.toVariant());
-    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable.toVariant());
+    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable.toSettings());
+    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable.toSettings());
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
     QVariantMap map;
@@ -173,16 +174,20 @@ void ClangToolsSettings::writeSettings()
     emit changed();
 }
 
-void ClangToolsSettings::setClangTidyExecutable(const FilePath &path)
+FilePath ClangToolsSettings::executable(ClangToolType tool) const
 {
-    m_clangTidyExecutable = path;
-    m_clangTidyVersion = {};
+    return tool == ClangToolType::Tidy ? m_clangTidyExecutable : m_clazyStandaloneExecutable;
 }
 
-void ClangToolsSettings::setClazyStandaloneExecutable(const FilePath &path)
+void ClangToolsSettings::setExecutable(ClangToolType tool, const FilePath &path)
 {
-    m_clazyStandaloneExecutable = path;
-    m_clazyVersion = {};
+    if (tool == ClangToolType::Tidy) {
+        m_clangTidyExecutable = path;
+        m_clangTidyVersion = {};
+    } else {
+        m_clazyStandaloneExecutable = path;
+        m_clazyVersion = {};
+    }
 }
 
 static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePath &toolFilePath)
@@ -198,12 +203,13 @@ static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePa
 
 VersionAndSuffix ClangToolsSettings::clangTidyVersion()
 {
-    return getVersionNumber(instance()->m_clangTidyVersion, Internal::clangTidyExecutable());
+    return getVersionNumber(instance()->m_clangTidyVersion,
+                            Internal::toolExecutable(ClangToolType::Tidy));
 }
 
 QVersionNumber ClangToolsSettings::clazyVersion()
 {
-    return ClazyStandaloneInfo::getInfo(Internal::clazyStandaloneExecutable()).version;
+    return ClazyStandaloneInfo::getInfo(Internal::toolExecutable(ClangToolType::Clazy)).version;
 }
 
 } // namespace Internal

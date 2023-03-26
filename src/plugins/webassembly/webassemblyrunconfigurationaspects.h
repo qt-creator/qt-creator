@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -20,12 +20,14 @@ class WebBrowserSelectionAspect : public Utils::BaseAspect
 public:
     WebBrowserSelectionAspect(ProjectExplorer::Target *target);
 
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
     QString currentBrowser() const;
+
+    static WebBrowserEntries parseEmrunOutput(const QByteArray &output);
 
     struct Data : BaseAspect::Data
     {

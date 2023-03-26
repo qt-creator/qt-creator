@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perforcesettings.h"
 
 #include "perforcechecker.h"
-#include "perforceplugin.h"
+#include "perforcetr.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -22,8 +22,7 @@
 
 using namespace Utils;
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 static QString defaultCommand()
 {
@@ -42,29 +41,29 @@ PerforceSettings::PerforceSettings()
             Environment::systemEnvironment().searchInPath(defaultCommand()).toString());
     p4BinaryPath.setHistoryCompleter("Perforce.Command.History");
     p4BinaryPath.setExpectedKind(PathChooser::Command);
-    p4BinaryPath.setDisplayName(tr("Perforce Command"));
-    p4BinaryPath.setLabelText(tr("P4 command:"));
+    p4BinaryPath.setDisplayName(Tr::tr("Perforce Command"));
+    p4BinaryPath.setLabelText(Tr::tr("P4 command:"));
 
     registerAspect(&p4Port);
     p4Port.setDisplayStyle(StringAspect::LineEditDisplay);
     p4Port.setSettingsKey("Port");
-    p4Port.setLabelText(tr("P4 port:"));
+    p4Port.setLabelText(Tr::tr("P4 port:"));
 
     registerAspect(&p4Client);
     p4Client.setDisplayStyle(StringAspect::LineEditDisplay);
     p4Client.setSettingsKey("Client");
-    p4Client.setLabelText(tr("P4 client:"));
+    p4Client.setLabelText(Tr::tr("P4 client:"));
 
     registerAspect(&p4User);
     p4User.setDisplayStyle(StringAspect::LineEditDisplay);
     p4User.setSettingsKey("User");
-    p4User.setLabelText(tr("P4 user:"));
+    p4User.setLabelText(Tr::tr("P4 user:"));
 
     registerAspect(&logCount);
     logCount.setSettingsKey("LogCount");
     logCount.setRange(1000, 10000);
     logCount.setDefaultValue(1000);
-    logCount.setLabelText(tr("Log count:"));
+    logCount.setLabelText(Tr::tr("Log count:"));
 
     registerAspect(&customEnv);
     // The settings value has been stored with the opposite meaning for a while.
@@ -78,13 +77,13 @@ PerforceSettings::PerforceSettings()
     timeOutS.setSettingsKey("TimeOut");
     timeOutS.setRange(1, 360);
     timeOutS.setDefaultValue(30);
-    timeOutS.setLabelText(tr("Timeout:"));
-    timeOutS.setSuffix(tr("s"));
+    timeOutS.setLabelText(Tr::tr("Timeout:"));
+    timeOutS.setSuffix(Tr::tr("s"));
 
     registerAspect(&autoOpen);
     autoOpen.setSettingsKey("PromptToOpen");
     autoOpen.setDefaultValue(true);
-    autoOpen.setLabelText(tr("Automatically open files when editing"));
+    autoOpen.setLabelText(Tr::tr("Automatically open files when editing"));
 }
 
 // --------------------PerforceSettings
@@ -203,7 +202,7 @@ QString PerforceSettings::mapToFileSystem(const QString &perforceFilePath) const
 PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_PERFORCE);
-    setDisplayName(PerforceSettings::tr("Perforce"));
+    setDisplayName(Tr::tr("Perforce"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setSettings(settings);
 
@@ -212,7 +211,7 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
         using namespace Layouting;
 
         auto errorLabel = new QLabel;
-        auto testButton = new QPushButton(PerforceSettings::tr("Test"));
+        auto testButton = new QPushButton(Tr::tr("Test"));
         connect(testButton, &QPushButton::clicked, this, [settings, errorLabel, testButton] {
             testButton->setEnabled(false);
             auto checker = new PerforceChecker(errorLabel);
@@ -227,29 +226,29 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
             connect(checker, &PerforceChecker::succeeded, errorLabel,
                     [errorLabel, testButton, checker](const FilePath &repo) {
                 errorLabel->setStyleSheet({});
-                errorLabel->setText(PerforceSettings::tr("Test succeeded (%1).")
+                errorLabel->setText(Tr::tr("Test succeeded (%1).")
                                         .arg(repo.toUserOutput()));
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
 
             errorLabel->setStyleSheet(QString());
-            errorLabel->setText(PerforceSettings::tr("Testing..."));
+            errorLabel->setText(Tr::tr("Testing..."));
             checker->start(settings->p4BinaryPath.filePath(), {}, settings->commonP4Arguments(), 10000);
         });
 
         Group config {
-            title(PerforceSettings::tr("Configuration")),
+            title(Tr::tr("Configuration")),
             Row { s.p4BinaryPath }
         };
 
         Group environment {
-            title(PerforceSettings::tr("Environment Variables"), &s.customEnv),
+            title(Tr::tr("Environment Variables"), &s.customEnv),
             Row { s.p4Port, s.p4Client, s.p4User }
         };
 
         Group misc {
-            title(PerforceSettings::tr("Miscellaneous")),
+            title(Tr::tr("Miscellaneous")),
             Column {
                 Row { s.logCount, s.timeOutS, st },
                 s.autoOpen
@@ -266,5 +265,4 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
     });
 }
 
-} // Internal
-} // Perforce
+} // Perforce::Internal

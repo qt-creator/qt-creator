@@ -1,9 +1,10 @@
 // Copyright (C) 2016 Canonical Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmaketoolmanager.h"
 
 #include "cmakeprojectmanagertr.h"
+#include "cmakespecificsettings.h"
 #include "cmaketoolsettingsaccessor.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -138,6 +139,14 @@ void CMakeToolManager::restoreCMakeTools()
     updateDocumentation();
 
     emit m_instance->cmakeToolsLoaded();
+
+    // Store the default CMake tool "Autorun CMake" value globally
+    auto settings = Internal::CMakeSpecificSettings::instance();
+    if (settings->autorunCMake.value() == settings->autorunCMake.defaultValue()) {
+        CMakeTool *cmake = defaultCMakeTool();
+        settings->autorunCMake.setValue(cmake ? cmake->isAutoRun() : true);
+        settings->writeSettings(Core::ICore::settings());
+    }
 }
 
 void CMakeToolManager::updateDocumentation()

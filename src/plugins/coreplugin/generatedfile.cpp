@@ -1,17 +1,16 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "generatedfile.h"
 
-#include <coreplugin/editormanager/editormanager.h>
+#include "coreplugintr.h"
+#include "editormanager/editormanager.h"
 
 #include <utils/fileutils.h>
 #include <utils/textfileformat.h>
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <QDir>
-#include <QString>
 
 using namespace Utils;
 
@@ -34,9 +33,8 @@ class GeneratedFilePrivate : public QSharedData
 {
 public:
     GeneratedFilePrivate() = default;
-    explicit GeneratedFilePrivate(const Utils::FilePath &path);
-    explicit GeneratedFilePrivate(const QString &path);
-    Utils::FilePath path;
+    explicit GeneratedFilePrivate(const FilePath &path);
+    FilePath path;
     QByteArray contents;
     Id editorId;
     bool binary = false;
@@ -58,13 +56,7 @@ QDebug &operator<<(QDebug &debug, const Core::GeneratedFile &file)
     return debug;
 }
 
-GeneratedFilePrivate::GeneratedFilePrivate(const QString &path) : // FIXME Don't use - Remove when possible
-    path(FilePath::fromString(path).cleanPath()),
-    attributes({})
-{
-}
-
-GeneratedFilePrivate::GeneratedFilePrivate(const Utils::FilePath &path) :
+GeneratedFilePrivate::GeneratedFilePrivate(const FilePath &path) :
     path(path.cleanPath()),
     attributes({})
 {
@@ -75,12 +67,7 @@ GeneratedFile::GeneratedFile() :
 {
 }
 
-GeneratedFile::GeneratedFile(const QString &path) : // FIXME Don't use - Remove when possible
-    m_d(new GeneratedFilePrivate(path))
-{
-}
-
-GeneratedFile::GeneratedFile(const Utils::FilePath &path) :
+GeneratedFile::GeneratedFile(const FilePath &path) :
     m_d(new GeneratedFilePrivate(path))
 {
 }
@@ -101,7 +88,7 @@ FilePath GeneratedFile::filePath() const
     return m_d->path;
 }
 
-void GeneratedFile::setFilePath(const Utils::FilePath &p)
+void GeneratedFile::setFilePath(const FilePath &p)
 {
     m_d->path = p;
 }
@@ -152,8 +139,7 @@ bool GeneratedFile::write(QString *errorMessage) const
     const FilePath parentDir = m_d->path.parentDir();
     if (!parentDir.isDir()) {
         if (!parentDir.createDir()) {
-            *errorMessage = QCoreApplication::translate("BaseFileWizard",
-                                                        "Unable to create the directory %1.")
+            *errorMessage = Tr::tr("Unable to create the directory %1.")
                                 .arg(parentDir.toUserOutput());
             return false;
         }

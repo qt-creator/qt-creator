@@ -1,5 +1,5 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -52,7 +52,7 @@ const char C_NIMCODESTYLESETTINGSPAGE_CATEGORY[] = "Z.Nim";
 const char C_NIMTOOLSSETTINGSPAGE_ID[] = "Nim.NimToolsSettings";
 const char C_NIMTOOLSSETTINGSPAGE_CATEGORY[] = "Z.Nim";
 
-const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("Nim", "Nim");
+const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("QtC::Nim", "Nim");
 const char C_NIMGLOBALCODESTYLE_ID[] = "NimGlobal";
 const QString C_NIMSNIPPETSGROUP_ID = QStringLiteral("Nim.NimSnippetsGroup");
 

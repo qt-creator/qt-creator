@@ -1,39 +1,29 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ctestoutputreader.h"
 
-#include "ctesttreeitem.h"
 #include "../autotesttr.h"
 #include "../testframeworkmanager.h"
 #include "../testresult.h"
+#include "../testtreeitem.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 
 #include <QRegularExpression>
+
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
 
-class CTestResult : public TestResult
+static ResultHooks::FindTestItemHook findTestItemHook(const QString &testCaseName)
 {
-public:
-    CTestResult(const QString &id, const QString &project, const QString &testCase)
-        : TestResult(id, project)
-        , m_testCase(testCase)
-    {}
-
-    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override
-    {
-        if (!TestResult::isDirectParentOf(other, needsIntermediate))
-            return false;
-        return result() == ResultType::TestStart;
-    }
-
-    const ITestTreeItem *findTestTreeItem() const override
-    {
+    return [=](const TestResult &result) -> ITestTreeItem * {
+        Q_UNUSED(result)
         ITestTool *testTool = TestFrameworkManager::testToolForBuildSystemId(
                     CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
         QTC_ASSERT(testTool, return nullptr);
@@ -41,18 +31,30 @@ public:
         if (!rootNode)
             return nullptr;
 
-        return rootNode->findFirstLevelChild([this](const ITestTreeItem *item) {
-            return item && item->name() == m_testCase;
+        return rootNode->findFirstLevelChild([&](const ITestTreeItem *item) {
+            return item && item->name() == testCaseName;
         });
-    }
+    };
+}
 
-private:
-    QString m_testCase;
+static ResultHooks::DirectParentHook directParentHook()
+{
+    return [=](const TestResult &result, const TestResult &, bool *) -> bool {
+        return result.result() == ResultType::TestStart;
+    };
+}
+
+class CTestResult : public TestResult
+{
+public:
+    CTestResult(const QString &id, const QString &project, const QString &testCaseName)
+        : TestResult(id, project, {{}, {}, findTestItemHook(testCaseName), directParentHook()})
+    {}
 };
 
-CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                     Utils::QtcProcess *testApplication,
-                                     const Utils::FilePath &buildDirectory)
+CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
+                                     QtcProcess *testApplication,
+                                     const FilePath &buildDirectory)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
 {
 }
@@ -89,9 +91,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         if (!m_testName.isEmpty()) // possible?
             sendCompleteInformation();
         m_project = match.captured(1);
-        TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(ResultType::TestStart);
-        testResult->setDescription(Tr::tr("Running tests for %1").arg(m_project));
+        TestResult testResult = createDefaultResult();
+        testResult.setResult(ResultType::TestStart);
+        testResult.setDescription(Tr::tr("Running tests for %1").arg(m_project));
         reportResult(testResult);
     } else if (ExactMatch match = testCase1.match(line)) {
         int current = match.captured("current").toInt();
@@ -123,9 +125,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = summary.match(line)) {
         if (!m_testName.isEmpty())
             sendCompleteInformation();
-        TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(ResultType::MessageInfo);
-        testResult->setDescription(match.captured());
+        TestResult testResult = createDefaultResult();
+        testResult.setResult(ResultType::MessageInfo);
+        testResult.setDescription(match.captured());
         reportResult(testResult);
         int failed = match.captured(1).toInt();
         int testCount = match.captured(2).toInt();
@@ -134,9 +136,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = summaryTime.match(line)) {
         if (!m_testName.isEmpty()) // possible?
             sendCompleteInformation();
-        TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(ResultType::TestEnd);
-        testResult->setDescription(match.captured());
+        TestResult testResult = createDefaultResult();
+        testResult.setResult(ResultType::TestEnd);
+        testResult.setDescription(match.captured());
         reportResult(testResult);
     } else if (ExactMatch match = testCrash.match(line)) {
         m_description = match.captured();
@@ -154,9 +156,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     }
 }
 
-TestResultPtr CTestOutputReader::createDefaultResult() const
+TestResult CTestOutputReader::createDefaultResult() const
 {
-    return TestResultPtr(new CTestResult(id(), m_project, m_testName));
+    return CTestResult(id(), m_project, m_testName);
 }
 
 void CTestOutputReader::sendCompleteInformation()
@@ -166,10 +168,9 @@ void CTestOutputReader::sendCompleteInformation()
         QTC_CHECK(m_currentTestNo == -1 && m_testName.isEmpty());
         return;
     }
-
-    TestResultPtr testResult = createDefaultResult();
-    testResult->setResult(m_result);
-    testResult->setDescription(m_description);
+    TestResult testResult = createDefaultResult();
+    testResult.setResult(m_result);
+    testResult.setDescription(m_description);
     reportResult(testResult);
     m_testName.clear();
     m_description.clear();

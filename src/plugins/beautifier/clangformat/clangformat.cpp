@@ -1,15 +1,15 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 // Tested with version 3.3, 3.4 and 3.4.1
 
 #include "clangformat.h"
 
 #include "clangformatconstants.h"
-#include "clangformatoptionspage.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -31,13 +31,12 @@
 
 using namespace TextEditor;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 ClangFormat::ClangFormat()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu("ClangFormat.Menu");
-    menu->menu()->setTitle(tr("&ClangFormat"));
+    menu->menu()->setTitle(Tr::tr("&ClangFormat"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
@@ -66,7 +65,7 @@ ClangFormat::ClangFormat()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(&m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
-            [this] { updateActions(Core::EditorManager::currentEditor()); });
+            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
 }
 
 QString ClangFormat::id() const
@@ -188,7 +187,7 @@ void ClangFormat::disableFormattingSelectedText()
 Command ClangFormat::command() const
 {
     Command command;
-    command.setExecutable(m_settings.command().toString());
+    command.setExecutable(m_settings.command());
     command.setProcessing(Command::PipeProcessing);
 
     if (m_settings.usePredefinedStyle()) {
@@ -224,5 +223,4 @@ Command ClangFormat::command(int offset, int length) const
     return c;
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

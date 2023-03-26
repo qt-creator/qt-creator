@@ -1,0 +1,42 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "C.Module",
+    "category": "S.Haskell",
+    "trDescription": "Creates a Haskell module.",
+    "trDisplayName": "Module",
+    "trDisplayCategory": "Haskell",
+    "iconText": "hs",
+    "enabled": "%{JS: value('Plugins').indexOf('Haskell') >= 0}",
+
+    "options": [
+        { "key": "FileName", "value": "%{JS: Util.fileName(value('TargetPath'), 'hs')}" },
+        { "key": "BaseName", "value": "%{JS: Util.baseName(value('FileName'))}" }
+    ],
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.hs",
+                "target": "%{FileName}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

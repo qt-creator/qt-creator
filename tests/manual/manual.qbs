@@ -13,6 +13,7 @@ Project {
         "pluginview/pluginview.qbs",
         "proparser/testreader.qbs",
         "shootout/shootout.qbs",
+        "tasktree/tasktree.qbs",
         "widgets/widgets.qbs",
     ]
 }

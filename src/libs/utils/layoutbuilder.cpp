@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "layoutbuilder.h"
 
@@ -11,10 +11,12 @@
 #include <QGroupBox>
 #include <QPushButton>
 #include <QStackedLayout>
+#include <QSplitter>
 #include <QStyle>
+#include <QTabWidget>
 #include <QWidget>
 
-namespace Utils {
+namespace Utils::Layouting {
 
 /*!
     \enum Utils::LayoutBuilder::LayoutType
@@ -44,21 +46,21 @@ namespace Utils {
 /*!
     Constructs a layout item instance representing an empty cell.
  */
-LayoutBuilder::LayoutItem::LayoutItem()
+LayoutItem::LayoutItem()
 {}
 
 
 /*!
     Constructs a layout item proxy for \a layout.
  */
-LayoutBuilder::LayoutItem::LayoutItem(QLayout *layout)
+LayoutItem::LayoutItem(QLayout *layout)
     : layout(layout)
 {}
 
 /*!
     Constructs a layout item proxy for \a widget.
  */
-LayoutBuilder::LayoutItem::LayoutItem(QWidget *widget)
+LayoutItem::LayoutItem(QWidget *widget)
     : widget(widget)
 {}
 
@@ -70,18 +72,18 @@ LayoutBuilder::LayoutItem::LayoutItem(QWidget *widget)
 
     \sa BaseAspect::addToLayout()
  */
-LayoutBuilder::LayoutItem::LayoutItem(BaseAspect &aspect)
+LayoutItem::LayoutItem(BaseAspect &aspect)
     : aspect(&aspect)
 {}
 
-LayoutBuilder::LayoutItem::LayoutItem(BaseAspect *aspect)
+LayoutItem::LayoutItem(BaseAspect *aspect)
     : aspect(aspect)
 {}
 
 /*!
     Constructs a layout item containing some static \a text.
  */
-LayoutBuilder::LayoutItem::LayoutItem(const QString &text)
+LayoutItem::LayoutItem(const QString &text)
     : text(text)
 {}
 
@@ -138,20 +140,27 @@ static QWidget *widgetForItem(QLayoutItem *item)
     return nullptr;
 }
 
-static void addItemToBoxLayout(QBoxLayout *layout, const LayoutBuilder::LayoutItem &item)
+static QLabel *createLabel(const QString &text)
+{
+    auto label = new QLabel(text);
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    return label;
+}
+
+static void addItemToBoxLayout(QBoxLayout *layout, const LayoutItem &item)
 {
     if (QWidget *w = item.widget) {
         layout->addWidget(w);
     } else if (QLayout *l = item.layout) {
         layout->addLayout(l);
-    } else if (item.specialType == LayoutBuilder::SpecialType::Stretch) {
+    } else if (item.specialType == LayoutItem::SpecialType::Stretch) {
         layout->addStretch(item.specialValue.toInt());
-    } else if (item.specialType == LayoutBuilder::SpecialType::Space) {
+    } else if (item.specialType == LayoutItem::SpecialType::Space) {
         layout->addSpacing(item.specialValue.toInt());
-    } else if (item.specialType == LayoutBuilder::SpecialType::HorizontalRule) {
+    } else if (item.specialType == LayoutItem::SpecialType::HorizontalRule) {
         layout->addWidget(Layouting::createHr());
     } else if (!item.text.isEmpty()) {
-        layout->addWidget(new QLabel(item.text));
+        layout->addWidget(createLabel(item.text));
     } else {
         QTC_CHECK(false);
     }
@@ -173,7 +182,7 @@ static void flushPendingFormItems(QFormLayout *formLayout,
             addItemToBoxLayout(hbox, pendingFormItems.at(i));
         while (pendingFormItems.size() >= 2)
             pendingFormItems.pop_back();
-        pendingFormItems.append(LayoutBuilder::LayoutItem(hbox));
+        pendingFormItems.append(LayoutItem(hbox));
     }
 
     if (pendingFormItems.size() == 1) { // One one item given, so this spans both columns.
@@ -224,8 +233,8 @@ static void doLayoutHelper(QLayout *layout,
     auto boxLayout = qobject_cast<QBoxLayout *>(layout);
     auto stackLayout = qobject_cast<QStackedLayout *>(layout);
 
-    for (const LayoutBuilder::LayoutItem &item : items) {
-        if (item.specialType == LayoutBuilder::SpecialType::Break) {
+    for (const LayoutItem &item : items) {
+        if (item.specialType == LayoutItem::SpecialType::Break) {
             if (formLayout)
                 flushPendingFormItems(formLayout, pendingFormItems);
             else if (gridLayout) {
@@ -248,7 +257,7 @@ static void doLayoutHelper(QLayout *layout,
             else if (item.layout)
                 gridLayout->addLayout(item.layout, currentGridRow, currentGridColumn, 1, item.span, align);
             else if (!item.text.isEmpty())
-                gridLayout->addWidget(new QLabel(item.text), currentGridRow, currentGridColumn, 1, 1, align);
+                gridLayout->addWidget(createLabel(item.text), currentGridRow, currentGridColumn, 1, 1, align);
             currentGridColumn += item.span;
         } else if (boxLayout) {
             addItemToBoxLayout(boxLayout, item);
@@ -267,7 +276,7 @@ static void doLayoutHelper(QLayout *layout,
 /*!
     Constructs a layout item from the contents of another LayoutBuilder
  */
-LayoutBuilder::LayoutItem::LayoutItem(const LayoutBuilder &builder)
+LayoutItem::LayoutItem(const LayoutBuilder &builder)
 {
     layout = builder.createLayout();
     doLayoutHelper(layout, builder.m_items, Layouting::WithoutMargins);
@@ -429,42 +438,47 @@ LayoutExtender::~LayoutExtender()
 
 // Special items
 
-LayoutBuilder::Break::Break()
+Break::Break()
 {
     specialType = SpecialType::Break;
 }
 
-LayoutBuilder::Stretch::Stretch(int stretch)
+Stretch::Stretch(int stretch)
 {
     specialType = SpecialType::Stretch;
     specialValue = stretch;
 }
 
-LayoutBuilder::Space::Space(int space)
+Space::Space(int space)
 {
     specialType = SpecialType::Space;
     specialValue = space;
 }
 
-LayoutBuilder::Span::Span(int span_, const LayoutItem &item)
+Span::Span(int span_, const LayoutItem &item)
 {
-    LayoutBuilder::LayoutItem::operator=(item);
+    LayoutItem::operator=(item);
     span = span_;
 }
 
-LayoutBuilder::HorizontalRule::HorizontalRule()
+Tab::Tab(const QString &tabName, const LayoutBuilder &item)
+{
+    text = tabName;
+    widget = new QWidget;
+    item.attachTo(widget);
+}
+
+HorizontalRule::HorizontalRule()
 {
     specialType = SpecialType::HorizontalRule;
 }
 
-namespace Layouting {
-
 // "Widgets"
 
-static void applyItems(QWidget *widget, const QList<LayoutBuilder::LayoutItem> &items)
+static void applyItems(QWidget *widget, const QList<LayoutItem> &items)
 {
     bool hadLayout = false;
-    for (const LayoutBuilder::LayoutItem &item : items) {
+    for (const LayoutItem &item : items) {
         if (item.setter) {
             item.setter(widget);
         } else if (item.layout && !hadLayout) {
@@ -476,21 +490,41 @@ static void applyItems(QWidget *widget, const QList<LayoutBuilder::LayoutItem> &
     }
 }
 
-Group::Group(std::initializer_list<LayoutBuilder::LayoutItem> items)
+Group::Group(std::initializer_list<LayoutItem> items)
 {
     widget = new QGroupBox;
     applyItems(widget, items);
 }
 
-PushButton::PushButton(std::initializer_list<LayoutBuilder::LayoutItem> items)
+PushButton::PushButton(std::initializer_list<LayoutItem> items)
 {
     widget = new QPushButton;
     applyItems(widget, items);
 }
 
+Splitter::Splitter(std::initializer_list<LayoutItem> items)
+    : Splitter(new QSplitter(Qt::Vertical), items) {}
+
+Splitter::Splitter(QSplitter *splitter, std::initializer_list<LayoutItem> items)
+{
+    widget = splitter;
+    for (const LayoutItem &item : items)
+        splitter->addWidget(item.widget);
+}
+
+TabWidget::TabWidget(std::initializer_list<Tab> tabs)
+    : TabWidget(new QTabWidget, tabs) {}
+
+TabWidget::TabWidget(QTabWidget *tabWidget, std::initializer_list<Tab> tabs)
+{
+    widget = tabWidget;
+    for (const Tab &tab : tabs)
+        tabWidget->addTab(tab.widget, tab.text);
+}
+
 // "Properties"
 
-LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
+LayoutItem::Setter title(const QString &title, BoolAspect *checker)
 {
     return [title, checker](QObject *target) {
         if (auto groupBox = qobject_cast<QGroupBox *>(target)) {
@@ -507,7 +541,7 @@ LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
     };
 }
 
-LayoutBuilder::Setter onClicked(const std::function<void ()> &func, QObject *guard)
+LayoutItem::Setter onClicked(const std::function<void ()> &func, QObject *guard)
 {
     return [func, guard](QObject *target) {
         if (auto button = qobject_cast<QAbstractButton *>(target)) {
@@ -518,7 +552,7 @@ LayoutBuilder::Setter onClicked(const std::function<void ()> &func, QObject *gua
     };
 }
 
-LayoutBuilder::Setter text(const QString &text)
+LayoutItem::Setter text(const QString &text)
 {
     return [text](QObject *target) {
         if (auto button = qobject_cast<QAbstractButton *>(target)) {
@@ -529,7 +563,7 @@ LayoutBuilder::Setter text(const QString &text)
     };
 }
 
-LayoutBuilder::Setter tooltip(const QString &toolTip)
+LayoutItem::Setter tooltip(const QString &toolTip)
 {
     return [toolTip](QObject *target) {
         if (auto widget = qobject_cast<QWidget *>(target)) {
@@ -548,10 +582,10 @@ QWidget *createHr(QWidget *parent)
     return frame;
 }
 
-LayoutBuilder::Break br;
-LayoutBuilder::Stretch st;
-LayoutBuilder::Space empty(0);
-LayoutBuilder::HorizontalRule hr;
+// Singletons.
+Break br;
+Stretch st;
+Space empty(0);
+HorizontalRule hr;
 
-} // Layouting
-} // Utils
+} // Utils::Layouting

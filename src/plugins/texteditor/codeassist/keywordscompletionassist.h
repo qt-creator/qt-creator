@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "iassistprocessor.h"
 #include "assistproposalitem.h"
-#include "ifunctionhintproposalmodel.h"
+#include "asyncprocessor.h"
 #include "completionassistprovider.h"
+#include "ifunctionhintproposalmodel.h"
 #include "../snippets/snippetassistcollector.h"
 
 #include "texteditor/texteditorconstants.h"
@@ -71,8 +71,6 @@ public:
 
     void setDynamicCompletionFunction(const DynamicCompletionFunction &func);
 
-    // IAssistProvider interface
-    RunType runType() const override;
     IAssistProcessor *createProcessor(const AssistInterface *) const override;
 
 private:
@@ -81,13 +79,13 @@ private:
     DynamicCompletionFunction m_completionFunc;
 };
 
-class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public IAssistProcessor
+class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public AsyncProcessor
 {
 public:
     KeywordsCompletionAssistProcessor(const Keywords &keywords);
     ~KeywordsCompletionAssistProcessor() override = default;
 
-    IAssistProposal *perform(const AssistInterface *interface) override;
+    IAssistProposal *performAsync() override;
 
     void setSnippetGroup(const QString &id);
 

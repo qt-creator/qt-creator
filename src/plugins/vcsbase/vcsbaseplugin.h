@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -52,7 +52,7 @@ public:
     bool hasTopLevel() const;
 
     // Current file.
-    QString currentFile() const;
+    Utils::FilePath currentFile() const;
     QString currentFileName() const;
     Utils::FilePath currentFileDirectory() const;
     Utils::FilePath currentFileTopLevel() const;
@@ -107,9 +107,9 @@ VCSBASE_EXPORT Utils::FilePath findRepositoryForFile(const Utils::FilePath &file
 // (suppress LOCALE warnings/parse commands output) if desired.
 VCSBASE_EXPORT void setProcessEnvironment(Utils::Environment *e);
 // Sets the source of editor contents, can be directory or file.
-VCSBASE_EXPORT void setSource(Core::IDocument *document, const QString &source);
+VCSBASE_EXPORT void setSource(Core::IDocument *document, const Utils::FilePath &source);
 // Returns the source of editor contents.
-VCSBASE_EXPORT QString source(Core::IDocument *document);
+VCSBASE_EXPORT Utils::FilePath source(Core::IDocument *document);
 
 class VCSBASE_EXPORT VcsBasePluginPrivate : public Core::IVersionControl
 {
@@ -137,7 +137,7 @@ public:
     virtual QString commitDisplayName() const;
 
     void commitFromEditor();
-    bool submitActionTriggered() const { return m_submitActionTriggered; }
+    virtual bool activateCommit() = 0;
 
 protected:
     // Prompt to save all files before commit:
@@ -164,8 +164,6 @@ protected:
 
     // Implement to enable the plugin menu actions according to state.
     virtual void updateActions(ActionState as) = 0;
-    // Implement to start the submit process, use submitEditor() to get the submit editor instance.
-    virtual bool submitEditorAboutToClose() = 0;
     virtual void discardCommit();
 
     // A helper to enable the VCS menu action according to state:
@@ -176,7 +174,6 @@ protected:
     bool enableMenuAction(ActionState as, QAction *in) const;
 
 private:
-    void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const Internal::State &s, Core::IVersionControl *vc);
 
     bool supportsRepositoryCreation() const;
@@ -185,7 +182,6 @@ private:
     Core::Context m_context;
     VcsBasePluginState m_state;
     int m_actionState = -1;
-    bool m_submitActionTriggered = false;
 };
 
 } // namespace VcsBase

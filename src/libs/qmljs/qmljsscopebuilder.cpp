@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsscopebuilder.h"
 
@@ -48,7 +48,7 @@ void ScopeBuilder::push(AST::Node *node)
                 const ObjectValue *owner = nullptr;
                 const Value *value = nullptr;
                 // try to find the name on the scope objects
-                foreach (const ObjectValue *scope, _scopeChain->qmlScopeObjects()) {
+                for (const ObjectValue *scope : _scopeChain->qmlScopeObjects()) {
                     value = scope->lookupMember(name, _scopeChain->context(), &owner);
                     if (value)
                         break;
@@ -84,7 +84,7 @@ void ScopeBuilder::push(AST::Node *node)
 
 void ScopeBuilder::push(const QList<AST::Node *> &nodes)
 {
-    foreach (Node *node, nodes)
+    for (Node *node : nodes)
         push(node);
 }
 
@@ -197,7 +197,7 @@ const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
 {
     // do a name lookup on the scope objects
     const Value *result = nullptr;
-    foreach (const ObjectValue *scopeObject, _scopeChain->qmlScopeObjects()) {
+    for (const ObjectValue *scopeObject : _scopeChain->qmlScopeObjects()) {
         const ObjectValue *object = scopeObject;
         for (UiQualifiedId *it = id; it; it = it->next) {
             if (it->name.isEmpty())

@@ -50,7 +50,7 @@
         \li \l{Indenting Text or Code}
 
             \QC indents text and code according to rules that you
-            specify separately for files that contain C++, QML, or
+            specify separately for files that have C++, QML, or
             Nim (experimental) code and for other text files.
 
         \li \l{Using Qt Quick Toolbars}
@@ -91,8 +91,8 @@
         \if defined(qtcreator)
         \li \l{Parsing C++ Files with the Clang Code Model}
 
-            The Clang code model provides some of the services previously
-            provided by the built-in C/C++ code model, such as code
+            The Clang code model offers some of the same services as the
+            built-in C/C++ code model, such as code
             completion, syntactic and semantic highlighting, diagnostics,
             tooltips, outline of symbols, and renaming of local symbols.
         \endif

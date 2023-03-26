@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppsemanticinfoupdater.h"
 
@@ -121,7 +121,7 @@ bool SemanticInfoUpdaterPrivate::reuseCurrentSemanticInfo(const SemanticInfo::So
             && currentSemanticInfo.revision == source.revision
             && currentSemanticInfo.doc
             && currentSemanticInfo.doc->translationUnit()->ast()
-            && currentSemanticInfo.doc->fileName() == source.fileName
+            && currentSemanticInfo.doc->filePath().toString() == source.fileName
             && !currentSemanticInfo.snapshot.isEmpty()
             && currentSemanticInfo.snapshot == source.snapshot) {
         SemanticInfo newSemanticInfo;

@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "settingsdialog.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/iwizardfactory.h>
+#include "ioptionspage.h"
+#include "../coreplugintr.h"
+#include "../icore.h"
+#include "../iwizardfactory.h"
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -447,7 +448,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_filterLineEdit->setFiltering(true);
 
     createGui();
-    setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Preferences"));
+    setWindowTitle(Tr::tr("Preferences"));
 
     m_model.setPages(m_pages, IOptionsPageProvider::allOptionsPagesProviders());
 

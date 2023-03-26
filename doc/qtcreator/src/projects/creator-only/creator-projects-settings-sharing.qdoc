@@ -16,7 +16,7 @@
 
     \QC stores user-specific project settings in a \e {.user} file. You can
     share these settings between several projects as a \e {.shared} file. It
-    has the same XML structure as a \e {.user} file, but only contains the
+    has the same XML structure as a \e {.user} file, but only has the
     settings to share.
 
     \section1 Creating Shared Settings File

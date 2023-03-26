@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprivategate.h"
 
@@ -223,7 +223,7 @@ QVariant fixResourcePaths(const QVariant &value)
             const QString path = QLatin1String("qrc:") +  url.path();
             if (!qmlDesignerRCPath().isEmpty()) {
                 const QStringList searchPaths = qmlDesignerRCPath().split(QLatin1Char(';'));
-                foreach (const QString &qrcPath, searchPaths) {
+                for (const QString &qrcPath : searchPaths) {
                     const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
                     if (qrcDefintion.count() == 2) {
                         QString fixedPath = path;
@@ -243,7 +243,7 @@ QVariant fixResourcePaths(const QVariant &value)
         if (str.contains(QLatin1String("qrc:"))) {
             if (!qmlDesignerRCPath().isEmpty()) {
                 const QStringList searchPaths = qmlDesignerRCPath().split(QLatin1Char(';'));
-                foreach (const QString &qrcPath, searchPaths) {
+                for (const QString &qrcPath : searchPaths) {
                     const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
                     if (qrcDefintion.count() == 2) {
                         QString fixedPath = str;
@@ -377,13 +377,14 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
         QList<QObject*> childList = object->children();
 
         if (item) {
-            foreach (QQuickItem *childItem, item->childItems()) {
+            const QList<QQuickItem *> childItems = item->childItems();
+            for (QQuickItem *childItem : childItems){
                 if (!childList.contains(childItem))
                     childList.append(childItem);
             }
         }
 
-        foreach (QObject *child, childList) {
+        for (QObject *child : std::as_const(childList)) {
             if (!nodeInstanceServer->hasInstanceForObject(child))
                 doComponentCompleteRecursive(child, nodeInstanceServer);
         }
@@ -583,7 +584,7 @@ QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const
 
     if (fileName.startsWith(":/")) {
         const QStringList searchPaths = qmlDesignerRCPath().split(';');
-        foreach (const QString &qrcPath, searchPaths) {
+        for (const QString &qrcPath : searchPaths) {
             const QStringList qrcDefintion = qrcPath.split('=');
             if (qrcDefintion.count() == 2) {
                 QString fixedPath = fileName;

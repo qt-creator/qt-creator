@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -20,16 +20,13 @@ class IDocument;
 class IEditor;
 }
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckTextMarkManager;
 class CppcheckTool;
 
 class CppcheckTrigger final : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit CppcheckTrigger(CppcheckTextMarkManager &marks, CppcheckTool &tool);
     ~CppcheckTrigger() override;
@@ -51,5 +48,4 @@ private:
     QHash<Utils::FilePath, QDateTime> m_checkedFiles;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

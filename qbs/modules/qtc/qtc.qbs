@@ -6,20 +6,20 @@ import qbs.Utilities
 Module {
     Depends { name: "cpp"; required: false }
 
-    property string qtcreator_display_version: '9.0.2'
-    property string ide_version_major: '9'
+    property string qtcreator_display_version: '10.0.0'
+    property string ide_version_major: '10'
     property string ide_version_minor: '0'
-    property string ide_version_release: '2'
+    property string ide_version_release: '0'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
-    property string ide_compat_version_major: '9'
+    property string ide_compat_version_major: '10'
     property string ide_compat_version_minor: '0'
     property string ide_compat_version_release: '0'
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
-    property string qtcreator_copyright_year: '2022'
+    property string qtcreator_copyright_year: '2023'
     property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
 
     property string ide_display_name: 'Qt Creator'

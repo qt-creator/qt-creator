@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -23,8 +23,6 @@ class RuntimeInfo;
  */
 class CreateSimulatorDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit CreateSimulatorDialog(QWidget *parent = nullptr);
     ~CreateSimulatorDialog() override;

@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #ifndef BINDINGEDITORWIDGET_H
 #define BINDINGEDITORWIDGET_H
@@ -29,8 +29,8 @@ public:
 
     bool event(QEvent *event) override;
 
-    TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
-                                                       TextEditor::AssistReason assistReason) const override;
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
+        TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const override;
 
 signals:
     void returnKeyClicked();

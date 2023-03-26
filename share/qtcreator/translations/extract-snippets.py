@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright (C) 2019 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import os
 import sys
@@ -15,8 +15,8 @@ target_file = sys.argv[2]
 
 
 def fix_value(value):
-    value = value.replace('\"', '\\\"')
-    value = value.replace('\n', '\\\n')
+    value = value.replace('\"', '\\"')
+    value = value.replace('\n', '\\n')
     return value
 
 
@@ -29,7 +29,7 @@ def parse_file(file_path):
         if 'complement' in e.attrib:
             text = fix_value(e.attrib['complement'])
             if text:
-                result += 'const char *a{} = QT_TRANSLATE_NOOP3("TextEditor::Internal::Snippets", "{}", "group:\'{}\' trigger:\'{}\'"); // {}\n' \
+                result += 'const char *a{} = QT_TRANSLATE_NOOP3("QtC::TextEditor", "{}", "group:\'{}\' trigger:\'{}\'"); // {}\n' \
                     .format(index, text, e.attrib['group'], e.attrib['trigger'], file_path)
 
             index += 1

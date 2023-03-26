@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppbuiltinmodelmanagersupport.h"
 
@@ -18,11 +18,15 @@
 #include <texteditor/basehoverhandler.h>
 #include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QTextDocument>
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 namespace {
@@ -51,7 +55,7 @@ private:
             tip += evaluator.diagnosis();
             setPriority(Priority_Diagnostic);
         }
-        const Utils::FilePath filePath = editorWidget->textDocument()->filePath();
+        const FilePath filePath = editorWidget->textDocument()->filePath();
         const QStringList fallback = identifierWordsUnderCursor(tc);
         if (evaluator.identifiedCppElement()) {
             const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
@@ -138,7 +142,8 @@ void BuiltinModelManagerSupport::startLocalRenaming(const CursorInEditor &data,
 }
 
 void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
-                                              const QString &replacement)
+                                              const QString &replacement,
+                                              const std::function<void()> &callback)
 {
     CppModelManager *modelManager = CppModelManager::instance();
     if (!modelManager)
@@ -157,7 +162,7 @@ void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
         Internal::CanonicalSymbol cs(info.doc, info.snapshot);
         CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
         if (canonicalSymbol)
-            modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
+            modelManager->renameUsages(canonicalSymbol, cs.context(), replacement, callback);
     }
 }
 
@@ -184,13 +189,35 @@ void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data) const
     }
 }
 
-void BuiltinModelManagerSupport::switchHeaderSource(const Utils::FilePath &filePath,
+void BuiltinModelManagerSupport::switchHeaderSource(const FilePath &filePath,
                                                     bool inNextSplit)
 {
-    const auto otherFile = Utils::FilePath::fromString(
-                correspondingHeaderOrSource(filePath.toString()));
+    const FilePath otherFile = correspondingHeaderOrSource(filePath);
     if (!otherFile.isEmpty())
         openEditor(otherFile, inNextSplit);
+}
+
+void BuiltinModelManagerSupport::checkUnused(const Utils::Link &link, SearchResult *search,
+                                             const Utils::LinkHandler &callback)
+{
+    CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+    QFile file(link.targetFilePath.toString());
+    if (!file.open(QIODevice::ReadOnly))
+        return callback(link);
+    const QByteArray &contents = file.readAll();
+    CPlusPlus::Document::Ptr cppDoc = snapshot.preprocessedDocument(contents, link.targetFilePath);
+    if (!cppDoc->parse())
+        return callback(link);
+    cppDoc->check();
+    snapshot.insert(cppDoc);
+    QTextDocument doc(QString::fromUtf8(contents));
+    QTextCursor cursor(&doc);
+    cursor.setPosition(Utils::Text::positionInText(&doc, link.targetLine, link.targetColumn + 1));
+    Internal::CanonicalSymbol cs(cppDoc, snapshot);
+    CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
+    if (!canonicalSymbol || !canonicalSymbol->identifier())
+        return callback(link);
+    CppModelManager::checkForUnusedSymbol(search, link, canonicalSymbol, cs.context(), callback);
 }
 
 } // namespace CppEditor::Internal

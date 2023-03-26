@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "environmentaspectwidget.h"
 
 #include "environmentwidget.h"
+#include "projectexplorertr.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -31,8 +32,14 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     auto baseEnvironmentWidget = new QWidget;
     m_baseLayout = new QHBoxLayout(baseEnvironmentWidget);
     m_baseLayout->setContentsMargins(0, 0, 0, 0);
-    auto label = new QLabel(tr("Base environment for this run configuration:"), this);
-    m_baseLayout->addWidget(label);
+
+    auto label = [aspect]() {
+        if (aspect->labelText().isEmpty())
+            aspect->setLabelText(Tr::tr("Base environment for this run configuration:"));
+        aspect->setupLabel();
+        return aspect->label();
+    };
+    m_baseLayout->addWidget(label());
 
     m_baseEnvironmentComboBox = new QComboBox;
     for (const QString &displayName : m_aspect->displayNames())

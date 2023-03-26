@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jsonwizardfilegenerator.h"
 
-#include "../projectexplorer.h"
+#include "../projectexplorertr.h"
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
 
@@ -33,16 +33,15 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 
     for (const QVariant &d : list) {
         if (d.type() != QVariant::Map) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                        "Files data list entry is not an object.");
+            *errorMessage = Tr::tr("Files data list entry is not an object.");
             return false;
         }
 
         File f;
 
         const QVariantMap tmp = d.toMap();
-        f.source = Utils::FilePath::fromVariant(tmp.value(QLatin1String("source")));
-        f.target = Utils::FilePath::fromVariant(tmp.value(QLatin1String("target")));
+        f.source = Utils::FilePath::fromSettings(tmp.value(QLatin1String("source")));
+        f.target = Utils::FilePath::fromSettings(tmp.value(QLatin1String("target")));
         f.condition = tmp.value(QLatin1String("condition"), true);
         f.isBinary = tmp.value(QLatin1String("isBinary"), false);
         f.overwrite = tmp.value(QLatin1String("overwrite"), false);
@@ -55,8 +54,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
             return false;
 
         if (f.source.isEmpty() && f.target.isEmpty()) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                        "Source and target are both empty.");
+            *errorMessage = Tr::tr("Source and target are both empty.");
             return false;
         }
 
@@ -113,7 +111,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
             gf.setContents(Utils::TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
                                                               errorMessage));
             if (!errorMessage->isEmpty()) {
-                *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
+                *errorMessage = Tr::tr("When processing \"%1\":<br>%2")
                         .arg(file.source.toUserOutput(), *errorMessage);
                 return Core::GeneratedFile();
             }

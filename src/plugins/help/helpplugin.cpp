@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "helpplugin.h"
 
@@ -158,12 +158,9 @@ void HelpPlugin::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocat
     dd->showHelpUrl(url, location);
 }
 
-bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
+void HelpPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error)
     dd = new HelpPluginPrivate;
-    return true;
 }
 
 HelpPluginPrivate::HelpPluginPrivate()

@@ -1,8 +1,10 @@
 // Copyright (C) 2019 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcheckmanualrundialog.h"
+
 #include "cppcheckoptions.h"
+#include "cppchecktr.h"
 
 #include <projectexplorer/selectablefilesmodel.h>
 
@@ -14,8 +16,7 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 ManualRunDialog::ManualRunDialog(const CppcheckOptions &options,
                                  const ProjectExplorer::Project *project)
@@ -25,7 +26,7 @@ ManualRunDialog::ManualRunDialog(const CppcheckOptions &options,
 {
     QTC_ASSERT(project, return );
 
-    setWindowTitle(tr("Cppcheck Run Configuration"));
+    setWindowTitle(Tr::tr("Cppcheck Run Configuration"));
 
     auto view = new QTreeView;
     view->setHeaderHidden(true);
@@ -45,7 +46,7 @@ ManualRunDialog::ManualRunDialog(const CppcheckOptions &options,
     connect(buttons, &QDialogButtonBox::rejected,
             this, &QDialog::reject);
 
-    auto analyzeButton = new QPushButton(tr("Analyze"));
+    auto analyzeButton = new QPushButton(Tr::tr("Analyze"));
     buttons->addButton(analyzeButton, QDialogButtonBox::AcceptRole);
     analyzeButton->setEnabled(m_model->hasCheckedFiles());
     connect(m_model, &QAbstractItemModel::dataChanged,
@@ -82,5 +83,4 @@ QSize ManualRunDialog::sizeHint() const
     return {original.width() * 2, original.height()};
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

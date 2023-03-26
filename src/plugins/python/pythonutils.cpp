@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythonutils.h"
 
@@ -22,6 +22,12 @@ using namespace Utils;
 
 namespace Python::Internal {
 
+static QHash<FilePath, FilePath> &userDefinedPythonsForDocument()
+{
+    static QHash<FilePath, FilePath> userDefines;
+    return userDefines;
+}
+
 FilePath detectPython(const FilePath &documentPath)
 {
     Project *project = documentPath.isEmpty() ? nullptr
@@ -41,6 +47,10 @@ FilePath detectPython(const FilePath &documentPath)
             }
         }
     }
+
+    const FilePath userDefined = userDefinedPythonsForDocument().value(documentPath);
+    if (userDefined.exists())
+        return userDefined;
 
     // check whether this file is inside a python virtual environment
     const QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
@@ -71,6 +81,11 @@ FilePath detectPython(const FilePath &documentPath)
     return PythonSettings::interpreters().value(0).command;
 }
 
+void definePythonForDocument(const FilePath &documentPath, const FilePath &python)
+{
+    userDefinedPythonsForDocument()[documentPath] = python;
+}
+
 static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
 {
     using MimeTypes = QList<MimeType>;
@@ -94,7 +109,7 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
         if (file.isEmpty()) {
             if (Project *project = SessionManager::startupProject())
                 return project->projectDirectory();
-            return FilePath::fromString(QDir::currentPath());
+            return FilePath::currentWorkingPath();
         }
         return file.absolutePath();
     };

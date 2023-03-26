@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakestep.h"
 
@@ -115,11 +115,9 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
-        arguments << bc->subNodeBuild()->filePath().toUserOutput();
-    else if (flags & ArgumentFlag::OmitProjectPath)
-        arguments << project()->projectFilePath().fileName();
+        arguments << bc->subNodeBuild()->filePath().nativePath();
     else
-        arguments << project()->projectFilePath().toUserOutput();
+        arguments << project()->projectFilePath().nativePath();
 
     if (v->qtVersion() < QVersionNumber(5, 0, 0))
         arguments << "-r";
@@ -178,7 +176,6 @@ bool QMakeStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    m_wasSuccess = true;
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
     const QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
 
@@ -201,9 +198,8 @@ bool QMakeStep::init()
     // perspective it is local.
 
     QString make;
-    if (qmakeBc->subNodeBuild()) {
-        QmakeProFileNode *pro = qmakeBc->subNodeBuild();
-        if (pro && !pro->makefile().isEmpty())
+    if (QmakeProFileNode *pro = qmakeBc->subNodeBuild()) {
+        if (!pro->makefile().isEmpty())
             make = pro->makefile();
         else
             make = "Makefile";
@@ -241,10 +237,8 @@ bool QMakeStep::init()
     if (qmakeBc->subNodeBuild())
         node = qmakeBc->subNodeBuild();
     QTC_ASSERT(node, return false);
-    QString proFile = node->filePath().toString();
 
-    const Tasks tasks = Utils::sorted(
-                qtVersion->reportIssues(proFile, workingDirectory.toString()));
+    const Tasks tasks = Utils::sorted(qtVersion->reportIssues(node->filePath(), workingDirectory));
     if (!tasks.isEmpty()) {
         bool canContinue = true;
         for (const Task &t : tasks) {
@@ -283,84 +277,70 @@ void QMakeStep::doRun()
         return;
     }
 
+    if (!checkWorkingDirectory())
+        return;
+
     m_needToRunQMake = false;
 
-    m_nextState = State::RUN_QMAKE;
-    runNextCommand();
+    using namespace Tasking;
+
+    const auto setupQMake = [this](QtcProcess &process) {
+        m_outputFormatter->setLineParsers({new QMakeParser});
+        ProcessParameters *pp = processParameters();
+        pp->setCommandLine(m_qmakeCommand);
+        setupProcess(&process);
+    };
+
+    const auto setupMakeQMake = [this](QtcProcess &process) {
+        auto *parser = new GnuMakeParser;
+        parser->addSearchDir(processParameters()->workingDirectory());
+        m_outputFormatter->setLineParsers({parser});
+        ProcessParameters *pp = processParameters();
+        pp->setCommandLine(m_makeCommand);
+        setupProcess(&process);
+    };
+
+    const auto onDone = [this](const QtcProcess &) {
+        const QString command = displayedParameters()->effectiveCommand().toUserOutput();
+        emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
+                       OutputFormat::NormalMessage);
+    };
+
+    const auto onError = [this](const QtcProcess &process) {
+        const QString command = displayedParameters()->effectiveCommand().toUserOutput();
+        if (process.result() == ProcessResult::FinishedWithError) {
+            emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")
+                           .arg(command, QString::number(process.exitCode())),
+                           OutputFormat::ErrorMessage);
+        } else if (process.result() == ProcessResult::StartFailed) {
+            emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
+                           .arg(command, displayedParameters()->prettyArguments()),
+                           OutputFormat::ErrorMessage);
+            const QString errorString = process.errorString();
+            if (!errorString.isEmpty())
+                emit addOutput(errorString, OutputFormat::ErrorMessage);
+        } else {
+            emit addOutput(Tr::tr("The process \"%1\" crashed.").arg(command),
+                           OutputFormat::ErrorMessage);
+        }
+        m_needToRunQMake = true;
+    };
+
+    const auto onGroupDone = [this] {
+        emit buildConfiguration()->buildDirectoryInitialized();
+    };
+
+    QList<TaskItem> processList = {Process(setupQMake, onDone, onError)};
+    if (m_runMakeQmake)
+        processList << Process(setupMakeQMake, onDone, onError);
+    processList << OnGroupDone(onGroupDone);
+
+    runTaskTree(Group(processList));
 }
 
 void QMakeStep::setForced(bool b)
 {
     m_forced = b;
-}
-
-void QMakeStep::processStartupFailed()
-{
-    m_needToRunQMake = true;
-    AbstractProcessStep::processStartupFailed();
-}
-
-bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
-{
-    bool result = AbstractProcessStep::processSucceeded(exitCode, status);
-    if (!result)
-        m_needToRunQMake = true;
-    emit buildConfiguration()->buildDirectoryInitialized();
-    return result;
-}
-
-void QMakeStep::doCancel()
-{
-    AbstractProcessStep::doCancel();
-}
-
-void QMakeStep::finish(bool success)
-{
-    m_wasSuccess = success;
-    runNextCommand();
-}
-
-void QMakeStep::startOneCommand(const CommandLine &command)
-{
-    ProcessParameters *pp = processParameters();
-    pp->setCommandLine(command);
-
-    AbstractProcessStep::doRun();
-}
-
-void QMakeStep::runNextCommand()
-{
-    if (isCanceled())
-        m_wasSuccess = false;
-
-    if (!m_wasSuccess)
-        m_nextState = State::POST_PROCESS;
-
-    emit progress(static_cast<int>(m_nextState) * 100 / static_cast<int>(State::POST_PROCESS),
-                  QString());
-
-    switch (m_nextState) {
-    case State::IDLE:
-        return;
-    case State::RUN_QMAKE:
-        m_outputFormatter->setLineParsers({new QMakeParser});
-        m_nextState = (m_runMakeQmake ? State::RUN_MAKE_QMAKE_ALL : State::POST_PROCESS);
-        startOneCommand(m_qmakeCommand);
-        return;
-    case State::RUN_MAKE_QMAKE_ALL:
-        {
-            auto *parser = new GnuMakeParser;
-            parser->addSearchDir(processParameters()->workingDirectory());
-            m_outputFormatter->setLineParsers({parser});
-            m_nextState = State::POST_PROCESS;
-            startOneCommand(m_makeCommand);
-        }
-        return;
-    case State::POST_PROCESS:
-        m_nextState = State::IDLE;
-        emit finished(m_wasSuccess);
-        return;
-    }
 }
 
 void QMakeStep::setUserArguments(const QString &arguments)
@@ -415,12 +395,10 @@ QString QMakeStep::effectiveQMakeCall() const
     QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
     FilePath qmake = qtVersion ? qtVersion->qmakeFilePath() : FilePath();
     if (qmake.isEmpty())
-        qmake = FilePath::fromString(Tr::tr("<no Qt version>"));
+        qmake = FilePath::fromPathPart(Tr::tr("<no Qt version>"));
     FilePath make = makeCommand();
     if (make.isEmpty())
-        make = FilePath::fromString(Tr::tr("<no Make step found>"));
-
-    CommandLine cmd(qmake, {});
+        make = FilePath::fromPathPart(Tr::tr("<no Make step found>"));
 
     QString result = qmake.toString();
     if (qtVersion) {
@@ -708,15 +686,19 @@ void QMakeStep::updateAbiWidgets()
 
         if (selectedAbis.isEmpty()) {
             if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
-                // Prefer ARM for Android, prefer 32bit.
+                // Prefer ARM/X86_64 for Android, prefer 64bit.
                 for (const Abi &abi : abis) {
-                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
+                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {
                         selectedAbis.append(abi.param());
+                        break;
+                    }
                 }
                 if (selectedAbis.isEmpty()) {
                     for (const Abi &abi : abis) {
-                        if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
+                        if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
                             selectedAbis.append(abi.param());
+                            break;
+                        }
                     }
                 }
             } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit()) && HostOsInfo::isRunningUnderRosetta()) {

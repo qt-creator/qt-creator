@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "adddebuggeroperation.h"
 
@@ -223,7 +223,7 @@ QVariantMap AddDebuggerData::addDebugger(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << debugger << QLatin1String(ABIS), QVariant(m_abis));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(ENGINE_TYPE), QVariant(m_engine));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(BINARY),
-                         Utils::FilePath::fromUserInput(m_binary).toVariant());
+                         Utils::FilePath::fromUserInput(m_binary).toSettings());
 
     data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count + 1));
 

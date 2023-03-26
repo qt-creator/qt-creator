@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "clangdiagnosticconfig.h"
 #include "cppeditor_global.h"
 
+#include <utils/clangutils.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
 
@@ -159,8 +160,7 @@ public:
     void setData(const Data &data);
     Data data() const { return m_data; }
 
-    static QVersionNumber clangdVersion(const Utils::FilePath &clangdFilePath);
-    QVersionNumber clangdVersion() const { return clangdVersion(clangdFilePath()); }
+    QVersionNumber clangdVersion() const { return Utils::clangdVersion(clangdFilePath()); }
     Utils::FilePath clangdIncludePath() const;
     static Utils::FilePath clangdUserConfigFilePath();
 
@@ -190,6 +190,8 @@ public:
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobal);
     void setDiagnosticConfigId(Utils::Id configId);
+    void blockIndexing();
+    void unblockIndexing();
 
 private:
     void loadSettings();
@@ -198,6 +200,7 @@ private:
     ProjectExplorer::Project * const m_project;
     ClangdSettings::Data m_customSettings;
     bool m_useGlobalSettings = true;
+    bool m_blockIndexing = false;
 };
 
 } // namespace CppEditor

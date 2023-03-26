@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <functional>
 
@@ -72,8 +72,8 @@ class SubProcessConfig
 {
 public:
     SubProcessConfig(const char *envVar, const QString &envVal);
-    void setupSubProcess(Utils::QtcProcess *subProcess);
-    void setupSubProcess(QProcess *subProcess);
+    void setupSubProcess(Utils::QtcProcess *subProcess) const;
+    void setupSubProcess(QProcess *subProcess) const;
 
     static void setPathToProcessTestApp(const QString &path);
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -69,7 +69,7 @@ private:
     void startState();
     void endState(const Utils::FilePath &replyFilePath, bool restoredFromBackup);
     void startCMakeState(const QStringList &configurationArguments);
-    void cmakeFinishedState();
+    void cmakeFinishedState(int exitCode);
 
     void replyDirectoryHasChanged(const QString &directory) const;
     void makeBackupConfiguration(bool store);

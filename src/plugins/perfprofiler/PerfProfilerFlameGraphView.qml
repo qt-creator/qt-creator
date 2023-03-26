@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtCreator.PerfProfiler
 import QtCreator.Tracing
@@ -24,24 +24,24 @@ FlameGraphView {
     ]
 
     trRoleNames: [
-        PerfProfilerFlameGraphModel.SamplesRole,                      qsTranslate("PerfProfiler", "Samples"),
-        PerfProfilerFlameGraphModel.FunctionRole,                     qsTranslate("PerfProfiler", "Function"),
-        PerfProfilerFlameGraphModel.SourceFileRole,                   qsTranslate("PerfProfiler", "Source"),
-        PerfProfilerFlameGraphModel.ElfFileRole,                      qsTranslate("PerfProfiler", "Binary"),
-        PerfProfilerFlameGraphModel.ResourceAllocationsRole,          qsTranslate("PerfProfiler", "Allocations"),
-        PerfProfilerFlameGraphModel.ObservedResourceAllocationsRole,  qsTranslate("PerfProfiler", " observed"),
-        PerfProfilerFlameGraphModel.LostResourceRequestsRole,         qsTranslate("PerfProfiler", " guessed"),
-        PerfProfilerFlameGraphModel.ResourceReleasesRole,             qsTranslate("PerfProfiler", "Releases"),
-        PerfProfilerFlameGraphModel.ObservedResourceReleasesRole,     qsTranslate("PerfProfiler", " observed"),
-        PerfProfilerFlameGraphModel.GuessedResourceReleasesRole,      qsTranslate("PerfProfiler", " guessed"),
-        PerfProfilerFlameGraphModel.ResourcePeakRole,                 qsTranslate("PerfProfiler", "Peak Usage")
+        PerfProfilerFlameGraphModel.SamplesRole,                      qsTranslate("QtC::PerfProfiler", "Samples"),
+        PerfProfilerFlameGraphModel.FunctionRole,                     qsTranslate("QtC::PerfProfiler", "Function"),
+        PerfProfilerFlameGraphModel.SourceFileRole,                   qsTranslate("QtC::PerfProfiler", "Source"),
+        PerfProfilerFlameGraphModel.ElfFileRole,                      qsTranslate("QtC::PerfProfiler", "Binary"),
+        PerfProfilerFlameGraphModel.ResourceAllocationsRole,          qsTranslate("QtC::PerfProfiler", "Allocations"),
+        PerfProfilerFlameGraphModel.ObservedResourceAllocationsRole,  qsTranslate("QtC::PerfProfiler", " observed"),
+        PerfProfilerFlameGraphModel.LostResourceRequestsRole,         qsTranslate("QtC::PerfProfiler", " guessed"),
+        PerfProfilerFlameGraphModel.ResourceReleasesRole,             qsTranslate("QtC::PerfProfiler", "Releases"),
+        PerfProfilerFlameGraphModel.ObservedResourceReleasesRole,     qsTranslate("QtC::PerfProfiler", " observed"),
+        PerfProfilerFlameGraphModel.GuessedResourceReleasesRole,      qsTranslate("QtC::PerfProfiler", " guessed"),
+        PerfProfilerFlameGraphModel.ResourcePeakRole,                 qsTranslate("QtC::PerfProfiler", "Peak Usage")
     ].reduce(toMap, {})
 
     details: function(flameGraph) {
         var model = [];
         if (!flameGraph.dataValid) {
             model.push(trRoleNames[PerfProfilerFlameGraphModel.FunctionRole]);
-            model.push(qsTranslate("PerfProfiler", "Various"));
+            model.push(qsTranslate("QtC::PerfProfiler", "Various"));
         } else {
             function addDetail(role, format) { root.addDetail(role, format, model, flameGraph); }
 

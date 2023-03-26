@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qttestresult.h"
 #include "../testframeworkmanager.h"
@@ -9,128 +9,85 @@
 #include <utils/id.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
-QtTestResult::QtTestResult(const QString &id, const Utils::FilePath &projectFile, TestType type,
-                           const QString &className)
-    : TestResult(id, className), m_projectFile(projectFile), m_type(type)
+static ResultHooks::OutputStringHook outputStringHook(const QString &function, const QString &dataTag)
 {
-}
-
-const QString QtTestResult::outputString(bool selected) const
-{
-    const QString &desc = description();
-    const QString &className = name();
-    QString output;
-    switch (result()) {
-    case ResultType::Pass:
-    case ResultType::Fail:
-    case ResultType::ExpectedFail:
-    case ResultType::UnexpectedPass:
-    case ResultType::BlacklistedFail:
-    case ResultType::BlacklistedPass:
-        output = className;
-        if (!m_function.isEmpty())
-            output.append("::" + m_function);
-        if (!m_dataTag.isEmpty())
-            output.append(QString(" (%1)").arg(m_dataTag));
-        if (selected && !desc.isEmpty()) {
-            output.append('\n').append(desc);
-        }
-        break;
-    case ResultType::Benchmark:
-        output = className;
-        if (!m_function.isEmpty())
-            output.append("::" + m_function);
-        if (!m_dataTag.isEmpty())
-            output.append(QString(" (%1)").arg(m_dataTag));
-        if (!desc.isEmpty()) {
-            int breakPos = desc.indexOf('(');
-            output.append(": ").append(desc.left(breakPos));
-            if (selected)
-                output.append('\n').append(desc.mid(breakPos));
-        }
-        break;
-    default:
-        output = desc;
-        if (!selected)
-            output = output.split('\n').first();
-    }
-    return output;
-}
-
-bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
-{
-    if (!TestResult::isDirectParentOf(other, needsIntermediate))
-        return false;
-    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-
-    if (result() == ResultType::TestStart) {
-        if (qtOther->isDataTag()) {
-            if (qtOther->m_function == m_function) {
-                if (m_dataTag.isEmpty()) {
-                    // avoid adding function's TestCaseEnd to the data tag
-                    *needsIntermediate = qtOther->result() != ResultType::TestEnd;
-                    return true;
-                }
-                return qtOther->m_dataTag == m_dataTag;
+    return [=](const TestResult &result, bool selected) {
+        const QString &desc = result.description();
+        const QString &className = result.name();
+        QString output;
+        switch (result.result()) {
+        case ResultType::Pass:
+        case ResultType::Fail:
+        case ResultType::ExpectedFail:
+        case ResultType::UnexpectedPass:
+        case ResultType::BlacklistedFail:
+        case ResultType::BlacklistedPass:
+            output = className;
+            if (!function.isEmpty())
+                output.append("::" + function);
+            if (!dataTag.isEmpty())
+                output.append(QString(" (%1)").arg(dataTag));
+            if (selected && !desc.isEmpty()) {
+                output.append('\n').append(desc);
             }
-        } else if (qtOther->isTestFunction()) {
-            return isTestCase() || (m_function == qtOther->m_function
-                                    && qtOther->result() != ResultType::TestStart);
+            break;
+        case ResultType::Benchmark:
+            output = className;
+            if (!function.isEmpty())
+                output.append("::" + function);
+            if (!dataTag.isEmpty())
+                output.append(QString(" (%1)").arg(dataTag));
+            if (!desc.isEmpty()) {
+                int breakPos = desc.indexOf('(');
+                output.append(": ").append(desc.left(breakPos));
+                if (selected)
+                    output.append('\n').append(desc.mid(breakPos));
+            }
+            break;
+        default:
+            output = desc;
+            if (!selected)
+                output = output.split('\n').first();
         }
+        return output;
+    };
+}
+
+static bool matchesTestCase(const QString &name, const TestTreeItem *item)
+{
+    // FIXME this will never work for Quick Tests
+    return item->name() == name;
+}
+
+static bool matchesTestFunction(const QString &name, TestType testType, const QString &functionName,
+                                const QString &dataTag, const TestTreeItem *item)
+{
+    TestTreeItem *parentItem = item->parentItem();
+    const TestTreeItem::Type type = item->type();
+    if (testType == TestType::QuickTest) { // Quick tests have slightly different layout // BAD/WRONG!
+        const QStringList tmp = functionName.split("::");
+        return tmp.size() == 2 && item->name() == tmp.last() && parentItem->name() == tmp.first();
     }
-    return false;
-}
-
-bool QtTestResult::isIntermediateFor(const TestResult *other) const
-{
-    QTC_ASSERT(other, return false);
-    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    return m_dataTag == qtOther->m_dataTag && m_function == qtOther->m_function
-            && name() == qtOther->name() && id() == qtOther->id()
-            && m_projectFile == qtOther->m_projectFile;
-}
-
-TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other)
-{
-    QTC_ASSERT(other, return nullptr);
-    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    QtTestResult *intermediate = new QtTestResult(qtOther->id(), qtOther->m_projectFile,
-                                                  m_type, qtOther->name());
-    intermediate->m_function = qtOther->m_function;
-    intermediate->m_dataTag = qtOther->m_dataTag;
-    // intermediates will be needed only for data tags
-    intermediate->setDescription("Data tag: " + qtOther->m_dataTag);
-    const auto correspondingItem = intermediate->findTestTreeItem();
-    if (correspondingItem && correspondingItem->line()) {
-        intermediate->setFileName(correspondingItem->filePath());
-        intermediate->setLine(correspondingItem->line());
+    if (type == TestTreeItem::TestDataTag) {
+        TestTreeItem *grandParentItem = parentItem->parentItem();
+        return parentItem->name() == functionName && grandParentItem->name() == name
+                && item->name() == dataTag;
     }
-    return intermediate;
+    return item->name() == functionName && parentItem->name() == name;
 }
 
-const ITestTreeItem *QtTestResult::findTestTreeItem() const
+static bool matches(const QString &name, const FilePath &projectFile, TestType testType,
+                    const QString &functionName, const QString &dataTag, const TestTreeItem *item)
 {
-    Utils::Id id;
-    if (m_type == TestType::QtTest)
-        id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
-    else
-        id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QuickTest::Constants::FRAMEWORK_NAME);
-    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
-    QTC_ASSERT(framework, return nullptr);
-    const TestTreeItem *rootNode = framework->rootNode();
-    QTC_ASSERT(rootNode, return nullptr);
+    const auto isTestCase = [&] { return functionName.isEmpty()  && dataTag.isEmpty(); };
+    const auto isTestFunction = [&] { return !functionName.isEmpty() && dataTag.isEmpty(); };
+    const auto isDataTag = [&] { return !functionName.isEmpty() && !dataTag.isEmpty(); };
 
-    return rootNode->findAnyChild([this](const Utils::TreeItem *item) {
-        const TestTreeItem *treeItem = static_cast<const TestTreeItem *>(item);
-        return treeItem && matches(treeItem);
-    });
-}
-
-bool QtTestResult::matches(const TestTreeItem *item) const
-{
     QTC_ASSERT(item, return false);
     TestTreeItem *parentItem = item->parentItem();
     QTC_ASSERT(parentItem, return false);
@@ -140,25 +97,25 @@ bool QtTestResult::matches(const TestTreeItem *item) const
     case TestTreeItem::TestCase:
         if (!isTestCase())
             return false;
-        if (item->proFile() != m_projectFile)
+        if (item->proFile() != projectFile)
             return false;
-        return matchesTestCase(item);
+        return matchesTestCase(name, item);
     case TestTreeItem::TestFunction:
     case TestTreeItem::TestSpecialFunction:
         // QuickTest data tags have no dedicated TestTreeItem, so treat these results as function
-        if (!isTestFunction() && !(m_type == TestType::QuickTest && isDataTag()))
+        if (!isTestFunction() && !(testType == TestType::QuickTest && isDataTag()))
             return false;
-        if (parentItem->proFile() != m_projectFile)
+        if (parentItem->proFile() != projectFile)
             return false;
-        return matchesTestFunction(item);
+        return matchesTestFunction(name, testType, functionName, dataTag, item);
     case TestTreeItem::TestDataTag: {
         if (!isDataTag())
             return false;
         TestTreeItem *grandParentItem = parentItem->parentItem();
         QTC_ASSERT(grandParentItem, return false);
-        if (grandParentItem->proFile() != m_projectFile)
+        if (grandParentItem->proFile() != projectFile)
             return false;
-        return matchesTestFunction(item);
+        return matchesTestFunction(name, testType, functionName, dataTag, item);
     }
     default:
         break;
@@ -167,29 +124,110 @@ bool QtTestResult::matches(const TestTreeItem *item) const
     return false;
 }
 
-bool QtTestResult::matchesTestCase(const TestTreeItem *item) const
+static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFile, TestType type,
+                                                      const QString &functionName,
+                                                      const QString &dataTag)
 {
-    // FIXME this will never work for Quick Tests
-    if (item->name() == name())
-        return true;
-    return false;
+    return [=](const TestResult &result) -> ITestTreeItem * {
+        const Id id = type == TestType::QtTest
+                ? Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME)
+                : Id(Constants::FRAMEWORK_PREFIX).withSuffix(QuickTest::Constants::FRAMEWORK_NAME);
+        ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+        QTC_ASSERT(framework, return nullptr);
+        const TestTreeItem *rootNode = framework->rootNode();
+        QTC_ASSERT(rootNode, return nullptr);
+
+        return rootNode->findAnyChild([&](const TreeItem *item) {
+            const TestTreeItem *testTreeItem = static_cast<const TestTreeItem *>(item);
+            return testTreeItem && matches(result.name(), projectFile, type, functionName, dataTag,
+                                           testTreeItem);
+        });
+    };
 }
 
-bool QtTestResult::matchesTestFunction(const TestTreeItem *item) const
+struct QtTestData
 {
-    TestTreeItem *parentItem = item->parentItem();
-    TestTreeItem::Type type = item->type();
-    if (m_type == TestType::QuickTest) { // Quick tests have slightly different layout // BAD/WRONG!
-        const QStringList tmp = m_function.split("::");
-        return tmp.size() == 2 && item->name() == tmp.last() && parentItem->name() == tmp.first();
-    }
-    if (type == TestTreeItem::TestDataTag) {
-        TestTreeItem *grandParentItem = parentItem->parentItem();
-        return parentItem->name() == m_function && grandParentItem->name() == name()
-                && item->name() == m_dataTag;
-    }
-    return item->name() == m_function && parentItem->name() == name();
+    FilePath m_projectFile;
+    TestType m_type;
+    QString m_function;
+    QString m_dataTag;
+    bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); };
+    bool isDataTag() const { return !m_function.isEmpty() && !m_dataTag.isEmpty(); };
+};
+
+static ResultHooks::DirectParentHook directParentHook(const QString &functionName,
+                                                      const QString &dataTag)
+{
+    return [=](const TestResult &result, const TestResult &other, bool *needsIntermediate) -> bool {
+        if (!other.extraData().canConvert<QtTestData>())
+            return false;
+        const QtTestData otherData = other.extraData().value<QtTestData>();
+
+        if (result.result() == ResultType::TestStart) {
+            if (otherData.isDataTag()) {
+                if (otherData.m_function == functionName) {
+                    if (dataTag.isEmpty()) {
+                        // avoid adding function's TestCaseEnd to the data tag
+                        *needsIntermediate = other.result() != ResultType::TestEnd;
+                        return true;
+                    }
+                    return otherData.m_dataTag == dataTag;
+                }
+            } else if (otherData.isTestFunction()) {
+                return (functionName.isEmpty() && dataTag.isEmpty())
+                        || (functionName == otherData.m_function
+                            && other.result() != ResultType::TestStart);
+            } else if (other.result() == ResultType::MessageInternal) {
+                return other.name() == result.name();
+            }
+        }
+        return false;
+    };
 }
+
+static ResultHooks::IntermediateHook intermediateHook(const FilePath &projectFile,
+                                                      const QString &functionName,
+                                                      const QString &dataTag)
+{
+    return [=](const TestResult &result, const TestResult &other) -> bool {
+        if (!other.extraData().canConvert<QtTestData>())
+            return false;
+        const QtTestData otherData = other.extraData().value<QtTestData>();
+        return dataTag == otherData.m_dataTag && functionName == otherData.m_function
+                && result.name() == other.name() && result.id() == other.id()
+                && projectFile == otherData.m_projectFile;
+    };
+}
+
+static ResultHooks::CreateResultHook createResultHook(const FilePath &projectFile, TestType type,
+                                                      const QString &functionName,
+                                                      const QString &dataTag)
+{
+    return [=](const TestResult &result) -> TestResult {
+        TestResult newResult =  QtTestResult(result.id(), result.name(), projectFile, type,
+                                             functionName, dataTag);
+        // intermediates will be needed only for data tags
+        newResult.setDescription("Data tag: " + dataTag);
+        const auto correspondingItem = newResult.findTestTreeItem();
+        if (correspondingItem && correspondingItem->line()) {
+            newResult.setFileName(correspondingItem->filePath());
+            newResult.setLine(correspondingItem->line());
+        }
+        return newResult;
+    };
+}
+
+QtTestResult::QtTestResult(const QString &id, const QString &name, const FilePath &projectFile,
+                           TestType type, const QString &functionName, const QString &dataTag)
+    : TestResult(id, name, {QVariant::fromValue(QtTestData{projectFile, type, functionName, dataTag}),
+                            outputStringHook(functionName, dataTag),
+                            findTestItemHook(projectFile, type, functionName, dataTag),
+                            directParentHook(functionName, dataTag),
+                            intermediateHook(projectFile, functionName, dataTag),
+                            createResultHook(projectFile, type, functionName, dataTag)})
+{}
 
 } // namespace Internal
 } // namespace Autotest
+
+Q_DECLARE_METATYPE(Autotest::Internal::QtTestData);

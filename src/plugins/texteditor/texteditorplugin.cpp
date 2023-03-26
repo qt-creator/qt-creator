@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "texteditorplugin.h"
 
@@ -8,14 +8,16 @@
 #include "findinopenfiles.h"
 #include "fontsettings.h"
 #include "highlighter.h"
+#include "icodestylepreferences.h"
 #include "linenumberfilter.h"
 #include "outlinefactory.h"
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
+#include "tabsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
-#include "texteditoractionhandler.h"
 #include "texteditorsettings.h"
+#include "texteditortr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -24,17 +26,12 @@
 #include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 
-#include <texteditor/icodestylepreferences.h>
-#include <texteditor/tabsettings.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
-
-#include <QAction>
-#include <QDir>
 
 using namespace Core;
 using namespace Utils;
@@ -42,13 +39,13 @@ using namespace Utils;
 namespace TextEditor {
 namespace Internal {
 
-static const char kCurrentDocumentSelection[] = "CurrentDocument:Selection";
-static const char kCurrentDocumentRow[] = "CurrentDocument:Row";
-static const char kCurrentDocumentColumn[] = "CurrentDocument:Column";
-static const char kCurrentDocumentRowCount[] = "CurrentDocument:RowCount";
-static const char kCurrentDocumentColumnCount[] = "CurrentDocument:ColumnCount";
-static const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
-static const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor";
+const char kCurrentDocumentSelection[] = "CurrentDocument:Selection";
+const char kCurrentDocumentRow[] = "CurrentDocument:Row";
+const char kCurrentDocumentColumn[] = "CurrentDocument:Column";
+const char kCurrentDocumentRowCount[] = "CurrentDocument:RowCount";
+const char kCurrentDocumentColumnCount[] = "CurrentDocument:ColumnCount";
+const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
+const char kCurrentDocumentWordUnderCursor[] = "CurrentDocument:WordUnderCursor";
 
 class TextEditorPluginPrivate : public QObject
 {
@@ -91,20 +88,17 @@ TextEditorPlugin *TextEditorPlugin::instance()
     return m_instance;
 }
 
-bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void TextEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new TextEditorPluginPrivate;
 
     Context context(TextEditor::Constants::C_TEXTEDITOR);
 
     // Add shortcut for invoking automatic completion
-    QAction *completionAction = new QAction(tr("Trigger Completion"), this);
+    QAction *completionAction = new QAction(Tr::tr("Trigger Completion"), this);
     Command *command = ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
-    connect(completionAction, &QAction::triggered, []() {
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Space") : Tr::tr("Ctrl+Space")));
+    connect(completionAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(Completion);
     });
@@ -114,51 +108,48 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     Utils::FancyLineEdit::setCompletionShortcut(command->keySequence());
 
     // Add shortcut for invoking function hint completion
-    QAction *functionHintAction = new QAction(tr("Display Function Hint"), this);
+    QAction *functionHintAction = new QAction(Tr::tr("Display Function Hint"), this);
     command = ActionManager::registerAction(functionHintAction, Constants::FUNCTION_HINT, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+D")
-                                                                : tr("Ctrl+Shift+D")));
-    connect(functionHintAction, &QAction::triggered, []() {
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+D")
+                                                                : Tr::tr("Ctrl+Shift+D")));
+    connect(functionHintAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(FunctionHint);
     });
 
     // Add shortcut for invoking quick fix options
-    QAction *quickFixAction = new QAction(tr("Trigger Refactoring Action"), this);
+    QAction *quickFixAction = new QAction(Tr::tr("Trigger Refactoring Action"), this);
     Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
-    quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
-    connect(quickFixAction, &QAction::triggered, []() {
+    quickFixCommand->setDefaultKeySequence(QKeySequence(Tr::tr("Alt+Return")));
+    connect(quickFixAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(QuickFix);
     });
 
-    QAction *showContextMenuAction = new QAction(tr("Show Context Menu"), this);
+    QAction *showContextMenuAction = new QAction(Tr::tr("Show Context Menu"), this);
     ActionManager::registerAction(showContextMenuAction,
                                   Constants::SHOWCONTEXTMENU,
                                   context);
-    connect(showContextMenuAction, &QAction::triggered, []() {
+    connect(showContextMenuAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->showContextMenu();
     });
 
     // Add text snippet provider.
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
-                                    tr("Text", "SnippetProvider"));
+                                    Tr::tr("Text", "SnippetProvider"));
 
     d->createStandardContextMenu();
-
-    return true;
 }
 
 void TextEditorPluginPrivate::extensionsInitialized()
 {
     connect(FolderNavigationWidgetFactory::instance(),
             &FolderNavigationWidgetFactory::aboutToShowContextMenu,
-            this,
-            [](QMenu *menu, const FilePath &filePath, bool isDir) {
+            this, [](QMenu *menu, const FilePath &filePath, bool isDir) {
                 if (!isDir && Core::DiffService::instance()) {
                     menu->addAction(TextEditor::TextDocument::createDiffAgainstCurrentFileAction(
-                        menu, [filePath]() { return filePath; }));
+                        menu, [filePath] { return filePath; }));
                 }
             });
 
@@ -185,7 +176,7 @@ void TextEditorPlugin::extensionsInitialized()
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
     expander->registerVariable(kCurrentDocumentSelection,
-        tr("Selected text within the current document."),
+        Tr::tr("Selected text within the current document."),
         []() -> QString {
             QString value;
             if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
@@ -196,43 +187,42 @@ void TextEditorPlugin::extensionsInitialized()
         });
 
     expander->registerIntVariable(kCurrentDocumentRow,
-        tr("Line number of the text cursor position in current document (starts with 1)."),
+        Tr::tr("Line number of the text cursor position in current document (starts with 1)."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentLine() : 0;
         });
 
     expander->registerIntVariable(kCurrentDocumentColumn,
-        tr("Column number of the text cursor position in current document (starts with 0)."),
+        Tr::tr("Column number of the text cursor position in current document (starts with 0)."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentColumn() : 0;
         });
 
     expander->registerIntVariable(kCurrentDocumentRowCount,
-        tr("Number of lines visible in current document."),
+        Tr::tr("Number of lines visible in current document."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->rowCount() : 0;
         });
 
     expander->registerIntVariable(kCurrentDocumentColumnCount,
-        tr("Number of columns visible in current document."),
+        Tr::tr("Number of columns visible in current document."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->columnCount() : 0;
         });
 
     expander->registerIntVariable(kCurrentDocumentFontSize,
-        tr("Current document's font size in points."),
+        Tr::tr("Current document's font size in points."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->widget()->font().pointSize() : 0;
         });
 
     expander->registerVariable(kCurrentDocumentWordUnderCursor,
-                               tr("Word under the current document's text cursor."),
-                               []() {
+                               Tr::tr("Word under the current document's text cursor."), [] {
                                    BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
                                    if (!editor)
                                        return QString();

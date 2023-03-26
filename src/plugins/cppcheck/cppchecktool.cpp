@@ -1,11 +1,13 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "cppchecktool.h"
 
 #include "cppcheckdiagnostic.h"
 #include "cppcheckoptions.h"
 #include "cppcheckrunner.h"
 #include "cppchecktextmarkmanager.h"
-#include "cppchecktool.h"
+#include "cppchecktr.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -20,11 +22,11 @@
 
 #include <QThread>
 
-namespace Cppcheck {
-namespace Internal {
+using namespace Utils;
 
-CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager,
-                           const Utils::Id &progressId) :
+namespace Cppcheck::Internal {
+
+CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager, const Id &progressId) :
     m_manager(manager),
     m_progressRegexp("^.* checked (\\d+)% done$"),
     m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$"),
@@ -193,13 +195,12 @@ void CppcheckTool::check(const Utils::FilePaths &files)
         return;
     }
 
-    std::map<CppEditor::ProjectPart::ConstPtr, Utils::FilePaths> groups;
-    for (const Utils::FilePath &file : std::as_const(filtered)) {
-        const QString stringed = file.toString();
+    std::map<CppEditor::ProjectPart::ConstPtr, FilePaths> groups;
+    for (const FilePath &file : std::as_const(filtered)) {
         for (const CppEditor::ProjectPart::ConstPtr &part : parts) {
             using CppEditor::ProjectFile;
             QTC_ASSERT(part, continue);
-            const auto match = [stringed](const ProjectFile &pFile){return pFile.path == stringed;};
+            const auto match = [file](const ProjectFile &pFile){return pFile.path == file;};
             if (Utils::contains(part->files, match))
                 groups[part].push_back(file);
         }
@@ -226,13 +227,13 @@ void CppcheckTool::stop(const Utils::FilePaths &files)
 void CppcheckTool::startParsing()
 {
     if (m_options.showOutput) {
-        const QString message = tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
+        const QString message = Tr::tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
         Core::MessageManager::writeSilently(message);
     }
 
     m_progress = std::make_unique<QFutureInterface<void>>();
     const Core::FutureProgress *progress = Core::ProgressManager::addTask(
-                m_progress->future(), QObject::tr("Cppcheck"), m_progressId);
+                m_progress->future(), Tr::tr("Cppcheck"), m_progressId);
     QObject::connect(progress, &Core::FutureProgress::canceled,
                      this, [this]{stop({});});
     m_progress->setProgressRange(0, 100);
@@ -301,11 +302,10 @@ void CppcheckTool::parseErrorLine(const QString &line)
 void CppcheckTool::finishParsing()
 {
     if (m_options.showOutput)
-        Core::MessageManager::writeSilently(tr("Cppcheck finished."));
+        Core::MessageManager::writeSilently(Tr::tr("Cppcheck finished."));
 
     QTC_ASSERT(m_progress, return);
     m_progress->reportFinished();
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

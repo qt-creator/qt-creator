@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "codegensettingspage.h"
 
@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditortr.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -117,8 +118,7 @@ CodeGenSettingsPage::CodeGenSettingsPage()
     setId(Constants::CODEGEN_SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("Qt Class Generation"));
     setCategory(CppEditor::Constants::CPP_SETTINGS_CATEGORY);
-    setDisplayCategory(
-        QCoreApplication::translate("CppEditor", CppEditor::Constants::CPP_SETTINGS_NAME));
+    setDisplayCategory(::CppEditor::Tr::tr(CppEditor::Constants::CPP_SETTINGS_NAME));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
     setWidgetCreator([] { return new CodeGenSettingsPageWidget; });
 }

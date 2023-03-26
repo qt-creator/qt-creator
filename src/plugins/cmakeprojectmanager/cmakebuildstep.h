@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
+#include "cmakeabstractprocessstep.h"
 #include <utils/treemodel.h>
 
 namespace Utils {
@@ -31,7 +31,7 @@ private:
     bool m_special = false;
 };
 
-class CMakeBuildStep : public ProjectExplorer::AbstractProcessStep
+class CMakeBuildStep : public CMakeAbstractProcessStep
 {
     Q_OBJECT
 
@@ -77,7 +77,7 @@ signals:
 private:
     Utils::CommandLine cmakeCommand() const;
 
-    void processFinished(int exitCode, QProcess::ExitStatus status) override;
+    void finish(Utils::ProcessResult result) override;
     bool fromMap(const QVariantMap &map) override;
 
     bool init() override;
@@ -102,7 +102,6 @@ private:
     Utils::StringAspect *m_cmakeArguments = nullptr;
     Utils::StringAspect *m_toolArguments = nullptr;
     Utils::BoolAspect *m_useiOSAutomaticProvisioningUpdates = nullptr;
-    bool m_waiting = false;
 
     QString m_allTarget = "all";
     QString m_installTarget = "install";

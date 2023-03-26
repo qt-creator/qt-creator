@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion and Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcscommand.h"
 
@@ -114,6 +114,7 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
         process->setProcessChannelMode(QProcess::MergedChannels);
     if (m_codec)
         process->setCodec(m_codec);
+    process->setUseCtrlCStub(true);
 
     installStdCallbacks(process);
 
@@ -131,7 +132,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
     if (!(m_flags & RunFlags::MergeOutputChannels) && (m_flags & RunFlags::ProgressiveOutput
                               || m_progressParser || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
-        connect(process, &QtcProcess::textOnStandardError, [this](const QString &text) {
+        connect(process, &QtcProcess::textOnStandardError, this, [this](const QString &text) {
             if (!(m_flags & RunFlags::SuppressStdErr))
                 VcsOutputWindow::appendError(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -141,13 +142,9 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
     if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
                          || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
-        connect(process, &QtcProcess::textOnStandardOutput, [this](const QString &text) {
-            if (m_flags & RunFlags::ShowStdOut) {
-                if (m_flags & RunFlags::SilentOutput)
-                    VcsOutputWindow::appendSilently(text);
-                else
-                    VcsOutputWindow::append(text);
-            }
+        connect(process, &QtcProcess::textOnStandardOutput, this, [this](const QString &text) {
+            if (m_flags & RunFlags::ShowStdOut)
+                VcsOutputWindow::append(text);
             if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdOutText(text);
         });
@@ -331,6 +328,12 @@ CommandResult::CommandResult(const QtcProcess &process)
     , m_cleanedStdOut(process.cleanedStdOut())
     , m_cleanedStdErr(process.cleanedStdErr())
     , m_rawStdOut(process.rawStdOut())
+{}
+
+CommandResult::CommandResult(const VcsCommand &command)
+    : m_result(command.result())
+    , m_cleanedStdOut(command.cleanedStdOut())
+    , m_cleanedStdErr(command.cleanedStdErr())
 {}
 
 } // namespace VcsBase

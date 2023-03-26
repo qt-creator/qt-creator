@@ -1,9 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gitlaboptionspage.h"
 
 #include "gitlabparameters.h"
+#include "gitlabtr.h"
 
 #include <coreplugin/icore.h>
 
@@ -47,27 +48,27 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     : QWidget(parent)
     , m_mode(m)
 {
-    m_host.setLabelText(GitLabOptionsPage::tr("Host:"));
+    m_host.setLabelText(Tr::tr("Host:"));
     m_host.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                         : Utils::StringAspect::LineEditDisplay);
     m_host.setValidationFunction([](Utils::FancyLineEdit *l, QString *) {
         return hostValid(l->text());
     });
 
-    m_description.setLabelText(GitLabOptionsPage::tr("Description:"));
+    m_description.setLabelText(Tr::tr("Description:"));
     m_description.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                                : Utils::StringAspect::LineEditDisplay);
 
-    m_token.setLabelText(GitLabOptionsPage::tr("Access token:"));
+    m_token.setLabelText(Tr::tr("Access token:"));
     m_token.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
                                          : Utils::StringAspect::LineEditDisplay);
     m_token.setVisible(m == Edit);
 
-    m_port.setLabelText(GitLabOptionsPage::tr("Port:"));
+    m_port.setLabelText(Tr::tr("Port:"));
     m_port.setRange(1, 65535);
     m_port.setValue(GitLabServer::defaultPort);
     m_port.setEnabled(m == Edit);
-    m_secure.setLabelText(GitLabOptionsPage::tr("HTTPS:"));
+    m_secure.setLabelText(Tr::tr("HTTPS:"));
     m_secure.setLabelPlacement(Utils::BoolAspect::LabelPlacement::InExtraLabel);
     m_secure.setDefaultValue(true);
     m_secure.setEnabled(m == Edit);
@@ -110,20 +111,20 @@ void GitLabServerWidget::setGitLabServer(const GitLabServer &server)
 GitLabOptionsWidget::GitLabOptionsWidget(QWidget *parent)
     : QWidget(parent)
 {
-    auto defaultLabel = new QLabel(tr("Default:"), this);
+    auto defaultLabel = new QLabel(Tr::tr("Default:"), this);
     m_defaultGitLabServer = new QComboBox(this);
     m_curl.setDisplayStyle(Utils::StringAspect::DisplayStyle::PathChooserDisplay);
-    m_curl.setLabelText(tr("curl:"));
+    m_curl.setLabelText(Tr::tr("curl:"));
     m_curl.setExpectedKind(Utils::PathChooser::ExistingCommand);
 
     m_gitLabServerWidget = new GitLabServerWidget(GitLabServerWidget::Display, this);
 
-    m_edit = new QPushButton(tr("Edit..."), this);
-    m_edit->setToolTip(tr("Edit current selected GitLab server configuration."));
-    m_remove = new QPushButton(tr("Remove"), this);
-    m_remove->setToolTip(tr("Remove current selected GitLab server configuration."));
-    m_add = new QPushButton(tr("Add..."), this);
-    m_add->setToolTip(tr("Add new GitLab server configuration."));
+    m_edit = new QPushButton(Tr::tr("Edit..."), this);
+    m_edit->setToolTip(Tr::tr("Edit current selected GitLab server configuration."));
+    m_remove = new QPushButton(Tr::tr("Remove"), this);
+    m_remove->setToolTip(Tr::tr("Remove current selected GitLab server configuration."));
+    m_add = new QPushButton(Tr::tr("Add..."), this);
+    m_add->setToolTip(Tr::tr("Add new GitLab server configuration."));
 
     using namespace Utils::Layouting;
 
@@ -177,13 +178,13 @@ void GitLabOptionsWidget::showEditServerDialog()
 {
     const GitLabServer old = m_defaultGitLabServer->currentData().value<GitLabServer>();
     QDialog d;
-    d.setWindowTitle(tr("Edit Server..."));
+    d.setWindowTitle(Tr::tr("Edit Server..."));
     QVBoxLayout *layout = new QVBoxLayout;
     GitLabServerWidget *serverWidget = new GitLabServerWidget(GitLabServerWidget::Edit, this);
     serverWidget->setGitLabServer(old);
     layout->addWidget(serverWidget);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
-    auto modifyButton = buttons->addButton(tr("Modify"), QDialogButtonBox::AcceptRole);
+    auto modifyButton = buttons->addButton(Tr::tr("Modify"), QDialogButtonBox::AcceptRole);
     connect(modifyButton, &QPushButton::clicked, &d, &QDialog::accept);
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
     layout->addWidget(buttons);
@@ -199,12 +200,12 @@ void GitLabOptionsWidget::showEditServerDialog()
 void GitLabOptionsWidget::showAddServerDialog()
 {
     QDialog d;
-    d.setWindowTitle(tr("Add Server..."));
+    d.setWindowTitle(Tr::tr("Add Server..."));
     QVBoxLayout *layout = new QVBoxLayout;
     GitLabServerWidget *serverWidget = new GitLabServerWidget(GitLabServerWidget::Edit, this);
     layout->addWidget(serverWidget);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
-    auto addButton = buttons->addButton(tr("Add"), QDialogButtonBox::AcceptRole);
+    auto addButton = buttons->addButton(Tr::tr("Add"), QDialogButtonBox::AcceptRole);
     connect(addButton, &QPushButton::clicked, &d, &QDialog::accept);
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
     layout->addWidget(buttons);
@@ -257,7 +258,7 @@ GitLabOptionsPage::GitLabOptionsPage(GitLabParameters *p, QObject *parent)
     , m_parameters(p)
 {
     setId(Constants::GITLAB_SETTINGS);
-    setDisplayName(tr("GitLab"));
+    setDisplayName(Tr::tr("GitLab"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 

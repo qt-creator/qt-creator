@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -14,7 +14,7 @@ class MercurialPlugin final : public ExtensionSystem::IPlugin
 
     ~MercurialPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 #ifdef WITH_TESTS

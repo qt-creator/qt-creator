@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,10 +11,8 @@ namespace Internal {
 class QuickTestTreeItem : public TestTreeItem
 {
 public:
-    explicit QuickTestTreeItem(ITestFramework *testFramework,
-                               const QString &name = QString(),
-                               const Utils::FilePath &filePath = Utils::FilePath(),
-                               Type type = Root)
+    explicit QuickTestTreeItem(ITestFramework *testFramework, const QString &name = {},
+                               const Utils::FilePath &filePath = {}, Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type)
     {}
 

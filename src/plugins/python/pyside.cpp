@@ -1,12 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pyside.h"
 
 #include "pipsupport.h"
-#include "pythonconstants.h"
 #include "pythonplugin.h"
-#include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
 #include "pythonutils.h"
@@ -116,35 +114,6 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
     const QString installTooltip = Tr::tr("Install %1 for %2 using pip package installer.")
                                        .arg(pySide, python.toUserOutput());
     info.addCustomButton(Tr::tr("Install"), installCallback, installTooltip);
-
-    if (PythonProject *project = pythonProjectForFile(document->filePath())) {
-        if (ProjectExplorer::Target *target = project->activeTarget()) {
-            auto runConfiguration = target->activeRunConfiguration();
-            if (runConfiguration->id() == Constants::C_PYTHONRUNCONFIGURATION_ID) {
-                const QList<InfoBarEntry::ComboInfo> interpreters = Utils::transform(
-                    PythonSettings::interpreters(), [](const Interpreter &interpreter) {
-                        return InfoBarEntry::ComboInfo{interpreter.name, interpreter.id};
-                    });
-                auto interpreterChangeCallback =
-                    [=, rc = QPointer<RunConfiguration>(runConfiguration)](
-                        const InfoBarEntry::ComboInfo &info) {
-                        changeInterpreter(info.data.toString(), rc);
-                    };
-
-                auto interpreterAspect = runConfiguration->aspect<InterpreterAspect>();
-                QTC_ASSERT(interpreterAspect, return);
-                const QString id = interpreterAspect->currentInterpreter().id;
-                const auto isCurrentInterpreter = Utils::equal(&InfoBarEntry::ComboInfo::data,
-                                                               QVariant(id));
-                const QString switchTooltip = Tr::tr("Switch the Python interpreter for %1")
-                                                  .arg(runConfiguration->displayName());
-                info.setComboInfo(interpreters,
-                                  interpreterChangeCallback,
-                                  switchTooltip,
-                                  Utils::indexOf(interpreters, isCurrentInterpreter));
-            }
-        }
-    }
     document->infoBar()->addInfo(info);
 }
 

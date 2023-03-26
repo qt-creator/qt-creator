@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Openismus GmbH.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "autoreconfstep.h"
 
@@ -20,7 +20,7 @@ using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
 
-// AutoreconfStep class
+// AutoreconfStep
 
 /**
  * @brief Implementation of the ProjectExplorer::AbstractProcessStep interface.
@@ -72,9 +72,8 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Id id)
 void AutoreconfStep::doRun()
 {
     // Check whether we need to run autoreconf
-    const QString projectDir(project()->projectDirectory().toString());
-
-    if (!QFileInfo::exists(projectDir + "/configure"))
+    const FilePath configure = project()->projectDirectory() / "configure";
+    if (!configure.exists())
         m_runAutoreconf = true;
 
     if (!m_runAutoreconf) {
@@ -88,7 +87,7 @@ void AutoreconfStep::doRun()
     AbstractProcessStep::doRun();
 }
 
-// AutoreconfStepFactory class
+// AutoreconfStepFactory
 
 /**
  * @brief Implementation of the ProjectExplorer::IBuildStepFactory interface.

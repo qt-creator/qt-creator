@@ -1,12 +1,11 @@
 // Copyright (C) 2017 Przemyslaw Gorszkowski <pgorszkowski@gmail.com>.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <extensionsystem/iplugin.h>
 
-namespace SilverSearcher {
-namespace Internal {
+namespace SilverSearcher::Internal {
 
 class SilverSearcherPlugin : public ExtensionSystem::IPlugin
 {
@@ -14,13 +13,7 @@ class SilverSearcherPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "SilverSearcher.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-
-#ifdef WITH_TESTS
-private:
-    QVector<QObject *> createTestObjects() const override;
-#endif
+    void initialize() override;
 };
 
-} // namespace Internal
-} // namespace SilverSearcher
+} // SilverSearcher::Internal

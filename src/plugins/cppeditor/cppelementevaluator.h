@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -41,13 +41,13 @@ public:
     void execute();
     static QFuture<QSharedPointer<CppElement>> asyncExecute(TextEditor::TextEditorWidget *editor);
     static QFuture<QSharedPointer<CppElement>> asyncExecute(const QString &expression,
-                                                            const QString &fileName);
+                                                            const Utils::FilePath &filePath);
     bool identifiedCppElement() const;
     const QSharedPointer<CppElement> &cppElement() const;
     bool hasDiagnosis() const;
     const QString &diagnosis() const;
 
-    static Utils::Link linkFromExpression(const QString &expression, const QString &fileName);
+    static Utils::Link linkFromExpression(const QString &expression, const Utils::FilePath &filePath);
 
 private:
     class CppElementEvaluatorPrivate *d;

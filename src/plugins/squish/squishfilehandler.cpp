@@ -1,17 +1,18 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishfilehandler.h"
 
 #include "opensquishsuitesdialog.h"
 #include "squishconstants.h"
-#include "squishplugin.h"
+#include "squishmessages.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
 #include "suiteconf.h"
 #include "squishtr.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
@@ -64,20 +65,17 @@ public:
 
         QPushButton *okButton = buttons->button(QDialogButtonBox::Ok);
         okButton->setEnabled(false);
-        connect(okButton, &QPushButton::clicked,
-                this, &QDialog::accept);
+        connect(okButton, &QPushButton::clicked, this, &QDialog::accept);
         connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
                 this, &QDialog::reject);
         connect(&aut, &QComboBox::currentIndexChanged,
-                this, [okButton] (int index) {
-            okButton->setEnabled(index > 0);
-        });
+                this, [okButton](int index) { okButton->setEnabled(index > 0); });
         setWindowTitle(Tr::tr("Recording Settings"));
 
         auto squishTools = SquishTools::instance();
         QApplication::setOverrideCursor(Qt::WaitCursor);
 
-        squishTools->queryServerSettings([this] (const QString &out, const QString &) {
+        squishTools->queryServerSettings([this](const QString &out, const QString &) {
             SquishServerSettings s;
             s.setFromXmlOutput(out);
             QApplication::restoreOverrideCursor();
@@ -293,12 +291,22 @@ void SquishFileHandler::openTestSuite(const Utils::FilePath &suiteConfPath, bool
     ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
+static void closeOpenedEditorsFor(const Utils::FilePath &filePath, bool askAboutModifiedEditors)
+{
+    const QList<Core::IDocument *> openDocuments = Utils::filtered(
+                Core::DocumentModel::openedDocuments(), [filePath](Core::IDocument *doc) {
+            return doc->filePath().isChildOf(filePath);
+    });
+    // for now just ignore modifications - files will be removed completely
+    Core::EditorManager::closeDocuments(openDocuments, askAboutModifiedEditors);
+}
+
 void SquishFileHandler::closeTestSuite(const QString &suiteName)
 {
     if (!m_suites.contains(suiteName))
         return;
 
-    // TODO close respective editors if there are any
+    closeOpenedEditorsFor(m_suites.value(suiteName).parentDir(), true);
     // TODO remove file watcher
     m_suites.remove(suiteName);
     emit suiteTreeItemRemoved(suiteName);
@@ -311,10 +319,42 @@ void SquishFileHandler::closeAllTestSuites()
     ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
+void SquishFileHandler::deleteTestCase(const QString &suiteName, const QString &testCaseName)
+{
+    if (!m_suites.contains(suiteName))
+        return;
+
+    if (SquishMessages::simpleQuestion(Tr::tr("Confirm Delete"),
+                                       Tr::tr("Are you sure you want to delete Test Case \"%1\" "
+                                              "from the file system?").arg(testCaseName))
+            != QMessageBox::Yes) {
+        return;
+    }
+
+    const Utils::FilePath suiteConfPath = m_suites.value(suiteName);
+    SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfPath);
+    const Utils::FilePath testCaseDirectory = suiteConfPath.parentDir().pathAppended(testCaseName);
+    closeOpenedEditorsFor(testCaseDirectory, false);
+    QString error;
+    if (!testCaseDirectory.removeRecursively(&error)) {
+        QString detail = Tr::tr("Deletion of Test Case failed.");
+        if (!error.isEmpty())
+            detail.append('\n').append(error);
+        SquishMessages::criticalMessage(detail);
+    } else {
+        Core::DocumentManager::expectFileChange(suiteConfPath);
+        suiteConf.removeTestCase(testCaseName);
+        bool ok = suiteConf.write();
+        QTC_CHECK(ok);
+        emit testCaseRemoved(suiteName, testCaseName);
+    }
+}
+
 void SquishFileHandler::closeAllInternal()
 {
-    // TODO close respective editors if there are any
     // TODO remove file watcher
+    for (auto suiteConfFilePath : m_suites)
+        closeOpenedEditorsFor(suiteConfFilePath.parentDir(), true);
     const QStringList &suiteNames = m_suites.keys();
     m_suites.clear();
     for (const QString &suiteName : suiteNames)
@@ -330,12 +370,10 @@ void SquishFileHandler::runTestCase(const QString &suiteName, const QString &tes
 
     const Utils::FilePath suitePath = m_suites.value(suiteName).parentDir();
     if (!suitePath.exists() || !suitePath.isReadableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Test Suite Path Not Accessible"),
-                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
-                                     "Refusing to run test case \"%2\".")
-                                  .arg(suitePath.toUserOutput())
-                                  .arg(testCaseName));
+        const QString detail = Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                      "Refusing to run test case \"%2\".")
+                .arg(suitePath.toUserOutput()).arg(testCaseName);
+        SquishMessages::criticalMessage(Tr::tr("Test Suite Path Not Accessible"), detail);
         return;
     }
 
@@ -353,11 +391,9 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
     const Utils::FilePath suiteConf = m_suites.value(suiteName);
     const Utils::FilePath suitePath = suiteConf.parentDir();
     if (!suitePath.exists() || !suitePath.isReadableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Test Suite Path Not Accessible"),
-                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
-                                     "Refusing to run test cases.")
-                                  .arg(suitePath.toUserOutput()));
+        const QString detail = Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                      "Refusing to run test cases.").arg(suitePath.toUserOutput());
+        SquishMessages::criticalMessage(Tr::tr("Test Suite Path Not Accessible"), detail);
         return;
     }
 
@@ -382,12 +418,10 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
 
     const Utils::FilePath suitePath = m_suites.value(suiteName).parentDir();
     if (!suitePath.exists() || !suitePath.isReadableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Test Suite Path Not Accessible"),
-                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
-                                     "Refusing to record test case \"%2\".")
-                                  .arg(suitePath.toUserOutput())
-                                  .arg(testCaseName));
+        const QString detail = Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                      "Refusing to record test case \"%2\".")
+                .arg(suitePath.toUserOutput()).arg(testCaseName);
+        SquishMessages::criticalMessage(Tr::tr("Test Suite Path Not Accessible"), detail);
         return;
     }
 
@@ -494,10 +528,8 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
     QTC_ASSERT(conf.ensureObjectMapExists(), return);
 
     if (!Core::EditorManager::openEditor(objectsMapPath, Constants::OBJECTSMAP_EDITOR_ID)) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Failed to open objects.map file at \"%1\".")
-                                  .arg(objectsMapPath.toUserOutput()));
+        SquishMessages::criticalMessage(Tr::tr("Failed to open objects.map file at \"%1\".")
+                                        .arg(objectsMapPath.toUserOutput()));
     }
 }
 
@@ -522,12 +554,9 @@ void SquishFileHandler::updateSquishServerGlobalScripts()
     auto squishTools = SquishTools::instance();
     if (squishTools->state() != SquishTools::Idle) {
         // postpone - we can't queue this currently
-        QTimer::singleShot(1500, [this]() {
-            updateSquishServerGlobalScripts();
-        });
+        QTimer::singleShot(1500, this, [this] { updateSquishServerGlobalScripts(); });
         return;
     }
-
     squishTools->requestSetSharedFolders(m_sharedFolders);
 }
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QtTest>
 #include <QDebug>
@@ -51,7 +51,8 @@ QStringList tst_QrcParser::allPaths(QrcParser::ConstPtr p)
             continue;
         QMap<QString,QStringList> content;
         p->collectFilesInPath(pAtt, &content, true);
-        foreach (const QString &fileName, content.keys())
+        const QStringList fileNames = content.keys();
+        for (const QString &fileName : fileNames)
             res.append(pAtt+fileName);
     }
     return res;
@@ -61,7 +62,8 @@ void tst_QrcParser::firstAtTest()
 {
     QFETCH(QString, path);
     QrcParser::Ptr p = QrcParser::parseQrcFile(path, QString());
-    foreach (const QString &qrcPath, allPaths(p)) {
+    const QStringList paths = allPaths(p);
+    for (const QString &qrcPath : paths) {
         QString s1 = p->firstFileAtPath(qrcPath, m_locale);
         if (s1.isEmpty())
             continue;
@@ -78,27 +80,30 @@ void tst_QrcParser::firstInTest()
 {
     QFETCH(QString, path);
     QrcParser::Ptr p = QrcParser::parseQrcFile(path, QString());
-    foreach (const QString &qrcPath, allPaths(p)) {
+    const QStringList paths = allPaths(p);
+    for (const QString &qrcPath : paths) {
         if (!qrcPath.endsWith(QLatin1Char('/')))
             continue;
         for (int addDirs = 0; addDirs < 2; ++addDirs) {
             QMap<QString,QStringList> s1;
             p->collectFilesInPath(qrcPath, &s1, addDirs, &m_locale);
-            foreach (const QString &k, s1.keys()) {
+            const QStringList keys = s1.keys();
+            for (const QString &k : keys) {
                 if (!k.endsWith(QLatin1Char('/'))) {
                     QCOMPARE(s1.value(k).value(0), p->firstFileAtPath(qrcPath + k, m_locale));
                 }
             }
             QMap<QString,QStringList> s2;
             p->collectFilesInPath(qrcPath, &s2, addDirs);
-            foreach (const QString &k, s1.keys()) {
+            for (const QString &k : keys) {
                 if (!k.endsWith(QLatin1Char('/'))) {
                     QVERIFY(s2.value(k).contains(s1.value(k).at(0)));
                 } else {
                     QVERIFY(s2.contains(k));
                 }
             }
-            foreach (const QString &k, s2.keys()) {
+            const QStringList keys2 = s2.keys();
+            for (const QString &k : keys2) {
                 if (!k.endsWith(QLatin1Char('/'))) {
                     QStringList l;
                     p->collectFilesAtPath(qrcPath + k, &l);

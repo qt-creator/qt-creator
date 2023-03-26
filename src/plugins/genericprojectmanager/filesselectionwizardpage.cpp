@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filesselectionwizardpage.h"
 
-#include "genericprojectwizard.h"
 #include "genericprojectconstants.h"
+#include "genericprojectmanagertr.h"
+#include "genericprojectwizard.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -32,7 +33,7 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
     connect(m_filesWidget, &ProjectExplorer::SelectableFilesWidget::selectedFilesChanged,
             this, &FilesSelectionWizardPage::completeChanged);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Files"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Files"));
 }
 
 void FilesSelectionWizardPage::initializePage()

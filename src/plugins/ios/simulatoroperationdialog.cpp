@@ -1,13 +1,14 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "simulatoroperationdialog.h"
+
+#include "iostr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 
-#include <QApplication>
 #include <QDialogButtonBox>
 #include <QFutureWatcher>
 #include <QLoggingCategory>
@@ -15,11 +16,9 @@
 #include <QProgressBar>
 #include <QPushButton>
 
-namespace {
-Q_LOGGING_CATEGORY(iosCommon, "qtc.ios.common", QtWarningMsg)
-}
-
 namespace Ios::Internal {
+
+static Q_LOGGING_CATEGORY(iosCommon, "qtc.ios.common", QtWarningMsg)
 
 SimulatorOperationDialog::SimulatorOperationDialog(QWidget *parent) :
     // TODO: Maximize buttong only because of QTBUG-41932
@@ -27,7 +26,7 @@ SimulatorOperationDialog::SimulatorOperationDialog(QWidget *parent) :
 {
     resize(580, 320);
     setModal(true);
-    setWindowTitle(tr("Simulator Operation Status"));
+    setWindowTitle(Tr::tr("Simulator Operation Status"));
 
     auto messageEdit = new QPlainTextEdit;
     messageEdit->setReadOnly(true);
@@ -100,13 +99,13 @@ void SimulatorOperationDialog::addMessage(const SimulatorInfo &siminfo,
 {
     QTC_CHECK(siminfo.identifier == response.simUdid);
     if (response.success) {
-        addMessage(tr("%1, %2\nOperation %3 completed successfully.").arg(siminfo.name)
+        addMessage(Tr::tr("%1, %2\nOperation %3 completed successfully.").arg(siminfo.name)
                    .arg(siminfo.runtimeName).arg(context), Utils::StdOutFormat);
     } else {
         QString erroMsg = response.commandOutput.trimmed();
-        QString message = tr("%1, %2\nOperation %3 failed.\nUDID: %4\nError: %5").arg(siminfo.name)
+        QString message = Tr::tr("%1, %2\nOperation %3 failed.\nUDID: %4\nError: %5").arg(siminfo.name)
                 .arg(siminfo.runtimeName).arg(context).arg(siminfo.identifier)
-                .arg(erroMsg.isEmpty() ? tr("Unknown") : erroMsg);
+                .arg(erroMsg.isEmpty() ? Tr::tr("Unknown") : erroMsg);
         addMessage(message, Utils::StdErrFormat);
         qCDebug(iosCommon) << message;
     }
@@ -118,7 +117,7 @@ void SimulatorOperationDialog::updateInputs()
     m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(!enableOk);
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enableOk);
     if (enableOk) {
-        addMessage(tr("Done."), Utils::NormalMessageFormat);
+        addMessage(Tr::tr("Done."), Utils::NormalMessageFormat);
         m_progressBar->setMaximum(1); // Stop progress bar.
     }
 }

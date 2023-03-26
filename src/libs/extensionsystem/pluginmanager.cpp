@@ -1,12 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pluginmanager.h"
+
+#include "extensionsystemtr.h"
+#include "iplugin.h"
+#include "optionsparser.h"
 #include "pluginmanager_p.h"
 #include "pluginspec.h"
 #include "pluginspec_p.h"
-#include "optionsparser.h"
-#include "iplugin.h"
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
@@ -1415,15 +1417,16 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
     // check for circular dependencies
     if (circularityCheckQueue.contains(spec)) {
         spec->d->hasError = true;
-        spec->d->errorString = PluginManager::tr("Circular dependency detected:");
+        spec->d->errorString = Tr::tr("Circular dependency detected:");
         spec->d->errorString += QLatin1Char('\n');
         int index = circularityCheckQueue.indexOf(spec);
         for (int i = index; i < circularityCheckQueue.size(); ++i) {
-            spec->d->errorString.append(PluginManager::tr("%1 (%2) depends on")
-                .arg(circularityCheckQueue.at(i)->name()).arg(circularityCheckQueue.at(i)->version()));
+            const PluginSpec *depSpec = circularityCheckQueue.at(i);
+            spec->d->errorString.append(Tr::tr("%1 (%2) depends on")
+                                        .arg(depSpec->name(), depSpec->version()));
             spec->d->errorString += QLatin1Char('\n');
         }
-        spec->d->errorString.append(PluginManager::tr("%1 (%2)").arg(spec->name()).arg(spec->version()));
+        spec->d->errorString.append(Tr::tr("%1 (%2)").arg(spec->name(), spec->version()));
         return false;
     }
     circularityCheckQueue.append(spec);
@@ -1444,8 +1447,8 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
         if (!loadQueue(depSpec, queue, circularityCheckQueue)) {
             spec->d->hasError = true;
             spec->d->errorString =
-                PluginManager::tr("Cannot load plugin because dependency failed to load: %1 (%2)\nReason: %3")
-                    .arg(depSpec->name()).arg(depSpec->version()).arg(depSpec->errorString());
+                Tr::tr("Cannot load plugin because dependency failed to load: %1 (%2)\nReason: %3")
+                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
             return false;
         }
     }
@@ -1517,26 +1520,26 @@ void PluginManagerPrivate::checkForProblematicPlugins()
             std::sort(dependentsNames.begin(), dependentsNames.end());
             const QString dependentsList = dependentsNames.join(", ");
             const QString pluginsMenu = HostOsInfo::isMacHost()
-                                            ? tr("%1 > About Plugins")
+                                            ? Tr::tr("%1 > About Plugins")
                                                   .arg(QGuiApplication::applicationDisplayName())
-                                            : tr("Help > About Plugins");
+                                            : Tr::tr("Help > About Plugins");
             const QString otherPluginsText
-                = tr("If you temporarily disable %1, the following plugins that depend on "
-                     "it are also disabled: %2.\n\n")
+                = Tr::tr("If you temporarily disable %1, the following plugins that depend on "
+                         "it are also disabled: %2.\n\n")
                       .arg(spec->name(), dependentsList);
             const QString detailsText = (dependents.isEmpty() ? QString() : otherPluginsText)
-                                        + tr("Disable plugins permanently in %1.").arg(pluginsMenu);
-            const QString text = tr("The last time you started %1, it seems to have closed because "
-                                    "of a problem with the \"%2\" "
-                                    "plugin. Temporarily disable the plugin?")
+                                        + Tr::tr("Disable plugins permanently in %1.").arg(pluginsMenu);
+            const QString text = Tr::tr("The last time you started %1, it seems to have closed because "
+                                        "of a problem with the \"%2\" "
+                                        "plugin. Temporarily disable the plugin?")
                                      .arg(QGuiApplication::applicationDisplayName(), spec->name());
             QMessageBox dialog;
             dialog.setIcon(QMessageBox::Question);
             dialog.setText(text);
             dialog.setDetailedText(detailsText);
-            QPushButton *disableButton = dialog.addButton(tr("Disable Plugin"),
+            QPushButton *disableButton = dialog.addButton(Tr::tr("Disable Plugin"),
                                                           QMessageBox::AcceptRole);
-            dialog.addButton(tr("Continue"), QMessageBox::RejectRole);
+            dialog.addButton(Tr::tr("Continue"), QMessageBox::RejectRole);
             dialog.exec();
             if (dialog.clickedButton() == disableButton) {
                 spec->d->setForceDisabled(true);
@@ -1551,6 +1554,15 @@ void PluginManagerPrivate::checkForProblematicPlugins()
 void PluginManager::checkForProblematicPlugins()
 {
     d->checkForProblematicPlugins();
+}
+
+/*!
+    Returns the PluginSpec corresponding to \a plugin.
+*/
+
+PluginSpec *PluginManager::specForPlugin(IPlugin *plugin)
+{
+    return findOrDefault(d->pluginSpecs, equal(&PluginSpec::plugin, plugin));
 }
 
 /*!
@@ -1592,8 +1604,8 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         if (depSpec->state() != destState) {
             spec->d->hasError = true;
             spec->d->errorString =
-                PluginManager::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
-                    .arg(depSpec->name()).arg(depSpec->version()).arg(depSpec->errorString());
+                Tr::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
+                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
             return;
         }
     }

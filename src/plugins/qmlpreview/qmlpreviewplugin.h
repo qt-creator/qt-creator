@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -15,15 +15,18 @@
 
 namespace Core { class IEditor; }
 
+namespace ProjectExplorer { class RunControl; }
+
 namespace QmlDebug { class QmlDebugConnection; }
 
 namespace QmlPreview {
 
-typedef bool (*QmlPreviewFileClassifier) (const QString &);
-typedef QByteArray (*QmlPreviewFileLoader)(const QString &, bool *);
-typedef void (*QmlPreviewFpsHandler)(quint16[8]);
-typedef QList<ProjectExplorer::RunControl *> QmlPreviewRunControlList;
-typedef std::function<std::unique_ptr<QmlDebugTranslationClient>(QmlDebug::QmlDebugConnection *)> QmlDebugTranslationClientCreator;
+using QmlPreviewFileClassifier = bool (*)(const QString &);
+using QmlPreviewFileLoader = QByteArray (*)(const QString &, bool *);
+using QmlPreviewFpsHandler = void (*)(quint16[8]);
+using QmlPreviewRunControlList = QList<ProjectExplorer::RunControl *>;
+using QmlDebugTranslationClientCreator =
+    std::function<std::unique_ptr<QmlDebugTranslationClient>(QmlDebug::QmlDebugConnection *)>;
 
 class QMLPREVIEW_EXPORT QmlPreviewPlugin : public ExtensionSystem::IPlugin
 {
@@ -45,9 +48,8 @@ class QMLPREVIEW_EXPORT QmlPreviewPlugin : public ExtensionSystem::IPlugin
 public:
     ~QmlPreviewPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     ShutdownFlag aboutToShutdown() override;
-    QVector<QObject *> createTestObjects() const override;
 
     QString previewedFile() const;
     void setPreviewedFile(const QString &previewedFile);
@@ -69,6 +71,10 @@ public:
     void setLocaleIsoCode(const QString &localeIsoCode);
 
     void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator);
+
+    void previewCurrentFile();
+    void addPreview(ProjectExplorer::RunControl *preview);
+    void removePreview(ProjectExplorer::RunControl *preview);
 
 signals:
     void checkDocument(const QString &name, const QByteArray &contents,

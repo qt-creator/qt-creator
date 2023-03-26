@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppincludesfilter.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 
 #include <cplusplus/CppDocument.h>
@@ -21,7 +22,12 @@ namespace CppEditor::Internal {
 class CppIncludesIterator final : public BaseFileFilter::Iterator
 {
 public:
-    CppIncludesIterator(CPlusPlus::Snapshot snapshot, const QSet<QString> &seedPaths);
+    CppIncludesIterator(CPlusPlus::Snapshot snapshot, const QSet<FilePath> &seedPaths)
+        : m_snapshot(snapshot),
+          m_paths(seedPaths)
+    {
+        toFront();
+    }
 
     void toFront() override;
     bool hasNext() const override;
@@ -32,20 +38,14 @@ private:
     void fetchMore();
 
     CPlusPlus::Snapshot m_snapshot;
-    QSet<QString> m_paths;
-    QSet<QString> m_queuedPaths;
-    QSet<QString> m_allResultPaths;
-    QStringList m_resultQueue;
+    QSet<FilePath> m_paths;
+    QSet<FilePath> m_queuedPaths;
+    QSet<FilePath> m_allResultPaths;
+    FilePaths m_resultQueue;
     FilePath m_currentPath;
 };
 
-CppIncludesIterator::CppIncludesIterator(CPlusPlus::Snapshot snapshot,
-                                         const QSet<QString> &seedPaths)
-    : m_snapshot(snapshot),
-      m_paths(seedPaths)
-{
-    toFront();
-}
+
 
 void CppIncludesIterator::toFront()
 {
@@ -64,7 +64,7 @@ FilePath CppIncludesIterator::next()
 {
     if (m_resultQueue.isEmpty())
         return {};
-    m_currentPath = FilePath::fromString(m_resultQueue.takeFirst());
+    m_currentPath = m_resultQueue.takeFirst();
     if (m_resultQueue.isEmpty())
         fetchMore();
     return m_currentPath;
@@ -78,13 +78,13 @@ FilePath CppIncludesIterator::filePath() const
 void CppIncludesIterator::fetchMore()
 {
     while (!m_queuedPaths.isEmpty() && m_resultQueue.isEmpty()) {
-        const QString filePath = *m_queuedPaths.begin();
+        const FilePath filePath = *m_queuedPaths.begin();
         m_queuedPaths.remove(filePath);
         CPlusPlus::Document::Ptr doc = m_snapshot.document(filePath);
         if (!doc)
             continue;
-        const QStringList includedFiles = doc->includedFiles();
-        for (const QString &includedPath : includedFiles ) {
+        const FilePaths includedFiles = doc->includedFiles();
+        for (const FilePath &includedPath : includedFiles ) {
             if (!m_allResultPaths.contains(includedPath)) {
                 m_allResultPaths.insert(includedPath);
                 m_queuedPaths.insert(includedPath);
@@ -97,11 +97,11 @@ void CppIncludesIterator::fetchMore()
 CppIncludesFilter::CppIncludesFilter()
 {
     setId(Constants::INCLUDES_FILTER_ID);
-    setDisplayName(Constants::INCLUDES_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::INCLUDES_FILTER_DISPLAY_NAME));
     setDescription(
-        tr("Matches all files that are included by all C++ files in all projects. Append "
-           "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
-           "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+        Tr::tr("Matches all files that are included by all C++ files in all projects. Append "
+               "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
+               "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("ai");
     setDefaultIncludedByDefault(true);
     setPriority(ILocatorFilter::Low);
@@ -127,16 +127,16 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
     Q_UNUSED(entry)
     if (m_needsUpdate) {
         m_needsUpdate = false;
-        QSet<QString> seedPaths;
+        QSet<FilePath> seedPaths;
         for (Project *project : SessionManager::projects()) {
-            const Utils::FilePaths allFiles = project->files(Project::SourceFiles);
-            for (const Utils::FilePath &filePath : allFiles )
-                seedPaths.insert(filePath.toString());
+            const FilePaths allFiles = project->files(Project::SourceFiles);
+            for (const FilePath &filePath : allFiles )
+                seedPaths.insert(filePath);
         }
         const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
         for (DocumentModel::Entry *entry : entries) {
             if (entry)
-                seedPaths.insert(entry->fileName().toString());
+                seedPaths.insert(entry->filePath());
         }
         CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
         setFileIterator(new CppIncludesIterator(snapshot, seedPaths));

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -77,6 +77,11 @@ public:
     int behind = 0;
 };
 
+struct Author {
+    QString name;
+    QString email;
+};
+
 class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 {
 public:
@@ -116,13 +121,13 @@ public:
     Utils::FilePath vcsBinary() const override;
     QFuture<unsigned> gitVersion() const;
 
-    VcsBase::VcsCommand *vcsExecAbortable(const Utils::FilePath &workingDirectory,
-                                          const QStringList &arguments,
-                                          bool isRebase = false,
-                                          QString abortCommand = {});
+    void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,
+                          bool isRebase = false, const QString &abortCommand = {},
+                          const QObject *context = nullptr,
+                          const VcsBase::CommandHandler &handler = {});
 
     Utils::FilePath findRepositoryForDirectory(const Utils::FilePath &directory) const;
-    QString findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
+    Utils::FilePath findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
 
@@ -147,9 +152,9 @@ public:
     void log(const Utils::FilePath &workingDirectory, const QString &fileName = {},
              bool enableAnnotationContextMenu = false, const QStringList &args = {});
     void reflog(const Utils::FilePath &workingDirectory, const QString &branch = {});
-    VcsBase::VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir, const QString &file,
-                                           const QString &revision = {}, int lineNumber = -1,
-                                           const QStringList &extraOptions = {}) override;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) override;
     void reset(const Utils::FilePath &workingDirectory, const QString &argument, const QString &commit = {});
     void removeStaleRemoteBranches(const Utils::FilePath &workingDirectory, const QString &remote);
     void recoverDeletedFiles(const Utils::FilePath &workingDirectory);
@@ -176,8 +181,9 @@ public:
                                   QString revision = {}, QString *errorMessage = nullptr,
                                   bool revertStaging = true);
     enum class StashMode { NoStash, TryStash };
-    VcsBase::VcsCommand *checkout(const Utils::FilePath &workingDirectory, const QString &ref,
-                                  StashMode stashMode = StashMode::TryStash);
+    void checkout(const Utils::FilePath &workingDirectory, const QString &ref,
+                  StashMode stashMode = StashMode::TryStash, const QObject *context = nullptr,
+                  const VcsBase::CommandHandler &handler = {});
 
     QStringList setupCheckoutArguments(const Utils::FilePath &workingDirectory, const QString &ref);
     void updateSubmodulesIfNeeded(const Utils::FilePath &workingDirectory, bool prompt);
@@ -278,7 +284,6 @@ public:
     void setConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar,
                         const QString &value) const;
 
-    QTextCodec *encoding(const Utils::FilePath &workingDirectory, const QString &configVar) const;
     bool readDataFromCommit(const Utils::FilePath &repoDirectory, const QString &commit,
                             CommitData &commitData, QString *errorMessage = nullptr,
                             QString *commitTemplate = nullptr);
@@ -325,18 +330,23 @@ public:
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
-    void show(const QString &source, const QString &id, const QString &name = {});
+    void show(const Utils::FilePath &source, const QString &id, const QString &name = {});
     void archive(const Utils::FilePath &workingDirectory, QString commit);
 
     enum class BranchTargetType { Remote, Commit };
     static QString suggestedLocalBranchName(
             const Utils::FilePath &workingDirectory, const QStringList &existingLocalNames,
             const QString &target, BranchTargetType targetType);
-    static void addChangeActions(QMenu *menu, const QString &source, const QString &change);
-    static Utils::FilePath fileWorkingDirectory(const QString &file);
+    static void addChangeActions(QMenu *menu, const Utils::FilePath &source, const QString &change);
+    static Utils::FilePath fileWorkingDirectory(const Utils::FilePath &file);
     enum class ShowEditor { OnlyIfDifferent, Always };
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
-                                  const QString &path, ShowEditor showSetting = ShowEditor::Always);
+                                  const Utils::FilePath &path, ShowEditor showSetting = ShowEditor::Always);
+
+    Author getAuthor(const Utils::FilePath &workingDirectory);
+
+    enum EncodingType { EncodingSource, EncodingLogOutput, EncodingCommit, EncodingDefault };
+    QTextCodec *encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
 
 private:
     void finishSubmoduleUpdate();
@@ -347,11 +357,8 @@ private:
     void stage(DiffEditor::DiffEditorController *diffController,
                const QString &patch, bool revert) const;
 
-    enum CodecType { CodecSource, CodecLogOutput, CodecNone };
-    QTextCodec *codecFor(CodecType codecType, const Utils::FilePath &source = {}) const;
-
-    void requestReload(const QString &documentId, const QString &source, const QString &title,
-                       const Utils::FilePath &workingDirectory,
+    void requestReload(const QString &documentId, const Utils::FilePath &source,
+                       const QString &title, const Utils::FilePath &workingDirectory,
                        std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
 
     QString readOneLine(const Utils::FilePath &workingDirectory, const QStringList &arguments) const;
@@ -361,7 +368,6 @@ private:
                          bool *isDirectory,
                          QString *errorMessage,
                          bool revertStaging);
-    void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
     bool executeAndHandleConflicts(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = {}) const;
     void tryLaunchingGitK(const Utils::Environment &env,

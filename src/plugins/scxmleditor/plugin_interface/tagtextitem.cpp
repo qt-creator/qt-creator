@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "tagtextitem.h"
 
@@ -17,15 +17,10 @@ TagTextItem::TagTextItem(QGraphicsItem *parent)
     setFlag(ItemIsFocusable, true);
     setFlag(ItemIsSelectable, true);
     m_textItem = new TextItem(this);
-    connect(m_textItem, &TextItem::textChanged, this, [=](){
-        emit textChanged();
-    });
-    connect(m_textItem, &TextItem::textReady, this, [=](const QString &text){
-        emit textReady(text);
-    });
-    connect(m_textItem, &TextItem::selected, this, [=](bool sel){
-        emit selected(sel);
-    });
+    connect(m_textItem, &TextItem::textChanged, this, [this] { emit textChanged(); });
+    connect(m_textItem, &TextItem::textReady,
+            this, [this](const QString &text) { emit textReady(text); });
+    connect(m_textItem, &TextItem::selected, this, [this](bool sel) { emit selected(sel); });
     setAcceptHoverEvents(true);
 }
 

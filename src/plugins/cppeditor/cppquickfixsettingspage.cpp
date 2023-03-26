@@ -1,21 +1,22 @@
 // Copyright (C) 2020 Leander Schulten <Leander.Schulten@rwth-aachen.de>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppquickfixsettingspage.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppquickfixsettings.h"
 #include "cppquickfixsettingswidget.h"
 
 #include <QCoreApplication>
 #include <QtDebug>
 
-using namespace CppEditor::Internal;
+namespace CppEditor::Internal {
 
 CppQuickFixSettingsPage::CppQuickFixSettingsPage()
 {
     setId(Constants::QUICK_FIX_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("CppEditor", Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
+    setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
 }
 
@@ -35,7 +36,9 @@ void CppQuickFixSettingsPage::apply()
     s->saveAsGlobalSettings();
 }
 
-void CppEditor::Internal::CppQuickFixSettingsPage::finish()
+void CppQuickFixSettingsPage::finish()
 {
     delete m_widget;
 }
+
+} // CppEditor::Internal

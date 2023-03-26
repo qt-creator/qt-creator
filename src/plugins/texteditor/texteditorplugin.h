@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -25,7 +25,7 @@ public:
     ShutdownFlag aboutToShutdown() override;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
     class TextEditorPluginPrivate *d = nullptr;
@@ -37,6 +37,9 @@ private slots:
 
     void testIndentationClean_data();
     void testIndentationClean();
+
+    void testFormatting_data();
+    void testFormatting();
 #endif
 };
 

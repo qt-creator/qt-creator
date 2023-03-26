@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "propertiesviewmview.h"
 
@@ -46,6 +46,8 @@
 #include "qmt/style/stylecontroller.h"
 #include "qmt/style/style.h"
 #include "qmt/style/objectvisuals.h"
+
+#include "../../modelinglibtr.h"
 
 #include <QCoreApplication>
 #include <QWidget>
@@ -274,7 +276,7 @@ PropertiesView::MView::~MView()
 {
 }
 
-void PropertiesView::MView::update(QList<MElement *> &modelElements)
+void PropertiesView::MView::update(const QList<MElement *> &modelElements)
 {
     QMT_ASSERT(modelElements.size() > 0, return);
 
@@ -284,7 +286,7 @@ void PropertiesView::MView::update(QList<MElement *> &modelElements)
     modelElements.at(0)->accept(this);
 }
 
-void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram *diagram)
+void PropertiesView::MView::update(const QList<DElement *> &diagramElements, MDiagram *diagram)
 {
     QMT_ASSERT(diagramElements.size() > 0, return);
     QMT_ASSERT(diagram, return);
@@ -292,7 +294,7 @@ void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram 
     m_diagramElements = diagramElements;
     m_diagram = diagram;
     m_modelElements.clear();
-    foreach (DElement *delement, diagramElements) {
+    for (DElement *delement : diagramElements) {
         bool appendedMelement = false;
         if (delement->modelUid().isValid()) {
             MElement *melement = m_propertiesView->modelController()->findElement(delement->modelUid());
@@ -326,7 +328,7 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         m_stereotypeComboBox = new QComboBox(m_topWidget);
         m_stereotypeComboBox->setEditable(true);
         m_stereotypeComboBox->setInsertPolicy(QComboBox::NoInsert);
-        addRow(tr("Stereotypes:"), m_stereotypeComboBox, "stereotypes");
+        addRow(Tr::tr("Stereotypes:"), m_stereotypeComboBox, "stereotypes");
         m_stereotypeComboBox->addItems(m_propertiesView->stereotypeController()->knownStereotypes(m_stereotypeElement));
         connect(m_stereotypeComboBox->lineEdit(), &QLineEdit::textEdited,
                 this, &PropertiesView::MView::onStereotypesChanged);
@@ -348,9 +350,9 @@ void PropertiesView::MView::visitMElement(const MElement *element)
 #ifdef SHOW_DEBUG_PROPERTIES
     if (!m_reverseEngineeredLabel) {
         m_reverseEngineeredLabel = new QLabel(m_topWidget);
-        addRow(tr("Reverse engineered:"), m_reverseEngineeredLabel, "reverse engineered");
+        addRow(Tr::tr("Reverse engineered:"), m_reverseEngineeredLabel, "reverse engineered");
     }
-    QString text = element->flags().testFlag(MElement::ReverseEngineered) ? tr("Yes") : tr("No");
+    QString text = element->flags().testFlag(MElement::ReverseEngineered) ? Tr::tr("Yes") : Tr::tr("No");
     m_reverseEngineeredLabel->setText(text);
 #endif
 }
@@ -362,7 +364,7 @@ void PropertiesView::MView::visitMObject(const MObject *object)
     bool isSingleSelection = selection.size() == 1;
     if (!m_elementNameLineEdit) {
         m_elementNameLineEdit = new QLineEdit(m_topWidget);
-        addRow(tr("Name:"), m_elementNameLineEdit, "name");
+        addRow(Tr::tr("Name:"), m_elementNameLineEdit, "name");
         connect(m_elementNameLineEdit, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onObjectNameChanged);
     }
@@ -378,12 +380,12 @@ void PropertiesView::MView::visitMObject(const MObject *object)
 #ifdef SHOW_DEBUG_PROPERTIES
     if (!m_childrenLabel) {
         m_childrenLabel = new QLabel(m_topWidget);
-        addRow(tr("Children:"), m_childrenLabel, "children");
+        addRow(Tr::tr("Children:"), m_childrenLabel, "children");
     }
     m_childrenLabel->setText(QString::number(object->children().size()));
     if (!m_relationsLabel) {
         m_relationsLabel = new QLabel(m_topWidget);
-        addRow(tr("Relations:"), m_relationsLabel, "relations");
+        addRow(Tr::tr("Relations:"), m_relationsLabel, "relations");
     }
     m_relationsLabel->setText(QString::number(object->relations().size()));
 #endif
@@ -392,21 +394,21 @@ void PropertiesView::MView::visitMObject(const MObject *object)
 void PropertiesView::MView::visitMPackage(const MPackage *package)
 {
     if (m_modelElements.size() == 1 && !package->owner())
-        setTitle<MPackage>(m_modelElements, tr("Model"), tr("Models"));
+        setTitle<MPackage>(m_modelElements, Tr::tr("Model"), Tr::tr("Models"));
     else
-        setTitle<MPackage>(m_modelElements, tr("Package"), tr("Packages"));
+        setTitle<MPackage>(m_modelElements, Tr::tr("Package"), Tr::tr("Packages"));
     visitMObject(package);
 }
 
 void PropertiesView::MView::visitMClass(const MClass *klass)
 {
-    setTitle<MClass>(m_modelElements, tr("Class"), tr("Classes"));
+    setTitle<MClass>(m_modelElements, Tr::tr("Class"), Tr::tr("Classes"));
     visitMObject(klass);
     QList<MClass *> selection = filter<MClass>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
     if (!m_namespaceLineEdit) {
         m_namespaceLineEdit = new QLineEdit(m_topWidget);
-        addRow(tr("Namespace:"), m_namespaceLineEdit, "namespace");
+        addRow(Tr::tr("Namespace:"), m_namespaceLineEdit, "namespace");
         connect(m_namespaceLineEdit, &QLineEdit::textEdited,
                 this, &PropertiesView::MView::onNamespaceChanged);
     }
@@ -423,7 +425,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     }
     if (!m_templateParametersLineEdit) {
         m_templateParametersLineEdit = new QLineEdit(m_topWidget);
-        addRow(tr("Template:"), m_templateParametersLineEdit, "template");
+        addRow(Tr::tr("Template:"), m_templateParametersLineEdit, "template");
         connect(m_templateParametersLineEdit, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onTemplateParametersChanged);
     }
@@ -441,7 +443,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     if (!m_classMembersStatusLabel) {
         QMT_CHECK(!m_classMembersParseButton);
         m_classMembersStatusLabel = new QLabel(m_topWidget);
-        m_classMembersParseButton = new QPushButton(tr("Clean Up"), m_topWidget);
+        m_classMembersParseButton = new QPushButton(Tr::tr("Clean Up"), m_topWidget);
         auto layout = new QHBoxLayout();
         layout->addWidget(m_classMembersStatusLabel);
         layout->addWidget(m_classMembersParseButton);
@@ -456,7 +458,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     if (!m_classMembersEdit) {
         m_classMembersEdit = new ClassMembersEdit(m_topWidget);
         m_classMembersEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
-        addRow(tr("Members:"), m_classMembersEdit, "members");
+        addRow(Tr::tr("Members:"), m_classMembersEdit, "members");
         connect(m_classMembersEdit, &ClassMembersEdit::membersChanged,
                 this, &PropertiesView::MView::onClassMembersChanged);
         connect(m_classMembersEdit, &ClassMembersEdit::statusChanged,
@@ -474,18 +476,18 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
 
 void PropertiesView::MView::visitMComponent(const MComponent *component)
 {
-    setTitle<MComponent>(m_modelElements, tr("Component"), tr("Components"));
+    setTitle<MComponent>(m_modelElements, Tr::tr("Component"), Tr::tr("Components"));
     visitMObject(component);
 }
 
 void PropertiesView::MView::visitMDiagram(const MDiagram *diagram)
 {
-    setTitle<MDiagram>(m_modelElements, tr("Diagram"), tr("Diagrams"));
+    setTitle<MDiagram>(m_modelElements, Tr::tr("Diagram"), Tr::tr("Diagrams"));
     visitMObject(diagram);
 #ifdef SHOW_DEBUG_PROPERTIES
     if (!m_diagramsLabel) {
         m_diagramsLabel = new QLabel(m_topWidget);
-        addRow(tr("Elements:"), m_diagramsLabel, "elements");
+        addRow(Tr::tr("Elements:"), m_diagramsLabel, "elements");
     }
     m_diagramsLabel->setText(QString::number(diagram->diagramElements().size()));
 #endif
@@ -493,20 +495,20 @@ void PropertiesView::MView::visitMDiagram(const MDiagram *diagram)
 
 void PropertiesView::MView::visitMCanvasDiagram(const MCanvasDiagram *diagram)
 {
-    setTitle<MCanvasDiagram>(m_modelElements, tr("Canvas Diagram"), tr("Canvas Diagrams"));
+    setTitle<MCanvasDiagram>(m_modelElements, Tr::tr("Canvas Diagram"), Tr::tr("Canvas Diagrams"));
     visitMDiagram(diagram);
 }
 
 void PropertiesView::MView::visitMItem(const MItem *item)
 {
-    setTitle<MItem>(item, m_modelElements, tr("Item"), tr("Items"));
+    setTitle<MItem>(item, m_modelElements, Tr::tr("Item"), Tr::tr("Items"));
     visitMObject(item);
     QList<MItem *> selection = filter<MItem>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
     if (item->isVarietyEditable()) {
         if (!m_itemVarietyEdit) {
             m_itemVarietyEdit = new QLineEdit(m_topWidget);
-            addRow(tr("Variety:"), m_itemVarietyEdit, "variety");
+            addRow(Tr::tr("Variety:"), m_itemVarietyEdit, "variety");
             connect(m_itemVarietyEdit, &QLineEdit::textChanged,
                     this, &PropertiesView::MView::onItemVarietyChanged);
         }
@@ -528,7 +530,7 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
     bool isSingleSelection = selection.size() == 1;
     if (!m_elementNameLineEdit) {
         m_elementNameLineEdit = new QLineEdit(m_topWidget);
-        addRow(tr("Name:"), m_elementNameLineEdit, "name");
+        addRow(Tr::tr("Name:"), m_elementNameLineEdit, "name");
         connect(m_elementNameLineEdit, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onRelationNameChanged);
     }
@@ -542,22 +544,22 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
         m_elementNameLineEdit->setEnabled(isSingleSelection);
     MObject *endAObject = m_propertiesView->modelController()->findObject(relation->endAUid());
     QMT_ASSERT(endAObject, return);
-    setEndAName(tr("End A: %1").arg(endAObject->name()));
+    setEndAName(Tr::tr("End A: %1").arg(endAObject->name()));
     MObject *endBObject = m_propertiesView->modelController()->findObject(relation->endBUid());
     QMT_ASSERT(endBObject, return);
-    setEndBName(tr("End B: %1").arg(endBObject->name()));
+    setEndBName(Tr::tr("End B: %1").arg(endBObject->name()));
 }
 
 void PropertiesView::MView::visitMDependency(const MDependency *dependency)
 {
-    setTitle<MDependency>(m_modelElements, tr("Dependency"), tr("Dependencies"));
+    setTitle<MDependency>(m_modelElements, Tr::tr("Dependency"), Tr::tr("Dependencies"));
     visitMRelation(dependency);
     QList<MDependency *> selection = filter<MDependency>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
     if (!m_directionSelector) {
         m_directionSelector = new QComboBox(m_topWidget);
         m_directionSelector->addItems(QStringList({ "->", "<-", "<->" }));
-        addRow(tr("Direction:"), m_directionSelector, "direction");
+        addRow(Tr::tr("Direction:"), m_directionSelector, "direction");
         connect(m_directionSelector, &QComboBox::activated,
                 this, &PropertiesView::MView::onDependencyDirectionChanged);
     }
@@ -576,19 +578,19 @@ void PropertiesView::MView::visitMDependency(const MDependency *dependency)
 
 void PropertiesView::MView::visitMInheritance(const MInheritance *inheritance)
 {
-    setTitle<MInheritance>(m_modelElements, tr("Inheritance"), tr("Inheritances"));
+    setTitle<MInheritance>(m_modelElements, Tr::tr("Inheritance"), Tr::tr("Inheritances"));
     MObject *derivedClass = m_propertiesView->modelController()->findObject(inheritance->derived());
     QMT_ASSERT(derivedClass, return);
-    setEndAName(tr("Derived class: %1").arg(derivedClass->name()));
+    setEndAName(Tr::tr("Derived class: %1").arg(derivedClass->name()));
     MObject *baseClass = m_propertiesView->modelController()->findObject(inheritance->base());
     QMT_ASSERT(baseClass, return);
-    setEndBName(tr("Base class: %1").arg(baseClass->name()));
+    setEndBName(Tr::tr("Base class: %1").arg(baseClass->name()));
     visitMRelation(inheritance);
 }
 
 void PropertiesView::MView::visitMAssociation(const MAssociation *association)
 {
-    setTitle<MAssociation>(m_modelElements, tr("Association"), tr("Associations"));
+    setTitle<MAssociation>(m_modelElements, Tr::tr("Association"), Tr::tr("Associations"));
     visitMRelation(association);
     QList<MAssociation *> selection = filter<MAssociation>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
@@ -598,7 +600,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (!m_endAEndName) {
         m_endAEndName = new QLineEdit(m_topWidget);
-        addRow(tr("Role:"), m_endAEndName, "role a");
+        addRow(Tr::tr("Role:"), m_endAEndName, "role a");
         connect(m_endAEndName, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onAssociationEndANameChanged);
     }
@@ -612,7 +614,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endAEndName->setEnabled(isSingleSelection);
     if (!m_endACardinality) {
         m_endACardinality = new QLineEdit(m_topWidget);
-        addRow(tr("Cardinality:"), m_endACardinality, "cardinality a");
+        addRow(Tr::tr("Cardinality:"), m_endACardinality, "cardinality a");
         connect(m_endACardinality, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onAssociationEndACardinalityChanged);
     }
@@ -625,7 +627,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     if (m_endACardinality->isEnabled() != isSingleSelection)
         m_endACardinality->setEnabled(isSingleSelection);
     if (!m_endANavigable) {
-        m_endANavigable = new QCheckBox(tr("Navigable"), m_topWidget);
+        m_endANavigable = new QCheckBox(Tr::tr("Navigable"), m_topWidget);
         addRow(QString(), m_endANavigable, "navigable a");
         connect(m_endANavigable, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onAssociationEndANavigableChanged);
@@ -640,8 +642,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endANavigable->setEnabled(isSingleSelection);
     if (!m_endAKind) {
         m_endAKind = new QComboBox(m_topWidget);
-        m_endAKind->addItems({ tr("Association"), tr("Aggregation"), tr("Composition") });
-        addRow(tr("Relationship:"), m_endAKind, "relationship a");
+        m_endAKind->addItems({ Tr::tr("Association"), Tr::tr("Aggregation"), Tr::tr("Composition") });
+        addRow(Tr::tr("Relationship:"), m_endAKind, "relationship a");
         connect(m_endAKind, &QComboBox::activated,
                 this, &PropertiesView::MView::onAssociationEndAKindChanged);
     }
@@ -663,7 +665,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (!m_endBEndName) {
         m_endBEndName = new QLineEdit(m_topWidget);
-        addRow(tr("Role:"), m_endBEndName, "role b");
+        addRow(Tr::tr("Role:"), m_endBEndName, "role b");
         connect(m_endBEndName, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onAssociationEndBNameChanged);
     }
@@ -677,7 +679,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endBEndName->setEnabled(isSingleSelection);
     if (!m_endBCardinality) {
         m_endBCardinality = new QLineEdit(m_topWidget);
-        addRow(tr("Cardinality:"), m_endBCardinality, "cardinality b");
+        addRow(Tr::tr("Cardinality:"), m_endBCardinality, "cardinality b");
         connect(m_endBCardinality, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onAssociationEndBCardinalityChanged);
     }
@@ -690,7 +692,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     if (m_endBCardinality->isEnabled() != isSingleSelection)
         m_endBCardinality->setEnabled(isSingleSelection);
     if (!m_endBNavigable) {
-        m_endBNavigable = new QCheckBox(tr("Navigable"), m_topWidget);
+        m_endBNavigable = new QCheckBox(Tr::tr("Navigable"), m_topWidget);
         addRow(QString(), m_endBNavigable, "navigable b");
         connect(m_endBNavigable, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onAssociationEndBNavigableChanged);
@@ -705,8 +707,8 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endBNavigable->setEnabled(isSingleSelection);
     if (!m_endBKind) {
         m_endBKind = new QComboBox(m_topWidget);
-        m_endBKind->addItems({ tr("Association"), tr("Aggregation"), tr("Composition") });
-        addRow(tr("Relationship:"), m_endBKind, "relationship b");
+        m_endBKind->addItems({ Tr::tr("Association"), Tr::tr("Aggregation"), Tr::tr("Composition") });
+        addRow(Tr::tr("Relationship:"), m_endBKind, "relationship b");
         connect(m_endBKind, &QComboBox::activated,
                 this, &PropertiesView::MView::onAssociationEndBKindChanged);
     }
@@ -725,7 +727,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
 
 void PropertiesView::MView::visitMConnection(const MConnection *connection)
 {
-    setTitle<MConnection>(connection, m_modelElements, tr("Connection"), tr("Connections"));
+    setTitle<MConnection>(connection, m_modelElements, Tr::tr("Connection"), Tr::tr("Connections"));
     visitMRelation(connection);
     QList<MConnection *> selection = filter<MConnection>(m_modelElements);
     const bool isSingleSelection = selection.size() == 1;
@@ -735,7 +737,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
     }
     if (!m_endAEndName) {
         m_endAEndName = new QLineEdit(m_topWidget);
-        addRow(tr("Role:"), m_endAEndName, "role a");
+        addRow(Tr::tr("Role:"), m_endAEndName, "role a");
         connect(m_endAEndName, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onConnectionEndANameChanged);
     }
@@ -749,7 +751,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
         m_endAEndName->setEnabled(isSingleSelection);
     if (!m_endACardinality) {
         m_endACardinality = new QLineEdit(m_topWidget);
-        addRow(tr("Cardinality:"), m_endACardinality, "cardinality a");
+        addRow(Tr::tr("Cardinality:"), m_endACardinality, "cardinality a");
         connect(m_endACardinality, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onConnectionEndACardinalityChanged);
     }
@@ -762,7 +764,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
     if (m_endACardinality->isEnabled() != isSingleSelection)
         m_endACardinality->setEnabled(isSingleSelection);
     if (!m_endANavigable) {
-        m_endANavigable = new QCheckBox(tr("Navigable"), m_topWidget);
+        m_endANavigable = new QCheckBox(Tr::tr("Navigable"), m_topWidget);
         addRow(QString(), m_endANavigable, "navigable a");
         connect(m_endANavigable, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onConnectionEndANavigableChanged);
@@ -782,7 +784,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
     }
     if (!m_endBEndName) {
         m_endBEndName = new QLineEdit(m_topWidget);
-        addRow(tr("Role:"), m_endBEndName, "role b");
+        addRow(Tr::tr("Role:"), m_endBEndName, "role b");
         connect(m_endBEndName, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onConnectionEndBNameChanged);
     }
@@ -796,7 +798,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
         m_endBEndName->setEnabled(isSingleSelection);
     if (!m_endBCardinality) {
         m_endBCardinality = new QLineEdit(m_topWidget);
-        addRow(tr("Cardinality:"), m_endBCardinality, "cardinality b");
+        addRow(Tr::tr("Cardinality:"), m_endBCardinality, "cardinality b");
         connect(m_endBCardinality, &QLineEdit::textChanged,
                 this, &PropertiesView::MView::onConnectionEndBCardinalityChanged);
     }
@@ -809,7 +811,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
     if (m_endBCardinality->isEnabled() != isSingleSelection)
         m_endBCardinality->setEnabled(isSingleSelection);
     if (!m_endBNavigable) {
-        m_endBNavigable = new QCheckBox(tr("Navigable"), m_topWidget);
+        m_endBNavigable = new QCheckBox(Tr::tr("Navigable"), m_topWidget);
         addRow(QString(), m_endBNavigable, "navigable b");
         connect(m_endBNavigable, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onConnectionEndBNavigableChanged);
@@ -851,7 +853,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
 #ifdef SHOW_DEBUG_PROPERTIES
     if (!m_posRectLabel) {
         m_posRectLabel = new QLabel(m_topWidget);
-        addRow(tr("Position and size:"), m_posRectLabel, "position and size");
+        addRow(Tr::tr("Position and size:"), m_posRectLabel, "position and size");
     }
     m_posRectLabel->setText(QString("(%1,%2):(%3,%4)-(%5,%6)")
                              .arg(object->pos().x())
@@ -862,7 +864,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
                              .arg(object->rect().bottom()));
 #endif
     if (!m_autoSizedCheckbox) {
-        m_autoSizedCheckbox = new QCheckBox(tr("Auto sized"), m_topWidget);
+        m_autoSizedCheckbox = new QCheckBox(Tr::tr("Auto sized"), m_topWidget);
         addRow(QString(), m_autoSizedCheckbox, "auto size");
         connect(m_autoSizedCheckbox, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onAutoSizedChanged);
@@ -881,7 +883,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom3, QColor());
         setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom4, QColor());
         setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom5, QColor());
-        addRow(tr("Color:"), m_visualPrimaryRoleSelector, "color");
+        addRow(Tr::tr("Color:"), m_visualPrimaryRoleSelector, "color");
         connect(m_visualPrimaryRoleSelector, &PaletteBox::activated,
                 this, &PropertiesView::MView::onVisualPrimaryRoleChanged);
     }
@@ -905,9 +907,9 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_visualSecondaryRoleSelector) {
         m_visualSecondaryRoleSelector = new QComboBox(m_topWidget);
-        m_visualSecondaryRoleSelector->addItems({ tr("Normal"), tr("Lighter"), tr("Darker"),
-                                                  tr("Soften"), tr("Outline"), tr("Flat") });
-        addRow(tr("Role:"), m_visualSecondaryRoleSelector, "role");
+        m_visualSecondaryRoleSelector->addItems({ Tr::tr("Normal"), Tr::tr("Lighter"), Tr::tr("Darker"),
+                                                  Tr::tr("Soften"), Tr::tr("Outline"), Tr::tr("Flat") });
+        addRow(Tr::tr("Role:"), m_visualSecondaryRoleSelector, "role");
         connect(m_visualSecondaryRoleSelector, &QComboBox::activated,
                 this, &PropertiesView::MView::onVisualSecondaryRoleChanged);
     }
@@ -919,7 +921,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
             m_visualSecondaryRoleSelector->setCurrentIndex(-1);
     }
     if (!m_visualEmphasizedCheckbox) {
-        m_visualEmphasizedCheckbox = new QCheckBox(tr("Emphasized"), m_topWidget);
+        m_visualEmphasizedCheckbox = new QCheckBox(Tr::tr("Emphasized"), m_topWidget);
         addRow(QString(), m_visualEmphasizedCheckbox, "emphasized");
         connect(m_visualEmphasizedCheckbox, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onVisualEmphasizedChanged);
@@ -933,9 +935,9 @@ void PropertiesView::MView::visitDObject(const DObject *object)
     }
     if (!m_stereotypeDisplaySelector) {
         m_stereotypeDisplaySelector = new QComboBox(m_topWidget);
-        m_stereotypeDisplaySelector->addItems({ tr("Smart"), tr("None"), tr("Label"),
-                                                tr("Decoration"), tr("Icon") });
-        addRow(tr("Stereotype display:"), m_stereotypeDisplaySelector, "stereotype display");
+        m_stereotypeDisplaySelector->addItems({ Tr::tr("Smart"), Tr::tr("None"), Tr::tr("Label"),
+                                                Tr::tr("Decoration"), Tr::tr("Icon") });
+        addRow(Tr::tr("Stereotype display:"), m_stereotypeDisplaySelector, "stereotype display");
         connect(m_stereotypeDisplaySelector, &QComboBox::activated,
                 this, &PropertiesView::MView::onStereotypeDisplayChanged);
     }
@@ -949,7 +951,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
 #ifdef SHOW_DEBUG_PROPERTIES
     if (!m_depthLabel) {
         m_depthLabel = new QLabel(m_topWidget);
-        addRow(tr("Depth:"), m_depthLabel, "depth");
+        addRow(Tr::tr("Depth:"), m_depthLabel, "depth");
     }
     m_depthLabel->setText(QString::number(object->depth()));
 #endif
@@ -957,7 +959,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
 
 void PropertiesView::MView::visitDPackage(const DPackage *package)
 {
-    setTitle<DPackage>(m_diagramElements, tr("Package"), tr("Packages"));
+    setTitle<DPackage>(m_diagramElements, Tr::tr("Package"), Tr::tr("Packages"));
     setStereotypeIconElement(StereotypeIcon::ElementPackage);
     setStyleElementType(StyleEngine::TypePackage);
     visitDObject(package);
@@ -965,14 +967,14 @@ void PropertiesView::MView::visitDPackage(const DPackage *package)
 
 void PropertiesView::MView::visitDClass(const DClass *klass)
 {
-    setTitle<DClass>(m_diagramElements, tr("Class"), tr("Classes"));
+    setTitle<DClass>(m_diagramElements, Tr::tr("Class"), Tr::tr("Classes"));
     setStereotypeIconElement(StereotypeIcon::ElementClass);
     setStyleElementType(StyleEngine::TypeClass);
     visitDObject(klass);
     if (!m_templateDisplaySelector) {
         m_templateDisplaySelector = new QComboBox(m_topWidget);
-        m_templateDisplaySelector->addItems({ tr("Smart"), tr("Box"), tr("Angle Brackets") });
-        addRow(tr("Template display:"), m_templateDisplaySelector, "template display");
+        m_templateDisplaySelector->addItems({ Tr::tr("Smart"), Tr::tr("Box"), Tr::tr("Angle Brackets") });
+        addRow(Tr::tr("Template display:"), m_templateDisplaySelector, "template display");
         connect(m_templateDisplaySelector, &QComboBox::activated,
                 this, &PropertiesView::MView::onTemplateDisplayChanged);
     }
@@ -984,7 +986,7 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
             m_templateDisplaySelector->setCurrentIndex(-1);
     }
     if (!m_showAllMembersCheckbox) {
-        m_showAllMembersCheckbox = new QCheckBox(tr("Show members"), m_topWidget);
+        m_showAllMembersCheckbox = new QCheckBox(Tr::tr("Show members"), m_topWidget);
         addRow(QString(), m_showAllMembersCheckbox, "show members");
         connect(m_showAllMembersCheckbox, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onShowAllMembersChanged);
@@ -1000,12 +1002,12 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
 
 void PropertiesView::MView::visitDComponent(const DComponent *component)
 {
-    setTitle<DComponent>(m_diagramElements, tr("Component"), tr("Components"));
+    setTitle<DComponent>(m_diagramElements, Tr::tr("Component"), Tr::tr("Components"));
     setStereotypeIconElement(StereotypeIcon::ElementComponent);
     setStyleElementType(StyleEngine::TypeComponent);
     visitDObject(component);
     if (!m_plainShapeCheckbox) {
-        m_plainShapeCheckbox = new QCheckBox(tr("Plain shape"), m_topWidget);
+        m_plainShapeCheckbox = new QCheckBox(Tr::tr("Plain shape"), m_topWidget);
         addRow(QString(), m_plainShapeCheckbox, "plain shape");
         connect(m_plainShapeCheckbox, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onPlainShapeChanged);
@@ -1021,14 +1023,14 @@ void PropertiesView::MView::visitDComponent(const DComponent *component)
 
 void PropertiesView::MView::visitDDiagram(const DDiagram *diagram)
 {
-    setTitle<DDiagram>(m_diagramElements, tr("Diagram"), tr("Diagrams"));
+    setTitle<DDiagram>(m_diagramElements, Tr::tr("Diagram"), Tr::tr("Diagrams"));
     setStyleElementType(StyleEngine::TypeOther);
     visitDObject(diagram);
 }
 
 void PropertiesView::MView::visitDItem(const DItem *item)
 {
-    setTitle<DItem>(m_diagramElements, tr("Item"), tr("Items"));
+    setTitle<DItem>(m_diagramElements, Tr::tr("Item"), Tr::tr("Items"));
     setStereotypeIconElement(StereotypeIcon::ElementItem);
     setStyleElementType(StyleEngine::TypeItem);
     visitDObject(item);
@@ -1037,7 +1039,7 @@ void PropertiesView::MView::visitDItem(const DItem *item)
     if (item->isShapeEditable()) {
         if (!m_itemShapeEdit) {
             m_itemShapeEdit = new QLineEdit(m_topWidget);
-            addRow(tr("Shape:"), m_itemShapeEdit, "shape");
+            addRow(Tr::tr("Shape:"), m_itemShapeEdit, "shape");
             connect(m_itemShapeEdit, &QLineEdit::textChanged,
                     this, &PropertiesView::MView::onItemShapeChanged);
         }
@@ -1058,7 +1060,7 @@ void PropertiesView::MView::visitDRelation(const DRelation *relation)
 #ifdef SHOW_DEBUG_PROPERTIES
     if (!m_pointsLabel) {
         m_pointsLabel = new QLabel(m_topWidget);
-        addRow(tr("Intermediate points:"), m_pointsLabel, "intermediate points");
+        addRow(Tr::tr("Intermediate points:"), m_pointsLabel, "intermediate points");
     }
     QString points;
     for (const auto &point : relation->intermediatePoints()) {
@@ -1067,41 +1069,41 @@ void PropertiesView::MView::visitDRelation(const DRelation *relation)
         points.append(QString("(%1,%2)").arg(point.pos().x()).arg(point.pos().y()));
     }
     if (points.isEmpty())
-        points = tr("none");
+        points = Tr::tr("none");
     m_pointsLabel->setText(points);
 #endif
 }
 
 void PropertiesView::MView::visitDInheritance(const DInheritance *inheritance)
 {
-    setTitle<DInheritance>(m_diagramElements, tr("Inheritance"), tr("Inheritances"));
+    setTitle<DInheritance>(m_diagramElements, Tr::tr("Inheritance"), Tr::tr("Inheritances"));
     visitDRelation(inheritance);
 }
 
 void PropertiesView::MView::visitDDependency(const DDependency *dependency)
 {
-    setTitle<DDependency>(m_diagramElements, tr("Dependency"), tr("Dependencies"));
+    setTitle<DDependency>(m_diagramElements, Tr::tr("Dependency"), Tr::tr("Dependencies"));
     visitDRelation(dependency);
 }
 
 void PropertiesView::MView::visitDAssociation(const DAssociation *association)
 {
-    setTitle<DAssociation>(m_diagramElements, tr("Association"), tr("Associations"));
+    setTitle<DAssociation>(m_diagramElements, Tr::tr("Association"), Tr::tr("Associations"));
     visitDRelation(association);
 }
 
 void PropertiesView::MView::visitDConnection(const DConnection *connection)
 {
-    setTitle<DConnection>(m_diagramElements, tr("Connection"), tr("Connections"));
+    setTitle<DConnection>(m_diagramElements, Tr::tr("Connection"), Tr::tr("Connections"));
     visitDRelation(connection);
 }
 
 void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
 {
-    setTitle<DAnnotation>(m_diagramElements, tr("Annotation"), tr("Annotations"));
+    setTitle<DAnnotation>(m_diagramElements, Tr::tr("Annotation"), Tr::tr("Annotations"));
     visitDElement(annotation);
     if (!m_annotationAutoWidthCheckbox) {
-        m_annotationAutoWidthCheckbox = new QCheckBox(tr("Auto width"), m_topWidget);
+        m_annotationAutoWidthCheckbox = new QCheckBox(Tr::tr("Auto width"), m_topWidget);
         addRow(QString(), m_annotationAutoWidthCheckbox, "auto width");
         connect(m_annotationAutoWidthCheckbox, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onAutoWidthChanged);
@@ -1115,10 +1117,10 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
     }
     if (!m_annotationVisualRoleSelector) {
         m_annotationVisualRoleSelector = new QComboBox(m_topWidget);
-        m_annotationVisualRoleSelector->addItems(QStringList({ tr("Normal"), tr("Title"),
-                                                               tr("Subtitle"), tr("Emphasized"),
-                                                               tr("Soften"), tr("Footnote") }));
-        addRow(tr("Role:"), m_annotationVisualRoleSelector, "visual role");
+        m_annotationVisualRoleSelector->addItems(QStringList({ Tr::tr("Normal"), Tr::tr("Title"),
+                                                               Tr::tr("Subtitle"), Tr::tr("Emphasized"),
+                                                               Tr::tr("Soften"), Tr::tr("Footnote") }));
+        addRow(Tr::tr("Role:"), m_annotationVisualRoleSelector, "visual role");
         connect(m_annotationVisualRoleSelector, &QComboBox::activated,
                 this, &PropertiesView::MView::onAnnotationVisualRoleChanged);
     }
@@ -1133,13 +1135,13 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
 
 void PropertiesView::MView::visitDBoundary(const DBoundary *boundary)
 {
-    setTitle<DBoundary>(m_diagramElements, tr("Boundary"), tr("Boundaries"));
+    setTitle<DBoundary>(m_diagramElements, Tr::tr("Boundary"), Tr::tr("Boundaries"));
     visitDElement(boundary);
 }
 
 void PropertiesView::MView::visitDSwimlane(const DSwimlane *swimlane)
 {
-    setTitle<DSwimlane>(m_diagramElements, tr("Swimlane"), tr("Swimlanes"));
+    setTitle<DSwimlane>(m_diagramElements, Tr::tr("Swimlane"), Tr::tr("Swimlanes"));
     visitDElement(swimlane);
 }
 
@@ -1173,7 +1175,7 @@ void PropertiesView::MView::onClassMembersStatusChanged(bool valid)
     if (valid)
         m_classMembersStatusLabel->clear();
     else
-        m_classMembersStatusLabel->setText("<font color=red>" + tr("Invalid syntax.") + "</font>");
+        m_classMembersStatusLabel->setText("<font color=red>" + Tr::tr("Invalid syntax.") + "</font>");
 }
 
 void PropertiesView::MView::onParseClassMembers()
@@ -1181,11 +1183,11 @@ void PropertiesView::MView::onParseClassMembers()
     m_classMembersEdit->reparse();
 }
 
-void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMembers)
+void PropertiesView::MView::onClassMembersChanged(const QList<MClassMember> &classMembers)
 {
     QSet<Uid> showMembers;
     if (!classMembers.isEmpty()) {
-        foreach (MElement *element, m_modelElements) {
+        for (MElement *element : std::as_const(m_modelElements)) {
             MClass *klass = dynamic_cast<MClass *>(element);
             if (klass && klass->members().isEmpty())
                 showMembers.insert(klass->uid());
@@ -1193,7 +1195,7 @@ void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMemb
     }
     assignModelElement<MClass, QList<MClassMember>>(m_modelElements, SelectionSingle, classMembers,
                                                      &MClass::members, &MClass::setMembers);
-    foreach (DElement *element, m_diagramElements) {
+    for (DElement *element : std::as_const(m_diagramElements)) {
         if (showMembers.contains(element->modelUid())) {
             assignModelElement<DClass, bool>(QList<DElement *>({element}), SelectionSingle, true,
                                              &DClass::showAllMembers, &DClass::setShowAllMembers);
@@ -1476,7 +1478,7 @@ void PropertiesView::MView::setTitle(const QList<V *> &elements,
         else
             m_propertiesTitle = pluralTitle;
     } else {
-        m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
+        m_propertiesTitle = Tr::tr("Multi-Selection");
     }
 }
 
@@ -1503,7 +1505,7 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
             m_propertiesTitle = pluralTitle;
         }
     } else {
-        m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
+        m_propertiesTitle = Tr::tr("Multi-Selection");
     }
 }
 
@@ -1531,7 +1533,7 @@ void PropertiesView::MView::setTitle(const MConnection *connection, const QList<
             m_propertiesTitle = pluralTitle;
         }
     } else {
-        m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
+        m_propertiesTitle = Tr::tr("Multi-Selection");
     }
 }
 
@@ -1571,7 +1573,8 @@ void PropertiesView::MView::setEndBName(const QString &endBName)
 QList<QString> PropertiesView::MView::splitTemplateParameters(const QString &templateParameters)
 {
     QList<QString> templateParametersList;
-    foreach (const QString &parameter, templateParameters.split(QLatin1Char(','))) {
+    const QStringList parameters = templateParameters.split(QLatin1Char(','));
+    for (const QString &parameter : parameters) {
         const QString &p = parameter.trimmed();
         if (!p.isEmpty())
             templateParametersList.append(p);
@@ -1583,7 +1586,7 @@ QString PropertiesView::MView::formatTemplateParameters(const QList<QString> &te
 {
     QString templateParamters;
     bool first = true;
-    foreach (const QString &parameter, templateParametersList) {
+    for (const QString &parameter : templateParametersList) {
         if (!first)
             templateParamters += ", ";
         templateParamters += parameter;
@@ -1596,7 +1599,7 @@ template<class T, class V>
 QList<T *> PropertiesView::MView::filter(const QList<V *> &elements)
 {
     QList<T *> filtered;
-    foreach (V *element, elements) {
+    for (V *element : elements) {
         auto t = dynamic_cast<T *>(element);
         if (t)
             filtered.append(t);
@@ -1607,11 +1610,11 @@ QList<T *> PropertiesView::MView::filter(const QList<V *> &elements)
 template<class T, class V, class BASE>
 bool PropertiesView::MView::haveSameValue(const QList<BASE *> &baseElements, V (T::*getter)() const, V *value)
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     QMT_CHECK(!elements.isEmpty());
     V candidate = V(); // avoid warning of reading uninitialized variable
     bool haveCandidate = false;
-    foreach (T *element, elements) {
+    for (T *element : elements) {
         if (!haveCandidate) {
             candidate = ((*element).*getter)();
             haveCandidate = true;
@@ -1632,9 +1635,9 @@ template<class T, class V, class BASE>
 void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
                                                const V &value, V (T::*getter)() const, void (T::*setter)(const V &))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             if (value != ((*element).*getter)()) {
                 m_propertiesView->beginUpdate(element);
                 ((*element).*setter)(value);
@@ -1648,9 +1651,9 @@ template<class T, class V, class BASE>
 void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
                                                const V &value, V (T::*getter)() const, void (T::*setter)(V))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             if (value != ((*element).*getter)()) {
                 m_propertiesView->beginUpdate(element);
                 ((*element).*setter)(value);
@@ -1666,9 +1669,9 @@ void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &base
                                                        void (T::*setter)(const E &),
                                                        V (E::*vGetter)() const, void (E::*vSetter)(const V &))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             E embedded = ((*element).*getter)();
             if (value != (embedded.*vGetter)()) {
                 m_propertiesView->beginUpdate(element);
@@ -1686,9 +1689,9 @@ void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &base
                                                        void (T::*setter)(const E &),
                                                        V (E::*vGetter)() const, void (E::*vSetter)(V))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             E embedded = ((*element).*getter)();
             if (value != (embedded.*vGetter)()) {
                 m_propertiesView->beginUpdate(element);

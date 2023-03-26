@@ -1,14 +1,15 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "mcutargetfactory.h"
 #include "mcuhelpers.h"
 #include "mcupackage.h"
 #include "mcusupport_global.h"
 #include "mcusupportplugin.h"
+#include "mcusupporttr.h"
 #include "mcusupportversiondetection.h"
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
+#include "mcutargetfactory.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -178,24 +179,24 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
     QString errorMessage;
 
     if (toolchain.id.isEmpty()) {
-        errorMessage = McuPackage::tr("the toolchain.id JSON entry is empty");
+        errorMessage = Tr::tr("the toolchain.id JSON entry is empty");
     } else if (!toolchainTypeMapping.contains(toolchain.id)) {
-        errorMessage = McuPackage::tr("the given toolchain \"%1\" is not supported").arg(toolchain.id);
+        errorMessage = Tr::tr("the given toolchain \"%1\" is not supported").arg(toolchain.id);
     } else if (toolchain.compiler.cmakeVar.isEmpty()) {
-        errorMessage = McuPackage::tr("the toolchain.compiler.cmakeVar JSON entry is empty");
+        errorMessage = Tr::tr("the toolchain.compiler.cmakeVar JSON entry is empty");
     } else if (toolchain.file.cmakeVar.isEmpty()) {
-        errorMessage = McuPackage::tr("the toolchain.file.cmakeVar JSON entry is empty");
+        errorMessage = Tr::tr("the toolchain.file.cmakeVar JSON entry is empty");
     }
 
     if (!errorMessage.isEmpty()) {
         toolchainType = McuToolChainPackage::ToolChainType::Unsupported;
 
         if (toolchain.id.isEmpty()) {
-            printMessage(McuPackage::tr("Toolchain is invalid because %2 in file \"%3\".")
+            printMessage(Tr::tr("Toolchain is invalid because %2 in file \"%3\".")
                          .arg(errorMessage).arg(sourceFile.toUserOutput()),
                          true);
         } else {
-            printMessage(McuPackage::tr("Toolchain description for \"%1\" is invalid because %2 in file \"%3\".")
+            printMessage(Tr::tr("Toolchain description for \"%1\" is invalid because %2 in file \"%3\".")
                          .arg(toolchain.id).arg(errorMessage).arg(sourceFile.toUserOutput()),
                          true);
         }

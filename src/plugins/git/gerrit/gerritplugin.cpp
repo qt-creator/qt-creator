@@ -1,47 +1,36 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gerritplugin.h"
-#include "gerritparameters.h"
+
 #include "gerritdialog.h"
 #include "gerritmodel.h"
 #include "gerritoptionspage.h"
+#include "gerritparameters.h"
 #include "gerritpushdialog.h"
 
 #include "../gitclient.h"
 #include "../gitplugin.h"
 #include "../gittr.h"
 
-#include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsbaseeditor.h>
-
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/vcsmanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/locator/commandlocator.h>
-#include <coreplugin/messagebox.h>
+#include <coreplugin/progressmanager/processprogress.h>
+#include <coreplugin/vcsmanager.h>
+
+#include <utils/environment.h>
+#include <utils/processinterface.h>
+#include <utils/qtcprocess.h>
 
 #include <vcsbase/vcsoutputwindow.h>
 
-#include <utils/environment.h>
-#include <utils/qtcprocess.h>
-
-#include <QDebug>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QAction>
-#include <QFileDialog>
 #include <QMessageBox>
-#include <QDir>
 #include <QMap>
-#include <QFutureWatcher>
 
 using namespace Core;
 using namespace Utils;
@@ -75,36 +64,21 @@ public:
                  const FilePath &repository, const FilePath &git,
                  const GerritServer &server,
                  FetchMode fm, QObject *parent = nullptr);
-    ~FetchContext() override;
     void start();
 
 private:
-    enum State
-    {
-        FetchState,
-        DoneState,
-        ErrorState
-    };
-
     void processDone();
-    void processReadyReadStandardError();
-    void processReadyReadStandardOutput();
 
-    void handleError(const QString &message);
     void show();
     void cherryPick();
     void checkout();
-    void terminate();
 
     const QSharedPointer<GerritChange> m_change;
     const FilePath m_repository;
     const FetchMode m_fetchMode;
     const Utils::FilePath m_git;
     const GerritServer m_server;
-    State m_state;
     QtcProcess m_process;
-    QFutureInterface<void> m_progress;
-    QFutureWatcher<void> m_watcher;
 };
 
 FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
@@ -117,94 +91,52 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_fetchMode(fm)
     , m_git(git)
     , m_server(server)
-    , m_state(FetchState)
 {
+    m_process.setUseCtrlCStub(true);
     connect(&m_process, &QtcProcess::done, this, &FetchContext::processDone);
-    connect(&m_process, &QtcProcess::readyReadStandardError,
-            this, &FetchContext::processReadyReadStandardError);
-    connect(&m_process, &QtcProcess::readyReadStandardOutput,
-            this, &FetchContext::processReadyReadStandardOutput);
-    connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &FetchContext::terminate);
-    m_watcher.setFuture(m_progress.future());
+    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardError()));
+    });
+    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
+    });
     m_process.setWorkingDirectory(repository);
     m_process.setEnvironment(GitClient::instance()->processEnvironment());
 }
 
-FetchContext::~FetchContext()
-{
-    if (m_progress.isRunning())
-        m_progress.reportFinished();
-    m_process.disconnect(this);
-    terminate();
-}
-
 void FetchContext::start()
 {
-    m_progress.setProgressRange(0, 2);
-    FutureProgress *fp = ProgressManager::addTask(m_progress.future(), Git::Tr::tr("Fetching from Gerrit"),
-                                           "gerrit-fetch");
-    fp->setKeepOnFinish(FutureProgress::HideOnFinish);
-    m_progress.reportStarted();
     // Order: initialize future before starting the process in case error handling is invoked.
-    const QStringList args = m_change->gitFetchArguments(m_server);
-    VcsBase::VcsOutputWindow::appendCommand(m_repository, {m_git, args});
-    m_process.setCommand({m_git, args});
+    const CommandLine commandLine{m_git, m_change->gitFetchArguments(m_server)};
+    VcsBase::VcsOutputWindow::appendCommand(m_repository, commandLine);
+    m_process.setCommand(commandLine);
+    new ProcessProgress(&m_process);
     m_process.start();
 }
 
 void FetchContext::processDone()
 {
+    deleteLater();
+
     if (m_process.result() != ProcessResult::FinishedWithSuccess) {
-        handleError(m_process.exitMessage());
+        if (!m_process.resultData().m_canceledByUser)
+            VcsBase::VcsOutputWindow::appendError(m_process.exitMessage());
         return;
     }
-    if (m_state != FetchState)
-        return;
 
-    m_progress.setProgressValue(m_progress.progressValue() + 1);
     if (m_fetchMode == FetchDisplay)
         show();
     else if (m_fetchMode == FetchCherryPick)
         cherryPick();
     else if (m_fetchMode == FetchCheckout)
         checkout();
-
-    m_progress.reportFinished();
-    m_state = DoneState;
-    deleteLater();
-}
-
-void FetchContext::processReadyReadStandardError()
-{
-    // Note: fetch displays progress on stderr.
-    const QString errorOutput = QString::fromLocal8Bit(m_process.readAllStandardError());
-    if (m_state == FetchState)
-        VcsBase::VcsOutputWindow::append(errorOutput);
-    else
-        VcsBase::VcsOutputWindow::appendError(errorOutput);
-}
-
-void FetchContext::processReadyReadStandardOutput()
-{
-    const QByteArray output = m_process.readAllStandardOutput();
-    VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(output));
-}
-
-void FetchContext::handleError(const QString &e)
-{
-    m_state = ErrorState;
-    if (!m_progress.isCanceled())
-        VcsBase::VcsOutputWindow::appendError(e);
-    m_progress.reportCanceled();
-    m_progress.reportFinished();
-    deleteLater();
 }
 
 void FetchContext::show()
 {
     const QString title = QString::number(m_change->number) + '/'
             + QString::number(m_change->currentPatchSet.patchSetNumber);
-    GitClient::instance()->show(m_repository.toString(), "FETCH_HEAD", title);
+    GitClient::instance()->show(m_repository, "FETCH_HEAD", title);
 }
 
 void FetchContext::cherryPick()
@@ -218,12 +150,6 @@ void FetchContext::cherryPick()
 void FetchContext::checkout()
 {
     GitClient::instance()->checkout(m_repository, "FETCH_HEAD");
-}
-
-void FetchContext::terminate()
-{
-    m_process.stop();
-    m_process.waitForFinished();
 }
 
 GerritPlugin::GerritPlugin(QObject *parent)
@@ -250,7 +176,7 @@ void GerritPlugin::initialize(ActionContainer *ac)
 
     m_pushToGerritCommand =
         ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH);
-    connect(pushAction, &QAction::triggered, this, [this]() { push(); });
+    connect(pushAction, &QAction::triggered, this, [this] { push(); });
     ac->addAction(m_pushToGerritCommand);
 
     auto options = new GerritOptionsPage(m_parameters, this);

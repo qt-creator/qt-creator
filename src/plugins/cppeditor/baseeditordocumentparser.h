@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -24,7 +24,7 @@ class CPPEDITOR_EXPORT BaseEditorDocumentParser : public QObject
 
 public:
     using Ptr = QSharedPointer<BaseEditorDocumentParser>;
-    static Ptr get(const QString &filePath);
+    static Ptr get(const Utils::FilePath &filePath);
 
     struct Configuration {
         bool usePrecompiledHeaders = false;
@@ -58,10 +58,10 @@ public:
     };
 
 public:
-    BaseEditorDocumentParser(const QString &filePath);
+    BaseEditorDocumentParser(const Utils::FilePath &filePath);
     ~BaseEditorDocumentParser() override;
 
-    QString filePath() const;
+    const Utils::FilePath &filePath() const;
     Configuration configuration() const;
     void setConfiguration(const Configuration &configuration);
 
@@ -94,10 +94,10 @@ private:
     virtual void updateImpl(const QFutureInterface<void> &future,
                             const UpdateParams &updateParams) = 0;
 
-    const QString m_filePath;
+    const Utils::FilePath m_filePath;
     Configuration m_configuration;
     State m_state;
     mutable QMutex m_updateIsRunning;
 };
 
-} // namespace CppEditor
+} // CppEditor

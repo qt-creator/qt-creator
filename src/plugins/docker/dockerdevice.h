@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -21,7 +21,8 @@ public:
     {
         return imageId == other.imageId && repo == other.repo && tag == other.tag
                && useLocalUidGid == other.useLocalUidGid && mounts == other.mounts
-               && keepEntryPoint == other.keepEntryPoint;
+               && keepEntryPoint == other.keepEntryPoint && enableLldbFlags == other.enableLldbFlags
+               && clangdExecutable == other.clangdExecutable;
     }
 
     bool operator!=(const DockerDeviceData &other) const { return !(*this == other); }
@@ -38,6 +39,8 @@ public:
         return repo + ':' + tag;
     }
 
+    QString repoAndTagEncoded() const { return repoAndTag().replace(':', '.'); }
+
     QString imageId;
     QString repo;
     QString tag;
@@ -45,6 +48,8 @@ public:
     bool useLocalUidGid = true;
     QStringList mounts = {Core::DocumentManager::projectsDirectory().toString()};
     bool keepEntryPoint = false;
+    bool enableLldbFlags = false;
+    Utils::FilePath clangdExecutable;
 };
 
 class DockerDevice : public ProjectExplorer::IDevice
@@ -74,16 +79,14 @@ public:
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return false; }
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     bool usableAsBuildDevice() const override;
 
-    Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
-
     Utils::FilePath rootPath() const override;
+    Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool ensureReachable(const Utils::FilePath &other) const override;
+    Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
 
     Utils::Environment systemEnvironment() const override;
 
@@ -96,6 +99,7 @@ public:
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
+    std::optional<Utils::FilePath> clangdExecutable() const override;
 
 protected:
     void fromMap(const QVariantMap &map) final;

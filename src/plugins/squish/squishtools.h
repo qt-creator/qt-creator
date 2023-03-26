@@ -1,13 +1,14 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "squishperspective.h"
+#include "squishrunnerprocess.h"
+#include "squishserverprocess.h"
 #include "suiteconf.h"
 
 #include <utils/environment.h>
-#include <utils/link.h>
 #include <utils/qtcprocess.h>
 
 #include <QObject>
@@ -47,20 +48,6 @@ public:
         RunnerStopped
     };
 
-    enum class RunnerState {
-        None,
-        Starting,
-        Running,
-        RunRequested,
-        Interrupted,
-        InterruptRequested,
-        Canceling,
-        Canceled,
-        CancelRequested,
-        CancelRequestedWhileInterrupted,
-        Finished
-    };
-
     using QueryCallback = std::function<void(const QString &, const QString &)>;
 
     State state() const { return m_state; }
@@ -84,7 +71,6 @@ signals:
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
     void localsUpdated(const QString &output);
-    void symbolUpdated(const QString &output);
     void shutdownFinished();
 
 private:
@@ -102,9 +88,16 @@ private:
 
     enum RunnerQuery { ServerInfo, GetGlobalScriptDirs, SetGlobalScriptDirs };
 
-    void setState(State state);
-    void handleSetStateStartAppRunner();
-    void handleSetStateQueryRunner();
+    void logAndChangeRunnerState(RunnerState to);
+    void logAndChangeToolsState(SquishTools::State to);
+    void onServerStateChanged(SquishProcessState state);
+    void onServerPortRetrieved();
+    void onServerStopped();
+    void onServerStartFailed();
+    void onServerStopFailed();
+    void onRunnerStateChanged(SquishProcessState state);
+    void onRunnerStopped();
+    void onRunnerError(SquishRunnerProcess::RunnerError error);
     void setIdle();
     void startSquishServer(Request request);
     void stopSquishServer();
@@ -114,15 +107,10 @@ private:
     void queryServer(RunnerQuery query);
     void executeRunnerQuery();
     static Utils::Environment squishEnvironment();
-    void onServerFinished();
+    void handleQueryDone(const QString &stdOut, const QString &error);
     void onRunnerFinished();
     void onRecorderFinished();
-    void onServerOutput();
-    void onServerErrorOutput();
     void onRunnerOutput();                              // runner's results file
-    void onRunnerErrorOutput();                         // runner's error stream
-    void onRunnerStdOutput(const QString &line);        // runner's output stream
-    Utils::Links setBreakpoints();
     void handlePrompt(const QString &fileName = {}, int line = -1, int column = -1);
     void onResultsDirChanged(const QString &filePath);
     static void logrotateTestResults();
@@ -130,7 +118,7 @@ private:
     void restoreQtCreatorWindows();
     void updateLocationMarker(const Utils::FilePath &file, int line);
     void clearLocationMarker();
-    void onRunnerRunRequested(SquishPerspective::StepMode step);
+    void onRunnerRunRequested(StepMode step);
     void interruptRunner();
     void terminateRunner();
     bool isValidToStartRunner();
@@ -139,13 +127,16 @@ private:
     QStringList runnerArgumentsFromSettings();
     bool setupRunnerPath();
     void setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine);
+    void setupRunnerForQuery();
+    void setupRunnerForRun();
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
-    Utils::QtcProcess m_serverProcess;
-    Utils::QtcProcess m_runnerProcess;
-    Utils::QtcProcess m_recorderProcess;
-    int m_serverPort = -1;
+    SquishServerProcess m_serverProcess;
+
+    SquishRunnerProcess *m_primaryRunner = nullptr;
+    SquishRunnerProcess *m_secondaryRunner = nullptr;
+
     QString m_serverHost;
     Request m_request = None;
     State m_state = Idle;
@@ -155,7 +146,6 @@ private:
     SuiteConf m_suiteConf; // holds information of current test suite e.g. while recording
     Utils::FilePaths m_reportFiles;
     Utils::FilePath m_currentResultsDirectory;
-    QString m_fullRunnerOutput; // used when querying the server
     QString m_queryParameter;
     Utils::FilePath m_currentTestCasePath;
     Utils::FilePath m_currentRecorderSnippetFile;
@@ -167,12 +157,10 @@ private:
     class SquishLocationMark *m_locationMarker = nullptr;
     QTimer *m_requestVarsTimer = nullptr;
     qint64 m_readResultsCount;
-    int m_autId = 0;
     QueryCallback m_queryCallback;
     RunnerQuery m_query = ServerInfo;
     bool m_shutdownInitiated = false;
     bool m_closeRunnerOnEndRecord = false;
-    bool m_licenseIssues = false;
 };
 
 } // namespace Internal

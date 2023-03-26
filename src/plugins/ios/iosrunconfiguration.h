@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -14,8 +14,7 @@
 #include <QComboBox>
 #include <QStandardItemModel>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosRunConfiguration;
 
@@ -28,7 +27,7 @@ public:
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);
@@ -61,7 +60,7 @@ private:
 
 class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 {
-    Q_OBJECT
+    Q_OBJECT // FIXME: Used in  IosDsymBuildStep
 
 public:
     IosRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
@@ -84,5 +83,4 @@ public:
     IosRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

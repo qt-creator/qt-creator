@@ -1,11 +1,12 @@
 // Copyright (C) 2016 Nicolas Arnaud-Cormos
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "macrooptionswidget.h"
 
-#include "macrosconstants.h"
-#include "macromanager.h"
 #include "macro.h"
+#include "macromanager.h"
+#include "macrosconstants.h"
+#include "macrostr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -40,23 +41,23 @@ MacroOptionsWidget::MacroOptionsWidget()
     m_treeWidget->header()->setSortIndicatorShown(true);
     m_treeWidget->header()->setStretchLastSection(true);
     m_treeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
-    m_treeWidget->setHeaderLabels({tr("Name"), tr("Description)"), tr("Shortcut")});
+    m_treeWidget->setHeaderLabels({Tr::tr("Name"), Tr::tr("Description"), Tr::tr("Shortcut")});
 
     m_description = new QLineEdit;
 
-    m_removeButton = new QPushButton(tr("Remove"));
+    m_removeButton = new QPushButton(Tr::tr("Remove"));
 
-    m_macroGroup = new QGroupBox(tr("Macro"), this);
+    m_macroGroup = new QGroupBox(Tr::tr("Macro"), this);
 
     using namespace Utils::Layouting;
 
     Row {
-        tr("Description:"), m_description
+        Tr::tr("Description:"), m_description
     }.attachTo(m_macroGroup);
 
     Column {
         Group {
-            title(tr("Preferences")),
+            title(Tr::tr("Preferences")),
             Row {
                 m_treeWidget,
                 Column { m_removeButton, st },

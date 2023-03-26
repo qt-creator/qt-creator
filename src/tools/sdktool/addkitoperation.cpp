@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addkitoperation.h"
 
@@ -686,7 +686,7 @@ QVariantMap AddKitData::addKit(const QVariantMap &map,
         data << KeyValuePair({kit, DATA, BUILDDEVICE_ID}, QVariant(m_buildDevice));
     if (!m_sysRoot.isNull())
         data << KeyValuePair({kit, DATA, SYSROOT},
-                             Utils::FilePath::fromUserInput(m_sysRoot).toVariant());
+                             Utils::FilePath::fromUserInput(m_sysRoot).toSettings());
     for (auto i = m_tcs.constBegin(); i != m_tcs.constEnd(); ++i)
         data << KeyValuePair({kit, DATA, TOOLCHAIN, i.key()}, QVariant(i.value()));
     if (!qtId.isNull())

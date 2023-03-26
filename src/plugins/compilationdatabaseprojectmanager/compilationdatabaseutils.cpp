@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "compilationdatabaseutils.h"
 
@@ -182,7 +182,7 @@ void filteredFlags(const QString &fileName,
 
         if (flag.startsWith("--sysroot=")) {
             if (sysRoot.isEmpty())
-                sysRoot = FilePath::fromString(updatedPathFlag(flag.mid(10), workingDir));
+                sysRoot = FilePath::fromUserInput(updatedPathFlag(flag.mid(10), workingDir));
             continue;
         }
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "presetsmacros.h"
 #include "presetsparser.h"
@@ -7,6 +7,7 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/osspecificaspects.h>
 
 namespace CMakeProjectManager::Internal::CMakePresets::Macros {
 
@@ -38,10 +39,13 @@ static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${fileDir}", preset.fileDir.path());
     if (preset.generator)
         value.replace("${generator}", preset.generator.value());
 
     value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
+    value.replace("${pathListSep}",
+                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
 
 static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
@@ -51,10 +55,13 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${dollar}", "$");
 
     value.replace("${sourceDir}", sourceDirectory.toString());
+    value.replace("${fileDir}", preset.fileDir.path());
     value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
+    value.replace("${pathListSep}",
+                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
 
 static QString expandMacroEnv(const QString &macroPrefix,
@@ -144,6 +151,9 @@ void expand(const PresetType &preset,
             return env.value(macroName);
         });
 
+        // Make sure to expand the CMake macros also for environment variables
+        expandAllButEnv(preset, sourceDirectory, value);
+
         if (append)
             env.appendOrSet(key, value, sep);
         else
@@ -182,6 +192,9 @@ void expand(const PresetType &preset,
             return QString("${%1}").arg(macroName);
         });
 
+        // Make sure to expand the CMake macros also for environment variables
+        expandAllButEnv(preset, sourceDirectory, value);
+
         envItems.emplace_back(Utils::EnvironmentItem(key, value, operation));
     }
 }
@@ -202,6 +215,9 @@ void expand(const PresetType &preset,
     value = expandMacroEnv("penv", value, [env](const QString &macroName) {
         return env.value(macroName);
     });
+
+    // Make sure to expand the CMake macros also for environment variables
+    expandAllButEnv(preset, sourceDirectory, value);
 }
 
 void updateToolchainFile(

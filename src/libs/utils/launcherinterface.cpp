@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "launcherinterface.h"
 
@@ -7,8 +7,8 @@
 #include "launchersocket.h"
 #include "qtcassert.h"
 #include "temporarydirectory.h"
+#include "utilstr.h"
 
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QLocalServer>
@@ -91,8 +91,7 @@ void LauncherInterfacePrivate::doStart()
     }
     m_process = new LauncherProcess(this);
     connect(m_process, &QProcess::errorOccurred, this, &LauncherInterfacePrivate::handleProcessError);
-    connect(m_process,
-            static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(m_process, &QProcess::finished,
             this, &LauncherInterfacePrivate::handleProcessFinished);
     connect(m_process, &QProcess::readyReadStandardError,
             this, &LauncherInterfacePrivate::handleProcessStderr);
@@ -124,16 +123,14 @@ void LauncherInterfacePrivate::handleProcessError()
     if (m_process->error() == QProcess::FailedToStart) {
         const QString launcherPathForUser
                 = QDir::toNativeSeparators(QDir::cleanPath(m_process->program()));
-        emit errorOccurred(QCoreApplication::translate("Utils::LauncherSocket",
-                           "Failed to start process launcher at \"%1\": %2")
+        emit errorOccurred(Tr::tr("Failed to start process launcher at \"%1\": %2")
                            .arg(launcherPathForUser, m_process->errorString()));
     }
 }
 
 void LauncherInterfacePrivate::handleProcessFinished()
 {
-    emit errorOccurred(QCoreApplication::translate("Utils::LauncherSocket",
-                       "Process launcher closed unexpectedly: %1")
+    emit errorOccurred(Tr::tr("Process launcher closed unexpectedly: %1")
                        .arg(m_process->errorString()));
 }
 
@@ -161,7 +158,7 @@ LauncherInterface::LauncherInterface()
     m_private->setPathToLauncher(s_pathToLauncher);
     const FilePath launcherFilePath = FilePath::fromString(m_private->launcherFilePath())
             .cleanPath().withExecutableSuffix();
-    auto launcherIsNotExecutable = [&launcherFilePath]() {
+    auto launcherIsNotExecutable = [&launcherFilePath] {
         qWarning() << "The Creator's process launcher"
                    << launcherFilePath << "is not executable.";
     };

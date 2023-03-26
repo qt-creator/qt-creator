@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gtestparser.h"
 
@@ -12,6 +12,8 @@
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -45,14 +47,12 @@ static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
-        if (include.endsWith(gtestH))
+    for (const FilePath &include : snapshot.allIncludesForDocument(doc->filePath())) {
+        if (include.path().endsWith(gtestH))
             return true;
     }
 
-    return CppParser::precompiledHeaderContains(snapshot,
-                                                Utils::FilePath::fromString(doc->fileName()),
-                                                gtestH);
+    return CppParser::precompiledHeaderContains(snapshot, doc->filePath(), gtestH);
 }
 
 static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
@@ -71,7 +71,7 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
 }
 
 bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
-                                  const Utils::FilePath &fileName)
+                                  const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull() || !includesGTest(doc, m_cppSnapshot))
@@ -84,7 +84,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureIn
             return false;
     }
 
-    const QString &filePath = doc->fileName();
+    const FilePath filePath = doc->filePath();
     const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();
@@ -93,10 +93,10 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureIn
     visitor.accept(ast);
 
     const QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
-    Utils::FilePath proFile;
+    FilePath proFile;
     const QList<CppEditor::ProjectPart::ConstPtr> &ppList = modelManager->projectPart(filePath);
     if (!ppList.isEmpty())
-        proFile = Utils::FilePath::fromString(ppList.first()->projectFile);
+        proFile = FilePath::fromString(ppList.first()->projectFile);
     else
         return false; // happens if shutting down while parsing
 

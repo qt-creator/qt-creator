@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Alexis Jeandet.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -28,7 +28,7 @@ public:
     void apply();
 
 private:
-    void addMesonTool(const MesonTools::Tool_t &);
+    void addMesonToolHelper(const MesonTools::Tool_t &);
     QString uniqueName(const QString &baseName);
     Utils::TreeItem *autoDetectedGroup() const;
     Utils::TreeItem *manualGroup() const;

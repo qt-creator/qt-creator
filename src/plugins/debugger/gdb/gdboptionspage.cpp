@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerconstants.h>
@@ -36,6 +36,12 @@ public:
             using namespace Layouting;
             DebuggerSettings &s = *debuggerSettings();
 
+            auto labelDangerous = new QLabel("<html><head/><body><i>" +
+                Tr::tr("The options below give access to advanced<br>"
+                       "or experimental functions of GDB.<p>"
+                       "Enabling them may negatively impact<br>"
+                       "your debugging experience.") + "</i></body></html>");
+
             Group general {
                 title(Tr::tr("General")),
                 Column {
@@ -50,51 +56,8 @@ public:
                     s.usePseudoTracepoints,
                     s.useIndexCache,
                     st
-                 }
+                }
             };
-
-            Column commands {
-                Group {
-                    title(Tr::tr("Additional Startup Commands")),
-                    Column { s.gdbStartupCommands }
-                },
-                Group {
-                    title(Tr::tr("Additional Attach Commands")),
-                    Column { s.gdbPostAttachCommands },
-                },
-                st
-            };
-
-            Row { general, commands }.attachTo(w);
-        });
-    }
-};
-
-/////////////////////////////////////////////////////////////////////////
-//
-// GdbOptionsPage2 - dangerous options
-//
-/////////////////////////////////////////////////////////////////////////
-
-// The "Dangerous" options.
-class GdbOptionsPage2 : public Core::IOptionsPage
-{
-public:
-    GdbOptionsPage2()
-    {
-        setId("M.Gdb2");
-        setDisplayName(Tr::tr("GDB Extended"));
-        setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
-        setSettings(&debuggerSettings()->page3);
-
-        setLayouter([](QWidget *w) {
-            auto labelDangerous = new QLabel("<html><head/><body><i>" +
-                Tr::tr("The options below give access to advanced "
-                "or experimental functions of GDB.<br>Enabling them may negatively "
-                "impact your debugging experience.") + "</i></body></html>");
-
-            using namespace Layouting;
-            DebuggerSettings &s = *debuggerSettings();
 
             Group extended {
                 title(Tr::tr("Extended")),
@@ -107,10 +70,21 @@ public:
                     s.breakOnAbort,
                     s.enableReverseDebugging,
                     s.multiInferior,
+                    st
                 }
             };
 
-            Column { extended, st }.attachTo(w);
+            Group startup {
+                title(Tr::tr("Additional Startup Commands")),
+                Column { s.gdbStartupCommands }
+            };
+
+            Group attach {
+                title(Tr::tr("Additional Attach Commands")),
+                Column { s.gdbPostAttachCommands },
+            };
+
+            Grid { general, extended, br, startup, attach }.attachTo(w);
         });
     }
 };
@@ -120,7 +94,6 @@ public:
 void addGdbOptionPages(QList<IOptionsPage *> *opts)
 {
     opts->push_back(new GdbOptionsPage);
-    opts->push_back(new GdbOptionsPage2);
 }
 
 } // Debugger::Internal

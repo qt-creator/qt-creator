@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 from utils import DisplayFormat
 from dumper import Children, SubItem, DumperBase
@@ -204,11 +204,17 @@ def qdump__std__list(d, value):
 
 
 def qdump__std__list__QNX(d, value):
-    try:
-        _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+    if d.isDebugBuild is None:
+        try:
+            _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+            d.isDebugBuild = True
+        except Exception:
+            d.isDebugBuild = False
+    if d.isDebugBuild:
         (proxy, head, size) = value.split("ppp")
-    except Exception:
+    else:
         (head, size) = value.split("pp")
+
     d.putItemCount(size, 1000)
 
     if d.isExpanded():
@@ -271,10 +277,15 @@ def qdump__std__map(d, value):
 
 
 def qdump_std__map__helper(d, value):
-    try:
-        _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+    if d.isDebugBuild is None:
+        try:
+            _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+            d.isDebugBuild = True
+        except Exception:
+            d.isDebugBuild = False
+    if d.isDebugBuild:
         (proxy, head, size) = value.split("ppp")
-    except Exception:
+    else:
         (head, size) = value.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
@@ -450,10 +461,15 @@ def qdump__std__set(d, value):
 
 
 def qdump__std__set__QNX(d, value):
-    try:
-        _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+    if d.isDebugBuild is None:
+        try:
+            _ = value["_Mypair"]["_Myval2"]["_Myval2"]["_Myproxy"]
+            d.isDebugBuild = True
+        except Exception:
+            d.isDebugBuild = False
+    if d.isDebugBuild:
         (proxy, head, size) = value.split("ppp")
-    except Exception:
+    else:
         (head, size) = value.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
@@ -576,24 +592,28 @@ def qdumpHelper__std__string__QNX(d, value, charType, format):
 
 
 def qdumpHelper__std__string__MSVC(d, value, charType, format):
-    try:
-        _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
-        (proxy, buffer, size, alloc) = value.split("p16spp")
-    except Exception:
-        proxy = None
+    if d.isDebugBuild is None:
+        try:
+            _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+            d.isDebugBuild = True
+        except Exception:
+            d.isDebugBuild = False
+    if d.isDebugBuild:
+        (_, buffer, size, alloc) = value.split("p16spp")
+    else:
         (buffer, size, alloc) = value.split("16spp")
     d.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
     _BUF_SIZE = int(16 / charType.size())
     if _BUF_SIZE <= alloc:
-        if proxy is None:
-            data = value.extractPointer()
-        else:
+        if d.isDebugBuild:
             (proxy, data) = value.split("pp")
-    else:
-        if proxy is None:
-            data = value.address()
         else:
+            data = value.extractPointer()
+    else:
+        if d.isDebugBuild:
             data = value.address() + d.ptrSize()
+        else:
+            data = value.address()
     d.putCharArrayHelper(data, size, charType, format)
 
 
@@ -656,10 +676,15 @@ def qdump__std__unordered_map(d, value):
 
     if d.isMsvcTarget():
         _list = value["_List"]
-        try:
-            _ = _list["_Mypair"]["_Myval2"]["_Myproxy"]
+        if d.isDebugBuild is None:
+            try:
+                _ = _list["_Mypair"]["_Myval2"]["_Myproxy"]
+                d.isDebugBuild = True
+            except Exception:
+                d.isDebugBuild = False
+        if d.isDebugBuild:
             (_, start, size) = _list.split("ppp")
-        except Exception:
+        else:
             (start, size) = _list.split("pp")
     else:
         try:
@@ -790,15 +815,24 @@ def qdump__std__valarray(d, value):
 
 
 def qdump__std__variant(d, value):
-    which = int(value["_M_index"])
+    if d.isMsvcTarget():
+        which = int(value["_Which"])
+    else:
+        which = int(value["_M_index"])
     type = d.templateArgument(value.type, which)
-    d.putValue("<%s:%s>" % (which, type.name))
 
-    d.putNumChild(1)
-    if d.isExpanded():
-        storage = value["_M_u"]["_M_first"]["_M_storage"]
-        with Children(d, 1):
-            d.putSubItem("value", storage.cast(type))
+    if d.isMsvcTarget():
+         storage = value
+         while which > 0:
+             storage = storage["_Tail"]
+             which = which - 1
+         storage = storage["_Head"]
+    else:
+         storage = value["_M_u"]["_M_first"]["_M_storage"]
+         storage = storage.cast(type)
+    d.putItem(storage)
+    d.putBetterType(type)
+
 
 def qform__std__vector():
     return [DisplayFormat.ArrayPlot]
@@ -885,18 +919,28 @@ def qdumpHelper__std__vector__libcxx(d, value):
 def qdumpHelper__std__vector__msvc(d, value):
     inner_type = value.type[0]
     if inner_type.name == "bool":
-        try:
-            _ = value["_Myproxy"]
+        if d.isDebugBuild is None:
+            try:
+                _ = value["_Myproxy"]
+                d.isDebugBuild = True
+            except RuntimeError:
+                d.isDebugBuild = False
+        if d.isDebugBuild:
             proxy1, proxy2, start, finish, alloc, size = value.split("pppppi")
-        except RuntimeError:
+        else:
             start, finish, alloc, size = value.split("pppi")
         d.check(0 <= size and size <= 1000 * 1000 * 1000)
         qdumpHelper__std__vector__bool(d, start, size, inner_type)
     else:
-        try:
-            _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+        if d.isDebugBuild is None:
+            try:
+                _ = value["_Mypair"]["_Myval2"]["_Myproxy"]
+                d.isDebugBuild = True
+            except RuntimeError:
+                d.isDebugBuild = False
+        if d.isDebugBuild:
             proxy, start, finish, alloc = value.split("pppp")
-        except RuntimeError:
+        else:
             start, finish, alloc = value.split("ppp")
         size = (finish - start) // inner_type.size()
         d.check(0 <= size and size <= 1000 * 1000 * 1000)
@@ -1055,7 +1099,7 @@ def qdump__std__optional(d, value):
     (payload, pad, initialized) = d.split('{%s}@b' % innerType.name, value)
     if initialized:
         d.putItem(payload)
-        d.putBetterType(value.type)
+        d.putBetterType(innerType)
     else:
         d.putSpecialValue("uninitialized")
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,8 +7,7 @@
 
 #include <memory>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckPluginPrivate;
 
@@ -22,10 +21,9 @@ public:
     ~CppcheckPlugin() override;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
     std::unique_ptr<CppcheckPluginPrivate> d;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck

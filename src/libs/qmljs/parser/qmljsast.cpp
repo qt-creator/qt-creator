@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsast_p.h"
 #include <QLocale>
@@ -1311,17 +1311,7 @@ void Type::accept0(BaseVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(typeId, visitor);
-        accept(typeArguments, visitor);
-    }
-
-    visitor->endVisit(this);
-}
-
-void TypeArgumentList::accept0(BaseVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        for (TypeArgumentList *it = this; it; it = it->next)
-            accept(it->typeId, visitor);
+        accept(typeArgument, visitor);
     }
 
     visitor->endVisit(this);
@@ -1563,17 +1553,11 @@ QString Type::toString() const
 
 void Type::toString(QString *out) const
 {
-    for (QmlJS::AST::UiQualifiedId *it = typeId; it; it = it->next) {
-        out->append(it->name);
+    typeId->toString(out);
 
-        if (it->next)
-            out->append(QLatin1Char('.'));
-    }
-
-    if (typeArguments) {
+    if (typeArgument) {
         out->append(QLatin1Char('<'));
-        if (auto subType = static_cast<TypeArgumentList*>(typeArguments)->typeId)
-            subType->toString(out);
+        typeArgument->toString(out);
         out->append(QLatin1Char('>'));
     };
 }

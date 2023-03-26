@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "kitdetector.h"
 
@@ -220,7 +220,6 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
                                  [qtVersion](QtVersion* other) {
                                      return qtVersion->mkspecPath() == other->mkspecPath();
                                  })) {
-
                     qtVersions.append(qtVersion);
                     QtVersionManager::addVersion(qtVersion);
                     emit q->logOutput(
@@ -228,7 +227,7 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
                 }
             }
         }
-        return true;
+        return IterationPolicy::Continue;
     };
 
     emit q->logOutput(ProjectExplorer::Tr::tr("Searching for qmake executables..."));

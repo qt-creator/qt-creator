@@ -1,16 +1,14 @@
 add_qtc_library(QmlEditorWidgets
-  DEPENDS QmlJS Utils Qt5::Widgets
+  DEPENDS QmlJS Utils Qt::Widgets
   SOURCES
     colorbox.cpp colorbox.h
     colorbutton.cpp colorbutton.h
-    contextpanetext.ui
     contextpanetextwidget.cpp contextpanetextwidget.h
     contextpanewidget.cpp contextpanewidget.h
-    contextpanewidgetborderimage.ui
-    contextpanewidgetimage.cpp contextpanewidgetimage.h contextpanewidgetimage.ui
-    contextpanewidgetrectangle.cpp contextpanewidgetrectangle.h contextpanewidgetrectangle.ui
+    contextpanewidgetimage.cpp contextpanewidgetimage.h
+    contextpanewidgetrectangle.cpp contextpanewidgetrectangle.h
     customcolordialog.cpp customcolordialog.h
-    easingpane/easingcontextpane.cpp easingpane/easingcontextpane.h easingpane/easingcontextpane.ui
+    easingpane/easingcontextpane.cpp easingpane/easingcontextpane.h
     easingpane/easinggraph.cpp easingpane/easinggraph.h
     easingpane/easingpane.qrc
     filewidget.cpp filewidget.h

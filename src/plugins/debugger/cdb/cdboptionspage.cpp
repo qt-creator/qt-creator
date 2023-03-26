@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cdboptionspage.h"
 
@@ -33,12 +33,12 @@ struct EventsDescription {
 // Parameters of the "sxe" command
 const EventsDescription eventDescriptions[] =
 {
-    {"eh", false, QT_TRANSLATE_NOOP("Debugger", "C++ exception")},
-    {"ct", false, QT_TRANSLATE_NOOP("Debugger", "Thread creation")},
-    {"et", false, QT_TRANSLATE_NOOP("Debugger", "Thread exit")},
-    {"ld", true,  QT_TRANSLATE_NOOP("Debugger", "Load module:")},
-    {"ud", true,  QT_TRANSLATE_NOOP("Debugger", "Unload module:")},
-    {"out", true, QT_TRANSLATE_NOOP("Debugger", "Output:")}
+    {"eh", false, QT_TRANSLATE_NOOP("QtC::Debugger", "C++ exception")},
+    {"ct", false, QT_TRANSLATE_NOOP("QtC::Debugger", "Thread creation")},
+    {"et", false, QT_TRANSLATE_NOOP("QtC::Debugger", "Thread exit")},
+    {"ld", true,  QT_TRANSLATE_NOOP("QtC::Debugger", "Load module:")},
+    {"ud", true,  QT_TRANSLATE_NOOP("QtC::Debugger", "Unload module:")},
+    {"out", true, QT_TRANSLATE_NOOP("QtC::Debugger", "Output:")}
 };
 
 static inline int indexOfEvent(const QString &abbrev)

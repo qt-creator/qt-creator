@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sourceagent.h"
 
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggerinternalconstants.h"
+#include "debuggertr.h"
 #include "stackhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -114,8 +115,10 @@ void SourceAgent::updateLocationMarker()
     if (d->engine->stackHandler()->currentFrame().file == Utils::FilePath::fromString(d->path)) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
 
-        d->locationMark = new TextMark(Utils::FilePath(), lineNumber,
-                                       Constants::TEXT_MARK_CATEGORY_LOCATION);
+        d->locationMark = new TextMark(Utils::FilePath(),
+                                       lineNumber,
+                                       {Tr::tr("Debugger Location"),
+                                        Constants::TEXT_MARK_CATEGORY_LOCATION});
         d->locationMark->setIcon(Icons::LOCATION.icon());
         d->locationMark->setPriority(TextMark::HighPriority);
 

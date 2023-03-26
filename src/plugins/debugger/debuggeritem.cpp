@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggeritem.h"
 
@@ -81,8 +81,8 @@ DebuggerItem::DebuggerItem(const QVariant &id)
 DebuggerItem::DebuggerItem(const QVariantMap &data)
 {
     m_id = data.value(DEBUGGER_INFORMATION_ID).toString();
-    m_command = FilePath::fromVariant(data.value(DEBUGGER_INFORMATION_COMMAND));
-    m_workingDirectory = FilePath::fromVariant(data.value(DEBUGGER_INFORMATION_WORKINGDIRECTORY));
+    m_command = FilePath::fromSettings(data.value(DEBUGGER_INFORMATION_COMMAND));
+    m_workingDirectory = FilePath::fromSettings(data.value(DEBUGGER_INFORMATION_WORKINGDIRECTORY));
     m_unexpandedDisplayName = data.value(DEBUGGER_INFORMATION_DISPLAYNAME).toString();
     m_isAutoDetected = data.value(DEBUGGER_INFORMATION_AUTODETECTED, false).toBool();
     m_detectionSource = data.value(DEBUGGER_INFORMATION_DETECTION_SOURCE).toString();
@@ -328,8 +328,8 @@ QVariantMap DebuggerItem::toMap() const
     QVariantMap data;
     data.insert(DEBUGGER_INFORMATION_DISPLAYNAME, m_unexpandedDisplayName);
     data.insert(DEBUGGER_INFORMATION_ID, m_id);
-    data.insert(DEBUGGER_INFORMATION_COMMAND, m_command.toVariant());
-    data.insert(DEBUGGER_INFORMATION_WORKINGDIRECTORY, m_workingDirectory.toVariant());
+    data.insert(DEBUGGER_INFORMATION_COMMAND, m_command.toSettings());
+    data.insert(DEBUGGER_INFORMATION_WORKINGDIRECTORY, m_workingDirectory.toSettings());
     data.insert(DEBUGGER_INFORMATION_ENGINETYPE, int(m_engineType));
     data.insert(DEBUGGER_INFORMATION_AUTODETECTED, m_isAutoDetected);
     data.insert(DEBUGGER_INFORMATION_DETECTION_SOURCE, m_detectionSource);

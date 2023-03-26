@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "selectablefilesmodel.h"
+
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <coreplugin/icore.h>
 
@@ -16,7 +18,6 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTreeView>
@@ -532,9 +533,9 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     auto layout = new QGridLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    m_baseDirLabel->setText(tr("Source directory:"));
+    m_baseDirLabel->setText(Tr::tr("Source directory:"));
     m_baseDirChooser->setHistoryCompleter(QLatin1String("PE.AddToProjectDir.History"));
-    m_startParsingButton->setText(tr("Start Parsing"));
+    m_startParsingButton->setText(Tr::tr("Start Parsing"));
     layout->addWidget(m_baseDirLabel, static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 0);
     layout->addWidget(m_baseDirChooser->lineEdit(), static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 1);
     layout->addWidget(m_baseDirChooser->buttonAtIndex(0), static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 2);
@@ -545,17 +546,17 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     connect(m_startParsingButton, &QAbstractButton::clicked,
             this, [this] { startParsing(m_baseDirChooser->filePath()); });
 
-    m_selectFilesFilterLabel->setText(tr("Select files matching:"));
+    m_selectFilesFilterLabel->setText(Tr::tr("Select files matching:"));
     m_selectFilesFilterEdit->setText(selectFilter);
     layout->addWidget(m_selectFilesFilterLabel, static_cast<int>(SelectableFilesWidgetRows::SelectFileFilter), 0);
     layout->addWidget(m_selectFilesFilterEdit, static_cast<int>(SelectableFilesWidgetRows::SelectFileFilter), 1, 1, 3);
 
-    m_hideFilesFilterLabel->setText(tr("Hide files matching:"));
+    m_hideFilesFilterLabel->setText(Tr::tr("Hide files matching:"));
     m_hideFilesFilterEdit->setText(hideFilter);
     layout->addWidget(m_hideFilesFilterLabel, static_cast<int>(SelectableFilesWidgetRows::HideFileFilter), 0);
     layout->addWidget(m_hideFilesFilterEdit, static_cast<int>(SelectableFilesWidgetRows::HideFileFilter), 1, 1, 3);
 
-    m_applyFiltersButton->setText(tr("Apply Filters"));
+    m_applyFiltersButton->setText(Tr::tr("Apply Filters"));
     layout->addWidget(m_applyFiltersButton, static_cast<int>(SelectableFilesWidgetRows::ApplyButton), 3);
 
     connect(m_applyFiltersButton, &QAbstractButton::clicked,
@@ -681,7 +682,7 @@ void SelectableFilesWidget::startParsing(const Utils::FilePath &baseDir)
 
 void SelectableFilesWidget::parsingProgress(const Utils::FilePath &fileName)
 {
-    m_progressLabel->setText(tr("Generating file list...\n\n%1").arg(fileName.toUserOutput()));
+    m_progressLabel->setText(Tr::tr("Generating file list...\n\n%1").arg(fileName.toUserOutput()));
 }
 
 void SelectableFilesWidget::parsingFinished()
@@ -692,7 +693,7 @@ void SelectableFilesWidget::parsingFinished()
     smartExpand(m_model->index(0,0, QModelIndex()));
 
     const Utils::FilePaths preservedFiles = m_model->preservedFiles();
-    m_preservedFilesLabel->setText(tr("Not showing %n files that are outside of the base directory.\n"
+    m_preservedFilesLabel->setText(Tr::tr("Not showing %n files that are outside of the base directory.\n"
                                       "These files are preserved.", nullptr, preservedFiles.count()));
 
     enableWidgets(true);
@@ -721,7 +722,7 @@ SelectableFilesDialogEditFiles::SelectableFilesDialogEditFiles(const Utils::File
     QDialog(parent),
     m_filesWidget(new SelectableFilesWidget(path, files))
 {
-    setWindowTitle(tr("Edit Files"));
+    setWindowTitle(Tr::tr("Edit Files"));
 
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_filesWidget);
@@ -755,7 +756,7 @@ SelectableFilesDialogAddDirectory::SelectableFilesDialogAddDirectory(const Utils
                                                                      QWidget *parent) :
     SelectableFilesDialogEditFiles(path, files, parent)
 {
-    setWindowTitle(tr("Add Existing Directory"));
+    setWindowTitle(Tr::tr("Add Existing Directory"));
 
     m_filesWidget->setBaseDirEditable(true);
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "androidsdkpackage.h"
 
 #include <utils/algorithm.h>
@@ -72,6 +72,16 @@ void AndroidSdkPackage::setInstalledLocation(const Utils::FilePath &path)
     m_installedLocation = path;
     if (m_installedLocation.exists())
         updatePackageDetails();
+}
+
+void AndroidSdkPackage::setExtension(const QString &extension)
+{
+    m_extension = extension;
+}
+
+QString AndroidSdkPackage::extension() const
+{
+    return m_extension;
 }
 
 void AndroidSdkPackage::updatePackageDetails()
@@ -173,8 +183,8 @@ QVersionNumber SdkPlatform::version() const
 void SdkPlatform::addSystemImage(SystemImage *image)
 {
     // Ordered insert. Installed images on top with lexical comparison of the display name.
-    auto itr = m_systemImages.begin();
-    while (itr != m_systemImages.end()) {
+    auto itr = m_systemImages.cbegin();
+    while (itr != m_systemImages.cend()) {
         SystemImage *currentImage = *itr;
         if (currentImage->state() == image->state()) {
             if (currentImage->displayText() > image->displayText())

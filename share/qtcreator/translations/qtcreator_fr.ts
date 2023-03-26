@@ -37,7 +37,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>Annu&amp;ler</translation>
@@ -48,7 +48,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Ajouter un signet</translation>
@@ -231,7 +231,7 @@
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Set Breakpoint at Function</source>
         <translation type="obsolete">Placer un point d&apos;arrêt à la fonction</translation>
@@ -242,7 +242,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Nettoyer l&apos;environnement système</translation>
@@ -335,30 +335,6 @@
     <message>
         <source>Debugger:</source>
         <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;éxecution</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Exécution en cours : &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Environnement</translation>
-    </message>
-    <message>
-        <source>Base environment for this runconfiguration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;éxecution :</translation>
     </message>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
@@ -529,7 +505,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Selectionner un symbole&gt;</translation>
@@ -559,7 +535,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;CodePaster</translation>
@@ -647,7 +623,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation type="obsolete">Complétion du code</translation>
@@ -677,20 +653,12 @@
         <translation type="obsolete">Autocomplétion du &amp;préfixe commun</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation type="obsolete">Comportement</translation>
-    </message>
-    <message>
         <source>&amp;Case-sensitivity:</source>
         <translation type="obsolete">Sensibilité à la &amp;casse :</translation>
     </message>
     <message>
         <source>Full</source>
         <translation type="obsolete">Totale</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Aucune</translation>
     </message>
     <message>
         <source>First Letter</source>
@@ -711,10 +679,6 @@
     <message>
         <source>When Triggered</source>
         <translation type="obsolete">À la demande</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
     </message>
     <message>
         <source>Automatically insert brackets and semicolons when appropriate.</source>
@@ -738,7 +702,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Ouvrir le lien</translation>
@@ -753,19 +717,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
-    <message>
-        <source>Unable to create the directory %1.</source>
-        <translation type="obsolete">Impossible de créer le répertoire %1.</translation>
-    </message>
-    <message>
-        <source>Unable to open %1 for writing: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir %1 pour écrire : %2</translation>
-    </message>
-    <message>
-        <source>Error while writing to %1: %2</source>
-        <translation type="obsolete">Erreur pendant l&apos;écriture de %1 : %2</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Échec de la génération du fichier</translation>
@@ -820,9 +772,6 @@ Would you like to overwrite them?</source>
 %2.
 Voulez vous les écraser ?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Revenir à la version sauvegardée</translation>
@@ -918,10 +867,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Meta+E</source>
         <translation type="obsolete">Meta+E</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="obsolete">Ctrl+E</translation>
     </message>
     <message>
         <source>Close All Except Visible</source>
@@ -1060,14 +1005,6 @@ Voulez vous les écraser ?</translation>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier pour édition avec SCC. </translation>
     </message>
     <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Impossible de définir les permissions</translation>
-    </message>
-    <message>
-        <source>Cannot set permissions to writable.</source>
-        <translation type="obsolete">Impossible d&apos;attribuer les droits en écriture.</translation>
-    </message>
-    <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation>Impossible d&apos;ouvrir le fichier pour édition avec VCS. </translation>
     </message>
@@ -1120,40 +1057,12 @@ Voulez vous les écraser ?</translation>
         <translation type="obsolete">nav.net </translation>
     </message>
     <message>
-        <source>All Files (*)</source>
-        <translation type="obsolete">Tout les fichiers (*)</translation>
-    </message>
-    <message>
         <source>Opening File</source>
         <translation>Ouverture du Fichier</translation>
     </message>
     <message>
         <source>Cannot open file %1!</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier %1!</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Ouvrir le Fichier</translation>
-    </message>
-    <message>
-        <source>File is Read Only</source>
-        <translation type="obsolete">Le Fichier est en Lecture Seule</translation>
-    </message>
-    <message>
-        <source>The file %1 is read only.</source>
-        <translation type="obsolete">Le fichier %1 est en lecture seule.</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Ouvrir avec VCS (%1)</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Save as ...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
     </message>
     <message>
         <source>Failed!</source>
@@ -1216,200 +1125,6 @@ Voulez vous les écraser ?</translation>
         <translation>Annuler</translation>
     </message>
     <message>
-        <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="obsolete">&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;La variable&lt;/th&gt;&lt;th&gt;se développe en &lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nom de fichier&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;numéro de ligne courante&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;numéro de colonne courante&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;abscisse de l&apos;éditeur à l&apos;écran&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;ordonnée de l&apos;éditeur à l&apos;écran&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;largeur de l&apos;éditeur en pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;hauteur de l&apos;éditeur en pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;largeur de l&apos;éditeur en caractères&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;hauteur de l&apos;éditeur en caractères&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
-    <message>
-        <source>Can&apos;t save file</source>
-        <translation type="obsolete">Impossible de sauver le fichier</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save changes to &apos;%1&apos;. Do you want to continue and loose your changes?</source>
-        <translation type="obsolete">Impossible de sauvegarder les modifications dans &quot;%1&quot;. Voulez vous continuer et perdre vos modifications ?</translation>
-    </message>
-    <message>
-        <source>Cannot save file</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer le fichier</translation>
-    </message>
-    <message>
-        <source>Cannot save changes to &apos;%1&apos;. Do you want to continue and lose your changes?</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer les modifications dans &quot;%1&quot;. Voulez-vous continuer et perdre vos modifications ?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Erreur de fichier</translation>
-    </message>
-    <message>
-        <source>Overwrite?</source>
-        <translation type="obsolete">Écraser ?</translation>
-    </message>
-    <message>
-        <source>An item named &apos;%1&apos; already exists at this location. Do you want to overwrite it?</source>
-        <translation type="obsolete">Un élément nommé &quot;%1&apos; existe déjà. Voulez-vous l&quot;écraser ?</translation>
-    </message>
-    <message>
-        <source>Save File As</source>
-        <translation type="obsolete">Enregistrer sous</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Ouvrir le Fichier</translation>
-    </message>
-    <message>
-        <source>File is Read Only</source>
-        <translation type="obsolete">Le Fichier est en Lecture Seule</translation>
-    </message>
-    <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Le fichier &lt;i&gt;%1&lt;/i&gt; est en lecture seule.</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Ouvrir avec VCS (%1)</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
-    </message>
-    <message>
-        <source>Cannot reload %1</source>
-        <translation type="obsolete">Impossible de recharger %1</translation>
-    </message>
-    <message>
-        <source>Save as ...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Activer %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
-    <message>
-        <source>Edit</source>
-        <translation>Éditer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
-    <message>
-        <source>Split Left/Right</source>
-        <translation type="obsolete">Scinder gauche/droite</translation>
-    </message>
-    <message>
-        <source>Split Top/Bottom</source>
-        <translation type="obsolete">Scinder haut/bas</translation>
-    </message>
-    <message>
-        <source>Unsplit</source>
-        <translation type="obsolete">Fermer la vue courante</translation>
-    </message>
-    <message>
-        <source>Default Splitter Layout</source>
-        <translation type="obsolete">Arrangement par défaut</translation>
-    </message>
-    <message>
-        <source>Save Current as Default</source>
-        <translation type="obsolete">Sauvegarder comme arrangement par défaut</translation>
-    </message>
-    <message>
-        <source>Restore Default Layout</source>
-        <translation type="obsolete">Restaurer l&apos;arrangement par défaut</translation>
-    </message>
-    <message>
-        <source>Previous Document</source>
-        <translation type="obsolete">Document précédent</translation>
-    </message>
-    <message>
-        <source>Alt+Left</source>
-        <translation type="obsolete">Alt+Gauche</translation>
-    </message>
-    <message>
-        <source>Next Document</source>
-        <translation type="obsolete">Document suivant</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="obsolete">Alt+Droite</translation>
-    </message>
-    <message>
-        <source>Previous Group</source>
-        <translation type="obsolete">Groupe précédent</translation>
-    </message>
-    <message>
-        <source>Next Group</source>
-        <translation type="obsolete">Groupe suivant</translation>
-    </message>
-    <message>
-        <source>Move Document to Previous Group</source>
-        <translation type="obsolete">Déplacer le document vers le groupe précédent</translation>
-    </message>
-    <message>
-        <source>Move Document to Next Group</source>
-        <translation type="obsolete">Déplacer le document vers le groupe suivant</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
-    <message>
-        <source>Go Back</source>
-        <translation type="obsolete">Précédent</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation type="obsolete">Suivant</translation>
-    </message>
-    <message>
-        <source>Placeholder</source>
-        <translation type="obsolete">Paramètre fictif</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>File is writable</source>
-        <translation type="obsolete">Le fichier est inscriptible</translation>
-    </message>
-    <message>
-        <source>Copy full path to clipboard</source>
-        <translation type="obsolete">Copier le chemin complet vers le presse-papier</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
-    <message>
-        <source>General settings</source>
-        <translation type="obsolete">Réglages généraux</translation>
-    </message>
-    <message>
-        <source>User &amp;interface color:</source>
-        <translation type="obsolete">Couleur de l&apos;&amp;interface utilisateur :</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="obsolete">R</translation>
-    </message>
-    <message>
         <source>Terminal:</source>
         <translation>Terminal :</translation>
     </message>
@@ -1436,10 +1151,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>The language change will take effect after a restart of Qt Creator.</source>
         <translation>Le changement de langue prendra effet au prochain démarrage de Qt Creator.</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Environnement</translation>
     </message>
     <message>
         <source>Variables</source>
@@ -1542,17 +1253,6 @@ Voulez vous les écraser ?</translation>
         <comment>Button text</comment>
         <translation>Réinitialiser les avertissements</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="obsolete">Sortie</translation>
-    </message>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
@@ -1618,16 +1318,8 @@ Voulez vous les écraser ?</translation>
         <translation>&amp;Fichiers récents</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Enregistrer</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Enregistrer</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>Enregistrer &amp;sous...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -1783,53 +1475,10 @@ Voulez vous les écraser ?</translation>
         <source>Settings...</source>
         <translation>Paramètres...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">Général</translation>
-    </message>
     <message>
         <source>General Messages</source>
         <translation>Messages généraux</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Activer %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
-    <message>
-        <source>Hide Sidebar</source>
-        <translation type="obsolete">Masquer la barre latérale</translation>
-    </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation type="obsolete">Afficher la barre latérale</translation>
-    </message>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation type="obsolete">Activer le panneau %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Nouveau projet</translation>
@@ -1870,52 +1519,10 @@ Voulez vous les écraser ?</translation>
         <source>Supported Platforms</source>
         <translation>Plateformes supportées</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
-    <message>
-        <source>Open Documents</source>
-        <translatorcomment>NB:il ne s&apos;agit pas ici d&apos;une action mais du panneau affichant les documents ouverts</translatorcomment>
-        <translation>Documents ouverts</translation>
-    </message>
-    <message>
-        <source>Close %1</source>
-        <translation type="obsolete">Fermer %1</translation>
-    </message>
-    <message>
-        <source>Close Editor</source>
-        <translation type="obsolete">Fermer l&apos;éditeur</translation>
-    </message>
-    <message>
-        <source>Close All Except %1</source>
-        <translation type="obsolete">Fermer tout sauf %1</translation>
-    </message>
-    <message>
-        <source>Close &quot;%1&quot;</source>
-        <translation type="obsolete">Fermer &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close All Except &quot;%1&quot;</source>
-        <translation type="obsolete">Fermer tout sauf &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close Other Editors</source>
-        <translation type="obsolete">Fermer les autres éditeurs</translation>
-    </message>
-    <message>
-        <source>Close All Editors</source>
-        <translation type="obsolete">Fermer tous les éditeurs</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>Ouvrir le fichier %1 avec :</translation>
@@ -1928,9 +1535,6 @@ Voulez vous les écraser ?</translation>
         <source>Open file extension with:</source>
         <translation>Ouvrir ce type d&apos;extension avec :</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>Sortie</translation>
@@ -1975,9 +1579,6 @@ Voulez vous les écraser ?</translation>
         <source>Minimize Output Pane</source>
         <translation>Minimiser le panneau de sortie</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Détails</translation>
@@ -1985,10 +1586,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Error Details</source>
         <translation>Détails de l&apos;erreur</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -2007,16 +1604,10 @@ Voulez vous les écraser ?</translation>
         <source>Plugin Errors of %1</source>
         <translation>Erreurs du plug-in %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Processus</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Don&apos;t Save</source>
         <translation type="obsolete">Ne pas enregistrer</translation>
@@ -2028,10 +1619,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Save All</source>
         <translation>Tout enregistrer</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Enregistrer</translation>
     </message>
     <message>
         <source>Save Selected</source>
@@ -2049,16 +1636,9 @@ Voulez vous les écraser ?</translation>
         <source>Automatically save all files before building</source>
         <translation>Sauvegarder automatiquement tous les fichiers avant de compiler</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Clavier</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Environnement</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -2088,20 +1668,6 @@ Voulez vous les écraser ?</translation>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Exporter le mapping clavier</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>À propos de Qt Creator</translation>
@@ -2131,7 +1697,7 @@ Voulez vous les écraser ?</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Open Recent Project</source>
         <translation type="obsolete">Ouvrir un projet récent</translation>
@@ -2264,7 +1830,7 @@ Voulez vous les écraser ?</translation>
     </message>
 </context>
 <context>
-    <name>Core::ModeManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation type="obsolete">Basculer vers le mode %1</translation>
@@ -2273,9 +1839,6 @@ Voulez vous les écraser ?</translation>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Basculer vers le mode &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -2286,16 +1849,13 @@ Voulez vous les écraser ?</translation>
         <source>Unknown error</source>
         <translation>Erreur inconnue</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -2316,9 +1876,6 @@ Voulez vous les écraser ?</translation>
         <source>Do not &amp;ask again</source>
         <translation>Ne plus &amp;redemander</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Le nom de classe ne doit pas contenir de délimiteur d&apos;espace de nommage.</translation>
@@ -2331,9 +1888,6 @@ Voulez vous les écraser ?</translation>
         <source>The class name contains invalid characters.</source>
         <translation>Le nom de classe contient des caractères invalides.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Impossible d&apos;établir le canal de communication : %1</translation>
@@ -2410,9 +1964,6 @@ Voulez vous les écraser ?</translation>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Impossible d&apos;obtenir la valeur de retour du processus : %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation type="obsolete">Le nom ne peut pas être vide</translation>
@@ -2457,9 +2008,6 @@ Voulez vous les écraser ?</translation>
         <source>File extensions %1 are required:</source>
         <translation>Les extensions de fichier %1 sont nécessaires : </translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -2481,9 +2029,6 @@ Voulez vous les écraser ?</translation>
             <numerusform>%1 : %n occurences trouvés dans %2 de %3 fichiers.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Class name:</source>
         <translation type="obsolete">Nom de la classe :</translation>
@@ -2507,10 +2052,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Form file:</source>
         <translation type="obsolete">Fichier d&apos;interface :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
     </message>
     <message>
         <source>Invalid base class name</source>
@@ -2593,9 +2134,6 @@ Voulez vous les écraser ?</translation>
         <source>Inherits QQuickItem - Qt Quick 2</source>
         <translation>Hérite de QQuickItem - Qt Quick 2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Choisir...</translation>
@@ -2681,9 +2219,6 @@ Voulez vous les écraser ?</translation>
         <source>Path:</source>
         <translation>Chemin :</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Insérer...</translation>
@@ -2708,9 +2243,6 @@ Voulez vous les écraser ?</translation>
         <source>From &quot;%1&quot;</source>
         <translation>Depuis &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and project location</source>
         <translation type="obsolete">Introduction et emplacement du projet</translation>
@@ -2747,9 +2279,6 @@ Voulez vous les écraser ?</translation>
         <source>Project:</source>
         <translation>Projet :</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation type="obsolete">Le nom ne peut pas contenir le caractère &apos;.&apos;.</translation>
@@ -2758,9 +2287,6 @@ Voulez vous les écraser ?</translation>
         <source>Invalid character &apos;.&apos;.</source>
         <translation>Caractère invalide &apos;.&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation type="obsolete">Submit Subversion</translation>
@@ -2818,28 +2344,14 @@ Voulez vous les écraser ?</translation>
         <source>Check a&amp;ll</source>
         <translation type="obsolete">Coche&amp;r tout</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation type="obsolete">Choisir l&apos;emplacement</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>Nom :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Chemin :</translation>
-    </message>
-    <message>
         <source>Choose the Location</source>
         <translation>Choisir l&apos;emplacement</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Fichier modifié</translation>
@@ -2866,13 +2378,9 @@ Voulez vous les écraser ?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
-        <translation type="obsolete">Trier par ordre alphabétique</translation>
-    </message>
-    <message>
-        <source>Sort Alphabetically</source>
         <translation type="obsolete">Trier par ordre alphabétique</translation>
     </message>
     <message>
@@ -2884,16 +2392,9 @@ Voulez vous les écraser ?</translation>
         <translation type="obsolete">Simplifier les déclarations.</translation>
     </message>
     <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">Variable non utilisée</translation>
-    </message>
-    <message>
         <source>Simplify Declarations</source>
         <translation type="obsolete">Simplifier les déclarations</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation type="obsolete">Entrer le nom de la classe</translation>
@@ -2910,16 +2411,10 @@ Voulez vous les écraser ?</translation>
         <source>Configure...</source>
         <translation type="obsolete">Configurer...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Erreur a la génération du contenu du fichier.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>Assistant de création de classe C++</translation>
@@ -2928,39 +2423,17 @@ Voulez vous les écraser ?</translation>
         <source>Details</source>
         <translation>Détails</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation type="obsolete">Sans filtre</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
-    <message>
-        <source>C++</source>
-        <translation type="obsolete">C++</translation>
     </message>
     <message>
         <source>Creates a C++ header file.</source>
         <translation type="obsolete">Créer un fichier header C++.</translation>
     </message>
     <message>
-        <source>C++ Header File</source>
-        <translation type="obsolete">Fichier header C++</translation>
-    </message>
-    <message>
         <source>Creates a C++ source file.</source>
         <translation type="obsolete">Créer un fichier source C++.</translation>
-    </message>
-    <message>
-        <source>C++ Source File</source>
-        <translation type="obsolete">Fichier source C++</translation>
-    </message>
-    <message>
-        <source>C++ Class</source>
-        <translation type="obsolete">Classe C++</translation>
     </message>
     <message>
         <source>Creates a header and a source file for a new class.</source>
@@ -2975,60 +2448,8 @@ Voulez vous les écraser ?</translation>
         <translation type="obsolete">Changer entre la définition et déclaration de la méthode</translation>
     </message>
     <message>
-        <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
-        <translation type="obsolete">Crée les fichier d&apos;en-tête et fichier source C++ pour une nouvelle classe que vous pouvez ajouter a votre projet C++.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ source file that you can add to a C++ project.</source>
-        <translation type="obsolete">Crée un fichier source C++ que vous pouvez ajouter a votre projet C++.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ header file that you can add to a C++ project.</source>
-        <translation type="obsolete">Crée un fichier d&apos;en-tête C++ que vous pouvez ajouter a votre projet C++.</translation>
-    </message>
-    <message>
         <source>Follow Symbol Under Cursor</source>
         <translation type="obsolete">Suivre le symbole sous le curseur</translation>
-    </message>
-    <message>
-        <source>Switch Between Method Declaration/Definition</source>
-        <translation type="obsolete">Changer entre la définition et déclaration de la méthode</translation>
-    </message>
-    <message>
-        <source>Shift+F2</source>
-        <translation type="obsolete">Shift+F2</translation>
-    </message>
-    <message>
-        <source>Find Usages</source>
-        <translation type="obsolete">Trouver les utilisations</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+U</source>
-        <translation type="obsolete">Ctrl+Shift+U</translation>
-    </message>
-    <message>
-        <source>Open Type Hierarchy</source>
-        <translation type="obsolete">Ouvrir la hiérarchie de type</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="obsolete">Ctrl+Maj+T</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+T</source>
-        <translation type="obsolete">Meta+Shift+T</translation>
-    </message>
-    <message>
-        <source>Rename Symbol Under Cursor</source>
-        <translation type="obsolete">Renommer le symbole sous le curseur</translation>
-    </message>
-    <message>
-        <source>CTRL+SHIFT+R</source>
-        <translation type="obsolete">Ctrl+Shift+R</translation>
-    </message>
-    <message>
-        <source>Update Code Model</source>
-        <translation type="obsolete">Mettre à jour le modèle de code</translation>
     </message>
     <message>
         <source>Rename Symbol under Cursor</source>
@@ -3038,52 +2459,18 @@ Voulez vous les écraser ?</translation>
         <source>Update code model</source>
         <translation type="obsolete">Mettre à jour le modèle de code</translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
-    <message>
-        <source>File Naming Conventions</source>
-        <translation type="obsolete">Convention de nommage des fichiers</translation>
-    </message>
-    <message>
-        <source>Header suffix:</source>
-        <translation type="obsolete">Suffixe des fichier d&apos;en-tête :</translation>
-    </message>
-    <message>
-        <source>Source suffix:</source>
-        <translation type="obsolete">Suffixe des fichiers source :</translation>
-    </message>
-    <message>
-        <source>Lower case file names</source>
-        <translation type="obsolete">Nom de fichiers en minuscule</translation>
-    </message>
     <message>
         <source>License Template:</source>
         <translation type="obsolete">Modèle de licence :</translation>
     </message>
     <message>
-        <source>License template:</source>
-        <translation type="obsolete">Modèle de licence :</translation>
-    </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
-    <message>
         <source>%1: No such file or directory</source>
         <translation>%1 : aucun fichier ou répertoire de ce type</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppModelManager</name>
     <message>
         <source>Scanning</source>
         <translatorcomment>Balayage ? (Numérisation ça fait franchement scanner)</translatorcomment>
         <translation type="obsolete">Analyse</translation>
-    </message>
-    <message>
-        <source>Parsing</source>
-        <translatorcomment>laisser Parsing? ou analyse syntaxique</translatorcomment>
-        <translation type="obsolete">Analyse syntaxique</translation>
     </message>
     <message>
         <source>unnamed</source>
@@ -3093,9 +2480,6 @@ Voulez vous les écraser ?</translation>
         <source>Indexing</source>
         <translation type="obsolete">Indexation</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>File Naming Conventions</source>
         <translation type="obsolete">Conventions de nommage des fichiers</translation>
@@ -3116,9 +2500,6 @@ Voulez vous les écraser ?</translation>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Complétion</translation>
@@ -3224,16 +2605,6 @@ Voulez vous les écraser ?</translation>
         <source>Add leading asterisks when continuing Qt (/*!) and Java (/**) style comments on new lines</source>
         <translation>Ajouter des astérisques en début de ligne pour continuer les commentaires de style Qt (/*!) et Java (/ **) sur les nouvelles lignes</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Classes</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>Methods in current Document</source>
         <translation type="obsolete">Méthodes du document courant</translation>
@@ -3250,9 +2621,6 @@ Voulez vous les écraser ?</translation>
         <source>C++ Symbols in Current Document</source>
         <translation>Symboles C++ du document courant</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -3296,13 +2664,6 @@ Voulez vous les écraser ?</translation>
         <source>Cannot write to %1: %2</source>
         <translation type="obsolete">Impossible d&apos;écrire %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
-    <message>
-        <source>Methods</source>
-        <translation type="obsolete">Méthodes</translation>
-    </message>
     <message>
         <source>Methods and functions</source>
         <translation type="obsolete">Méthodes et fonctions</translation>
@@ -3319,9 +2680,6 @@ Voulez vous les écraser ?</translation>
         <source>C++ Functions</source>
         <translation>Fonctions C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation type="obsolete">Classes et méthodes</translation>
@@ -3334,9 +2692,6 @@ Voulez vous les écraser ?</translation>
         <source>C++ Classes, Enums and Functions</source>
         <translation>Classes, énumérations et fonctions C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -3357,9 +2712,6 @@ Voulez vous les écraser ?</translation>
         <source>Ctrl+E, F4</source>
         <translation>Ctrl+E, F4</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindClassDeclarations</name>
     <message>
         <source>Search class</source>
         <translation type="obsolete">Rechercher la classe</translation>
@@ -3368,9 +2720,6 @@ Voulez vous les écraser ?</translation>
         <source>Class Declarations</source>
         <translation type="obsolete">Déclarations de classe</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindFunctionCalls</name>
     <message>
         <source>Search functions</source>
         <translation type="obsolete">Rechercher les fonctions</translation>
@@ -3379,16 +2728,13 @@ Voulez vous les écraser ?</translation>
         <source>Function calls</source>
         <translation type="obsolete">Appels de fonction</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation type="obsolete">%1 de %2</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>General</source>
         <translation>Général</translation>
@@ -3402,9 +2748,6 @@ Voulez vous les écraser ?</translation>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Erreur d&apos;encodage&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
         <translation type="obsolete">Une version trop ancienne de la bibliothèque d&apos;aide au débogage a été trouvé(%1); La version %2 est nécessaire.</translation>
@@ -3486,9 +2829,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>&lt;none&gt;</source>
         <translation>&lt;aucun&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>Charger un fichier core</translation>
@@ -3542,9 +2882,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Override &amp;start script:</source>
         <translation>Surcharger le &amp;script de démarrage :</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select start address</source>
         <translation type="obsolete">Sélectionner l&apos;adresse de départ</translation>
@@ -3561,9 +2898,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Enter an address: </source>
         <translation>Entrer une adresse :</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translatorcomment>Alternative &quot;Fichier ayant le marqueur&quot;</translatorcomment>
@@ -3816,9 +3150,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
         <translation>Le point d&apos;arrêt ne sera rencontré que dans le(s) thread(s) spécifié(s).</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Points d&apos;arrêt</translation>
@@ -3868,9 +3199,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation type="obsolete">Recherche de collecteur pour &apos;%1&apos;/&quot;%2&quot; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Cdb</source>
         <translation type="obsolete">Cdb</translation>
@@ -3932,9 +3260,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Ignore first chance access violations</source>
         <translation>Ignorer les violations d&apos;accès à la première tentative</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Serveur de symboles...</translation>
@@ -4231,9 +3556,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Execute line</source>
         <translation type="obsolete">Exécuter la ligne</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation type="obsolete">Assistance au débogage</translation>
@@ -4287,9 +3609,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Show Qt&apos;s namespace for types</source>
         <translation>Afficher l&apos;espace de noms de Qt pour les types</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation type="obsolete">Échec du démarrage du processus Gdb. Soit le programme &quot;%1&quot; est manquant, soit les droits sont insuffisants pour exécuter le programme.</translation>
@@ -4953,9 +4272,6 @@ Ceci pourrait amener à des résultats incorrects.</translation>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;aucune information&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>GDB timeout:</source>
         <translation>Délai GDB :</translation>
@@ -5195,9 +4511,6 @@ at debugger startup.</source>
         <source>Choose Location of Startup Script File</source>
         <translation type="obsolete">Choisir l&apos;emplacement du fichier contenant le script de démarrage</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Modules</translation>
@@ -5300,9 +4613,6 @@ at debugger startup.</source>
         <source>Level</source>
         <translation>Niveau</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Thread id:</source>
         <translation>ID du thread : </translation>
@@ -5603,7 +4913,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation type="obsolete">Impossible d&apos;ajouter une dépendance</translation>
@@ -5616,9 +4926,6 @@ at debugger startup.</source>
         <source>This would create a circular dependency.</source>
         <translation>Ceci créerait une dépendance circulaire.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation type="obsolete">%1 n&apos;a aucune dépendance.</translation>
@@ -5633,7 +4940,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="obsolete">Le nom de fichier est vide.</translation>
@@ -5961,29 +5268,6 @@ Regénérer le projet peut résoudre ce problème.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
-    <message>
-        <source>Registered Documentation</source>
-        <translation type="obsolete">Documentation enregistrée</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Ajouter...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Add and remove compressed help files, .qch.</source>
-        <translation type="obsolete">Ajouter et supprimer des fichiers d&apos;aide compressés, .qch.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-</context>
-<context>
     <name>EmbeddedPropertiesPage</name>
     <message>
         <source>Use Virtual Box
@@ -5999,7 +5283,7 @@ La version de Qt est aussi définie automatiquement.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
@@ -6058,9 +5342,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Platforms:</source>
         <translation>Plateformes :</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>État :</translation>
@@ -6073,9 +5354,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Error message:</source>
         <translation>Message d&apos;erreur : </translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation type="obsolete">Le fichier n&apos;existe pas : %1</translation>
@@ -6092,9 +5370,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Erreur pendant l&apos;analyse du fichier %1 : %2, ligne %3, colonne %4</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation type="obsolete">État</translation>
@@ -6119,9 +5394,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Load</source>
         <translation>Charge</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Invalide</translation>
@@ -6190,9 +5462,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>Le plug-in a terminé son cycle de vie et a été supprimé</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -6229,7 +5498,7 @@ Raison : %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation type="obsolete">Activer/désactiver l&apos;édition en mode vim</translation>
@@ -6250,9 +5519,6 @@ Raison : %3</translation>
         <source>Path to .vimrc</source>
         <translation>Chemin vers .vimrc</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation type="obsolete">Pas implémenté dans FakeVim</translation>
@@ -6458,9 +5724,6 @@ Raison : %3</translation>
         <source>Argument must be positive: %1=%2</source>
         <translation>L&apos;argument doit être positif : %1 = %2</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Général</translation>
@@ -6476,10 +5739,6 @@ Raison : %3</translation>
     <message>
         <source>Use FakeVim</source>
         <translation>Utiliser FakeVim</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation type="obsolete">prendre en compte .vimrc</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
@@ -6601,9 +5860,6 @@ Raison : %3</translation>
         <source>Browse...</source>
         <translation>Parcourir...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Switch to next file</source>
         <translation type="obsolete">Passer au fichier suivant</translation>
@@ -6652,19 +5908,8 @@ Raison : %3</translation>
         </translation>
     </message>
     <message>
-        <source>Not an editor command: %1</source>
-        <translation type="obsolete">Pas une commande de l&apos;éditeur : %1</translation>
-    </message>
-    <message>
         <source>FakeVim Information</source>
         <translation>Information sur FakeVim</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
-    <message>
-        <source>Use FakeVim</source>
-        <translation type="obsolete">Utiliser FakeVim</translation>
     </message>
     <message>
         <source>Vim style settings</source>
@@ -6683,10 +5928,6 @@ Raison : %3</translation>
         <translation type="obsolete">Surligner les résultats de recherche :</translation>
     </message>
     <message>
-        <source>Shift width:</source>
-        <translation type="obsolete">Largeur d&apos;indentation :</translation>
-    </message>
-    <message>
         <source>Smart tabulators:</source>
         <translation type="obsolete">Tabulation intelligente :</translation>
     </message>
@@ -6697,14 +5938,6 @@ Raison : %3</translation>
     <message>
         <source>vim&apos;s &quot;tabstop&quot; option</source>
         <translation type="obsolete">option &quot;tabstop&quot; de vim</translation>
-    </message>
-    <message>
-        <source>Tabulator size:</source>
-        <translation type="obsolete">Taille des tabulations :</translation>
-    </message>
-    <message>
-        <source>Backspace:</source>
-        <translation type="obsolete">Touche retour :</translation>
     </message>
     <message>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
@@ -6731,83 +5964,8 @@ Raison : %3</translation>
         <translation type="obsolete">Définir le style plein</translation>
     </message>
     <message>
-        <source>Read .vimrc</source>
-        <translatorcomment>J&apos;aurais proposer &quot;lire les .vimrc&quot; non ?
-pierre: ouaip, je trouvais ça plus clair avec &quot;prendre en compte&quot; puisque pour le coup c&apos;est des préférences
-Francis : en effet, je n&apos;avais pas pris en compte le contexte.</translatorcomment>
-        <translation type="obsolete">prendre en compte .vimrc</translation>
-    </message>
-    <message>
-        <source>Vim Behavior</source>
-        <translation type="obsolete">Comportement Vim</translation>
-    </message>
-    <message>
-        <source>Automatic indentation</source>
-        <translation type="obsolete">Indentation automatique</translation>
-    </message>
-    <message>
-        <source>Start of line</source>
-        <translation type="obsolete">Début de ligne</translation>
-    </message>
-    <message>
-        <source>Smart indentation</source>
-        <translation type="obsolete">Indentation intelligente</translation>
-    </message>
-    <message>
-        <source>Use search dialog</source>
-        <translation type="obsolete">Utiliser la fenêtre de recherche</translation>
-    </message>
-    <message>
-        <source>Expand tabulators</source>
-        <translation type="obsolete">Étendre les tabulations</translation>
-    </message>
-    <message>
-        <source>Show position of text marks</source>
-        <translation type="obsolete">Afficher la position des marques textuelles</translation>
-    </message>
-    <message>
-        <source>Smart tabulators</source>
-        <translation type="obsolete">Tabulation intelligente</translation>
-    </message>
-    <message>
-        <source>Highlight search results</source>
-        <translation type="obsolete">Surligner les résultats de recherche</translation>
-    </message>
-    <message>
-        <source>Incremental search</source>
-        <translation type="obsolete">Recherche incrémentale</translation>
-    </message>
-    <message>
-        <source>Keyword characters:</source>
-        <translation type="obsolete">Caractères mot-clés :</translation>
-    </message>
-    <message>
-        <source>Copy Text Editor Settings</source>
-        <translation type="obsolete">Copier les paramètres de l&apos;éditeur de texte</translation>
-    </message>
-    <message>
-        <source>Set Qt Style</source>
-        <translation type="obsolete">Utiliser le style Qt</translation>
-    </message>
-    <message>
-        <source>Set Plain Style</source>
-        <translation type="obsolete">Utiliser le style simple</translation>
-    </message>
-    <message>
         <source>Checking this box passes key sequences like Ctrl-S to the Creator core instead of interpreting them in FakeVim. This gives easier access to Creator core functionality at the price of losing some features of FakeVim.</source>
         <translation type="obsolete">Cocher cette case passe des séquences comme Ctrl+S au coeur de Creator au lieu de les interpréter dans FakeVim. Ceci donne un accès plus facile aux fonctionnalités du coeur de Creator, au prix de la perte de quelques fonctionnalités de FakeVim. </translation>
-    </message>
-    <message>
-        <source>Pass control key</source>
-        <translation type="obsolete">Passer la clé de contrôle</translation>
-    </message>
-    <message>
-        <source>Vim tabstop option</source>
-        <translation type="obsolete">Option tabstop de Vim</translation>
-    </message>
-    <message>
-        <source>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</source>
-        <translation type="obsolete">Passer les séquences de touches comme Ctrl-S à Qt Creator au lieu de les interpréter dans FakeVim. Ceci donne un accès plus facile aux fonctionnalités de base de Qt Creator au prix de la perte de certaines fonctionnalités de FakeVim. </translation>
     </message>
 </context>
 <context>
@@ -6859,7 +6017,7 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Search for...</source>
         <translation type="obsolete">Rechercher...</translation>
@@ -6877,10 +6035,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation type="obsolete">Rec&amp;herche :</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
         <source>&amp;Case sensitive</source>
         <translation type="obsolete">Sensible à la &amp;casse</translation>
     </message>
@@ -6895,10 +6049,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>Use regular e&amp;xpressions</source>
         <translation type="obsolete">Utiliser des e&amp;xpressions régulières</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
     </message>
     <message>
         <source>Sco&amp;pe:</source>
@@ -6924,24 +6074,10 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Search &amp;&amp; &amp;Replace</source>
         <translation>&amp;Remplacer &amp;&amp; Suivant</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <translation type="obsolete">&amp;Rechercher/Remplacer</translation>
-    </message>
     <message>
         <source>Find...</source>
         <translation type="obsolete">Rechercher dans...</translation>
     </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="obsolete">Ctrl+Maj+F</translation>
-    </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation type="obsolete">Document courant</translation>
@@ -7030,9 +6166,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Preserve Case when Replacing</source>
         <translation>Conserver la casse lors du remplacement</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Rechercher</translation>
@@ -7040,10 +6173,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>Find:</source>
         <translation>Rechercher :</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Remplacer par :</translation>
     </message>
     <message>
         <source>All</source>
@@ -7054,24 +6183,9 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation>...</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Remplacer</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Remplacer &amp;&amp; chercher</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Remplacer tout</translation>
-    </message>
-    <message>
         <source>Advanced...</source>
         <translation>Avancé...</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>No matches found!</source>
         <translation type="obsolete">Aucun résultat !</translation>
@@ -7089,22 +6203,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation>%1 %2</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation type="obsolete">Remplacer avec :</translation>
-    </message>
-    <message>
-        <source>Replace all occurrences</source>
-        <translation type="obsolete">Remplacer toutes les occurrences</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation type="obsolete">Remplacer</translation>
-    </message>
-    <message>
-        <source>This change cannot be undone.</source>
-        <translation type="obsolete">Ce changement ne peut être annulé.</translation>
-    </message>
-    <message>
         <source>Do not warn again</source>
         <translation type="obsolete">Ne plus avertir</translation>
     </message>
@@ -7118,7 +6216,7 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation type="obsolete">Écraser %1 :</translation>
@@ -7133,14 +6231,11 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation type="obsolete">&lt;nouveau&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Créer</translation>
@@ -7170,9 +6265,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>New Configuration Name:</source>
         <translation type="obsolete">Nom de la nouvelle configuration :</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation type="obsolete">Nom de la configuration :</translation>
@@ -7197,9 +6289,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Generic Manager</source>
         <translation>Gestionnaire générique</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -7213,9 +6302,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="obsolete">&lt;b&gt;Make : &lt;/b&gt;%1 %2</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation type="obsolete">Importer un projet basé sur un Makefile</translation>
@@ -7244,20 +6330,9 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Imports existing projects that do not use qmake or CMake. This allows you to use Qt Creator as a code editor.</source>
         <translation type="obsolete">Importer un projet existant n&apos;utilisant pas qmake ni CMake. Ceci vous permet d&apos;utiliser Qt Creator comme éditeur de code.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <translation type="obsolete">Importer un projet basé sur un Makefile</translation>
-    </message>
     <message>
         <source>Generic Project</source>
         <translation type="obsolete">Projet générique</translation>
-    </message>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Importation d&apos;un projet existant</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -7289,7 +6364,7 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Branches</source>
         <translation>Branches</translation>
@@ -9083,7 +8158,7 @@ Valider maintenant ?</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Ajouter une nouvelle page</translation>
@@ -9439,10 +8514,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <translation type="obsolete">Copier l&apos;adresse du &amp;lien</translation>
     </message>
     <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Ouvrir le lien dans un nouvel onglet</translation>
-    </message>
-    <message>
         <source>Select All</source>
         <translation type="obsolete">Tout sélectionner</translation>
     </message>
@@ -9453,14 +8524,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
     <message>
         <source>Indexing Documentation...</source>
         <translation>Indexation de la documentation…</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Ouvrir le lien</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Ouvrir le lien en tant que nouvelle page</translation>
     </message>
     <message>
         <source>Copy Link</source>
@@ -9523,35 +8586,13 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <translatorcomment>proxy -&gt; serveur mandataire ? -&gt; en théorie, oui</translatorcomment>
         <translation>&lt;li&gt;Si votre ordinateur ou votre réseau est protégé par un pare-feu ou un serveur mandataire, assurez-vous que l&apos;application est autorisée à accéder au réseau.&lt;/li&gt;</translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Rechercher :</translation>
     </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Ouvrir le lien</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Ouvrir le lien en tant que nouvelle page</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Ouvrir le lien dans un nouvel onglet</translation>
-    </message>
 </context>
 <context>
-    <name>InputPane</name>
-    <message>
-        <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="obsolete">Taper Ctrl-&lt;Retour&gt; pour exécuter une ligne.</translation>
-    </message>
-</context>
-<context>
-    <name>Locator</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filters</source>
         <translation type="obsolete">Filtres</translation>
@@ -9807,15 +8848,7 @@ dans votre fichier .pro.</translation>
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation type="obsolete">Écraser %1 :</translation>
-    </message>
-    <message>
-        <source>Make arguments:</source>
-        <translation type="obsolete">Arguments de Make :</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -9844,45 +8877,7 @@ dans votre fichier .pro.</translation>
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
-    <message>
-        <source>Open File With...</source>
-        <translation type="obsolete">Ouvrir le fichier avec...</translation>
-    </message>
-    <message>
-        <source>Open file extension with:</source>
-        <translation type="obsolete">Ouvrir ce type d&apos;extension avec :</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal</name>
-    <message>
-        <source>No executable specified</source>
-        <translation type="obsolete">Aucun exécutable spécifié</translation>
-    </message>
-    <message>
-        <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation type="obsolete">Impossible de lancer &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; timed out after %2ms.</source>
-        <translation type="obsolete">&quot;%1&quot; arrivé à échéance après %2ms.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation type="obsolete">&quot;%1&quot; a crashé.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; terminated with exit code %2: %3</source>
-        <translation type="obsolete">&quot;%1&quot; terminé avec le code %2 : %3</translation>
-    </message>
-    <message>
-        <source>The client does not seem to contain any mapped files.</source>
-        <translation type="obsolete">Le client ne semble contenir aucun fichier correspondant.</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translatorcomment>?</translatorcomment>
@@ -9893,9 +8888,6 @@ dans votre fichier .pro.</translation>
         <translatorcomment>?</translatorcomment>
         <translation>Numéro du changement :</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Modifications pour P4 en attente</translation>
@@ -9912,9 +8904,6 @@ dans votre fichier .pro.</translation>
         <source>Change %1: %2</source>
         <translation>Modification %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -10140,10 +9129,6 @@ dans votre fichier .pro.</translation>
         <translation>Log du dépôt</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Envoyer</translation>
-    </message>
-    <message>
         <source>Diff Selected Files</source>
         <translation type="obsolete">Faire un diff sur tous les fichiers sélectionnés</translation>
     </message>
@@ -10310,16 +9295,10 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation type="obsolete">Erreur d&apos;exécution de &quot;where&quot; sur %1 : le fichier n&apos;est pas mappé</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce Submit</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Prompt Perforce</translation>
@@ -10328,9 +9307,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -10415,9 +9391,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Automatically open files when editing</source>
         <translation>Ouvrir automatiquement les fichiers lors de l&apos;édition</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Commande Perforce</translation>
@@ -10434,13 +9407,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Test succeeded.</source>
         <translation type="obsolete">Test réussi.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Envoyer</translation>
-    </message>
     <message>
         <source>Change:</source>
         <translation>Modification :</translation>
@@ -10455,30 +9421,7 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Détails de l&apos;erreur</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Plug-ins installés</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Détails sur le plug-in %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Erreurs du plug-in %1</translation>
-    </message>
-</context>
-<context>
-    <name>PluginManager</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
         <translation>Le plugin &quot;%1&apos; est spécifié deux fois pour les tests.</translation>
@@ -10499,9 +9442,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Failed Plugins</source>
         <translation>Plug-ins défectueux</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>L&apos;attribute &apos;%1&apos; est manquant pour &quot;%2&quot;</translation>
@@ -10568,7 +9508,7 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -10633,95 +9573,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>Impossible de démarrer le processus &quot;%1&quot; %2</translation>
     </message>
-    <message>
-        <source>Could not start process &quot;%1&quot;</source>
-        <translation type="obsolete">Impossible de démarrer le processus &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
-    <message numerus="yes">
-        <source>Finished %n of %1 build steps</source>
-        <translation type="obsolete">
-            <numerusform>%n étape de compilation sur %1 terminée</numerusform>
-            <numerusform>%n étapes de compilation sur %1 terminées</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Finished %1 of %n build steps</source>
-        <translation type="obsolete">
-            <numerusform>%1 étape de compilation sur %n terminée</numerusform>
-            <numerusform>%1 étapes de compilation sur %n terminées</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
-        <translation type="obsolete">Compilation</translation>
-    </message>
-    <message>
-        <source>Build System</source>
-        <comment>Category for build system isses listened under &apos;Build Issues&apos;</comment>
-        <translation type="obsolete">Système de compilation</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <comment>Category for compiler isses listed under &apos;Issues&apos;</comment>
-        <translation type="obsolete">Compilation</translation>
-    </message>
-    <message>
-        <source>Build System</source>
-        <comment>Category for build system isses listed under &apos;Issues&apos;</comment>
-        <translation type="obsolete">Système de compilation</translation>
-    </message>
-    <message>
-        <source>Build canceled</source>
-        <translation type="obsolete">Compilation annulée</translation>
-    </message>
-    <message>
-        <source>Canceled build.</source>
-        <translation type="obsolete">Compilation annulée.</translation>
-    </message>
-    <message>
-        <source>When executing build step &apos;%1&apos;</source>
-        <translation type="obsolete">Lors de l&apos;exécution de l&apos;étape &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Running build steps for project %1...</source>
-        <translation type="obsolete">Exécution des étapes de compilation pour le projet %1...</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Compilation annulée.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="obsolete">Compilation</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1 (target: %2)&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Erreur lors de la compilation du projet %1 (cible : %2)&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>Error while building project %1 (target: %2)</source>
-        <translation type="obsolete">Erreur à la compilation du projet %1 (cible : %2)</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Erreur lors de la compilation du projet %1&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;When executing build step &apos;%1&apos;&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;lors de l&apos;éxecution de l&apos;étape &quot;%1&quot;&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>Error while building project %1</source>
-        <translation type="obsolete">Erreur à la compilation du projet %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Exécution des étapes de compilation pour le projet %2...&lt;/b&gt;</translation>
-    </message>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translatorcomment>lorsqu&apos;il n&apos;y a qu&apos;une étape 1/1 n&apos;est pas franchement utile... -&gt; et comme ça ?</translatorcomment>
@@ -10777,79 +9628,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Skipping disabled step %1.</source>
         <translation>Ignore l&apos;étape désactivée %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
-    <message>
-        <source>Custom Executable</source>
-        <translatorcomment>custom ici a plutôt le sens de celui utilisé, usage mais je sais pas comment le traduire ?</translatorcomment>
-        <translation type="obsolete">Exécutable personnalisé</translation>
-    </message>
-    <message>
-        <source>Could not find the executable, please specify one.</source>
-        <translation type="obsolete">Exécutable introuvable, merci d&apos;en spécifier un.</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement vierge</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="obsolete">Exécuter %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation type="obsolete">Exécutable personnalisé</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
-    <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation type="obsolete">&lt;NON-DÉFINI&gt;</translation>
-    </message>
-    <message>
-        <source>Variable</source>
-        <translation type="obsolete">Variable</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="obsolete">Valeur</translation>
-    </message>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <comment>Name when inserting a new variable</comment>
-        <translation type="obsolete">&lt;VARIABLE&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;VALUE&gt;</source>
-        <comment>Value when inserting a new variable</comment>
-        <translation type="obsolete">&lt;VALEUR&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <extracomment>Name when inserting a new variable</extracomment>
-        <translation type="obsolete">&lt;VARIABLE&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;VALUE&gt;</source>
-        <extracomment>Value when inserting a new variable</extracomment>
-        <translation type="obsolete">&lt;VALEUR&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Édition</translation>
@@ -10909,9 +9687,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Summary: No changes to Environment</source>
         <translation type="obsolete">Résumé : l&apos;environnement n&apos;est pas modifié</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation type="obsolete">Fichiers dans n&apos;importe quel projet</translation>
@@ -10919,14 +9694,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>Files in Any Project</source>
         <translation>Fichiers dans n&apos;importe quel projet</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
-    <message>
-        <source>All Projects</source>
-        <translatorcomment>lower &quot;t&quot; at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
-        <translation>tous les projets</translation>
     </message>
     <message>
         <source>All Projects:</source>
@@ -10943,31 +9710,8 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Pat&amp;ron de fichier :</translation>
     </message>
     <message>
-        <source>File &amp;pattern:</source>
-        <translatorcomment>Schéma de fichier?</translatorcomment>
-        <translation type="obsolete">&amp;Motif de fichier :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
-    <message>
-        <source>Build Settings</source>
-        <translation type="obsolete">Paramètres de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
-    <message>
         <source>&amp;Clone Selected</source>
         <translation>&amp;Cloner la version sélectionnée</translation>
-    </message>
-    <message>
-        <source>Build Steps</source>
-        <translation type="obsolete">Étapes de compilation</translation>
-    </message>
-    <message>
-        <source>Edit Build Configuration:</source>
-        <translation type="obsolete">Éditer la configuration de compilation :</translation>
     </message>
     <message>
         <source>No build settings available</source>
@@ -10984,10 +9728,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>Remove</source>
         <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
     </message>
     <message>
         <source>Remove Build Configuration</source>
@@ -11047,45 +9787,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Voulez-vous vraiment supprimer la configuration de compilation &lt;b&gt;%1&lt;/b&gt; ?</translation>
     </message>
     <message>
-        <source>Clean Steps</source>
-        <translation type="obsolete">Étapes de nettoyage</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Rendre %1 actif.&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>New Configuration Name:</source>
-        <translation type="obsolete">Nom de la nouvelle configuration :</translation>
-    </message>
-    <message>
-        <source>Clone configuration</source>
-        <translation type="obsolete">Configuration du clone</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
-    <message>
-        <source>No Build Steps</source>
-        <translation type="obsolete">Aucune étape de compilation</translation>
-    </message>
-    <message>
-        <source>Add clean step</source>
-        <translation type="obsolete">Ajouter une étape de nettoyage</translation>
-    </message>
-    <message>
-        <source>Add build step</source>
-        <translation type="obsolete">Ajouter une étape de compilation</translation>
-    </message>
-    <message>
-        <source>Remove clean step</source>
-        <translation type="obsolete">Supprimer une étape de nettoyage</translation>
-    </message>
-    <message>
-        <source>Remove build step</source>
-        <translation type="obsolete">Supprimer une étape de compilation</translation>
-    </message>
-    <message>
         <source>Build Steps</source>
         <translation>Étapes de compilation</translation>
     </message>
@@ -11094,77 +9795,13 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Étapes de nettoyage</translation>
     </message>
     <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Déplacer vers le haut</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Déplacer vers le bas</translation>
-    </message>
-    <message>
-        <source>Remove Item</source>
-        <translation type="obsolete">Supprimer l&apos;élément</translation>
-    </message>
-    <message>
-        <source>Removing Step failed</source>
-        <translation type="obsolete">Échec de la suppression de l&apos;étape</translation>
-    </message>
-    <message>
-        <source>Can&apos;t remove build step while building</source>
-        <translation type="obsolete">Impossible de supprimer une étape de compilation pendant la compilation</translation>
-    </message>
-    <message>
-        <source>Add Clean Step</source>
-        <translation type="obsolete">Ajouter une étape de nettoyage</translation>
-    </message>
-    <message>
-        <source>Add Build Step</source>
-        <translation type="obsolete">Ajouter une étape de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
         <source>Compile Output</source>
         <translation>Sortie de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
-    <message>
-        <source>Cancel Build &amp;&amp; Close</source>
-        <translation type="obsolete">Annuler la compilation et fermer</translation>
-    </message>
-    <message>
-        <source>Do not Close</source>
-        <translation type="obsolete">Ne pas fermer</translation>
-    </message>
-    <message>
-        <source>Close Qt Creator?</source>
-        <translation type="obsolete">Fermer Qt Creator ?</translation>
-    </message>
-    <message>
-        <source>A project is currently being built.</source>
-        <translation type="obsolete">Un projet est en cours de compilation.</translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
-        <translation type="obsolete">Voulez-vous annuler le processus de compilation et fermer Qt Creator ?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
-    <message>
-        <source>Files in current project</source>
-        <translation type="obsolete">Fichiers dans le projet courant</translation>
     </message>
     <message>
         <source>Files in Current Project</source>
         <translation>Fichiers dans le projet courant</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translatorcomment>lower character at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
@@ -11173,125 +9810,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>Project &apos;%1&apos;:</source>
         <translation>Projet &apos;%1&apos; :</translation>
-    </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translation type="obsolete">&amp;Motif de fichier :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Exécutable :</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Run in &amp;Terminal</source>
-        <translation type="obsolete">Lancer dans un &amp;terminal</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal</source>
-        <translation type="obsolete">Exécuter dans le &amp;terminal</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;éxecution</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
-        <source>No Executable specified.</source>
-        <translation type="obsolete">Aucun exécutable spécifié.</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Exécution en cours : &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <source>Base environment for this runconfiguration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;éxecution :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
-    <message>
-        <source>Dependencies</source>
-        <translation type="obsolete">Dépendances</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
-    <message>
-        <source>%1 of project %2</source>
-        <translation type="obsolete">%1 du projet %2</translation>
-    </message>
-    <message>
-        <source>Could not rename file</source>
-        <translation type="obsolete">Impossible de renommer le fichier</translation>
-    </message>
-    <message>
-        <source>Renaming file %1 to %2 failed.</source>
-        <translation type="obsolete">Échec du renommage du fichier %1 en %2.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
-    <message>
-        <source>Editor Settings</source>
-        <translation type="obsolete">Paramètres de l&apos;éditeur</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
-    <message>
-        <source>Default File Encoding:</source>
-        <translation type="obsolete">Encodage de fichier par défaut :</translation>
-    </message>
-    <message>
-        <source>Default file encoding:</source>
-        <translation type="obsolete">Encodage de fichier par défaut :</translation>
-    </message>
-    <message>
-        <source>Use global settings</source>
-        <translation type="obsolete">Utiliser les paramètres globaux</translation>
-    </message>
-    <message>
-        <source>Restore Global Values</source>
-        <translation type="obsolete">Restaurer les valeurs globales</translation>
     </message>
     <message>
         <source>Editor settings:</source>
@@ -11303,18 +9821,13 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Global</translation>
     </message>
     <message>
-        <source>Custom</source>
-        <translatorcomment>?</translatorcomment>
-        <translation>Personnalisé</translation>
-    </message>
-    <message>
         <source>Restore Global</source>
         <translatorcomment>?</translatorcomment>
         <translation>Restaurer les valeurs globales</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>Système de fichier</translation>
@@ -11331,47 +9844,12 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Filter Files</source>
         <translation>Fichiers de filtre</translation>
     </message>
-    <message>
-        <source>Synchronize with Editor</source>
-        <translation type="obsolete">Synchroniser avec l&apos;éditeur</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
-    <message>
-        <source>New session name</source>
-        <translation type="obsolete">Nom de la nouvelle session</translation>
-    </message>
-    <message>
-        <source>Enter the name of the new session:</source>
-        <translation type="obsolete">Entrez le nom de la nouvelle session :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
-    <message>
-        <source>Switch to session</source>
-        <translation type="obsolete">Passer à la session</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Session Manager</source>
         <translation>Gestionnaire de session</translation>
-    </message>
-    <message>
-        <source>Create New Session</source>
-        <translation type="obsolete">Créer une nouvelle session</translation>
-    </message>
-    <message>
-        <source>Clone Session</source>
-        <translation type="obsolete">Cloner la session</translation>
-    </message>
-    <message>
-        <source>Delete Session</source>
-        <translation type="obsolete">Supprimer la session</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Qu&apos;est ce qu&apos;une session ?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -11417,161 +9895,30 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Qu&apos;est-ce qu&apos;une session ?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
-    <message>
-        <source>Re-run this run-configuration</source>
-        <translation type="obsolete">Relancer cette configuration de lancement</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="obsolete">Arrêter</translation>
-    </message>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Fenêtre de sortie de l&apos;application</translation>
-    </message>
-    <message>
-        <source>The application is still running.</source>
-        <translation type="obsolete">L&apos;application est en cours d&apos;éxecution.</translation>
-    </message>
-    <message>
-        <source>Force it to quit?</source>
-        <translatorcomment>l&apos;application</translatorcomment>
-        <translation type="obsolete">La forcer à quitter ?</translation>
-    </message>
-    <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">Forcer  quitter</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+R</source>
-        <translation type="obsolete">Ctrl+Shift+R</translation>
-    </message>
-    <message>
-        <source>Application Output</source>
-        <translation type="obsolete">Sortie de l&apos;application</translation>
-    </message>
-    <message>
-        <source>The application is still running. Close it first.</source>
-        <translation type="obsolete">L&apos;application est toujours en cours d&apos;exécution. Veuillez la fermer d&apos;abord.</translation>
-    </message>
-    <message>
-        <source>Unable to close</source>
-        <translation type="obsolete">Impossible de fermer</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Fenêtre de sortie de l&apos;application</translation>
-    </message>
-    <message>
-        <source>Additional output omitted
-</source>
-        <translation type="obsolete">Sortie supplémentaire omise
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>Étape personnalisée</translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>item in combobox</comment>
-        <translation>Étape personnalisée</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
-    <message>
-        <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
-        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
-    </message>
-    <message>
-        <source>(disabled)</source>
-        <translation type="obsolete">(désactivé)</translation>
-    </message>
     <message>
         <source>Custom Process Step</source>
         <translation>Étape personnalisée</translation>
-    </message>
-    <message>
-        <source>%1 (disabled)</source>
-        <extracomment>%1 is the custom process step summary</extracomment>
-        <translation type="obsolete">%1 (désactivée)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
         <source>Command:</source>
         <translation>Commande :</translation>
     </message>
     <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Command Arguments:</source>
-        <translation type="obsolete">Arguments de la commande :</translation>
-    </message>
-    <message>
-        <source>Enable Custom Process Step</source>
-        <translation type="obsolete">Activer les étapes personnalisés</translation>
-    </message>
-    <message>
-        <source>Enable custom process step</source>
-        <translation type="obsolete">Activer les étapes personnalisés</translation>
-    </message>
-    <message>
         <source>Working directory:</source>
         <translation>Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Command arguments:</source>
-        <translation type="obsolete">Arguments de la commande :</translation>
     </message>
     <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>Build and Run</source>
-        <translation type="obsolete">Compiler et exécuter</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
-    </message>
     <message>
         <source>General</source>
         <translation>Général</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
         <translation>Fabrique de fichiers de projets</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Échec lors de l&apos;ouverture du projet</translation>
     </message>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
@@ -11581,9 +9928,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>All Projects</source>
         <translation>tous les projets</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Ajouter Implicitement&gt;</translation>
@@ -11631,9 +9975,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>Échec de l&apos;ajout de &quot;%1&quot; au système de gestion de version.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation type="obsolete">Simplifier l&apos;arbre</translation>
@@ -11654,9 +9995,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Synchronize with Editor</source>
         <translation>Synchroniser avec l&apos;éditeur</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Projets</translation>
@@ -11677,9 +10015,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Filter tree</source>
         <translation type="obsolete">Filtrer l&apos;arbre</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation type="obsolete">Ajouter à &amp;SGV (%1)</translation>
@@ -11704,54 +10039,9 @@ au projet &apos;%2&apos;.</translation>
         <source>Files to be added in</source>
         <translation>Fichiers à ajouter dans</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
-    <message>
-        <source>Remove File</source>
-        <translation type="obsolete">Supprimer le fichier</translation>
-    </message>
-    <message>
-        <source>File to remove:</source>
-        <translation type="obsolete">Fichier à supprimer :</translation>
-    </message>
-    <message>
-        <source>&amp;Delete file permanently</source>
-        <translation type="obsolete">&amp;Supprimer le fichier de façon permanente</translation>
-    </message>
-    <message>
-        <source>&amp;Remove from Version Control</source>
-        <translation type="obsolete">&amp;Supprimer du système de gestion de version</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Paramètres d&apos;exécution</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Rendre %1 actif.&lt;/a&gt;</translation>
-    </message>
     <message>
         <source>Run Settings</source>
         <translation>Paramètres d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
     </message>
     <message>
         <source>Deployment</source>
@@ -11760,10 +10050,6 @@ au projet &apos;%2&apos;.</translation>
     <message>
         <source>Method:</source>
         <translation>Méthode :</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
     </message>
     <message>
         <source>Run configuration:</source>
@@ -11778,20 +10064,12 @@ au projet &apos;%2&apos;.</translation>
         <translation>Êtes vous sûr de vouloir supprimer la configuration d&apos;exécution &lt;b&gt;%1&lt;/b&gt; ?</translation>
     </message>
     <message>
-        <source>Rename...</source>
-        <translation>Renommer...</translation>
-    </message>
-    <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Nouveau nom pour la configuration d&apos;exécution &lt;b&gt;%1&lt;/b&gt; : </translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>Annuler la compilation &amp;&amp; supprimer le configuration de déploiement</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Ne pas supprimer</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -11817,74 +10095,9 @@ au projet &apos;%2&apos;.</translation>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Nouveau nom pour la configuration de déploiement &lt;b&gt;%1&lt;/b&gt; : </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
-    <message>
-        <source>+</source>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="obsolete">-</translation>
-    </message>
-    <message>
-        <source>Edit run configuration:</source>
-        <translation type="obsolete">Éditer la configuration d&apos;exécution :</translation>
-    </message>
-    <message>
-        <source>Run configuration:</source>
-        <translation type="obsolete">Configuration d&apos;exécution :</translation>
-    </message>
-    <message>
-        <source>Deployment:</source>
-        <translation type="obsolete">Déploiement :</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
-    </message>
-    <message>
-        <source>Rename ...</source>
-        <translation type="obsolete">Renommer ...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
-    <message>
-        <source>Session</source>
-        <translation type="obsolete">Session</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="obsolete">Échec d&apos;ouverture du projet</translation>
-    </message>
-    <message>
-        <source>Untitled</source>
-        <comment>default file name to display</comment>
-        <translation type="obsolete">Sans titre</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Fichier non trouvé : %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
-    <message>
-        <source>Build Issues</source>
-        <translation type="obsolete">Problèmes de compilation</translation>
     </message>
     <message>
         <source>Issues</source>
@@ -11902,9 +10115,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Show Warnings</source>
         <translation>Afficher les avertissements</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation type="obsolete">Le processus n&apos;a pas pû être démarré !</translation>
@@ -11917,9 +10127,6 @@ au projet &apos;%2&apos;.</translation>
         <source>The process could not be started: %1</source>
         <translation type="obsolete">Le processus n&apos;a pas pu être démarré : %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation type="obsolete">Gestion du projet</translation>
@@ -11949,35 +10156,12 @@ au projet &apos;%2&apos;.</translation>
 </translation>
     </message>
     <message>
-        <source>Add to &amp;project:</source>
-        <translation>&amp;Ajouter au projet :</translation>
-    </message>
-    <message>
         <source>Add to &amp;version control:</source>
         <translation>Ajouter au gestionnaire de &amp;version :</translation>
     </message>
     <message>
         <source>Project Management</source>
         <translation>Gestion du projet</translation>
-    </message>
-    <message>
-        <source>Manage</source>
-        <translation type="obsolete">Gérer</translation>
-    </message>
-    <message>
-        <source>Manage ...</source>
-        <translation type="obsolete">Gérer ...</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -12032,10 +10216,6 @@ au projet &apos;%2&apos;.</translation>
         <translation type="obsolete">Afficher le dossier parent...</translation>
     </message>
     <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Projets récents</translation>
-    </message>
-    <message>
         <source>Close Project</source>
         <translation>Fermer le projet</translation>
     </message>
@@ -12046,10 +10226,6 @@ au projet &apos;%2&apos;.</translation>
     <message>
         <source>Close All Projects</source>
         <translation type="obsolete">Fermer tous les projets</translation>
-    </message>
-    <message>
-        <source>Session</source>
-        <translation type="obsolete">Session</translation>
     </message>
     <message>
         <source>Set Build Configuration</source>
@@ -12120,10 +10296,6 @@ au projet &apos;%2&apos;.</translation>
         <translation>Nettoyer sans les dépendances</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
-    </message>
-    <message>
         <source>Sessions</source>
         <translation>Sessions</translation>
     </message>
@@ -12134,10 +10306,6 @@ au projet &apos;%2&apos;.</translation>
     <message>
         <source>Run Without Deployment</source>
         <translation>Exécuter sans déploiement</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Renommer...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -12262,10 +10430,6 @@ au projet &apos;%2&apos;.</translation>
         <translation>Effacer le fichier... </translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
-    </message>
-    <message>
         <source>Set as Startup Project</source>
         <translation type="obsolete">Définir en tant que projet de démarrage</translation>
     </message>
@@ -12309,24 +10473,12 @@ Souhaitez-vous les ignorer ?</translation>
         <translation>Toujours enregistrer les fichiers avant de compiler</translation>
     </message>
     <message>
-        <source>Clean</source>
-        <translation>Nettoyer</translation>
-    </message>
-    <message>
         <source>Close All Projects and Editors</source>
         <translation>Fermer tous les projets et éditeurs</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Compilation</translation>
-    </message>
-    <message>
         <source>Rebuild</source>
         <translation>Recompiler</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Déploiement</translation>
     </message>
     <message>
         <source>Set &quot;%1&quot; as Active Project</source>
@@ -12423,10 +10575,6 @@ Souhaitez-vous les ignorer ?</translation>
 </source>
         <translation>Le projet %1 n&apos;est pas configuré, il sera ignoré.
 </translation>
-    </message>
-    <message>
-        <source>No project loaded.</source>
-        <translation>Aucun projet chargé.</translation>
     </message>
     <message>
         <source>Currently building the active project.</source>
@@ -12652,9 +10800,6 @@ au système de gestion de version (%2) ?</translation>
         <source>Could not delete file %1.</source>
         <translation>Impossible de supprimer le fichier %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Erreur lors de la restauration de la session</translation>
@@ -12688,10 +10833,6 @@ au système de gestion de version (%2) ?</translation>
         <translation>Supprimer les projets de la session</translation>
     </message>
     <message>
-        <source>Failed to open project</source>
-        <translation>Échec d&apos;ouverture du projet</translation>
-    </message>
-    <message>
         <source>Session</source>
         <translation>Session</translation>
     </message>
@@ -12704,10 +10845,6 @@ au système de gestion de version (%2) ?</translation>
         <translation>Impossible d&apos;enregistrer la session dans le fichier %1</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
         <source>Untitled</source>
         <translation>Sans titre</translation>
     </message>
@@ -12717,7 +10854,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation type="obsolete">Configuration de QMake pour la compilation :</translation>
@@ -12797,7 +10934,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation type="obsolete">Application QML</translation>
@@ -12814,9 +10951,6 @@ au système de gestion de version (%2) ?</translation>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Le projet %1 n&apos;a pas pu être ouvert.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation type="obsolete">Nouveau projet QML</translation>
@@ -12825,9 +10959,6 @@ au système de gestion de version (%2) ?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation type="obsolete">Cet assistant génère un projet pour une application QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation type="obsolete">Importer un répertoire QML existant</translation>
@@ -12836,17 +10967,6 @@ au système de gestion de version (%2) ?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation type="obsolete">Crée un projet QML à partir d&apos;un répertoire existant de fichiers QML.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation type="obsolete">Le projet %1 n&apos;a pas pu être ouvert.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation type="obsolete">Importation de projet QML</translation>
@@ -12863,17 +10983,6 @@ au système de gestion de version (%2) ?</translation>
         <source>Location:</source>
         <translation type="obsolete">Emplacement :</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Visualisateur QML</translation>
-    </message>
-    <message>
-        <source>&lt;Current File&gt;</source>
-        <translation type="obsolete">&lt;Fichier courant&gt;</translation>
-    </message>
     <message>
         <source>QML Viewer arguments:</source>
         <translation type="obsolete">Arguments du visualisateur QML :</translation>
@@ -12884,7 +10993,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
@@ -12911,7 +11020,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation type="obsolete">Application Qt4 en console</translation>
@@ -13230,10 +11339,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier pour édition avec le gestionnaire de versions. </translation>
     </message>
     <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Impossible de définir les permissions</translation>
-    </message>
-    <message>
         <source>Cannot set permissions to writable.</source>
         <translation type="obsolete">Impossible d&apos;attribuer les droits en écriture.</translation>
     </message>
@@ -13466,54 +11571,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Exécuter qmake dans %1</translation>
     </message>
     <message>
-        <source>Build in %1</source>
-        <translation type="obsolete">Compiler dans %1</translation>
-    </message>
-    <message>
-        <source>Qt4RunConfiguration</source>
-        <translation type="obsolete">Qt4RunConfiguration</translation>
-    </message>
-    <message>
-        <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
-        <translation type="obsolete">Impossible d&apos;analyser %1. La configuration de Qt 4 %2 ne peut pas être démarrée.</translation>
-    </message>
-    <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">Le fichier .pro est en cours d&apos;analyse. </translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Le fichier .pro n&apos;a pas pu être analysé. </translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement vierge</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Qt Run Configuration</source>
-        <translation>Configuration d&apos;exécution Qt</translation>
-    </message>
-    <message>
-        <source>Qt4 Run Configuration</source>
-        <translation type="obsolete">Configuration d&apos;exécution Qt4</translation>
-    </message>
-    <message>
-        <source>Qt4 RunConfiguration</source>
-        <translation type="obsolete">Configuration d&apos;exécution Qt4</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
-        <translation type="obsolete">Lancement de l&apos;exécutable &lt;b&gt;%1&lt;/b&gt; %2 (dans un terminal)</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Lancement de l&apos;exécutable &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
     </message>
@@ -13532,22 +11589,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Run in terminal</source>
         <translation>Exécuter dans un terminal</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -13610,35 +11651,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Sélectionner le répertoire de la chaîne de compilation CSL Arm (GCCE)</translation>
     </message>
     <message>
-        <source>Auto-detected</source>
-        <translation type="obsolete">Auto-détecté</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation type="obsolete">Manuel</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation type="obsolete">Aide à la compilation</translation>
-    </message>
-    <message>
-        <source>Helpers: None available</source>
-        <translation type="obsolete">Assistants : aucun disponible</translation>
-    </message>
-    <message>
-        <source>Helpers: %1.</source>
-        <extracomment>%1 is list of tool names.</extracomment>
-        <translation type="obsolete">Assistants : %1. </translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Not yet built.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Pas encore compilé.&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Not needed.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Pas requis.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>&lt;i&gt;Cannot be compiled.&lt;/i&gt;</source>
         <translation type="obsolete">&lt;i&gt;Ne peut pas être compilé.&lt;/i&gt;</translation>
     </message>
@@ -13650,268 +11662,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
         <translation type="obsolete">Journal de compilation de l&apos;assistant de debogage pour &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Binary not found</source>
-        <translation type="obsolete">Binaire non trouvé</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;GDB debugging helpers&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML type dumper&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last modified:&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%6 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML observer&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last modified:&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%9 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Tooltip showing the debugging helper library file.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Assistants au débogage de GDB&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fichier :&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Dernière modification :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Taille :&lt;/td&gt;&lt;td&gt;%3 octets&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Dumper de type QML&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fichier :&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Dernière modification :&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Taille :&lt;/td&gt;&lt;td&gt;%6 octets&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Observateur QML&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fichier :&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Dernière modification :&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Taille :&lt;/td&gt;&lt;td&gt;%9 octets&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>This Qt Version has a unknown toolchain.</source>
-        <translation type="obsolete">La version de Qt a une chaîne de compilation inconnue.</translation>
-    </message>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt Version is meant for the desktop</comment>
-        <translation type="obsolete">Desktop</translation>
-    </message>
-    <message>
-        <source>Symbian</source>
-        <comment>Qt Version is meant for Symbian</comment>
-        <translation type="obsolete">Symbian</translation>
-    </message>
-    <message>
-        <source>Maemo</source>
-        <comment>Qt Version is meant for Maemo</comment>
-        <translation type="obsolete">Maemo</translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <comment>Qt Version is meant for Qt Simulator</comment>
-        <translation type="obsolete">Qt Simulator</translation>
-    </message>
-    <message>
-        <source>unkown</source>
-        <comment>No idea what this Qt Version is meant for!</comment>
-        <translation type="obsolete">inconnue</translation>
-    </message>
-    <message>
-        <source>Found Qt version %1, using mkspec %2 (%3)</source>
-        <translation type="obsolete">Version %1 de Qt trouvée, utilise le mkspec %2 (%3)</translation>
-    </message>
-    <message>
-        <source>The Qt Version identified by %1 is not installed. Run make install</source>
-        <translation type="obsolete">La version de Qt indentifiée par %1 n&apos;est pas installée. Lancez make install</translation>
-    </message>
-    <message>
-        <source>%1 does not specify a valid Qt installation</source>
-        <translation type="obsolete">%1 ne spécifie pas une installation de Qt valide</translation>
-    </message>
-    <message>
-        <source>Found Qt version %1, using mkspec %2</source>
-        <translation type="obsolete">Version %1 de Qt trouvée, utilise le mkspec %2</translation>
-    </message>
-    <message>
-        <source>Qt versions</source>
-        <translation type="obsolete">Versions de Qt</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Nom</translation>
-    </message>
-    <message>
-        <source>Debugging Helper</source>
-        <translation type="obsolete">Assistance au débogage</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="obsolete">-</translation>
-    </message>
-    <message>
-        <source>Version Name:</source>
-        <translation type="obsolete">Nom de version :</translation>
-    </message>
-    <message>
-        <source>MinGw Directory:</source>
-        <translation type="obsolete">Répertoire de MinGW :</translation>
-    </message>
-    <message>
-        <source>MSVC Version:</source>
-        <translation type="obsolete">Version de MSVC :</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Unable to detect MSVC version.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Impossible de détecter la version de MSVC.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Debugging Helper:</source>
-        <translation type="obsolete">Assistance au débogage :</translation>
-    </message>
-    <message>
-        <source>Show &amp;Log</source>
-        <translation type="obsolete">Afficher les &amp;log</translation>
-    </message>
-    <message>
-        <source>&amp;Rebuild</source>
-        <translation type="obsolete">&amp;Recompiler</translation>
-    </message>
-    <message>
-        <source>Default Qt Version:</source>
-        <translation type="obsolete">Version de Qt par défaut :</translation>
-    </message>
-    <message>
-        <source>QMake Location</source>
-        <translation type="obsolete">Emplacement de QMake</translation>
-    </message>
-    <message>
-        <source>QMake Location:</source>
-        <translation type="obsolete">Emplacement de QMake :</translation>
-    </message>
-    <message>
-        <source>S60 SDK:</source>
-        <translation type="obsolete">SDK S60 :</translation>
-    </message>
-    <message>
-        <source>Carbide Directory:</source>
-        <translation type="obsolete">Répertoire de Carbide :</translation>
-    </message>
-    <message>
-        <source>MinGW Directory:</source>
-        <translation type="obsolete">Répertoire de MinGW :</translation>
-    </message>
-    <message>
-        <source>CSL/GCCE Directory:</source>
-        <translation type="obsolete">Répertoire CSL/GCCE :</translation>
-    </message>
-    <message>
-        <source>qmake Location</source>
-        <translation type="obsolete">Emplacement de QMake</translation>
-    </message>
-    <message>
-        <source>Version name:</source>
-        <translation type="obsolete">Nom de version :</translation>
-    </message>
-    <message>
-        <source>qmake location:</source>
-        <translation type="obsolete">Emplacement de QMake :</translation>
-    </message>
-    <message>
-        <source>MinGW directory:</source>
-        <translation type="obsolete">Répertoire de MinGW :</translation>
-    </message>
-    <message>
-        <source>Toolchain:</source>
-        <translation type="obsolete">Chaîne d&apos;outils :</translation>
-    </message>
-    <message>
-        <source>CSL/GCCE directory:</source>
-        <translation type="obsolete">Répertoire CSL/GCCE :</translation>
-    </message>
-    <message>
-        <source>Carbide directory:</source>
-        <translation type="obsolete">Répertoire de Carbide :</translation>
-    </message>
-    <message>
-        <source>Debugging helper:</source>
-        <translation type="obsolete">Assistance au débogage :</translation>
-    </message>
-    <message>
-        <source>Unable to detect MSVC version.</source>
-        <translation type="obsolete">Impossible de détecter la version de MSVC. </translation>
-    </message>
-    <message>
-        <source>Debugging helpers:</source>
-        <translation type="obsolete">Assistants de débogage : </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation type="obsolete">Le projet %1 ne peut pas être ouvert.</translation>
-    </message>
-    <message>
-        <source>Edit Variable</source>
-        <translation type="obsolete">Éditer une variable</translation>
-    </message>
-    <message>
-        <source>Variable Name:</source>
-        <translation type="obsolete">Nom de variable :</translation>
-    </message>
-    <message>
-        <source>Assignment Operator:</source>
-        <translation type="obsolete">Opérateur d&apos;assignation :</translation>
-    </message>
-    <message>
-        <source>Variable:</source>
-        <translation type="obsolete">Variable :</translation>
-    </message>
-    <message>
-        <source>Append (+=)</source>
-        <translation type="obsolete">Ajouté à la fin (+=)</translation>
-    </message>
-    <message>
-        <source>Remove (-=)</source>
-        <translation type="obsolete">Supprimer (-=)</translation>
-    </message>
-    <message>
-        <source>Replace (~=)</source>
-        <translation type="obsolete">Remplacer (~=)</translation>
-    </message>
-    <message>
-        <source>Set (=)</source>
-        <translation type="obsolete">Définir (=)</translation>
-    </message>
-    <message>
-        <source>Unique (*=)</source>
-        <translation type="obsolete">Unique (*=)</translation>
-    </message>
-    <message>
-        <source>Select Item</source>
-        <translation type="obsolete">Sélectionner élément</translation>
-    </message>
-    <message>
-        <source>Edit Item</source>
-        <translation type="obsolete">Éditer l&apos;élément</translation>
-    </message>
-    <message>
-        <source>Select Items</source>
-        <translation type="obsolete">Sélectionner les éléments</translation>
-    </message>
-    <message>
-        <source>Edit Items</source>
-        <translation type="obsolete">Éditer les éléments</translation>
-    </message>
-    <message>
-        <source>Edit Values</source>
-        <translation type="obsolete">Éditer les valeurs</translation>
-    </message>
-    <message>
-        <source>Edit %1</source>
-        <translation type="obsolete">Éditer %1</translation>
-    </message>
-    <message>
-        <source>Edit Scope</source>
-        <translation type="obsolete">Éditer la portée</translation>
-    </message>
-    <message>
-        <source>Edit Advanced Expression</source>
-        <translation type="obsolete">Éditer les expressions avancées</translation>
-    </message>
-    <message>
-        <source>Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator nécessite une configuration de compilation pour compiler. Configurez une chaîne de compilation dans le mode Projet.</translation>
-    </message>
-    <message>
-        <source>Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator requiert une chaîne de compilation pour compiler. Configurez-en une dans le mode Projet. </translation>
     </message>
     <message>
         <source>Make</source>
@@ -14429,7 +12179,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Locator::ILocatorFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Configuration du filtre</translation>
@@ -14442,16 +12192,9 @@ p, li { white-space: pre-wrap; }
         <source>Prefix:</source>
         <translation>Préfixe :</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Filtre de dossier générique</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Configuration du filtre</translation>
     </message>
     <message>
         <source>Choose a directory to add</source>
@@ -14476,9 +12219,6 @@ p, li { white-space: pre-wrap; }
         <source>%1 filter update: canceled</source>
         <translation>Mise à jour du filtre %1 : annulée</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
@@ -14492,25 +12232,9 @@ p, li { white-space: pre-wrap; }
         <translation>Spécifier les filtres de nom de fichier, séparés par la virgule. Les filtres peuvent contenir des caractères de remplacement.</translation>
     </message>
     <message>
-        <source>Prefix:</source>
-        <translation>Préfixe :</translation>
-    </message>
-    <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Spécifier un mot court ou une abbréviation qui peut être utilisé pour réstreindre les complétions aux fichiers de cette arborescence. Pour ce faire, entrer ce raccourci et un espace dans le champs localisation, puis ensuite le mot à chercher.</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Limiter au préfixe</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Ajouter...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -14529,13 +12253,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Ajouter</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>Éditer</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
-    <message>
         <source>Files in file system</source>
         <translation type="obsolete">Fichiers du système de fichier</translation>
     </message>
@@ -14543,20 +12260,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Files in File System</source>
         <translation>Fichiers dans le système de fichiers</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Configuration du filtre</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Préfixe :</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Limiter au préfixe</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -14570,9 +12276,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Add Filter Configuration</source>
         <translation>Ajouter un filtre de configuration</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation type="obsolete">Ouvrir des documents</translation>
@@ -14581,16 +12284,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Open Documents</source>
         <translation>Documents ouverts</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Filtres disponibles</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -14607,9 +12304,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Indexing</source>
         <translation>Indexation</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Rafraîchir</translation>
@@ -14623,10 +12317,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Localiser...</translation>
     </message>
     <message>
-        <source>Type to locate</source>
-        <translation type="obsolete">Taper pour localiser</translation>
-    </message>
-    <message>
         <source>Options</source>
         <translation>Options</translation>
     </message>
@@ -14634,62 +12324,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>&lt;type here&gt;</source>
         <translation>&lt;taper ici&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsDialog</name>
-    <message>
-        <source>Configure Filters</source>
-        <translation type="obsolete">Configurer les filtres</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
-    </message>
-    <message>
-        <source>Refresh Interval:</source>
-        <translation type="obsolete">Intervalle de raffraichissement :</translation>
-    </message>
-    <message>
-        <source> min</source>
-        <translation type="obsolete">min</translation>
-    </message>
-    <message>
-        <source>Refresh now!</source>
-        <translation type="obsolete">Raffraîchir maintenant !</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
-    <message>
-        <source>%1 (Prefix: %2)</source>
-        <translation type="obsolete">%1 (Préfixe : %2)</translation>
-    </message>
     <message>
         <source>%1 (prefix: %2)</source>
         <translation>%1 (préfixe : %2)</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Configurer les filtres</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -14844,7 +12485,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation type="obsolete">Crée une fichier ressource Qt (.qrc).</translation>
@@ -14877,9 +12518,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Recheck existence of referenced files</source>
         <translation>Vérifiez à nouveau l&apos;existence des fichiers référencés</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation>Ouvrir avec</translation>
@@ -14898,21 +12536,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
-    <message>
-        <source>Save Changes</source>
-        <translation type="obsolete">Sauvegarder les changements</translation>
-    </message>
-    <message>
-        <source>The following files have unsaved changes:</source>
-        <translation type="obsolete">Les fichiers suivants contiennent des modifications non enregistrées :</translation>
-    </message>
-    <message>
-        <source>Automatically save all files before building</source>
-        <translation type="obsolete">Sauvegarder automatiquement tous les fichiers avant de compiler</translation>
-    </message>
-</context>
-<context>
     <name>SettingsDialog</name>
     <message>
         <source>Options</source>
@@ -14924,55 +12547,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
-    <message>
-        <source>Add Files</source>
-        <translation type="obsolete">Ajouter des fichiers</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation type="obsolete">Ajouter un préfixe</translation>
-    </message>
-    <message>
-        <source>Choose Copy Location</source>
-        <translation type="obsolete">Choisir l&apos;emplacement de copie</translation>
-    </message>
-    <message>
-        <source>Overwriting Failed</source>
-        <translation type="obsolete">Echec de l&apos;écrasement</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">Échec de la copie</translation>
-    </message>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Invalid file</source>
         <translation type="obsolete">Fichier invalide</translation>
     </message>
     <message>
-        <source>Copy</source>
-        <translation type="obsolete">Copier</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translatorcomment>ignorer ?</translatorcomment>
-        <translation type="obsolete">Passer</translation>
-    </message>
-    <message>
-        <source>Abort</source>
-        <translation type="obsolete">Abandonner</translation>
-    </message>
-    <message>
         <source>The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.</source>
         <translation type="obsolete">Le fichier %1 n&apos;est pas dans un sous-dossier du fichier de ressource. Continuer résulterait en un fichier de ressource invalide.</translation>
-    </message>
-    <message>
-        <source>Invalid file location</source>
-        <translation type="obsolete">Emplacement de fichier invalide</translation>
-    </message>
-    <message>
-        <source>The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.</source>
-        <translation type="obsolete">Le fichier %1 n&apos;est pas dans un sous-dossier du fichier de ressource. Vous avez maintenant la possibilité de le copier vers un emplacement valide.</translation>
     </message>
     <message>
         <source>Choose copy location</source>
@@ -14983,20 +12565,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="obsolete">L&apos;écrasement a échoué</translation>
     </message>
     <message>
-        <source>Could not overwrite file %1.</source>
-        <translation type="obsolete">L&apos;écrasement du fichier %1 a échoué.</translation>
-    </message>
-    <message>
         <source>Copying failed</source>
         <translation type="obsolete">Échec de la copie</translation>
     </message>
-    <message>
-        <source>Could not copy the file to %1.</source>
-        <translation type="obsolete">La copie du fichier dans &quot;%1&quot; a échoué.</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation type="obsolete">Ajouter des fichiers...</translation>
@@ -15022,20 +12593,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="obsolete">Supprimer l&apos;élément</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation type="obsolete">Ouvrir le fichier</translation>
-    </message>
-    <message>
         <source>Input prefix:</source>
         <translation type="obsolete">Préfixe d&apos;entrée : </translation>
     </message>
     <message>
         <source>Open file</source>
         <translation type="obsolete">Ouvrir le fichier</translation>
-    </message>
-    <message>
-        <source>All files (*)</source>
-        <translation type="obsolete">Tous les fichiers (*)</translation>
     </message>
     <message>
         <source>Change Prefix</source>
@@ -15050,51 +12613,15 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="obsolete">Changer la langue</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation type="obsolete">Langue :</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation type="obsolete">Changer l&apos;alias du fichier</translation>
     </message>
-    <message>
-        <source>Alias:</source>
-        <translation type="obsolete">Alias :</translation>
-    </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
-    <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="obsolete">Raccourcis clavier</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation type="obsolete">Filtre :</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Commande</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Libellé</translation>
-    </message>
-    <message>
-        <source>Shortcut</source>
-        <translation type="obsolete">Raccourci</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Defaults</source>
         <translation type="obsolete">Restaurer</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
     </message>
     <message>
         <source>Key Sequence</source>
@@ -15103,14 +12630,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Shortcut:</source>
         <translation type="obsolete">Raccourci :</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
     </message>
 </context>
 <context>
@@ -15121,21 +12640,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Extraits de code</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Extraits de code</translation>
-    </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -15196,27 +12701,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Log count:</source>
         <translation>Nombre de log :</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Commande Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionOutputWindow</name>
     <message>
         <source>Subversion Output</source>
         <translation type="obsolete">Sortie de Subversion</translation>
     </message>
-    <message>
-        <source>Subversion</source>
-        <translation type="obsolete">Subversion</translation>
-    </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -15499,16 +12991,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">Subversion n&apos;a pas répondu après la limite de temps (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Submit sur Subversion</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Search</source>
         <translation>Rechercher</translation>
@@ -15518,65 +13007,18 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Annulation du remplacement.</translation>
     </message>
     <message>
-        <source>%1 found</source>
-        <translation type="obsolete">%1 élément(s) trouvé(s)</translation>
-    </message>
-    <message>
         <source>List of comma separated wildcard filters</source>
         <translatorcomment>wildcard -&gt; joker mais est-ce le terme pour les expressions régulières en français ?</translatorcomment>
         <translation>Liste de filtres &apos;joker&apos; séparés par des virgules</translation>
     </message>
-    <message>
-        <source>Use regular e&amp;xpressions</source>
-        <translation type="obsolete">Utiliser des e&amp;xpressions régulières</translation>
-    </message>
-    <message>
-        <source>Use Regular E&amp;xpressions</source>
-        <translation type="obsolete">Utiliser des e&amp;xpressions régulières</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translatorcomment>document ? (en plus c&apos;est plus long...)</translatorcomment>
         <translation>sans titre</translation>
     </message>
     <message>
-        <source>Out of memory</source>
-        <translation type="obsolete">Mémoire insuffisante</translation>
-    </message>
-    <message>
         <source>Opening file</source>
         <translation>Ouverture du fichier</translation>
-    </message>
-    <message>
-        <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
-        <translation type="obsolete">&lt;em&gt;Données binaire&lt;/em&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
-    <message>
-        <source>CTRL+D</source>
-        <translation type="obsolete">Ctrl+D</translation>
-    </message>
-    <message>
-        <source>Print Document</source>
-        <translation type="obsolete">Imprimer le document</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translatorcomment>error -&gt; erreur ;)</translatorcomment>
-        <translation type="obsolete">&lt;b&gt;Erreur :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation type="obsolete">Choisir l&apos;encodage</translation>
-    </message>
-    <message>
-        <source>The text is too large to be displayed (%1 MB).</source>
-        <translation type="obsolete">Le texte est trop lourd pour être affiché (%1 Mo). </translation>
     </message>
     <message>
         <source>Line: %1, Col: %2</source>
@@ -15585,136 +13027,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Line: 9999, Col: 999</source>
         <translation>Ligne 9999, colonne 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation type="obsolete">Ligne : %1, Col : %2</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: 999</source>
-        <translation type="obsolete">Ligne : %1, Col : 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
-    <message>
-        <source>Tabs and Indentation</source>
-        <translation type="obsolete">Tabulation et indentation</translation>
-    </message>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Insérer des e&amp;spaces au lieu de tabulations</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Activer l&apos;&amp;indentation automatique</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="obsolete">La touche retour reviendra un niveau d&apos;indentation en arrière au lieux d&apos;un caractère espace.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">La touche &amp;retour arrière suit l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Taille de &amp;tabulation :</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">Taille de l&apos;in&amp;dentation :</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">La touche tabulation active l&apos;identation automatique :</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Jamais</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
-    </message>
-    <message>
-        <source>In leading white space</source>
-        <translation type="obsolete">En début de ligne uniquement</translation>
-    </message>
-    <message>
-        <source>Storage</source>
-        <translation type="obsolete">Sauvegarde</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace on saving.</source>
-        <translation type="obsolete">Supprime les caractères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Nettoyer les espaces</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Nettoyer les espaces dans tout le document au lieu de limiter le nettoyage aux parties modifiées.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">Dans tout le &amp;document</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Corriger les espaces à l&apos;avant des lignes pour respecter la configuration des tabulations.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Nettoyer l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Forcer un retour de ligne à la fin du fichier</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="obsolete">Déterminer automatiquement en se basant sur la ligne indentée la plus proche (ligne précédente préférée à la ligne suivante)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Basé sur les lignes environnantes</translation>
-    </message>
-    <message>
-        <source>Block indentation style:</source>
-        <translation type="obsolete">Style d&apos;indentation de bloc : </translation>
-    </message>
-    <message>
-        <source>Exclude Braces</source>
-        <translation type="obsolete">Exclure les accolades</translation>
-    </message>
-    <message>
-        <source>Include Braces</source>
-        <translation type="obsolete">Inclure les accolades</translation>
-    </message>
-    <message>
-        <source>GNU Style</source>
-        <translation type="obsolete">Style GNU</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Dans des espaces en début de ligne</translation>
-    </message>
-    <message>
-        <source>Mouse</source>
-        <translation type="obsolete">Souris</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Activer la navigation à la &amp;souris</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Activer le zoom via la &amp;roulette</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -15798,80 +13110,10 @@ void foo()
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Align continuation lines:</source>
-        <translatorcomment>continuation line: lors du passage à la ligne automatique (text wrap)</translatorcomment>
-        <translation type="obsolete">Aligner les lignes de continuation :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influences the indentation of continuation lines.
-
-&lt;ul&gt;
-&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translatorcomment>continuation line ? </translatorcomment>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influence l&apos;indentation des lignes de continuation. 
-&lt;ul&gt;
-&lt;li&gt;Pas du tout : ne pas aligner. Les lignes ne seront indentées jusqu&apos;à la profondeur d&apos;indentation logique. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec espaces : toujours utiliser des espaces pour l&apos;alignement, sans tenir compte des autres paramètres d&apos;indentation. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec indentation régulière : utiliser des tabulations et/ou des espaces pour l&apos;alignement, en fonction de la configuration.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Not At All</source>
-        <translation type="obsolete">Pas du tout</translation>
-    </message>
-    <message>
-        <source>With Spaces</source>
-        <translation type="obsolete">Avec espaces</translation>
-    </message>
-    <message>
-        <source>With Regular Indent</source>
-        <translation type="obsolete">Avec indentation régulière</translation>
-    </message>
-    <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globaux</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Animate matching parentheses</source>
         <translation type="obsolete">Animer les parenthèses correspondantes</translation>
@@ -15881,17 +13123,10 @@ Influence l&apos;indentation des lignes de continuation.
         <translation type="obsolete">Navigation</translation>
     </message>
     <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Activer la navigation à la &amp;souris</translation>
-    </message>
-    <message>
         <source>Mark text changes</source>
         <translatorcomment>Put a red mark next to the text that has been modified since the last save</translatorcomment>
         <translation type="obsolete">Marquer le texte modifié</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation type="obsolete">Polices &amp; couleurs</translation>
@@ -15945,9 +13180,6 @@ Influence l&apos;indentation des lignes de continuation.
         This is only an example.</source>
         <translation type="obsolete">\n\tCeci est seulement un exemple.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Encodage du texte</translation>
@@ -15970,9 +13202,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Save with Encoding</source>
         <translation>Sauver avec l&apos;encodage</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translatorcomment>lower character at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
@@ -15988,38 +13217,6 @@ Les encodages suivants pourraient convenir :</translation>
         <translation>Chemin de fichier : %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
-    <message>
-        <source>Files on Disk</source>
-        <translatorcomment>lower character at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
-        <translation type="obsolete">fichiers sur le disque</translation>
-    </message>
-    <message>
-        <source>Files on File System</source>
-        <translation type="obsolete">Fichiers dans le système de fichiers</translation>
-    </message>
-    <message>
-        <source>&amp;Directory:</source>
-        <translation type="obsolete">&amp;Dossier :</translation>
-    </message>
-    <message>
-        <source>&amp;Browse</source>
-        <translation type="obsolete">&amp;Parcourir</translation>
-    </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translatorcomment>Schéma ou motif ? (motif ça fait penser au style du même nom...)</translatorcomment>
-        <translation type="obsolete">&amp;Motif de fichier :</translation>
-    </message>
-    <message>
-        <source>Directory to search</source>
-        <translation type="obsolete">Dossier dans lequel effectuer la recherche</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Police</translation>
@@ -16042,36 +13239,8 @@ Les encodages suivants pourraient convenir :</translation>
         <translation>Jeu de couleurs</translation>
     </message>
     <message>
-        <source>Bold</source>
-        <translation type="obsolete">Gras</translation>
-    </message>
-    <message>
-        <source>Italic</source>
-        <translation type="obsolete">Italique</translation>
-    </message>
-    <message>
-        <source>Background:</source>
-        <translation type="obsolete">Arrière plan :</translation>
-    </message>
-    <message>
-        <source>Foreground:</source>
-        <translation type="obsolete">Premier plan :</translation>
-    </message>
-    <message>
-        <source>Erase background</source>
-        <translation type="obsolete">Effacer l&apos;arrière plan</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <translation type="obsolete">Aperçu :</translation>
-    </message>
-    <message>
         <source>Copy...</source>
         <translation>Copier...</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>%</source>
@@ -16081,9 +13250,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Zoom:</source>
         <translation>Zoom :</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1, Column %2</source>
         <translation>Ligne %1, colonne %2</translation>
@@ -16104,9 +13270,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Line in Current Document</source>
         <translation>Ligne du document courant</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation type="obsolete">Créer un fichier texte (.txt).</translation>
@@ -16175,9 +13338,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Current document&apos;s font size in points.</source>
         <translation>Taille de la police du document courant en points. </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>Annu&amp;ler</translation>
@@ -16748,9 +13908,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source> &lt;line number&gt;</source>
         <translation type="obsolete"> &lt;numéro de ligne&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Texte</translation>
@@ -17192,10 +14349,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
         <translation>Emplacement du Diff</translation>
     </message>
     <message>
-        <source>Text Editor</source>
-        <translation type="obsolete">Éditeur de texte</translation>
-    </message>
-    <message>
         <source>Behavior</source>
         <translation>Comportement</translation>
     </message>
@@ -17268,7 +14421,7 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose Topic</source>
         <translatorcomment>thème ?</translatorcomment>
@@ -17296,7 +14449,7 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Gestion de versions</translation>
@@ -17313,9 +14466,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
         <source>Project from Version Control</source>
         <translation type="obsolete">Projet d&apos;un gestionnaire de versions</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -17341,9 +14491,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
         <source>Nicknames</source>
         <translation>Surnoms</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>État</translation>
@@ -17351,32 +14498,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     <message>
         <source>File</source>
         <translation>Fichier</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
-    <message>
-        <source>Annotate &quot;%1&quot;</source>
-        <translation type="obsolete">Annoter &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Copy &quot;%1&quot;</source>
-        <translation type="obsolete">Copier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Describe change %1</source>
-        <translation type="obsolete">Decrivez le changement %1</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
-    <message>
-        <source>Check message</source>
-        <translation type="obsolete">Contrôle du message</translation>
-    </message>
-    <message>
-        <source>Insert name...</source>
-        <translation type="obsolete">Inserez le nom...</translation>
     </message>
     <message>
         <source>Prompt to submit</source>
@@ -17433,50 +14554,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     <message>
         <source>The check script returned exit code %1.</source>
         <translation>Le script de vérification a retourné le code %1.</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
-    <message>
-        <source>Common</source>
-        <translation type="obsolete">Commun</translation>
-    </message>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Limiter la largeur du message à :</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Un fichier exécutable qui est appelé avec comme premier argument le message dans un fichier temporaire. Pour indiquer une erreur, il doit se terminer avec un code != 0 et un message sur la sortie d&apos;erreur standard.</translation>
-    </message>
-    <message>
-        <source>Submit message check script:</source>
-        <translation type="obsolete">Script de vérification du message :</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Un fichier listant les noms d&apos;utilisateur et leur adresse email dans le format 4 colonnes de mailmap :
-nom &lt;email&gt; alias &lt;email&gt;</translation>
-    </message>
-    <message>
-        <source>User/alias configuration file:</source>
-        <translation type="obsolete">Fichier de configuration des alias utilisateur :</translation>
-    </message>
-    <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Un fichier texte contenant des lignes telles que &quot;Reviewed-By:&quot;, qui seront ajoutées à la fin dans l&apos;éditeur de message.</translation>
-    </message>
-    <message>
-        <source>User fields configuration file:</source>
-        <translation type="obsolete">Fichier de configuration des champs utilisateurs :</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation type="obsolete">Gestion de versions</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -17609,11 +14686,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Server Prefix:</source>
         <translation type="obsolete">Préfixe du serveur :</translation>
@@ -17633,10 +14706,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Notez que les plug-ins utiliseront ceci pour poster et récupérer les snippets.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Server prefix:</source>
-        <translation type="obsolete">Préfixe du serveur :</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows to send posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.&lt;/p&gt;
 &lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -17644,17 +14713,9 @@ p, li { white-space: pre-wrap; }
 &lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; permet d&apos;envoyer les snippets à des sous-domaines personnalisés (par exemple qtcreator.pastebin.com). Remplissez le préfixe désiré.&lt;/p&gt;
 &lt;p&gt;Notez que les plug-ins utiliseront ceci pour poster et récupérer les snippets.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
-        <translation type="obsolete">&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; permet d&apos;envoyer d&apos;envoyer des messages à des sous-domaines personnalisés (comme creator.pastebin.com). Remplissez le préfixe désiré. </translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Note : le plug-in utilisera ceci pour poster et récupérer. &lt;/i&gt;</translation>
-    </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -17725,7 +14786,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
@@ -17756,7 +14817,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -17904,35 +14965,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation type="obsolete">Police</translation>
-    </message>
-    <message>
-        <source>Family:</source>
-        <translation type="obsolete">Famille :</translation>
-    </message>
-    <message>
-        <source>Style:</source>
-        <translation type="obsolete">Style :</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="obsolete">Taille :</translation>
-    </message>
-    <message>
-        <source>Startup</source>
-        <translation type="obsolete">Démarrage</translation>
-    </message>
-    <message>
-        <source>On context help:</source>
-        <translation type="obsolete">Pour l&apos;aide contextuelle :</translation>
-    </message>
+    <name>QtC::Help</name>
     <message>
         <source>Show side-by-side if possible</source>
         <translation type="obsolete">Afficher côte à côte si possible</translation>
@@ -17944,10 +14977,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Always start full help</source>
         <translation type="obsolete">Toujours afficher l&apos;aide complète</translation>
-    </message>
-    <message>
-        <source>On help start:</source>
-        <translation type="obsolete">Au démarrage de l&apos;aide :</translation>
     </message>
     <message>
         <source>Show my home page</source>
@@ -17966,14 +14995,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Page d&apos;accueil :</translation>
     </message>
     <message>
-        <source>Use &amp;Current Page</source>
-        <translation type="obsolete">Utiliser la page &amp;courante</translation>
-    </message>
-    <message>
-        <source>Use &amp;Blank Page</source>
-        <translation type="obsolete">Utiliser une page &amp;blanche</translation>
-    </message>
-    <message>
         <source>Restore to Default</source>
         <translation type="obsolete">Restaurer les paramètres par défaut</translation>
     </message>
@@ -17989,61 +15010,9 @@ p, li { white-space: pre-wrap; }
         <source>Export...</source>
         <translation type="obsolete">Exporter...</translation>
     </message>
-    <message>
-        <source>Show Side-by-Side if Possible</source>
-        <translation type="obsolete">Afficher côte à côte si possible</translation>
-    </message>
-    <message>
-        <source>Always Show Side-by-Side</source>
-        <translation type="obsolete">Toujours afficher côte à côte</translation>
-    </message>
-    <message>
-        <source>Always Start Full Help</source>
-        <translation type="obsolete">Toujours afficher l&apos;aide complète</translation>
-    </message>
-    <message>
-        <source>Show My Home Page</source>
-        <translation type="obsolete">Afficher ma page d&apos;accueil</translation>
-    </message>
-    <message>
-        <source>Show a Blank Page</source>
-        <translation type="obsolete">Afficher une page blanche</translation>
-    </message>
-    <message>
-        <source>Show My Tabs from Last Session</source>
-        <translation type="obsolete">Afficher mes onglets de la dernière session</translation>
-    </message>
-    <message>
-        <source>Home page:</source>
-        <translation type="obsolete">Page d&apos;accueil :</translation>
-    </message>
-    <message>
-        <source>Always Show Help in External Window</source>
-        <translation type="obsolete">Toujours afficher l&apos;aide dans une fenêtre externe</translation>
-    </message>
-    <message>
-        <source>Behaviour</source>
-        <translation type="obsolete">Comportement</translation>
-    </message>
-    <message>
-        <source>Switch to editor context after last help page is closed.</source>
-        <translation type="obsolete">Basculer vers l&apos;éditeur de contexte après que la dernière page d&apos;aide soit fermée. </translation>
-    </message>
-    <message>
-        <source>Return to editor on closing the last page</source>
-        <translation type="obsolete">Retourner à l&apos;éditeur lors de la fermeture de la dernière page</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>Compilation et exécution</translation>
@@ -18178,69 +15147,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Manage Sessions...</source>
-        <translation type="obsolete">Gestion des sessions...</translation>
-    </message>
-    <message>
-        <source>Create New Project...</source>
-        <translation type="obsolete">Créer un nouveau projet...</translation>
-    </message>
-    <message>
-        <source>Open Recent Project</source>
-        <translation type="obsolete">Ouvrir un projet récent</translation>
-    </message>
-    <message>
-        <source>Resume Session</source>
-        <translation type="obsolete">Reprendre la session</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (dernière session)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (session courante)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nouveau projet</translation>
-    </message>
-    <message>
-        <source>New Project...</source>
-        <translation type="obsolete">Nouveau projet...</translation>
-    </message>
-    <message>
-        <source>Recent Sessions</source>
-        <translation type="obsolete">Sessions récentes</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Projets récents</translation>
-    </message>
-    <message>
-        <source>Open Project...</source>
-        <translation type="obsolete">Ouvrir le projet...</translation>
-    </message>
-    <message>
-        <source>Create Project...</source>
-        <translation type="obsolete">Créer un projet...</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -18403,7 +15317,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>The Qt Creator User Interface</source>
         <translation type="obsolete">L&apos;interface utilisateur de Qt Creator</translation>
@@ -18452,25 +15366,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>The specified location already exists. Please specify a valid location.</source>
         <translation type="obsolete">L&apos;emplacement spécifié existe déjà. Veuillez spécifier un autre emplacement.</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nouveau projet</translation>
-    </message>
-    <message>
-        <source>Cmd</source>
-        <comment>Shortcut key</comment>
-        <translation type="obsolete">Cmd</translation>
-    </message>
-    <message>
-        <source>Alt</source>
-        <comment>Shortcut key</comment>
-        <translation type="obsolete">Alt</translation>
-    </message>
-    <message>
-        <source>Ctrl</source>
-        <comment>Shortcut key</comment>
-        <translation type="obsolete">Ctrl</translation>
     </message>
     <message>
         <source>If you add external libraries to your project, Qt Creator will automatically offer syntax highlighting and code completion.</source>
@@ -18545,18 +15440,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Dans l&apos;éditeur, vous pouvez aller à la définition du symbole en pressant &lt;tt&gt;F2&lt;/tt&gt;, &lt;tt&gt;Maj+F2&lt;/tt&gt; bascule entre déclaration et définition tandis que &lt;tt&gt;F4&lt;/tt&gt; bascule entre en-tête et fichier source.</translation>
     </message>
     <message>
-        <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
-        <translation type="obsolete">Vous pouvez modifier le binaire qui sera exécuté lorsque vous appuyez sur le bouton &lt;tt&gt;Lancer&lt;/tt&gt; : Ajoutez un &lt;tt&gt;exécutable personnalisé&lt;/tt&gt; en cliquant sur le bouton &lt;tt&gt;+&lt;/tt&gt; dans &lt;tt&gt;Projets -&gt; Paramètres d&apos;exécutions -&gt; Configuration d&apos;exécution&lt;/tt&gt; et sélectionnez une nouvelle cible dans le menu déroulant.</translation>
-    </message>
-    <message>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
-        <translation type="obsolete">Vous pouvez utiliser Qt Creator conjointement avec de nombreux &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;systèmes de gestion de version&lt;/a&gt; tel que Subversion, Perforce, CVS et Git.</translation>
-    </message>
-    <message>
-        <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <translation type="obsolete">Dans l&apos;éditeur, &lt;tt&gt;F2&lt;/tt&gt; passe de la déclaration à la définition de fonction, tandis que &lt;tt&gt;F4&lt;/tt&gt; passe du fichier source au fichier d&apos;en-tête.</translation>
-    </message>
-    <message>
         <source>Explore Qt C++ Examples</source>
         <translation type="obsolete">Explorer les exemples Qt C++</translation>
     </message>
@@ -18602,7 +15485,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>Gras</translation>
@@ -18633,72 +15516,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Checkout Directory:</source>
-        <translatorcomment>checkout should stay in English? </translatorcomment>
-        <translation type="obsolete">Répertoire d&apos;import :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
-    </message>
-    <message>
-        <source>Repository</source>
-        <translation type="obsolete">Dépôt</translation>
-    </message>
-    <message>
-        <source>The remote repository to check out.</source>
-        <translatorcomment>check out ? </translatorcomment>
-        <translation type="obsolete">Le dépôt distant à importer. </translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation type="obsolete">Branche :</translation>
-    </message>
-    <message>
-        <source>The development branch in the remote repository to check out.</source>
-        <translation type="obsolete">La branche de développement du dépôt distant à importer. </translation>
-    </message>
-    <message>
-        <source>Retrieve list of branches in repository.</source>
-        <translation type="obsolete">Récupérer la liste des branches du dépôt. </translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Working Copy</source>
-        <translation type="obsolete">Copie de travail</translation>
-    </message>
-    <message>
-        <source>The path in which the directory containing the checkout will be created.</source>
-        <translation type="obsolete">Le chemin dans lequel le répertoire contenant l&apos;import sera effectué. </translation>
-    </message>
-    <message>
-        <source>Checkout Path:</source>
-        <translation type="obsolete">Chemin d&apos;import :</translation>
-    </message>
-    <message>
-        <source>The local directory that will contain the code after the checkout.</source>
-        <translation type="obsolete">Le répertoire local qui contiendra le code après l&apos;importation. </translation>
-    </message>
-    <message>
-        <source>Checkout path:</source>
-        <translation type="obsolete">Chemin d&apos;import :</translation>
-    </message>
-    <message>
-        <source>Checkout directory:</source>
-        <translation type="obsolete">Répertoire d&apos;import :</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="obsolete">Actualités de Qt Labs</translation>
@@ -18785,7 +15603,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::DetailsButton</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Show Details</source>
         <translation type="obsolete">Afficher les détails</translation>
@@ -18796,7 +15614,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Éditeur de texte</translation>
@@ -18845,20 +15663,13 @@ p, li { white-space: pre-wrap; }
         <source>Python Editor</source>
         <translation>Éditeur Python</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>
-    <message>
-        <source>Options</source>
-        <translation>Options</translation>
-    </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences!</source>
         <translation type="obsolete">Aucun serveur définit dans les préférences CodePaster !</translation>
@@ -18895,50 +15706,17 @@ p, li { white-space: pre-wrap; }
         <source>Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).</source>
         <translation type="obsolete">Note : spécifiez le nom d&apos;hôte du service CodePaster sans aucun protocole (par exemple, codepaster.mycompany.com).</translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComProtocol</name>
     <message>
         <source>Error during paste</source>
         <translation type="obsolete">Erreur durant le collage</translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComSettings</name>
     <message>
         <source>Pastebin.com</source>
         <translation type="obsolete">Pastebin.com</translation>
     </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Collage de code</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
 </context>
 <context>
-    <name>PasteView</name>
-    <message>
-        <source>Paste</source>
-        <translation type="obsolete">Coller</translation>
-    </message>
-    <message>
-        <source>&lt;Username&gt;</source>
-        <translation type="obsolete">&lt;Utilisateur&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Description&gt;</source>
-        <translation type="obsolete">&lt;Description&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Comment&gt;</source>
-        <translation type="obsolete">&lt;Commentaire&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Searching...</source>
         <translation type="obsolete">Recherche...</translation>
@@ -18957,7 +15735,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Obtient un projet à partir d&apos;un dépôt CVS.</translation>
@@ -19460,14 +16238,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>untitled</source>
         <translation>sans titre</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">Clone un projet à partir d&apos;un dépôt git.</translation>
@@ -19566,7 +16344,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>General settings</source>
         <translation type="obsolete">Réglages généraux</translation>
@@ -19685,18 +16463,6 @@ p, li { white-space: pre-wrap; }
         <translation>Réinitialiser</translation>
     </message>
     <message>
-        <source>Help Bookmarks</source>
-        <translation type="obsolete">Signet de l&apos;aide</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
-    </message>
-    <message>
         <source>Behaviour</source>
         <translation>Comportement</translation>
     </message>
@@ -19730,7 +16496,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Échec lors de l&apos;exécution du programme. Mauvais chemin ou permissions ?</translation>
@@ -19752,16 +16518,10 @@ p, li { white-space: pre-wrap; }
 </source>
         <translation>Impossible de récupérer la sortie de débogage. </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Exécuter</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>No executable specified.</source>
         <translation>Aucun exécutable n&apos;est spécifié.</translation>
@@ -19797,9 +16557,6 @@ p, li { white-space: pre-wrap; }
 </source>
         <translation>%1 a quitté avec le code %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Le dossier cible %1 n&apos;a pas pu être créé.</translation>
@@ -19827,76 +16584,12 @@ Raison : %2</translation>
         <translation>Assistant GDB</translation>
     </message>
     <message>
-        <source>Building debugging helper library in %1
-</source>
-        <translation type="obsolete">Compilation de la bibliothèque d&apos;assistance au débogage dans %1
-</translation>
-    </message>
-    <message>
-        <source>Running %1 %2...
-</source>
-        <translation type="obsolete">Exécute %1 %2...
-</translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translatorcomment>traduire PATH ici ?</translatorcomment>
-        <translation>%1 non trouvé dans le PATH
-</translation>
-    </message>
-    <message>
-        <source>Running %1 ...
-</source>
-        <translation type="obsolete">Exécute %1...
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
-    <message>
         <source>Develop</source>
         <translation>Développer</translation>
     </message>
     <message>
         <source>New Project</source>
         <translation>Nouveau projet</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projets</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
-    <message>
-        <source>Active run configuration</source>
-        <translation type="obsolete">Configuration d&apos;exécution active</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
-    <message>
-        <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Éditer les paramètres du projet &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>No Project loaded</source>
-        <translation type="obsolete">Aucun projet chargé</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
-    <message>
-        <source>Select Project</source>
-        <translation type="obsolete">Sectionner projet</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
-    <message>
-        <source>Active Build and Run Configurations</source>
-        <translation type="obsolete">Configuration de compilation et d&apos;exécution sélectionnées</translation>
     </message>
     <message>
         <source>No project loaded.</source>
@@ -19945,14 +16638,14 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;Make de QML&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Nouvelle classe&gt;</translation>
@@ -20012,10 +16705,10 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>QtS60DeviceRunConfiguration</source>
         <translation type="obsolete">QtS60DeviceRunConfiguration</translation>
@@ -20388,7 +17081,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation type="obsolete">Vérifie un projet à partir d&apos;un dépôt Subversion.</translation>
@@ -20401,9 +17094,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Subversion Checkout</source>
         <translation>Import Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository, checkout directory and path.</source>
         <translation type="obsolete">Spécifier le dépôt, le répertoire et le chemin de checkout.</translation>
@@ -20422,22 +17112,19 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translatorcomment>Pas sur ?</translatorcomment>
         <translation>Pas un fichier de jeu de couleur.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>Personnalisé</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Impossible d&apos;ouvrir le projet</translation>
@@ -20462,9 +17149,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le projet &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Impossible de démarrer &quot;%1&quot; : %2</translation>
@@ -20485,9 +17169,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Stopping...</source>
         <translation>Arrêt...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Import</translation>
@@ -20508,9 +17189,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Succeeded.</source>
         <translation>Réussi.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Ouvrir &quot;%1&quot;</translation>
@@ -20518,10 +17196,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Clear</source>
         <translation>Effacer</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Gestion de versions</translation>
     </message>
     <message>
         <source>Executing: %1 %2</source>
@@ -20545,7 +17219,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>Nouveauté &amp;&amp; Support</translation>
@@ -20884,7 +17558,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">Id :</translation>
@@ -20984,7 +17658,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">Nom interne</translation>
@@ -20995,42 +17669,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation type="obsolete">Changer la configuration de compilation et continuer</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
-    </message>
-    <message>
-        <source>Continue anyway</source>
-        <translation type="obsolete">Continuer malgré tout</translation>
-    </message>
-    <message>
-        <source>Run configuration does not match build configuration</source>
-        <translation type="obsolete">La configuration d&apos;éxecution ne correspond pas à la configuration de compilation</translation>
-    </message>
-    <message>
-        <source>The active build configuration builds a target that cannot be used by the active run configuration.</source>
-        <translation type="obsolete">La configuration de compilation sélectionnée compile une cible ne pouvant être utilisée par la configuration d&apos;éxecution sélectionnée.</translation>
-    </message>
-    <message>
-        <source>This can happen if the active build configuration uses the wrong Qt version and/or tool chain for the active run configuration (for example, running in Symbian emulator requires building with the WINSCW tool chain).</source>
-        <translation type="obsolete">Ceci peut se produire lorsque la configuration de compilation sélectionnée utilise la mauvaise version de Qt et/ou chaîne de compilation pour la configuration d&apos;éxecution sélectionnée (par exemple. l&apos;exécution dans l&apos;émulateur Symbian requiert une compilation avec la chaîne WINSCW).</translation>
-    </message>
-    <message>
-        <source>No valid build configuration found.</source>
-        <translation type="obsolete">Aucune configuration de compilation valide trouvée.</translation>
-    </message>
-    <message>
-        <source>Active run configuration</source>
-        <translation type="obsolete">Configuration d&apos;exécution active</translation>
-    </message>
-    <message>
-        <source>Choose build configuration:</source>
-        <translation type="obsolete">Choisir la configuration de compilation :</translation>
     </message>
 </context>
 <context>
@@ -21070,62 +17712,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>CommandMappings</name>
-    <message>
-        <source>Command Mappings</source>
-        <translation type="obsolete">Mappages de commandes</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Commande</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Libellé</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation type="obsolete">Cible</translation>
-    </message>
-    <message>
-        <source>Defaults</source>
-        <translation type="obsolete">Restaurer</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
-    </message>
-    <message>
-        <source>Target Identifier</source>
-        <translation type="obsolete">Identifiant de la cible</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation type="obsolete">Cible :</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
-    </message>
-    <message>
-        <source>Reset all to default</source>
-        <translation type="obsolete">Restaurer tous les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Tout réinitialiser</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-</context>
-<context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Stashes</source>
         <translation>Remises</translation>
@@ -21244,7 +17831,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Informations générales</translation>
@@ -21379,7 +17966,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::AddTargetDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Add target</source>
         <translation type="obsolete">Ajouter une cible</translation>
@@ -21388,16 +17975,10 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Target:</source>
         <translation type="obsolete">Cible :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>DoubleTabWidget</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>TargetSettingsWidget</translation>
@@ -22247,7 +18828,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Not signed</source>
         <translation type="obsolete">Non signé</translation>
@@ -22497,11 +19078,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
-    <message>
-        <source>Clean Repository</source>
-        <translation type="obsolete">Nettoyer le dépôt</translation>
-    </message>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Le répertoire %1 ne peut pas être supprimer.</translation>
@@ -22517,10 +19094,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     <message>
         <source>Delete...</source>
         <translation>Supprimer…</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nom</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -22552,72 +19125,21 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Cleaning %1</source>
         <translation>Nettoyage de %1</translation>
     </message>
-</context>
-<context>
-    <name>CommonSettingsPage</name>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Limiter la largeur du message à :</translation>
-    </message>
-    <message>
-        <source> characters</source>
-        <translation type="obsolete"> caractères</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Un fichier exécutable qui est appelé avec comme premier argument le message dans un fichier temporaire. Pour indiquer une erreur, il doit se terminer avec un code différent de 0 et un message sur la sortie d&apos;erreur standard.</translation>
-    </message>
     <message>
         <source>Submit message check script:</source>
         <translation type="obsolete">Script de vérification du message :</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Un fichier listant les noms d&apos;utilisateur et leurs adresses email dans le format 4 colonnes de mailmap :
-nom &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
     <message>
         <source>User/alias configuration file:</source>
         <translation type="obsolete">Fichier de configuration des alias utilisateur :</translation>
     </message>
     <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Un fichier texte contenant des lignes telles que &quot;Reviewed-By:&quot;, qui seront ajoutées à la fin dans l&apos;éditeur de message.</translation>
-    </message>
-    <message>
         <source>User fields configuration file:</source>
         <translation type="obsolete">Fichier de configuration des champs utilisateurs :</translation>
     </message>
     <message>
-        <source>Specifies a command that is executed to graphically prompt for a password, 
-should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="obsolete">Spéficie une commande qui est exécutée pour demander graphiquement un mot de passe 
-si un dépôt requiert une authentification SSH (voir la documentation sur SSH et la variable d&apos;environnement SSH_ASKPASS). </translation>
-    </message>
-    <message>
         <source>SSH prompt command:</source>
         <translation type="obsolete">Invite de commande SSH : </translation>
-    </message>
-    <message>
-        <source>Submit message &amp;check script:</source>
-        <translation type="obsolete">Script de vérifi&amp;cation du message :</translation>
-    </message>
-    <message>
-        <source>User/&amp;alias configuration file:</source>
-        <translation type="obsolete">Fichier de configuration des &amp;alias utilisateur :</translation>
-    </message>
-    <message>
-        <source>User &amp;fields configuration file:</source>
-        <translation type="obsolete">&amp;Fichier de configuration des champs utilisateurs :</translation>
-    </message>
-    <message>
-        <source>&amp;Patch command:</source>
-        <translation type="obsolete">Commande &amp;Patch :</translation>
-    </message>
-    <message>
-        <source>&amp;SSH prompt command:</source>
-        <translation type="obsolete">Invite de commande &amp;SSH : </translation>
     </message>
 </context>
 <context>
@@ -23289,7 +19811,7 @@ francis : ouai assez d&apos;accord.</translatorcomment>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Aucune</translation>
@@ -23298,9 +19820,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <source>All</source>
         <translation>Tout</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Load on Startup</source>
         <translation>Charger au démarrage</translation>
@@ -23311,7 +19830,7 @@ francis : ouai assez d&apos;accord.</translatorcomment>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation type="obsolete">Valeur inconnue pour l&apos;énumération</translation>
@@ -23351,10 +19870,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
     <message>
         <source>expected anchor line</source>
         <translation type="obsolete">Ancre de ligne attendue</translation>
-    </message>
-    <message>
-        <source>unreachable</source>
-        <translation type="obsolete">inattingible</translation>
     </message>
     <message>
         <source>declarations should be at the start of a function</source>
@@ -23469,14 +19984,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <translation type="obsolete">les définitions d&apos;expression devraient être des expression d&apos;assignation, d&apos;appel ou de suppression uniquement</translation>
     </message>
     <message>
-        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
-        <translation type="obsolete">&apos;new&apos; ne devrait être utilisé qu&apos;avec des fonctions qui commence par une lettre majuscule</translation>
-    </message>
-    <message>
-        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
-        <translation type="obsolete">les appels de fonctions qui commence par une lettre majuscule devrait utiliser &apos;new&apos;</translation>
-    </message>
-    <message>
         <source>avoid assignments in conditions</source>
         <translation type="obsolete">éviter l&apos;assignement dans les conditions</translation>
     </message>
@@ -23508,9 +20015,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; ou &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Interpreter::QmlXmlReader</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Le fichier n&apos;est pas un fichier de module.</translation>
@@ -23531,20 +20035,9 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <source>%1: %2</source>
         <translation type="obsolete">%1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>could not find file or directory</source>
         <translation type="obsolete">impossible de trouver le fichier ou le répertoire</translation>
-    </message>
-    <message>
-        <source>expected two numbers separated by a dot</source>
-        <translation type="obsolete">est attendu deux nombres séparés par un point</translation>
-    </message>
-    <message>
-        <source>package import requires a version number</source>
-        <translation type="obsolete">l&apos;importation d&apos;un paquet a besoin d&apos;un numéro de version</translation>
     </message>
     <message>
         <source>package not found</source>
@@ -23580,7 +20073,7 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Locked</source>
         <translation>Verrouillé</translation>
@@ -23589,16 +20082,10 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
         <source>Reset to Default Layout</source>
         <translation>Restaurer la disposition par défaut</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filtre</translation>
@@ -23607,9 +20094,6 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
         <source>Clear text</source>
         <translation>Effacer le texte</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>Le fichier a été supprimé</translation>
@@ -23650,23 +20134,17 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
         <source>Save</source>
         <translation type="obsolete">Enregistrer</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Développer en&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;répertoire du fichier courant&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nom du fichier (avec le chemin complet)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;nom du fichier (sans le chemin)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Decimal unsigned value (little endian): %1
 Decimal unsigned value (big endian): %2
@@ -23690,115 +20168,12 @@ Valeur précédente au format décimal signé (petit-boutiste) : %3
 Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
     </message>
     <message>
-        <source>Memory at 0x%1</source>
-        <translation type="obsolete">Mémoire à 0x%1</translation>
-    </message>
-    <message>
-        <source>Decimal unsigned value:</source>
-        <translation type="obsolete">Valeur décimale non signée :</translation>
-    </message>
-    <message>
-        <source>Decimal signed value:</source>
-        <translation type="obsolete">Valeur décimale signée :</translation>
-    </message>
-    <message>
-        <source>Previous decimal unsigned value:</source>
-        <translation type="obsolete">Valeur précédente décimale non signée :</translation>
-    </message>
-    <message>
-        <source>Previous decimal signed value:</source>
-        <translation type="obsolete">Valeur précédente décimale signée :</translation>
-    </message>
-    <message>
-        <source>%1-bit Integer Type</source>
-        <translation type="obsolete">Type d&apos;entier sur %1 bits</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="obsolete">Petit boutiste</translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="obsolete">Grand boutiste</translation>
-    </message>
-    <message>
-        <source>Binary value:</source>
-        <translation type="obsolete">Valeur binaire :</translation>
-    </message>
-    <message>
-        <source>Octal value:</source>
-        <translation type="obsolete">Valeur octale :</translation>
-    </message>
-    <message>
-        <source>Previous binary value:</source>
-        <translation type="obsolete">Valeur binaire précédente :</translation>
-    </message>
-    <message>
-        <source>Previous octal value:</source>
-        <translation type="obsolete">Valeur octale précédente :</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;double&lt;/i&gt; :</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;double&lt;/i&gt; précédente :</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;float&lt;/i&gt; :</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;float&lt;/i&gt; précédente :</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">Échec de la copie</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation type="obsolete">Vous ne pouvez pas copier plus de 4 Mo de données binaires.</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation type="obsolete">Copier la séléction comme des caractères ASCII</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation type="obsolete">Copier la sélection comme des valeurs hexadécimales</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt sur la sélection</translation>
-    </message>
-    <message>
-        <source>Jump to Address in This Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse dans cette fenêtre</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse dans une nouvelle fenêtre</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse 0x%1 dans cette fenêtre</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse 0x%1 dans une nouvelle fenêtre</translation>
-    </message>
-</context>
-<context>
-    <name>BINEditor::Internal::ImageViewerFactory</name>
-    <message>
         <source>Image Viewer</source>
         <translation type="obsolete">Visualisateur d&apos;image</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation type="obsolete">Exécuter la cible CMake</translation>
@@ -23853,7 +20228,7 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command</source>
         <translation>Commande</translation>
@@ -23862,9 +20237,6 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
         <source>Label</source>
         <translation>Libellé</translation>
     </message>
-</context>
-<context>
-    <name>Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -23881,30 +20253,13 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
         <source>Clear Menu</source>
         <translation>Effacer le menu</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Design</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>Could not open url %1.</source>
         <translation>Impossible d&apos;ouvrir l&apos;url %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Copy full path to clipboard</source>
-        <translation type="obsolete">Copier le chemin complet vers le presse-papier</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
     </message>
     <message>
         <source>Copy Full Path to Clipboard</source>
@@ -23913,14 +20268,6 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
     <message>
         <source>Remove Split</source>
         <translation>Supprimer la séparation</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
     </message>
     <message>
         <source>File is writable</source>
@@ -23941,14 +20288,11 @@ francis : je ne vois pas non plus. Ou un truc du genre &quot;Arriére plan crypt
     </message>
 </context>
 <context>
-    <name>Core::InteractiveSshConnection</name>
+    <name>QtC::Core</name>
     <message>
         <source>Error sending input</source>
         <translation type="obsolete">Erreur lors de l&apos;envoi de l&apos;entrée</translation>
     </message>
-</context>
-<context>
-    <name>Core::SftpConnection</name>
     <message>
         <source>Error setting up SFTP subsystem</source>
         <translation type="obsolete">Erreur lors de la configuration du sous-systeme SFTP</translation>
@@ -24032,7 +20376,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>Collage de code</translation>
@@ -24083,14 +20427,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Réécrire en utilisant %1</translation>
@@ -24230,7 +20567,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Éditeur de commit pour CVS</translation>
@@ -24385,14 +20722,14 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Révision annotée &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
@@ -24417,9 +20754,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation>Le dossier &quot;%1&apos; n&quot;a pas pu être créé. </translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Running requested...</source>
         <translation>Exécution demandée…</translation>
@@ -24474,7 +20808,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Ce fichier ne peut être édité qu&apos;en mode &lt;b&gt;Design&lt;/b&gt;.</translation>
@@ -24489,7 +20823,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Recursive mapping</source>
         <translation>Construction de correspondance récursif</translation>
@@ -24506,16 +20840,9 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Not an editor command: %1</source>
         <translation>Pas une commande de l&apos;éditeur : %1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Mappage des commandes Ex</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -24531,7 +20858,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>QtC::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Rechercher/Remplacer</translation>
@@ -24545,17 +20872,12 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation>Ouvrir la recherche avancée...</translation>
     </message>
     <message>
-        <source>Advanced...</source>
-        <translatorcomment>c&apos;est surement la recherche donc je mettrais un e à la fin</translatorcomment>
-        <translation>Avancée... </translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -24569,10 +20891,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation>La configuration est défectueuse, veuillez vérifier la vue des problèmes pour les détails.</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Écraser %1 :</translation>
-    </message>
-    <message>
         <source>Make arguments:</source>
         <translation>Arguments de Make :</translation>
     </message>
@@ -24580,9 +20898,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Targets:</source>
         <translation>Cibles :</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Échec de l&apos;ouverture du projet &quot;%1&quot; : projet déjà ouvert</translation>
@@ -24593,7 +20908,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(aucune banche)</translation>
@@ -24636,7 +20951,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
         <translation>&lt;title&gt;À propos : vide&lt;/title&gt;</translation>
@@ -24667,7 +20982,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation>Cloner</translation>
@@ -24976,7 +21291,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Aucun exécutable spécifié</translation>
@@ -25010,16 +21325,13 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Le dépôt &quot;%1&quot; n&apos;existe pas.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditor</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Annoter la liste des changements &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -25029,30 +21341,11 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>sans_titre</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Compiler</translation>
-    </message>
     <message>
         <source>Clean</source>
         <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
         <translation>Nettoyer</translation>
     </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Environnement système</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Environnement de nettoyage</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Nettoyer l&apos;environnement système</translation>
@@ -25077,7 +21370,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -25118,10 +21411,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     <message>
         <source>Qt Creator plugin</source>
         <translation type="obsolete">Plug-in Qt Creator</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="obsolete">Autre projet</translation>
     </message>
     <message>
         <source>Creates a plain C project using QMake, not using the Qt library.</source>
@@ -25408,23 +21697,14 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Example Object Class-name:</source>
         <translation type="obsolete">Nom de classe de l&apos;objet exemple : </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomProjectWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Le projet %1 ne peut pas être ouvert.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Chemin :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;Pas d&apos;autres projets dans cette session&gt;</translation>
@@ -25438,17 +21718,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Dépendances</translation>
-    </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
-    <message>
-        <source>Editor Settings</source>
-        <translation type="obsolete">Paramètres de l&apos;éditeur</translation>
     </message>
     <message>
         <source>Editor</source>
@@ -25467,11 +21740,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
-    <message>
-        <source>Open</source>
-        <translation>Ouvrir</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Open parent folder</source>
         <translation type="obsolete">Ouvrir le dossier parent</translation>
@@ -25536,62 +21805,9 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Find in this directory...</source>
         <translation>Chercher dans ce dossier...</translation>
     </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Montrer le contenu du dossier...</translation>
-    </message>
-    <message>
-        <source>Open Command Prompt Here...</source>
-        <translation type="obsolete">Ouvre une invite de commande ici...</translation>
-    </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Ouvrir un terminal ici...</translation>
-    </message>
-    <message>
-        <source>Launching a file browser failed</source>
-        <translation type="obsolete">Échec du lancement du navigateur de fichier</translation>
-    </message>
-    <message>
-        <source>Unable to start the file manager:
-
-%1
-
-</source>
-        <translation type="obsolete">Impossible de démarrer le gestionnaire de fichiers :
-
-%1
-
-</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; returned the following error:
-
-%2</source>
-        <translation type="obsolete">&apos;%1&apos; retourne l&apos;erreur suivante :
-
-%2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation type="obsolete">Paramètres...</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer Failed</source>
-        <translation type="obsolete">Échec du lancement de l&apos;explorateur Windows</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer failed</source>
-        <translation type="obsolete">Échec du lancement de l&apos;Explorateur Windows</translation>
-    </message>
-    <message>
-        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translatorcomment>chemin ?</translatorcomment>
-        <translation type="obsolete">Impossible de trouver explorer.exe dans le path pour lancer l&apos;explorateur Windows.</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MiniTargetWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Select active build configuration</source>
         <translation type="obsolete">Sélectionner la configuration de compilation active</translation>
@@ -25608,9 +21824,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Run:</source>
         <translation type="obsolete">Exécution :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Projet</translation>
@@ -25626,14 +21839,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     <message>
         <source>Kit</source>
         <translation>Kit</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Déployer</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -25704,14 +21909,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation type="obsolete">Sélectionner le projet actif</translation>
     </message>
     <message>
-        <source>Build:</source>
-        <translation type="obsolete">Compilation :</translation>
-    </message>
-    <message>
-        <source>Run:</source>
-        <translation type="obsolete">Exécution :</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Project:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Run:&lt;/b&gt; %4%5&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Projet :&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Exécution :&lt;/b&gt; %4%5&lt;/html&gt;</translation>
     </message>
@@ -25727,19 +21924,9 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>&lt;br/&gt;%1</source>
         <translation type="obsolete">&lt;br/&gt;%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
     <message>
         <source>Clone of %1</source>
         <translation>Clone de %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
     </message>
     <message>
         <source>Build &amp; Run</source>
@@ -25754,14 +21941,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation>Applications</translation>
     </message>
     <message>
-        <source>Libraries</source>
-        <translation>Bibliothèques</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation>Projet non Qt</translation>
-    </message>
-    <message>
         <source>Import Project</source>
         <translation>Importer un projet</translation>
     </message>
@@ -25770,37 +21949,9 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation type="obsolete">Application Qt</translation>
     </message>
     <message>
-        <source>Devices</source>
-        <translation>Appareils mobiles</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
-    <message>
         <source>Targets</source>
         <translation type="obsolete">Cibles</translation>
     </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Compiler et exécuter</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanelFactory</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Paramètres d&apos;exécution</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Paramètres d&apos;exécution</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Entrez le nom de la session :</translation>
@@ -25809,20 +21960,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Switch to</source>
         <translation>Basculer vers</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Compiler</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">Aucune cible définie.</translation>
@@ -25882,10 +22019,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation>Annuler la compilation et supprimer le kit</translation>
     </message>
     <message>
-        <source>Do Not Remove</source>
-        <translation>Ne pas supprimer</translation>
-    </message>
-    <message>
         <source>Remove Kit %1?</source>
         <translation>Supprimer le kit %1 ?</translation>
     </message>
@@ -25934,38 +22067,9 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
-    <message>
-        <source>Do you really want to remove the
-&quot;%1&quot; target?</source>
-        <translation type="obsolete">Voulez-vous vraiment supprimer la cible
-&quot;%1&quot; ?</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::TaskWindow</name>
-    <message>
-        <source>Build Issues</source>
-        <translation type="obsolete">Problèmes de compilation</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">Cop&amp;ier</translation>
-    </message>
-    <message>
-        <source>&amp;Annotate</source>
-        <translation type="obsolete">&amp;Annoter</translation>
-    </message>
-    <message>
-        <source>Show Warnings</source>
-        <translation type="obsolete">Afficher les avertissements</translation>
-    </message>
-    <message>
-        <source>Filter by categories</source>
-        <translation type="obsolete">Filtrer par catégories</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -25973,7 +22077,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -26018,7 +22122,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -26267,13 +22371,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Properties</source>
         <comment>Title of properties view.</comment>
         <translation type="obsolete">Propriétés</translation>
-    </message>
-</context>
-<context>
-    <name>FileWidget</name>
-    <message>
-        <source>Open File</source>
-        <translation>Ouvrir un fichier</translation>
     </message>
 </context>
 <context>
@@ -26950,7 +23047,7 @@ Merci de vérifier vos paramètres de projet.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Rename...</source>
         <translation type="obsolete">Renommer...</translation>
@@ -27143,7 +23240,7 @@ Erreurs :
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Error while loading project file!</source>
         <translation type="obsolete">Erreur lors du chargement du fichier de projet !</translation>
@@ -27177,30 +23274,6 @@ Erreurs :
         <source>No Qt version set in kit.</source>
         <translation>Pas de version de Qt définie dans le kit.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
-    <message>
-        <source>New QML Project</source>
-        <translation type="obsolete">Nouveau projet QML</translation>
-    </message>
-    <message>
-        <source>This wizard generates a QML application project.</source>
-        <translation type="obsolete">Cet assistant génère un projet pour une application QML.</translation>
-    </message>
-    <message>
-        <source>New Qt Quick UI Project</source>
-        <translatorcomment>myzu : garder UI ou traduire ? John : Je pense qu&apos;on peut traduire !</translatorcomment>
-        <translation type="obsolete">Nouveau projet d&apos;IHM Qt Quick</translation>
-    </message>
-    <message>
-        <source>This wizard generates a Qt Quick UI project.</source>
-        <translatorcomment>myzu : traduire UI ?</translatorcomment>
-        <translation type="obsolete">Cet assistant génère un projet UI Qt Quick.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
         <source>Qt QML Application</source>
         <translation type="obsolete">Application QML</translation>
@@ -27210,10 +23283,6 @@ Erreurs :
 
 QML application projects are executed through the QML runtime and do not need to be built.</source>
         <translation type="obsolete">Créer un projet pour une application QML avec un seul fichier QML contenant la vue principale.\n\nLes applications QML sont exécutées sur le runtine QML et n&apos;ont pas besoin d&apos;être compilées.</translation>
-    </message>
-    <message>
-        <source>Qt Quick UI</source>
-        <translation type="obsolete">IHM Qt Quick</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
@@ -27240,18 +23309,6 @@ Vous pouvez voir le projet d&apos;interface Qt Quick dans le visualiseur QML san
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Fichier généré par Qt Creator</translation>
-    </message>
-    <message>
-        <source>Include .qml, .js, and image files from current directory and subdirectories</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Inclure les fichiers .qml, .ls et les images depuis le répertoire courrant et ses sous-répertoires</translation>
-    </message>
-    <message>
-        <source>List of plugin directories passed to QML runtime</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Liste des répertoires passés au runtime QML</translation>
     </message>
     <message>
         <source>Qt Quick 2 UI</source>
@@ -27285,16 +23342,10 @@ Vous pouvez vérifier les projets d&apos;&apos;interface utilisateur Qt Quick 1 
 
 Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager</name>
     <message>
         <source>Qt Quick Project</source>
         <translation type="obsolete">Projet Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
     <message>
         <source>Import Existing Qt QML Directory</source>
         <translation type="obsolete">Importer un répertoire Qt QML existant</translation>
@@ -27304,33 +23355,8 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translation type="obsolete">Nom du projet et emplacement</translation>
     </message>
     <message>
-        <source>Project name:</source>
-        <translation type="obsolete">Nom du projet :</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <translation type="obsolete">Emplacement :</translation>
-    </message>
-    <message>
         <source>Location</source>
         <translation type="obsolete">Emplacement</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
-    <message>
-        <source>Import Existing Qt QML Directory</source>
-        <translation type="obsolete">Importer un répertoire Qt QML existant</translation>
-    </message>
-    <message>
-        <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation type="obsolete">Crée un projet QML à partir d&apos;un répertoire existant de fichiers QML.</translation>
-    </message>
-    <message>
-        <source>File generated by QtCreator</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Fichier généré par Q tCreator</translation>
     </message>
     <message>
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
@@ -27344,9 +23370,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Liste des répertoires des plug-ins passée au runtime QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Échec de l&apos;ouverture du projet &quot;%1&quot; : projet déjà ouvert</translation>
@@ -27359,9 +23382,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Échec de l&apos;ouverture du projet &quot;%1&quot; : le projet n&apos;est pas un fichier</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlobserver found.</source>
         <translation type="obsolete">Pas de qmlviewer ou qmlobserver trouvé. </translation>
@@ -27389,32 +23409,12 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translation type="obsolete">Version de Qt :</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-    <message>
         <source>Debugger:</source>
         <translation type="obsolete">Débogueur :</translation>
     </message>
     <message>
-        <source>Main QML file:</source>
-        <translation type="obsolete">Fichier QML principal : </translation>
-    </message>
-    <message>
         <source>Invalid Qt version</source>
         <translation type="obsolete">Version de Qt invalide</translation>
-    </message>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Visualisateur QML</translation>
-    </message>
-    <message>
-        <source>QML Viewer arguments:</source>
-        <translation type="obsolete">Arguments du visualisateur QML :</translation>
-    </message>
-    <message>
-        <source>Main QML File:</source>
-        <translation type="obsolete">Fichier QML principal :</translation>
     </message>
     <message>
         <source>Debugging Address:</source>
@@ -27424,16 +23424,10 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>Debugging Port:</source>
         <translation type="obsolete">Port du débogueur :</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Fichier courant&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">Executer le script QML</translation>
@@ -27446,9 +23440,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>QML Scene</source>
         <translation>QML Scene</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControl</name>
     <message>
         <source>Starting %1 %2</source>
         <translation type="obsolete">Démarrer %1 %2</translation>
@@ -27457,9 +23448,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 a quitté avec le code %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Exécuter</translation>
@@ -27473,10 +23461,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translation type="obsolete">Annuler</translation>
     </message>
     <message>
-        <source>QML Observer Missing</source>
-        <translation type="obsolete">L&apos;observateur QML est manquant</translation>
-    </message>
-    <message>
         <source>QML Observer could not be found.</source>
         <translation type="obsolete">L&apos;observateur QML n&apos;a pas pu être trouvé. </translation>
     </message>
@@ -27485,16 +23469,13 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translatorcomment>pour &quot;telles&quot;: s&apos;accorde avec fonctionnalités (cf http://home.ican.net/~galandor/grammair/fich_002.htm )</translatorcomment>
         <translation type="obsolete">L&apos;observateur QML est utilisé pour offrir des fonctionnalités de débogage pour les applications QML, telles que des outils de débogage interactif et d&apos;inspection. Il doit être compilé séparément pour chaque version de Qt utilisée. Sur la page d&apos;options Qt4, séléctionner l&apos;installation courante de Qt et cliquer sur recompiler.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlTaskManager</name>
     <message>
         <source>QML</source>
         <translation type="obsolete">QML</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Étape 1 sur 2 : Choisir le répertoire GnuPoc</translation>
@@ -27513,7 +23494,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::S60ProjectChecker</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>The Symbian SDK and the project sources must reside on the same drive.</source>
         <translation type="obsolete">Le SDK Symbian et les sources du projet doivent être situés sur le même disque.</translation>
@@ -27540,7 +23521,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>Évaluation</translation>
@@ -27591,7 +23572,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -27604,7 +23585,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake ne permet pas d&apos;avoir des répertoires de compilation à un niveau en-dessous des répertoires sources.</translation>
@@ -27623,7 +23604,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Chemin de qmake non spécifié</translation>
@@ -27801,7 +23782,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Mobile Qt Application</source>
         <translation type="obsolete">Application Qt pour mobiles</translation>
@@ -27834,14 +23815,14 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditor</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Révision annotée &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>Éditeur de texte</translation>
@@ -27852,11 +23833,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Gestion de versions</translation>
-    </message>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>Le fichier &quot;%1&apos; n&quot;a pas pu être supprimé.</translation>
@@ -27951,7 +23928,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Texte</translation>
@@ -27982,7 +23959,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Core::HelpManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Unfiltered</source>
         <translation>Sans filtre</translation>
@@ -27996,7 +23973,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -28021,17 +23998,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Étirer horizontalement. Redimensionne l&apos;image pour qu&apos;elle occupe l&apos;espace disponible.</translation>
-    </message>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>The image is scaled to fit</source>
@@ -28062,13 +24028,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <translatorcomment>wtf ? encore ?</translatorcomment>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>Dégradé</translation>
@@ -28078,16 +24037,9 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <translation>Couleur</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Bordure</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -28154,7 +24106,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -28165,7 +24117,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Configuration du filtre</translation>
@@ -28200,7 +24152,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>Visualisateur d&apos;image</translation>
@@ -28243,26 +24195,15 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ComponentNameDialog</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
     </message>
     <message>
-        <source>Component name:</source>
-        <translation type="obsolete">Nom du composant :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
-    </message>
-    <message>
         <source>Choose...</source>
         <translation type="obsolete">Choisir...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -28291,7 +24232,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Bibliothèque :</translation>
@@ -28451,7 +24392,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Cache cette barre d&apos;outils.</translation>
@@ -28472,24 +24413,18 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Cache cette barre d&apos;outils. Cette barre d&apos;outils peut être désactivée définitivement dans la page des options ou dans le menu contextuel.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translatorcomment>double-cliquez plutôt que cliquer deux fois</translatorcomment>
         <translation>double-cliquez pour la prévisualisation</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Ouvrir le fichier</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>est attendu deux nombres séparés par un point</translation>
@@ -28498,13 +24433,9 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>package import requires a version number</source>
         <translation>l&apos;importation d&apos;un paquet a besoin d&apos;un numéro de version</translation>
     </message>
-    <message>
-        <source>file or directory not found</source>
-        <translation type="obsolete">Fichier ou répertoire non trouvé</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Impossible de démarrer le processus : %1</translation>
@@ -28551,12 +24482,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
 </translation>
     </message>
     <message>
-        <source>Running %1 ...
-</source>
-        <translation type="obsolete">Exécute %1...
-</translation>
-    </message>
-    <message>
         <source>%1 not found in PATH
 </source>
         <translation>%1 non trouvé dans le PATH
@@ -28564,7 +24489,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerLanguageChooser</name>
+    <name>QtC::Utils</name>
     <message>
         <source>C++</source>
         <translation type="obsolete">C++</translation>
@@ -28581,9 +24506,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Quels sont les prérequis?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>La commande &quot;%1&apos; s&quot;est terminée avec succès.</translation>
@@ -28622,7 +24544,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Class View</source>
         <translatorcomment>Ou est-ce un rapport avec la Vue ? (graphics/view)</translatorcomment>
@@ -28630,14 +24552,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation>Activer le panneau %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
+    <name>QtC::Core</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>Activer le panneau %1</translation>
@@ -28645,93 +24560,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Hide Sidebar</source>
         <translation>Masquer la barre latérale</translation>
-    </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation>Afficher la barre latérale</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SftpChannelPrivate</name>
-    <message>
-        <source>Server could not start sftp subsystem.</source>
-        <translation type="obsolete">Le serveur ne peut démarrer le sous-système sftp.</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">Paquet de type %1 inattendu.</translation>
-    </message>
-    <message>
-        <source>Protocol version mismatch: Expected %1, got %2</source>
-        <translation type="obsolete">Conflit de version de protocole : %1 attendue, %2 detectée</translation>
-    </message>
-    <message>
-        <source>Unknown error.</source>
-        <translation type="obsolete">Erreur inconnue.</translation>
-    </message>
-    <message>
-        <source>Created remote directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Création du répertoire distant &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Remote directory &apos;%1&apos; already exists.</source>
-        <translation type="obsolete">Le répertoire distant &quot;%1&quot; existe déjà.</translation>
-    </message>
-    <message>
-        <source>Error creating directory &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Erreur lors de la création du répertoire &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Could not open local file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier local &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Remote directory could not be opened for reading.</source>
-        <translation type="obsolete">Le répertoire distant ne peut pas être ouvert pour lecture.</translation>
-    </message>
-    <message>
-        <source>Failed to list remote directory contents.</source>
-        <translation type="obsolete">Impossible de lister le contenu du répertoire distant.</translation>
-    </message>
-    <message>
-        <source>Failed to close remote directory.</source>
-        <translation type="obsolete">Impossible de fermer le répertoire distant.</translation>
-    </message>
-    <message>
-        <source>Failed to open remote file for reading.</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier distant pour lecture.</translation>
-    </message>
-    <message>
-        <source>Failed retrieve information on the remote file (&apos;stat&apos; failed).</source>
-        <translation type="obsolete">Impossible de récupérer les informations  sur le fichier distant (&apos;échec de &apos;stat&apos;).</translation>
-    </message>
-    <message>
-        <source>Failed to read remote file.</source>
-        <translation type="obsolete">Impossible de lire le fichier distant.</translation>
-    </message>
-    <message>
-        <source>Failed to close remote file.</source>
-        <translation type="obsolete">Impossible de fermer le fichier distant.</translation>
-    </message>
-    <message>
-        <source>Failed to open remote file for writing.</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier distant pour écriture.</translation>
-    </message>
-    <message>
-        <source>Failed to write remote file.</source>
-        <translation type="obsolete">Impossible d&apos;écrire sur le fichier distant.</translation>
-    </message>
-    <message>
-        <source>Cannot append to remote file: Server does not support the file size attribute.</source>
-        <translation type="obsolete">Impossible d&apos;ajouter à la fin du fichier distant : le serveur ne supporte pas l&apos;attribut taille du fichier.</translation>
-    </message>
-    <message>
-        <source>Server could not start session.</source>
-        <translation type="obsolete">Le serveur ne peut pas démarrer la session.</translation>
-    </message>
-    <message>
-        <source>Error reading local file: %1</source>
-        <translation type="obsolete">Erreur lors de la lecture du fichier local : %1</translation>
     </message>
 </context>
 <context>
@@ -28744,14 +24572,11 @@ La liste du serveur était %2.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::SshChannelManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">Identifiant %1 du canal invalide</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">Erreur dans le protocole SSH : %1</translation>
@@ -28802,7 +24627,7 @@ La liste du serveur était %2.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>Vérification de la connexion</translation>
@@ -28813,21 +24638,11 @@ La liste du serveur était %2.</translation>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
-    <message>
-        <source>Expected a namespace-name</source>
-        <translation type="obsolete">Un nom de namespace est attendu</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Ajouter la déclaration %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Ajouter la définition dans %1</translation>
@@ -28844,9 +24659,6 @@ La liste du serveur était %2.</translation>
         <source>Add Definition Outside Class</source>
         <translation>Ajouter une définition en dehors de la classe</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Aucune hiérarchie de type disponible</translation>
@@ -28859,23 +24671,13 @@ La liste du serveur était %2.</translation>
         <source>Derived</source>
         <translation>Dérivé</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Hiérarchie de type</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>Symboles C++</translation>
-    </message>
-    <message>
-        <source>Searching</source>
-        <translation>Recherche</translation>
     </message>
     <message>
         <source>C++ Symbols:</source>
@@ -28921,32 +24723,9 @@ Indicateurs : %3</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Types :</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Classes</translation>
-    </message>
-    <message>
-        <source>Methods</source>
-        <translation>Méthodes</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Fonctions</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Énumérations</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Déclarations</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -28958,7 +24737,7 @@ Indicateurs : %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>File and Line Number</source>
         <translation type="obsolete">Fichier et numéro de ligne</translation>
@@ -29168,9 +24947,6 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <source>&amp;Message:</source>
         <translation>&amp;Message :</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
         <translation>Le processus de la console &quot;%1&apos; n&quot;a pas pu être démarré. </translation>
@@ -29247,9 +25023,6 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <source>Ignoring initial breakpoint...</source>
         <translation type="obsolete">Point d&apos;arrêt initial ignoré…</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>Tentative d&apos;interruption.</translation>
@@ -29258,9 +25031,6 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <source>Debugger Test</source>
         <translation>Test du débogueur</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Launching</source>
         <translation>Lancement</translation>
@@ -29442,13 +25212,6 @@ Section %1 : %2</translation>
         <source>Jump to Line %1</source>
         <translation>Sauter à la ligne %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
-    <message>
-        <source>Debug</source>
-        <translation>Débogage</translation>
-    </message>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>Option &quot;%1&quot; : le paramètre est manquant.</translation>
@@ -29566,9 +25329,6 @@ Details: %3</source>
         <source>Close Debugging Session</source>
         <translation>Fermer la session de débogage</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Connection could not be established.</source>
         <translation type="obsolete">La connexion ne peut être établie.</translation>
@@ -29621,16 +25381,10 @@ Details: %3</source>
         <source>Unable to write log contents to &apos;%1&apos;: %2</source>
         <translation type="obsolete">Impossible d&apos;écrire le contenu du journal d&apos;événements dans &quot;%1&quot; : %2</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Taper Ctrl-&lt;Retour&gt; pour exécuter une ligne.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>Journal de débogage</translation>
@@ -29653,7 +25407,7 @@ Details: %3</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -29678,53 +25432,21 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Qt Creator Offline Help</source>
         <translation>Aide hors ligne de Qt Creator</translation>
     </message>
 </context>
 <context>
-    <name>EditorManager</name>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation>Document ouvert suivant dans l&apos;historique</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>Document ouvert précédent dans l&apos;historique</translation>
-    </message>
-    <message>
-        <source>Go Back</source>
-        <translation>Précédent</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Suivant</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>Scinder verticalement</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Ouvrir dans une nouvelle fenêtre</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Close Document</source>
         <translation>Fermer le document</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Copy Full Path to Clipboard</source>
         <translation>Copier le chemin complet dans le presse papier</translation>
@@ -29739,7 +25461,7 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
@@ -29794,7 +25516,7 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -29836,9 +25558,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>No Build Steps</source>
         <translation>Aucune étape de compilation</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error: </source>
         <comment>Task is of type error</comment>
@@ -29878,9 +25597,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <extracomment>Task is of type: warning</extracomment>
         <translation>avertissement :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
@@ -29891,28 +25607,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <extracomment>Default DeployConfiguration display name</extracomment>
         <translation>Déployer localement</translation>
     </message>
-    <message>
-        <source>No deployment</source>
-        <extracomment>Default DeployConfiguration display name</extracomment>
-        <translation type="obsolete">Pas de déploiement</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
-        <source>Deploy Configuration</source>
-        <translation>Configuration de déploiement</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsWidget</name>
-    <message>
-        <source>Default</source>
-        <translation type="obsolete">Défaut</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Application Still Running</source>
         <translation>Application toujours en cours d&apos;exécution</translation>
@@ -29950,9 +25644,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>Do not ask again</source>
         <translation>Ne plus me demander</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>&amp;Show in editor</source>
         <translation type="obsolete">&amp;Afficher dans l&apos;éditeur</translation>
@@ -29973,9 +25664,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>Show task location in an editor.</source>
         <translation>Montre l&apos;emplacement de la tâche dans un éditeur. </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>Afficher la s&amp;ortie</translation>
@@ -29988,36 +25676,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>O</source>
         <translation>O</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileAccessor</name>
-    <message>
-        <source>Using Old Project Settings File</source>
-        <translation type="obsolete">Utiliser le fichier de paramètres de l&apos;ancien projet</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Un back-up versionné du fichier de paramètres .user sera utilisé parce qu&apos;un fichier non versionné a été créé par une version plus récente et incompatible de Qt Creator.&lt;/p&gt;&lt;p&gt;Les changements aux préférences du projet effectuées depuis la dernière fois que cette version de Qt Creator a été utilisée avec ce projet sont ignorés et les changements effectués dès maintenant ne seront &lt;b&gt;pas&lt;/b&gt; propagés à la nouvelle version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation type="obsolete">Le fichier de configuration du projet provient-il d&apos;un environnement différent ?</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
-
-The .user settings files contain environment specific settings. They should not be copied to a different environment. 
-
-Do you still want to load the settings file?</source>
-        <translation type="obsolete">Qt Creator a trouvé un fichier de configuration .user qui a été créé pour une autre configuration de développement, peut-être à partir d&apos;un autre ordinateur.
-
-Le fichier de configuration .user contient des paramètres spécifiques à un environnement. Ils ne devraient pas être copiés dans un environnement différent.
-
-Voulez-vous toujours charger le fichier de configuration ?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>Pas de déploiement</translation>
@@ -30032,9 +25690,6 @@ Voulez-vous toujours charger le fichier de configuration ?</translation>
         <translatorcomment>myzu : le ou un ?</translatorcomment>
         <translation type="obsolete">Déployer sur un périphérique Symbian</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Annoter</translation>
@@ -30067,7 +25722,7 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Move Component into separate file</source>
         <translatorcomment>déplacer ou déplace ? John : Difficle sans context, allons pour déplace. dourouc : en voyant l&apos;autre, le contexte doit être fort semblable, donc indicatif. </translatorcomment>
@@ -30094,10 +25749,6 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
         <translation>Chemin invalide</translation>
     </message>
     <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Boîte de dialogue</translation>
-    </message>
-    <message>
         <source>Component name:</source>
         <translation>Nom du composant :</translation>
     </message>
@@ -30105,20 +25756,6 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
         <source>Path:</source>
         <translation>Chemin :</translation>
     </message>
-    <message>
-        <source>Choose...</source>
-        <translation type="obsolete">Choisir...</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJsEditor</name>
-    <message>
-        <source>QML</source>
-        <translation type="obsolete">QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Utilisations QML/JS :</translation>
@@ -30279,7 +25916,7 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Ajouter une bibliothèque</translation>
@@ -30414,7 +26051,7 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -30434,7 +26071,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Seulement disponible pour Qt for Desktop et Qt for Qt Simulateur. </translation>
@@ -30445,11 +26082,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Le dossier cible %1 n&apos;a pas pu être créé.</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -30462,7 +26095,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Passphrase:</source>
         <translatorcomment>Terme anglais utilisé pour un mot de passe généralement long et plus sécurisé</translatorcomment>
@@ -30813,7 +26446,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The file is not a valid image.</source>
         <translation type="obsolete">Le fichier n&apos;est pas une image valide.</translation>
@@ -31045,7 +26678,7 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Stop monitoring</source>
         <translation type="obsolete">Arrêter la surveillance</translation>
@@ -31058,9 +26691,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>Stop monitoring task files.</source>
         <translation>Arrêter la surveillance des fichiers de tâches.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
         <translation>Lecteur de fichier de tâches</translation>
@@ -31069,9 +26699,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>File Error</source>
         <translation>Erreur de fichier</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Impossible d&apos;ouvrir le fichier de tâche %1 : %2</translation>
@@ -31082,14 +26709,10 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::HighlighterSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Coloration syntaxique générique</translation>
-    </message>
-    <message>
-        <source>Download Definitions</source>
-        <translation type="obsolete">Télécharger des définitions</translation>
     </message>
     <message>
         <source>Download Definitions...</source>
@@ -31115,9 +26738,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>Not possible to retrieve data.</source>
         <translation>Impossile d&apos;obtenir les données.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -31168,9 +26788,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>Download Selected Definitions</source>
         <translation>Télécharger les définitions sélectionnées</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
     <message>
         <source>Registering definitions</source>
         <translation>Enregistrement des définitions</translation>
@@ -31197,9 +26814,6 @@ Veuillez vérifier les droits d&apos;accès du répertoire.</translation>
         <source>Download Error</source>
         <translation>Erreur lors du téléchargement</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Aucun contour disponible</translation>
@@ -31212,16 +26826,10 @@ Veuillez vérifier les droits d&apos;accès du répertoire.</translation>
         <source>Filter tree</source>
         <translation>Filtrer l&apos;arbre</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Contour</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>Aucune définition de coloration syntaxique trouvée pour ce fichier. Voulez vous essayer d&apos;en chercher une ?</translation>
@@ -31236,7 +26844,7 @@ Veuillez vérifier les droits d&apos;accès du répertoire.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Informations générales</translation>
@@ -31279,7 +26887,7 @@ Les commits locaux ne sont pas transmis à la branche principale avant qu&apos;u
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed</source>
@@ -31360,7 +26968,7 @@ La nouvelle branche dépendra de la disponibilité de la branche source pour tou
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -31423,7 +27031,7 @@ La nouvelle branche dépendra de la disponibilité de la branche source pour tou
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -31529,7 +27137,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Rétablir</translation>
@@ -31544,7 +27152,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
+    <name>QtC::Core</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -31554,24 +27162,12 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
         <translation>Ajouter un outil</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>Remove tool</source>
         <translation>Supprimer un outil</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>Revert tool to default</source>
         <translation>Rétablir l&apos;outil par défaut</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Réinitialiser</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -31656,138 +27252,13 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
         <source>Add Category</source>
         <translation>Ajouter une catégorie</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Boîte de dialogue</translation>
-    </message>
-    <message>
-        <source>Value:</source>
-        <translation type="obsolete">Valeur : </translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Type</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="obsolete">Chaîne de caractères</translation>
-    </message>
-    <message>
-        <source>Byte</source>
-        <translation type="obsolete">Octet</translation>
-    </message>
-    <message>
-        <source>Use Recommended</source>
-        <translation type="obsolete">Utiliser le paramètre recommandé</translation>
-    </message>
-    <message>
-        <source>Start range:</source>
-        <translation type="obsolete">Début de l&apos;intervalle : </translation>
-    </message>
-    <message>
-        <source>End range:</source>
-        <translation type="obsolete">Fin de l&apos;intervalle : </translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation type="obsolete">Priorité : </translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: Wide range values might impact on Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Note : de grands intervalles pourraient avoir un impact sur les performances de Qt Creator à l&apos;ouverture des fichiers. &lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Note : de grands intervalles pourraient avoir un impact sur les performances de Qt Creator à l&apos;ouverture des fichiers. &lt;/i&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Registered MIME Types</source>
-        <translation type="obsolete">Types MIME enregistrés</translation>
-    </message>
-    <message>
-        <source>Reset all to default</source>
-        <translation type="obsolete">Restaurer tous les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Tout réinitialiser</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="obsolete">Détails</translation>
-    </message>
-    <message>
-        <source>Patterns:</source>
-        <translation type="obsolete">Motifs : </translation>
-    </message>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">En-tête magique</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Type</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation type="obsolete">Intervalle</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation type="obsolete">Priorité</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="obsolete">Éditer</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation type="obsolete">Restaurer tous les paramètres par défaut.</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Ajouter...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation type="obsolete">Variables</translation>
-    </message>
-    <message>
-        <source>Select a variable to insert.</source>
-        <translation type="obsolete">Sélectionner une variable à insérer. </translation>
-    </message>
     <message>
         <source>Insert variable</source>
         <translation>Insérer une variable</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -31820,9 +27291,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
         <source>Description:</source>
         <translation>Description :</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Sauver la macro</translation>
@@ -31830,10 +27298,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Description :</translation>
     </message>
 </context>
 <context>
@@ -31879,7 +27343,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>Sélection de l&apos;assistant de publication</translation>
@@ -31898,22 +27362,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>ToolChainOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation type="obsolete">Cloner</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation type="obsolete">Utilisé pour extraire le type d&apos;information QML pour les plugins bibliothèques.</translation>
@@ -32196,7 +27645,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>ARM &amp;version:</source>
         <translation type="obsolete">&amp;Version ARM : </translation>
@@ -32305,7 +27754,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -32371,7 +27820,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>BehaviorSettingsWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Tabs and Indentation</source>
         <translation type="obsolete">Tabulation et indentation</translation>
@@ -32381,24 +27830,12 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation type="obsolete">Insérer des e&amp;spaces au lieu de tabulations</translation>
     </message>
     <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Taille de &amp;tabulation :</translation>
-    </message>
-    <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
         <translation type="obsolete">Déterminer automatiquement en se basant sur la ligne indentée la plus proche (ligne précédente préférée à la ligne suivante)</translation>
     </message>
     <message>
         <source>Based on the surrounding lines</source>
         <translation type="obsolete">Basé sur les lignes environnantes</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">Taille de l&apos;in&amp;dentation :</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Activer l&apos;&amp;indentation automatique</translation>
     </message>
     <message>
         <source>Backspace will go back one indentation level instead of one space.</source>
@@ -32413,367 +27850,19 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation type="obsolete">Style d&apos;indentation de bloc : </translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Controls the indentation style of curly brace blocks.
-
-&lt;ul&gt;
-&lt;li&gt;Exclude Braces: The braces are not indented.
-&lt;pre&gt;
-void foo()
-{
-    if (a)
-    {
-        bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Include Braces: The braces are indented. The contents of the block are on the same level as the braces.
-&lt;pre&gt;
-void foo()
-    {
-    if (a)
-        {
-        bar();
-        }
-    }
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;GNU Style: Indent the braces for blocks in statements. The contents are indented twice.
-&lt;pre&gt;
-void foo()
-{
-  if (a)
-    {
-      bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Contrôle le style d&apos;indentation des blocs entre accolades.
-&lt;ul&gt;
-&lt;li&gt;Accolades exclusives : elles ne sont pas indentées. 
-&lt;pre&gt;
-void foo()
-{
-    if (a)
-    {
-        bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Accolades inclusives : elles sont indentées. Le contenu du bloc est au même niveau que les accolades. 
-&lt;pre&gt;
-void foo()
-    {
-    if (a)
-        {
-        bar();
-        }
-    }
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Style GNU : indenter les accolades de blocs dans des déclarations. Le contenu est indenté deux fois. 
-&lt;pre&gt;
-void foo()
-{
-  if (a)
-    {
-      bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Exclude Braces</source>
-        <translation type="obsolete">Exclure les accolades</translation>
-    </message>
-    <message>
-        <source>Include Braces</source>
-        <translation type="obsolete">Inclure les accolades</translation>
-    </message>
-    <message>
-        <source>GNU Style</source>
-        <translation type="obsolete">Style GNU</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">La touche tabulation active l&apos;identation automatique :</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Jamais</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Dans des espaces en début de ligne</translation>
-    </message>
-    <message>
-        <source>Align continuation lines:</source>
-        <translation type="obsolete">Aligner les lignes de continuation :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influences the indentation of continuation lines.
-
-&lt;ul&gt;
-&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influence l&apos;indentation des lignes de continuation. 
-&lt;ul&gt;
-&lt;li&gt;Pas du tout : ne pas aligner. Les lignes ne seront indentées jusqu&apos;à la profondeur d&apos;indentation logique. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec espaces : toujours utiliser des espaces pour l&apos;alignement, sans tenir compte des autres paramètres d&apos;indentation. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec indentation régulière : utiliser des tabulations et/ou des espaces pour l&apos;alignement, en fonction de la configuration.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Not At All</source>
-        <translation type="obsolete">Pas du tout</translation>
-    </message>
-    <message>
-        <source>With Spaces</source>
-        <translation type="obsolete">Avec espaces</translation>
-    </message>
-    <message>
-        <source>With Regular Indent</source>
-        <translation type="obsolete">Avec indentation régulière</translation>
-    </message>
-    <message>
-        <source>Cleanup actions which are automatically performed right before the file is saved to disk.</source>
-        <translation type="obsolete">Actions de nettoyage qui sont effectuées automatiquement avant d&apos;enregistrer le fichier sur le disque. </translation>
-    </message>
-    <message>
-        <source>Cleanups Upon Saving</source>
-        <translation type="obsolete">Nettoyage à la sauvegarde</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace upon saving.</source>
-        <translation type="obsolete">Supprime les caractères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Nettoyer les espaces</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Nettoyer les espaces dans tout le document au lieu de limiter le nettoyage aux parties modifiées.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">Dans tout le &amp;document</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Corriger les espaces à l&apos;avant des lignes pour respecter la configuration des tabulations.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Nettoyer l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Forcer un retour de ligne à la fin du fichier</translation>
-    </message>
-    <message>
-        <source>File Encodings</source>
-        <translation type="obsolete">Encodages de fichier</translation>
-    </message>
-    <message>
-        <source>Default encoding: </source>
-        <translation type="obsolete">Encodage par défaut :</translation>
-    </message>
-    <message>
-        <source>UTF-8 BOM:</source>
-        <translation type="obsolete">UTF-8 BOM :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;How text editors should deal with UTF-8 Byte Order Marks. The options are:&lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;Add If Encoding Is UTF-8:&lt;/i&gt; always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is &lt;i&gt;System&lt;/i&gt;, as Qt Creator does not know what it actually is.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Keep If Already Present: &lt;/i&gt;save the file with a BOM if it already had one when it was loaded.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Always Delete:&lt;/i&gt; never write an UTF-8 BOM, possibly deleting a pre-existing one.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.&lt;/p&gt;
-&lt;p&gt;This setting does &lt;b&gt;not&lt;/b&gt; influence the use of UTF-16 and UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Comment les éditeurs de textes devrait gérer les BOM UTF-8. Les options sont : &lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;ajouter si l&apos;encodage est UTF-8 :&lt;/i&gt; toujours ajouter un BOM à la sauvegarde d&apos;un fichier en UTF-8 ; notez que ceci ne fonctionnera pas si l&apos;encodage est &lt;i&gt;System&lt;/i&gt;, puisque Qt Creator ne sait pas ce qu&apos;il en est réellement ; &lt;/li&gt;
-&lt;li&gt;&lt;i&gt;garder si déjà présent :&lt;/i&gt; sauvegarder le fichier avec un BOM s&apos;il en avait déjà un au chargement ; &lt;/li&gt;
-&lt;li&gt;&lt;i&gt;toujours supprimer :&lt;/i&gt; ne jamais écrire de BOM, parfois en supprimant l&apos;existant.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Notez que les BOM UTF-8 ne sont pas courants et sont traités de manière incorrecte par certains éditeurs, cela n&apos;a que rarement du sens que d&apos;en ajouter un. &lt;/p&gt;
-&lt;p&gt;Ce paramètre n&apos;influence &lt;b&gt;pas&lt;/b&gt; l&apos;utilisation des BOM UTF-16 et UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Add If Encoding Is UTF-8</source>
-        <translation type="obsolete">Ajouter si l&apos;encodage est UTF-8</translation>
-    </message>
-    <message>
-        <source>Keep If Already Present</source>
-        <translation type="obsolete">Garder si déjà présent</translation>
-    </message>
-    <message>
-        <source>Always Delete</source>
-        <translation type="obsolete">Toujours supprimer</translation>
-    </message>
-    <message>
-        <source>Mouse</source>
-        <translation type="obsolete">Souris</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Activer la navigation à la &amp;souris</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Activer le zoom via la &amp;roulette</translation>
-    </message>
-    <message>
-        <source>Typing</source>
-        <translatorcomment>au sens au clavier</translatorcomment>
-        <translation type="obsolete">Frappe</translation>
-    </message>
-    <message>
-        <source>Backspace indentation:</source>
-        <translation type="obsolete">Indentation pour retour arrière :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Specifies how backspace interacts with indentation.
-
-&lt;ul&gt;
-&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
-&lt;/li&gt;
-
-&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
-&lt;/li&gt;
-
-&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Specifie comment retour arrière se comporte avec l&apos;indentation.
-
-&lt;ul&gt;
-&lt;li&gt;Aucune: Aucune interaction. Comportement habituel de la touche retour arrière.
-&lt;/li&gt;
-
-&lt;li&gt;Suit l&apos;indentation qui précède : dans des espaces de début de ligne, ramène le curseur au niveau d&apos;indentation le plus proche utilisé dans les lignes précédentes.
-&lt;/li&gt;
-
-&lt;li&gt;Désindente : Si le caractère après le curseur est un espace, se comporte comme une tabulation arrière.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Aucune</translation>
-    </message>
-    <message>
-        <source>Follows Previous Indents</source>
-        <translation type="obsolete">Suit l&apos;indentation qui précède</translation>
-    </message>
-    <message>
-        <source>Unindents</source>
-        <translation type="obsolete">Désindente</translation>
-    </message>
-    <message>
         <source>Enable &amp;tooltips only when Shift key is down</source>
         <translation type="obsolete">Activer les info-&amp;bulles seulement lorsque la touche Shift est appuyée</translation>
     </message>
 </context>
 <context>
-    <name>SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Group: </source>
-        <translation type="obsolete">Groupe :</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Revert Built-in</source>
-        <translation type="obsolete">Rétablir l&apos;intégration</translation>
-    </message>
-    <message>
-        <source>Restore Removed Built-ins</source>
-        <translation type="obsolete">Rétablir les intégrations distantes</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Réinitialiser tout</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Common Valgrind Options</source>
         <translation type="obsolete">Options communes de Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
-    <message>
-        <source>%1: %2</source>
-        <translation type="obsolete">%1 : %2</translation>
-    </message>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -32801,10 +27890,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     <message>
         <source>Expected version 1.1 or lower.</source>
         <translation>La version 1.1 ou inférieure est attendue.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Un document ne contiennant qu&apos;une seule définition d&apos;objet est attendu.</translation>
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>
@@ -32932,14 +28017,11 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Utils::AbstractProcess</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Cannot retrieve debugging output.</source>
         <translation type="obsolete">Impossible d&apos;obtenir la sortie du débogage.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;NON-DÉFINI&gt;</translation>
@@ -32962,23 +28044,14 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;VALEUR&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation>L&apos;adresse IP est invalide.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Erreur dans la ligne de commande.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
         <translation type="obsolete">Le serveur ne peut démarrer le sous-système sftp.</translation>
@@ -33063,16 +28136,10 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Error reading local file: %1</source>
         <translation type="obsolete">Erreur lors de la lecture du fichier local : %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshChannelManager</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">Identifiant %1 du canal invalide</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">Erreur dans le protocole SSH : %1</translation>
@@ -33088,10 +28155,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
         <translation type="obsolete">Identifiant de serveur invalide &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">Paquet de type %1 inattendu.</translation>
     </message>
     <message>
         <source>Could not read private key file: %1</source>
@@ -33139,7 +28202,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>Aucune erreur trouvée</translation>
@@ -33176,9 +28239,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Helgrind Thread ID</source>
         <translation>ID du thread Helgrind</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Emplacement :</translation>
@@ -33187,9 +28247,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Instruction pointer:</source>
         <translation>Pointeur d&apos;instruction : </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Impossible de parser le nombre hexadécimal depuis &quot;%1&quot; (%2)</translation>
@@ -33242,9 +28299,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Unexpected exception caught during parsing.</source>
         <translation>Exception inattendue lors du parsage. </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Description</translation>
@@ -33271,7 +28325,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analyseur</translation>
@@ -33620,7 +28674,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Cloning</source>
         <translation>Cloner</translation>
@@ -33639,7 +28693,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -33654,21 +28708,21 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Faire un commit de l&apos;éditeur</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Commande Bazaar</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolModel</name>
+    <name>QtC::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>Sans catégorie</translation>
@@ -33698,9 +28752,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <extracomment>Sample external tool text</extracomment>
         <translation>Texte utile</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>Could not open tool specification %1 for reading: %2</source>
         <translation type="obsolete">Impossible d&apos;ouvrir les spécificatrions d&apos;outil %1 pour lecture : %2</translation>
@@ -33787,9 +28838,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Error while parsing external tool %1: %2</source>
         <translation>Erreur lors de l&apos;analyse de l&apos;outil externe %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -33807,13 +28855,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>&apos;%1&apos; finished</source>
         <translation>&quot;%1&quot; a fini</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
-    <message>
-        <source>Configure...</source>
-        <translation>Configurer...</translation>
-    </message>
     <message>
         <source>External</source>
         <translation type="obsolete">Externe</translation>
@@ -33823,19 +28864,8 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <translation>&amp;Externe</translation>
     </message>
     <message>
-        <source>Error while parsing external tool %1: %2</source>
-        <translation>Erreur lors du parsage de l&apos;outil externe %1 : %2</translation>
-    </message>
-    <message>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Erreur : outil externe dans %1 a un identifiant dupliqué</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">En-tête magique</translation>
     </message>
     <message>
         <source>Add Magic Header</source>
@@ -33889,9 +28919,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Note : de grands intervalles pourraient avoir un impact sur les performances de Qt Creator à l&apos;ouverture des fichiers. &lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>Type MIME</translation>
@@ -33920,13 +28947,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
             <numerusform>%n motifs déjà utilisés.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
     <message>
         <source>No MIME type selected.</source>
         <translation>Pas de type MIME sélectionné. </translation>
@@ -33943,23 +28963,10 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Changes will take effect in the next time you start Qt Creator.</source>
         <translation>Les changements vont prendre effet au prochain démarrage de Qt Creator. </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
-    <message>
-        <source>MIME Types</source>
-        <translation>Types MIME</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Outils externes</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>Le dépôt %1 a été détecté mais %1 n&apos;est pas configuré.</translation>
@@ -34028,18 +29035,10 @@ au gestionnaire de version (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditorWidget</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Trier par ordre alphabétique</translation>
-    </message>
-    <message>
-        <source>This change cannot be undone.</source>
-        <translation type="obsolete">Ce changement ne peut être annulé.</translation>
-    </message>
-    <message>
-        <source>Yes, I know what I am doing.</source>
-        <translation type="obsolete">Simplifier les déclarations.</translation>
     </message>
     <message>
         <source>&amp;Refactor</source>
@@ -34049,20 +29048,10 @@ au gestionnaire de version (%2)</translation>
         <source>Unused variable</source>
         <translation>Variable non utilisée</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertQtPropertyMembers</name>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
         <translation type="obsolete">Générer les membre Q_PROPERTY manquant... </translation>
     </message>
-    <message>
-        <source>Generate Missing Q_PROPERTY Members...</source>
-        <translation type="obsolete">Générer les membre Q_PROPERTY manquants...</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Développer tout</translation>
@@ -34073,14 +29062,7 @@ au gestionnaire de version (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Condition :</translation>
@@ -34617,9 +29599,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>Qt Sources</source>
         <translation>Sources de Qt</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation type="obsolete">%1 (%2)</translation>
@@ -34628,9 +29607,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI :&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported under Windows</source>
         <translation type="obsolete">Débogueur des lignes de commande complexes n&apos;est pas actuellement supporté sous Windows</translation>
@@ -34639,9 +29615,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Débogueur des lignes de commande complexes n&apos;est pas actuellement supporté sous Windows. </translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>Arrêt fatal du moteur. Erreur de compatibilité des binaires ou &apos;IPC.</translation>
@@ -34658,16 +29631,10 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>SSH connection error: %1</source>
         <translation>Erreur de connexion SSH : %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Memory $</source>
         <translation type="obsolete">Mémoire $</translation>
@@ -34688,9 +29655,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Le contenu de la mémoire ne peut pas être affiché car aucun éditeur pour des données binaires n&apos;a pu être chargé.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Le moteur de débogage esclave requis pour le débogage combiné QML/C++ n&apos;a pas pu être créé : %1</translation>
@@ -34717,9 +29681,6 @@ Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or swi
         <translation type="obsolete">Impossible d&apos;arrêter l&apos;exécution avant que le moteur QML est démarré. Le point d&apos;arrêt est ignoré. 
 Suggestions : déplacer le point d&apos;arrêt après l&apos;instanciation de QmlApplicationViewer ou passer au débogage du code C++ exclusivement. </translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation type="obsolete">Débogueur QML connecté. </translation>
@@ -34798,7 +29759,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Use the patience algorithm for calculating the diff</source>
         <translation type="obsolete">Utiliser l&apos;algorithme patience pour calculer le diff</translation>
@@ -34873,21 +29834,11 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>GLSLEditor::Internal::FunctionArgumentWidget</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>%1 of %2</source>
         <translation type="obsolete">%1 de %2</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -34925,23 +29876,17 @@ Do you want to retry?</source>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation>Vertex shader (OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Macros</translation>
     </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Lancer une macro</translation>
@@ -34962,9 +29907,6 @@ Do you want to retry?</source>
         <source>Stop Recording Macro</source>
         <translation>Arrêter d&apos;enregistrer la macro</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation>&amp;Macros</translation>
@@ -34980,10 +29922,6 @@ Do you want to retry?</source>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Arrêter d&apos;enregistrer la macro</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -35011,17 +29949,10 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>Chemin du &amp;compilateur : </translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
@@ -35032,49 +29963,17 @@ Do you want to retry?</source>
         <translation>Flags de plateforme de l&apos;éditeur de liens :</translation>
     </message>
     <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI : </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
-    <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>ICC Linux</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcDebuggerConfigLabel</name>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifier le chemin à &lt;a href=&quot;%1&quot;&gt;l&apos;exécutable du débogueur en console de Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">version 64-bits</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">version 32-bits</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>Initialisation :</translation>
@@ -35091,30 +29990,9 @@ Do you want to retry?</source>
         <source>The CDB debugger could not be found in %1</source>
         <translation type="obsolete">Le débogueur CDB n&apos;a pas pu être trouvé dans %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projets</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Clone de %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">&amp;Débogueur :</translation>
-    </message>
-    <message>
-        <source>Autodetect</source>
-        <translation type="obsolete">Autodétecter</translation>
     </message>
     <message>
         <source>mkspec:</source>
@@ -35125,19 +30003,8 @@ Do you want to retry?</source>
         <translation type="obsolete">Tout les mkspecs possibles séparés par un point virgule (&apos;;&apos;).</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
-    </message>
-    <message>
         <source>Name:</source>
         <translation>Nom :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Auto-détecté</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -35187,9 +30054,6 @@ Do you want to retry?</source>
         <source>The following tool chains were already configured:&lt;br&gt; %1&lt;br&gt;They were not configured again.</source>
         <translation type="obsolete">Les chaînes de compilation suivantes ont déjà été configurées : &lt;br/&gt; %1&lt;br/&gt;Elles n&apos;ont pas été configurées à nouveau. </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Tool Chains</source>
         <translation type="obsolete">Chaînes de compilation</translation>
@@ -35199,16 +30063,8 @@ Do you want to retry?</source>
         <translation>Compilateurs</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>Clone</source>
         <translation>Cloner</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
 </context>
 <context>
@@ -35316,7 +30172,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
@@ -35413,7 +30269,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Functions</source>
         <translation type="obsolete">Fonctions</translation>
@@ -35564,18 +30420,10 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
-    <message>
-        <source>Manage Qt versions</source>
-        <translation type="obsolete">Gérer les versions de Qt</translation>
-    </message>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Manage Qt versions...</source>
         <translation type="obsolete">Gestionnaire des versions de Qt...</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Version de Qt :</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -35585,25 +30433,9 @@ Please build the debugging helpers on the Qt version options page.</source>
         <source>Main QML file:</source>
         <translation>Fichier QML principal : </translation>
     </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Invalid Qt version</source>
-        <translation type="obsolete">Version de Qt invalide</translation>
-    </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Le dossier cible %1 n&apos;a pas pu être créé.</translation>
@@ -35817,7 +30649,7 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">Ajouter une compilation depuis : </translation>
@@ -36063,7 +30895,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseTextEditorWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>Ctrl+D</translation>
@@ -36096,16 +30928,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <source>The text is too large to be displayed (%1 MB).</source>
         <translation>Le texte est trop lourd pour être affiché (%1 Mo). </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>Texte</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>Erreur</translation>
@@ -36126,9 +30948,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <source>Error reverting snippet.</source>
         <translation>Erreur lors de la restauration du snippet. </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Extraits de code</translation>
@@ -36138,30 +30957,12 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <translation>Erreur lors de l&apos;enregistrement de la collection de snippets</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
         <source>No snippet selected.</source>
         <translation>Pas de snippet sélectionné. </translation>
     </message>
 </context>
 <context>
-    <name>Analyzer::Internal::ValgrindConfigWidget</name>
-    <message>
-        <source>Valgrind Command</source>
-        <translation type="obsolete">Commande Valgrind</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::ValgrindSettings</name>
-    <message>
-        <source>Generic Settings</source>
-        <translation type="obsolete">Réglages générique</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClient</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Impossible de démarrer le processus &quot;%1&quot; : %2</translation>
@@ -36174,9 +30975,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <source>Working...</source>
         <translation>Travail en cours...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Annoter &quot;%1&quot;</translation>
@@ -36184,10 +30982,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     <message>
         <source>Copy &quot;%1&quot;</source>
         <translation>Copier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Describe change %1</source>
-        <translation type="obsolete">Décrire le changement %1</translation>
     </message>
     <message>
         <source>Describe Change %1</source>
@@ -36232,17 +31026,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     <message>
         <source>Would you like to apply the chunk?</source>
         <translation>Souhaitez-vous appliquer le morceau ?</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsJobRunner</name>
-    <message>
-        <source>Unable to start process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de démarrer le processus &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation type="obsolete">Après %1 secondes d&apos;attente, le processus %2 a été terminé. </translation>
     </message>
 </context>
 <context>
@@ -36305,21 +31088,17 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Échec de l&apos;ouverture du projet &quot;%1&quot; : le projet n&apos;est pas un fichier</translation>
     </message>
 </context>
 <context>
-    <name>Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>Macros</translation>
-    </message>
+    <name>QtC::Macros</name>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Chemin de MADDE :&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chemin de la cible MADDE :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -36510,7 +31289,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -36780,7 +31559,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -36843,17 +31622,6 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CodeStyleSettingsPropertiesPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation type="obsolete">Langue :</translation>
-    </message>
-</context>
-<context>
     <name>text</name>
     <message>
         <source>text</source>
@@ -36887,25 +31655,6 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>StatusDisplay</name>
-    <message>
-        <source>No QML events recorded</source>
-        <translation type="obsolete">Pas d&apos;événement QML enregistré</translation>
-    </message>
-    <message>
-        <source>Profiling application</source>
-        <translation type="obsolete">Profilage de l&apos;application</translation>
-    </message>
-    <message>
-        <source>Loading data</source>
-        <translation type="obsolete">Chargement des données</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation type="obsolete">L&apos;application a stoppé avant le chargement de toutes les données</translation>
-    </message>
-</context>
-<context>
     <name>TimeDisplay</name>
     <message>
         <source>length: %1</source>
@@ -36913,7 +31662,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -37017,7 +31766,7 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Utilisé pour extraire le type d&apos;information QML pour les bibliothèques basées sur des plug-ins.</translation>
@@ -37078,9 +31827,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
         <source>Compiler:</source>
         <translation>Compilateur :</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Nom de version :</translation>
@@ -37093,9 +31839,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
         <source>Edit</source>
         <translation>Éditer</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -37122,111 +31865,7 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     </message>
 </context>
 <context>
-    <name>GenericLinuxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation type="obsolete">Le nom pour identifier cette configuration : </translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation type="obsolete">Le nom d&apos;hôte du périphérique ou son adresse IP : </translation>
-    </message>
-    <message>
-        <source>The user name to log into the device:</source>
-        <translation type="obsolete">Le nom d&apos;utilisateur pour se connecter sur le périphérique : </translation>
-    </message>
-    <message>
-        <source>The authentication type:</source>
-        <translation type="obsolete">Le type d&apos;authentification : </translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Mot de passe</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation type="obsolete">Clé</translation>
-    </message>
-    <message>
-        <source>The user&apos;s password:</source>
-        <translation type="obsolete">Le mot de passe de l&apos;utilisateur : </translation>
-    </message>
-    <message>
-        <source>The file containing the user&apos;s private key:</source>
-        <translation type="obsolete">Le fichier contenant la clé privée de l&apos;utilisateur : </translation>
-    </message>
-</context>
-<context>
-    <name>LinuxDeviceFactorySelectionDialog</name>
-    <message>
-        <source>Device Configuration Wizard Selection</source>
-        <translation type="obsolete">Sélection de l&apos;assistant de configuration du périphérique</translation>
-    </message>
-    <message>
-        <source>Available device types:</source>
-        <translation type="obsolete">Types de périphérique disponibles : </translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabPreferencesWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Tab settings:</source>
-        <translation type="obsolete">Paramètres d&apos;onglets : </translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Insérer des e&amp;spaces au lieu de tabulations</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="obsolete">Déterminer automatiquement en se basant sur la ligne indentée la plus proche (ligne précédente préférée à la ligne suivante)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Basé sur les lignes environnantes</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Activer l&apos;&amp;indentation automatique</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="obsolete">La touche retour reviendra un niveau d&apos;indentation en arrière au lieux d&apos;un caractère espace.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">La touche &amp;retour arrière suit l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">La touche tabulation active l&apos;identation automatique : </translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Jamais</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">En début de ligne uniquement</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -37247,9 +31886,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
         <source>Save Suppression</source>
         <translation>Sauvegarder la suppression</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Paramètres génériques</translation>
@@ -37425,7 +32061,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Configure</source>
         <translation type="obsolete">Configurer</translation>
@@ -37905,26 +32541,14 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Manage Sessions...</source>
         <translation type="obsolete">Gestion des sessions...</translation>
     </message>
     <message>
-        <source>Develop</source>
-        <translation>Developper</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>Sessions</translation>
-    </message>
-    <message>
         <source>Recent Projects</source>
         <translation>Projets récents</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation>Nouveau projet</translation>
     </message>
     <message>
         <source>Open Project</source>
@@ -37955,7 +32579,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>ExampleDelegate</name>
+    <name>QtC::Core</name>
     <message>
         <source>Tags:</source>
         <translation type="obsolete">Tags :</translation>
@@ -38003,25 +32627,14 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>RecentProjects</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Recently Edited Projects</source>
         <translation type="obsolete">Projets récemment édités</translation>
     </message>
-</context>
-<context>
-    <name>RecentSessions</name>
     <message>
         <source>Recently Used Sessions</source>
         <translation type="obsolete">Sessions récemment utilisées</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (dernière session)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (session courante)</translation>
     </message>
 </context>
 <context>
@@ -38032,7 +32645,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>Utils::FileUtils</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Impossible de supprimer le répertoire racine.</translation>
@@ -38180,7 +32793,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -38199,18 +32812,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>BinEditorFile</name>
-    <message>
-        <source>Cannot open %1: %2</source>
-        <translation type="obsolete">Imposible d&apos;ouvrir %1 : %2</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Erreur de fichier</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Les changements aux fichiers CMake sont montrés dans l&apos;arbre du projet après la compilation. </translation>
@@ -38221,7 +32823,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>Core::Internal::PromptOverwriteDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Écraser les fichiers existants</translation>
@@ -38232,27 +32834,14 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
 Would you like to overwrite them?</source>
         <translation>Les fichiers suivants existent déjà dans le dossier %1. Voulez-vous les écraser ? </translation>
     </message>
-</context>
-<context>
-    <name>Core::IFile</name>
     <message>
         <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
         <translation type="obsolete">Le fichier a été restauré depuis une copie de sauvegarde automatique. Utilisez &lt;i&gt;Sauver&lt;/i&gt; pour confirmer ou &lt;i&gt;Retour à la sauvegarde&lt;/i&gt; pour effacer les changements. </translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>Do not show again</source>
         <translation>Ne plus afficher</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted
 </source>
@@ -38265,7 +32854,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
@@ -38273,14 +32862,11 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Code style settings:</source>
         <translation type="obsolete">Paramètres de style de code : </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global C++</source>
         <comment>Settings</comment>
@@ -38305,7 +32891,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -38324,14 +32910,11 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Previous</source>
         <translation>Précédent</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>Mémoire au registre &quot;%1&quot; (0x%2)</translation>
@@ -38342,7 +32925,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>Action</translation>
@@ -38355,20 +32938,13 @@ Would you like to overwrite them?</source>
         <source>User command #%1</source>
         <translation>Commande utilisateur #%1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
     <message>
         <source>User Command Mapping</source>
         <translation>Correspondance des commandes utilisateur</translation>
     </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
-    </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>Cacher les fichiers correspondant à : </translation>
@@ -38382,38 +32958,12 @@ Would you like to overwrite them?</source>
         <translation>Appliquer le filtre</translation>
     </message>
     <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation>Génération de la liste de fichiers... 
-
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
-    <message>
         <source>Edit Files...</source>
         <translation>Éditer les fichiers... </translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation>Éditer les fichiers</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation>Cacher les fichiers correspondant à : </translation>
-    </message>
-    <message>
-        <source>Show files matching:</source>
-        <translation>Afficher les fichiers correspondants :</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation>Appliquer un filtre</translation>
     </message>
     <message>
         <source>Generating file list...
@@ -38434,7 +32984,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Branches locales</translation>
@@ -38449,7 +32999,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Cannot open image file %1</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier d&apos;image %1</translation>
@@ -38468,7 +33018,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -38487,7 +33037,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer l&apos;espace blanc</translation>
@@ -38498,14 +33048,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;personnalisé&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Attacher le débogueur à ce processus</translation>
@@ -38542,9 +33089,6 @@ These files are preserved.</source>
         <source>Application Output Window</source>
         <translation>Fenêtre de sortie de l&apos;application</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style Settings</source>
         <translation type="obsolete">Paramètres de style de code</translation>
@@ -38566,7 +33110,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EditorConfiguration</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -38577,16 +33121,13 @@ These files are preserved.</source>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>Projet %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>%1 (current session)</source>
         <translation type="obsolete">%1 (session courante)</translation>
@@ -38790,7 +33331,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>Style de code</translation>
@@ -38823,7 +33364,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
@@ -38979,7 +33520,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Jump to previous event</source>
         <translation type="obsolete">Sauter à l&apos;événement précédent</translation>
@@ -39011,7 +33552,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -39023,40 +33564,13 @@ Souhaitez-vous réessayer ?</translation>
 </source>
         <translation>%1 a quitté avec le code %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Exécuter</translation>
-    </message>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">Ouvrir les options de Qt4</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
-    </message>
-    <message>
-        <source>QML Observer Missing</source>
-        <translation type="obsolete">L&apos;observateur QML est manquant</translation>
-    </message>
-    <message>
-        <source>QML Observer could not be found.</source>
-        <translation type="obsolete">L&apos;observateur QML n&apos;a pas pu être trouvé. </translation>
-    </message>
-    <message>
-        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
-        <translation type="obsolete">L&apos;observateur QML est utilisé pour offrir des fonctionnalités de débogage pour les applications QML, telles que des outils de débogage interactif et d&apos;inspection. Il doit être compilé séparément pour chaque version de Qt utilisée. Sur la page d&apos;options Qt4, séléctionner l&apos;installation courante de Qt et cliquer sur recompiler.</translation>
-    </message>
     <message>
         <source>Not enough free ports for QML debugging. </source>
         <translation>Pas assez de ports disponibles pour le débogage QML. </translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -39218,7 +33732,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation>Le compilateur &quot;%1&quot; (%2) ne peut produire du code pour la version de Qt &quot;%3&quot; (%4).</translation>
@@ -39283,9 +33797,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Building helpers</source>
         <translation>Aide à la compilation</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;spécifier un nom&gt;</translation>
@@ -39321,10 +33832,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     <message>
         <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Les ABI suivantes ne sont pas supportées : &lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation>Aide à la compilation</translation>
     </message>
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
@@ -39419,9 +33926,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>SBS v2 directory:</source>
         <translation type="obsolete">Répertoire SBS v2 : </translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW depuis %1</translation>
@@ -39435,7 +33939,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
         <translation type="obsolete">Opération annulée par l&apos;utilisateur, nettoyage... </translation>
@@ -39468,16 +33972,10 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Deployment finished.</source>
         <translation type="obsolete">Déploiement fini.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Configuration d&apos;un nouveau périphérique Linux générique</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Données de connexion</translation>
@@ -39494,9 +33992,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Generic Linux Device</source>
         <translation>Périphérique Linux générique</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Fin de l&apos;installation</translation>
@@ -39510,16 +34005,10 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
 In addition, device connectivity will be tested.</source>
         <translation>La configuration du nouveau périphérique va maintenant être créée. En plus, la connectivité du périphérique sera testée. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(paramètre par défaut pour %1)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">Démarrer l&apos;assistant</translation>
@@ -39532,9 +34021,6 @@ In addition, device connectivity will be tested.</source>
         <source>Available device types:</source>
         <translation type="obsolete">Types de périphérique disponibles : </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation type="obsolete">Tous les fichiers ont été copiés.</translation>
@@ -39543,9 +34029,6 @@ In addition, device connectivity will be tested.</source>
         <source>Deploy files via UTFS mount</source>
         <translation type="obsolete">Déployer les fichiers par montage UTFS</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation type="obsolete">Choisir une icône (elle sera remise à l&apos;échelle à %1x%1 pixels si nécessaire)</translation>
@@ -39566,9 +34049,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could not save icon to &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible d&apos;enregistrer l&apos;icône dans &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">Informations générales</translation>
@@ -39577,16 +34057,10 @@ In addition, device connectivity will be tested.</source>
         <source>Device Status Check</source>
         <translation type="obsolete">Vérification de l&apos;état du périphérique</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">Vérification des clés existantes</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">Création de clé</translation>
@@ -39615,9 +34089,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could Not Save Key File</source>
         <translation type="obsolete">Impossible de sauver le fichier de la clé</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">Déploiement de la clé</translation>
@@ -39642,30 +34113,18 @@ In addition, device connectivity will be tested.</source>
         <source>Done.</source>
         <translation type="obsolete">Fait. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation type="obsolete">La configuration du nouveau périphérique va maintenant être créée. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">Configuration du nouveau périphérique</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation type="obsolete">Impossible de déployer à la racine système : pas d&apos;étape de paquetage trouvée. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation type="obsolete">Impossible d&apos;installer à la racine système sans configuration de la compilation. </translation>
@@ -39686,23 +34145,14 @@ In addition, device connectivity will be tested.</source>
         <source>Installation to sysroot failed, continuing anyway.</source>
         <translation type="obsolete">Échec lors de l&apos;installation à la racine système, l&apos;installation continue néanmoins.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation type="obsolete">Installer le paquet Debian à la racine système</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation type="obsolete">Installer le paquet RMP à la racine système</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation type="obsolete">Impossible de copier les fichiers à la racine système sans configuration de la compilation. </translation>
@@ -39724,9 +34174,6 @@ In addition, device connectivity will be tested.</source>
         <source>Copy files to sysroot</source>
         <translation type="obsolete">Copie des fichiers à la racine système</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation type="obsolete">Erreur de clé publique : %1</translation>
@@ -39735,9 +34182,6 @@ In addition, device connectivity will be tested.</source>
         <source>Key deployment failed: %1.</source>
         <translation type="obsolete">Échec lors du déploiement de la clé : %1.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation>Créer un paquet Debian</translation>
@@ -39746,9 +34190,6 @@ In addition, device connectivity will be tested.</source>
         <source>Create RPM Package</source>
         <translation type="obsolete">Créer un paquet RPM</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Package up to date.</source>
         <translation type="obsolete">Paquet à jour.</translation>
@@ -39785,9 +34226,6 @@ In addition, device connectivity will be tested.</source>
         <source>Exit code: %1</source>
         <translation type="obsolete">Code de sortie : %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation type="obsolete">La taille devrait être de %1x%2 pixels</translation>
@@ -39836,9 +34274,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could Not Set Version Number</source>
         <translation type="obsolete">Impossible de définir le numéro de la version</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation type="obsolete">Échec de la connexion : %1</translation>
@@ -39847,16 +34282,10 @@ In addition, device connectivity will be tested.</source>
         <source>Installing package failed.</source>
         <translation type="obsolete">Échec lors de l&apos;installation du paquet.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
         <translation type="obsolete">Échec de l&apos;installation. Vous avez essayé d&apos;installer une version plus ancienne d&apos;un paquet, ce qui n&apos;est pas permis.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation type="obsolete">Sélectionner un répertoire à monter</translation>
@@ -39891,16 +34320,10 @@ In addition, device connectivity will be tested.</source>
             <numerusform>AVERTISSEMENT : vous voulez monter %1 répertoires mais seulement %n ports seront disponibles en mode debug. &lt;br&gt;Vous n&apos;êtes pas en mesure de déboguervotre application avec cette configuration.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Exécuter sur le périphérique</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Erreur de Qemu</translation>
@@ -39921,23 +34344,14 @@ In addition, device connectivity will be tested.</source>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
         <translation type="obsolete">Qemu est actuellement configuré pour autodétecter le mode OpenGL, qui est connu pour ne pas toujours fonctionner. Vous pourrize vouloir utiliser le rendu logiciel à la place. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">Configurations de périphériques</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation type="obsolete">Paramètres de Qemu pour MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Enregistrer le fichier de clé publique</translation>
@@ -39946,9 +34360,6 @@ In addition, device connectivity will be tested.</source>
         <source>Save Private Key File</source>
         <translation type="obsolete">Enregistrer le fichier de clé privée</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation type="obsolete">Qemu n&apos;était pas en cours d&apos;exécution. Il a maintenant été lancé mais pourrait prendre un peu de temps avant d&apos;être prêt. Veuillez réessayer alors. </translation>
@@ -39969,9 +34380,6 @@ In addition, device connectivity will be tested.</source>
         <source>Unmounting host directories...</source>
         <translation type="obsolete">Démontage des répertoires hôtes...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">GCC pour Maemo</translation>
@@ -39984,37 +34392,22 @@ In addition, device connectivity will be tested.</source>
         <source>%1 GCC (%2)</source>
         <translation type="obsolete">%1 GCC (%2)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Chemin de MADDE :&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chemin de la cible MADDE :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation type="obsolete">Pas d&apos;étape de paquetage correspondante trouvée. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
         <translation type="obsolete">Déployer le paquet Debian par SFTP</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
         <translation type="obsolete">Déployer le paquet RPM par SFTP</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">Impossible de démarrer le processus distant : %1</translation>
@@ -40032,9 +34425,6 @@ In addition, device connectivity will be tested.</source>
 Remote error output was: %1</source>
         <translation type="obsolete">La sortie du processus distant était : %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Waiting for file name...</source>
         <translation type="obsolete">Attente du nom de fichier... </translation>
@@ -40055,9 +34445,6 @@ Remote error output was: %1</source>
         <source>Deployment finished successfully.</source>
         <translation>Le déploiement s&apos;est déroulé avec succès. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation type="obsolete">Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
@@ -40090,9 +34477,6 @@ Remote error output was: %1</source>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible de déplacer le nouveau répertoire Debian dans &quot;%1&quot;. </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Don&apos;t know what to run.</source>
         <translatorcomment>bancal... </translatorcomment>
@@ -40112,9 +34496,6 @@ Remote error output was: %1</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation type="obsolete">Lancer sur un périphérique distant</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation>(sur hôte distant Linux générique)</translation>
@@ -40123,9 +34504,6 @@ Remote error output was: %1</source>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(sur un hôte distant Linux générique)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Gérer les configurations des périphériques&lt;/a&gt;</translation>
@@ -40171,9 +34549,6 @@ Remote error output was: %1</source>
         <source>Remote path not set</source>
         <translation>Chemin distant indéfini</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Starting remote process...
 </source>
@@ -40188,9 +34563,6 @@ Remote error output was: %1</source>
         <source>Remote Execution Failure</source>
         <translation type="obsolete">Échec lors de l&apos;exécution à distance</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation type="obsolete">Exécuter sur périphérique Linux distant</translation>
@@ -40209,7 +34581,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -40220,14 +34592,11 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 de %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FallbackSelectorWidget</name>
     <message>
         <source>Settings:</source>
         <translation type="obsolete">Paramètres :</translation>
@@ -40245,16 +34614,13 @@ Remote error output was: %1</source>
         <source>Restore</source>
         <translation type="obsolete">Restaurer</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Impossible de créer le dossier utilisateur de snippets %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profilage</translation>
@@ -40264,9 +34630,6 @@ Remote error output was: %1</source>
 </source>
         <translation>Profilage de %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Profileur de fonction de Valgrind</translation>
@@ -40279,9 +34642,6 @@ Remote error output was: %1</source>
         <source>Profile Costs of this Function and its Callees</source>
         <translation>Profiler les coûts de cette fonction et de ses appelés</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translatorcomment>ou -ants ?</translatorcomment>
@@ -40416,32 +34776,20 @@ Remote error output was: %1</source>
         <source>Populating...</source>
         <translation>Remplissage... </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Toutes les fonctions avec un ratio de coût inclusif supérieur à %1 (%2 sont cachés)</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Analyzing memory of %1
 </source>
         <translation>Analyse de la mémoire de %1
 </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>dans %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>Copier la sélection</translation>
@@ -40450,9 +34798,6 @@ Remote error output was: %1</source>
         <source>Suppress Error</source>
         <translation>Cacher les erreurs</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Erreurs externe</translation>
@@ -40525,9 +34870,6 @@ Remote error output was: %1</source>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>Erreur d&apos;analyse de la sortie de Valgring : %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Appelé</translation>
@@ -40544,9 +34886,6 @@ Remote error output was: %1</source>
         <source>Calls</source>
         <translation>Appels</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>La commande précédente n&apos;a pas fini. </translation>
@@ -40583,9 +34922,6 @@ Remote error output was: %1</source>
         <source>Downloading remote profile data...</source>
         <translation>Téléchargement des données de profilage distante...</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Fonction :</translation>
@@ -40655,9 +34991,6 @@ Remote error output was: %1</source>
         <source>Incl. Cost: %1</source>
         <translation>Dont coût : %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 dans %2</translation>
@@ -40666,9 +34999,6 @@ Remote error output was: %1</source>
         <source>%1:%2 in %3</source>
         <translation>%1 : %2 dans %3</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Dernier niveau</translation>
@@ -40725,9 +35055,6 @@ Remote error output was: %1</source>
         <source>Position:</source>
         <translation>Position :</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Pas d&apos;interface réseau trouvée pour l&apos;analyse à distance.</translation>
@@ -40760,9 +35087,6 @@ Remote error output was: %1</source>
         <source>No Network Interface was chosen for remote analysis</source>
         <translation type="obsolete">Aucune interface réseau n&apos;a été choisie pour l&apos;analyse distante</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Options de Valgrind : %1</translation>
@@ -40803,16 +35127,13 @@ Remote error output was: %1</source>
         <source>Application Output</source>
         <translation type="obsolete">Sortie de l&apos;application</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation type="obsolete">Analyseur</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonSettingsWidget</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translatorcomment>??</translatorcomment>
@@ -40855,11 +35176,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectPlugin</name>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">Ouvrir les options de Qt4</translation>
-    </message>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Open Qt Versions</source>
         <translation>Ouvrir les versions de Qt</translation>
@@ -40880,17 +35197,9 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
 
 Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, sélectionnez la versions actuelle de Qt et cliquez sur Construire dans la section Assistants.</translation>
     </message>
-    <message>
-        <source>QML Observer could not be found.</source>
-        <translation type="obsolete">L&apos;observateur QML n&apos;a pas pu être trouvé. </translation>
-    </message>
-    <message>
-        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
-        <translation type="obsolete">L&apos;observateur QML est utilisé pour offrir des fonctionnalités de débogage pour les applications QML, telles que des outils de débogage interactif et d&apos;inspection. Il doit être compilé séparément pour chaque version de Qt utilisée. Sur la page d&apos;options Qt4, séléctionner l&apos;installation courante de Qt et cliquer sur recompiler.</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Ignorer les fichiers manquants</translation>
@@ -40905,7 +35214,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - messages du chargeur de plug-in</translation>
@@ -40920,7 +35229,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation>Dessin</translation>
@@ -40943,7 +35252,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Details</source>
         <translation type="obsolete">Détails</translation>
@@ -41078,35 +35387,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Current settings:</source>
-        <translation type="obsolete">Paramètres actuels :</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation type="obsolete">Copier...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Copier le style de code</translation>
@@ -41128,10 +35409,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>Êtes vous sur de vouloir supprimer ce style de code ?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>Import Code Style</source>
         <translation>Importer un style de code</translation>
     </message>
@@ -41140,8 +35417,8 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>Styles de code (*.xml);;Tous les fichiers (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Impossible d&apos;importer le style de code à partir de %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Impossible d&apos;importer le style de code à partir de &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot import code style</source>
@@ -41184,13 +35461,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Continue</translation>
     </message>
 </context>
 <context>
@@ -41247,7 +35517,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Utils::Ssh</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Password Required</source>
         <translation type="obsolete">Mot de passe requis</translation>
@@ -41256,9 +35526,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <source>Please enter the password for your private key.</source>
         <translation type="obsolete">Veuillez insérer votre mot de passe pour votre clé privée.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>Mémoire insuffisante.</translation>
@@ -41269,7 +35536,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Journal</translation>
@@ -41312,7 +35579,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>QtC::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Échec du lancement du navigateur de fichier</translation>
@@ -41336,10 +35603,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>&apos;%1&apos; retourne l&apos;erreur suivante :
 
 %2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation>Paramètres...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
@@ -41382,29 +35645,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>Impossible de supprimer le fichier %1.</translation>
     </message>
     <message>
-        <source>Show in Explorer...</source>
-        <translation type="obsolete">Afficher dans l&apos;explorateur de fichier...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <translation type="obsolete">Afficher dans Finder...</translation>
-    </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Montrer le contenu du dossier...</translation>
-    </message>
-    <message>
-        <source>Open Command Prompt Here...</source>
-        <translation type="obsolete">Ouvre une invite de commande ici...</translation>
-    </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Ouvrir un terminal ici...</translation>
-    </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
-    <message>
         <source>Unable to create the directory %1.</source>
         <translation>Impossible de créer le répertoire %1.</translation>
     </message>
@@ -41429,7 +35669,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Exception C++</translation>
@@ -41476,7 +35716,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Find::IFindFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>Sensible à la casse</translation>
@@ -41505,16 +35745,9 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>La recherche a été annulée.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters</source>
@@ -41533,20 +35766,8 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>Remplacer toutes les occurrences</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Remplacer</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Préserver la casse</translation>
-    </message>
-    <message>
         <source>This change cannot be undone.</source>
         <translation>Ce changement ne peut être annulé.</translation>
-    </message>
-    <message>
-        <source>Do not warn again</source>
-        <translation type="obsolete">Ne plus avertir</translation>
     </message>
     <message numerus="yes">
         <source>The search resulted in more than %n items, do you still want to continue?</source>
@@ -41572,30 +35793,10 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SettingsAccessor</name>
-    <message>
-        <source>Using Old Project Settings File</source>
-        <translation type="obsolete">Utiliser le fichier de paramètres de l&apos;ancien projet</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Une sauvegarde versionnée du fichier de paramètres .user sera utilisée parce qu&apos;un fichier non versionné a été créé par une version plus récente et incompatible de Qt Creator.&lt;/p&gt;&lt;p&gt;Les changements aux préférences du projet effectuées depuis la dernière fois que cette version de Qt Creator a été utilisée avec ce projet seront ignorés et les changements effectués dès maintenant ne seront &lt;b&gt;pas&lt;/b&gt; propagés à la nouvelle version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation type="obsolete">Le fichier de configuration du projet provient-il d&apos;un environnement différent ?</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
-
-The .user settings files contain environment specific settings. They should not be copied to a different environment. 
-
-Do you still want to load the settings file?</source>
-        <translation type="obsolete">Qt Creator a trouvé un fichier de configuration .user qui a été créé pour une autre configuration de développement, peut-être à partir d&apos;un autre ordinateur.
-
-Le fichier de configuration .user contient des paramètres spécifiques à un environnement. Ils ne devraient pas être copiés dans un environnement différent.
-
-Voulez-vous toujours charger le fichier de configuration ?</translation>
     </message>
     <message>
         <source>No valid .user file found for &apos;%1&apos;</source>
@@ -41651,7 +35852,7 @@ Si vous choisissez de ne pas continuer, Qt Creator n&apos;essayera pas de charge
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translatorcomment>Burger King bientôt ? :P</translatorcomment>
@@ -41659,7 +35860,7 @@ Si vous choisissez de ne pas continuer, Qt Creator n&apos;essayera pas de charge
     </message>
 </context>
 <context>
-    <name>FindExportedCppTypes</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">Le type sera disponible dans l&apos;éditeur QML de Qt Creator lorsque le nom du type est une chaîne de caractères</translation>
@@ -41677,7 +35878,7 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>En-têtes</translation>
@@ -41736,7 +35937,7 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Aucune action de déploiement nécessaire. Continuation.</translation>
@@ -41749,9 +35950,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Connection error: %1</source>
         <translation>Erreur de connexion : %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deployment failed: %1</source>
         <translation type="obsolete">Échec du déploiement : %1</translation>
@@ -41772,9 +35970,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Deploy step finished.</source>
         <translation>Étape de déploiment effectuée.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Fichier de paquet envoyé avec succès. </translation>
@@ -41787,9 +35982,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Package installed.</source>
         <translation>Paquet installé.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Échec de l&apos;initialisation de SFTP : %1</translation>
@@ -41826,9 +36018,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Warning: No remote path set for local file &apos;%1&apos;. Skipping upload.</source>
         <translation>Attention: Aucun chemin distant de défini pour le fichier local &apos;%1&apos;. Continuation de l&apos;envoie.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Déploiement incrémental</translation>
@@ -41837,16 +36026,10 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Command line:</source>
         <translation>Ligne de commande : </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Envoi de fichiers par SFTP</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation type="obsolete">Linux générique</translation>
@@ -41871,9 +36054,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Deploy Public Key</source>
         <translation type="obsolete">Déployer la clé publique</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation type="obsolete">Configurations des périphériques Linux</translation>
@@ -41918,9 +36098,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>&amp;Generate SSH Key...</source>
         <translation type="obsolete">&amp;Générer une clé SSH...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Close</source>
         <translation>Fermer</translation>
@@ -41933,9 +36110,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Device test failed.</source>
         <translation>Le test du périphérique a échoué.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Connexion à l&apos;hôte...</translation>
@@ -42007,9 +36181,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <translation>Les ports suivant sont actuellement en cours d&apos;utilisation : %1
 </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Préparation de la connexion SFTP...</translation>
@@ -42030,9 +36201,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Failed to upload package: %2</source>
         <translation>Échec de l&apos;envoi du paquet : %2</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation type="obsolete">Fichiers de projet pouvant être mis à jour</translation>
@@ -42053,16 +36221,10 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>&amp;Uncheck All</source>
         <translation type="obsolete">Décocher to&amp;ut</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Exécuter une commande distante personnalisée</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Aucune ligne de commande donnée.</translation>
@@ -42087,9 +36249,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Remote command finished successfully.</source>
         <translation>Processus distant terminé avec succès.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>Déploiement sur une hôte Linux distante</translation>
@@ -42106,16 +36265,10 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>(No device)</source>
         <translation type="obsolete">(Pas de périphérique)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation type="obsolete">&lt;b&gt;%1 utilisant le périphérique&lt;/b&gt; : %2</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>Erreur lors de l&apos;exécution du processus à distance : %1</translation>
@@ -42137,9 +36290,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
 Remote stderr was: &apos;%1&apos;</source>
         <translation>Le stderr distant était : &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">Sélectionner la racine système</translation>
@@ -42197,9 +36347,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation type="obsolete">Exécute la commande : %1
  {1?}</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Paquetage terminé avec succès.</translation>
@@ -42248,9 +36395,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Create tarball</source>
         <translation>Créer un tarball</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(par défaut)</translation>
@@ -42259,9 +36403,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>%1 (default)</source>
         <translation>%1 (par défaut)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Aucune étape de création d&apos;archive tarball trouvée.</translation>
@@ -42272,21 +36413,14 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Éditer le prévisualisation du contenu pour voir la manière dont les paramètres actuels sont appliqués dans le snippets de code personnalisé. Les changements dans la zone de prévisualisation n&apos;affectent pas les paramètres actuels.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Editez le style de code</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Nom du style de code :</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
@@ -42296,13 +36430,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Copy Built-in Code Style</source>
         <translation>Copier le style de code préfabriqué</translation>
     </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (Copie)</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation>Fichiers dans le système de fichiers</translation>
@@ -42329,10 +36456,6 @@ Filtre : %2
         <translation>&amp;Parcourir...</translation>
     </message>
     <message>
-        <source>&amp;Browse</source>
-        <translation type="obsolete">&amp;Parcourir</translation>
-    </message>
-    <message>
         <source>Fi&amp;le pattern:</source>
         <translation>Pat&amp;ron de fichier :</translation>
     </message>
@@ -42342,7 +36465,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>Impossible de déterminer l&apos;emplacement de l&apos;outil de maintenant. Veuillez vérifier votre installation si vous n&apos;avez pas activé ce module manuellement.</translation>
@@ -42365,7 +36488,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -42382,9 +36505,6 @@ Filtre : %2
 &apos;%1&apos; terminé (code de retour %2).
 </translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Erreur : le délai d&apos;attente du serveur de contrôle de donnée a expiré après %1s.</translation>
@@ -42392,10 +36512,6 @@ Filtre : %2
     <message>
         <source>Unable to start process, binary is empty</source>
         <translation>Impossible de démarrer le processus, le binaire est vide</translation>
-    </message>
-    <message>
-        <source>Error: Executable timed out after %1s.</source>
-        <translation>Erreur : l&apos;exécutable est arrivé à échéance après %1 s.</translation>
     </message>
 </context>
 <context>
@@ -42450,18 +36566,10 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandMappings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Mappages de commandes</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation>Commande</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Libellé</translation>
     </message>
     <message>
         <source>Target</source>
@@ -42496,17 +36604,6 @@ Filtre : %2
         <translation>Restaurer les paramètres par défaut</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Réinitialiser</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
         <source>Registered MIME Types</source>
         <translation>Types MIME enregistrés</translation>
     </message>
@@ -42515,24 +36612,12 @@ Filtre : %2
         <translation>Restaurer tous les paramètres par défaut.</translation>
     </message>
     <message>
-        <source>Reset All</source>
-        <translation>Tout réinitialiser</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
         <source>Patterns:</source>
         <translation>Motifs : </translation>
     </message>
     <message>
         <source>Magic Header</source>
         <translation>En-tête magique</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
     </message>
     <message>
         <source>Range</source>
@@ -42551,19 +36636,8 @@ Filtre : %2
         <translation>Modifier...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>Filter</source>
         <translation>Filtre</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation>Variables</translation>
     </message>
     <message>
         <source>Select a variable to insert.</source>
@@ -42571,7 +36645,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -42682,7 +36756,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation>Suffixe des fichier d&apos;en-tête :</translation>
@@ -42757,7 +36831,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Lancer le débogueur</translation>
@@ -42812,7 +36886,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Has a passwordless (key-based) login already been set up for this device?</source>
         <translation>Posséde déjà un de mot de passe (basé sur des clés) de connexion pour cet appareil ?</translation>
@@ -42864,7 +36938,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -42934,7 +37008,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Sélection</translation>
@@ -42953,7 +37027,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Arguments de Make :</translation>
@@ -43048,14 +37122,14 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Journal de compilation de l&apos;assistant de debogage</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -43148,9 +37222,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Leave empty to look up executable in $PATH</source>
         <translation>Laisser vide pour rechercher un exécutable dans le $PATH</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -43183,16 +37254,10 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>The file containing the user&apos;s private key:</source>
         <translation>Le fichier contenant la clé privée de l&apos;utilisateur : </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>Test de périphérique</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device configuration:</source>
         <translation type="obsolete">Configuration du périphérique :</translation>
@@ -43215,14 +37280,11 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Frappe</translation>
@@ -43417,20 +37479,9 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Show help tooltips using the mouse:</source>
         <translation>Afficher les info-bulles d&apos;aide en utilisant la souris :</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>Paramètres actuels :</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>Copier...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -43447,13 +37498,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     <message>
         <source>Import...</source>
         <translation>Importer...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>Affichage</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -43521,13 +37565,6 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
         <source>Display file encoding</source>
         <translation>Afficher l&apos;encodage du fichier</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -43547,23 +37584,12 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
         <translation>Utiliser un emplacement de repli</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Comportement</translation>
-    </message>
-    <message>
         <source>Alert when a highlight definition is not found</source>
         <translation type="obsolete">Prévenir si une définition de coloration syntaxique n&apos;est pas trouvée</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
         <translation>Motifs de fichier ignorés : </translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -43572,10 +37598,6 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -43588,13 +37610,6 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
     <message>
         <source>Reset All</source>
         <translation>Tout réinitialiser</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -43699,7 +37714,7 @@ Influence l&apos;indentation des lignes de continuation.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -43730,7 +37745,7 @@ Influence l&apos;indentation des lignes de continuation.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -43787,9 +37802,6 @@ Influence l&apos;indentation des lignes de continuation.
         <source>Directory:</source>
         <translation>Répertoire :</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Nettoyer le dépôt</translation>
@@ -43798,9 +37810,6 @@ Influence l&apos;indentation des lignes de continuation.
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Limiter la largeur du message à :</translation>
@@ -43857,14 +37866,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsConfigurationPage</name>
-    <message>
-        <source>Configure...</source>
-        <translation type="obsolete">Configurer...</translation>
-    </message>
-</context>
-<context>
-    <name>examples</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Exemples</translation>
@@ -43938,7 +37940,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>Tutoriels</translation>
@@ -43976,11 +37978,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
-    <message>
-        <source>Clone</source>
-        <translation>Cloner</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Rename</source>
         <translation>Renommer</translation>
@@ -43989,9 +37987,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (dernière session)</translation>
@@ -44002,7 +37997,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>StaticAnalysisMessages</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation type="obsolete">ne pas utiliser &apos;%1&apos; comme un constructeur</translation>
@@ -44020,20 +38015,8 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">valeur numérique attendue</translation>
     </message>
     <message>
-        <source>boolean value expected</source>
-        <translation type="obsolete">Valeur binaire attendue</translation>
-    </message>
-    <message>
-        <source>string value expected</source>
-        <translation type="obsolete">Chaîne de caractères attendue</translation>
-    </message>
-    <message>
         <source>invalid URL</source>
         <translation type="obsolete">URL invalide</translation>
-    </message>
-    <message>
-        <source>file or directory does not exist</source>
-        <translation type="obsolete">le fichier ou le répertoire n&apos;existe pas</translation>
     </message>
     <message>
         <source>invalid color</source>
@@ -44063,14 +38046,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>invalid property name &apos;%1&apos;</source>
         <translation type="obsolete">nom de propriété &apos;%1&apos; invalide</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; does not have members</source>
-        <translation type="obsolete">&quot;%1&quot; n&apos;a pas de membres</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; is not a member of &apos;%2&apos;</source>
-        <translation type="obsolete">&quot;%1&quot; n&apos;est pas un membre de &quot;%2&quot;</translation>
     </message>
     <message>
         <source>assignment in condition</source>
@@ -44157,10 +38132,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">== et != peuvent provoquer une coercition de type, utilisez === ou !== pour l&apos;éviter</translation>
     </message>
     <message>
-        <source>expression statements should be assignments, calls or delete expressions only</source>
-        <translation type="obsolete">les définitions d&apos;expression devraient être des expression d&apos;assignation, d&apos;appel ou de suppression uniquement</translation>
-    </message>
-    <message>
         <source>var declarations should be at the start of a function</source>
         <translation type="obsolete">la déclaration de variables doit être au début de la fonction</translation>
     </message>
@@ -44203,10 +38174,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>use spaces around binary operators</source>
         <translation type="obsolete">utilisez des espaces autour des opérateurs binaires</translation>
-    </message>
-    <message>
-        <source>unintentional empty block, use ({}) for empty object literal</source>
-        <translation type="obsolete">bloc vide involontaire, utilisez ({}) pour les objets vides</translation>
     </message>
     <message>
         <source>use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance</source>
@@ -44275,7 +38242,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Utils::SettingsSelector</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
@@ -44300,9 +38267,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Rename...</source>
         <translation>Renommer...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SftpFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation type="obsolete">Type du fichier</translation>
@@ -44319,9 +38283,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Error listing contents of directory &apos;%1&apos;: %2</source>
         <translation type="obsolete">Erreur lors du listage du contenu du répertoire &apos;%1&apos; : %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
         <translation type="obsolete">Processus tué par un signal</translation>
@@ -44564,7 +38525,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -44723,7 +38684,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>BinEditorDocument</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>L&apos;éditeur binaire ne peut ouvrir des fichiers vides.</translation>
@@ -44738,22 +38699,18 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Compiler la cible CMake</translation>
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Impossible d&apos;enregistrer les fichiers.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Erreur de fichier</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -44780,10 +38737,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">Le fichier est en lecture seule</translation>
     </message>
     <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Le fichier &lt;i&gt;%1&lt;/i&gt; est en lecture seule.</translation>
-    </message>
-    <message>
         <source>Make &amp;Writable</source>
         <translation type="obsolete">Rendre &amp;inscriptible</translation>
     </message>
@@ -44792,27 +38745,8 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">Enregistrer &amp;sous...</translation>
     </message>
     <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Ouvrir avec VCS (%1)</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
-    </message>
-    <message>
         <source>Cannot reload %1</source>
         <translation>Impossible de recharger %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
-    <message>
-        <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
-        <translation type="obsolete">Le fichier a été restauré depuis une copie de sauvegarde automatique. Utilisez &lt;i&gt;Sauver&lt;/i&gt; pour confirmer ou &lt;i&gt;Retour à la sauvegarde&lt;/i&gt; pour effacer les changements. </translation>
     </message>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
@@ -44820,7 +38754,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Extraire la fonction</translation>
@@ -44838,20 +38772,13 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Invalid function name</source>
         <translation>Nom de fonction invalide</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Classes</translation>
-    </message>
     <message>
         <source>C++ Classes</source>
         <translation>Classes C++</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
@@ -44872,9 +38799,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Misc Types</source>
         <translation>Types divers</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Paramètres du débogueur</translation>
@@ -44899,9 +38823,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Enable Debugging of Subprocesses</source>
         <translation>Activer le débogage des sous-processus</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Fonction anonyme</translation>
@@ -44928,7 +38849,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>untracked</source>
         <translation>non suivi</translation>
@@ -44992,7 +38913,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Locator::Internal::ExecuteFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
@@ -45037,42 +38958,23 @@ Voulez-vous la tuer ?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Edit Environment</source>
         <translation>Editer l&apos;environnement</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
-    <message>
-        <source>New session name</source>
-        <translation>Nom de la nouvelle session</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation type="obsolete">Paramètres du débogueur</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK :</translation>
@@ -45087,7 +38989,7 @@ Voulez-vous la tuer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Add a comment to suppress this message</source>
         <translation type="obsolete">Ajouter un commentaire pour supprimer ce message</translation>
@@ -45131,7 +39033,7 @@ Voulez-vous la tuer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications</source>
         <translation type="obsolete">Suivre les informations à partir du moteur JavaScript V8. Disponible uniquement dans les applications basées sur Qt5</translation>
@@ -45287,7 +39189,7 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Configure Project</source>
         <translation>Configurer le projet</translation>
@@ -45337,15 +39239,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
-    <message>
-        <source>Examples</source>
-        <translation>Exemples</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation>Tutoriels</translation>
-    </message>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>Copier le projet à un emplacement accessible en écriture ?</translation>
@@ -45383,13 +39277,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <translation>Échec d&apos;ouverture du projet</translation>
     </message>
     <message>
-        <source>Failed to open project</source>
-        <translation type="obsolete">Échec d&apos;ouverture du projet</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport</name>
-    <message>
         <source>MeeGo/Harmattan</source>
         <translation>MeeGo/Harmattan</translation>
     </message>
@@ -45424,28 +39311,22 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Embedded Linux</source>
         <translation type="obsolete">Linux embarqué</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation type="obsolete">Double-cliquez pour modifier le fichier de projet</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CountingLabel</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 élément(s) trouvé(s)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>Documents ouverts</translation>
@@ -45466,7 +39347,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Description</source>
         <translation>Description</translation>
@@ -45481,7 +39362,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translatorcomment>Fonctionnalités qui recherche les entrées &quot;TODO&quot; dans le code, à voir comment ça s&apos;affiche en partique dans Qt Creator. [Pierre] ça je suis partisant de laisser TODO tel quel, c&apos;est du jargon informatique...</translatorcomment>
@@ -45505,7 +39386,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do</source>
         <translatorcomment>Quoi que l&apos;on pourrait laisser TODO ? [Pierre] yep, je valide TODO</translatorcomment>
@@ -45513,7 +39394,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Open URL in browser...</source>
         <translation type="obsolete">Ouvrir l&apos;URL dans le navigateur...</translation>
@@ -45530,9 +39411,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>Copy URL Location</source>
         <translation>Copier l&apos;URL</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send email to...</source>
         <translation type="obsolete">Envoyer un email à...</translation>
@@ -45638,7 +39516,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Créer un nouvel AVD</translation>
@@ -46009,7 +39887,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Importer</translation>
@@ -46155,7 +40033,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Core::RemoveFileDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Remove File</source>
         <translation>Supprimer le fichier</translation>
@@ -46174,7 +40052,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Sélection de l&apos;assistant de configuration du périphérique</translation>
@@ -46184,13 +40062,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Types de périphérique disponibles : </translation>
     </message>
     <message>
-        <source>Start Wizard</source>
-        <translation>Démarrer l&apos;assistant</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
-    <message>
         <source>Linux Device Configurations</source>
         <translation>Configurations des périphériques Linux</translation>
     </message>
@@ -46199,16 +40070,8 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>&amp;Périphérique :</translation>
     </message>
     <message>
-        <source>General</source>
-        <translation>Général</translation>
-    </message>
-    <message>
         <source>&amp;Name:</source>
         <translation>&amp;Nom :</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Type :</translation>
     </message>
     <message>
         <source>Auto-detected:</source>
@@ -46256,14 +40119,14 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation>Paquets à déployer :</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation>&amp;Nom du périphérique :</translation>
@@ -46346,7 +40209,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>The name to identify this configuration:</source>
         <translation>Le nom pour identifier cette configuration : </translation>
@@ -46405,7 +40268,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>WizardPage</source>
         <translation>Page d&apos;assistant</translation>
@@ -46436,7 +40299,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device:</source>
         <translation>Appareil mobile :</translation>
@@ -46447,7 +40310,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>SDK:</source>
         <translation>SDK :</translation>
@@ -46469,7 +40332,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keyword</source>
         <translation>Mot-clé</translation>
@@ -46497,7 +40360,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -46723,14 +40586,11 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Utils::BaseTreeView</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation>Ajuster la largeur des colonnes au contenu</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
         <translation>&quot;%1&quot; est un objet ELF invalide (%2)</translation>
@@ -46787,7 +40647,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Impossible de démarrer : %1</translation>
@@ -47292,7 +41152,7 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -47303,7 +41163,7 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Sélectionner une &amp;activité :</translation>
@@ -47653,7 +41513,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>cmake Executable:</source>
         <translation type="obsolete">Exécutable CMake :</translation>
@@ -47720,7 +41580,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -47729,16 +41589,13 @@ Oui :)</translatorcomment>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Ouvrir avec VCS (%1)</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Le fichier cible a été modifié, impossible d&apos;appliquer les changements</translation>
@@ -47756,9 +41613,6 @@ Oui :)</translatorcomment>
         <translatorcomment>Pluriel ?</translatorcomment>
         <translation>Appliquer les changements de signature de fonction</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked `override&apos;</source>
         <translation type="obsolete">Seules les méthodes virtuelles peuvent être marquée &quot;override&quot;</translation>
@@ -47768,14 +41622,6 @@ Oui :)</translatorcomment>
         <translation type="obsolete">Seules les méthodes virtuelles peuvent être marquées &quot;final&quot;</translation>
     </message>
     <message>
-        <source>Too few arguments</source>
-        <translation type="obsolete">Trop peu d&apos;arguments</translation>
-    </message>
-    <message>
-        <source>Too many arguments</source>
-        <translation type="obsolete">Trop d&apos;arguments</translation>
-    </message>
-    <message>
         <source>Only virtual methods can be marked &apos;override&apos;</source>
         <translation>Seules les méthodes virtuelles peuvent être marqués &quot;override&quot;</translation>
     </message>
@@ -47783,9 +41629,6 @@ Oui :)</translatorcomment>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Seules les fonctions virtuelles peuvent être marqués &quot;override&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CPlusPlus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
         <translation>Seules les méthodes virtuelles peuvent être marqués &quot;final&quot;</translation>
@@ -47804,7 +41647,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Delete Breakpoint</source>
         <translation>Supprimer le point d&apos;arrêt</translation>
@@ -47873,9 +41716,6 @@ Oui :)</translatorcomment>
         <source>Add Breakpoint</source>
         <translation>Ajouter un point d&apos;arrêt</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Sélectionner l&apos;exécutable</translation>
@@ -47944,9 +41784,6 @@ Oui :)</translatorcomment>
         <source>&amp;Recent:</source>
         <translation>&amp;Récent :</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
@@ -47971,9 +41808,6 @@ Oui :)</translatorcomment>
         <source>Debugger for &quot;%1&quot;</source>
         <translation>Débogueur pour &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation>&amp;Moteur :</translation>
@@ -47987,9 +41821,6 @@ Oui :)</translatorcomment>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifier le chemin à &lt;a href=&quot;%1&quot;&gt;l&apos;exécutable du débogueur en console de Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Aucun débogueur n&apos;a été configuré.</translation>
@@ -48045,14 +41876,14 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation>&amp;Attacher au processus</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation>Impossible de créer un moteur de débogage du type &quot;%1&quot;</translation>
@@ -48156,9 +41987,6 @@ Oui :)</translatorcomment>
         <source>Interrupting not possible</source>
         <translation>Interruption impossible</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>Erreur distante</translation>
@@ -48211,16 +42039,10 @@ Oui :)</translatorcomment>
         <source>Process gdbserver finished. Status: %1</source>
         <translation>Processus gbdserver terminé. Statut : %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Téléchargement du fichier distant réussi.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Nom du module</translation>
@@ -48305,9 +42127,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;inconnue&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation>Mettre à jour la liste des modules</translation>
@@ -48364,9 +42183,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Montrer les dépendances de &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>Connexion au serveur de débogage %1:%2</translation>
@@ -48410,9 +42226,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Closing.</source>
         <translation>Fermeture.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Success: </source>
         <translation>Réussite :</translation>
@@ -48425,9 +42238,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Properties</source>
         <translation>Propriétés</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation>L&apos;attribut %1 à la ligne %2, colonne %3 ne peut pas être modifié sans redémarrer l&apos;application QML.</translation>
@@ -48452,9 +42262,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Reload QML</source>
         <translation>Recharger le QML</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>Recharger la liste des registres</translation>
@@ -48503,9 +42310,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Binary</source>
         <translation>Binaire</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>Snapshots</translation>
@@ -48518,9 +42322,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Remove Snapshot</source>
         <translation>Supprimer un snapshot</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Reload Data</source>
         <translation>Recharger les données</translation>
@@ -48533,9 +42334,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Ouvrir le fichier &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Function:</source>
         <translation>Fonction :</translation>
@@ -48568,9 +42366,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Frame #%1 (%2)</source>
         <translation>Frame #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -48787,7 +42582,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Apply in: </source>
         <translation>Appliquer dans :</translation>
@@ -49077,7 +42872,7 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>&amp;Edit (%1)</source>
         <translation type="obsolete">&amp;Éditer (%1)</translation>
@@ -49092,7 +42887,7 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Run locally</source>
         <translation type="obsolete">Exécuter localement</translation>
@@ -49105,16 +42900,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Desktop</source>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
     <message>
         <source>Cannot run: Device is not able to create processes.</source>
         <translation>Impossible d&apos;exécuter : le périphérique n&apos;est pas capable de créer le processus.</translation>
@@ -49163,16 +42948,10 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Remote application finished with exit code 0.</source>
         <translation>L&apos;application distante s&apos;est terminée avec le code 0.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (défaut pour %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation>Kit :</translation>
@@ -49198,19 +42977,9 @@ were not verified among remotes in %3. Select different folder?</source>
         <translation>&amp;Filtre :</translation>
     </message>
     <message>
-        <source>&amp;Attach to Process</source>
-        <translation>&amp;Attacher au processus</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
-    <message>
         <source>Remote Error</source>
         <translation>Erreur distante</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>ID du processus</translation>
@@ -49219,16 +42988,10 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Command Line</source>
         <translation>Ligne de commande</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
     <message>
         <source>Devices</source>
         <translation>Périphériques</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Erreur de connexion : %1</translation>
@@ -49250,16 +43013,10 @@ were not verified among remotes in %3. Select different folder?</source>
 Remote error output was: %1</source>
         <translation>La sortie du processus distant était : %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation>Périphérique</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
     <message>
         <source>Cannot terminate process %1: %2</source>
         <translation>Impossible de terminer le processus %1 : %2</translation>
@@ -49268,9 +43025,6 @@ Remote error output was: %1</source>
         <source>Cannot open process %1: %2</source>
         <translation>Impossible d&apos;ouvrir le processus %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Échec de la connexion : %1</translation>
@@ -49308,16 +43062,9 @@ Remote error output was: %1</source>
 Remote stderr was: %1</source>
         <translation>Le stderr distant était : %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>Sans nom</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Clone de %1</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -49327,9 +43074,6 @@ Remote stderr was: %1</source>
         <source>Warning:</source>
         <translation>Avertissement : </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>La racine du système &quot;%1&quot; n&apos;est pas un répertoire.</translation>
@@ -49338,9 +43082,6 @@ Remote stderr was: %1</source>
         <source>Sys Root</source>
         <translation>Racine du système</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation>Compilateur</translation>
@@ -49353,9 +43094,6 @@ Remote stderr was: %1</source>
         <source>No compiler set in kit.</source>
         <translation>Aucune compilateur défini dans le kit.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation>Type de périphérique inconnu</translation>
@@ -49364,9 +43102,6 @@ Remote stderr was: %1</source>
         <source>Device type</source>
         <translation>Type de périphérique</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>Device does not match device type.</source>
         <translation>Le périphérique ne correspond pas au type de périphérique.</translation>
@@ -49380,17 +43115,6 @@ Remote stderr was: %1</source>
         <translation>Pas de périphérique défini.</translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation>Périphérique</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Non configuré</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
-    <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation>Le répertoire racine du système image à utiliser.&lt;br&gt;Laisser vide lors d&apos;une compilation sur desktop.</translation>
     </message>
@@ -49399,16 +43123,9 @@ Remote stderr was: %1</source>
         <translatorcomment>Traduit plus haut</translatorcomment>
         <translation>Racine du système :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
         <translation>Le compilateur à utiliser pour la compilation.&lt;br&gt;Assurez-vous que le compilateur génère des binaires compatibles avec le périphérique cible, la version de Qt et les autres bibliothèques utilisées.</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
     </message>
     <message>
         <source>Compiler:</source>
@@ -49418,9 +43135,6 @@ Remote stderr was: %1</source>
         <source>&lt;No compiler available&gt;</source>
         <translation>&lt;Aucun compilateur disponible&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>The type of device to run applications on.</source>
         <translation>Le type de périphérique sur lequel les applications sont exécutées.</translation>
@@ -49429,9 +43143,6 @@ Remote stderr was: %1</source>
         <source>Device type:</source>
         <translation>Type de périphérique :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
         <source>Manage</source>
         <translation>Gérer</translation>
@@ -49447,20 +43158,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Device:</source>
         <translation>Appareil mobile :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Nom :</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -49478,69 +43175,33 @@ Remote stderr was: %1</source>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Images (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>Auto-detected</source>
         <translation>Autodétecté</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manuel</translation>
     </message>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (par défaut)</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Clone de %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
         <source>Kits</source>
         <translation>Kits</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Cloner</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Make Default</source>
         <translation>Rendre par défaut</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Unknown error.</source>
         <translation>Erreur inconnue.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Default build</source>
         <translation>Compilation par défaut</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>Le type sera disponible dans l&apos;éditeur QML de Qt Creator lorsque le nom du type est une chaîne de caractères</translation>
@@ -49559,7 +43220,7 @@ pour donner un indice à Qt Creator à propos d&apos;une URI probable.</translat
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Source code not available.</source>
         <translation>Code source non disponible.</translation>
@@ -49698,14 +43359,14 @@ pour donner un indice à Qt Creator à propos d&apos;une URI probable.</translat
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Débute : &quot;%1&quot; %2</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Launching application failed</source>
         <translation>Le démarrage de l&apos;application a échoué</translation>
@@ -49716,7 +43377,7 @@ pour donner un indice à Qt Creator à propos d&apos;une URI probable.</translat
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Create BAR packages</source>
         <translation type="obsolete">Créer les paquets BAR</translation>
@@ -49759,7 +43420,7 @@ pour donner un indice à Qt Creator à propos d&apos;une URI probable.</translat
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&lt;b&gt;Create packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;Créer les paquets&lt;/b&gt;</translation>
@@ -49794,14 +43455,14 @@ pour donner un indice à Qt Creator à propos d&apos;une URI probable.</translat
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Create BAR Packages</source>
         <translation>Créer les paquets BAR</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy to BlackBerry Device</source>
         <translation>Déployer sur un périphérique BlackBerry</translation>
@@ -49834,7 +43495,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Enabled</source>
         <translation>Activé</translation>
@@ -49849,7 +43510,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy packages</source>
         <translation>Déployer les paquets</translation>
@@ -49868,21 +43529,21 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;Déployer les paquets&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy Package</source>
         <translation>Déployer le paquet</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Connect to device</source>
         <translation>Connecter au périphérique</translation>
@@ -49893,7 +43554,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>New BlackBerry Device Configuration Setup</source>
         <translation>Configuration d&apos;un nouveau périphérique BlackBerry</translation>
@@ -49916,7 +43577,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Setup Finished</source>
         <translation>Fin de l&apos;installation</translation>
@@ -49935,7 +43596,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry %1</source>
         <comment>Qt Version is meant for BlackBerry</comment>
@@ -49951,7 +43612,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 on BlackBerry device</source>
         <translation>%1 sur périphérique BlackBerry</translation>
@@ -49962,14 +43623,14 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 on BlackBerry Device</source>
         <translation>%1 sur le périphérique BlackBerry </translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>No active deploy configuration</source>
         <translation>Aucune configuration de déploiement active</translation>
@@ -49984,35 +43645,35 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>No SDK path set</source>
         <translation>Chemin du SDK non spécifié</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Déployer sur un périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Configuration du nouveau périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>Périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -50029,21 +43690,21 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>Chemin sur le périphérique vers les bibliothèques Qt :</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 sur périphérique QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Run on remote QNX device</source>
         <translation type="obsolete">Exécuter sur un périphérique QNX distant</translation>
@@ -50054,7 +43715,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Le mkspec à utiliser lors de la compilation du projet avec qmake.&lt;br&gt;Ce paramètre est ignoré lors de l&apos;utilisation avec d&apos;autres systèmes de compilation.</translation>
@@ -50095,7 +43756,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Command:</source>
         <translation type="obsolete">Commande :</translation>
@@ -50116,14 +43777,6 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
         <source>Run in &amp;terminal</source>
         <translation>Exécuter dans le &amp;terminal</translation>
     </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;éxecution</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
 </context>
 <context>
     <name>CustomExecutableDialog</name>
@@ -50133,7 +43786,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No executable.</source>
         <translation>Pas d&apos;exécutable.</translation>
@@ -50147,18 +43800,6 @@ cannot be found in the path.</source>
 n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
         <source>Custom Executable</source>
         <translation>Exécutable personnalisé</translation>
     </message>
@@ -50166,9 +43807,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Run %1</source>
         <translation>Exécuter %1</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>La bibliothèque Qt à utiliser pour tous les projets utilisant ce kit.&lt;br&gt;Une version de Qt est nécesaire pour les projets basés sur qmake et est optionnelle pour les autres systèmes de compilation.</translation>
@@ -50185,9 +43823,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>%1 (invalid)</source>
         <translation>%1 (invalide)</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Version de Qt</translation>
@@ -50198,7 +43833,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Le processus distant a crashé.</translation>
@@ -50226,30 +43861,21 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Cannot check for free disk space: &apos;%1&apos; is not an absolute path.</source>
         <translation>Impossible de vérifier l&apos;espace libre du disque : &quot;%1&quot; n&apos;est pas un chemin absolu.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>Mo</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Vérification de l&apos;espace disque disponible</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Debugging failed.</source>
         <translation>Le débogage a échoué.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Ajouter des fichiers</translation>
@@ -50298,9 +43924,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Could not copy the file to %1.</source>
         <translation>La copie du fichier dans &quot;%1&quot; a échoué.</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Le nom de fichier est vide.</translation>
@@ -50317,9 +43940,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Cannot write file. Disk full?</source>
         <translation>Impossible d&apos;écrire le fichier. Disque plein ?</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Ouvrir le fichier</translation>
@@ -50330,7 +43950,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Display context-sensitive help or type information on mouseover.</source>
         <translation>Afficher l&apos;aide contextuelle ou l&apos;information du type lors d&apos;un survol de souris.</translation>
@@ -50341,7 +43961,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Fichiers sans permisions d&apos;écriture</translation>
@@ -50349,10 +43969,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
         <translation>Les fichiers suivants n&apos;ont pas de permission d&apos;écriture. Souhaitez-vous changer les permissions ?</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Rendre inscriptible</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -50456,7 +44072,7 @@ Souhaitez-vous les importer maintenant ?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -50479,7 +44095,7 @@ Souhaitez-vous les importer maintenant ?</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Changements locaux trouvés. Choisissez une action :</translation>
@@ -50578,7 +44194,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>User name:</source>
         <translation>Nom d&apos;utilisateur :</translation>
@@ -50589,18 +44205,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Machine type:</source>
         <translation>Type de machine :</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>Étiquette de nom</translation>
     </message>
     <message>
         <source>Free ports:</source>
@@ -50616,7 +44224,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Build variant:</source>
         <translation>Variante de compilation :</translation>
@@ -51053,7 +44661,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Destination</source>
         <translation>Destination</translation>
@@ -51068,7 +44676,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Author ID:</source>
         <translation>Identifiant de l&apos;auteur :</translation>
@@ -51091,7 +44699,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
@@ -51134,14 +44742,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device Environment</source>
         <translation>Environnement du périphérique</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Orientation:</source>
         <translation>Orientation :</translation>
@@ -51184,7 +44792,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Package ID:</source>
         <translation>Identifiant de paquet :</translation>
@@ -51199,7 +44807,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
@@ -51210,7 +44818,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>PKCS 12 archives (*.p12)</source>
         <translation>Archive PKCS 12 (*.p12)</translation>
@@ -51257,7 +44865,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Request Debug Token</source>
         <translation>Requête du jeton de débogage</translation>
@@ -51300,7 +44908,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Import Certificate</source>
         <translation>Importer un certificat</translation>
@@ -51323,7 +44931,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -51458,7 +45066,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Get started and configure your environment:</source>
         <translation>Démarrer et configurer votre environnement :</translation>
@@ -51551,7 +45159,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Register Key</source>
         <translation>Inscrire la clé</translation>
@@ -51582,7 +45190,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device name:</source>
         <translation>Nom du périphérique :</translation>
@@ -51613,14 +45221,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Your environment is ready to be configured.</source>
         <translation>Votre environnement est prêt à être configuré.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtention des clés&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Vous devez commander une paire de fichiers CSJ à BlackBerry, en &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visitant cette page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -51683,14 +45291,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Package signing passwords</source>
         <translation>Mots de passe de signature des paquets</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::SubmitEditorWidget</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Soumission Subversion</translation>
@@ -51748,21 +45356,21 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
 </context>
 <context>
-    <name>CppQmlTypesLoader</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>%1 seems not to be encoded in UTF8 or has a BOM.</source>
         <translation>%1 ne semble pas être encodé en UTF8 ou possède un BOM.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>QtC::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>Erreur XML sur la ligne %1, colonne %2 : %3</translation>
@@ -51773,14 +45381,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Impossible de trouver le fichier %1.</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>Impossible d&apos;analyser le document.</translation>
     </message>
     <message>
         <source>Expected document to contain a single object definition.</source>
@@ -51794,16 +45398,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Expected expression statement to be a literal.</source>
         <translation>L&apos;expression doit être littérale.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Propriété définie deux fois.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &apos;%1&apos; as a constructor.</source>
         <translation>Ne pas utiliser &apos;%1&apos; comme un constructeur.</translation>
@@ -52086,7 +45684,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation>Pas d&apos;outil d&apos;analyse sélectionné.</translation>
@@ -52289,7 +45887,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditorWidget</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Mémoire à 0x%1</translation>
@@ -52393,14 +45991,14 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Note text:</source>
         <translation>Note :</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Ninja (%1)</source>
         <translation>Ninja (%1)</translation>
@@ -52435,7 +46033,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>QtC::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -52448,9 +46046,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Basé sur Qt %1 (%2, %3 bit)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Activer/désactiver les détails de la progression</translation>
@@ -52463,9 +46058,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Alt+Shift+0</source>
         <translation>Alt+Shift+0</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableManager</name>
     <message>
         <source>%1: Full path including file name.</source>
         <translation>%1 : chemin complet incluant le nom du fichier.</translation>
@@ -52484,7 +46076,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>C++ Class</source>
         <translation>Classe C++</translation>
@@ -52589,9 +46181,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Update Code Model</source>
         <translation>Mettre à jour le modèle de code</translation>
     </message>
-</context>
-<context>
-    <name>QuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Créer des fonctions membres accesseurs et mutateurs</translation>
@@ -52600,9 +46189,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation>Générer les membres Q_PROPERTY manquants...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Déplacer la définition en dehors de la classe</translation>
@@ -52619,9 +46205,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Insérer les fonctions virtuelles des classes de bases</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Insérer les fonctions virtuelles</translation>
@@ -52658,30 +46241,24 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>&amp;Add keyword &apos;virtual&apos; to function declaration</source>
         <translation>&amp;Ajouter le mot clés &quot;virtual&quot; à la déclaration de la fonction</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing</source>
         <translation>Analyse syntaxique</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>Trop peu d&apos;arguments</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Édition</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Chemins des symboles</translation>
@@ -52690,16 +46267,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Source Paths</source>
         <translation>Chemin des sources</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>Chemins CDB</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Comportement</translation>
@@ -52788,23 +46359,17 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Maximum string length:</source>
         <translation>Longueur maximum de la chaîne de caractères :</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Paramètres du débogueur</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>GDB étendu</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
         <translation>Couleur à la position %1,%2 : rouge : %3 vert : %4 bleu : %5 alpha : %6</translation>
@@ -52827,7 +46392,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Unable to start lldb &apos;%1&apos;: %2</source>
         <translatorcomment>LLDB au lieu de lldb, comme sur le site http://lldb.llvm.org/</translatorcomment>
@@ -52895,7 +46460,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditor</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -52920,16 +46485,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>[%1] %2 vs. [%3] %4</source>
         <translation>[%1] %2 contre [%3] %4</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Éditeur de différences</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>Diff...</source>
         <translation>Diff...</translation>
@@ -52947,9 +46506,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <extracomment>Editor title</extracomment>
         <translation>Diff &quot;%1&quot;, &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::DiffViewEditorWidget</name>
     <message>
         <source>No difference</source>
         <translation>Aucune différence</translation>
@@ -52967,7 +46523,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Supression</translation>
@@ -52982,7 +46538,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Working tree</source>
         <translation>Arbre de travail</translation>
@@ -53105,14 +46661,11 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Custom</source>
         <translation>Personnalisé</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -53124,9 +46677,6 @@ Distant : %4</translation>
         <source>Empty</source>
         <translation>Vide</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation>Paramètres d&apos;analyse personnalisés...</translation>
@@ -53179,9 +46729,6 @@ Distant : %4</translation>
         <source>&amp;Error parser:</source>
         <translation>&amp;Erreur d&apos;analyse syntaxique :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
     <message>
         <source>No device configured.</source>
         <translation>Aucun périphérique configuré.</translation>
@@ -53198,33 +46745,17 @@ Distant : %4</translation>
         <source>Check for a configured device</source>
         <translation>Vérifier pour les périphériques configurés</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
     <message>
         <source>Run Environment</source>
         <translation>Environnement d&apos;exécution</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Environnement de base pour cette configuration d&apos;exécution :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
     <message>
         <source>%1 (%2 %3 in %4)</source>
         <translation>%1 (%2 %3 dans %4)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Environnement de compilation</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -53234,9 +46765,6 @@ Distant : %4</translation>
         <source>Clean Environment</source>
         <translation>Environnement vierge</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -53248,7 +46776,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>PythonEditor::FileWizard</name>
+    <name>QtC::Python</name>
     <message>
         <source>Python source file</source>
         <translation>Fichier source Python</translation>
@@ -53261,9 +46789,6 @@ Distant : %4</translation>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizard</name>
     <message>
         <source>Python class</source>
         <translation>Classe Python</translation>
@@ -53280,9 +46805,6 @@ Distant : %4</translation>
         <source>Creates C++/Boost file with bindings for Python</source>
         <translation>Créer un fichier C++/Boost avec des liaisons pour Python</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassNamePage</name>
     <message>
         <source>Enter Class Name</source>
         <translation>Entrer le nom de la classe</translation>
@@ -53291,9 +46813,6 @@ Distant : %4</translation>
         <source>The source file name will be derived from the class name</source>
         <translation>Le nom du fichier source sera déterminé à partir du nom de la classe</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizardDialog</name>
     <message>
         <source>Python Class Wizard</source>
         <translation>Assistant de classe Python</translation>
@@ -53304,7 +46823,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Analyse du projet Qbs.</translation>
@@ -53900,7 +47419,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation>Co&amp;uper</translation>
@@ -53950,7 +47469,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizardDialog</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation>Nouveau projet d&apos;IHM Qt Quick</translation>
@@ -53963,9 +47482,6 @@ Distant : %4</translation>
         <source>Component Set</source>
         <translation>Ensemble de composants</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Application Qt Quick</translation>
@@ -53982,23 +47498,20 @@ Distant : %4</translation>
         <source>Creates a Qt Quick UI project.</source>
         <translation>Créé un projet d&apos;interface graphique Qt Quick.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
     <message>
         <source>System Environment</source>
         <translation>Environnement du système</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 does not appear to be a valid application descriptor file</source>
         <translation>%1 ne semble pas être un fichier de description d&apos;application valide</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Application</source>
         <translation>Application</translation>
@@ -54009,14 +47522,14 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Bar descriptor editor</source>
         <translation>Éditeur de description Bar</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Entry-Point Text and Images</source>
         <translation>Point d&apos;entrée pour les textes et images</translation>
@@ -54047,7 +47560,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Permission</source>
         <translation>Permissions</translation>
@@ -54183,7 +47696,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Path</source>
         <translation>Chemin</translation>
@@ -54198,7 +47711,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Could not find command &apos;%1&apos; in the build environment</source>
         <translation>Impossible de trouver la commande &quot;%1&quot; dans l&apos;environnement de compilation</translation>
@@ -54209,21 +47722,21 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&lt;b&gt;Check development mode&lt;/b&gt;</source>
         <translation>&lt;b&gt;Vérifier le mode développeur&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Check Development Mode</source>
         <translation>Vérifier le mode développeur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>The following errors occurred while setting up BB10 Configuration:</source>
         <translation>Les erreurs suivantes sont apparues pendant la configuration de BB10 :</translation>
@@ -54314,7 +47827,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Failed to start blackberry-signer process.</source>
         <translation>Échec de démarrage du processus de signature BlackBerry.</translation>
@@ -54337,35 +47850,35 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Error connecting to device: java could not be found in the environment.</source>
         <translation>Erreur lors de la connexion au périphérique : Java n&apos;a pas pu être trouvé dans l&apos;environnement.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Keys</source>
         <translation>Clés</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>NDK</source>
         <translation>NDK</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Authentication failed. Please make sure the password for the device is correct.</source>
         <translation>Échec de l&apos;authentification. Veuillez-vous assurer que le mot de passe pour le périphérique est correct.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry Development Environment Setup Wizard</source>
         <translation>Assistant de paramétrage de l&apos;environnement de développement BlackBerry</translation>
@@ -54436,7 +47949,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Welcome to the BlackBerry Development Environment Setup Wizard.
 This wizard will guide you through the essential steps to deploy a ready-to-go development environment for BlackBerry 10 devices.</source>
@@ -54449,21 +47962,21 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Configure the NDK Path</source>
         <translation>Confirmer le chemin du NDK</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Pas assez de ports disponibles sur le périphérique pour le débogage.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Preparing remote side...
 </source>
@@ -54491,7 +48004,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 found.
 </source>
@@ -54536,7 +48049,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Bar descriptor file (BlackBerry)</source>
         <translation>Fichier de description Bar (BlackBerry)</translation>
@@ -54551,14 +48064,11 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>All Versions</source>
         <translation>Toutes les versions</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Chemin complet vers le répertoire bin d&apos;origine de la version Qt actuelle du projet.</translation>
@@ -54567,23 +48077,17 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>Full path to the target bin directory of the current project&apos;s Qt version. You probably want %1 instead.</source>
         <translation>Chemin complet vers le répertoire bin de destination de la version Qt actuelle du projet. Vous vouliez probablement dire %1 à la place.</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation>Aucune fabrique trouvée pour qmake : &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Pas assez de ports disponibles sur le périphérique pour le débogage.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -54602,9 +48106,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>Initial setup failed: %1</source>
         <translation>Échec lors de la configuration initiale : %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Local File Path</source>
         <translation>Chemin du fichier local</translation>
@@ -54613,9 +48114,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>Remote Directory</source>
         <translation>Répertoire distant</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Environnement vierge</translation>
@@ -54624,9 +48122,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>System Environment</source>
         <translation>Environnement du système</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Récupérer l&apos;environnement du périphérique</translation>
@@ -54645,14 +48140,14 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>La refactorisation ne peut être appliquée.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizardDialog</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; or newer.</source>
         <translation>Crée un projet d&apos;interface utilisateur Qt Quick 1 contenant un seul fichier QML contenant la vue principale.&amp;lt;br/&amp;gt;Vous pouvez revoir les projets d&apos;interface utilisateur Qt Quick 1 dans QML Viewer sans avoir besoin de les compiler. Vous n&apos;avez pas besoin d&apos;un environnement de développement installé sur votre ordinateur pour créer et exécuter ce type de projet.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Nécessite &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; ou supérieur.</translation>
@@ -54667,7 +48162,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Target API:</source>
         <translation>API cible :</translation>
@@ -54770,7 +48265,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>QtC::BareMetal</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -54803,11 +48298,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialogue</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Add the file to version control (%1)</source>
         <translation>Ajouter le fichier au contrôle de version (%1)</translation>
@@ -54818,7 +48309,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Directives supplémentaires pour le préprocesseur C++</translation>
@@ -54831,13 +48322,6 @@ réinitialisation du moniteur</translation>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Directives supplémentaires pour le préprocesseur C++ pour %1 :</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>Code Completion and Semantic Highlighting</source>
         <translation>Complétion du code et surlignage sémantique</translation>
@@ -54845,10 +48329,6 @@ réinitialisation du moniteur</translation>
     <message>
         <source>C</source>
         <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>Objective C</source>
@@ -54872,7 +48352,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>QtC::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>Arguments de base :</translation>
@@ -54897,16 +48377,6 @@ réinitialisation du moniteur</translation>
         <source>Configuration is faulty. Check the Issues output pane for details.</source>
         <translation>La configuration est défectueuse. Veuillez vérifier la vue des problèmes pour les détails.</translation>
     </message>
-</context>
-<context>
-    <name>IosDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-</context>
-<context>
-    <name>IosRunConfiguration</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -54919,9 +48389,6 @@ réinitialisation du moniteur</translation>
         <source>Executable:</source>
         <translation>Exécutable :</translation>
     </message>
-</context>
-<context>
-    <name>IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Configuration iOS</translation>
@@ -54932,7 +48399,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Custom Parser</source>
         <translation>Analyseur personnalisé</translation>
@@ -54960,10 +48427,6 @@ réinitialisation du moniteur</translation>
     <message>
         <source>&amp;Message:</source>
         <translation>&amp;Message :</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Test</translation>
     </message>
     <message>
         <source>E&amp;rror message:</source>
@@ -55001,9 +48464,6 @@ réinitialisation du moniteur</translation>
         <source>Pattern does not match the error message.</source>
         <translation>Le motif ne trouve pas de correspondance dans le message d&apos;erreur.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Test de périphérique</translation>
@@ -55033,7 +48493,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Debug Token</source>
         <translation>Jeton de débogage</translation>
@@ -55068,7 +48528,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device Information</source>
         <translation>Information sur le périphérique</translation>
@@ -55099,7 +48559,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Select Native SDK path:</source>
         <translation>Sélectionner le chemin du SDK natif :</translation>
@@ -55114,7 +48574,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Please wait...</source>
         <translation>Veuillez patienter...</translation>
@@ -55137,7 +48597,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Please select target:</source>
         <translation>Veuillez sélectionner une cible :</translation>
@@ -55156,7 +48616,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Password:</source>
         <translation>Mot de passe :</translation>
@@ -55179,7 +48639,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Choose the Location</source>
         <translation>Choisir l&apos;emplacement</translation>
@@ -55190,7 +48650,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Configurer les filtres</translation>
@@ -55507,7 +48967,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Déployer sur un périphérique Android ou un émulateur</translation>
@@ -55662,7 +49122,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>QtC::BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
@@ -55722,7 +49182,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Core::DocumentModel</name>
+    <name>QtC::Core</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;aucun document&gt;</translation>
@@ -55733,21 +49193,15 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Aucune hiérarchie d&apos;inclusion est disponible</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Hiérarchie d&apos;inclusion</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Inclusions</translation>
@@ -55766,7 +49220,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Créer des fonctions membres accesseurs et mutateurs</translation>
@@ -55777,7 +49231,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>VirtualFunctionsAssistProcessor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation>... recherche des surcharges</translation>
@@ -55791,7 +49245,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>Non reconnu</translation>
@@ -55845,9 +49299,6 @@ réinitialisation du moniteur</translation>
         <source>Type</source>
         <translation>Type</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Path:</source>
         <translation>Chemin :</translation>
@@ -55888,9 +49339,6 @@ réinitialisation du moniteur</translation>
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation>L&apos;assistant au débogage est utilisé pour formater correctement les valeurs selon les types de données fournit par Qt et les bibliothèques standards. Il doit être compilé pour chaque versions de Qt séparément. Dans la page de préférences Compiler et Exécuter de Qt Creator, sélectionnez une version de Qt, développez la section Détails et cliquez sur Tout Construire.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Starting executable failed:</source>
         <translation>Échec du lancement de l&apos;exécutable :</translation>
@@ -55908,7 +49356,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffShowEditor</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Hide Change Description</source>
         <translation>Masquer la description des changements</translation>
@@ -55919,7 +49367,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Switch to Text Diff Editor</source>
         <translation>Basculer vers l&apos;éditeur texte de différences</translation>
@@ -55930,29 +49378,16 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>QtC::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>Compilation iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
-</context>
-<context>
-    <name>Ios</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Could not get debug server file descriptor.</source>
         <translation>Impossible de récupérer le fichier de description du serveur de débogage.</translation>
@@ -55965,23 +49400,14 @@ réinitialisation du moniteur</translation>
         <source>Run failed unexpectedly.</source>
         <translation>L&apos;exécution a échoué de façon inattendu.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy to iOS</source>
         <translation>Déploiement sur iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfigurationFactory</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Déploiement sur iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Déploiement sur %1</translation>
@@ -56006,34 +49432,18 @@ réinitialisation du moniteur</translation>
         <source>The Info.plist might be incorrect.</source>
         <translation>Le fichier Info.plist est peut-être incorrecte.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>Déploiement sur un périphérique iOS ou un émulateur</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy to %1&lt;/b&gt;</source>
         <translation>&lt;b&gt;Déploiement sur %1&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
         <translation>Périphérique iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Nom du périphérique</translation>
@@ -56067,9 +49477,6 @@ réinitialisation du moniteur</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Voulez-vous voir comment l&apos;activer pour le développement ?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Échec de la détection des ABI utilisées par la version de Qt.</translation>
@@ -56079,23 +49486,14 @@ réinitialisation du moniteur</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Exécuter sur %1</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfigurationWidget</name>
     <message>
         <source>iOS run settings</source>
         <translation>Paramètres d&apos;exécution iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Démarrage des processus distants.</translation>
@@ -56104,9 +49502,6 @@ réinitialisation du moniteur</translation>
         <source>Run ended unexpectedly.</source>
         <translation>L&apos;exécution s&apos;est terminée de façon inattendu.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Run failed. The settings in the Organizer window of Xcode might be incorrect.</source>
         <translation>Échec lors de l&apos;exécution. Les paramètres dans le fenêtre Organizer de Xcode sont peut-être incorrecte.</translation>
@@ -56115,30 +49510,14 @@ réinitialisation du moniteur</translation>
         <source>The device is locked, please unlock.</source>
         <translation>Le périphérique est verouillé, veuillez le dévérouiller.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
     <message>
         <source>iOS Configurations</source>
         <translation>Configurations iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>Simulateur iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>Simulateur iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>Subprocess Error %1</source>
         <translation>Erreur du sous-processus %1</translation>
@@ -56149,49 +49528,18 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
-    <message>
-        <source>Playing Macro</source>
-        <translation>Lancer une macro</translation>
-    </message>
-    <message>
-        <source>An error occurred while replaying the macro, execution stopped.</source>
-        <translation>Une erreur est apparue lors de l&apos;exécution de la macro, l&apos;exécution s&apos;est arrêtée.</translation>
-    </message>
+    <name>QtC::Macros</name>
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation>Mode macro. Tapez &quot;%1&quot; pour arrêter l&apos;enregistrement et &quot;%2&quot; pour le lancer.</translation>
     </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Arrêter d&apos;enregistrer la macro</translation>
-    </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>ICC</source>
         <translation>ICC</translation>
     </message>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Personnalisé</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
         <translation>Impossible de tuer le processus avec le pid %1 : %2</translation>
@@ -56228,9 +49576,6 @@ réinitialisation du moniteur</translation>
         <source>could not break the process.</source>
         <translation>Impossible d&apos;interrompre le processus.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
         <source>Failed to kill remote process: %1</source>
         <translation>Impossible de tuer le processus distant : %1</translation>
@@ -56243,9 +49588,6 @@ réinitialisation du moniteur</translation>
         <source>Terminated by request.</source>
         <translation>Terminé par une requête.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation>Importer la compilation depuis...</translation>
@@ -56254,32 +49596,16 @@ réinitialisation du moniteur</translation>
         <source>Import</source>
         <translation>Importer</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process can not access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
         <translation>Le processus ne peut pas accéder au fichier parce que celui-ci est utilisé par un autre processus.
 Veuillez fermer toutes les instances de votre application en cours d&apos;exécution avant de lancer une compilation.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>%1 - temporary</source>
         <translation>%1 – temporaire</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;Aucun kit valide trouvé.&lt;/span&gt;</translation>
@@ -56301,13 +49627,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <comment>%1: Project name</comment>
         <translation>Qt Creator peut utiliser les kits suivant pour le projet &lt;b&gt;%1&lt;/&gt; :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
-    </message>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -56318,16 +49637,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Avertissement :&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Configurer le projet</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
     <message>
         <source>Configure Project</source>
         <translation>Configurer le projet</translation>
@@ -56350,29 +49659,10 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::ClassNamePage</name>
-    <message>
-        <source>Enter Class Name</source>
-        <translation>Entrer le nom de la classe</translation>
-    </message>
-    <message>
-        <source>The source file name will be derived from the class name</source>
-        <translation>Le nom du fichier source sera déterminé à partir du nom de la classe</translation>
-    </message>
+    <name>QtC::Python</name>
 </context>
 <context>
-    <name>PythonEditor::Internal::ClassWizardDialog</name>
-    <message>
-        <source>Python Class Wizard</source>
-        <translation>Assistant de classe Python</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation>Le fichier de projet &quot;%1&quot; est en cours d&apos;analyse.</translation>
@@ -56468,7 +49758,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>Pas de fichier d&apos;exécutable à lancer.</translation>
@@ -56491,14 +49781,11 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>L&apos;élément racine est invalide : %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlComponentSetPage</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation>Sélectionner l&apos;ensemble des composant Qt Quick</translation>
@@ -56509,7 +49796,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>NDK Already Known</source>
         <translation>Le NDK est déjà connu</translation>
@@ -56520,7 +49807,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry NDK Installation Wizard</source>
         <translation>Assistant d&apos;installation du NDK BlackBerry</translation>
@@ -56535,7 +49822,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Options</source>
         <translation>Options</translation>
@@ -56550,7 +49837,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>An error has occurred while adding target from:
  %1</source>
@@ -56591,7 +49878,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Please provide your bbidtoken.csk PIN.</source>
         <translation>Veuillez fournir votre code PIN bbidtoken.csk.</translation>
@@ -56625,7 +49912,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Import Existing Momentics Cascades Project</source>
         <translation>Importer un projet Momentics Cascades existant</translation>
@@ -56644,7 +49931,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Momentics Cascades Project</source>
         <translation>Projet Momentics Cascades</translation>
@@ -56680,21 +49967,21 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
         <translation>Avertissement : &quot;slog2info&quot; n&apos;a pas été trouvé dans le périphérique, la sortie de débogage n&apos;est pas disponible !</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Chemin du &amp;compilateur :</translation>
@@ -56710,42 +49997,35 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Cannot show slog2info output. Error: %1</source>
         <translation>Impossible d&apos;afficher la sortie de slog2info. Erreur : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Versions de Qt</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Le code de sortie %1. stderr :</translation>
     </message>
 </context>
 <context>
-    <name>Update</name>
-    <message>
-        <source>Update</source>
-        <translation>Mettre à jour</translation>
-    </message>
+    <name>QtC::UpdateInfo</name>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Profiling %1</source>
         <translation>Profilage de %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analyse de la mémoire</translation>
@@ -56756,7 +50036,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>AnalyzerManager</name>
+    <name>QtC::Debugger</name>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished, %n issues were found.</source>
         <translation>
@@ -56801,7 +50081,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Command line arguments: %1</source>
         <translation>Arguments de la commande : %1</translation>
@@ -56822,16 +50102,10 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <source>Process terminated.</source>
         <translation>Le processus s&apos;est terminé.</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Le profileur Valgrind utilise l&apos;outil &quot;callgrind&quot; pour enregistrer les appels de fonction quand un programme est lancé. </translation>
@@ -56856,23 +50130,17 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <source>Profile Costs of This Function and Its Callees</source>
         <translation>Estimer les coûts de cette fonction et de fonctions qu&apos;elle appelle</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Impossible de déterminer le PID distant.</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Paramètres de Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizard</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 4.8 or newer.</source>
         <translation>Crée un projet d&apos;interface utilisateur Qt Quick 1 avec un seul fichier QML qui contient la vue principale. Vous pouvez vérifier les projets d&apos;&apos;interface utilisateur Qt Quick 1 dans le QML Viewer, sans devoir les compiler. Il n&apos;est pas nécessaire d&apos;avoir un environnement de développement installé sur votre ordinateur pour créer et exécuter ce type de projets. Nécessite Qt 4.8 ou plus récent.</translation>
@@ -56899,7 +50167,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Creates a deployable Qt Quick 1 application using the QtQuick 1.1 import. Requires Qt 4.8 or newer.</source>
         <translation>Crée une application Qt Quick 1 déployable utilisant l&apos;importation de QtQuick 1.1. Nécessite Qt 4.8 ou plus récent.</translation>

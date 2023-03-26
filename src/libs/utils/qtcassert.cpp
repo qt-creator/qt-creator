@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtcassert.h"
 
@@ -65,7 +65,8 @@ void dumpBacktrace(int maxdepth)
     frame.AddrStack.Offset = ctx.Sp;
     frame.AddrFrame.Offset = ctx.Fp;
 #endif
-    int depth = 0;
+    // ignore the first two frames those contain only writeAssertLocation and dumpBacktrace
+    int depth = -3;
 
     static bool symbolsInitialized = false;
     if (!symbolsInitialized) {
@@ -83,6 +84,8 @@ void dumpBacktrace(int maxdepth)
                        &SymFunctionTableAccess64,
                        &SymGetModuleBase64,
                        NULL)) {
+        if (++depth < 0)
+            continue;
         char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
         PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
         pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -96,7 +99,7 @@ void dumpBacktrace(int maxdepth)
         IMAGEHLP_LINE64 lineInfo;
         SymSetOptions(SYMOPT_LOAD_LINES);
 
-        QString out = QString("%1: 0x%2 at %3")
+        QString out = QString("  %1: 0x%2 at %3")
                           .arg(depth)
                           .arg(QString::number(pSymbol->Address, 16))
                           .arg(QString::fromLatin1(&pSymbol->Name[0], pSymbol->NameLen));
@@ -106,7 +109,7 @@ void dumpBacktrace(int maxdepth)
                                 QString::number(lineInfo.LineNumber)));
         }
         qDebug().noquote() << out;
-        if (++depth == maxdepth)
+        if (depth == maxdepth)
             break;
     }
     mutex.unlock();

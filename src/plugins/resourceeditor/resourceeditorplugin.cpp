@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "resourceeditorplugin.h"
 
@@ -425,14 +425,9 @@ ResourceEditorPlugin::~ResourceEditorPlugin()
     delete d;
 }
 
-bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void ResourceEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new ResourceEditorPluginPrivate(this);
-
-    return true;
 }
 
 void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,

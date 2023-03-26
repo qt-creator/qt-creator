@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "valgrindsettings.h"
 
@@ -128,7 +128,7 @@ void SuppressionAspect::setValue(const FilePaths &val)
     BaseAspect::setValue(Utils::transform<QStringList>(val, &FilePath::toString));
 }
 
-void SuppressionAspect::addToLayout(LayoutBuilder &builder)
+void SuppressionAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->addEntry);
     QTC_CHECK(!d->removeEntry);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <cplusplus/CPlusPlus.h>
 #include <cplusplus/CppDocument.h>
@@ -73,7 +73,7 @@ class tst_c99: public QObject
 
     Document::Ptr document(const QString &fileName, QByteArray *errors = 0)
     {
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(Utils::FilePath::fromString(fileName));
         QFile file(testdata(fileName));
         if (file.open(QFile::ReadOnly)) {
             LanguageFeatures features;

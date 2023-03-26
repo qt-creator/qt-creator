@@ -3,7 +3,7 @@
 function(create_python_xy PythonExe PythonZipFilePath)
   get_filename_component(python_lib_dir "${PythonExe}" DIRECTORY)
   get_filename_component(python_lib_dir "${python_lib_dir}/Lib" ABSOLUTE)
-  foreach(dir collections encodings importlib json urllib)
+  foreach(dir collections encodings importlib json urllib re)
       file(COPY ${python_lib_dir}/${dir}
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/python-lib
           FILES_MATCHING PATTERN "*.py"

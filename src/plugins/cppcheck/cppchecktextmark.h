@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,8 +7,7 @@
 
 #include <texteditor/textmark.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckTextMark final : public TextEditor::TextMark
 {
@@ -29,5 +28,4 @@ private:
     QString m_message;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "objectitem.h"
 
@@ -28,6 +28,8 @@
 #include "qmt/style/styledobject.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/tasks/ielementtasks.h"
+
+#include "../../modelinglibtr.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
@@ -704,10 +706,11 @@ void ObjectItem::updateRelationStarter()
             else
                 elementType = m_elementType;
             StereotypeController *stereotypeController = diagramSceneModel()->stereotypeController();
-            QList<Toolbar> toolbars = stereotypeController->findToolbars(elementType);
+            const QList<Toolbar> toolbars = stereotypeController->findToolbars(elementType);
             if (!toolbars.isEmpty()) {
-                foreach (const Toolbar &toolbar, toolbars) {
-                    foreach (const Toolbar::Tool &tool, toolbar.tools()) {
+                for (const Toolbar &toolbar : toolbars) {
+                    const QList<Toolbar::Tool> tools = toolbar.tools();
+                    for (const Toolbar::Tool &tool : tools) {
                         CustomRelation customRelation =
                                 stereotypeController->findCustomRelation(tool.m_elementType);
                         if (!customRelation.isNull())
@@ -733,7 +736,7 @@ void ObjectItem::addRelationStarterTool(const QString &id)
     if (id == DEPENDENCY)
         m_relationStarter->addArrow(DEPENDENCY, ArrowItem::ShaftDashed,
                                     ArrowItem::HeadNone, ArrowItem::HeadOpen,
-                                    tr("Dependency"));
+                                    Tr::tr("Dependency"));
 }
 
 void ObjectItem::addRelationStarterTool(const CustomRelation &customRelation)
@@ -836,13 +839,15 @@ void ObjectItem::updateAlignmentButtonsGeometry(const QRectF &objectRect)
     if (m_horizontalAlignButtons) {
         m_horizontalAlignButtons->clear();
         m_horizontalAlignButtons->setPos(mapToScene(QPointF(0.0, objectRect.top() - AlignButtonsItem::NormalButtonHeight - AlignButtonsItem::VerticalDistanceToObejct)));
-        foreach (const ILatchable::Latch &latch, horizontalLatches(ILatchable::Move, true))
+        const QList<ILatchable::Latch> latches = horizontalLatches(ILatchable::Move, true);
+        for (const ILatchable::Latch &latch : latches)
             m_horizontalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(latch.m_pos, 0.0)).x());
     }
     if (m_verticalAlignButtons) {
         m_verticalAlignButtons->clear();
         m_verticalAlignButtons->setPos(mapToScene(QPointF(objectRect.left() - AlignButtonsItem::NormalButtonWidth - AlignButtonsItem::HorizontalDistanceToObject, 0.0)));
-        foreach (const ILatchable::Latch &latch, verticalLatches(ILatchable::Move, true))
+        const QList<ILatchable::Latch> latches = verticalLatches(ILatchable::Move, true);
+        for (const ILatchable::Latch &latch : latches)
             m_verticalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(0.0, latch.m_pos)).y());
     }
 }
@@ -879,7 +884,9 @@ IAlignable::AlignType ObjectItem::translateLatchTypeToAlignType(ILatchable::Latc
 const Style *ObjectItem::adaptedStyle(const QString &stereotypeIconId)
 {
     QList<const DObject *> collidingObjects;
-    foreach (const QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingItems)) {
+    const QList<QGraphicsItem *> items
+        = m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingItems);
+    for (const QGraphicsItem *item : items) {
         if (auto objectItem = dynamic_cast<const ObjectItem *>(item))
             collidingObjects.append(objectItem->object());
     }
@@ -909,7 +916,9 @@ bool ObjectItem::showContext() const
         QMT_ASSERT(mobject, return false);
         MObject *owner = mobject->owner();
         if (owner) {
-            foreach (QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingOuterItems)) {
+            const QList<QGraphicsItem *> items = m_diagramSceneModel->collectCollidingObjectItems(
+                this, DiagramSceneModel::CollidingOuterItems);
+            for (QGraphicsItem *item : items) {
                 if (auto objectItem = dynamic_cast<ObjectItem *>(item)) {
                     if (objectItem->object()->modelUid().isValid() && objectItem->object()->modelUid() == owner->uid()) {
                         showContext = false;
@@ -972,10 +981,10 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     bool addSeparator = false;
     if (element_tasks->hasDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(tr("Open Diagram"), "openDiagram", &menu));
+        menu.addAction(new ContextMenuAction(Tr::tr("Open Diagram"), "openDiagram", &menu));
         addSeparator = true;
     } else if (element_tasks->mayCreateDiagram(m_object, m_diagramSceneModel->diagram())) {
-        menu.addAction(new ContextMenuAction(tr("Create Diagram"), "createDiagram", &menu));
+        menu.addAction(new ContextMenuAction(Tr::tr("Create Diagram"), "createDiagram", &menu));
         addSeparator = true;
     }
     if (extendContextMenu(&menu))
@@ -984,37 +993,37 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         addSeparator = true;
     if (addSeparator)
         menu.addSeparator();
-    menu.addAction(new ContextMenuAction(tr("Remove"), "remove",
+    menu.addAction(new ContextMenuAction(Tr::tr("Remove"), "remove",
                                          QKeySequence(QKeySequence::Delete), &menu));
     menu.addAction(
-        new ContextMenuAction(tr("Delete"), "delete", QKeySequence(Qt::CTRL | Qt::Key_D), &menu));
-    //menu.addAction(new ContextMenuAction(tr("Select in Model Tree"), "selectInModelTree", &menu));
+        new ContextMenuAction(Tr::tr("Delete"), "delete", QKeySequence(Qt::CTRL | Qt::Key_D), &menu));
+    //menu.addAction(new ContextMenuAction(Tr::tr("Select in Model Tree"), "selectInModelTree", &menu));
     QMenu alignMenu;
-    alignMenu.setTitle(tr("Align Objects"));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Left"), "alignLeft", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Center Vertically"), "centerVertically",
+    alignMenu.setTitle(Tr::tr("Align Objects"));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Left"), "alignLeft", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Vertically"), "centerVertically",
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Right"), "alignRight", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Right"), "alignRight", &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(tr("Align Top"), "alignTop", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Center Horizontally"), "centerHorizontally",
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Top"), "alignTop", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Horizontally"), "centerHorizontally",
                                               &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Align Bottom"), "alignBottom", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Bottom"), "alignBottom", &alignMenu));
     alignMenu.addSeparator();
-    alignMenu.addAction(new ContextMenuAction(tr("Same Width"), "sameWidth", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Same Height"), "sameHeight", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(tr("Same Size"), "sameSize", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Same Width"), "sameWidth", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Same Height"), "sameHeight", &alignMenu));
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Same Size"), "sameSize", &alignMenu));
     alignMenu.setEnabled(m_diagramSceneModel->hasMultiObjectsSelection());
     menu.addMenu(&alignMenu);
     QMenu layoutMenu;
-    layoutMenu.setTitle(tr("Layout Objects"));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Horizontal Distance"), "sameHCenterDistance", &alignMenu));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Vertical Distance"), "sameVCenterDistance", &alignMenu));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Horizontal Space"), "sameHBorderDistance", &alignMenu));
-    layoutMenu.addAction(new ContextMenuAction(tr("Equal Vertical Space"), "sameVBorderDistance", &alignMenu));
+    layoutMenu.setTitle(Tr::tr("Layout Objects"));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Horizontal Distance"), "sameHCenterDistance", &alignMenu));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Vertical Distance"), "sameVCenterDistance", &alignMenu));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Horizontal Space"), "sameHBorderDistance", &alignMenu));
+    layoutMenu.addAction(new ContextMenuAction(Tr::tr("Equal Vertical Space"), "sameVBorderDistance", &alignMenu));
     layoutMenu.setEnabled(m_diagramSceneModel->hasMultiObjectsSelection());
     menu.addMenu(&layoutMenu);
-    menu.addAction(new ContextMenuAction(tr("Add Related Elements"), "addRelatedElements", &menu));
+    menu.addAction(new ContextMenuAction(Tr::tr("Add Related Elements"), "addRelatedElements", &menu));
 
     QAction *selectedAction = menu.exec(event->screenPos());
     if (selectedAction) {
@@ -1078,7 +1087,7 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 QSizeF ObjectItem::minimumSize(const QSet<QGraphicsItem *> &items) const
 {
     QSizeF minimumSize(0.0, 0.0);
-    foreach (QGraphicsItem *item, items) {
+    for (QGraphicsItem *item : items) {
         if (auto resizable = dynamic_cast<IResizable *>(item)) {
             QSizeF size = resizable->minimumSize();
             if (size.width() > minimumSize.width())

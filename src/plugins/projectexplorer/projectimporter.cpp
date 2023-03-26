@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectimporter.h"
 
@@ -7,8 +7,8 @@
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
-#include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "target.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
@@ -84,8 +84,8 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
         if (silent)
             return;
         QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("No Build Found"),
-                              tr("No build found in %1 matching project %2.")
+                              Tr::tr("No Build Found"),
+                              Tr::tr("No build found in %1 matching project %2.")
                                   .arg(importPath.toUserOutput(), projectFilePath().toUserOutput()));
     };
     qCDebug(log) << "Examining directory" << absoluteImportPath.toString();
@@ -102,10 +102,10 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
         if (silent)
             return result;
         QMessageBox dialog(Core::ICore::dialogParent());
-        dialog.setWindowTitle(tr("Import Warning"));
+        dialog.setWindowTitle(Tr::tr("Import Warning"));
         dialog.setText(warningMessage);
         dialog.setIcon(QMessageBox::Warning);
-        QPushButton *acceptButton = dialog.addButton(tr("Import Build"), QMessageBox::AcceptRole);
+        QPushButton *acceptButton = dialog.addButton(Tr::tr("Import Build"), QMessageBox::AcceptRole);
         dialog.addButton(QMessageBox::Cancel);
         dialog.exec();
         if (dialog.clickedButton() != acceptButton)
@@ -188,8 +188,7 @@ void ProjectImporter::markKitAsTemporary(Kit *k) const
     UpdateGuard guard(*this);
 
     const QString name = k->displayName();
-    k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter",
-                                                  "%1 - temporary").arg(name));
+    k->setUnexpandedDisplayName(Tr::tr("%1 - temporary").arg(name));
 
     k->setValue(KIT_TEMPORARY_NAME, k->displayName());
     k->setValue(KIT_FINAL_NAME, name);
@@ -296,8 +295,7 @@ Kit *ProjectImporter::createTemporaryKit(const KitSetupFunction &setup) const
     UpdateGuard guard(*this);
     const auto init = [&](Kit *k) {
         KitGuard kitGuard(k);
-        k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter",
-                                                                "Imported Kit"));
+        k->setUnexpandedDisplayName(Tr::tr("Imported Kit"));
         k->setup();
         setup(k);
         k->fix();

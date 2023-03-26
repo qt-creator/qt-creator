@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdtests.h"
 
@@ -62,9 +62,11 @@ namespace ClangCodeModel {
 namespace Internal {
 namespace Tests {
 
-static QString qrcPath(const QByteArray &relativeFilePath)
+const Usage::Tags Initialization{Usage::Tag::Declaration, Usage::Tag::Write};
+
+static QString qrcPath(const QString &relativeFilePath)
 {
-    return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath);
+    return ":/unittests/ClangCodeModel/" + relativeFilePath;
 }
 
 ClangdTest::~ClangdTest()
@@ -77,7 +79,7 @@ ClangdTest::~ClangdTest()
 
 Utils::FilePath ClangdTest::filePath(const QString &fileName) const
 {
-    return Utils::FilePath::fromString(m_projectDir->absolutePath(fileName.toLocal8Bit()));
+    return m_projectDir->absolutePath(fileName);
 }
 
 void ClangdTest::waitForNewClient(bool withIndex)
@@ -131,11 +133,10 @@ void ClangdTest::initTestCase()
         QSKIP("The test requires at least one valid kit with a valid Qt");
 
     // Copy project out of qrc file, open it, and set up target.
-    m_projectDir = new TemporaryCopiedDir(qrcPath(QFileInfo(m_projectFileName)
-                                                  .baseName().toLocal8Bit()));
+    m_projectDir = new TemporaryCopiedDir(qrcPath(QFileInfo(m_projectFileName).baseName()));
     QVERIFY(m_projectDir->isValid());
     const auto openProjectResult = ProjectExplorerPlugin::openProject(
-            Utils::FilePath::fromString(m_projectDir->absolutePath(m_projectFileName.toUtf8())));
+            m_projectDir->absolutePath(m_projectFileName));
     QVERIFY2(openProjectResult, qPrintable(openProjectResult.errorMessage()));
     m_project = openProjectResult.project();
     m_project->configureAsExampleProject(m_kit);
@@ -145,8 +146,7 @@ void ClangdTest::initTestCase()
 
     // Open cpp documents.
     for (const QString &sourceFileName : std::as_const(m_sourceFileNames)) {
-        const auto sourceFilePath = Utils::FilePath::fromString(
-                    m_projectDir->absolutePath(sourceFileName.toLocal8Bit()));
+        const auto sourceFilePath = m_projectDir->absolutePath(sourceFileName);
         QVERIFY2(sourceFilePath.exists(), qPrintable(sourceFilePath.toUserOutput()));
         IEditor * const editor = EditorManager::openEditor(sourceFilePath);
         QVERIFY(editor);
@@ -187,89 +187,98 @@ void ClangdTestFindReferences::test_data()
     using ItemList = QList<SearchResultItem>;
     QTest::addColumn<ItemList>("expectedResults");
 
-    static const auto makeItem = [](int line, int column, Usage::Type type) {
+    static const auto makeItem = [](int line, int column, Usage::Tags tags) {
         SearchResultItem item;
         item.setMainRange(line, column, 0);
-        item.setUserData(int(type));
+        item.setUserData(tags.toInt());
         return item;
     };
 
     QTest::newRow("struct member") << "defs.h" << 55 << ItemList{
-        makeItem(2, 17, Usage::Type::Read), makeItem(3, 15, Usage::Type::Declaration),
-        makeItem(6, 17, Usage::Type::WritableRef), makeItem(8, 11, Usage::Type::WritableRef),
-        makeItem(9, 13, Usage::Type::WritableRef), makeItem(10, 12, Usage::Type::WritableRef),
-        makeItem(11, 13, Usage::Type::WritableRef), makeItem(12, 14, Usage::Type::WritableRef),
-        makeItem(13, 26, Usage::Type::WritableRef), makeItem(14, 23, Usage::Type::Read),
-        makeItem(15, 14, Usage::Type::Read), makeItem(16, 24, Usage::Type::WritableRef),
-        makeItem(17, 15, Usage::Type::WritableRef), makeItem(18, 22, Usage::Type::Read),
-        makeItem(19, 12, Usage::Type::WritableRef), makeItem(20, 12, Usage::Type::Read),
-        makeItem(21, 13, Usage::Type::WritableRef), makeItem(22, 13, Usage::Type::Read),
-        makeItem(23, 12, Usage::Type::Read), makeItem(42, 20, Usage::Type::Read),
-        makeItem(44, 15, Usage::Type::Read), makeItem(47, 15, Usage::Type::Write),
-        makeItem(50, 11, Usage::Type::Read), makeItem(51, 11, Usage::Type::Write),
-        makeItem(52, 9, Usage::Type::Write), makeItem(53, 7, Usage::Type::Write),
-        makeItem(56, 7, Usage::Type::Write), makeItem(56, 25, Usage::Type::Other),
-        makeItem(58, 13, Usage::Type::Read), makeItem(58, 25, Usage::Type::Read),
-        makeItem(59, 7, Usage::Type::Write), makeItem(59, 24, Usage::Type::Read)};
+        makeItem(2, 17, Usage::Tag::Read), makeItem(3, 15, Usage::Tag::Declaration),
+        makeItem(6, 17, Usage::Tag::WritableRef), makeItem(8, 11, Usage::Tag::WritableRef),
+        makeItem(9, 13, Usage::Tag::WritableRef), makeItem(10, 12, Usage::Tag::WritableRef),
+        makeItem(11, 13, Usage::Tag::WritableRef), makeItem(12, 14, Usage::Tag::WritableRef),
+        makeItem(13, 26, Usage::Tag::WritableRef), makeItem(14, 23, Usage::Tag::Read),
+        makeItem(15, 14, Usage::Tag::Read), makeItem(16, 24, Usage::Tag::WritableRef),
+        makeItem(17, 15, Usage::Tag::WritableRef), makeItem(18, 22, Usage::Tag::Read),
+        makeItem(19, 12, Usage::Tag::WritableRef), makeItem(20, 12, Usage::Tag::Read),
+        makeItem(21, 13, Usage::Tag::WritableRef), makeItem(22, 13, Usage::Tag::Read),
+        makeItem(23, 12, Usage::Tag::Read), makeItem(42, 20, Usage::Tag::Read),
+        makeItem(44, 15, Usage::Tag::Read), makeItem(47, 15, Usage::Tag::Write),
+        makeItem(50, 11, Usage::Tag::Read), makeItem(51, 11, Usage::Tag::Write),
+        makeItem(52, 9, Usage::Tag::Write), makeItem(53, 7, Usage::Tag::Write),
+        makeItem(56, 7, Usage::Tag::Write), makeItem(56, 25, Usage::Tags()),
+        makeItem(58, 13, Usage::Tag::Read), makeItem(58, 25, Usage::Tag::Read),
+        makeItem(59, 7, Usage::Tag::Write), makeItem(59, 24, Usage::Tag::Read)};
     QTest::newRow("constructor member initialization") << "defs.h" << 68 << ItemList{
-        makeItem(2, 10, Usage::Type::Write), makeItem(4, 8, Usage::Type::Declaration)};
+        makeItem(2, 10, Usage::Tag::Write), makeItem(4, 8, Usage::Tag::Declaration)};
     QTest::newRow("direct member initialization") << "defs.h" << 101 << ItemList{
-        makeItem(5, 21, Usage::Type::Initialization), makeItem(45, 16, Usage::Type::Read)};
+        makeItem(5, 21, Initialization), makeItem(45, 16, Usage::Tag::Read)};
 
-    ItemList pureVirtualRefs{makeItem(17, 17, Usage::Type::Declaration),
-                             makeItem(21, 9, Usage::Type::Declaration)};
+    ItemList pureVirtualRefs{makeItem(17, 17, Usage::Tag::Declaration),
+                             makeItem(21, 9, {Usage::Tag::Declaration, Usage::Tag::Override})};
     QTest::newRow("pure virtual declaration") << "defs.h" << 420 << pureVirtualRefs;
 
     QTest::newRow("pointer variable") << "main.cpp" << 52 << ItemList{
-        makeItem(6, 10, Usage::Type::Initialization), makeItem(8, 4, Usage::Type::Write),
-        makeItem(10, 4, Usage::Type::Write), makeItem(24, 5, Usage::Type::Write),
-        makeItem(25, 11, Usage::Type::WritableRef), makeItem(26, 11, Usage::Type::Read),
-        makeItem(27, 10, Usage::Type::WritableRef), makeItem(28, 10, Usage::Type::Read),
-        makeItem(29, 11, Usage::Type::Read), makeItem(30, 15, Usage::Type::WritableRef),
-        makeItem(31, 22, Usage::Type::Read)};
+        makeItem(6, 10, Initialization), makeItem(8, 4, Usage::Tag::Write),
+        makeItem(10, 4, Usage::Tag::Write), makeItem(24, 5, Usage::Tag::Write),
+        makeItem(25, 11, Usage::Tag::WritableRef), makeItem(26, 11, Usage::Tag::Read),
+        makeItem(27, 10, Usage::Tag::WritableRef), makeItem(28, 10, Usage::Tag::Read),
+        makeItem(29, 11, Usage::Tag::Read), makeItem(30, 15, Usage::Tag::WritableRef),
+        makeItem(31, 22, Usage::Tag::Read)};
     QTest::newRow("struct variable") << "main.cpp" << 39 << ItemList{
-        makeItem(5, 7, Usage::Type::Declaration), makeItem(6, 15, Usage::Type::WritableRef),
-        makeItem(8, 9, Usage::Type::WritableRef), makeItem(9, 11, Usage::Type::WritableRef),
-        makeItem(11, 4, Usage::Type::Write), makeItem(11, 11, Usage::Type::WritableRef),
-        makeItem(12, 12, Usage::Type::WritableRef), makeItem(13, 6, Usage::Type::Write),
-        makeItem(14, 21, Usage::Type::Read), makeItem(15, 4, Usage::Type::Write),
-        makeItem(15, 12, Usage::Type::Read), makeItem(16, 22, Usage::Type::WritableRef),
-        makeItem(17, 13, Usage::Type::WritableRef), makeItem(18, 20, Usage::Type::Read),
-        makeItem(19, 10, Usage::Type::WritableRef), makeItem(20, 10, Usage::Type::Read),
-        makeItem(21, 11, Usage::Type::WritableRef), makeItem(22, 11, Usage::Type::Read),
-        makeItem(23, 10, Usage::Type::Read), makeItem(32, 4, Usage::Type::Write),
-        makeItem(33, 23, Usage::Type::WritableRef), makeItem(34, 23, Usage::Type::Read),
-        makeItem(35, 15, Usage::Type::WritableRef), makeItem(36, 22, Usage::Type::WritableRef),
-        makeItem(37, 4, Usage::Type::Read), makeItem(38, 4, Usage::Type::WritableRef),
-        makeItem(39, 6, Usage::Type::WritableRef), makeItem(40, 4, Usage::Type::Read),
-        makeItem(41, 4, Usage::Type::WritableRef), makeItem(42, 4, Usage::Type::Read),
-        makeItem(42, 18, Usage::Type::Read), makeItem(43, 11, Usage::Type::Write),
-        makeItem(54, 4, Usage::Type::Other), makeItem(55, 4, Usage::Type::Other)};
+        makeItem(5, 7, Usage::Tag::Declaration), makeItem(6, 15, Usage::Tag::WritableRef),
+        makeItem(8, 9, Usage::Tag::WritableRef), makeItem(9, 11, Usage::Tag::WritableRef),
+        makeItem(11, 4, Usage::Tag::Write), makeItem(11, 11, Usage::Tag::WritableRef),
+        makeItem(12, 12, Usage::Tag::WritableRef), makeItem(13, 6, Usage::Tag::Write),
+        makeItem(14, 21, Usage::Tag::Read), makeItem(15, 4, Usage::Tag::Write),
+        makeItem(15, 12, Usage::Tag::Read), makeItem(16, 22, Usage::Tag::WritableRef),
+        makeItem(17, 13, Usage::Tag::WritableRef), makeItem(18, 20, Usage::Tag::Read),
+        makeItem(19, 10, Usage::Tag::WritableRef), makeItem(20, 10, Usage::Tag::Read),
+        makeItem(21, 11, Usage::Tag::WritableRef), makeItem(22, 11, Usage::Tag::Read),
+        makeItem(23, 10, Usage::Tag::Read), makeItem(32, 4, Usage::Tag::Write),
+        makeItem(33, 23, Usage::Tag::WritableRef), makeItem(34, 23, Usage::Tag::Read),
+        makeItem(35, 15, Usage::Tag::WritableRef), makeItem(36, 22, Usage::Tag::WritableRef),
+        makeItem(37, 4, Usage::Tag::Read), makeItem(38, 4, Usage::Tag::WritableRef),
+        makeItem(39, 6, Usage::Tag::WritableRef), makeItem(40, 4, Usage::Tag::Read),
+        makeItem(41, 4, Usage::Tag::WritableRef), makeItem(42, 4, Usage::Tag::Read),
+        makeItem(42, 18, Usage::Tag::Read), makeItem(43, 11, Usage::Tag::Write),
+        makeItem(54, 4, Usage::Tags()), makeItem(55, 4, Usage::Tags())};
 
     // Some of these are conceptually questionable, as S is a type and thus we cannot "read from"
     // or "write to" it. But it probably matches the intuitive user expectation.
     QTest::newRow("struct type") << "defs.h" << 7 << ItemList{
-        makeItem(1, 7, Usage::Type::Declaration), makeItem(2, 4, Usage::Type::Declaration),
-        makeItem(20, 19, Usage::Type::Other), makeItem(10, 9, Usage::Type::WritableRef),
-        makeItem(12, 4, Usage::Type::Write), makeItem(44, 12, Usage::Type::Read),
-        makeItem(45, 13, Usage::Type::Read), makeItem(47, 12, Usage::Type::Write),
-        makeItem(50, 8, Usage::Type::Read), makeItem(51, 8, Usage::Type::Write),
-        makeItem(52, 6, Usage::Type::Write), makeItem(53, 4, Usage::Type::Write),
-        makeItem(56, 4, Usage::Type::Write), makeItem(56, 22, Usage::Type::Other),
-        makeItem(58, 10, Usage::Type::Read), makeItem(58, 22, Usage::Type::Read),
-        makeItem(59, 4, Usage::Type::Write), makeItem(59, 21, Usage::Type::Read)};
+        makeItem(1, 7, Usage::Tag::Declaration),
+        makeItem(2, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
+        makeItem(20, 19, Usage::Tags()), makeItem(10, 9, Usage::Tag::WritableRef),
+        makeItem(12, 4, Usage::Tag::Write), makeItem(44, 12, Usage::Tag::Read),
+        makeItem(45, 13, Usage::Tag::Read), makeItem(47, 12, Usage::Tag::Write),
+        makeItem(50, 8, Usage::Tag::Read), makeItem(51, 8, Usage::Tag::Write),
+        makeItem(52, 6, Usage::Tag::Write), makeItem(53, 4, Usage::Tag::Write),
+        makeItem(56, 4, Usage::Tag::Write), makeItem(56, 22, Usage::Tags()),
+        makeItem(58, 10, Usage::Tag::Read), makeItem(58, 22, Usage::Tag::Read),
+        makeItem(59, 4, Usage::Tag::Write), makeItem(59, 21, Usage::Tag::Read)};
+
+    QTest::newRow("struct type 2") << "defs.h" << 450 << ItemList{
+        makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
+        makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
+
+    QTest::newRow("constructor") << "defs.h" << 627 << ItemList{
+        makeItem(31, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
+        makeItem(36, 7, Usage::Tag::ConstructorDestructor)};
 
     QTest::newRow("subclass") << "defs.h" << 450 << ItemList{
-        makeItem(20, 7, Usage::Type::Declaration), makeItem(5, 4, Usage::Type::Other),
-        makeItem(13, 21, Usage::Type::Other), makeItem(32, 8, Usage::Type::Other)};
+        makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
+        makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
     QTest::newRow("array variable") << "main.cpp" << 1134 << ItemList{
-        makeItem(57, 8, Usage::Type::Declaration), makeItem(58, 4, Usage::Type::Write),
-        makeItem(59, 15, Usage::Type::Read)};
+        makeItem(57, 8, Usage::Tag::Declaration), makeItem(58, 4, Usage::Tag::Write),
+        makeItem(59, 15, Usage::Tag::Read)};
     QTest::newRow("free function") << "defs.h" << 510 << ItemList{
-        makeItem(24, 5, Usage::Type::Declaration), makeItem(19, 4, Usage::Type::Other),
-        makeItem(25, 4, Usage::Type::Other), makeItem(60, 26, Usage::Type::Read)};
+        makeItem(24, 5, Usage::Tag::Declaration), makeItem(19, 4, Usage::Tags()),
+        makeItem(25, 4, Usage::Tags()), makeItem(60, 26, Usage::Tag::Read)};
     QTest::newRow("member function") << "defs.h" << 192 << ItemList{
-        makeItem(9, 12, Usage::Type::Declaration), makeItem(40, 8, Usage::Type::Other)};
+        makeItem(9, 12, Usage::Tag::Declaration), makeItem(40, 8, Usage::Tags())};
 }
 
 // The main point here is to test our access type categorization.
@@ -285,7 +294,7 @@ void ClangdTestFindReferences::test()
     QVERIFY(doc);
     QTextCursor cursor(doc->document());
     cursor.setPosition(pos);
-    client()->findUsages(doc, cursor, {});
+    client()->findUsages(doc, cursor, {}, {});
     QVERIFY(waitForSignalOrTimeout(client(), &ClangdClient::findUsagesDone, timeOutInMs()));
 
     QCOMPARE(m_actualResults.size(), expectedResults.size());
@@ -294,7 +303,10 @@ void ClangdTestFindReferences::test()
         const SearchResultItem &curExpected = expectedResults.at(i);
         QCOMPARE(curActual.mainRange().begin.line, curExpected.mainRange().begin.line);
         QCOMPARE(curActual.mainRange().begin.column, curExpected.mainRange().begin.column);
-        QCOMPARE(curActual.userData(), curExpected.userData());
+        const auto actualTags = Usage::Tags::fromInt(curActual.userData().toInt())
+                & ~Usage::Tags(Usage::Tag::Used);
+        const auto expectedTags = Usage::Tags::fromInt(curExpected.userData().toInt());
+        QCOMPARE(actualTags, expectedTags);
     }
 }
 
@@ -681,12 +693,6 @@ void ClangdTestHighlighting::test_data()
     QTest::addColumn<QList<int>>("expectedStyles");
     QTest::addColumn<int>("expectedKind");
 
-    QTest::newRow("string literal") << 1 << 24 << 1 << 34 << QList<int>{C_STRING} << 0;
-    QTest::newRow("UTF-8 string literal") << 2 << 24 << 2 << 36 << QList<int>{C_STRING} << 0;
-    QTest::newRow("raw string literal") << 3 << 24 << 4 << 9 << QList<int>{C_STRING} << 0;
-    QTest::newRow("character literal") << 5 << 24 << 5 << 27 << QList<int>{C_STRING} << 0;
-    QTest::newRow("integer literal") << 23 << 24 << 23 << 25 << QList<int>{C_NUMBER} << 0;
-    QTest::newRow("float literal") << 24 << 24 << 24 << 28 << QList<int>{C_NUMBER} << 0;
     QTest::newRow("function definition") << 45 << 5 << 45 << 13
         << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
     QTest::newRow("member function definition") << 52 << 10 << 52 << 24
@@ -705,9 +711,7 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("function call") << 64 << 5 << 64 << 13 << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("type conversion function (struct)") << 68 << 14 << 68 << 17
-        << QList<int>{C_TYPE, C_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("type conversion function (built-in)") << 69 << 14 << 69 << 17
-        << QList<int>{C_PRIMITIVE_TYPE, C_OPERATOR, C_DECLARATION} << 0;
+        << QList<int>{C_TYPE} << 0;
     QTest::newRow("type reference") << 74 << 5 << 74 << 8 << QList<int>{C_TYPE} << 0;
     QTest::newRow("local variable declaration") << 79 << 9 << 79 << 12
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
@@ -789,15 +793,12 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator<<= call") << 629 << 12 << 629 << 15
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("integer literal 2") << 629 << 16 << 629 << 17 << QList<int>{C_NUMBER} << 0;
     QTest::newRow("operator(int) member declaration (opening paren") << 619 << 19 << 619 << 20
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator(int) member declaration (closing paren") << 619 << 20 << 619 << 21
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator(int) call (opening parenthesis)") << 632 << 12 << 632 << 13
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator(int) call (argument)") << 632 << 13 << 632 << 14
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("operator(int) call (closing parenthesis)") << 632 << 14 << 632 << 15
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator[] member declaration (opening bracket") << 620 << 18 << 620 << 19
@@ -806,8 +807,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator[] call (opening bracket)") << 633 << 12 << 633 << 13
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator[] call (argument)") << 633 << 13 << 633 << 14
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("operator[] call (closing bracket)") << 633 << 14 << 633 << 15
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new member declaration") << 621 << 20 << 621 << 23
@@ -822,34 +821,14 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("operator new[] member declaration (keyword)") << 623 << 20 << 623 << 23
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator new[] member declaration (opening bracket)") << 623 << 23 << 623 << 24
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator new[] member declaration (closing bracket)") << 623 << 24 << 623 << 25
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator new[] member call (keyword") << 637 << 19 << 637 << 22
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new[] member call (type argument)") << 637 << 23 << 637 << 28
         << QList<int>{C_TYPE} << 0;
-    QTest::newRow("operator new[] member call (opening bracket)") << 637 << 28 << 637 << 29
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator new[] member call (size argument)") << 637 << 29 << 637 << 31
-        << QList<int>{C_NUMBER} << 0;
-    QTest::newRow("operator new[] member call (closing bracket)") << 637 << 31 << 637 << 32
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator delete[] member declaration (keyword)") << 624 << 19 << 624 << 25
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator delete[] member declaration (opening bracket)")
-        << 624 << 25 << 624 << 26
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator delete[] member declaration (closing bracket)")
-        << 624 << 26 << 624 << 27
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator delete[] member call (keyword") << 638 << 5 << 638 << 11
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator delete[] member call (opening bracket)") << 638 << 12 << 638 << 13
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator delete[] member call (closing bracket)") << 638 << 13 << 638 << 14
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new built-in call") << 634 << 14 << 634 << 17
         << QList<int>{C_KEYWORD, C_OPERATOR} << 0;
     QTest::newRow("operator() member declaration (opening paren") << 654 << 20 << 654 << 21
@@ -888,10 +867,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_MACRO, C_DECLARATION} << 0;
     QTest::newRow("function-like macro call") << 236 << 5 << 236 << 20
         << QList<int>{C_MACRO} << 0;
-    QTest::newRow("function-like macro call argument 1") << 236 << 21 << 236 << 22
-        << QList<int>{C_NUMBER} << 0;
-    QTest::newRow("function-like macro call argument 2") << 236 << 24 << 236 << 25
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("function template call") << 254 << 5 << 254 << 21 << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("template type parameter") << 265 << 17 << 265 << 38
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
@@ -899,8 +874,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("template non-type parameter") << 265 << 50 << 265 << 74
         << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
-    QTest::newRow("template non-type parameter default argument") << 265 << 77 << 265 << 78
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("template template parameter") << 265 << 103 << 265 << 128
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("template template parameter default argument") << 265 << 131 << 265 << 142
@@ -1231,7 +1204,6 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 4)")
         << 812 << 3 << 812 << 4
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
-    QTest::newRow("cyrillic string") << 792 << 24 << 792 << 27 << QList<int>{C_STRING} << 0;
     QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
         << QList<int>{C_MACRO, C_DECLARATION} << 0;
     QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
@@ -1254,10 +1226,6 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("simple return") << 841 << 12 << 841 << 15 << QList<int>{C_LOCAL} << 0;
     QTest::newRow("lambda parameter") << 847 << 49 << 847 << 52
                                       << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
-    QTest::newRow("string literal passed to macro from same file") << 853 << 32 << 853 << 38
-                                      << QList<int>{C_STRING} << 0;
-    QTest::newRow("string literal passed to macro from header file") << 854 << 32 << 854 << 38
-                                      << QList<int>{C_STRING} << 0;
     QTest::newRow("user-defined operator call") << 860 << 7 << 860 << 8
                                       << QList<int>{C_LOCAL} << 0;
     QTest::newRow("const member as function argument") << 868 << 32 << 868 << 43
@@ -1274,9 +1242,6 @@ void ClangdTestHighlighting::test_data()
                                       << QList<int>{C_FIELD} << 0;
     QTest::newRow("member initialization: member (built-in type)") << 911 << 23 << 911 << 27
                                       << QList<int>{C_FIELD} << 0;
-    QTest::newRow("keywords: true") << 920 << 15 << 920 << 19 << QList<int>{C_KEYWORD} << 0;
-    QTest::newRow("keywords: false") << 921 << 15 << 921 << 20 << QList<int>{C_KEYWORD} << 0;
-    QTest::newRow("keywords: nullptr") << 922 << 15 << 922 << 22 << QList<int>{C_KEYWORD} << 0;
     QTest::newRow("operator<<") << 934 << 10 << 934 << 14 << QList<int>{C_GLOBAL} << 0;
     QTest::newRow("operator>>") << 936 << 10 << 936 << 13 << QList<int>{C_GLOBAL} << 0;
     QTest::newRow("operator>>") << 936 << 17 << 936 << 18 << QList<int>{C_LOCAL} << 0;
@@ -1315,6 +1280,9 @@ void ClangdTestHighlighting::test_data()
                                                     << QList<int>{C_FIELD} << 0;
     QTest::newRow("fake operator method call") << 1050 << 8 << 1050 << 22
                                                << QList<int>{C_FUNCTION} << 0;
+    QTest::newRow("concept definition") << 1053 << 30 << 1053 << 42
+                                               << QList<int>{C_TYPE, C_DECLARATION} << 0;
+    QTest::newRow("concept use") << 1054 << 29 << 1054 << 41 << QList<int>{C_TYPE} << 0;
 }
 
 void ClangdTestHighlighting::test()
@@ -1364,14 +1332,6 @@ void ClangdTestHighlighting::test()
                  "check if and how we want to support this", Abort);
     QEXPECT_FAIL("old-style signal with complex parameter (signal parameter part 3)",
                  "check if and how we want to support this", Abort);
-    QEXPECT_FAIL("function template specialization (opening angle bracket 1)",
-                 "specialization appears as a normal function in the AST", Abort);
-    QEXPECT_FAIL("function template specialization (closing angle bracket 1)",
-                 "specialization appears as a normal function in the AST", Abort);
-    QEXPECT_FAIL("function template specialization (opening angle bracket 2)",
-                 "specialization appears as a normal function in the AST", Abort);
-    QEXPECT_FAIL("function template specialization (closing angle bracket 2)",
-                 "specialization appears as a normal function in the AST", Abort);
 
     QCOMPARE(results.length(), 1);
 

@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/toolchain.h>
-#include <utils/fileutils.h>
+
+#include <utils/filepath.h>
 
 #include <QDateTime>
 #include <QObject>
@@ -20,14 +21,12 @@ class QSettings;
 class QFileSystemWatcher;
 QT_END_NAMESPACE
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class DevelopmentTeam;
 
 class ProvisioningProfile
 {
-    Q_DECLARE_TR_FUNCTIONS(ProvisioningProfile)
 public:
     std::shared_ptr<DevelopmentTeam> developmentTeam() { return m_team; }
     QString identifier() const;
@@ -50,7 +49,6 @@ using ProvisioningProfiles = QList<ProvisioningProfilePtr>;
 
 class DevelopmentTeam
 {
-    Q_DECLARE_TR_FUNCTIONS(DevelopmentTeam)
 public:
     QString identifier() const;
     QString displayName() const;
@@ -121,7 +119,8 @@ private:
     ProvisioningProfiles m_provisioningProfiles;
     DevelopmentTeams m_developerTeams;
 };
+
 QDebug &operator<<(QDebug &stream, std::shared_ptr<ProvisioningProfile> profile);
 QDebug &operator<<(QDebug &stream, std::shared_ptr<DevelopmentTeam> team);
-} // namespace Internal
-} // namespace Ios
+
+} // Ios::Internal

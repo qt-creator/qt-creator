@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "baseprojectwizarddialog.h"
+
+#include "projectexplorertr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <utils/projectintropage.h>
@@ -141,7 +143,7 @@ QString BaseProjectWizardDialog::uniqueProjectName(const FilePath &path)
     //: File path suggestion for a new project. If you choose
     //: to translate it, make sure it is a valid path name without blanks
     //: and using only ascii chars.
-    const QString prefix = tr("untitled");
+    const QString prefix = Tr::tr("untitled");
     for (unsigned i = 0; ; ++i) {
         QString name = prefix;
         if (i)

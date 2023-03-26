@@ -1,9 +1,10 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "configurationdialog.h"
 
 #include "abstractsettings.h"
+#include "beautifiertr.h"
 #include "configurationeditor.h"
 
 #include <texteditor/fontsettings.h>
@@ -43,11 +44,11 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent)
 
     Column {
         Group {
-            title(tr("Name")),
+            title(Tr::tr("Name")),
             Column { m_name }
         },
         Group {
-            title(tr("Value")),
+            title(Tr::tr("Value")),
             Column {
                 m_editor,
                 m_documentationHeader,
@@ -151,9 +152,9 @@ void ConfigurationDialog::updateOkButton()
 void ConfigurationDialog::updateDocumentation(const QString &word, const QString &docu)
 {
     if (word.isEmpty())
-        m_documentationHeader->setText(tr("Documentation"));
+        m_documentationHeader->setText(Tr::tr("Documentation"));
     else
-        m_documentationHeader->setText(tr("Documentation for \"%1\"").arg(word));
+        m_documentationHeader->setText(Tr::tr("Documentation for \"%1\"").arg(word));
     m_documentation->setHtml(docu);
 }
 

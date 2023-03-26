@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
@@ -12,7 +12,7 @@ def main():
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
     # create syntax error in qml file
-    openDocument("SampleApp.Resources.qml\.qrc./.main\\.qml")
+    openDocument("SampleApp.appSampleApp.Main\\.qml")
     if not appendToLine(waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget"), "Window {", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return

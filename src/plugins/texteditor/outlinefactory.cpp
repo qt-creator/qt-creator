@@ -1,7 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "outlinefactory.h"
+
+#include "texteditortr.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -10,11 +13,10 @@
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
-#include <QToolButton>
+#include <QDebug>
 #include <QLabel>
 #include <QStackedWidget>
-
-#include <QDebug>
+#include <QToolButton>
 
 namespace TextEditor {
 
@@ -43,7 +45,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_syncWithEditor(true),
     m_sorted(false)
 {
-    QLabel *label = new QLabel(tr("No outline available"), this);
+    QLabel *label = new QLabel(Tr::tr("No outline available"), this);
     label->setAlignment(Qt::AlignCenter);
 
     // set background to be white
@@ -56,7 +58,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(true);
-    m_toggleSync->setToolTip(tr("Synchronize with Editor"));
+    m_toggleSync->setToolTip(Tr::tr("Synchronize with Editor"));
     connect(m_toggleSync, &QAbstractButton::clicked,
             this, &OutlineWidgetStack::toggleCursorSynchronization);
 
@@ -66,7 +68,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     // did not have a parent in that moment.
 
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
-    m_filterButton->setToolTip(tr("Filter tree"));
+    m_filterButton->setToolTip(Tr::tr("Filter tree"));
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterButton->setProperty("noArrow", true);
     m_filterMenu = new QMenu(m_filterButton);
@@ -76,7 +78,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_toggleSort->setIcon(Utils::Icons::SORT_ALPHABETICALLY_TOOLBAR.icon());
     m_toggleSort->setCheckable(true);
     m_toggleSort->setChecked(false);
-    m_toggleSort->setToolTip(tr("Sort Alphabetically"));
+    m_toggleSort->setToolTip(Tr::tr("Sort Alphabetically"));
     connect(m_toggleSort, &QAbstractButton::clicked, this, &OutlineWidgetStack::toggleSort);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
@@ -201,7 +203,7 @@ OutlineFactory::OutlineFactory()
 {
     QTC_CHECK(g_outlineFactory.isNull());
     g_outlineFactory = this;
-    setDisplayName(tr("Outline"));
+    setDisplayName(Tr::tr("Outline"));
     setId("Outline");
     setPriority(600);
 }

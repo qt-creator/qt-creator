@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customwizardparameters.h"
+
 #include "customwizardscriptgenerator.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -228,7 +230,7 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
     const auto elementLanguage = reader.attributes().value(QLatin1String(langAttributeC));
     if (elementLanguage.isEmpty()) {
         // Try to find a translation for our built-in Wizards
-        *target = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
+        *target = Tr::tr(reader.readElementText().toLatin1().constData());
         return true;
     }
     if (elementLanguage == desiredLanguage) {

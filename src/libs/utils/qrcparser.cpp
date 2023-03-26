@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qrcparser.h"
 
+#include "filepath.h"
 #include "qtcassert.h"
 
-#include <utils/filepath.h>
+#include <qmljs/qmljstr.h> // Yes, the translations are still there
 
 #include <QCoreApplication>
 #include <QDir>
@@ -14,8 +15,9 @@
 #include <QFileInfo>
 #include <QLocale>
 #include <QLoggingCategory>
-#include <QMutex>
-#include <QMutexLocker>
+#include <QReadLocker>
+#include <QReadWriteLock>
+#include <QWriteLocker>
 
 static Q_LOGGING_CATEGORY(qrcParserLog, "qtc.qrcParser", QtWarningMsg)
 
@@ -25,7 +27,6 @@ namespace Internal {
 
 class QrcParserPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::QrcParser)
 public:
     typedef QMap<QString,QStringList> SMap;
     QrcParserPrivate(QrcParser *q);
@@ -54,7 +55,6 @@ private:
 
 class QrcCachePrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::QrcCachePrivate)
 public:
     QrcCachePrivate(QrcCache *q);
     QrcParser::Ptr addPath(const QString &path, const QString &contents);
@@ -64,7 +64,7 @@ public:
     void clear();
 private:
     QHash<QString, QPair<QrcParser::Ptr,int> > m_cache;
-    QMutex m_mutex;
+    QReadWriteLock m_mutex;
 };
 } // namespace Internal
 
@@ -361,7 +361,7 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
         QString error_msg;
         int error_line, error_col;
         if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
-            m_errorMessages.append(tr("XML error on line %1, col %2: %3")
+            m_errorMessages.append(QmlJS::Tr::tr("XML error on line %1, col %2: %3")
                                    .arg(error_line).arg(error_col).arg(error_msg));
             return false;
         }
@@ -370,7 +370,7 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
         QString error_msg;
         int error_line, error_col;
         if (!doc.setContent(contents, &error_msg, &error_line, &error_col)) {
-            m_errorMessages.append(tr("XML error on line %1, col %2: %3")
+            m_errorMessages.append(QmlJS::Tr::tr("XML error on line %1, col %2: %3")
                                    .arg(error_line).arg(error_col).arg(error_msg));
             return false;
         }
@@ -378,7 +378,7 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
-        m_errorMessages.append(tr("The <RCC> root element is missing."));
+        m_errorMessages.append(QmlJS::Tr::tr("The <RCC> root element is missing."));
         return false;
     }
 
@@ -598,7 +598,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
 {
     QPair<QrcParser::Ptr,int> currentValue;
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         currentValue.second += 1;
         if (currentValue.second > 1) {
@@ -610,7 +610,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
     if (!newParser->isValid())
         qCWarning(qrcParserLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         if (currentValue.first.isNull())
             currentValue.first = newParser;
@@ -624,7 +624,7 @@ void QrcCachePrivate::removePath(const QString &path)
 {
     QPair<QrcParser::Ptr,int> currentValue;
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         if (currentValue.second == 1) {
             m_cache.remove(path);
@@ -641,7 +641,7 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &c
 {
     QrcParser::Ptr newParser = QrcParser::parseQrcFile(path, contents);
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         currentValue.first = newParser;
         if (currentValue.second == 0)
@@ -653,14 +653,14 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &c
 
 QrcParser::Ptr QrcCachePrivate::parsedPath(const QString &path)
 {
-    QMutexLocker l(&m_mutex);
+    QReadLocker l(&m_mutex);
     QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
     return currentValue.first;
 }
 
 void QrcCachePrivate::clear()
 {
-    QMutexLocker l(&m_mutex);
+    QWriteLocker l(&m_mutex);
     m_cache.clear();
 }
 

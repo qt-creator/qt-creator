@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -106,7 +106,6 @@ public:
     void setForced(bool b);
 
     enum class ArgumentFlag {
-        OmitProjectPath = 0x01,
         Expand = 0x02
     };
     Q_DECLARE_FLAGS(ArgumentFlags, ArgumentFlag);
@@ -137,16 +136,8 @@ public:
 
 protected:
     bool fromMap(const QVariantMap &map) override;
-    void processStartupFailed() override;
-    bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
 
 private:
-    void doCancel() override;
-    void finish(bool success) override;
-
-    void startOneCommand(const Utils::CommandLine &command);
-    void runNextCommand();
-
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
     void qmakeBuildConfigChanged();
@@ -174,9 +165,6 @@ private:
     QStringList m_extraParserArgs;
 
     // last values
-    enum class State { IDLE = 0, RUN_QMAKE, RUN_MAKE_QMAKE_ALL, POST_PROCESS };
-    bool m_wasSuccess = true;
-    State m_nextState = State::IDLE;
     bool m_forced = false;
     bool m_needToRunQMake = false; // set in init(), read in run()
 

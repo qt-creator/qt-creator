@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -7,7 +7,7 @@ focusDocumentPath = "keyinteraction.Resources.keyinteraction\.qrc./keyinteractio
 
 def main():
     target = Targets.DESKTOP_5_14_1_DEFAULT
-    sourceExample = os.path.join(Qt5Path.examplesPath(target), "quick/keyinteraction")
+    sourceExample = os.path.join(QtPath.examplesPath(target), "quick/keyinteraction")
     proFile = "keyinteraction.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
@@ -15,7 +15,7 @@ def main():
     if not startedWithoutPluginError():
         return
     # add docs to have the correct tool tips
-    addHelpDocumentation([os.path.join(Qt5Path.docsPath(target), "qtquick.qch")])
+    addHelpDocumentation([os.path.join(QtPath.docsPath(target), "qtquick.qch")])
     templateDir = prepareTemplate(sourceExample)
     openQmakeProject(os.path.join(templateDir, proFile), [target])
     openDocument(focusDocumentPath % "focus\\.qml")

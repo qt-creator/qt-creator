@@ -1,13 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "outputpane.h"
-#include "scxmleditortr.h"
 
 #include <utils/utilsicons.h>
 
+#include <QCoreApplication>
 #include <QFrame>
 #include <QPointer>
 
@@ -40,7 +40,7 @@ public:
 
     QString title() const override
     {
-        return Tr::tr("Search");
+        return QCoreApplication::translate("QtC::ScxmlEditor", "Search");
     }
 
     QIcon icon() const override

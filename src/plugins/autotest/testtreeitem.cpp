@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testtreeitem.h"
 
@@ -14,16 +14,18 @@
 
 #include <QIcon>
 
+using namespace Utils;
+
 namespace Autotest {
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
 {
     static QIcon icons[] = {
         QIcon(),
-        Utils::Icons::OPENFILE.icon(),
+        Icons::OPENFILE.icon(),
         QIcon(":/autotest/images/suite.png"),
-        Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class),
-        Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::SlotPrivate),
+        CodeModelIcon::iconForType(CodeModelIcon::Class),
+        CodeModelIcon::iconForType(CodeModelIcon::SlotPrivate),
         QIcon(":/autotest/images/data.png")
     };
 
@@ -33,7 +35,7 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
 }
 
 ITestTreeItem::ITestTreeItem(ITestBase *testBase, const QString &name,
-                             const Utils::FilePath &filePath, Type type)
+                             const FilePath &filePath, Type type)
     : m_testBase(testBase)
     , m_name(name)
     , m_filePath(filePath)
@@ -115,8 +117,8 @@ bool ITestTreeItem::lessThan(const ITestTreeItem *other, ITestTreeItem::SortMode
                                                  Qt::CaseInsensitive) > 0;
         }
 
-        const Utils::Link &leftLink = data(0, LinkRole).value<Utils::Link>();
-        const Utils::Link &rightLink = other->data(0, LinkRole).value<Utils::Link>();
+        const Link &leftLink = data(0, LinkRole).value<Link>();
+        const Link &rightLink = other->data(0, LinkRole).value<Link>();
         const int comparison = leftLink.targetFilePath.toString().compare(
                     rightLink.targetFilePath.toString(), Qt::CaseInsensitive);
         if (comparison == 0) {
@@ -144,7 +146,7 @@ ITestConfiguration *ITestTreeItem::asConfiguration(TestRunMode mode) const
 /****************************** TestTreeItem ********************************************/
 
 TestTreeItem::TestTreeItem(ITestFramework *testFramework, const QString &name,
-                           const Utils::FilePath &filePath, Type type)
+                           const FilePath &filePath, Type type)
     : ITestTreeItem(testFramework, name, filePath, type)
 {
     switch (type) {
@@ -168,7 +170,7 @@ QVariant TestTreeItem::data(int column, int role) const
             return QVariant();
         QVariant itemLink;
         itemLink.setValue(
-            Utils::Link(filePath(), line(), int(m_column)));
+            Link(filePath(), line(), int(m_column)));
         return itemLink;
     }
     return ITestTreeItem::data(column, role);
@@ -222,7 +224,7 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
         childItem(row)->markForRemovalRecursively(mark);
 }
 
-void TestTreeItem::markForRemovalRecursively(const Utils::FilePath &filepath)
+void TestTreeItem::markForRemovalRecursively(const FilePath &filepath)
 {
     bool mark = filePath() == filepath;
     forFirstLevelChildItems([&mark, &filepath](TestTreeItem *child) {
@@ -249,24 +251,66 @@ TestTreeItem *TestTreeItem::findChildByName(const QString &name)
     });
 }
 
-TestTreeItem *TestTreeItem::findChildByFile(const Utils::FilePath &filePath)
+TestTreeItem *TestTreeItem::findChildByFile(const FilePath &filePath)
 {
     return findFirstLevelChildItem([filePath](const TestTreeItem *other) {
         return other->filePath() == filePath;
     });
 }
 
-TestTreeItem *TestTreeItem::findChildByFileAndType(const Utils::FilePath &filePath, Type tType)
+TestTreeItem *TestTreeItem::findChildByFileAndType(const FilePath &filePath, Type tType)
 {
     return findFirstLevelChildItem([filePath, tType](const TestTreeItem *other) {
         return other->type() == tType && other->filePath() == filePath;
     });}
 
-TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const Utils::FilePath &filePath)
+TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const FilePath &filePath)
 {
     return findFirstLevelChildItem([name, filePath](const TestTreeItem *other) {
         return other->filePath() == filePath && other->name() == name;
     });
+}
+
+static TestTreeItem *findMatchingTestAt(TestTreeItem *parent, const QStringList &testName,
+                                        const FilePath &filePath)
+{
+    const QString &first = testName.first();
+    const QString &last = testName.last();
+    for (int i = 0, iEnd = parent->childCount(); i < iEnd; ++i) {
+        auto it = parent->childItem(i);
+        if (it->name() != first)
+            continue;
+
+        for (int j = 0, jEnd = it->childCount(); j < jEnd; ++j) {
+            auto grandchild = it->childItem(j);
+            if (grandchild->name() != last)
+                continue;
+
+            if (it->filePath() == filePath || grandchild->filePath() == filePath)
+                return grandchild;
+        }
+    }
+    return nullptr;
+}
+
+TestTreeItem *TestTreeItem::findTestByNameAndFile(const QStringList &testName,
+                                                  const FilePath &filePath)
+{
+    QTC_ASSERT(type() == Root, return nullptr);
+    QTC_ASSERT(testName.size() == 2, return nullptr);
+
+    if (!childCount())
+        return nullptr;
+
+    if (childAt(0)->type() != GroupNode) // process root's children directly
+        return findMatchingTestAt(this, testName, filePath);
+
+    // process children of groups instead of root
+    for (int i = 0, end = childCount(); i < end; ++i) {
+        if (TestTreeItem *found = findMatchingTestAt(childItem(i), testName, filePath))
+            return found;
+    }
+    return nullptr;
 }
 
 ITestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
@@ -280,7 +324,7 @@ ITestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
     }
 }
 
-QList<ITestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &) const
+QList<ITestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const FilePath &) const
 {
     return QList<ITestConfiguration *>();
 }
@@ -342,7 +386,7 @@ void TestTreeItem::copyBasicDataFrom(const TestTreeItem *other)
     m_status = other->m_status;
 }
 
-inline bool TestTreeItem::modifyFilePath(const Utils::FilePath &filepath)
+inline bool TestTreeItem::modifyFilePath(const FilePath &filepath)
 {
     if (filePath() != filepath) {
         setFilePath(filepath);

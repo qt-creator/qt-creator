@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,8 +7,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfProfilerPlugin : public ExtensionSystem::IPlugin
 {
@@ -18,13 +17,11 @@ class PerfProfilerPlugin : public ExtensionSystem::IPlugin
 public:
     ~PerfProfilerPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
-    QVector<QObject *> createTestObjects() const final;
+    void initialize() final;
 
     static PerfSettings *globalSettings();
 
     class PerfProfilerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // PerfProfiler::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2017 Orgad Shaneh <orgads@gmail.com>.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "authenticationdialog.h"
 
@@ -113,7 +113,7 @@ AuthenticationDialog::AuthenticationDialog(GerritServer *server)
     m_checkTimer = new QTimer(this);
     m_checkTimer->setSingleShot(true);
     connect(m_checkTimer, &QTimer::timeout, this, &AuthenticationDialog::checkCredentials);
-    connect(m_passwordLineEdit, &QLineEdit::textChanged, [this]() {
+    connect(m_passwordLineEdit, &QLineEdit::textChanged, this, [this] {
         if (QGuiApplication::clipboard()->text() == m_passwordLineEdit->text()) {
             checkCredentials();
             return;

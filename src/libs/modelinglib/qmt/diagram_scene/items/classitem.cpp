@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classitem.h"
 
@@ -44,6 +44,8 @@
 #include <algorithm>
 
 #include <qmt/stereotype/customrelation.h>
+
+#include "../../modelinglibtr.h"
 
 namespace qmt {
 
@@ -378,7 +380,7 @@ bool ClassItem::extendContextMenu(QMenu *menu)
 {
     bool extended = false;
     if (diagramSceneModel()->diagramSceneController()->elementTasks()->hasClassDefinition(object(), diagramSceneModel()->diagram())) {
-        menu->addAction(new ContextMenuAction(tr("Show Definition"), "showDefinition", menu));
+        menu->addAction(new ContextMenuAction(Tr::tr("Show Definition"), "showDefinition", menu));
         extended = true;
     }
     return extended;
@@ -403,7 +405,7 @@ QString ClassItem::buildDisplayName() const
         name = object()->name();
         name += QLatin1Char('<');
         bool first = true;
-        foreach (const QString &p, diagramClass->templateParameters()) {
+        for (const QString &p : diagramClass->templateParameters()) {
             if (!first)
                 name += QLatin1Char(',');
             name += p;
@@ -444,11 +446,11 @@ void ClassItem::addRelationStarterTool(const QString &id)
     if (id == INHERITANCE)
         relationStarter()->addArrow(INHERITANCE, ArrowItem::ShaftSolid,
                                     ArrowItem::HeadNone, ArrowItem::HeadTriangle,
-                                    tr("Inheritance"));
+                                    Tr::tr("Inheritance"));
     else if (id == ASSOCIATION)
         relationStarter()->addArrow(ASSOCIATION, ArrowItem::ShaftSolid,
                                     ArrowItem::HeadNone, ArrowItem::HeadFilledTriangle,
-                                    tr("Association"));
+                                    Tr::tr("Association"));
     else
         ObjectItem::addRelationStarterTool(id);
 }
@@ -746,7 +748,7 @@ void ClassItem::updateMembers(const Style *style)
     auto dclass = dynamic_cast<DClass *>(object());
     QMT_ASSERT(dclass, return);
 
-    foreach (const MClassMember &member, dclass->members()) {
+    for (const MClassMember &member : dclass->members()) {
         switch (member.memberType()) {
         case MClassMember::MemberUndefined:
             QMT_ASSERT(false, return);

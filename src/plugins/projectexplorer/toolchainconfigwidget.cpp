@@ -1,14 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "toolchainconfigwidget.h"
+
 #include "toolchain.h"
+#include "projectexplorertr.h"
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-
-#include <QString>
 
 #include <QFormLayout>
 #include <QLineEdit>
@@ -44,7 +44,7 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
     m_nameLineEdit = new QLineEdit;
     m_nameLineEdit->setText(tc->displayName());
 
-    m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
+    m_mainLayout->addRow(Tr::tr("Name:"), m_nameLineEdit);
 
     connect(m_nameLineEdit, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
 }

@@ -1,9 +1,10 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "runsettingswidget.h"
 
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticconfigswidget.h"
 #include "executableinfo.h"
@@ -19,6 +20,7 @@
 #include <QSpinBox>
 #include <QThread>
 
+using namespace CppEditor;
 using namespace Utils;
 
 namespace ClangTools::Internal {
@@ -28,11 +30,11 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
 {
     resize(383, 125);
 
-    m_diagnosticWidget = new CppEditor::ClangDiagnosticConfigsSelectionWidget;
+    m_diagnosticWidget = new ClangDiagnosticConfigsSelectionWidget;
 
-    m_buildBeforeAnalysis = new QCheckBox(tr("Build the project before analysis"));
+    m_buildBeforeAnalysis = new QCheckBox(Tr::tr("Build the project before analysis"));
 
-    m_analyzeOpenFiles = new QCheckBox(tr("Analyze open files"));
+    m_analyzeOpenFiles = new QCheckBox(Tr::tr("Analyze open files"));
 
     m_parallelJobsSpinBox = new QSpinBox;
     m_parallelJobsSpinBox->setRange(1, 32);
@@ -42,12 +44,12 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
     // FIXME: Let RunSettingsWidget inherit from QGroupBox?
     Column {
         Group {
-            title(tr("Run Options")),
+            title(Tr::tr("Run Options")),
             Column {
                 m_diagnosticWidget,
                 m_buildBeforeAnalysis,
                 m_analyzeOpenFiles,
-                Row { tr("Parallel jobs:"), m_parallelJobsSpinBox, st },
+                Row { Tr::tr("Parallel jobs:"), m_parallelJobsSpinBox, st },
             }
         }
     }.attachTo(this, WithoutMargins);
@@ -55,13 +57,13 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
 
 RunSettingsWidget::~RunSettingsWidget() = default;
 
-CppEditor::ClangDiagnosticConfigsSelectionWidget *RunSettingsWidget::diagnosticSelectionWidget()
+ClangDiagnosticConfigsSelectionWidget *RunSettingsWidget::diagnosticSelectionWidget()
 {
     return m_diagnosticWidget;
 }
 
-static CppEditor::ClangDiagnosticConfigsWidget *createEditWidget(
-    const CppEditor::ClangDiagnosticConfigs &configs, const Id &configToSelect)
+static ClangDiagnosticConfigsWidget *createEditWidget(const ClangDiagnosticConfigs &configs,
+                                                      const Id &configToSelect)
 {
     // Determine executable paths
     FilePath clangTidyPath;
@@ -69,16 +71,17 @@ static CppEditor::ClangDiagnosticConfigsWidget *createEditWidget(
     if (auto settingsWidget = SettingsWidget::instance()) {
         // Global settings case; executables might not yet applied to settings
         clangTidyPath = settingsWidget->clangTidyPath();
-        clangTidyPath = clangTidyPath.isEmpty() ? clangTidyFallbackExecutable()
+        clangTidyPath = clangTidyPath.isEmpty() ? toolFallbackExecutable(ClangToolType::Tidy)
                                                 : fullPath(clangTidyPath);
 
         clazyStandalonePath = settingsWidget->clazyStandalonePath();
-        clazyStandalonePath = clazyStandalonePath.isEmpty() ? clazyStandaloneFallbackExecutable()
-                                                            : fullPath(clazyStandalonePath);
+        clazyStandalonePath = clazyStandalonePath.isEmpty()
+                            ? toolFallbackExecutable(ClangToolType::Clazy)
+                            : fullPath(clazyStandalonePath);
     } else {
         // "Projects Mode > Clang Tools" case, check settings
-        clangTidyPath = clangTidyExecutable();
-        clazyStandalonePath = clazyStandaloneExecutable();
+        clangTidyPath = toolExecutable(ClangToolType::Tidy);
+        clazyStandalonePath = toolExecutable(ClangToolType::Clazy);
     }
 
     return new DiagnosticConfigsWidget(configs,
@@ -93,15 +96,13 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     m_diagnosticWidget->refresh(diagnosticConfigsModel(),
                                 s.diagnosticConfigId(),
                                 createEditWidget);
-    connect(m_diagnosticWidget,
-            &CppEditor::ClangDiagnosticConfigsSelectionWidget::changed,
-            this,
-            &RunSettingsWidget::changed);
+    connect(m_diagnosticWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
+            this, &RunSettingsWidget::changed);
 
     disconnect(m_buildBeforeAnalysis, 0, 0, 0);
     m_buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
     m_buildBeforeAnalysis->setCheckState(s.buildBeforeAnalysis() ? Qt::Checked : Qt::Unchecked);
-    connect(m_buildBeforeAnalysis, &QCheckBox::toggled, [this](bool checked) {
+    connect(m_buildBeforeAnalysis, &QCheckBox::toggled, this, [this](bool checked) {
         if (!checked)
             showHintAboutBuildBeforeAnalysis();
         emit changed();

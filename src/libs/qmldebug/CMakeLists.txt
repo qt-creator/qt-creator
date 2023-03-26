@@ -1,5 +1,5 @@
 add_qtc_library(QmlDebug
-  DEPENDS Qt5::Network Utils
+  DEPENDS Qt::Network Utils
   SOURCES
     baseenginedebugclient.cpp baseenginedebugclient.h
     basetoolsclient.cpp basetoolsclient.h

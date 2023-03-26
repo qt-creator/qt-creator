@@ -1,7 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customtoolchain.h"
+
 #include "abiwidget.h"
 #include "gccparser.h"
 #include "clangparser.h"
@@ -10,8 +11,8 @@
 #include "customparser.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectmacro.h"
-#include "toolchainmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
@@ -50,7 +51,7 @@ CustomToolChain::CustomToolChain() :
     ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID),
     m_outputParserId(GccParser::id())
 {
-    setTypeDisplayName(tr("Custom"));
+    setTypeDisplayName(Tr::tr("Custom"));
     setTargetAbiKey("ProjectExplorer.CustomToolChain.TargetAbi");
     setCompilerCommandKey("ProjectExplorer.CustomToolChain.CompilerPath");
 }
@@ -274,10 +275,10 @@ void CustomToolChain::setOutputParserId(Utils::Id parserId)
 QList<CustomToolChain::Parser> CustomToolChain::parsers()
 {
     QList<CustomToolChain::Parser> result;
-    result.append({GccParser::id(),      tr("GCC")});
-    result.append({ClangParser::id(),    tr("Clang")});
-    result.append({LinuxIccParser::id(), tr("ICC")});
-    result.append({MsvcParser::id(),     tr("MSVC")});
+    result.append({GccParser::id(),      Tr::tr("GCC")});
+    result.append({ClangParser::id(),    Tr::tr("Clang")});
+    result.append({LinuxIccParser::id(), Tr::tr("ICC")});
+    result.append({MsvcParser::id(),     Tr::tr("MSVC")});
     return result;
 }
 
@@ -294,7 +295,7 @@ namespace Internal {
 
 CustomToolChainFactory::CustomToolChainFactory()
 {
-    setDisplayName(CustomToolChain::tr("Custom"));
+    setDisplayName(Tr::tr("Custom"));
     setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
     setSupportsAllLanguages(true);
     setToolchainConstructor([] { return new CustomToolChain; });
@@ -307,7 +308,6 @@ CustomToolChainFactory::CustomToolChainFactory()
 
 class TextEditDetailsWidget : public DetailsWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::TextEditDetailsWidget)
 public:
     TextEditDetailsWidget(QPlainTextEdit *textEdit)
     {
@@ -342,7 +342,7 @@ public:
     void updateSummaryText()
     {
         int count = entryCount();
-        setSummaryText(count ? tr("%n entries", "", count) : tr("Empty"));
+        setSummaryText(count ? Tr::tr("%n entries", "", count) : Tr::tr("Empty"));
     }
 };
 
@@ -374,26 +374,26 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     auto parserLayoutWidget = new QWidget;
     auto parserLayout = new QHBoxLayout(parserLayoutWidget);
     parserLayout->setContentsMargins(0, 0, 0, 0);
-    m_predefinedMacros->setPlaceholderText(tr("MACRO[=VALUE]"));
+    m_predefinedMacros->setPlaceholderText(Tr::tr("MACRO[=VALUE]"));
     m_predefinedMacros->setTabChangesFocus(true);
-    m_predefinedMacros->setToolTip(tr("Each line defines a macro. Format is MACRO[=VALUE]."));
+    m_predefinedMacros->setToolTip(Tr::tr("Each line defines a macro. Format is MACRO[=VALUE]."));
     m_headerPaths->setTabChangesFocus(true);
-    m_headerPaths->setToolTip(tr("Each line adds a global header lookup path."));
-    m_cxx11Flags->setToolTip(tr("Comma-separated list of flags that turn on C++11 support."));
-    m_mkspecs->setToolTip(tr("Comma-separated list of mkspecs."));
+    m_headerPaths->setToolTip(Tr::tr("Each line adds a global header lookup path."));
+    m_cxx11Flags->setToolTip(Tr::tr("Comma-separated list of flags that turn on C++11 support."));
+    m_mkspecs->setToolTip(Tr::tr("Comma-separated list of mkspecs."));
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter(QLatin1String("PE.ToolChainCommand.History"));
     m_makeCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_makeCommand->setHistoryCompleter(QLatin1String("PE.MakeCommand.History"));
-    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
-    m_mainLayout->addRow(tr("&Make path:"), m_makeCommand);
-    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
-    m_mainLayout->addRow(tr("&Predefined macros:"), m_predefinedDetails);
-    m_mainLayout->addRow(tr("&Header paths:"), m_headerDetails);
-    m_mainLayout->addRow(tr("C++11 &flags:"), m_cxx11Flags);
-    m_mainLayout->addRow(tr("&Qt mkspecs:"), m_mkspecs);
+    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(Tr::tr("&Make path:"), m_makeCommand);
+    m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(Tr::tr("&Predefined macros:"), m_predefinedDetails);
+    m_mainLayout->addRow(Tr::tr("&Header paths:"), m_headerDetails);
+    m_mainLayout->addRow(Tr::tr("C++11 &flags:"), m_cxx11Flags);
+    m_mainLayout->addRow(Tr::tr("&Qt mkspecs:"), m_mkspecs);
     parserLayout->addWidget(m_errorParserComboBox);
-    m_mainLayout->addRow(tr("&Error parser:"), parserLayoutWidget);
+    m_mainLayout->addRow(Tr::tr("&Error parser:"), parserLayoutWidget);
     addErrorLabel();
 
     setFromToolchain();

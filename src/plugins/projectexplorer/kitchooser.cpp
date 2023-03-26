@@ -1,12 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "kitchooser.h"
 
-#include "kitinformation.h"
 #include "kitmanager.h"
-#include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "session.h"
 #include "target.h"
 
@@ -92,7 +91,7 @@ void KitChooser::populate()
     if (Target *target = SessionManager::startupTarget()) {
         Kit *kit = target->kit();
         if (m_kitPredicate(kit)) {
-            QString display = tr("Kit of Active Project: %1").arg(kitText(kit));
+            QString display = Tr::tr("Kit of Active Project: %1").arg(kitText(kit));
             m_chooser->addItem(display, kit->id().toSetting());
             m_chooser->setItemData(0, kitToolTip(kit), Qt::ToolTipRole);
             if (!lastKit.isValid()) {

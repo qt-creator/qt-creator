@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,6 +9,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporaryfile.h>
 
 #include <QBuffer>
 
@@ -26,6 +27,8 @@ public:
 
     void sendMessage(const LanguageServerProtocol::JsonRpcMessage message);
     void start() { startImpl(); }
+
+    virtual Utils::FilePath serverDeviceTemplate() const = 0;
 
     void resetBuffer();
 
@@ -50,7 +53,7 @@ class LANGUAGECLIENT_EXPORT StdIOClientInterface : public BaseClientInterface
 {
     Q_OBJECT
 public:
-    StdIOClientInterface() = default;
+    StdIOClientInterface();
     ~StdIOClientInterface() override;
 
     StdIOClientInterface(const StdIOClientInterface &) = delete;
@@ -65,6 +68,8 @@ public:
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setEnvironment(const Utils::Environment &environment);
 
+    Utils::FilePath serverDeviceTemplate() const override;
+
 protected:
     void sendData(const QByteArray &data) final;
     Utils::CommandLine m_cmd;
@@ -75,6 +80,8 @@ protected:
 private:
     void readError();
     void readOutput();
+
+    Utils::TemporaryFile m_logFile;
 };
 
 } // namespace LanguageClient

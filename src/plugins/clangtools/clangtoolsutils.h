@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -43,13 +43,12 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 QString hintAboutBuildBeforeAnalysis();
 void showHintAboutBuildBeforeAnalysis();
 
-Utils::FilePath shippedClazyStandaloneExecutable();
-Utils::FilePath clazyStandaloneExecutable();
-Utils::FilePath clazyStandaloneFallbackExecutable();
+Utils::FilePath toolShippedExecutable(CppEditor::ClangToolType tool);
+Utils::FilePath toolExecutable(CppEditor::ClangToolType tool);
+Utils::FilePath toolFallbackExecutable(CppEditor::ClangToolType tool);
+QString clangToolName(CppEditor::ClangToolType tool);
 
-Utils::FilePath shippedClangTidyExecutable();
-Utils::FilePath clangTidyExecutable();
-Utils::FilePath clangTidyFallbackExecutable();
+bool isVFSOverlaySupported(const Utils::FilePath &executable);
 
 Utils::FilePath fullPath(const Utils::FilePath &executable);
 

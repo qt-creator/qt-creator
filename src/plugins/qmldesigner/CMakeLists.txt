@@ -1,3 +1,17 @@
+#only if the plugin is requested by qtc_plugin_enabled continue if not stop as early as possible
+add_qtc_plugin(QmlDesigner
+  PLUGIN_RECOMMENDS QmlPreview
+  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  PROPERTIES COMPILE_WARNING_AS_ERROR ON
+  PLUGIN_DEPENDS
+    Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
+    QtSupport
+)
+qtc_plugin_enabled(_qmlDesignerEnabled QmlDesigner)
+if (NOT _qmlDesignerEnabled)
+  return()
+endif()
+
 find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
 
 set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
@@ -31,6 +45,7 @@ add_qtc_library(QmlDesignerUtils STATIC
 )
 
 add_qtc_library(QmlDesignerCore STATIC
+  EXCLUDE_FROM_INSTALL
   DEPENDS
     Threads::Threads
     Qt::CorePrivate
@@ -278,6 +293,7 @@ extend_qtc_library(QmlDesignerCore
     nodeinstanceview.cpp
     puppetbuildprogressdialog.cpp
     puppetbuildprogressdialog.h
+    puppetstartdata.h
     puppetstarter.cpp
     puppetstarter.h
     puppetdialog.cpp
@@ -406,12 +422,15 @@ extend_qtc_library(QmlDesignerCore
 file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
 set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
-add_qtc_plugin(QmlDesigner
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
-  PROPERTIES COMPILE_WARNING_AS_ERROR ON
+extend_qtc_plugin(QmlDesigner
+  PUBLIC_DEPENDS
+    QmlDesignerUtils
+    QmlDesignerBase
+    QmlPuppetCommunication
   DEPENDS
-    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt::QuickWidgets Qt::CorePrivate Sqlite Qt::Xml Qt::Svg
+    QmlDesignerCore
+    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem Sqlite
+    Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
@@ -434,12 +453,8 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
-  PUBLIC_DEPENDS
-    QmlDesignerCore
-  PLUGIN_DEPENDS
-    Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
-    QtSupport
-  PLUGIN_RECOMMENDS QmlPreview
+    ${CMAKE_CURRENT_LIST_DIR}/designercore #can not be a public dependency -> EXCLUDE_FROM_INSTALL in QmlDesignerCore
+    ${CMAKE_CURRENT_LIST_DIR}/designercore/include #iwidgetplugin.h is used by other plugins
   SOURCES
     designmodecontext.cpp designmodecontext.h
     designmodewidget.cpp designmodewidget.h
@@ -455,7 +470,7 @@ add_qtc_plugin(QmlDesigner
     qmldesignerplugin.cpp qmldesignerplugin.h
     qmldesignerexternaldependencies.cpp qmldesignerexternaldependencies.h
     qmldesignerprojectmanager.cpp qmldesignerprojectmanager.h
-    settingspage.cpp settingspage.h settingspage.ui
+    settingspage.cpp settingspage.h
     shortcutmanager.cpp shortcutmanager.h
     designermcumanager.cpp designermcumanager.h
     richtexteditordialog.cpp richtexteditordialog.h
@@ -505,6 +520,10 @@ function(get_and_add_as_subdirectory name repository git_tag build_dir source_di
 endfunction()
 
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
+  get_target_property(_designerType Qt5::Designer TYPE)
+  if (${_designerType} STREQUAL "STATIC_LIBRARY")
+    extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
+  endif()
   get_target_property(_designerType Qt::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)

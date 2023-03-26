@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -28,7 +28,7 @@ class QTCREATOR_UTILS_EXPORT DeviceShell : public QObject
     Q_OBJECT
 
 public:
-    enum class State { FailedToStart = -1, Unknown = 0, Succeeded = 1, NoScript = 2 };
+    enum class State { Failed = -1, Unknown = 0, Succeeded = 1 };
 
     enum class ParseType {
         StdOut,

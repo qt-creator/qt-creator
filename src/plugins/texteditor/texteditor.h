@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -23,7 +23,9 @@
 
 #include <QPlainTextEdit>
 #include <QSharedPointer>
+
 #include <functional>
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
@@ -259,8 +261,8 @@ public:
 
     void invokeAssist(AssistKind assistKind, IAssistProvider *provider = nullptr);
 
-    virtual TextEditor::AssistInterface *createAssistInterface(AssistKind assistKind,
-                                                    AssistReason assistReason) const;
+    virtual std::unique_ptr<AssistInterface> createAssistInterface(AssistKind assistKind,
+                                                                   AssistReason assistReason) const;
     static QMimeData *duplicateMimeData(const QMimeData *source);
 
     static QString msgTextTooLarge(quint64 size);

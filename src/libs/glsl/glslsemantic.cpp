@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glslsemantic.h"
 #include "glslengine.h"
@@ -352,7 +352,8 @@ bool Semantic::visit(FunctionCallExpressionAST *ast)
             _expr.type = funTy->returnType();
         } else if (const OverloadSet *overloads = id.type->asOverloadSetType()) {
             QVector<Function *> candidates;
-            foreach (Function *f, overloads->functions()) {
+            const QVector<Function *> functions = overloads->functions();
+            for (Function *f : functions) {
                 if (f->argumentCount() == actuals.size()) {
                     int argc = 0;
                     for (; argc < actuals.size(); ++argc) {

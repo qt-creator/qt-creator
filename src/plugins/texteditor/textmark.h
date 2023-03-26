@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -28,14 +28,18 @@ namespace TextEditor {
 
 class TextDocument;
 
+class TextMarkCategory
+{
+public:
+    QString displayName;
+    Utils::Id id;
+};
+
 class TEXTEDITOR_EXPORT TextMark
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::TextMark)
 public:
-    TextMark(const Utils::FilePath &fileName,
-             int lineNumber,
-             Utils::Id category);
     TextMark() = delete;
+    TextMark(const Utils::FilePath &filePath, int lineNumber, TextMarkCategory category);
     virtual ~TextMark();
 
     // determine order on markers on the same line.
@@ -46,7 +50,7 @@ public:
         HighPriority // shown on top.
     };
 
-    Utils::FilePath fileName() const;
+    Utils::FilePath filePath() const;
     int lineNumber() const;
 
     virtual void paintIcon(QPainter *painter, const QRect &rect) const;
@@ -68,7 +72,7 @@ public:
     AnnotationRects annotationRects(const QRectF &boundingRect, const QFontMetrics &fm,
                                     const qreal fadeInOffset, const qreal fadeOutOffset) const;
     /// called if the filename of the document changed
-    virtual void updateFileName(const Utils::FilePath &fileName);
+    virtual void updateFilePath(const Utils::FilePath &filePath);
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void move(int line);
@@ -89,7 +93,7 @@ public:
     void setPriority(Priority prioriy);
     bool isVisible() const;
     void setVisible(bool isVisible);
-    Utils::Id category() const { return m_category; }
+    TextMarkCategory category() const { return m_category; }
 
     std::optional<Utils::Theme::Color> color() const;
     void setColor(const Utils::Theme::Color &color);
@@ -129,7 +133,7 @@ private:
     std::function<QIcon()> m_iconProvider;
     std::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
-    Utils::Id m_category;
+    TextMarkCategory m_category;
     QString m_lineAnnotation;
     QString m_toolTip;
     std::function<QString()> m_toolTipProvider;

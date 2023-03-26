@@ -27,6 +27,7 @@ QtcPlugin {
         "clangactivationsequenceprocessor.h",
         "clangcodemodelplugin.cpp",
         "clangcodemodelplugin.h",
+        "clangcodemodeltr.h",
         "clangcompletioncontextanalyzer.cpp",
         "clangcompletioncontextanalyzer.h",
         "clangconstants.h",

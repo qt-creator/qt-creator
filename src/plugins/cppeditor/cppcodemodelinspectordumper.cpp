@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcodemodelinspectordumper.h"
 
@@ -219,6 +219,7 @@ QString Utils::toString(CPlusPlus::Kind kind)
     TOKEN(T_LBRACKET);
     TOKEN(T_LESS);
     TOKEN(T_LESS_EQUAL);
+    TOKEN(T_LESS_EQUAL_GREATER);
     TOKEN(T_LESS_LESS);
     TOKEN(T_LESS_LESS_EQUAL);
     TOKEN(T_LPAREN);
@@ -384,10 +385,10 @@ QString Utils::toString(const ProjectExplorer::Abi &abi)
     return QString("??");
 }
 
-QString Utils::partsForFile(const QString &fileName)
+QString Utils::partsForFile(const ::Utils::FilePath &filePath)
 {
     const QList<ProjectPart::ConstPtr> parts
-        = CppModelManager::instance()->projectPart(fileName);
+        = CppModelManager::instance()->projectPart(filePath);
     QString result;
     for (const ProjectPart::ConstPtr &part : parts)
         result += part->displayName + QLatin1Char(',');
@@ -580,7 +581,7 @@ void Dumper::dumpSnapshot(const CPlusPlus::Snapshot &snapshot, const QString &ti
         QList<CPlusPlus::Document::Ptr> globallyShared;
         QList<CPlusPlus::Document::Ptr> notGloballyShared;
         for (const CPlusPlus::Document::Ptr &document : documents) {
-            CPlusPlus::Document::Ptr globalDocument = m_globalSnapshot.document(document->fileName());
+            CPlusPlus::Document::Ptr globalDocument = m_globalSnapshot.document(document->filePath());
             if (globalDocument && globalDocument->fingerprint() == document->fingerprint())
                 globallyShared.append(document);
             else
@@ -641,18 +642,18 @@ void Dumper::dumpDocuments(const QList<CPlusPlus::Document::Ptr> &documents, boo
     const QByteArray i4 = indent(4);
     for (const CPlusPlus::Document::Ptr &document : documents) {
         if (skipDetails) {
-            m_out << i2 << "\"" << document->fileName() << "\"\n";
+            m_out << i2 << "\"" << document->filePath() << "\"\n";
             continue;
         }
 
-        m_out << i2 << "Document \"" << document->fileName() << "\"{{{3\n";
+        m_out << i2 << "Document \"" << document->filePath() << "\"{{{3\n";
         m_out << i3 << "Last Modified  : " << Utils::toString(document->lastModified()) << "\n";
         m_out << i3 << "Revision       : " << Utils::toString(document->revision()) << "\n";
         m_out << i3 << "Editor Revision: " << Utils::toString(document->editorRevision()) << "\n";
         m_out << i3 << "Check Mode     : " << Utils::toString(document->checkMode()) << "\n";
         m_out << i3 << "Tokenized      : " << Utils::toString(document->isTokenized()) << "\n";
         m_out << i3 << "Parsed         : " << Utils::toString(document->isParsed()) << "\n";
-        m_out << i3 << "Project Parts  : " << Utils::partsForFile(document->fileName()) << "\n";
+        m_out << i3 << "Project Parts  : " << Utils::partsForFile(document->filePath()) << "\n";
 
         const QList<CPlusPlus::Document::Include> includes = document->unresolvedIncludes()
                 + document->resolvedIncludes();

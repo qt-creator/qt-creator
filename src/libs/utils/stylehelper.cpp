@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "stylehelper.h"
 
@@ -832,6 +832,31 @@ bool StyleHelper::isReadableOn(const QColor &background, const QColor &foregroun
     // following the W3C Recommendation on contrast for large Text
     // https://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef
     return contrastRatio(background, foreground) > 3;
+}
+
+QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &desiredForeground)
+{
+    if (isReadableOn(background, desiredForeground))
+        return desiredForeground;
+
+    int h, s, v;
+    QColor foreground = desiredForeground;
+    foreground.getHsv(&h, &s, &v);
+    // adjust the color value to ensure better readability
+    if (luminance(background) < .5)
+        v = v + 64;
+    else if (v >= 64)
+        v = v - 64;
+    v %= 256;
+
+    foreground.setHsv(h, s, v);
+    if (!isReadableOn(background, foreground)) {
+        s = (s + 128) % 256;    // adjust the saturation to ensure better readability
+        foreground.setHsv(h, s, v);
+        if (!isReadableOn(background, foreground)) // we failed to create some better foreground
+            return desiredForeground;
+    }
+    return foreground;
 }
 
 } // namespace Utils

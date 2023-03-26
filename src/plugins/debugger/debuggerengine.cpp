@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggerengine.h"
 
@@ -45,7 +45,6 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/taskhub.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -151,9 +150,9 @@ Location::Location(const StackFrame &frame, bool marker)
     m_from = frame.module;
 }
 
-
 LocationMark::LocationMark(DebuggerEngine *engine, const FilePath &file, int line)
-    : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
+    : TextMark(file, line, {Tr::tr("Debugger Location"), Constants::TEXT_MARK_CATEGORY_LOCATION})
+    , m_engine(engine)
 {
     setPriority(TextMark::HighPriority);
     setIsLocationMarker(true);
@@ -554,7 +553,6 @@ void DebuggerEnginePrivate::setupViews()
     FutureProgress *fp = ProgressManager::addTask(m_progress.future(),
         Tr::tr("Launching Debugger"), "Debugger.Launcher");
     connect(fp, &FutureProgress::canceled, m_engine, &DebuggerEngine::quitDebugger);
-    fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     m_progress.reportStarted();
 
     m_inferiorPid = rp.attachPID.isValid() ? rp.attachPID : ProcessHandle();

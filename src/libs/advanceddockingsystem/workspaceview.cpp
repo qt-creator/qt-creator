@@ -4,7 +4,7 @@
 #include "workspaceview.h"
 
 #include "dockmanager.h"
-#include "workspacedialog.h"
+#include "advanceddockingsystemtr.h"
 
 #include <utils/algorithm.h>
 
@@ -39,17 +39,10 @@ void RemoveItemFocusDelegate::paint(QPainter *painter,
     QStyledItemDelegate::paint(painter, opt, index);
 }
 
-WorkspaceDialog *WorkspaceView::castToWorkspaceDialog(QWidget *widget)
-{
-    auto dialog = qobject_cast<WorkspaceDialog *>(widget);
-    Q_ASSERT(dialog);
-    return dialog;
-}
-
-WorkspaceView::WorkspaceView(QWidget *parent)
+WorkspaceView::WorkspaceView(DockManager *manager, QWidget *parent)
     : Utils::TreeView(parent)
-    , m_manager(WorkspaceView::castToWorkspaceDialog(parent)->dockManager())
-    , m_workspaceModel(m_manager)
+    , m_manager(manager)
+    , m_workspaceModel(manager)
 {
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -103,7 +96,7 @@ void WorkspaceView::importWorkspace()
     static QString lastDir;
     const QString currentDir = lastDir.isEmpty() ? "" : lastDir;
     const auto fileName = QFileDialog::getOpenFileName(this,
-                                                       tr("Import Workspace"),
+                                                       Tr::tr("Import Workspace"),
                                                        currentDir,
                                                        "Workspaces (*" + m_manager->workspaceFileExtension() + ")");
 
@@ -120,7 +113,7 @@ void WorkspaceView::exportCurrentWorkspace()
     QFileInfo fileInfo(currentDir, m_manager->workspaceNameToFileName(currentWorkspace()));
 
     const auto fileName = QFileDialog::getSaveFileName(this,
-                                                       tr("Export Workspace"),
+                                                       Tr::tr("Export Workspace"),
                                                        fileInfo.absoluteFilePath(),
                                                        "Workspaces (*" + m_manager->workspaceFileExtension() + ")");
 

@@ -20,6 +20,8 @@ QtcPlugin {
     Depends { name: "app_version_header" }
 
     files: [
+        "callhierarchy.cpp",
+        "callhierarchy.h",
         "client.cpp",
         "client.h",
         "diagnosticmanager.cpp",

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "diagramscenemodelitemvisitors.h"
 
@@ -145,7 +145,7 @@ void DiagramSceneModel::UpdateVisitor::visitDObject(DObject *object)
 {
     if (!m_relatedElement) {
         // update all related relations
-        foreach (QGraphicsItem *item, m_diagramSceneModel->m_graphicsItems) {
+        for (QGraphicsItem *item : std::as_const(m_diagramSceneModel->m_graphicsItems)) {
             DElement *element = m_diagramSceneModel->m_itemToElementMap.value(item);
             QMT_CHECK(element);
             if (dynamic_cast<DRelation *>(element)) {

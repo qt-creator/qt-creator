@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbsbuildconfiguration.h"
 
@@ -64,11 +64,17 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *kit = target->kit();
         QVariantMap configData = info.extraInfo.value<QVariantMap>();
-        configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                          (info.buildType == BuildConfiguration::Debug)
-                          ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
-                          : QLatin1String(Constants::QBS_VARIANT_RELEASE));
-
+        const QString buildVariant = [](BuildConfiguration::BuildType buildType) -> QString {
+            switch (buildType) {
+            case BuildConfiguration::Release: return Constants::QBS_VARIANT_RELEASE;
+            case BuildConfiguration::Profile: return Constants::QBS_VARIANT_PROFILING;
+            case BuildConfiguration::Debug:
+            case BuildConfiguration::Unknown:
+                break;
+            }
+            return Constants::QBS_VARIANT_DEBUG;
+        }(info.buildType);
+        configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY), buildVariant);
         FilePath buildDir = info.buildDirectory;
         if (buildDir.isEmpty())
             buildDir = defaultBuildDirectory(target->project()->projectFilePath(),
@@ -208,6 +214,8 @@ BuildConfiguration::BuildType QbsBuildConfiguration::buildType() const
         return Debug;
     if (variant == QLatin1String(Constants::QBS_VARIANT_RELEASE))
         return Release;
+    if (variant == QLatin1String(Constants::QBS_VARIANT_PROFILING))
+        return Profile;
     return Unknown;
 }
 
@@ -316,10 +324,9 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
     registerBuildConfiguration<QbsBuildConfiguration>(Constants::QBS_BC_ID);
     setSupportedProjectType(Constants::PROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::MIME_TYPE);
-    setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) -> Tasks {
+    setIssueReporter([](Kit *k, const FilePath &projectPath, const FilePath &buildDir) -> Tasks {
         const QtSupport::QtVersion * const version = QtSupport::QtKitAspect::qtVersion(k);
-        return version ? version->reportIssues(projectPath, buildDir)
-                       : Tasks();
+        return version ? version->reportIssues(projectPath, buildDir) : Tasks();
     });
 
     setBuildGenerator([this](const Kit *k, const FilePath &projectPath, bool forSetup) {
@@ -339,9 +346,17 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
             const QString rel = QbsProjectManager::Tr::tr("Release", "Shadow build directory suffix");
             info.buildDirectory = defaultBuildDirectory(projectPath, k, rel, info.buildType);
             result << info;
+
+            info = createBuildInfo(BuildConfiguration::Profile);
+            info.displayName = ProjectExplorer::Tr::tr("Profile");
+            //: Non-ASCII characters in directory suffix may cause build issues.
+            const QString prof = QbsProjectManager::Tr::tr("Profile", "Shadow build directory suffix");
+            info.buildDirectory = defaultBuildDirectory(projectPath, k, prof, info.buildType);
+            result << info;
         } else {
             result << createBuildInfo(BuildConfiguration::Debug);
             result << createBuildInfo(BuildConfiguration::Release);
+            result << createBuildInfo(BuildConfiguration::Profile);
         }
 
         return result;
@@ -352,10 +367,13 @@ BuildInfo QbsBuildConfigurationFactory::createBuildInfo(BuildConfiguration::Buil
 {
     BuildInfo info;
     info.buildType = type;
-    info.typeName = type == BuildConfiguration::Debug
-            ? ProjectExplorer::Tr::tr("Debug") : ProjectExplorer::Tr::tr("Release");
+    info.typeName = type == BuildConfiguration::Profile
+            ? ProjectExplorer::Tr::tr("Profiling") : type == BuildConfiguration::Release
+            ? ProjectExplorer::Tr::tr("Release") : ProjectExplorer::Tr::tr("Debug");
     QVariantMap config;
-    config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
+    config.insert("configName", type == BuildConfiguration::Release
+                  ? "Release" : type == BuildConfiguration::Profile
+                  ? "Profile" : "Debug");
     info.extraInfo = config;
     return info;
 }

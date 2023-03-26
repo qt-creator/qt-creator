@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import inspect
 import os
@@ -118,6 +118,7 @@ class Dumper(DumperBase):
         val.isBaseClass = val.name == val._type.name
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
+        val.lbitsize = nativeValue.bitsize()
         return val
 
     def nativeTypeId(self, nativeType):
@@ -182,7 +183,9 @@ class Dumper(DumperBase):
     def listFields(self, nativeType, value):
         if value.address() is None or value.address() == 0:
             raise Exception("")
-        nativeValue = cdbext.createValue(value.address(), nativeType)
+        nativeValue = value.nativeValue
+        if nativeValue is None:
+            nativeValue = cdbext.createValue(value.address(), nativeType)
         index = 0
         nativeMember = nativeValue.childFromIndex(index)
         while nativeMember is not None:
@@ -296,16 +299,16 @@ class Dumper(DumperBase):
         coreModuleName = self.qtCoreModuleName()
         if coreModuleName is not None:
             qstrdupSymbolName = '%s!%s' % (coreModuleName, qstrdupSymbolName)
-        resolved = cdbext.resolveSymbol(qstrdupSymbolName)
-        if resolved:
-            name = resolved[0].split('!')[1]
-            namespaceIndex = name.find('::')
-            if namespaceIndex > 0:
-                namespace = name[:namespaceIndex + 2]
+            resolved = cdbext.resolveSymbol(qstrdupSymbolName)
+            if resolved:
+                name = resolved[0].split('!')[1]
+                namespaceIndex = name.find('::')
+                if namespaceIndex > 0:
+                    namespace = name[:namespaceIndex + 2]
+            self.qtCustomEventFunc = self.parseAndEvaluate(
+                '%s!%sQObject::customEvent' %
+                (self.qtCoreModuleName(), namespace)).address()
         self.qtNamespace = lambda: namespace
-        self.qtCustomEventFunc = self.parseAndEvaluate(
-            '%s!%sQObject::customEvent' %
-            (self.qtCoreModuleName(), namespace)).address()
         return namespace
 
     def qtVersion(self):
@@ -477,6 +480,10 @@ class Dumper(DumperBase):
             return None
 
         nativeValue = value.nativeValue
+        if nativeValue is None:
+            if not self.isExpanded():
+                raise Exception("Casting not expanded values is to expensive")
+            nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
         castVal = nativeVtCastValue(nativeValue)
         if castVal is not None:
             val = self.fromNativeValue(castVal)
@@ -484,6 +491,7 @@ class Dumper(DumperBase):
             val = self.Value(self)
             val.laddress = value.pointer()
             val._type = value.type.dereference()
+            val.nativeValue = value.nativeValue
 
         return val
 
@@ -491,7 +499,7 @@ class Dumper(DumperBase):
         raise Exception("cdb does not support calling functions")
 
     def nameForCoreId(self, id):
-        for dll in ['Utilsd4', 'Utils4']:
+        for dll in ['Utilsd', 'Utils']:
             idName = cdbext.call('%s!Utils::nameForId(%d)' % (dll, id))
             if idName is not None:
                 break

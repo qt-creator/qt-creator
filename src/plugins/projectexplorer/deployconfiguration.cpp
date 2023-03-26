@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "deployconfiguration.h"
 
@@ -8,6 +8,7 @@
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -30,7 +31,7 @@ DeployConfiguration::DeployConfiguration(Target *target, Id id)
 {
     QTC_CHECK(target && target == this->target());
     //: Default DeployConfiguration display name
-    setDefaultDisplayName(tr("Deploy locally"));
+    setDefaultDisplayName(Tr::tr("Deploy locally"));
 }
 
 BuildStepList *DeployConfiguration::stepList()
@@ -248,7 +249,7 @@ DefaultDeployConfigurationFactory::DefaultDeployConfigurationFactory()
     setConfigBaseId("ProjectExplorer.DefaultDeployConfiguration");
     addSupportedTargetDeviceType(Constants::DESKTOP_DEVICE_TYPE);
     //: Display name of the default deploy configuration
-    setDefaultDisplayName(DeployConfiguration::tr("Deploy Configuration"));
+    setDefaultDisplayName(Tr::tr("Deploy Configuration"));
 }
 
 } // namespace ProjectExplorer

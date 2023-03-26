@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -327,6 +327,10 @@ public:
     std::optional<SemanticTokensOptions> semanticTokensProvider() const;
     void setSemanticTokensProvider(const SemanticTokensOptions &semanticTokensProvider);
     void clearSemanticTokensProvider() { remove(semanticTokensProviderKey); }
+
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> callHierarchyProvider() const;
+    void setCallHierarchyProvider(const std::variant<bool, WorkDoneProgressOptions> &callHierarchyProvider);
+    void clearCallHierarchyProvider() { remove(callHierarchyProviderKey); }
 
     // The server provides workspace symbol support.
     std::optional<std::variant<bool, WorkDoneProgressOptions>> workspaceSymbolProvider() const;

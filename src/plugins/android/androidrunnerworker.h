@@ -1,5 +1,5 @@
 // Copyright (C) 2018 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 
 #pragma once
@@ -15,6 +15,7 @@ QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
 
+namespace Utils { class FilePath; }
 namespace ProjectExplorer { class RunWorker; }
 
 namespace Android {
@@ -100,7 +101,7 @@ private:
     int m_apiLevel = -1;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
-    QString m_debugServerPath;
+    Utils::FilePath m_debugServerPath; // On build device, typically as part of ndk
     bool m_useAppParamsForQmlDebugger = false;
 };
 

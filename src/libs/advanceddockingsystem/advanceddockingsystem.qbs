@@ -34,7 +34,6 @@ QtcLibrary {
             "workspacedialog.cpp", "workspacedialog.h",
             "workspacemodel.cpp", "workspacemodel.h",
             "workspaceview.cpp", "workspaceview.h",
-            "workspacedialog.ui"
         ]
     }
 

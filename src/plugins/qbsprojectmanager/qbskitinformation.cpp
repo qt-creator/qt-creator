@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbskitinformation.h"
 
@@ -35,7 +35,7 @@ private:
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
     void refresh() override { m_contentLabel->setText(QbsKitAspect::representation(kit())); }
 
-    void addToLayout(Utils::LayoutBuilder &builder) override
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override
     {
         addMutableAction(m_contentLabel);
         builder.addItem(m_contentLabel);

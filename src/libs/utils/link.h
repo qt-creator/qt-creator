@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -23,12 +23,7 @@ public:
         , targetColumn(column)
     {}
 
-    static Link fromString(const QString &fileName,
-                           bool canContainLineNumber = false,
-                           QString *postfix = nullptr);
-    static Link fromFilePath(const FilePath &filePath,
-                             bool canContainLineNumber = false,
-                             QString *postfix = nullptr);
+    static Link fromString(const QString &filePathWithNumbers, bool canContainLineNumber = false);
 
     bool hasValidTarget() const
     { return !targetFilePath.isEmpty(); }
@@ -46,6 +41,9 @@ public:
     }
     bool operator!=(const Link &other) const { return !(*this == other); }
 
+    friend size_t qHash(const Link &l, uint seed = 0)
+    { return qHashMulti(seed, l.targetFilePath, l.targetLine, l.targetColumn); }
+
     int linkTextStart = -1;
     int linkTextEnd = -1;
 
@@ -53,8 +51,6 @@ public:
     int targetLine;
     int targetColumn;
 };
-
-QTCREATOR_UTILS_EXPORT size_t qHash(const Link &l);
 
 using LinkHandler = std::function<void(const Link &)>;
 using Links = QList<Link>;

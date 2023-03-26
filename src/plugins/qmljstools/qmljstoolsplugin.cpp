@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsbundleprovider.h"
 #include "qmljscodestylesettingspage.h"
@@ -48,14 +48,9 @@ QmlJSToolsPlugin::~QmlJSToolsPlugin()
     delete d;
 }
 
-bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
+void QmlJSToolsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error)
-
     d = new QmlJSToolsPluginPrivate;
-
-    return true;
 }
 
 QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()

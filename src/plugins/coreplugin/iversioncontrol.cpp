@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iversioncontrol.h"
+
+#include "coreplugintr.h"
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
@@ -53,7 +55,7 @@ namespace Core {
 
 QString IVersionControl::vcsOpenText() const
 {
-    return tr("Open with VCS (%1)").arg(displayName());
+    return Tr::tr("Open with VCS (%1)").arg(displayName());
 }
 
 QString IVersionControl::vcsMakeWritableText() const

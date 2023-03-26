@@ -1,7 +1,7 @@
 include(../valgrind.cmake)
 
 add_qtc_test(tst_callgrindparsertests
-  DEPENDS Utils Core ProjectExplorer Debugger Qt5::Core Qt5::Network
+  DEPENDS Utils Core ProjectExplorer Debugger Qt::Core Qt::Network
   DEFINES
     PARSERTESTS_DATA_DIR="${CMAKE_CURRENT_LIST_DIR}/data"
     CALLGRINDPARSERTESTS

@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "currentprojectfilter.h"
-#include "projecttree.h"
+
 #include "project.h"
+#include "projectexplorertr.h"
+#include "projecttree.h"
 
 #include <utils/algorithm.h>
 
@@ -15,8 +17,8 @@ CurrentProjectFilter::CurrentProjectFilter()
     : BaseFileFilter()
 {
     setId("Files in current project");
-    setDisplayName(tr("Files in Current Project"));
-    setDescription(tr("Matches all files from the current document's project. Append \"+<number>\" "
+    setDisplayName(Tr::tr("Files in Current Project"));
+    setDescription(Tr::tr("Matches all files from the current document's project. Append \"+<number>\" "
                       "or \":<number>\" to jump to the given line number. Append another "
                       "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setDefaultShortcutString("p");

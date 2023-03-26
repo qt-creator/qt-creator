@@ -17,7 +17,7 @@
     Most \QC project wizards enable you to choose the build system to use for
     building the project: qmake, CMake, Meson, or Qbs. qmake is installed and
     configured when you install Qt. To use one of the other supported build
-    systems, you need to set it up, as described in the the following sections:
+    systems, you need to set it up, as described in the following sections:
 
     \list
 

@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customwizardpage.h"
+
 #include "customwizardparameters.h"
+#include "../projectexplorertr.h"
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -406,7 +408,7 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
     m_pathChooser(new PathChooser)
 {
     m_pathChooser->setHistoryCompleter(QLatin1String("PE.ProjectDir.History"));
-    addRow(tr("Path:"), m_pathChooser);
+    addRow(Tr::tr("Path:"), m_pathChooser);
     connect(m_pathChooser, &PathChooser::validChanged, this, &QWizardPage::completeChanged);
 }
 

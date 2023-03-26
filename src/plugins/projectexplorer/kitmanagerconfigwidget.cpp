@@ -1,14 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "kitmanagerconfigwidget.h"
-#include "projectconfiguration.h"
 
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
-#include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "task.h"
 
 #include <utils/algorithm.h>
@@ -46,11 +45,11 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    auto label = new QLabel(tr("Name:"));
-    label->setToolTip(tr("Kit name and icon."));
+    auto label = new QLabel(Tr::tr("Name:"));
+    label->setToolTip(Tr::tr("Kit name and icon."));
 
     QString toolTip =
-        tr("<html><head/><body><p>The name of the kit suitable for generating "
+        Tr::tr("<html><head/><body><p>The name of the kit suitable for generating "
            "directory names. This value is used for the variable <i>%1</i>, "
            "which for example determines the name of the shadow build directory."
            "</p></body></html>").arg(QLatin1String("Kit:FileSystemName"));
@@ -59,7 +58,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
     m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
 
-    auto fsLabel = new QLabel(tr("File system name:"));
+    auto fsLabel = new QLabel(Tr::tr("File system name:"));
     fsLabel->setToolTip(toolTip);
     connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged,
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
@@ -70,10 +69,10 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
         fsLabel, m_fileSystemFriendlyNameLineEdit
     }.attachTo(this, WithFormAlignment);
 
-    m_iconButton->setToolTip(tr("Kit icon."));
-    auto setIconAction = new QAction(tr("Select Icon..."), this);
+    m_iconButton->setToolTip(Tr::tr("Kit icon."));
+    auto setIconAction = new QAction(Tr::tr("Select Icon..."), this);
     m_iconButton->addAction(setIconAction);
-    auto resetIconAction = new QAction(tr("Reset to Device Default Icon"), this);
+    auto resetIconAction = new QAction(Tr::tr("Reset to Device Default Icon"), this);
     m_iconButton->addAction(resetIconAction);
 
     discard();
@@ -183,7 +182,7 @@ QString KitManagerConfigWidget::validityMessage() const
 {
     Tasks tmp;
     if (!m_hasUniqueName)
-        tmp.append(CompileTask(Task::Warning, tr("Display name is not unique.")));
+        tmp.append(CompileTask(Task::Warning, Tr::tr("Display name is not unique.")));
 
     return m_modifiedKit->toHtml(tmp);
 }
@@ -276,7 +275,7 @@ void KitManagerConfigWidget::setIcon()
         if (factory->icon().isNull())
             continue;
         QAction *action = iconMenu.addAction(factory->icon(),
-                                             tr("Default for %1").arg(factory->displayName()),
+                                             Tr::tr("Default for %1").arg(factory->displayName()),
                                              [this, factory] {
                                                  m_iconButton->setIcon(factory->icon());
                                                  m_modifiedKit->setDeviceTypeForIcon(
@@ -287,9 +286,9 @@ void KitManagerConfigWidget::setIcon()
     }
     iconMenu.addSeparator();
     iconMenu.addAction(PathChooser::browseButtonLabel(), [this] {
-        const FilePath path = FileUtils::getOpenFilePath(this, tr("Select Icon"),
+        const FilePath path = FileUtils::getOpenFilePath(this, Tr::tr("Select Icon"),
                                                          m_modifiedKit->iconPath(),
-                                                         tr("Images (*.png *.xpm *.jpg)"));
+                                                         Tr::tr("Images (*.png *.xpm *.jpg)"));
         if (path.isEmpty())
             return;
         const QIcon icon(path.toString());

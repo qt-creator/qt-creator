@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -48,7 +48,7 @@ const char C_PROBLEM_PANE[]        = "Core.ProblemPane";
 const char C_GENERAL_OUTPUT_PANE[] = "Core.GeneralOutputPane";
 
 // Default editor kind
-const char K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Plain Text Editor");
+const char K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Plain Text Editor");
 const char K_DEFAULT_TEXT_EDITOR_ID[] = "Core.PlainTextEditor";
 const char K_DEFAULT_BINARY_EDITOR_ID[] = "Core.BinaryEditor";
 
@@ -86,11 +86,11 @@ const char CYCLE_MODE_SELECTOR_STYLE[] =
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
 const char THEMEOPTIONS[]          = "QtCreator.ThemeOptions";
 
-const char TR_SHOW_LEFT_SIDEBAR[]  = QT_TRANSLATE_NOOP("Core", "Show Left Sidebar");
-const char TR_HIDE_LEFT_SIDEBAR[]  = QT_TRANSLATE_NOOP("Core", "Hide Left Sidebar");
+const char TR_SHOW_LEFT_SIDEBAR[] = QT_TRANSLATE_NOOP("QtC::Core", "Show Left Sidebar");
+const char TR_HIDE_LEFT_SIDEBAR[] = QT_TRANSLATE_NOOP("QtC::Core", "Hide Left Sidebar");
 
-const char TR_SHOW_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("Core", "Show Right Sidebar");
-const char TR_HIDE_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("Core", "Hide Right Sidebar");
+const char TR_SHOW_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("QtC::Core", "Show Right Sidebar");
+const char TR_HIDE_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("QtC::Core", "Hide Right Sidebar");
 
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";
 const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
@@ -190,7 +190,7 @@ const char G_TOUCHBAR_NAVIGATION[] = "QtCreator.Group.TouchBar.Navigation";
 const char G_TOUCHBAR_OTHER[]      = "QtCreator.Group.TouchBar.Other";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
-const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("Core", "Qt");
+const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("QtC::Core", "Qt");
 const char WIZARD_KIND_UNKNOWN[] = "unknown";
 const char WIZARD_KIND_PROJECT[] = "project";
 const char WIZARD_KIND_FILE[] = "file";
@@ -209,7 +209,7 @@ const char SETTINGS_THEME[] = "Core/CreatorTheme";
 const char DEFAULT_THEME[] = "flat";
 const char DEFAULT_DARK_THEME[] = "flat-dark";
 
-const char TR_CLEAR_MENU[]         = QT_TRANSLATE_NOOP("Core", "Clear Menu");
+const char TR_CLEAR_MENU[]         = QT_TRANSLATE_NOOP("QtC::Core", "Clear Menu");
 
 const int MODEBAR_ICON_SIZE = 34;
 const int MODEBAR_ICONSONLY_BUTTON_SIZE = MODEBAR_ICON_SIZE + 4;

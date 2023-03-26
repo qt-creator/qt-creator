@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "errorlistmodel.h"
 #include "error.h"
@@ -104,7 +104,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
     if (!fn.isEmpty()) {
         const QString location = withLocation || path == frame.object()
                 ? QString::fromLatin1(" in %2").arg(path) : QString();
-        return QCoreApplication::translate("Valgrind", "%1%2").arg(fn, location);
+        return Tr::tr("%1%2").arg(fn, location);
     }
     if (!path.isEmpty())
         return path;
@@ -113,8 +113,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
 
 QString ErrorListModel::errorLocation(const Error &error) const
 {
-    return QCoreApplication::translate("Valgrind", "in %1")
-        .arg(makeFrameName(findRelevantFrame(error), true));
+    return Tr::tr("in %1").arg(makeFrameName(findRelevantFrame(error), true));
 }
 
 void ErrorListModel::addError(const Error &error)

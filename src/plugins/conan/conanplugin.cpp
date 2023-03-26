@@ -1,17 +1,18 @@
 // Copyright (C) 2018 Jochen Seemann
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "conanplugin.h"
 
 #include "conanconstants.h"
 #include "conaninstallstep.h"
-#include "conanplugin.h"
 #include "conansettings.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -20,8 +21,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace ConanPackageManager {
-namespace Internal {
+namespace Conan::Internal {
 
 class ConanPluginPrivate
 {
@@ -34,21 +34,13 @@ ConanPlugin::~ConanPlugin()
     delete d;
 }
 
-void ConanPlugin::extensionsInitialized()
-{ }
-
-bool ConanPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ConanPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new ConanPluginPrivate;
     conanSettings()->readSettings(ICore::settings());
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &ConanPlugin::projectAdded);
-
-    return true;
 }
 
 static void connectTarget(Project *project, Target *target)
@@ -91,6 +83,4 @@ FilePath ConanPlugin::conanFilePath(Project *project, const FilePath &defaultFil
     return defaultFilePath;
 }
 
-
-} // namespace Internal
-} // namespace ConanPackageManager
+} // Conan::Internal

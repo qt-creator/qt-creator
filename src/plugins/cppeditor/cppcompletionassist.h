@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -61,7 +61,7 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 public:
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
-    TextEditor::AssistInterface *createAssistInterface(
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
         const Utils::FilePath &filePath,
         const TextEditor::TextEditorWidget *textEditorWidget,
         const CPlusPlus::LanguageFeatures &languageFeatures,
@@ -74,7 +74,7 @@ public:
     InternalCppCompletionAssistProcessor();
     ~InternalCppCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync() override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal();
@@ -86,7 +86,7 @@ private:
     int startCompletionHelper();
     bool tryObjCCompletion();
     bool objcKeywordsWanted() const;
-    int startCompletionInternal(const QString &fileName,
+    int startCompletionInternal(const Utils::FilePath &filePath,
                                 int line, int positionInBlock,
                                 const QString &expression,
                                 int endOfExpression);
@@ -122,10 +122,10 @@ private:
     void addCompletionItem(CPlusPlus::Symbol *symbol,
                            int order = 0);
     void addKeywords();
-    void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
+    void addMacros(const Utils::FilePath &filePath, const CPlusPlus::Snapshot &snapshot);
     void addMacros_helper(const CPlusPlus::Snapshot &snapshot,
-                          const QString &fileName,
-                          QSet<QString> *processed,
+                          const Utils::FilePath &filePath,
+                          QSet<Utils::FilePath> *processed,
                           QSet<QString> *definedMacros);
 
     enum {
@@ -135,6 +135,7 @@ private:
     };
 
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
+    const CppCompletionAssistInterface *cppInterface() const;
     CppAssistProposalModelPtr m_model;
 };
 

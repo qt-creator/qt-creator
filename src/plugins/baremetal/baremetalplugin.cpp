@@ -1,6 +1,6 @@
 // Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "baremetalplugin.h"
 
@@ -42,7 +42,6 @@ public:
     }
 };
 
-
 // BareMetalPluginPrivate
 
 class BareMetalPluginPrivate
@@ -57,13 +56,7 @@ public:
     DebugServerProvidersSettingsPage debugServerProviderSettinsPage;
     DebugServerProviderManager debugServerProviderManager;
     BareMetalDeployConfigurationFactory deployConfigurationFactory;
-
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<BareMetalDebugSupport>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigurationFactory.runConfigurationId(),
-         customRunConfigurationFactory.runConfigurationId()}
-    };
+    BareMetalDebugSupportFactory runWorkerFactory;
 };
 
 // BareMetalPlugin
@@ -73,13 +66,9 @@ BareMetalPlugin::~BareMetalPlugin()
     delete d;
 }
 
-bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorString)
+void BareMetalPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new BareMetalPluginPrivate;
-    return true;
 }
 
 void BareMetalPlugin::extensionsInitialized()

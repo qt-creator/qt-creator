@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,8 +8,8 @@
 
 #include <QDialog>
 #include <QFutureWatcher>
+#include <QList>
 #include <QObject>
-#include <QQueue>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -42,17 +42,15 @@ public:
 
     static TestRunner* instance();
 
-    void setSelectedTests(const QList<ITestConfiguration *> &selected);
+    void runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests);
     void runTest(TestRunMode mode, const ITestTreeItem *item);
     bool isTestRunning() const { return m_executingTests; }
-
-    void prepareToRunTests(TestRunMode mode);
 
 signals:
     void testRunStarted();
     void testRunFinished();
     void requestStopTestRun();
-    void testResultReady(const TestResultPtr &result);
+    void testResultReady(const TestResult &result);
     void hadDisabledTests(int disabled);
     void reportSummary(const QString &id, const QHash<ResultType, int> &summary);
 
@@ -64,23 +62,22 @@ private:
 
     int precheckTestConfigurations();
     bool currentConfigValid();
-    void setUpProcess();
     void setUpProcessEnv();
     void scheduleNext();
     void cancelCurrent(CancelReason reason);
     void onProcessDone();
     void resetInternalPointers();
 
-    void runTests();
+    void runTestsHelper();
     void debugTests();
     void runOrDebugTests();
     void reportResult(ResultType type, const QString &description);
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
-    QFutureWatcher<TestResultPtr> m_futureWatcher;
-    QFutureInterface<TestResultPtr> *m_fakeFutureInterface = nullptr;
-    QQueue<ITestConfiguration *> m_selectedTests;
+    QFutureWatcher<TestResult> m_futureWatcher;
+    QFutureInterface<TestResult> *m_fakeFutureInterface = nullptr;
+    QList<ITestConfiguration *> m_selectedTests;
     bool m_executingTests = false;
     bool m_canceled = false;
     ITestConfiguration *m_currentConfig = nullptr;

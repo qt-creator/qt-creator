@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "copytaskhandler.h"
+
+#include "projectexplorertr.h"
 
 #include <coreplugin/coreconstants.h>
 
@@ -19,11 +21,11 @@ void CopyTaskHandler::handle(const Tasks &tasks)
         switch (task.type) {
         case Task::Error:
             //: Task is of type: error
-            type = tr("error:") + QLatin1Char(' ');
+            type = Tr::tr("error:") + QLatin1Char(' ');
             break;
         case Task::Warning:
             //: Task is of type: warning
-            type = tr("warning:") + QLatin1Char(' ');
+            type = Tr::tr("warning:") + QLatin1Char(' ');
             break;
         default:
             break;

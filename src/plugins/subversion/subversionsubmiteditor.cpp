@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "subversionsubmiteditor.h"
 #include "subversionplugin.h"
+#include "subversiontr.h"
 
 #include <coreplugin/idocument.h>
 #include <vcsbase/submiteditorwidget.h>
@@ -13,7 +14,7 @@ using namespace Subversion::Internal;
 SubversionSubmitEditor::SubversionSubmitEditor() :
     VcsBase::VcsBaseSubmitEditor(new VcsBase::SubmitEditorWidget)
 {
-    document()->setPreferredDisplayName(tr("Subversion Submit"));
+    document()->setPreferredDisplayName(Tr::tr("Subversion Submit"));
     setDescriptionMandatory(false);
 }
 

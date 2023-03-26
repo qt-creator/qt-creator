@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testresultmodel.h"
 
@@ -16,12 +16,14 @@
 #include <QFontMetrics>
 #include <QIcon>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 /********************************* TestResultItem ******************************************/
 
-TestResultItem::TestResultItem(const TestResultPtr &testResult)
+TestResultItem::TestResultItem(const TestResult &testResult)
     : m_testResult(testResult)
 {
 }
@@ -71,9 +73,9 @@ QVariant TestResultItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DecorationRole: {
-        if (!m_testResult)
-            return QVariant();
-        const ResultType result = m_testResult->result();
+        if (!m_testResult.isValid())
+            return {};
+        const ResultType result = m_testResult.result();
         if (result == ResultType::MessageLocation && parent())
             return parent()->data(column, role);
         if (result == ResultType::TestStart)
@@ -81,17 +83,16 @@ QVariant TestResultItem::data(int column, int role) const
         return testResultIcon(result);
     }
     case Qt::DisplayRole:
-        return m_testResult ? m_testResult->outputString(true) : QVariant();
+        return m_testResult.isValid() ? m_testResult.outputString(true) : QVariant();
     default:
-        return Utils::TreeItem::data(column, role);
+        return TreeItem::data(column, role);
     }
 }
 
 void TestResultItem::updateDescription(const QString &description)
 {
-    QTC_ASSERT(m_testResult, return);
-
-    m_testResult->setDescription(description);
+    QTC_ASSERT(m_testResult.isValid(), return);
+    m_testResult.setDescription(description);
 }
 
 static bool isSignificant(ResultType type)
@@ -117,7 +118,7 @@ void TestResultItem::updateResult(bool &changed, ResultType addedChildType,
                                   const std::optional<SummaryEvaluation> &summary)
 {
     changed = false;
-    if (m_testResult->result() != ResultType::TestStart)
+    if (m_testResult.result() != ResultType::TestStart)
         return;
 
     if (!isSignificant(addedChildType) || (addedChildType == ResultType::TestStart && !summary))
@@ -165,13 +166,13 @@ void TestResultItem::updateResult(bool &changed, ResultType addedChildType,
 TestResultItem *TestResultItem::intermediateFor(const TestResultItem *item) const
 {
     QTC_ASSERT(item, return nullptr);
-    const TestResult *otherResult = item->testResult();
+    const TestResult otherResult = item->testResult();
     for (int row = childCount() - 1; row >= 0; --row) {
         TestResultItem *child = childAt(row);
-        const TestResult *testResult = child->testResult();
-        if (testResult->result() != ResultType::TestStart)
+        const TestResult testResult = child->testResult();
+        if (testResult.result() != ResultType::TestStart)
             continue;
-        if (testResult->isIntermediateFor(otherResult))
+        if (testResult.isIntermediateFor(otherResult))
             return child;
     }
     return nullptr;
@@ -179,9 +180,9 @@ TestResultItem *TestResultItem::intermediateFor(const TestResultItem *item) cons
 
 TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem *child)
 {
-    TestResultPtr result(m_testResult->createIntermediateResultFor(child->testResult()));
-    QTC_ASSERT(!result.isNull(), return nullptr);
-    result->setResult(ResultType::TestStart);
+    TestResult result = child->testResult().intermediateResult();
+    QTC_ASSERT(result.isValid(), return nullptr);
+    result.setResult(ResultType::TestStart);
     TestResultItem *intermediate = new TestResultItem(result);
     appendChild(intermediate);
     return intermediate;
@@ -189,17 +190,34 @@ TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem
 
 QString TestResultItem::resultString() const
 {
-    if (testResult()->result() != ResultType::TestStart)
-        return TestResult::resultToString(testResult()->result());
+    if (testResult().result() != ResultType::TestStart)
+        return TestResult::resultToString(testResult().result());
     if (!m_summaryResult)
-        return QString();
+        return {};
     return m_summaryResult->failed ? QString("FAIL") : QString("PASS");
+}
+
+//! \return true if descendant types have changed, false otherwise
+bool TestResultItem::updateDescendantTypes(ResultType t)
+{
+    if (t == ResultType::TestStart || t == ResultType::TestEnd) // these are special
+        return false;
+
+    if (m_descendantsTypes.contains(t))
+        return false;
+    m_descendantsTypes.insert(t);
+    return true;
+}
+
+bool TestResultItem::descendantTypesContainsAnyOf(const QSet<ResultType> &types) const
+{
+    return !m_descendantsTypes.isEmpty() && m_descendantsTypes.intersects(types);
 }
 
 /********************************* TestResultModel *****************************************/
 
 TestResultModel::TestResultModel(QObject *parent)
-    : Utils::TreeModel<TestResultItem>(new TestResultItem(TestResultPtr()), parent)
+    : TreeModel<TestResultItem>(new TestResultItem({}), parent)
 {
     connect(TestRunner::instance(), &TestRunner::reportSummary,
             this, [this](const QString &id, const QHash<ResultType, int> &summary){
@@ -210,13 +228,14 @@ TestResultModel::TestResultModel(QObject *parent)
 void TestResultModel::updateParent(const TestResultItem *item)
 {
     QTC_ASSERT(item, return);
-    QTC_ASSERT(item->testResult(), return);
+    QTC_ASSERT(item->testResult().isValid(), return);
     TestResultItem *parentItem = item->parent();
     if (parentItem == rootItem()) // do not update invisible root item
         return;
     bool changed = false;
-    parentItem->updateResult(changed, item->testResult()->result(), item->summaryResult());
-    if (!changed)
+    parentItem->updateResult(changed, item->testResult().result(), item->summaryResult());
+    bool changedType = parentItem->updateDescendantTypes(item->testResult().result());
+    if (!changed && !changedType)
         return;
     emit dataChanged(parentItem->index(), parentItem->index());
     updateParent(parentItem);
@@ -232,16 +251,16 @@ static bool isFailed(ResultType type)
     }
 }
 
-void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
+void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpand)
 {
     const int lastRow = rootItem()->childCount() - 1;
-    if (testResult->result() == ResultType::MessageCurrentTest) {
+    if (testResult.result() == ResultType::MessageCurrentTest) {
         // MessageCurrentTest should always be the last top level item
         if (lastRow >= 0) {
             TestResultItem *current = rootItem()->childAt(lastRow);
-            const TestResult *result = current->testResult();
-            if (result && result->result() == ResultType::MessageCurrentTest) {
-                current->updateDescription(testResult->description());
+            const TestResult result = current->testResult();
+            if (result.isValid() && result.result() == ResultType::MessageCurrentTest) {
+                current->updateDescription(testResult.description());
                 emit dataChanged(current->index(), current->index());
                 return;
             }
@@ -251,22 +270,22 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         return;
     }
 
-    m_testResultCount[testResult->id()][testResult->result()]++;
+    m_testResultCount[testResult.id()][testResult.result()]++;
 
     TestResultItem *newItem = new TestResultItem(testResult);
     TestResultItem *root = nullptr;
     if (AutotestPlugin::settings()->displayApplication) {
-        const QString application = testResult->id();
+        const QString application = testResult.id();
         if (!application.isEmpty()) {
             root = rootItem()->findFirstLevelChild([&application](TestResultItem *child) {
                 QTC_ASSERT(child, return false);
-                return child->testResult()->id() == application;
+                return child->testResult().id() == application;
             });
 
             if (!root) {
-                TestResult *tmpAppResult = new TestResult(application, application);
-                tmpAppResult->setResult(ResultType::Application);
-                root = new TestResultItem(TestResultPtr(tmpAppResult));
+                TestResult tmpAppResult(application, application);
+                tmpAppResult.setResult(ResultType::Application);
+                root = new TestResultItem(tmpAppResult);
                 if (lastRow >= 0)
                     rootItem()->insertChild(lastRow, root);
                 else
@@ -276,20 +295,20 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     }
 
     TestResultItem *parentItem = findParentItemFor(newItem, root);
-    addFileName(testResult->fileName().fileName()); // ensure we calculate the results pane correctly
+    addFileName(testResult.fileName().fileName()); // ensure we calculate the results pane correctly
     if (parentItem) {
         parentItem->appendChild(newItem);
         if (autoExpand) {
             parentItem->expand();
             newItem->expand();
-            newItem->forAllChildren([](Utils::TreeItem *it) { it->expand(); });
+            newItem->forAllChildren([](TreeItem *it) { it->expand(); });
         }
         updateParent(newItem);
     } else {
         if (lastRow >= 0) {
             TestResultItem *current = rootItem()->childAt(lastRow);
-            const TestResult *result = current->testResult();
-            if (result && result->result() == ResultType::MessageCurrentTest) {
+            const TestResult result = current->testResult();
+            if (result.isValid() && result.result() == ResultType::MessageCurrentTest) {
                 rootItem()->insertChild(current->index().row(), newItem);
                 return;
             }
@@ -298,8 +317,8 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         rootItem()->appendChild(newItem);
     }
 
-    if (isFailed(testResult->result())) {
-        if (const ITestTreeItem *it = testResult->findTestTreeItem()) {
+    if (isFailed(testResult.result())) {
+        if (const ITestTreeItem *it = testResult.findTestTreeItem()) {
             TestTreeModel *model = TestTreeModel::instance();
             model->setData(model->indexForItem(it), true, FailedRole);
         }
@@ -309,7 +328,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
 void TestResultModel::removeCurrentTestMessage()
 {
     TestResultItem *currentMessageItem = rootItem()->findFirstLevelChild([](TestResultItem *it) {
-            return (it->testResult()->result() == ResultType::MessageCurrentTest);
+            return (it->testResult().result() == ResultType::MessageCurrentTest);
     });
     if (currentMessageItem)
         destroyItem(currentMessageItem);
@@ -326,12 +345,11 @@ void TestResultModel::clearTestResults()
     m_widthOfLineNumber = 0;
 }
 
-const TestResult *TestResultModel::testResult(const QModelIndex &idx)
+TestResult TestResultModel::testResult(const QModelIndex &idx)
 {
     if (idx.isValid())
         return itemForIndex(idx)->testResult();
-
-    return nullptr;
+    return {};
 }
 
 void TestResultModel::recalculateMaxWidthOfFileName(const QFont &font)
@@ -383,15 +401,15 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
 {
     QTC_ASSERT(item, return nullptr);
     TestResultItem *root = startItem ? const_cast<TestResultItem *>(startItem) : nullptr;
-    const TestResult *result = item->testResult();
-    const QString &name = result->name();
-    const QString &id = result->id();
+    const TestResult result = item->testResult();
+    const QString &name = result.name();
+    const QString &id = result.id();
 
     if (root == nullptr && !name.isEmpty()) {
         for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
             TestResultItem *tmp = rootItem()->childAt(row);
-            auto tmpTestResult = tmp->testResult();
-            if (tmpTestResult->id() == id && tmpTestResult->name() == name) {
+            const TestResult tmpTestResult = tmp->testResult();
+            if (tmpTestResult.id() == id && tmpTestResult.name() == name) {
                 root = tmp;
                 break;
             }
@@ -401,9 +419,9 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
         return root;
 
     bool needsIntermediate = false;
-    auto predicate = [result, &needsIntermediate](Utils::TreeItem *it) {
+    auto predicate = [result, &needsIntermediate](TreeItem *it) {
         TestResultItem *currentItem = static_cast<TestResultItem *>(it);
-        return currentItem->testResult()->isDirectParentOf(result, &needsIntermediate);
+        return currentItem->testResult().isDirectParentOf(result, &needsIntermediate);
     };
     TestResultItem *parent = root->reverseFindAnyChild(predicate);
     if (parent) {
@@ -437,7 +455,7 @@ void TestResultFilterModel::enableAllResultTypes(bool enabled)
                   << ResultType::MessageFatal << ResultType::Invalid << ResultType::BlacklistedPass
                   << ResultType::BlacklistedFail << ResultType::BlacklistedXFail << ResultType::BlacklistedXPass
                   << ResultType::Benchmark
-                  << ResultType::MessageCurrentTest << ResultType::TestStart << ResultType::TestEnd
+                  << ResultType::MessageCurrentTest
                   << ResultType::MessageInfo << ResultType::MessageSystem << ResultType::Application
                   << ResultType::MessageError;
     } else {
@@ -480,7 +498,7 @@ bool TestResultFilterModel::hasResults()
     return rowCount(QModelIndex());
 }
 
-const TestResult *TestResultFilterModel::testResult(const QModelIndex &index) const
+TestResult TestResultFilterModel::testResult(const QModelIndex &index) const
 {
     return m_sourceModel->testResult(mapToSource(index));
 }
@@ -495,33 +513,20 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     QModelIndex index = m_sourceModel->index(sourceRow, 0, sourceParent);
     if (!index.isValid())
         return false;
-    ResultType resultType = m_sourceModel->testResult(index)->result();
+
+    const ResultType resultType = m_sourceModel->testResult(index).result();
     if (resultType == ResultType::TestStart) {
-        TestResultItem *item = m_sourceModel->itemForIndex(index);
-        QTC_ASSERT(item, return false);
-        if (!item->summaryResult())
-            return true;
-        return acceptTestCaseResult(index);
+        auto item = m_sourceModel->itemForIndex(index);
+        return item && item->descendantTypesContainsAnyOf(m_enabled);
+    } else if (resultType == ResultType::TestEnd) {
+        auto item = m_sourceModel->itemForIndex(index);
+        if (!item)
+            return false;
+        auto parent = item->parent();
+        return parent && parent->descendantTypesContainsAnyOf(m_enabled);
     }
+
     return m_enabled.contains(resultType);
-}
-
-bool TestResultFilterModel::acceptTestCaseResult(const QModelIndex &srcIndex) const
-{
-    for (int row = 0, count = m_sourceModel->rowCount(srcIndex); row < count; ++row) {
-        const QModelIndex &child = m_sourceModel->index(row, 0, srcIndex);
-        TestResultItem *item = m_sourceModel->itemForIndex(child);
-        ResultType type = item->testResult()->result();
-
-        if (type == ResultType::TestStart) {
-            if (!item->summaryResult())
-                return true;
-            if (acceptTestCaseResult(child))
-                return true;
-        } else if (m_enabled.contains(type))
-            return true;
-    }
-    return false;
 }
 
 } // namespace Internal

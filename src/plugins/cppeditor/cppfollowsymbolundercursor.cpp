@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppfollowsymbolundercursor.h"
 
@@ -25,8 +25,7 @@
 
 using namespace CPlusPlus;
 using namespace TextEditor;
-
-using Link = Utils::Link;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -182,13 +181,13 @@ Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() con
 Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snapshot &snapshot,
                           QSet<QString> *processed)
 {
-    if (doc && !name.startsWith('<') && !processed->contains(doc->fileName())) {
-        processed->insert(doc->fileName());
+    if (doc && !name.startsWith('<') && !processed->contains(doc->filePath().path())) {
+        processed->insert(doc->filePath().path());
 
         for (const Macro &macro : doc->definedMacros()) {
             if (macro.name() == name) {
                 Link link;
-                link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
+                link.targetFilePath = macro.filePath();
                 link.targetLine = macro.line();
                 return link;
             }
@@ -625,7 +624,7 @@ void FollowSymbolUnderCursor::findLink(
             const QList<Document::Include> includes = doc->resolvedIncludes();
             for (const Document::Include &incl : includes) {
                 if (incl.line() == lineno) {
-                    link.targetFilePath = Utils::FilePath::fromString(incl.resolvedFileName());
+                    link.targetFilePath = incl.resolvedFileName();
                     link.linkTextStart = beginOfToken + 1;
                     link.linkTextEnd = endOfToken - 1;
                     processLinkCallback(link);
@@ -648,12 +647,12 @@ void FollowSymbolUnderCursor::findLink(
         if (macro->name() == name)
             return processLinkCallback(link); //already on definition!
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
-        const QString fileName = use->macro().fileName();
-        if (fileName == CppModelManager::editorConfigurationFileName()) {
+        const FilePath filePath = use->macro().filePath();
+        if (filePath.path() == CppModelManager::editorConfigurationFileName().path()) {
             editorWidget->showPreProcessorWidget();
-        } else if (fileName != CppModelManager::configurationFileName()) {
+        } else if (filePath.path() != CppModelManager::configurationFileName().path()) {
             const Macro &macro = use->macro();
-            link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
+            link.targetFilePath = macro.filePath();
             link.targetLine = macro.line();
             link.linkTextStart = use->utf16charsBegin();
             link.linkTextEnd = use->utf16charsEnd();
@@ -684,8 +683,7 @@ void FollowSymbolUnderCursor::findLink(
         for (const LookupItem &r : resolvedSymbols) {
             if (Symbol *d = r.declaration()) {
                 if (d->asDeclaration() || d->asFunction()) {
-                    const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
-                    if (data.filePath().toString() == fileName) {
+                    if (data.filePath() == d->filePath()) {
                         if (line == d->line() && positionInBlock >= d->column()) {
                             // TODO: check the end
                             result = r; // take the symbol under cursor.
@@ -866,4 +864,4 @@ void FollowSymbolUnderCursor::setVirtualFunctionAssistProvider(
     m_virtualFunctionAssistProvider = provider;
 }
 
-} // namespace CppEditor
+} // CppEditor

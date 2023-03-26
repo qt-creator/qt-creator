@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Kläralvdalens Datakonsult AB, a KDAB Group company.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakelocatorfilter.h"
 
@@ -53,7 +53,7 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
         for (const CMakeBuildTarget &target : buildTargets) {
             if (CMakeBuildSystem::filteredOutTarget(target))
                 continue;
-            const int index = target.title.indexOf(entry);
+            const int index = target.title.indexOf(entry, 0, Qt::CaseInsensitive);
             if (index >= 0) {
                 const FilePath path = target.backtrace.isEmpty() ? cmakeProject->projectFilePath()
                                                                  : target.backtrace.last().path;

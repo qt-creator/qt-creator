@@ -1,16 +1,17 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bindingeditorwidget.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <qmljseditor/qmljseditor.h>
+#include <coreplugin/coreplugintr.h>
+#include <coreplugin/icore.h>
+#include <qmljseditor/qmljsautocompleter.h>
 #include <qmljseditor/qmljscompletionassist.h>
+#include <qmljseditor/qmljseditor.h>
+#include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljshighlighter.h>
 #include <qmljseditor/qmljshoverhandler.h>
-#include <qmljseditor/qmljsautocompleter.h>
-#include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljssemantichighlighter.h>
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljstoolsconstants.h>
@@ -76,10 +77,10 @@ bool BindingEditorWidget::event(QEvent *event)
     return QmlJSEditor::QmlJSEditorWidget::event(event);
 }
 
-TextEditor::AssistInterface *BindingEditorWidget::createAssistInterface(
+std::unique_ptr<TextEditor::AssistInterface> BindingEditorWidget::createAssistInterface(
     [[maybe_unused]] TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
 {
-    return new QmlJSEditor::QmlJSCompletionAssistInterface(
+    return std::make_unique<QmlJSEditor::QmlJSCompletionAssistInterface>(
                 textCursor(), Utils::FilePath(),
                 assistReason, qmljsdocument->semanticInfo());
 }
@@ -114,7 +115,7 @@ void BindingDocument::triggerPendingUpdates()
 BindingEditorFactory::BindingEditorFactory()
 {
     setId(BINDINGEDITOR_CONTEXT_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", BINDINGEDITOR_CONTEXT_ID));
+    setDisplayName(::Core::Tr::tr("Binding Editor"));
     setEditorActionHandlers(0);
     addMimeType(BINDINGEDITOR_CONTEXT_ID);
     addMimeType(QmlJSTools::Constants::QML_MIMETYPE);

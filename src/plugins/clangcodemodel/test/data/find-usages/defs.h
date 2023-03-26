@@ -26,3 +26,12 @@ void func2(const int &);
 void func3(int *);
 void func4(const int *);
 void func5(int);
+
+struct S3 {
+    S3();
+};
+
+void s3Use()
+{
+    S3 s3;
+}

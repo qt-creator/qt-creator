@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mercurialeditor.h"
 
@@ -14,8 +14,6 @@
 #include <QString>
 #include <QTextCursor>
 #include <QTextBlock>
-#include <QDir>
-#include <QFileInfo>
 #include <QDebug>
 
 using namespace Utils;
@@ -57,18 +55,17 @@ VcsBase::BaseAnnotationHighlighter *MercurialEditorWidget::createAnnotationHighl
 
 QString MercurialEditorWidget::decorateVersion(const QString &revision) const
 {
-    const QFileInfo fi(source());
-    const QString workingDirectory = fi.absolutePath();
+    const FilePath workingDirectory = source().absolutePath();
     // Format with short summary
-    return m_client->shortDescriptionSync(FilePath::fromString(workingDirectory), revision);
+    return m_client->shortDescriptionSync(workingDirectory, revision);
 }
 
 QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
-    const QFileInfo fi(source());
-    const QString workingDirectory = fi.absolutePath();
+    const FilePath filePath = source();
+    const FilePath workingDirectory = filePath.absolutePath();
     // Retrieve parent revisions
-    return m_client->parentRevisionsSync(FilePath::fromString(workingDirectory), fi.fileName(), revision);
+    return m_client->parentRevisionsSync(workingDirectory, filePath.fileName(), revision);
 }
 
 } // Mercurial::Internal

@@ -1,0 +1,92 @@
+// Copyright (C) 2018 Artur Shepilko
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-vcs-fossil.html
+    \previouspage creator-vcs-cvs.html
+    \nextpage creator-vcs-git.html
+
+    \title Using Fossil
+
+    Fossil is an open source distributed version control system, designed
+    and developed by the creator of SQLite. A stand-alone Fossil executable
+    has a source control management engine, web interface, issue tracker,
+    wiki, and built-in web server. Fossil is available for Linux, Windows,
+    and \macos.
+
+    To use Fossil from \QC, you must install and configure it, as described in
+    the following sections.
+
+    \section1 Configuring Fossil
+
+    \list 1
+        \li Download the \l{http://fossil-scm.org}{Fossil SCM client} and
+            install the \c fossil executable file in your \c PATH.
+
+        \li Create or designate a directory to store local Fossil repositories
+            and remote clones. For example: \c ~/fossils/qt.
+
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol {Version Control} > \uicontrol Fossil, and set the
+            designated directory in the \uicontrol {Default path} field.
+
+            \image qtcreator-preferences-vcs-fossil.webp {Fossil preferences}
+
+    \endlist
+
+    To create a local Fossil repository, select \uicontrol Tools >
+    \uicontrol Fossil > \uicontrol {Create Repository}.
+
+    To clone a remote Fossil repository, select \uicontrol File >
+    \uicontrol {New Project} > \uicontrol {Import Project} >
+    \uicontrol {Fossil Clone}.
+
+    \section1 Additional Fossil Functions
+
+    In addition to the standard version control system functions described in
+    \l {Using Version Control Systems}, the \uicontrol Fossil submenu has
+    the following items:
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \uicontrol Pull
+            \li Pull changes from the remote repository.
+        \row
+            \li \uicontrol Push
+            \li Push committed changes to the remote repository.
+        \row
+            \li \uicontrol Update
+            \li Change the version of the current checkout. Any uncommitted
+                changes are retained and applied to the new checkout.
+        \row
+            \li \uicontrol Settings
+            \li Configure the settings of the local repository.
+    \endtable
+
+    \section1 Fossil Preferences
+
+    To set Fossil preferences, select \uicontrol Edit > \uicontrol Preferences >
+    \uicontrol {Version Control} > \uicontrol Fossil:
+
+    \list
+        \li \uicontrol Command specifies the path to the command line client
+            executable.
+        \li \uicontrol {Default path} sets the path to the directory to store
+            local repositories by default.
+        \li \uicontrol {Default user} specifies an existing user who becomes the
+            author of changes made to the repository.
+        \li \uicontrol {SSL/TLS identity} sets the SSL/TLS client identity key
+            to use for authentication if the server requests it.
+        \li \uicontrol {Log count} sets the maximum number of lines the log can
+            have.
+        \li \uicontrol {Log width} sets the width of log entry lines to 20 or
+            above. The value 0 shows a single line per entry.
+        \li \uicontrol {Timeout} sets a timeout for version control operations.
+        \li \uicontrol {Disable auto sync} disables automatic pull before
+            a commit or update and automatic push after a commit or tag or branch
+            creation.
+    \endlist
+*/

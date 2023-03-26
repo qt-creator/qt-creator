@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilertextmark.h"
 
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerviewmanager.h"
 #include "qmlprofilerstatisticsview.h"
+#include "qmlprofilertr.h"
 
 #include <QLabel>
 #include <QLayout>
@@ -18,7 +19,7 @@ namespace Internal {
 
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerViewManager *viewManager, int typeId,
                                          const FilePath &fileName, int lineNumber)
-    : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY)
+    : TextMark(fileName, lineNumber, {Tr::tr("QML Profiler"), Constants::TEXT_MARK_CATEGORY})
     , m_viewManager(viewManager)
 {
     addTypeId(typeId);

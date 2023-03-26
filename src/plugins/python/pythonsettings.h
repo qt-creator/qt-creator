@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -14,9 +14,8 @@ class PythonSettings : public QObject
     Q_OBJECT
 
 public:
+    PythonSettings();
     ~PythonSettings();
-
-    static void init();
 
     using Interpreter = ProjectExplorer::Interpreter;
 
@@ -47,8 +46,6 @@ public slots:
     void listDetectedPython(const QString &detectionSource, QString *logMessage);
 
 private:
-    PythonSettings();
-
     void initFromSettings(QSettings *settings);
     void writeToSettings(QSettings *settings);
 

@@ -33,7 +33,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
@@ -44,7 +44,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Přidat záložku</translation>
@@ -234,18 +234,14 @@
     </message>
 </context>
 <context>
-    <name>BreakCondition</name>
-    <message>
-        <source>Condition:</source>
-        <translation type="obsolete">Podmínka:</translation>
-    </message>
+    <name>QtC::Debugger</name>
     <message>
         <source>Ignore count:</source>
         <translation type="obsolete">Zastavit teprve po:</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Vyprázdnit prostředí systému</translation>
@@ -497,7 +493,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Vybrat symbol&gt;</translation>
@@ -527,7 +523,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Vkládání kódu</translation>
@@ -702,7 +698,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation type="obsolete">Doplnění kódu</translation>
@@ -732,20 +728,12 @@
         <translation type="obsolete">&amp;Automaticky vložit závorky</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation type="obsolete">Chování</translation>
-    </message>
-    <message>
         <source>&amp;Case-sensitivity:</source>
         <translation type="obsolete">&amp;Rozlišování velkých a malých písmen:</translation>
     </message>
     <message>
         <source>Full</source>
         <translation type="obsolete">Plné</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Žádné</translation>
     </message>
     <message>
         <source>First Letter</source>
@@ -766,10 +754,6 @@
     <message>
         <source>When Triggered</source>
         <translation type="obsolete">Na žádost</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
     </message>
     <message>
         <source>Automatically insert brackets and semicolons when appropriate.</source>
@@ -793,11 +777,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otevřít adresu odkazu</translation>
-    </message>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link as New Page</source>
         <translation>Otevřít odkaz jako novou stránku</translation>
@@ -808,7 +788,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Chyba při vytváření souboru</translation>
@@ -832,18 +812,6 @@
     <message>
         <source> [folder]</source>
         <translation> [složka]</translation>
-    </message>
-    <message>
-        <source>Unable to create the directory %1.</source>
-        <translation type="obsolete">Adresář %1 nelze vytvořit.</translation>
-    </message>
-    <message>
-        <source>Unable to open %1 for writing: %2</source>
-        <translation type="obsolete">Soubor %1 nelze otevřít pro zápis: %2</translation>
-    </message>
-    <message>
-        <source>Error while writing to %1: %2</source>
-        <translation type="obsolete">Chyba při zápisu do %1: %2</translation>
     </message>
     <message>
         <source>Failed to open an editor for &apos;%1&apos;.</source>
@@ -875,16 +843,9 @@ Would you like to overwrite them?</source>
 %2.
 Chcete je nechat přepsat?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Vrátit se k uloženému</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
     </message>
     <message>
         <source>Close All</source>
@@ -1055,10 +1016,6 @@ Chcete je nechat přepsat?</translation>
         <translation>Souřadnice y levého, horního rohu nynějšího editoru, poměrně k obrazovce.</translation>
     </message>
     <message>
-        <source>Close &quot;%1&quot;</source>
-        <translation>Zavřít &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Close Editor</source>
         <translation>Zavřít editor</translation>
     </message>
@@ -1077,18 +1034,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Cannot Open File</source>
         <translation>Nelze otevřít soubor</translation>
-    </message>
-    <message>
-        <source>Cannot open the file for editing with SCC.</source>
-        <translation type="obsolete">Soubor se nepodařilo s pomocí správy verzí udělat zapisovatelný (otevřít pro úpravy).</translation>
-    </message>
-    <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Chyba při nastavení oprávnění pro přístup k souboru</translation>
-    </message>
-    <message>
-        <source>Cannot set permissions to writable.</source>
-        <translation type="obsolete">Soubor se nepodařilo udělat zapisovatelný.</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
@@ -1143,10 +1088,6 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Soubor %1 je pouze pro čtení.</translation>
     </message>
     <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Otevřít s pomocí systému na ověřování verzí (VCS) (%1)</translation>
-    </message>
-    <message>
         <source>Save as ...</source>
         <translation type="obsolete">Uložit jako...</translation>
     </message>
@@ -1179,20 +1120,8 @@ Chcete je nechat přepsat?</translation>
         <translation>Předchozí otevřený dokument na seznamu</translation>
     </message>
     <message>
-        <source>Go Back</source>
-        <translation>Jít zpět</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Jít dopředu</translation>
-    </message>
-    <message>
         <source>Meta+E</source>
         <translation type="obsolete">Meta+E</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="obsolete">Ctrl+E</translation>
     </message>
     <message>
         <source>%1,2</source>
@@ -1217,10 +1146,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>%1,o</source>
         <translation type="obsolete">%1,o</translation>
-    </message>
-    <message>
-        <source>All Files (*)</source>
-        <translation type="obsolete">Všechny soubory (*)</translation>
     </message>
     <message>
         <source>Save %1 As...</source>
@@ -1262,9 +1187,6 @@ Chcete je nechat přepsat?</translation>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation type="obsolete">&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Proměnná&lt;/th&gt;&lt;th&gt;Rozšiřuje se k&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;Název souboru&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;Číslo řádku&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;Číslo sloupce&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;Xová souřadnice polohy editoru na obrazovce&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;Yová souřadnice polohy editoru na obrazovce&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;Šířka editoru v pixelech&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;Výška editoru v pixelech&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;Šířka editoru ve znacích&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;Výška editoru ve znacích&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
     <message>
         <source>Cannot save file</source>
         <translation type="obsolete">Soubor nelze uložit</translation>
@@ -1272,67 +1194,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Cannot save changes to &apos;%1&apos;. Do you want to continue and lose your changes?</source>
         <translation type="obsolete">Změny nelze uložit do souboru &apos;%1&apos;. Chcete přesto pokračovat a ztratit své změny?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Chyba souboru</translation>
-    </message>
-    <message>
-        <source>Overwrite?</source>
-        <translation type="obsolete">Přepsat?</translation>
-    </message>
-    <message>
-        <source>An item named &apos;%1&apos; already exists at this location. Do you want to overwrite it?</source>
-        <translation type="obsolete">V tomto umístění již existuje soubor s názvem &apos;%1&apos;. Chcete jej přepsat?</translation>
-    </message>
-    <message>
-        <source>Save File As</source>
-        <translation type="obsolete">Uložit soubor jako</translation>
-    </message>
-    <message>
-        <source>File is Read Only</source>
-        <translation type="obsolete">Soubor je pouze pro čtení</translation>
-    </message>
-    <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Soubor &lt;i&gt;%1&lt;/i&gt; je pouze pro čtení.</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Otevřít s pomocí systému na řízení verzí (VCS) (%1)</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation type="obsolete">Uložit jako...</translation>
-    </message>
-    <message>
-        <source>Cannot reload %1</source>
-        <translation type="obsolete">%1 se nahrát znovu nepodařilo</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Zapnout %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
-    <message>
-        <source>Edit</source>
-        <translation>Úpravy</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
-    <message>
-        <source>Split Left/Right</source>
-        <translation type="obsolete">Rozdělit vlevo/vpravo</translation>
     </message>
     <message>
         <source>Split Top/Bottom</source>
@@ -1359,70 +1220,12 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Předchozí dokument</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation type="obsolete">Alt+Left</translation>
-    </message>
-    <message>
-        <source>Next Document</source>
-        <translation type="obsolete">Další dokument</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="obsolete">Alt+Right</translation>
-    </message>
-    <message>
-        <source>Previous Group</source>
-        <translation type="obsolete">Předchozí skupina</translation>
-    </message>
-    <message>
-        <source>Next Group</source>
-        <translation type="obsolete">Další skupina</translation>
-    </message>
-    <message>
-        <source>Move Document to Previous Group</source>
-        <translation type="obsolete">Přesunout dokument do předchozí skupiny</translation>
-    </message>
-    <message>
-        <source>Move Document to Next Group</source>
-        <translation type="obsolete">Přesunout dokument do další skupiny</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
-    <message>
-        <source>Go Back</source>
-        <translation type="obsolete">Jít zpět</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation type="obsolete">Jít dopředu</translation>
-    </message>
-    <message>
         <source>Placeholder</source>
         <translation type="obsolete">Zástupný znak</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="obsolete">Zavřít</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>File is writable</source>
-        <translation type="obsolete">Soubor je zapisovatelný</translation>
-    </message>
-    <message>
         <source>Copy full path to clipboard</source>
         <translation type="obsolete">Kopírovat celou cestu do schránky</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
-    <message>
-        <source>General</source>
-        <translation>Obecné</translation>
     </message>
     <message>
         <source>&lt;System Language&gt;</source>
@@ -1445,10 +1248,6 @@ Chcete je nechat přepsat?</translation>
         <translation>Změna jazyka se projeví po novém spuštění Qt Creatoru.</translation>
     </message>
     <message>
-        <source>Environment</source>
-        <translation type="obsolete">Prostředí</translation>
-    </message>
-    <message>
         <source>Variables</source>
         <translation>Proměnné</translation>
     </message>
@@ -1459,14 +1258,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>User &amp;interface color:</source>
         <translation type="obsolete">Barva uživatelského &amp;rozhraní:</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Nastavit znovu na výchozí</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="obsolete">R</translation>
     </message>
     <message>
         <source>Terminal:</source>
@@ -1590,17 +1381,6 @@ Chcete je nechat přepsat?</translation>
         <source>Automatically creates temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</source>
         <translation>Dočasné kopie změněných souborů vytváří automaticky. Po pádu nebo výpadku proudu se při spuštění bude Qt Creator ptát, má-li automaticky uložený obsah obnovit.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="obsolete">Výstup</translation>
-    </message>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Soubor</translation>
@@ -1654,16 +1434,8 @@ Chcete je nechat přepsat?</translation>
         <translation>Naposledy otevřené s&amp;oubory</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Uložit</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Uložit</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>Uložit &amp;jako...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -1819,9 +1591,6 @@ Chcete je nechat přepsat?</translation>
         <source>Settings...</source>
         <translation>Nastavení...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General</source>
         <translation type="obsolete">Obecné</translation>
@@ -1830,42 +1599,6 @@ Chcete je nechat přepsat?</translation>
         <source>General Messages</source>
         <translation>Obecné zprávy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Zapnout %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
-    <message>
-        <source>Hide Sidebar</source>
-        <translation type="obsolete">Skrýt postranní pruh</translation>
-    </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation type="obsolete">Ukázat postranní pruh</translation>
-    </message>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation type="obsolete">Zapnout tabulku &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Nový projekt</translation>
@@ -1910,51 +1643,14 @@ Chcete je nechat přepsat?</translation>
         <source>Supported Platforms</source>
         <translation>Podporované platformy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Otevřít dokumenty</translation>
     </message>
     <message>
-        <source>Close %1</source>
-        <translation type="obsolete">Zavřít %1</translation>
-    </message>
-    <message>
-        <source>Close Editor</source>
-        <translation type="obsolete">Zavřít editor</translation>
-    </message>
-    <message>
-        <source>Close All Except %1</source>
-        <translation type="obsolete">Zavřít vše kromě %1</translation>
-    </message>
-    <message>
-        <source>Close &quot;%1&quot;</source>
-        <translation type="obsolete">Zavřít &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close All Except &quot;%1&quot;</source>
-        <translation type="obsolete">Zavřít vše až na &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close Other Editors</source>
-        <translation type="obsolete">Zavřít ostatní editory</translation>
-    </message>
-    <message>
-        <source>Close All Editors</source>
-        <translation type="obsolete">Zavřít všechny editory</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
-    <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>Otevřít soubor &apos;%1&apos; s:</translation>
@@ -1967,9 +1663,6 @@ Chcete je nechat přepsat?</translation>
         <source>Open file extension with:</source>
         <translation>Otevřít souborovou příponu s:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>Výstup</translation>
@@ -2014,9 +1707,6 @@ Chcete je nechat přepsat?</translation>
         <source>Minimize Output Pane</source>
         <translation>Zmenšit výstupní tabulku</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Podrobnosti</translation>
@@ -2025,10 +1715,6 @@ Chcete je nechat přepsat?</translation>
         <source>Error Details</source>
         <translatorcomment>Fehlermeldungen zu %1</translatorcomment>
         <translation>Podrobnosti o chybě</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -2046,16 +1732,10 @@ Chcete je nechat přepsat?</translation>
         <source>Plugin Errors of %1</source>
         <translation>Chyby přídavného modulu %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Procesy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Do not Save</source>
         <translation>Neukládat</translation>
@@ -2063,10 +1743,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Save All</source>
         <translation>Uložit vše</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Uložit</translation>
     </message>
     <message>
         <source>Save Selected</source>
@@ -2084,16 +1760,9 @@ Chcete je nechat přepsat?</translation>
         <source>Automatically save all files before building</source>
         <translation>Automaticky uložit všechny změněné soubory před sestavováním</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Klávesnice</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Prostředí</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -2123,20 +1792,6 @@ Chcete je nechat přepsat?</translation>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Exportovat schéma přiřazení kláves</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>O programu Qt Creator</translation>
@@ -2162,9 +1817,6 @@ Chcete je nechat přepsat?</translation>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation type="obsolete">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Založený na Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Vytvořený %4 v %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Autorské právo 2008-%6 %7. Všechna práva vyhrazena.&lt;br/&gt;&lt;br/&gt; Program je poskytován tak, JAK JE, BEZ ZÁRUKY JAKÉHOKOLI DRUHU, VČETNĚ ZÁRUKY PROVEDENÍ, PRODEJNOSTI A VHODNOSTI PRO URČITÝ ÚČEL.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation type="obsolete">Přepnout na režim &apos;%1&apos;</translation>
@@ -2173,9 +1825,6 @@ Chcete je nechat přepsat?</translation>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Přepnout na režim &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -2186,9 +1835,6 @@ Chcete je nechat přepsat?</translation>
         <source>Unknown error</source>
         <translation>Neznámá chyba</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translatorcomment>TODO: Grammatical case problem</translatorcomment>
@@ -2196,13 +1842,9 @@ Chcete je nechat přepsat?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
-        <translation type="obsolete">Roztřídit podle abecedy</translation>
-    </message>
-    <message>
-        <source>Sort Alphabetically</source>
         <translation type="obsolete">Roztřídit podle abecedy</translation>
     </message>
     <message>
@@ -2213,13 +1855,6 @@ Chcete je nechat přepsat?</translation>
         <source>Yes, I know what I am doing.</source>
         <translation type="obsolete">Ano, vím, co dělám.</translation>
     </message>
-    <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">Nepoužívaná proměnná</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation type="obsolete">Zadejte název třídy</translation>
@@ -2236,16 +1871,10 @@ Chcete je nechat přepsat?</translation>
         <source>Configure...</source>
         <translation type="obsolete">Nastavení...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Chyba při vytváření souboru.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>Průvodce pro novou třídu C++</translation>
@@ -2254,23 +1883,9 @@ Chcete je nechat přepsat?</translation>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation type="obsolete">Nezpracovaný</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
-    <message>
-        <source>C++</source>
-        <translation type="obsolete">C++</translation>
-    </message>
-    <message>
-        <source>C++ Header File</source>
-        <translation type="obsolete">Hlavičkový soubor C++</translation>
     </message>
     <message>
         <source>Creates a C++ header file.</source>
@@ -2279,14 +1894,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Creates a C++ source file.</source>
         <translation type="obsolete">Vytvoří nový zdrojový soubor C++.</translation>
-    </message>
-    <message>
-        <source>C++ Source File</source>
-        <translation type="obsolete">Zdrojový soubor C++</translation>
-    </message>
-    <message>
-        <source>C++ Class</source>
-        <translation type="obsolete">Třída C++</translation>
     </message>
     <message>
         <source>Creates a header and a source file for a new class.</source>
@@ -2301,68 +1908,8 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Přepínání mezi prohlášením a vymezením postupu</translation>
     </message>
     <message>
-        <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
-        <translation type="obsolete">Vytvoří hlavičku C++ a zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ source file that you can add to a C++ project.</source>
-        <translation type="obsolete">Vytvoří zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ header file that you can add to a C++ project.</source>
-        <translation type="obsolete">Vytvoří hlavičkový soubor C++, který můžete přidat do projektu C++.</translation>
-    </message>
-    <message>
         <source>Follow Symbol Under Cursor</source>
         <translation type="obsolete">Následovat symbol pod ukazovátkem</translation>
-    </message>
-    <message>
-        <source>Switch Between Method Declaration/Definition</source>
-        <translation type="obsolete">Přepínání mezi deklarací a definicí metody</translation>
-    </message>
-    <message>
-        <source>Shift+F2</source>
-        <translation type="obsolete">Shift+F2</translation>
-    </message>
-    <message>
-        <source>Open Method Declaration/Definition in Next Split</source>
-        <translation type="obsolete">Otevřít deklaraci/definici metody v dalším rozdělení</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, Shift+F2</source>
-        <translation type="obsolete">Ctrl+E, Shift+F2</translation>
-    </message>
-    <message>
-        <source>Find Usages</source>
-        <translation type="obsolete">Najít použití</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+U</source>
-        <translation type="obsolete">Ctrl+Shift+U</translation>
-    </message>
-    <message>
-        <source>Open Type Hierarchy</source>
-        <translation type="obsolete">Otevřít hierarchii tříd</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="obsolete">Ctrl+Shift+T</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+T</source>
-        <translation type="obsolete">Meta+Shift+T</translation>
-    </message>
-    <message>
-        <source>Rename Symbol Under Cursor</source>
-        <translation type="obsolete">Přejmenovat symbol pod ukazovátkem</translation>
-    </message>
-    <message>
-        <source>CTRL+SHIFT+R</source>
-        <translation type="obsolete">Ctrl+Shift+R</translation>
-    </message>
-    <message>
-        <source>Update Code Model</source>
-        <translation type="obsolete">Obnovit model kódu</translation>
     </message>
     <message>
         <source>Rename Symbol under Cursor</source>
@@ -2371,21 +1918,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Update code model</source>
         <translation type="obsolete">Obnovit model kódu</translation>
-    </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
-    <message>
-        <source>Header suffix:</source>
-        <translation type="obsolete">Přípona hlavičkových souborů:</translation>
-    </message>
-    <message>
-        <source>Source suffix:</source>
-        <translation type="obsolete">Přípona zdrojových souborů:</translation>
-    </message>
-    <message>
-        <source>Lower case file names</source>
-        <translation type="obsolete">Pro názvy souborů používat malých písmen</translation>
     </message>
     <message>
         <source>File Naming Conventions</source>
@@ -2396,26 +1928,12 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Předloha pro povolení:</translation>
     </message>
     <message>
-        <source>License template:</source>
-        <translation type="obsolete">Předloha pro povolení:</translation>
-    </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
-    <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Neexistuje žádný soubor nebo adresář s tímto názvem</translation>
     </message>
     <message>
         <source>%1: Could not get file contents</source>
         <translation>%1: Nepodařilo se načíst obsah souboru</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools</name>
-    <message>
-        <source>File Naming Conventions</source>
-        <translation type="obsolete">Úmluva pro pojmenování souborů</translation>
     </message>
     <message>
         <source>Code Style</source>
@@ -2433,9 +1951,6 @@ Chcete je nechat přepsat?</translation>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Doplnění</translation>
@@ -2564,20 +2079,6 @@ Chcete je nechat přepsat?</translation>
         <source>Adds leading asterisks when continuing Qt &apos;/*!&apos; and Java &apos;/**&apos; style comments on new lines.</source>
         <translation>Přidá hvězdičky na začátku při pokračování poznámek stylu &apos;/*!&apos; a Java &apos;/**&apos; na nových řádcích.</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Třídy</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
-    <message>
-        <source>Methods</source>
-        <translation type="obsolete">Metody</translation>
-    </message>
     <message>
         <source>Methods and functions</source>
         <translation type="obsolete">Metody a funkce</translation>
@@ -2594,16 +2095,9 @@ Chcete je nechat přepsat?</translation>
         <source>C++ Functions</source>
         <translation>Funkce C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppModelManager</name>
     <message>
         <source>Scanning</source>
         <translation type="obsolete">Prohledávání</translation>
-    </message>
-    <message>
-        <source>Parsing</source>
-        <translation type="obsolete">Syntaktický rozbor</translation>
     </message>
     <message>
         <source>unnamed</source>
@@ -2613,9 +2107,6 @@ Chcete je nechat přepsat?</translation>
         <source>Indexing</source>
         <translation type="obsolete">Rejstříkování</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -2636,16 +2127,13 @@ Chcete je nechat přepsat?</translation>
         <source>Ctrl+E, F4</source>
         <translation>Ctrl+E, F4</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation type="obsolete">%1 z %2</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Common</source>
         <translation type="obsolete">Společné</translation>
@@ -3052,10 +2540,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Symbol paths: %1</source>
         <translation type="obsolete">Cesty k symbolům: %1</translation>
-    </message>
-    <message>
-        <source>&lt;none&gt;</source>
-        <translation type="obsolete">&lt;žádná&gt;</translation>
     </message>
     <message>
         <source>Source paths: %1</source>
@@ -4733,7 +4217,7 @@ informacemi o ladění.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation type="obsolete">Nepodařilo se přidat závislost</translation>
@@ -4748,7 +4232,7 @@ informacemi o ladění.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="obsolete">Název souboru je prázdný.</translation>
@@ -5059,29 +4543,6 @@ Pokuste se projekt sestavit znovu.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
-    <message>
-        <source>Registered Documentation</source>
-        <translation type="obsolete">Zapsaná dokumentace</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Přidat...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Add and remove compressed help files, .qch.</source>
-        <translation type="obsolete">Přidat a odstranit stlačené soubory s nápovědou, .qch.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-</context>
-<context>
     <name>EmbeddedPropertiesPage</name>
     <message>
         <source>Skin:</source>
@@ -5097,7 +4558,7 @@ Také se automaticky nastaví správná verze Qt.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Název:</translation>
@@ -5154,9 +4615,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Platforms:</source>
         <translation>Platformy:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Stav:</translation>
@@ -5169,9 +4627,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Error message:</source>
         <translation>Hlášení o chybě:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation type="obsolete">Soubor neexistuje: &apos;%1&apos;</translation>
@@ -5188,9 +4643,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Chyba při čtení souboru %1: %2 na řádku %3, sloupec %4</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation type="obsolete">Stav</translation>
@@ -5215,9 +4667,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Load</source>
         <translation>Nahrát</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Neplatný</translation>
@@ -5318,9 +4767,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>Přídavný modul byl po uplynutí své doby životnosti smazán</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -5357,7 +4803,7 @@ Důvod: %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation type="obsolete">Přepnout úpravy do režimu vim</translation>
@@ -5378,9 +4824,6 @@ Důvod: %3</translation>
         <source>Path to .vimrc</source>
         <translation>Cesta k .vimrc</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation type="obsolete">Neprovedeno v FakeVim</translation>
@@ -5603,9 +5046,6 @@ Důvod: %3</translation>
         <source>Argument must be positive: %1=%2</source>
         <translation>Argument musí být kladný: %1=%2</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
@@ -5621,10 +5061,6 @@ Důvod: %3</translation>
     <message>
         <source>Use FakeVim</source>
         <translation>Používat FakeVim</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation type="obsolete">Číst .vimrc</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
@@ -5681,10 +5117,6 @@ Důvod: %3</translation>
     <message>
         <source>Vim tabstop option</source>
         <translation>Nastavení tabulátorů Vim</translation>
-    </message>
-    <message>
-        <source>Tabulator size:</source>
-        <translation>Šířka tabulátoru:</translation>
     </message>
     <message>
         <source>Backspace:</source>
@@ -5767,9 +5199,6 @@ Důvod: %3</translation>
         <source>Vim tabstop option.</source>
         <translation>Nastavení tabulátorů Vim.</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Switch to next file</source>
         <translation type="obsolete">Přejít k dalšímu souboru</translation>
@@ -5819,19 +5248,8 @@ Důvod: %3</translation>
         </translation>
     </message>
     <message>
-        <source>Not an editor command: %1</source>
-        <translation type="obsolete">Není příkazem editoru: %1</translation>
-    </message>
-    <message>
         <source>FakeVim Information</source>
         <translation>Informace k FakeVim</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
-    <message>
-        <source>Use FakeVim</source>
-        <translation type="obsolete">Používat FakeVim</translation>
     </message>
     <message>
         <source>Vim style settings</source>
@@ -5850,10 +5268,6 @@ Důvod: %3</translation>
         <translation type="obsolete">Zvýraznit výsledky hledání:</translation>
     </message>
     <message>
-        <source>Shift width:</source>
-        <translation type="obsolete">Odsazení:</translation>
-    </message>
-    <message>
         <source>Smart tabulators:</source>
         <translation type="obsolete">Režim chytrých zarážek:</translation>
     </message>
@@ -5867,11 +5281,7 @@ Důvod: %3</translation>
     </message>
     <message>
         <source>Tabulator size:</source>
-        <translation type="obsolete">Šířka zarážky:</translation>
-    </message>
-    <message>
-        <source>Backspace:</source>
-        <translation type="obsolete">Zpětná klávesa:</translation>
+        <translation>Šířka zarážky:</translation>
     </message>
     <message>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
@@ -5896,78 +5306,6 @@ Důvod: %3</translation>
     <message>
         <source>Incremental search:</source>
         <translation type="obsolete">Přírůstkové hledání:</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation type="obsolete">Číst .vimrc</translation>
-    </message>
-    <message>
-        <source>Vim Behavior</source>
-        <translation type="obsolete">Chování Vim</translation>
-    </message>
-    <message>
-        <source>Automatic indentation</source>
-        <translation type="obsolete">Automatické odsazení</translation>
-    </message>
-    <message>
-        <source>Start of line</source>
-        <translation type="obsolete">Začátek řádku</translation>
-    </message>
-    <message>
-        <source>Smart indentation</source>
-        <translation type="obsolete">Chytré odsazování</translation>
-    </message>
-    <message>
-        <source>Use search dialog</source>
-        <translation type="obsolete">Použít dialog pro hledání</translation>
-    </message>
-    <message>
-        <source>Expand tabulators</source>
-        <translation type="obsolete">Rozbalit zarážky</translation>
-    </message>
-    <message>
-        <source>Show position of text marks</source>
-        <translation type="obsolete">Ukázat polohu textových značek</translation>
-    </message>
-    <message>
-        <source>Smart tabulators</source>
-        <translation type="obsolete">Režim chytrých zarážek</translation>
-    </message>
-    <message>
-        <source>Highlight search results</source>
-        <translation type="obsolete">Zvýraznit výsledky hledání</translation>
-    </message>
-    <message>
-        <source>Incremental search</source>
-        <translation type="obsolete">Přírůstkové hledání</translation>
-    </message>
-    <message>
-        <source>Keyword characters:</source>
-        <translation type="obsolete">Znaky klíčového slova:</translation>
-    </message>
-    <message>
-        <source>Copy Text Editor Settings</source>
-        <translation type="obsolete">Kopírovat nastavení textového editoru</translation>
-    </message>
-    <message>
-        <source>Set Qt Style</source>
-        <translation type="obsolete">Nastavit styl Qt</translation>
-    </message>
-    <message>
-        <source>Set Plain Style</source>
-        <translation type="obsolete">Nastavit prostý styl</translation>
-    </message>
-    <message>
-        <source>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</source>
-        <translation type="obsolete">Způsobí, že s určitými klávesovými zkratkami jako je Ctrl-S se nezachází v FakeVim, nýbrž jsou postoupeny Qt Creatoru. Toto usnadňuje přístup k základním funkcím Qt Creatoru za cenu ztráty některých funkcí FakeVimu.</translation>
-    </message>
-    <message>
-        <source>Pass control key</source>
-        <translation type="obsolete">Postoupit klávesu Ctrl</translation>
-    </message>
-    <message>
-        <source>Vim tabstop option</source>
-        <translation type="obsolete">Nastavení zarážek Vim</translation>
     </message>
 </context>
 <context>
@@ -6019,7 +5357,7 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Search for...</source>
         <translation type="obsolete">Hledání...</translation>
@@ -6057,10 +5395,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation type="obsolete">Používat regulární &amp;výrazy</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Zrušit</translation>
-    </message>
-    <message>
         <source>Search &amp;&amp; &amp;Replace</source>
         <translation>Hledat a &amp;nahradit</translation>
     </message>
@@ -6084,24 +5418,10 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>Sco&amp;pe:</source>
         <translation>&amp;Oblast:</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <translation type="obsolete">&amp;Hledat/Nahradit</translation>
-    </message>
     <message>
         <source>Find...</source>
         <translation type="obsolete">Hledat...</translation>
     </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="obsolete">Ctrl+Shift+F</translation>
-    </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation type="obsolete">Nynější dokument</translation>
@@ -6190,9 +5510,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>Preserve Case when Replacing</source>
         <translation>Zachovat při nahrazování velikost</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Hledat</translation>
@@ -6214,25 +5531,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>...</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Nahradit a hledat</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Nahradit vše</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Pokročilé...</translation>
-    </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
-    <message>
         <source>Search Results</source>
         <translation>Výsledky hledání</translation>
     </message>
@@ -6253,22 +5551,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>%1 %2</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation type="obsolete">Nahradit:</translation>
-    </message>
-    <message>
-        <source>Replace all occurrences</source>
-        <translation type="obsolete">Nahradit všechny výskyty</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation type="obsolete">Nahradit</translation>
-    </message>
-    <message>
-        <source>This change cannot be undone.</source>
-        <translation type="obsolete">Tuto změnu nelze vrátit zpět.</translation>
-    </message>
-    <message>
         <source>Do not warn again</source>
         <translation type="obsolete">Nevarovat znovu</translation>
     </message>
@@ -6278,7 +5560,7 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation type="obsolete">Výměna informací Gdb</translation>
@@ -6357,29 +5639,13 @@ kdy na pomalých strojích nahrávání velkých knihoven nebo výpis zdrojovýc
 více času, než je nastaveno. V takovém případě by se měla hodnota zvýšit.</translation>
     </message>
     <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
-    </message>
-    <message>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
         <translation type="obsolete">Tato volba má za následek, že v určitých situacích sloučí &apos;Jednotlivý krok do&apos; více kroků do jednoho, čímž se ladění uspíší. Například se přeskočí kód počítání atomárních odkazů; a jednotlivý &apos;Krok do&apos; pro vyslání signálu skončí přímo v otvoru s ním spojeném.</translation>
     </message>
     <message>
-        <source>Skip known frames when stepping</source>
-        <translation type="obsolete">Přeskočit při provádění jednotlivého kroku známá místa</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translation type="obsolete">Při obdržení signálu ukázat okno se zprávami</translation>
-    </message>
-    <message>
         <source>Behavior of Breakpoint Setting in Plugins</source>
         <translation type="obsolete">Chování nastavení bodu přerušení v přídavných modulech</translation>
-    </message>
-    <message>
-        <source>GDB</source>
-        <translation type="obsolete">GDB</translation>
     </message>
     <message>
         <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
@@ -6388,21 +5654,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>GDB startup script:</source>
         <translation type="obsolete">Skript pro spuštění GDB:</translation>
-    </message>
-    <message>
-        <source>This is the number of seconds Qt Creator will wait before
-it terminates a non-responsive GDB process. The default value of 20 seconds
-should be sufficient for most applications, but there are situations when
-loading big libraries or listing source files takes much longer than that
-on slow machines. In this case, the value should be increased.</source>
-        <translation type="obsolete">Toto je počet sekund, po které bude Qt Creator čekat, předtím než ukončí neodpovídající procesy GDB.
-Výchozí hodnota, jíž je 20 sekund, by měla postačovat v případě většiny programů. Ale jsou situace,
-kdy na pomalých strojích nahrávání velkých knihoven nebo výpis zdrojových souborů zabere mnohem
-více času, než je nastaveno. V takovém případě by se měla hodnota zvýšit.</translation>
-    </message>
-    <message>
-        <source>GDB timeout:</source>
-        <translation type="obsolete">Překročení času u GDB:</translation>
     </message>
     <message>
         <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
@@ -6418,28 +5669,8 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;Ne všechny řádky zdrojového kódu způsobují vytvoření spustitelného kódu. GDB však dovoluje, aby byl takových situacích pro takové řádky, pro něž nebyl vytvořen žádný kód, nastaven bod přerušení. Tento bod přerušení je pak posunut na další řádek se zdrojovým kódem, pro který byl kód skutečně vytvořen. Toto nastavení odráží takovou dočasnou změnu a způsobuje, že značky pro body přerušení jsou odpovídajícím způsobem posunuty v editoru zdrojového kódu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Adjust breakpoint locations</source>
-        <translation type="obsolete">Upravit umístění bodů přerušení</translation>
-    </message>
-    <message>
         <source>This allows or inhibits reading the user&apos;s default .gdbinit file on debugger startup.</source>
         <translation type="obsolete">Dovolí nebo potlačí čtení výchozího uživatelského souboru-.gdbinit při spuštění ladiče.</translation>
-    </message>
-    <message>
-        <source>Load .gdbinit file on startup</source>
-        <translation type="obsolete">Nahrát soubor .gdbinit na začátku</translation>
-    </message>
-    <message>
-        <source>Use asynchronous mode to control the inferior</source>
-        <translation type="obsolete">Použít asynchronní režim k ovládání laděného procesu</translation>
-    </message>
-    <message>
-        <source>Stop when a qWarning is issued</source>
-        <translation type="obsolete">Zastavit při qWarning</translation>
-    </message>
-    <message>
-        <source>Stop when a qFatal is issued</source>
-        <translation type="obsolete">Zastavit při qFatal</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
@@ -6463,7 +5694,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation type="obsolete">Přepsat %1:</translation>
@@ -6478,14 +5709,11 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation type="obsolete">&lt;nový&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation type="obsolete">Název nastavení:</translation>
@@ -6510,9 +5738,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>Generic Manager</source>
         <translation>Obecný správce</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -6526,9 +5751,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="obsolete">&lt;b&gt;Příkaz Make:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation type="obsolete">Zavedení projektu založeného na &apos;Makefile&apos;</translation>
@@ -6557,20 +5779,9 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>Imports existing projects that do not use qmake or CMake. This allows you to use Qt Creator as a code editor.</source>
         <translation type="obsolete">Zavede stávající projekty, které nepoužívají qmake nebo CMake. Toto vám umožní používat Qt Creator jako editor kódu.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <translation type="obsolete">Zavedení projektu založeného na &apos;Makefile&apos;</translation>
-    </message>
     <message>
         <source>Generic Project</source>
         <translation type="obsolete">Obecný projekt</translation>
-    </message>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Importovat stávající projekt</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -6602,7 +5813,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Checkout</source>
         <translation>Načíst (checkout)</translation>
@@ -8380,7 +7591,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Přidat novou stranu</translation>
@@ -8750,10 +7961,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>Otevřít odkaz</translation>
     </message>
     <message>
-        <source>Open Link as New Page</source>
-        <translation>Otevřít odkaz jako novou stránku</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Kopírovat odkaz</translation>
     </message>
@@ -8764,10 +7971,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     <message>
         <source>Reload</source>
         <translation>Nahrát znovu</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Otevřít odkaz v nové kartě</translation>
     </message>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
@@ -8819,35 +8022,13 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>&lt;li&gt;If your computer or network is protected by a firewall or proxy, make sure the application is permitted to access the network.&lt;/li&gt;</source>
         <translation>&lt;li&gt;Pokud je váš počítač nebo síť chráněn firewallem nebo proxy, ujistěte se, že programu je povoleno přistupovat k síti.&lt;/li&gt;</translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Hledat:</translation>
     </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Otevřít adresu odkazu</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otevřít odkaz jako novou stránku</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Otevřít odkaz v nové kartě</translation>
-    </message>
 </context>
 <context>
-    <name>InputPane</name>
-    <message>
-        <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="obsolete">Řádek můžete provést pomocí &lt;Ctrl-Return&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>Locator</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filters</source>
         <translation type="obsolete">Filtry</translation>
@@ -9103,15 +8284,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation type="obsolete">Přepsat %1:</translation>
-    </message>
-    <message>
-        <source>Make arguments:</source>
-        <translation type="obsolete">Argumenty příkazového řádku pro &apos;make&apos;:</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -9140,45 +8313,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
-    <message>
-        <source>Open File With...</source>
-        <translation type="obsolete">Otevřít soubor s...</translation>
-    </message>
-    <message>
-        <source>Open file extension with:</source>
-        <translation type="obsolete">Otevřít souborovou příponu s:</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal</name>
-    <message>
-        <source>No executable specified</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor</translation>
-    </message>
-    <message>
-        <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation type="obsolete">&quot;%1&quot; se nepodařilo spustit: %2</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; timed out after %2ms.</source>
-        <translation type="obsolete">Překročení času při provedení &quot;%1&quot;(%2ms).</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation type="obsolete">&quot;%1&quot; spadl.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; terminated with exit code %2: %3</source>
-        <translation type="obsolete">Proces &apos;%1&quot; byl ukončen (vrácená hodnota %2): %3</translation>
-    </message>
-    <message>
-        <source>The client does not seem to contain any mapped files.</source>
-        <translation type="obsolete">&apos;Perforce&apos; klient zřejmě neobsahuje žádná přiřazení souborů.</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Číslo změny</translation>
@@ -9187,9 +8322,6 @@ ve svém .pro souboru.</translation>
         <source>Change Number:</source>
         <translation>Číslo změny:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 nevyřízené změny</translation>
@@ -9206,9 +8338,6 @@ ve svém .pro souboru.</translation>
         <source>Change %1: %2</source>
         <translation>Změna %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -9360,10 +8489,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Update All</source>
         <translation>Aktualizovat vše</translation>
-    </message>
-    <message>
-        <source>Submit</source>
-        <translation>Odevzdat (submit)</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
@@ -9601,16 +8726,10 @@ ve svém .pro souboru.</translation>
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation type="obsolete">Chyba při provedení &quot;where&quot; na %1: Soubor není přiřazen</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Odevzdání &apos;Perforce&apos; (submit)</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Výzva &apos;Perforce&apos;</translation>
@@ -9619,9 +8738,6 @@ ve svém .pro souboru.</translation>
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>P4 Command:</source>
         <translation type="obsolete">Příkaz P4:</translation>
@@ -9706,9 +8822,6 @@ ve svém .pro souboru.</translation>
         <source>Automatically open files when editing</source>
         <translation>Soubory při úpravách otevřít automaticky</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
         <translation>Běží zkouška...</translation>
@@ -9725,13 +8838,6 @@ ve svém .pro souboru.</translation>
         <source>Perforce Command</source>
         <translation>Příkaz Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Odevzdat (submit)</translation>
-    </message>
     <message>
         <source>Change:</source>
         <translation>Změna:</translation>
@@ -9746,30 +8852,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Podrobnosti o chybě</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Nainstalované přídavné moduly</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Popis přídavného modulu %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Chyby přídavného modulu %1</translation>
-    </message>
-</context>
-<context>
-    <name>PluginManager</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
         <translation>Přídavný modul &apos;%1&apos; je ve zkušebním seznamu přítomen dvakrát.</translation>
@@ -9790,9 +8873,6 @@ ve svém .pro souboru.</translation>
         <source>Failed Plugins</source>
         <translation>Přídavné moduly které selhaly při nahrávání</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>U &apos;%1&apos; chybí vlastnost &apos;%2&apos;</translation>
@@ -9859,7 +8939,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -9908,9 +8988,6 @@ ve svém .pro souboru.</translation>
         <source>Could not start process &quot;%1&quot;</source>
         <translation type="obsolete">Proces &quot;%1&quot; se nepodařilo spustit</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Sestavování zrušeno.&lt;/font&gt;</translation>
@@ -9950,10 +9027,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Canceled build.</source>
         <translation type="obsolete">Zrušené sestavování.</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="obsolete">Sestavování</translation>
     </message>
     <message>
         <source>Error while building project %1 (target: %2)</source>
@@ -10046,9 +9119,6 @@ ve svém .pro souboru.</translation>
         <source>Skipping disabled step %1.</source>
         <translation>Přeskakuje se zakázaný krok %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation type="obsolete">Uživatelsky stanovený spustitelný soubor</translation>
@@ -10057,32 +9127,6 @@ ve svém .pro souboru.</translation>
         <source>Could not find the executable, please specify one.</source>
         <translation type="obsolete">Nepodařilo se najít spustitelný soubor; nějaký, prosím, zadejte.</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Vyčistit prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="obsolete">Spustit %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation type="obsolete">Uživatelsky stanovený spustitelný soubor</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="obsolete">&lt;NENÍ NASTAVENO&gt;</translation>
@@ -10113,9 +9157,6 @@ ve svém .pro souboru.</translation>
         <source>&lt;VALUE&gt;</source>
         <translation type="obsolete">&lt;HODNOTA&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Upravit</translation>
@@ -10174,9 +9215,6 @@ ve svém .pro souboru.</translation>
         <source>Summary: No changes to Environment</source>
         <translation type="obsolete">Shrnutí: Prostředí nezměněno</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation type="obsolete">Soubory ze všech projektů</translation>
@@ -10185,9 +9223,6 @@ ve svém .pro souboru.</translation>
         <source>Files in Any Project</source>
         <translation>Soubory ze všech projektů</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Všechny projekty</translation>
@@ -10210,23 +9245,13 @@ ve svém .pro souboru.</translation>
         <source>File &amp;pattern:</source>
         <translation type="obsolete">&amp;Vzor hledání pro názvy souborů:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
         <source>Build Settings</source>
         <translation type="obsolete">Nastavení sestavování</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>&amp;Clone Selected</source>
         <translation>&amp;Zdvojit výběr</translation>
-    </message>
-    <message>
-        <source>Build Steps</source>
-        <translation type="obsolete">Postup sestavování</translation>
     </message>
     <message>
         <source>Edit Build Configuration:</source>
@@ -10239,14 +9264,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Edit build configuration:</source>
         <translation>Upravit nastavení sestavování:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>New Configuration</source>
@@ -10281,10 +9298,6 @@ ve svém .pro souboru.</translation>
         <translation>Opravdu chcete smazat nastavení sestavování &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="obsolete">Přejmenovat</translation>
-    </message>
-    <message>
         <source>Remove Build Configuration</source>
         <translation type="obsolete">Odstranit nastavení sestavování</translation>
     </message>
@@ -10310,10 +9323,6 @@ ve svém .pro souboru.</translation>
         <translation>Název nového nastavení:</translation>
     </message>
     <message>
-        <source>Clean Steps</source>
-        <translation type="obsolete">Kroky k očistění</translation>
-    </message>
-    <message>
         <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Udělat %1 činným.&lt;/a&gt;</translation>
     </message>
@@ -10324,13 +9333,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Clone configuration</source>
         <translation type="obsolete">Zdvojit nastavení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
-    <message>
-        <source>No Build Steps</source>
-        <translation type="obsolete">Žádné kroky sestavování</translation>
     </message>
     <message>
         <source>Add clean step</source>
@@ -10357,22 +9359,6 @@ ve svém .pro souboru.</translation>
         <translation>Postup pročišťování</translation>
     </message>
     <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Posunout nahoru</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Posunout dolů</translation>
-    </message>
-    <message>
-        <source>Remove Item</source>
-        <translation type="obsolete">Odstranit položku</translation>
-    </message>
-    <message>
-        <source>Removing Step failed</source>
-        <translation type="obsolete">Odstranění kroku sestavování se nezdařilo</translation>
-    </message>
-    <message>
         <source>Can&apos;t remove build step while building</source>
         <translation type="obsolete">Během sestavování nelze krok sestavování odstranit</translation>
     </message>
@@ -10384,35 +9370,14 @@ ve svém .pro souboru.</translation>
         <source>Add Build Step</source>
         <translation type="obsolete">Přidat krok sestavovaní</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>Výstup překladače</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation type="obsolete">Zrušit sestavování a zavřít</translation>
     </message>
-    <message>
-        <source>A project is currently being built.</source>
-        <translation type="obsolete">Právě je sestavován nějaký projekt.</translation>
-    </message>
-    <message>
-        <source>Close Qt Creator?</source>
-        <translation type="obsolete">Zavřít Qt Creator?</translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
-        <translation type="obsolete">Chcete zrušit sestavování a každopádně zavřít Qt Creator?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in current project</source>
         <translation type="obsolete">Soubory v nynějším projektu</translation>
@@ -10421,9 +9386,6 @@ ve svém .pro souboru.</translation>
         <source>Files in Current Project</source>
         <translation>Soubory v nynějším projektu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>Nynější projekt</translation>
@@ -10433,87 +9395,9 @@ ve svém .pro souboru.</translation>
         <translation>Projekt &apos;%1&apos;:</translation>
     </message>
     <message>
-        <source>File &amp;pattern:</source>
-        <translation type="obsolete">&amp;Vzor hledání pro názvy souborů:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
-    </message>
-    <message>
         <source>Executable:</source>
         <translation type="obsolete">Spustitelný soubor:</translation>
     </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenty:</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Pracovní adresář:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">Pracovní adresář:</translation>
-    </message>
-    <message>
-        <source>Run in &amp;Terminal</source>
-        <translation type="obsolete">Spustit v &amp;terminálu</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Ladič:</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Prováděcí prostředí</translation>
-    </message>
-    <message>
-        <source>Base environment for this runconfiguration:</source>
-        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal</source>
-        <translation type="obsolete">Spustit v &amp;terminálu</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
-        <source>No Executable specified.</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor.
-</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Běží spustitelný soubor: &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
-    <message>
-        <source>Dependencies</source>
-        <translation type="obsolete">Závislosti</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation type="obsolete">%1 nemá žádné závislosti.</translation>
@@ -10527,9 +9411,6 @@ ve svém .pro souboru.</translation>
         <source>%1 depends on: %2.</source>
         <translation type="obsolete">%1 závisí na: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
     <message>
         <source>%1 of project %2</source>
         <translation type="obsolete">%1 z projektu %2</translation>
@@ -10542,16 +9423,10 @@ ve svém .pro souboru.</translation>
         <source>Renaming file %1 to %2 failed.</source>
         <translation type="obsolete">Soubor %1 se nepodařilo přejmenovat na %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
     <message>
         <source>Editor Settings</source>
         <translation type="obsolete">Nastavení editoru</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Default File Encoding:</source>
         <translation type="obsolete">Výchozí kódování souborů:</translation>
@@ -10586,7 +9461,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>Souborový systém</translation>
@@ -10603,39 +9478,12 @@ ve svém .pro souboru.</translation>
         <source>Filter Files</source>
         <translation>Filtrovat soubory</translation>
     </message>
-    <message>
-        <source>Synchronize with Editor</source>
-        <translation type="obsolete">Seřídit s editorem</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
-    <message>
-        <source>New session name</source>
-        <translation type="obsolete">Název nového sezení</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Enter the name of the new session:</source>
         <translation type="obsolete">Zadejte název nového sezení:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
-    <message>
-        <source>Re-run this run-configuration</source>
-        <translation type="obsolete">Nastavení spuštění spustit ještě jednou</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="obsolete">Zastavit</translation>
-    </message>
-    <message>
-        <source>Application Output</source>
-        <translation type="obsolete">Výstup programu</translation>
-    </message>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Okno s výstupem programu</translation>
     </message>
     <message>
         <source>The application is still running.</source>
@@ -10646,10 +9494,6 @@ ve svém .pro souboru.</translation>
         <translation type="obsolete">Vynutit ukončení?</translation>
     </message>
     <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">Ukončit vynuceně</translation>
-    </message>
-    <message>
         <source>The application is still running. Close it first.</source>
         <translation type="obsolete">Program ještě běží. Nejprve jej ukončete.</translation>
     </message>
@@ -10657,46 +9501,20 @@ ve svém .pro souboru.</translation>
         <source>Unable to close</source>
         <translation type="obsolete">Nepodařilo se zavřít</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Okno s výstupem programu</translation>
-    </message>
     <message>
         <source>Additional output omitted
 </source>
         <translation type="obsolete">Dodatečný výstup opomenut
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>Uživatelsky stanovený krok</translation>
-    </message>
     <message>
         <source>Custom Process Step</source>
         <comment>item in combobox</comment>
         <translation>Uživatelsky stanovený krok</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
-    </message>
     <message>
         <source>Command:</source>
         <translation>Příkaz:</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Pracovní adresář:</translation>
     </message>
     <message>
         <source>Command Arguments:</source>
@@ -10722,44 +9540,15 @@ ve svém .pro souboru.</translation>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>Build and Run</source>
-        <translation type="obsolete">Sestavování a spuštění</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
-    </message>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
         <translation>Project File Factory</translation>
     </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Nepodařilo se otevřít projekt</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>Všechny projekty</translation>
-    </message>
-    <message>
-        <source>Could not open the following project: &apos;%1&apos;</source>
-        <translation type="obsolete">Projekt &apos;%1&apos; se nepodařilo otevřít</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Přidat implicitně&gt;</translation>
@@ -10806,9 +9595,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>&apos;%1&apos; se nepodařilo přidat do verzovacího systému.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation type="obsolete">Zjednodušit strom</translation>
@@ -10829,9 +9615,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Synchronize with Editor</source>
         <translation>Seřídit s editorem</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Projekty</translation>
@@ -10852,20 +9635,10 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Filter tree</source>
         <translation type="obsolete">Přefiltrovat strom</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Active Build and Run Configurations</source>
         <translation type="obsolete">Činná nastavení pro sestavování a spouštění</translation>
     </message>
-    <message>
-        <source>No project loaded.</source>
-        <translation type="obsolete">Není nahrán žádný projekt.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation type="obsolete">Přidat do verzovacího &amp;systému (%1)</translation>
@@ -10890,9 +9663,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Files to be added in</source>
         <translation>Soubory k přidání v</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation type="obsolete">Odstranit soubor</translation>
@@ -10909,16 +9679,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>File to remove:</source>
         <translation type="obsolete">Soubor k odstranění:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <source>+</source>
         <translation type="obsolete">+</translation>
@@ -10930,10 +9690,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Edit run configuration:</source>
         <translation type="obsolete">Upravit nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>Run configuration:</source>
-        <translation type="obsolete">Nastavení spuštění:</translation>
     </message>
     <message>
         <source>Deployment:</source>
@@ -10948,16 +9704,9 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation type="obsolete">Odstranit</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="obsolete">Přejmenovat</translation>
-    </message>
-    <message>
         <source>Rename ...</source>
         <translation type="obsolete">Přejmenovat...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Správce sezení</translation>
@@ -10969,10 +9718,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Clone Session</source>
         <translation type="obsolete">Zdvojit sezení</translation>
-    </message>
-    <message>
-        <source>Delete Session</source>
-        <translation type="obsolete">Smazat sezení</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
@@ -11026,13 +9771,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Automatically restores the last session when Qt Creator is started.</source>
         <translation>Automaticky obnovit minulé sezení při spuštění Qt Creatoru.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
-    <message>
-        <source>Session</source>
-        <translation type="obsolete">Sezení</translation>
-    </message>
     <message>
         <source>Failed to open project</source>
         <translation type="obsolete">Nepodařilo se otevřít projekt</translation>
@@ -11042,16 +9780,10 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <comment>default file name to display</comment>
         <translation type="obsolete">Bez názvu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Soubor nenalezen: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
         <translation type="obsolete">Potíže při sestavování</translation>
@@ -11061,10 +9793,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Potíže</translation>
     </message>
     <message>
-        <source>Filter by categories</source>
-        <translation>Filtrovat podle skupin</translation>
-    </message>
-    <message>
         <source>&amp;Copy</source>
         <translation type="obsolete">&amp;Kopírovat</translation>
     </message>
@@ -11072,9 +9800,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Show Warnings</source>
         <translation>Ukázat varování</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation type="obsolete">Proces se nepodařilo spustit!</translation>
@@ -11083,9 +9808,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Cannot retrieve debugging output!</source>
         <translation type="obsolete">Nepodařilo se získat žádný výstup ladění!</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation type="obsolete">Správa projektu</translation>
@@ -11115,35 +9837,12 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
 </translation>
     </message>
     <message>
-        <source>Add to &amp;project:</source>
-        <translation>Přidat do &amp;projektu:</translation>
-    </message>
-    <message>
         <source>Add to &amp;version control:</source>
         <translation>Přidat do správy &amp;verzí:</translation>
     </message>
     <message>
         <source>Project Management</source>
         <translation>Správa projektu</translation>
-    </message>
-    <message>
-        <source>Manage</source>
-        <translation type="obsolete">Řídit</translation>
-    </message>
-    <message>
-        <source>Manage ...</source>
-        <translation type="obsolete">Spravovat...</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -11186,32 +9885,12 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Otevřít soubor</translation>
     </message>
     <message>
-        <source>Show in Explorer...</source>
-        <translation type="obsolete">Ukázat v průzkumníku...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <translation type="obsolete">Ukázat v hledáčku...</translation>
-    </message>
-    <message>
-        <source>Show containing folder...</source>
-        <translation type="obsolete">Ukázat složku...</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Naposledy otevřené projekty</translation>
-    </message>
-    <message>
         <source>Close Project</source>
         <translation>Zavřít projekt</translation>
     </message>
     <message>
         <source>Close All Projects</source>
         <translation type="obsolete">Zavřít všechny projekty</translation>
-    </message>
-    <message>
-        <source>Session</source>
-        <translation type="obsolete">Sezení</translation>
     </message>
     <message>
         <source>Set Build Configuration</source>
@@ -11250,10 +9929,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Pročistit projekt</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Spustit</translation>
-    </message>
-    <message>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
@@ -11284,10 +9959,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Remove File...</source>
         <translation>Odstranit soubor...</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Přejmenovat</translation>
     </message>
     <message>
         <source>Load Project</source>
@@ -11355,16 +10026,8 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Spuštění bez nasazení</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Sestavení</translation>
-    </message>
-    <message>
         <source>Rebuild</source>
         <translation>Sestavit znovu</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation>Pročistit</translation>
     </message>
     <message>
         <source>Build Without Dependencies</source>
@@ -11383,10 +10046,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Pročistit s vyloučením závislostí</translation>
     </message>
     <message>
-        <source>Deploy</source>
-        <translation>Nasazení</translation>
-    </message>
-    <message>
         <source>Add Existing Directory...</source>
         <translation>Přidat existující adresář...</translation>
     </message>
@@ -11402,10 +10061,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Delete File...</source>
         <translation>Smazat soubor...</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Přejmenovat...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -11490,10 +10145,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Name of current session.</source>
         <translation>Název nynějšího sezení.</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Nepodařilo se otevřít projekt</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Unload</source>
@@ -11690,10 +10341,6 @@ Chcete je přehlížet?</translation>
 </translation>
     </message>
     <message>
-        <source>Cancel Build &amp;&amp; Close</source>
-        <translation>Zrušit sestavování a zavřít</translation>
-    </message>
-    <message>
         <source>Do Not Close</source>
         <translation>Nezavírat</translation>
     </message>
@@ -11863,9 +10510,6 @@ přidat do správy verzí (%2)?</translation>
         <source>Could not delete file %1.</source>
         <translation>Soubor %1 se nepodařilo smazat.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Při obnově sezení se vyskytla chyba</translation>
@@ -11899,10 +10543,6 @@ přidat do správy verzí (%2)?</translation>
         <translation>Odstranit projekty ze sezení</translation>
     </message>
     <message>
-        <source>Failed to open project</source>
-        <translation>Nepodařilo se otevřít projekt</translation>
-    </message>
-    <message>
         <source>Session</source>
         <translation>Sezení</translation>
     </message>
@@ -11915,10 +10555,6 @@ přidat do správy verzí (%2)?</translation>
         <translation>Sezení se nepodařilo uložit do souboru %1</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
         <source>Untitled</source>
         <translation>Bez názvu</translation>
     </message>
@@ -11928,7 +10564,7 @@ přidat do správy verzí (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation type="obsolete">Nastavení sestavování pro QMake:</translation>
@@ -12004,7 +10640,7 @@ přidat do správy verzí (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation type="obsolete">Program QML</translation>
@@ -12021,9 +10657,6 @@ přidat do správy verzí (%2)?</translation>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Projekt %1 se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation type="obsolete">Nový projekt QML</translation>
@@ -12032,9 +10665,6 @@ přidat do správy verzí (%2)?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation type="obsolete">Tento průvodce vytvoří jeden projekt programu QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation type="obsolete">Zavést stávající adresář QML</translation>
@@ -12043,17 +10673,6 @@ přidat do správy verzí (%2)?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation type="obsolete">Vytvoří projekt QML ze stávajícího adresáře se soubory QML.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation type="obsolete">Projekt %1 se nepodařilo otevřít.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation type="obsolete">Zavedení projektu QML</translation>
@@ -12070,17 +10689,6 @@ přidat do správy verzí (%2)?</translation>
         <source>Location:</source>
         <translation type="obsolete">Umístění:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Prohlížeč QML</translation>
-    </message>
-    <message>
-        <source>&lt;Current File&gt;</source>
-        <translation type="obsolete">&lt;Nynější soubor&gt;</translation>
-    </message>
     <message>
         <source>QML Viewer arguments:</source>
         <translation type="obsolete">Argumenty pro prohlížeč QML:</translation>
@@ -12091,7 +10699,7 @@ přidat do správy verzí (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Přidat</translation>
@@ -12112,13 +10720,9 @@ přidat do správy verzí (%2)?</translation>
         <source>Language:</source>
         <translation>Jazyk:</translation>
     </message>
-    <message>
-        <source>Alias:</source>
-        <translation>Alias:</translation>
-    </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation type="obsolete">Konzolová aplikace v Qt4</translation>
@@ -13302,7 +11906,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>Byla nalezena zastaralá verze pomocného ladicího programu (%1). Je požadována verze %2.</translation>
@@ -13593,7 +12197,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation type="obsolete">Vytvoří zdrojový soubor Qt (.qrc).</translation>
@@ -13678,9 +12282,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Recheck existence of referenced files</source>
         <translation>Znovu ověřit existenci odkazovaných souborů</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otevřít soubor</translation>
@@ -13703,21 +12304,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
-    <message>
-        <source>Save Changes</source>
-        <translation type="obsolete">Uložit změny</translation>
-    </message>
-    <message>
-        <source>The following files have unsaved changes:</source>
-        <translation type="obsolete">Následující soubory byly změněny:</translation>
-    </message>
-    <message>
-        <source>Automatically save all files before building</source>
-        <translation type="obsolete">Automaticky uložit všechny změněné soubory před sestavováním</translation>
-    </message>
-</context>
-<context>
     <name>SettingsDialog</name>
     <message>
         <source>Options</source>
@@ -13729,54 +12315,14 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
-    <message>
-        <source>Add Files</source>
-        <translation type="obsolete">Přidat soubory</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation type="obsolete">Přidat předponu</translation>
-    </message>
-    <message>
-        <source>Choose Copy Location</source>
-        <translation type="obsolete">Vyberte umístění cíle pro kopírování</translation>
-    </message>
-    <message>
-        <source>Overwriting Failed</source>
-        <translation type="obsolete">Chyba při přepsání</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">Kopírování se nezdařilo</translation>
-    </message>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Invalid file</source>
         <translation type="obsolete">Neplatný soubor</translation>
     </message>
     <message>
-        <source>Copy</source>
-        <translation type="obsolete">Kopírovat</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="obsolete">Přeskočit</translation>
-    </message>
-    <message>
-        <source>Abort</source>
-        <translation type="obsolete">Zrušit</translation>
-    </message>
-    <message>
         <source>The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.</source>
         <translation type="obsolete">Soubor %1 se nenachází v podadresáři zdrojového souboru. Přidáním by vznikl nepkatný zdrojový soubor.</translation>
-    </message>
-    <message>
-        <source>Invalid file location</source>
-        <translation type="obsolete">Neplatné umístění souboru</translation>
-    </message>
-    <message>
-        <source>The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.</source>
-        <translation type="obsolete">Soubor %1 se nenachází v podadresáři souboru s prostředky. Nyní máte možnost zkopírovat tento soubor do platného umístění.</translation>
     </message>
     <message>
         <source>Choose copy location</source>
@@ -13787,20 +12333,9 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">Chyba při přepsání</translation>
     </message>
     <message>
-        <source>Could not overwrite file %1.</source>
-        <translation type="obsolete">Soubor %1 se nepodařilo přepsat.</translation>
-    </message>
-    <message>
         <source>Copying failed</source>
         <translation type="obsolete">Kopírování se nezdařilo</translation>
     </message>
-    <message>
-        <source>Could not copy the file to %1.</source>
-        <translation type="obsolete">Soubor se nepodařilo zkopírovat do %1.</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation type="obsolete">Přidat soubory...</translation>
@@ -13808,14 +12343,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Change Alias...</source>
         <translation type="obsolete">Změnit přezdívku...</translation>
-    </message>
-    <message>
-        <source>Add Prefix...</source>
-        <translation type="obsolete">Přidat předponu...</translation>
-    </message>
-    <message>
-        <source>Change Prefix...</source>
-        <translation type="obsolete">Změnit předponu...</translation>
     </message>
     <message>
         <source>Change Language...</source>
@@ -13834,10 +12361,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">Otevřít soubor</translation>
     </message>
     <message>
-        <source>All files (*)</source>
-        <translation type="obsolete">Všechny soubory (*)</translation>
-    </message>
-    <message>
         <source>Change Prefix</source>
         <translation type="obsolete">Změnit předponu</translation>
     </message>
@@ -13850,51 +12373,19 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">Změnit jazyk</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation type="obsolete">Jazyk:</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation type="obsolete">Změnit soubor s přezdívkou</translation>
     </message>
     <message>
         <source>Alias:</source>
-        <translation type="obsolete">Přezdívka:</translation>
+        <translation>Přezdívka:</translation>
     </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
-    <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="obsolete">Klávesové zkratky</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation type="obsolete">Filtr:</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Příkaz</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Popis</translation>
-    </message>
-    <message>
-        <source>Shortcut</source>
-        <translation type="obsolete">Zkratka</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Defaults</source>
         <translation type="obsolete">Výchozí</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
     </message>
     <message>
         <source>Key Sequence</source>
@@ -13903,14 +12394,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Shortcut:</source>
         <translation type="obsolete">Klávesová zkratka:</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Nastavit znovu</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
     </message>
 </context>
 <context>
@@ -13921,25 +12404,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Kousky</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Kousky</translation>
-    </message>
-</context>
-<context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
+    <name>QtC::Debugger</name>
     <message>
         <source>Executable:</source>
         <translation type="obsolete">Spustitelný soubor:</translation>
@@ -13961,27 +12426,12 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">&amp;Argumenty:</translation>
     </message>
     <message>
-        <source>Run in &amp;terminal:</source>
-        <translation type="obsolete">Spustit v &amp;terminálu:</translation>
-    </message>
-    <message>
-        <source>&amp;Working directory:</source>
-        <translation type="obsolete">&amp;Pracovní adresář:</translation>
-    </message>
-    <message>
         <source>&amp;Tool chain:</source>
         <translation type="obsolete">Sada &amp;nástrojů:</translation>
     </message>
     <message>
         <source>Break at &apos;&amp;main&apos;:</source>
         <translation type="obsolete">Bod přerušení při &apos;main&apos;:</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
     </message>
     <message>
         <source>Architecture:</source>
@@ -14000,10 +12450,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">Spouštěcí skript k serveru:</translation>
     </message>
     <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Ladič:</translation>
-    </message>
-    <message>
         <source>Local executable:</source>
         <translation type="obsolete">Místní spustitelný soubor:</translation>
     </message>
@@ -14014,10 +12460,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">&amp;Ladič:</translation>
-    </message>
-    <message>
-        <source>Local &amp;executable:</source>
-        <translation type="obsolete">&amp;Místní spustitelný soubor:</translation>
     </message>
     <message>
         <source>&amp;Host and port:</source>
@@ -14044,10 +12486,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">&amp;Použít spouštěcí skript k serveru:</translation>
     </message>
     <message>
-        <source>&amp;Server start script:</source>
-        <translation type="obsolete">Spouštěcí skript k &amp;serveru:</translation>
-    </message>
-    <message>
         <source>Location of debugging information:</source>
         <translation type="obsolete">Umístění informací o ladění:</translation>
     </message>
@@ -14057,7 +12495,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Subversion Command:</source>
         <translation type="obsolete">Příkaz pro Subversion:</translation>
@@ -14118,16 +12556,10 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Log count:</source>
         <translation>Počet záznamů omezit na:</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Příkaz pro Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -14405,16 +12837,13 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">Žádná odpověď od &apos;Subversion&apos; v rámci časového omezení (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Odeslání Subversion (submit)</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Search</source>
         <translation>Hledat</translation>
@@ -14422,10 +12851,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Aborting replace.</source>
         <translation>Ruší se nahrazování.</translation>
-    </message>
-    <message>
-        <source>%1 found</source>
-        <translation type="obsolete">%1 nalezen</translation>
     </message>
     <message>
         <source>List of comma separated wildcard filters</source>
@@ -14439,9 +12864,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Use Regular E&amp;xpressions</source>
         <translation type="obsolete">Používat pravidelně se opakující &amp;výrazy</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>bez názvu</translation>
@@ -14455,25 +12877,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation>Otevírán soubor</translation>
     </message>
     <message>
-        <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
-        <translation type="obsolete">&lt;em&gt;Binární data&lt;/em&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
-    <message>
-        <source>Print Document</source>
-        <translation type="obsolete">Vytisknout dokument</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation type="obsolete">&lt;b&gt;Chyba:&lt;/b&gt; Soubor &quot;%1&quot; se nepodařilo rozluštit s kódováním &quot;%2&quot;. Nelze jej upravovat.</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation type="obsolete">Vybrat kódování</translation>
-    </message>
-    <message>
         <source>Line: %1, Col: %2</source>
         <translation>Řádek: %1, sloupec: %2</translation>
     </message>
@@ -14481,144 +12884,11 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Line: 9999, Col: 999</source>
         <translation>Řádek: 9999, sloupec: 999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation type="obsolete">Řádek: %1, sloupec: %2</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: 999</source>
-        <translation type="obsolete">Řádek: %1, sloupec: 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
-    <message>
-        <source>Storage</source>
-        <translation type="obsolete">Ukládání</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace on saving.</source>
-        <translation type="obsolete">Odstraní při ukládání prázdné znaky na konci řádků.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Vyčistit prázdné znaky</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Vyčistí prázdné znaky v celém dokumentu a nejen ve změněných částech.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">V celém &amp;dokumentu</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Opraví prázdné znaky na začátku řádků podle nastavení zarážek.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Opravit odsazení</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Doplnit nový řádek na konci souboru</translation>
-    </message>
-    <message>
-        <source>Tabs and Indentation</source>
-        <translation type="obsolete">Zarážky odsazení</translation>
-    </message>
-    <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Šířka &amp;zarážky:</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">&amp;Velikost odsazení:</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="obsolete">Zpětná klávesa (Backspace) jde zpět o jednu stupeň odsazení. Sleduje tedy hloubku odsazení místo toho, aby smazala jen jeden znak.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">&amp;Zpětná klávesa sleduje hloubku odsazení</translation>
-    </message>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Vložit místo zarážek prázdné &amp;znaky (mezery)</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Povolit automatické &amp;odsazení</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">Klávesa pro zarážku provede automatické odsazení:</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Nikdy</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
-    </message>
-    <message>
-        <source>In leading white space</source>
-        <translation type="obsolete">Pouze v prázdných znacích (mezerách) na začátku řádku</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="obsolete">Automaticky určit založeno na nejbližším odsazeném řádku (předchozí řádek upřednostňován před dalším řádkem)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Založeno na okolních řádcích</translation>
-    </message>
-    <message>
-        <source>Block indentation style:</source>
-        <translation type="obsolete">Styl odsazení bloku:</translation>
-    </message>
-    <message>
-        <source>Exclude Braces</source>
-        <translation type="obsolete">Vyloučit závorky</translation>
-    </message>
-    <message>
-        <source>Include Braces</source>
-        <translation type="obsolete">Zahrnout závorky</translation>
-    </message>
-    <message>
-        <source>GNU Style</source>
-        <translation type="obsolete">Styl GNU</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Pouze v prázdném místu na začátku řádku</translation>
-    </message>
-    <message>
-        <source>Mouse</source>
-        <translation type="obsolete">Myš</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Povolit navádění &amp;myší</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Povolit přibližování a oddalování pomocí &amp;kolečka myši</translation>
-    </message>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Celkové</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Animate matching parentheses</source>
         <translation type="obsolete">Rozhýbat odpovídající závorky</translation>
@@ -14628,16 +12898,9 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">Navedení</translation>
     </message>
     <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Povolit navádění &amp;myší</translation>
-    </message>
-    <message>
         <source>Mark text changes</source>
         <translation type="obsolete">Vyznačit textové změny</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation type="obsolete">Písmo &amp; barvy</translation>
@@ -14686,9 +12949,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Discard</source>
         <translation>Zahodit</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Kódování textu</translation>
@@ -14715,9 +12975,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Save with Encoding</source>
         <translation>Uložit s kódováním</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Nynější soubor</translation>
@@ -14732,36 +12989,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <translation>Souborová cesta: %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
-    <message>
-        <source>Files on Disk</source>
-        <translation type="obsolete">Soubory na nosiči dat</translation>
-    </message>
-    <message>
-        <source>Files on File System</source>
-        <translation type="obsolete">Soubory v souborovém systému</translation>
-    </message>
-    <message>
-        <source>&amp;Directory:</source>
-        <translation type="obsolete">&amp;Adresář:</translation>
-    </message>
-    <message>
-        <source>&amp;Browse</source>
-        <translation type="obsolete">&amp;Procházet</translation>
-    </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translation type="obsolete">&amp;Vzor hledání pro názvy souborů:</translation>
-    </message>
-    <message>
-        <source>Directory to search</source>
-        <translation type="obsolete">Adresář k prohledání</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Písmo</translation>
@@ -14787,10 +13014,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <translation>Kopírovat...</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Smazat</translation>
-    </message>
-    <message>
         <source>%</source>
         <translation>%</translation>
     </message>
@@ -14798,9 +13021,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Zoom:</source>
         <translation>Zvětšení:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in current document</source>
         <translation type="obsolete">Řádek v nynějším dokumentu</translation>
@@ -14821,9 +13041,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Line in Current Document</source>
         <translation>Řádek v nynějším dokumentu</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation type="obsolete">Vytvoří textový soubor (.txt).</translation>
@@ -14892,9 +13109,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Current document&apos;s font size in points.</source>
         <translation>Velikost písma v nynějším dokumentu.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
@@ -15455,9 +13669,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Ctrl+Alt+Down</source>
         <translation>Ctrl+Alt+Down</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Text</translation>
@@ -15907,10 +14118,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
         <translation>Porovnávané umístění</translation>
     </message>
     <message>
-        <source>Text Editor</source>
-        <translation type="obsolete">Textový editor</translation>
-    </message>
-    <message>
         <source>Behavior</source>
         <translation>Chování</translation>
     </message>
@@ -15920,7 +14127,7 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter</source>
         <translation>Filtr</translation>
@@ -15947,7 +14154,7 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Správa verzí</translation>
@@ -15963,13 +14170,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
     <message>
         <source>Project from Version Control</source>
         <translation type="obsolete">Projekt ze systému na správu verzí</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
-    <message>
-        <source>Name</source>
-        <translation>Jméno</translation>
     </message>
     <message>
         <source>E-mail</source>
@@ -15991,9 +14191,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
         <source>Nicknames</source>
         <translation>Přezdívky</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stav</translation>
@@ -16002,24 +14199,10 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
         <source>File</source>
         <translation>Soubor</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
-    <message>
-        <source>Annotate &quot;%1&quot;</source>
-        <translation type="obsolete">Opatřit vysvětlivkami &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Copy &quot;%1&quot;</source>
-        <translation type="obsolete">Kopírovat &quot;%1&quot;</translation>
-    </message>
     <message>
         <source>Describe change %1</source>
         <translation type="obsolete">Ukázat podrobnosti ke změně %1</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation type="obsolete">Ověřit popis</translation>
@@ -16083,50 +14266,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
     <message>
         <source>The check script returned exit code %1.</source>
         <translation>Skript pro ověření byl ukončen. Vrácená hodnota %1.</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
-    <message>
-        <source>Common</source>
-        <translation type="obsolete">Společné</translation>
-    </message>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Zalomit popis předložení na:</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Spustitelný soubor, který je zavolán s popisem předložení v dočasném souboru jako první argument příkazového řádku. Při neúspěchu by měl vrátit zpět hodnotu rozdílnou od nuly (!= 0) a odpovídající zprávu o obvyklé chybě kvůli poukázání na selhání.</translation>
-    </message>
-    <message>
-        <source>Submit message check script:</source>
-        <translation type="obsolete">Skript k ověření popisu předložení:</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Soubor, který obsahuje jména uživatelů a e-mailové adresy ve čtyřsloupcovém formátu (mailmap):
-Jméno &lt;E-mail&gt; Přezdívka &lt;E-mail&gt;</translation>
-    </message>
-    <message>
-        <source>User/alias configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením uživatele/přezdívky:</translation>
-    </message>
-    <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Soubor, který obsahuje řádky s názvy polí (například &quot;Reviewed-By:&quot;), který bude bude přidán pod okno editoru předložení.</translation>
-    </message>
-    <message>
-        <source>User fields configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením polí uživatele:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation type="obsolete">Ověření verzí</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -16226,7 +14365,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -16247,9 +14386,6 @@ p, li { white-space: pre-wrap; }
         <source>Do not &amp;ask again</source>
         <translation>&amp;Neptat se znovu</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation type="obsolete">Vybrat umístění</translation>
@@ -16266,9 +14402,6 @@ p, li { white-space: pre-wrap; }
         <source>Choose the Location</source>
         <translation>Vybrat umístění</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Class name:</source>
         <translation type="obsolete">Název třídy:</translation>
@@ -16373,16 +14506,9 @@ p, li { white-space: pre-wrap; }
         <source>Inherits QQuickItem - Qt Quick 2</source>
         <translation>Dědí ze třídy QQuickItem - Qt Quick 2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and project location</source>
         <translation type="obsolete">Uvedení a umístění projektu</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
     </message>
     <message>
         <source>Create in:</source>
@@ -16412,9 +14538,6 @@ p, li { white-space: pre-wrap; }
         <source>Project:</source>
         <translation>Projekt:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation type="obsolete">Odeslání Subversion</translation>
@@ -16463,11 +14586,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Server Prefix:</source>
         <translation type="obsolete">Předpona serveru:</translation>
@@ -16487,10 +14606,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Všimněte si, že přídavný modul to bude používat jak pro zasílání tak pro natahování.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Server prefix:</source>
-        <translation type="obsolete">Předpona serveru:</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows to send posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.&lt;/p&gt;
 &lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -16498,17 +14613,9 @@ p, li { white-space: pre-wrap; }
 &lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; dovoluje posílání záznamů do uživatelsky stanovených poddomén (např. creator.pastebin.com). Zadejte požadovanou předponu.&lt;/p&gt;
 &lt;p&gt;Všimněte si, že přídavný modul ji použije jak pro posílání tak pro natahování.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
-        <translation type="obsolete">&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; dovoluje posílání uživatelsky stanovených subdomén (například creator.pastebin.com). Zadejte požadovanou předponu.</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Poznámka: Přídavný modul toto použije pro posílání a stejně tak natahování.&lt;/i&gt;</translation>
-    </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Potvrdit předložení</translation>
@@ -16575,7 +14682,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -16723,35 +14830,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation type="obsolete">Písmo</translation>
-    </message>
-    <message>
-        <source>Family:</source>
-        <translation type="obsolete">Písmová rodina:</translation>
-    </message>
-    <message>
-        <source>Style:</source>
-        <translation type="obsolete">Styl:</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="obsolete">Velikost:</translation>
-    </message>
-    <message>
-        <source>Startup</source>
-        <translation type="obsolete">Spuštění</translation>
-    </message>
-    <message>
-        <source>On context help:</source>
-        <translation type="obsolete">Související nápověda:</translation>
-    </message>
+    <name>QtC::Help</name>
     <message>
         <source>Show side-by-side if possible</source>
         <translation type="obsolete">Ukázat, je-li to možné, vedle sebe</translation>
@@ -16763,10 +14842,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Always start full help</source>
         <translation type="obsolete">Vždy spustit plnou nápovědu</translation>
-    </message>
-    <message>
-        <source>On help start:</source>
-        <translation type="obsolete">Na začátek nápovědy:</translation>
     </message>
     <message>
         <source>Show my home page</source>
@@ -16785,14 +14860,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Domovská stránka:</translation>
     </message>
     <message>
-        <source>Use &amp;Current Page</source>
-        <translation type="obsolete">Použít &amp;nynější stranu</translation>
-    </message>
-    <message>
-        <source>Use &amp;Blank Page</source>
-        <translation type="obsolete">Použít &amp;prázdnou stranu</translation>
-    </message>
-    <message>
         <source>Restore to Default</source>
         <translation type="obsolete">Obnovit výchozí nastavení</translation>
     </message>
@@ -16800,69 +14867,9 @@ p, li { white-space: pre-wrap; }
         <source>Help Bookmarks</source>
         <translation type="obsolete">Záložky v nápovědě</translation>
     </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
-    </message>
-    <message>
-        <source>Show Side-by-Side if Possible</source>
-        <translation type="obsolete">Ukázat, je-li to možné, vedle sebe</translation>
-    </message>
-    <message>
-        <source>Always Show Side-by-Side</source>
-        <translation type="obsolete">Ukázat vždy vedle sebe</translation>
-    </message>
-    <message>
-        <source>Always Start Full Help</source>
-        <translation type="obsolete">Vždy spustit plnou nápovědu</translation>
-    </message>
-    <message>
-        <source>Show My Home Page</source>
-        <translation type="obsolete">Ukázat moji domovskou stránku</translation>
-    </message>
-    <message>
-        <source>Show a Blank Page</source>
-        <translation type="obsolete">Ukázat prázdnou stránku</translation>
-    </message>
-    <message>
-        <source>Show My Tabs from Last Session</source>
-        <translation type="obsolete">Ukázat mé karty z posledního sezení</translation>
-    </message>
-    <message>
-        <source>Home page:</source>
-        <translation type="obsolete">Domovská stránka:</translation>
-    </message>
-    <message>
-        <source>Always Show Help in External Window</source>
-        <translation type="obsolete">Vždy ukazovat nápovědu v odděleném okně</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Nastavit znovu výchozí</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Nastavit znovu</translation>
-    </message>
-    <message>
-        <source>Behaviour</source>
-        <translation type="obsolete">Chování</translation>
-    </message>
-    <message>
-        <source>Switch to editor context after last help page is closed.</source>
-        <translation type="obsolete">Přepnout do editoru po zavření poslední stránky s nápovědou.</translation>
-    </message>
-    <message>
-        <source>Return to editor on closing the last page</source>
-        <translation type="obsolete">Vrátit se do editoru po zavření poslední stránky s nápovědou</translation>
-    </message>
 </context>
 <context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
+    <name>QtC::Core</name>
     <message>
         <source>Name:</source>
         <translation>Název:</translation>
@@ -16890,14 +14897,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Omezit na předponu</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation type="obsolete">Přidat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Upravit...</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Odstranit</translation>
     </message>
@@ -16917,20 +14916,9 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Edit</source>
         <translation>Upravit</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -16944,24 +14932,9 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Add Filter Configuration</source>
         <translation>Přidat nastavení filtru</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Nastavit filtry</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Upravit</translation>
     </message>
     <message>
         <source>Refresh Interval:</source>
@@ -16981,7 +14954,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>Sestavování a spuštění</translation>
@@ -17099,10 +15072,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Výchozí adresář pro sestavování:</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
-    </message>
-    <message>
         <source>Open Compile Output pane when building</source>
         <translation>Při sestavování ukázat výstup překladače</translation>
     </message>
@@ -17117,13 +15086,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Asks before terminating the running application in response to clicking the stop button in Application Output.</source>
         <translation>Po klepnutí na zastavovací tlačítko ve výstupním panelu běžícího programu se nejprve zeptá, a teprve pak ukončí běh.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
     </message>
     <message>
         <source>Manage Sessions...</source>
@@ -17142,30 +15104,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Pokračování v sezení</translation>
     </message>
     <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (poslední sezení)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (nynější sezení)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nový projekt</translation>
-    </message>
-    <message>
-        <source>New Project...</source>
-        <translation type="obsolete">Nový projekt...</translation>
-    </message>
-    <message>
-        <source>Recent Sessions</source>
-        <translation type="obsolete">Naposledy otevřená sezení</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Naposledy otevřené projekty</translation>
-    </message>
-    <message>
         <source>Open Project...</source>
         <translation type="obsolete">Otevřít projekt...</translation>
     </message>
@@ -17175,14 +15113,14 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulář</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -17342,7 +15280,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Examples not installed</source>
         <translation type="obsolete">Příklady nenainstalovány</translation>
@@ -17544,7 +15482,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Installed S60 SDKs:</source>
         <translation type="obsolete">Nainstalované S60-SDK:</translation>
@@ -17579,7 +15517,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>Tučné</translation>
@@ -17618,62 +15556,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Checkout Directory:</source>
-        <translation type="obsolete">Adresář pro přezkoušení (checkout; dostat kopii):</translation>
-    </message>
-    <message>
-        <source>Repository</source>
-        <translation type="obsolete">Skladiště</translation>
-    </message>
-    <message>
-        <source>The remote repository to check out.</source>
-        <translation type="obsolete">Vzdálené skladiště ke stažení.</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation type="obsolete">Větev:</translation>
-    </message>
-    <message>
-        <source>The development branch in the remote repository to check out.</source>
-        <translation type="obsolete">Vývojářská větev ve vzdáleném skladišti ke stažení.</translation>
-    </message>
-    <message>
-        <source>Retrieve list of branches in repository.</source>
-        <translation type="obsolete">Získat seznam větví ve skladišti.</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Working Copy</source>
-        <translation type="obsolete">Pracovní kopie</translation>
-    </message>
-    <message>
-        <source>The path in which the directory containing the checkout will be created.</source>
-        <translation type="obsolete">Cesta, ve které bude vytvořen adresář obsahující stažené.</translation>
-    </message>
-    <message>
-        <source>Checkout path:</source>
-        <translation type="obsolete">Cesta ke staženému:</translation>
-    </message>
-    <message>
-        <source>The local directory that will contain the code after the checkout.</source>
-        <translation type="obsolete">Místní adresář, který bude po stažení obsahovat kód.</translation>
-    </message>
-    <message>
-        <source>Checkout directory:</source>
-        <translation type="obsolete">Adresář se stažením:</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="obsolete">Novinky z laboratoří Qt</translation>
@@ -17781,7 +15664,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>QtC::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Název třídy nesmí obsahovat znaky pro oddělení jmenného prostoru.</translation>
@@ -17794,9 +15677,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>The class name contains invalid characters.</source>
         <translation>Název třídy obsahuje neplatné znaky.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Nepodařilo se zřídit spojovací kanál: %1</translation>
@@ -17873,9 +15753,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Nepodařilo se získat vrácenou hodnotu z podřízeného: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Show Details</source>
         <translation type="obsolete">Ukázat podrobnosti</translation>
@@ -17884,9 +15761,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation type="obsolete">Název nesmí být prázdný</translation>
@@ -17931,9 +15805,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>File extensions %1 are required:</source>
         <translation>Je požadována jedna ze souborových přípon %1:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -17958,9 +15829,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
             <numerusform>%1: %n výskyty ve %2 ze %3 souborů.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Vybrat...</translation>
@@ -18038,13 +15906,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Cesta &apos;%1&apos; neukazuje na soubor.</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Cesta:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation>Vložit...</translation>
     </message>
@@ -18068,9 +15929,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>From &quot;%1&quot;</source>
         <translation>Z &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation type="obsolete">Název nesmí obsahovat znak &apos;.&apos;.</translation>
@@ -18083,9 +15941,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Invalid character &apos;.&apos;.</source>
         <translation>Neplatný znak &apos;.&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Soubor byl změněn</translation>
@@ -18112,7 +15967,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Vytvořit</translation>
@@ -18144,7 +15999,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Editor prostého textu</translation>
@@ -18193,9 +16048,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Python Editor</source>
         <translation>Editor Pythonu</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Nastavení</translation>
@@ -18206,7 +16058,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>V nastavení ke CodePaster nebyl stanoven žádný server.</translation>
@@ -18235,46 +16087,17 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).</source>
         <translation type="obsolete">Poznámka: Zadejte název hostitelského počítače (serveru) pro službu CodePaster bez protokolové předpony (například: codepaster.mycompany.com).</translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComProtocol</name>
     <message>
         <source>Error during paste</source>
         <translation type="obsolete">Chyba při vkládání</translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComSettings</name>
     <message>
         <source>Pastebin.com</source>
         <translation type="obsolete">Pastebin.com</translation>
     </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Vkládání kódu</translation>
-    </message>
 </context>
 <context>
-    <name>PasteView</name>
-    <message>
-        <source>Paste</source>
-        <translation type="obsolete">Vložit</translation>
-    </message>
-    <message>
-        <source>&lt;Username&gt;</source>
-        <translation type="obsolete">&lt;Uživatelské jméno&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Description&gt;</source>
-        <translation type="obsolete">&lt;Popis&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Comment&gt;</source>
-        <translation type="obsolete">&lt;Poznámka&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Methods in current Document</source>
         <translation type="obsolete">Postupy v nynějším dokumentu</translation>
@@ -18291,9 +16114,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>C++ Symbols in Current Document</source>
         <translation>Symboly C++ v nynějším dokumentu</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -18334,9 +16154,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Cannot write to %1: %2</source>
         <translation type="obsolete">Soubor %1 nelze zapsat: %2</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching...</source>
         <translation type="obsolete">Hledá se...</translation>
@@ -18346,16 +16163,9 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Použití C++:</translation>
     </message>
     <message>
-        <source>Searching</source>
-        <translation>Hledá se</translation>
-    </message>
-    <message>
         <source>C++ Macro Usages:</source>
         <translation>Použití makra C++:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation type="obsolete">Třídy a metody</translation>
@@ -18370,7 +16180,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Odhlásí projekt ze skladiště CVS.</translation>
@@ -18742,7 +16552,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Vybrat počáteční adresu</translation>
@@ -18849,14 +16659,14 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>untitled</source>
         <translation>Bez názvu</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Vytvořit</translation>
@@ -18888,7 +16698,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">Vytvoří přesnou kopii projektu ze skladiště jménem Git.</translation>
@@ -18987,7 +16797,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>General settings</source>
         <translation type="obsolete">Obecná nastavení</translation>
@@ -19105,16 +16915,12 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Nastavit znovu</translation>
     </message>
     <message>
-        <source>Help Bookmarks</source>
-        <translation type="obsolete">Záložky v nápovědě</translation>
-    </message>
-    <message>
         <source>Import...</source>
-        <translation type="obsolete">Importovat...</translation>
+        <translation>Importovat...</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation type="obsolete">Exportovat...</translation>
+        <translation>Exportovat...</translation>
     </message>
     <message>
         <source>Behaviour</source>
@@ -19158,7 +16964,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Locator::Internal::DirectoryFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Obecný adresářový filtr</translation>
@@ -19191,9 +16997,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>%1 filter update: canceled</source>
         <translation>%1 stav filtru: zrušeno</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
     <message>
         <source>Files in file system</source>
         <translation type="obsolete">Soubory v souborovém systému</translation>
@@ -19202,50 +17005,18 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Files in File System</source>
         <translation>Soubory v souborovém systému</translation>
     </message>
-</context>
-<context>
-    <name>Locator::ILocatorFilter</name>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Dostupné filtry</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
     </message>
     <message>
-        <source>Type to locate</source>
-        <translation>Vzor hledání</translation>
-    </message>
-    <message>
         <source>Type to locate (%1)</source>
         <translation>Vzor hledání (%1)</translation>
     </message>
-    <message>
-        <source>Indexing</source>
-        <translation>Rejstříkování</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Obnovit</translation>
@@ -19263,27 +17034,13 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Vzor hledání</translation>
     </message>
     <message>
-        <source>Options</source>
-        <translation>Volby</translation>
-    </message>
-    <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;Sem napište&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation type="obsolete">Otevřít dokumenty</translation>
     </message>
-    <message>
-        <source>Open Documents</source>
-        <translation>Otevřít dokumenty</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (Prefix: %2)</source>
         <translation type="obsolete">%1 (Předpona: %2)</translation>
@@ -19294,7 +17051,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Program se nepodařilo spustit. Možná nesouhlasí cesta, nebo nejsou dostatečná oprávnění?</translation>
@@ -19317,16 +17074,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Nepodařilo se získat žádný výstup ladění.
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Spustit</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>No executable specified.</source>
         <translation>Nebyl zadán žádný spustitelný soubor.</translation>
@@ -19370,9 +17117,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>%1 ukončen. Vrácená hodnota %2
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Cílový adresář %1 se nepodařilo vytvořit.</translation>
@@ -19405,12 +17149,6 @@ Důvod: %2</translation>
 </translation>
     </message>
     <message>
-        <source>Running %1 %2...
-</source>
-        <translation type="obsolete">Provádí se %1 %2...
-</translation>
-    </message>
-    <message>
         <source>%1 not found in PATH
 </source>
         <translation>%1 se v CESTĚ (PATH) nepodařilo najít
@@ -19422,9 +17160,6 @@ Důvod: %2</translation>
         <translation type="obsolete">Provádí se %1...
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
         <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
@@ -19442,16 +17177,9 @@ Důvod: %2</translation>
         <extracomment>%1 is the custom process step summary</extracomment>
         <translation type="obsolete">%1 (vypnuto)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation type="obsolete">Změnit nastavení sestavování &amp;&amp; pokračovat</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Zrušit</translation>
     </message>
     <message>
         <source>Continue anyway</source>
@@ -19481,16 +17209,6 @@ Důvod: %2</translation>
         <source>Choose build configuration:</source>
         <translation type="obsolete">Vybrat nastavení sestavování:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
-    <message>
-        <source>Active run configuration</source>
-        <translation type="obsolete">Činné nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation>Vývoj</translation>
@@ -19500,13 +17218,6 @@ Důvod: %2</translation>
         <translation>Nový projekt</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation>Projekty</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
-    <message>
         <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
         <translation type="obsolete">Upravit projektová nastavení pro projekt &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
@@ -19514,27 +17225,9 @@ Důvod: %2</translation>
         <source>No Project loaded</source>
         <translation type="obsolete">Nenahrán žádný projekt</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
     <message>
         <source>Select Project</source>
         <translation type="obsolete">Vybrat projekt</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Udělat %1 činným.&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
@@ -19543,10 +17236,6 @@ Důvod: %2</translation>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Opravdu chcete odstranit nastavení spuštění &lt;b&gt;%1&lt;/b&gt;?</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Přejmenovat...</translation>
     </message>
     <message>
         <source>Run Settings</source>
@@ -19561,16 +17250,8 @@ Důvod: %2</translation>
         <translation>Metoda:</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Spustit</translation>
-    </message>
-    <message>
         <source>Run configuration:</source>
         <translation>Nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>&amp;Clone Selected</source>
-        <translation>&amp;Zdvojit výběr</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -19579,10 +17260,6 @@ Důvod: %2</translation>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>Zrušit sestavování a odstranit nastavení nasazení</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Neodstraňovat</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -19801,14 +17478,14 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;QML Make&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Nová třída&gt;</translation>
@@ -19867,14 +17544,14 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Rychlý nástup</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -20350,7 +18027,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation type="obsolete">Odhlásí projekt ze skladiště Subversion.</translation>
@@ -20363,9 +18040,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Subversion Checkout</source>
         <translation>Projekt ze skladiště Subversion (checkout)</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository, checkout directory and path.</source>
         <translation type="obsolete">Zadejte skladiště, adresář pro odhlášení a cestu.</translation>
@@ -20384,21 +18058,18 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Není souborem znázornění barev.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>Uživatelsky stanovený</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Chyba při otevírání projektu</translation>
@@ -20423,9 +18094,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation type="obsolete">Projekt &apos;%1&apos; se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Nelze spustit %1: %2</translation>
@@ -20446,9 +18114,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Stopping...</source>
         <translation>Zastavuje se...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Příkaz checkout</translation>
@@ -20469,9 +18134,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Succeeded.</source>
         <translation>Mělo úspěch.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Otevřít &quot;%1&quot;</translation>
@@ -20479,10 +18141,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Clear</source>
         <translation>Smazat</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Správa verzí</translation>
     </message>
     <message>
         <source>Executing: %1 %2</source>
@@ -20506,7 +18164,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Community</source>
         <translation type="obsolete">Společenství</translation>
@@ -20864,62 +18522,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>CommandMappings</name>
-    <message>
-        <source>Command Mappings</source>
-        <translation type="obsolete">Přiřazení příkazů</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Příkaz</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Štítek</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation type="obsolete">Cíl</translation>
-    </message>
-    <message>
-        <source>Defaults</source>
-        <translation type="obsolete">Výchozí</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
-    </message>
-    <message>
-        <source>Target Identifier</source>
-        <translation type="obsolete">Identifikátor cíle</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation type="obsolete">Cíl:</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Nastavit znovu</translation>
-    </message>
-    <message>
-        <source>Reset all to default</source>
-        <translation type="obsolete">Nastavit vše znovu na výchozí</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Nastavit znovu výchozí</translation>
-    </message>
-</context>
-<context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Stashes</source>
         <translation>Odložené změny</translation>
@@ -21051,7 +18654,7 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Obecné informace</translation>
@@ -21190,7 +18793,7 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::AddTargetDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Add target</source>
         <translation type="obsolete">Přidat cíl</translation>
@@ -21199,16 +18802,10 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <source>Target:</source>
         <translation type="obsolete">Cíl:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>DoubleTabWidget</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>TargetSettingsWidget</translation>
@@ -22196,7 +19793,7 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Self-signed certificate</source>
         <translation type="obsolete">Osobně podepsaný certifikát</translation>
@@ -22344,11 +19941,7 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
-    <message>
-        <source>Clean Repository</source>
-        <translation type="obsolete">Uklidit skladiště</translation>
-    </message>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Adresář %1 se nepodařilo smazat.</translation>
@@ -22410,68 +20003,17 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
         <source>Cleaning %1</source>
         <translation>Uklízí se %1</translation>
     </message>
-</context>
-<context>
-    <name>CommonSettingsPage</name>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Zalomit popis předložení na:</translation>
-    </message>
-    <message>
-        <source> characters</source>
-        <translation type="obsolete"> znacích</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Spustitelný soubor, který je zavolán s popisem předložení v dočasném souboru jako první argument příkazového řádku. Při neúspěchu by měl vrátit zpět hodnotu rozdílnou od nuly (!= 0) a odpovídající zprávu o obvyklé chybě kvůli poukázání na selhání.</translation>
-    </message>
     <message>
         <source>Submit message check script:</source>
         <translation type="obsolete">Skript k ověření popisu předložení:</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Soubor, který obsahuje jména uživatelů a e-mailové adresy ve čtyřsloupcovém formátu (mailmap):
-Jméno &lt;E-mail&gt; Přezdívka &lt;E-mail&gt;</translation>
     </message>
     <message>
         <source>User/alias configuration file:</source>
         <translation type="obsolete">Soubor s nastavením uživatele/přezdívky:</translation>
     </message>
     <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Soubor, který obsahuje řádky s názvy polí (například &quot;Reviewed-By:&quot;), který bude bude přidán pod okno editoru předložení.</translation>
-    </message>
-    <message>
         <source>User fields configuration file:</source>
         <translation type="obsolete">Soubor s nastavením polí uživatele:</translation>
-    </message>
-    <message>
-        <source>Submit message &amp;check script:</source>
-        <translation type="obsolete">Skript k ověření popisu předložení:</translation>
-    </message>
-    <message>
-        <source>User/&amp;alias configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením uživatele/&amp;přezdívky:</translation>
-    </message>
-    <message>
-        <source>User &amp;fields configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením p&amp;olí uživatele:</translation>
-    </message>
-    <message>
-        <source>&amp;Patch command:</source>
-        <translation type="obsolete">&amp;Příkaz pro opravný soubor:</translation>
-    </message>
-    <message>
-        <source>Specifies a command that is executed to graphically prompt for a password, 
-should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="obsolete">Určuje příkaz, který je spuštěn, aby graficky vyzval k zadání hesla, které je požadováno při ověření pravosti SSH skladiště
-(podívejte se na dokumentaci k SSH k proměnné prostředí SSH-ASKPASS).</translation>
-    </message>
-    <message>
-        <source>&amp;SSH prompt command:</source>
-        <translation type="obsolete">&amp;Příkaz pro výzvu o heslo k SSH:</translation>
     </message>
 </context>
 <context>
@@ -23126,7 +20668,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Žádná</translation>
@@ -23134,25 +20676,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>All</source>
         <translation>Vše</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
-    <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation>Nahrát</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Verze</translation>
-    </message>
-    <message>
-        <source>Vendor</source>
-        <translation>Prodejce</translation>
     </message>
     <message>
         <source>Load on Startup</source>
@@ -23164,7 +20687,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation type="obsolete">Neznámá hodnota pro &apos;enum&apos;</translation>
@@ -23302,10 +20825,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="obsolete">Bloky neuvádějí novou oblast, a mělo by se jich z toho důvodu vyvarovat</translation>
     </message>
     <message>
-        <source>unintentional empty block, use ({}) for empty object literal</source>
-        <translation type="obsolete">nezamýšlený prázdný blok, použijte ({}) jako prázdný objekt tvořený písmeny</translation>
-    </message>
-    <message>
         <source>use of the with statement is not recommended, use a var instead</source>
         <translation type="obsolete">od použití s-příkazem se zrazuje, místo toho by se mělo použít var</translation>
     </message>
@@ -23318,16 +20837,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="obsolete">od použití výrazů s čárkou se zrazuje</translation>
     </message>
     <message>
-        <source>expression statements should be assignments, calls or delete expressions only</source>
-        <translation type="obsolete">Příkazy s výrazy by měly být jen přiřazení, volání funkcí nebo výrazy delete</translation>
-    </message>
-    <message>
         <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
         <translation type="obsolete">&apos;new&apos; by se měl používat jen s funkcemi, které začínají velkým písmenem</translation>
-    </message>
-    <message>
-        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
-        <translation type="obsolete">Funkce, které začínají velkým písmenem, by se měly volat s &apos;new&apos;</translation>
     </message>
     <message>
         <source>avoid assignments in conditions</source>
@@ -23361,9 +20872,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; nebo &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Interpreter::QmlXmlReader</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Soubor není souborem modulu.</translation>
@@ -23384,20 +20892,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>%1: %2</source>
         <translation type="obsolete">%1: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>could not find file or directory</source>
         <translation type="obsolete">Soubor nebo adresář se nepodařilo najít</translation>
-    </message>
-    <message>
-        <source>expected two numbers separated by a dot</source>
-        <translation type="obsolete">Byla očekávána dvě čísla oddělená čárkou</translation>
-    </message>
-    <message>
-        <source>package import requires a version number</source>
-        <translation type="obsolete">Zavedení balíčku vyžaduje číslo verze</translation>
     </message>
     <message>
         <source>package not found</source>
@@ -23432,7 +20929,7 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Locked</source>
         <translation>Ukotveno</translation>
@@ -23441,16 +20938,10 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
         <source>Reset to Default Layout</source>
         <translation>Nastavit znovu výchozí rozvržení</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filtr</translation>
@@ -23459,9 +20950,6 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
         <source>Clear text</source>
         <translation>Smazat text</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>Soubor byl odstraněn</translation>
@@ -23502,23 +20990,17 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
         <source>Save</source>
         <translation type="obsolete">Uložit</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Proměnná&lt;/th&gt;&lt;th&gt;Roztáhne se k&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;adresáři současného souboru&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;souborový název (s úplnou cestou)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;souborový název (bez cesty)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Decimal unsigned value (little endian): %1
 Decimal unsigned value (big endian): %2
@@ -23530,115 +21012,12 @@ Desetinná hodnota se znaménkem (malý endian): %3
 Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
     <message>
-        <source>Memory at 0x%1</source>
-        <translation type="obsolete">Paměť při 0x%1</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="obsolete">&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="obsolete">&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation type="obsolete">%1-bit&amp;nbsp;typ celého čísla</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="obsolete">Malý endian</translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="obsolete">Velký endian</translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation type="obsolete">Dvojková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation type="obsolete">Osmičková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;dvojková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;osmičková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">&lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí &lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">&lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí &lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">Kopírování se nezdařilo</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation type="obsolete">Nemůžete kopírovat více jak 4 MB binárních dat.</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation type="obsolete">Kopírovat výběr jako znaky ASCII</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation type="obsolete">Kopírovat výběr jako šestnáctkové hodnoty</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation type="obsolete">Nastavit bod přerušení dat na výběru</translation>
-    </message>
-    <message>
-        <source>Jump to Address in This Window</source>
-        <translation type="obsolete">Jít na adresu v tomto okně</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation type="obsolete">Jít na adresu v novém okně</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation type="obsolete">Jít na adresu 0x%1 v tomto okně</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation type="obsolete">Jít na adresu 0x%1 v novém okně</translation>
-    </message>
-</context>
-<context>
-    <name>BINEditor::Internal::ImageViewerFactory</name>
-    <message>
         <source>Image Viewer</source>
         <translation type="obsolete">Prohlížeč obrázků</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation type="obsolete">CMake-Ziel ausführen</translation>
@@ -23693,7 +21072,7 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Přiřazení příkazů</translation>
@@ -23731,20 +21110,9 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <translation>Nastavit znovu na výchozí.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
-    </message>
-    <message>
         <source>Target:</source>
         <translation>Cíl:</translation>
     </message>
-    <message>
-        <source>Label</source>
-        <translation>Štítek</translation>
-    </message>
-</context>
-<context>
-    <name>Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -23766,16 +21134,10 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <comment>msgShowOptionsDialog</comment>
         <translation>Nastavení...</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Návrh</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>Systémový editor</translation>
@@ -23783,17 +21145,6 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     <message>
         <source>Could not open url %1.</source>
         <translation>Nepodařilo se otevřít adresu (URL) %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Copy full path to clipboard</source>
-        <translation type="obsolete">Kopírovat celou cestu do schránky</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
     </message>
     <message>
         <source>Copy Full Path to Clipboard</source>
@@ -23808,20 +21159,9 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <translation>Odstranit rozdělení</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>Soubor je zapisovatelný</translation>
     </message>
-</context>
-<context>
-    <name>Core::HelpManager</name>
     <message>
         <source>Unfiltered</source>
         <translation>Nezpracovaný</translation>
@@ -23839,14 +21179,11 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::InteractiveSshConnection</name>
+    <name>QtC::Core</name>
     <message>
         <source>Error sending input</source>
         <translation type="obsolete">Chyba při posílání vstupních dat</translation>
     </message>
-</context>
-<context>
-    <name>Core::SftpConnection</name>
     <message>
         <source>Error setting up SFTP subsystem</source>
         <translation type="obsolete">Chyba při nastavování podsystému SFTP</translation>
@@ -23930,7 +21267,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>Úryvky kódu</translation>
@@ -23981,14 +21318,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Přepsat za použití %1</translation>
@@ -24119,7 +21449,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Editor odevzdání (commit) pro CVS</translation>
@@ -24274,14 +21604,14 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Opatřit anotacemi revizi &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
@@ -24385,7 +21715,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Tento soubor lze upravovat pouze v &lt;b&gt;Režimu návrhu&lt;/b&gt;.</translation>
@@ -24404,7 +21734,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Recursive mapping</source>
         <translation>Rekurzivní přiřazení</translation>
@@ -24421,16 +21751,9 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Not an editor command: %1</source>
         <translation>Není příkazem editoru: %1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Přiřazení příkazů pro Ex</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -24446,7 +21769,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>QtC::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Hledat/Nahradit</translation>
@@ -24469,7 +21792,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -24483,10 +21806,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation>Nastavení je chybné. Prověřte, prosím, pohled na potíže kvůli podrobnostem.</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Přepsat %1:</translation>
-    </message>
-    <message>
         <source>Make arguments:</source>
         <translation>Argumenty příkazového řádku pro &apos;make&apos;:</translation>
     </message>
@@ -24494,9 +21813,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Targets:</source>
         <translation>Cíle:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
@@ -24507,7 +21823,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">&lt;žádná větev&gt;</translation>
@@ -24567,7 +21883,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br/&gt;&lt;br/&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br/&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;&lt;title&gt;Error 404...&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div align=&quot;center&quot;&gt;&lt;br/&gt;&lt;br/&gt;&lt;h1&gt;Stránku se nepodařilo najít&lt;/h1&gt;&lt;br/&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -24594,7 +21910,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation>Klonování</translation>
@@ -24903,7 +22219,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Nebyl zadán žádný spustitelný soubor</translation>
@@ -24937,16 +22253,13 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Skladiště &quot;%1&quot; neexistuje.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditor</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Opatřit anotacemi seznam se změnami &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -24955,14 +22268,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>Bez názvu</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Sestavení</translation>
     </message>
     <message>
         <source>Clean</source>
@@ -24977,9 +22282,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Clean Environment</source>
         <translation>Smazat prostředí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Vyprázdnit prostředí systému</translation>
@@ -25004,7 +22306,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -25061,10 +22363,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Qt Creator plugin</source>
         <translation type="obsolete">Přídavný modul pro Qt Creator</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="obsolete">Jiný projekt</translation>
     </message>
     <message>
         <source>Creates an application descriptor file.</source>
@@ -25322,23 +22620,14 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Qt Creator build:</source>
         <translation>Adresář se sestavením Qt Creatoru:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomProjectWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Projekt %1 se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Cesta:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;Žádné další projekty v tomto sezení&gt;</translation>
@@ -25352,17 +22641,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Závislosti</translation>
-    </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
-    <message>
-        <source>Editor Settings</source>
-        <translation type="obsolete">Nastavení editoru</translation>
     </message>
     <message>
         <source>Editor</source>
@@ -25381,11 +22663,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
-    <message>
-        <source>Open</source>
-        <translation>Otevřít</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Open parent folder</source>
         <translation type="obsolete">Otevřít rodičovskou složku</translation>
@@ -25409,10 +22687,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Show in Explorer...</source>
         <translation type="obsolete">Ukázat v průzkumníku...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <translation type="obsolete">Ukázat v hledáčku...</translation>
     </message>
     <message>
         <source>Show containing folder...</source>
@@ -25450,61 +22724,9 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Find in this directory...</source>
         <translation>Najít v tomto adresáři...</translation>
     </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Ukázat obsaženou složku...</translation>
-    </message>
-    <message>
-        <source>Open Command Prompt Here...</source>
-        <translation type="obsolete">Otevřít příkazový řádek zde...</translation>
-    </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Otevřít terminál zde...</translation>
-    </message>
-    <message>
-        <source>Launching a file browser failed</source>
-        <translation type="obsolete">Spuštění prohlížeče souborů se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Unable to start the file manager:
-
-%1
-
-</source>
-        <translation type="obsolete">Prohlížeč souborů se nepodařilo spustit:
-
-%1
-
-</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; returned the following error:
-
-%2</source>
-        <translation type="obsolete">Chyba při provádění &apos;%1&apos;:
-
-%2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation type="obsolete">Nastavení...</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer Failed</source>
-        <translation type="obsolete">Spuštění Windows Exploreru se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer failed</source>
-        <translation type="obsolete">Spuštění Windows Exploreru se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translation type="obsolete">Windows Explorer se nepodařilo spustit, protože se v cestě nepodařilo nalézt soubor explorer.exe.</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MiniTargetWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Select active build configuration</source>
         <translation type="obsolete">Vybrat nastavení sestavení</translation>
@@ -25521,9 +22743,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Run:</source>
         <translation type="obsolete">Spuštění:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Projekt</translation>
@@ -25539,14 +22758,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Kit</source>
         <translation>Sada</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Nasazení</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Spustit</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -25621,14 +22832,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation type="obsolete">Vybrat projekt</translation>
     </message>
     <message>
-        <source>Build:</source>
-        <translation type="obsolete">Sestavení:</translation>
-    </message>
-    <message>
-        <source>Run:</source>
-        <translation type="obsolete">Spuštění:</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Project:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Run:&lt;/b&gt; %4%5&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Projekt:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Spuštění:&lt;/b&gt; %4%5&lt;/html&gt;</translation>
     </message>
@@ -25644,19 +22847,9 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>&lt;br/&gt;%1</source>
         <translation type="obsolete">&lt;br/&gt;%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
     <message>
         <source>Clone of %1</source>
         <translation>Klon %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
     </message>
     <message>
         <source>Build &amp; Run</source>
@@ -25671,14 +22864,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation>Programy</translation>
     </message>
     <message>
-        <source>Libraries</source>
-        <translation>Knihovny</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation>Projekty C/C++ (bez Qt)</translation>
-    </message>
-    <message>
         <source>Import Project</source>
         <translation>Importovat projekt</translation>
     </message>
@@ -25690,34 +22875,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Qt Application</source>
         <translation type="obsolete">Program Qt</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation type="obsolete">Cíle</translation>
     </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Sestavení a spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanelFactory</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Zadejte název sezení:</translation>
@@ -25726,20 +22887,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Switch to</source>
         <translation>Přepnout na</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
     <message>
         <source>Run</source>
         <translation>Spuštění</translation>
     </message>
-    <message>
-        <source>Build</source>
-        <translation>Sestavení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">Není stanoven cíl.</translation>
@@ -25803,10 +22954,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation>Zrušit sestavování a odstranit sadu</translation>
     </message>
     <message>
-        <source>Do Not Remove</source>
-        <translation>Neodstraňovat</translation>
-    </message>
-    <message>
         <source>Remove Kit %1?</source>
         <translation>Odstranit sadu %1?</translation>
     </message>
@@ -25868,30 +23015,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::TaskWindow</name>
-    <message>
-        <source>Build Issues</source>
-        <translation type="obsolete">Potíže při sestavování</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Kopírovat</translation>
-    </message>
-    <message>
-        <source>&amp;Annotate</source>
-        <translation type="obsolete">&amp;Opatřit vysvětlivkami</translation>
-    </message>
-    <message>
-        <source>Show Warnings</source>
-        <translation type="obsolete">Ukázat varování</translation>
-    </message>
-    <message>
-        <source>Filter by categories</source>
-        <translation type="obsolete">Filtrovat podle skupin</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -25899,7 +23023,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -25949,7 +23073,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -26229,7 +23353,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>Otevřít soubor</translation>
@@ -26906,7 +24030,7 @@ Ověřte, prosím, nastavení svého projektu.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Rename...</source>
         <translation type="obsolete">Přejmenovat...</translation>
@@ -27073,7 +24197,7 @@ Ověřte, prosím, nastavení svého projektu.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Error while loading project file!</source>
         <translation type="obsolete">Chyba při nahrávání projektového souboru!</translation>
@@ -27106,28 +24230,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <source>No Qt version set in kit.</source>
         <translation>V sadě není nastavena verze Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
-    <message>
-        <source>New QML Project</source>
-        <translation type="obsolete">Nový projekt QML</translation>
-    </message>
-    <message>
-        <source>This wizard generates a QML application project.</source>
-        <translation type="obsolete">Tento průvodce vytvoří jeden projekt programu QML.</translation>
-    </message>
-    <message>
-        <source>New Qt Quick UI Project</source>
-        <translation type="obsolete">Nový projekt Qt Quick UI</translation>
-    </message>
-    <message>
-        <source>This wizard generates a Qt Quick UI project.</source>
-        <translation type="obsolete">Tento průvodce vytvoří projekt Qt Quick UI.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
         <source>Qt QML Application</source>
         <translation type="obsolete">Program Qt QML</translation>
@@ -27143,10 +24245,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Seznam adresářů s přídavnými moduly podaný pro dobu běhu QML</translation>
-    </message>
-    <message>
-        <source>Qt Quick UI</source>
-        <translation type="obsolete">Qt Quick UI</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
@@ -27176,16 +24274,10 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
 
 Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v prohlížeči QML. K vytvoření a ke spuštění tohoto typu projektů není potřeba, aby bylo ve vašem počítači nainstalováno vývojářské prostředí.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager</name>
     <message>
         <source>Qt Quick Project</source>
         <translation type="obsolete">Projekt Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
     <message>
         <source>Import Existing Qt QML Directory</source>
         <translation type="obsolete">Zavést stávající adresář Qt QML</translation>
@@ -27195,27 +24287,8 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <translation type="obsolete">Název a adresář projektu</translation>
     </message>
     <message>
-        <source>Project name:</source>
-        <translation type="obsolete">Název projektu:</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <translation type="obsolete">Umístění:</translation>
-    </message>
-    <message>
         <source>Location</source>
         <translation type="obsolete">Umístění</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
-    <message>
-        <source>Import Existing Qt QML Directory</source>
-        <translation type="obsolete">Zavést stávající adresář Qt QML</translation>
-    </message>
-    <message>
-        <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation type="obsolete">Vytvoří projekt QML ze stávajícího adresáře se soubory QML.</translation>
     </message>
     <message>
         <source>File generated by QtCreator</source>
@@ -27223,21 +24296,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Soubor vytvořený programem Qt Creator</translation>
     </message>
-    <message>
-        <source>Include .qml, .js, and image files from current directory and subdirectories</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Zahrnout soubory .qml, .js a soubory s obrázky z nynějšího adresáře a podadresářů</translation>
-    </message>
-    <message>
-        <source>List of plugin directories passed to QML runtime</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Seznam adresářů s přídavnými moduly podaný pro dobu běhu QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
@@ -27250,9 +24308,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlobserver found.</source>
         <translation type="obsolete">Žádný qmlviewer nebo qmlobserver se nepodařilo najít.</translation>
@@ -27272,18 +24327,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <translation>Prohlížeč QML</translation>
     </message>
     <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Prohlížeč QML</translation>
-    </message>
-    <message>
-        <source>QML Viewer arguments:</source>
-        <translation type="obsolete">Argumenty pro prohlížeč QML:</translation>
-    </message>
-    <message>
-        <source>Main QML File:</source>
-        <translation type="obsolete">Hlavní soubor QML:</translation>
-    </message>
-    <message>
         <source>Debugging Address:</source>
         <translation type="obsolete">Adresa pro ladění:</translation>
     </message>
@@ -27291,16 +24334,10 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>Debugging Port:</source>
         <translation type="obsolete">Přípojka pro ladění:</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Nynější soubor&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">Spustit skript QML</translation>
@@ -27313,9 +24350,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>QML Scene</source>
         <translation>Scéna QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControl</name>
     <message>
         <source>Starting %1 %2</source>
         <translation type="obsolete">Spouští se %1 %2</translation>
@@ -27324,23 +24358,17 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 ukončen. Vrácená hodnota %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Spustit</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlTaskManager</name>
     <message>
         <source>QML</source>
         <translation type="obsolete">QML</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Start Maemo Emulator</source>
         <translation type="obsolete">Spustit napodobovatele jinak též emulátor Maemo</translation>
@@ -27511,7 +24539,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::S60ProjectChecker</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>The Symbian SDK and the project sources must reside on the same drive.</source>
         <translation type="obsolete">Symbian SDK a projekt se musí nacházet na stejné diskové jednotce.</translation>
@@ -27538,7 +24566,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>Vyhodnocení</translation>
@@ -27585,7 +24613,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -27598,7 +24626,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake nepodporuje žádné sestavování v adresářích, které se nacházejí pod zdrojovým adresářem.</translation>
@@ -27609,7 +24637,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Není nastavena žádná cesta ke qmake</translation>
@@ -27778,7 +24806,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Mobile Qt Application</source>
         <translation type="obsolete">Program Qt pro přenosná zařízení</translation>
@@ -27817,14 +24845,14 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditor</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Opatřit anotacemi revizi &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>Textový editor</translation>
@@ -27835,11 +24863,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Správa verzí</translation>
-    </message>
+    <name>QtC::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>Soubor &apos;%1&apos;  se nepodařilo smazat.</translation>
@@ -27929,7 +24953,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Text</translation>
@@ -27967,7 +24991,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -27996,13 +25020,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <source>10 x 10</source>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>The image is scaled to fit</source>
         <translation>Velikost obrázku je změněna tak, že vyplní plochu</translation>
@@ -28028,10 +25045,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <translation>Velikost obrázku je změněna rovnoměrně, ořezání, pokud je potřeba</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-    <message>
         <source>The image is scaled to fit.</source>
         <translation>Velikost obrázku je změněna tak, že vyplní plochu.</translation>
     </message>
@@ -28055,13 +25068,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Velikost obrázku je změněna rovnoměrně, ořezání, pokud je potřeba.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>Přechod</translation>
@@ -28071,16 +25077,9 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <translation>Barva</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Okraj</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -28234,7 +25233,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Obecné informace</translation>
@@ -28277,7 +25276,7 @@ Místní zápisy nejsou odevzdány do hlavní větve, dokud není proveden norm�
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed.</source>
@@ -28354,7 +25353,7 @@ Nová větev bude ve všech operacích závislá na dostupnosti zdrojové větve
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -28511,7 +25510,7 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Vrátit</translation>
@@ -28522,7 +25521,7 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -28533,7 +25532,7 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
+    <name>QtC::Core</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -28543,24 +25542,12 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
         <translation>Přidat nástroj</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Remove tool</source>
         <translation>Odstranit nástroj</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>Revert tool to default</source>
         <translation>Vrátit nástroj na výchozí hodnotu</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -28678,130 +25665,13 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
 &lt;ul&gt;&lt;li&gt;Potlačit: S výstupem nezacházet&lt;/li&gt;&lt;li&gt;Ukázat v panelu: &apos;Obecné výstupy&apos; ukazovat v panelu &lt;/li&gt;&lt;li&gt;Nahradit vybraný text: Text vybraný v dokumentu bude nahrazen výstupem.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
-    <message>
-        <source>Value:</source>
-        <translation type="obsolete">Hodnota:</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Typ</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="obsolete">Řetězec</translation>
-    </message>
-    <message>
-        <source>Byte</source>
-        <translation type="obsolete">Byte</translation>
-    </message>
-    <message>
-        <source>Use Recommended</source>
-        <translation type="obsolete">Použít doporučené</translation>
-    </message>
-    <message>
-        <source>Start range:</source>
-        <translation type="obsolete">Začátek oblasti:</translation>
-    </message>
-    <message>
-        <source>End range:</source>
-        <translation type="obsolete">Konec oblasti:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation type="obsolete">Přednost:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Poznámka: Velké oblasti se mohou na rychlosti otevírání souborů odrazit záporně.&lt;/i&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Registered MIME Types</source>
-        <translation type="obsolete">Zapsané MIME typy</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation type="obsolete">Nastavit vše znovu na výchozí.</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="obsolete">Podrobnosti</translation>
-    </message>
-    <message>
-        <source>Patterns:</source>
-        <translation type="obsolete">Vzory:</translation>
-    </message>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">Kouzelné záhlaví</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Typ</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation type="obsolete">Rozsah</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation type="obsolete">Přednost</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="obsolete">Upravit</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Přidat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Upravit...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation type="obsolete">Proměnné</translation>
-    </message>
-    <message>
-        <source>Select a variable to insert.</source>
-        <translation type="obsolete">Vyberte proměnnou, která se má vložit.</translation>
-    </message>
     <message>
         <source>Insert variable</source>
         <translation>Vložit proměnnou</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -29070,7 +25940,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Edit Breakpoint Properties</source>
         <translation>Upravit vlastnosti bodu přerušení</translation>
@@ -29252,34 +26122,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>StartRemoteEngineDialog</name>
-    <message>
-        <source>Start Remote Engine</source>
-        <translation type="obsolete">Spustit vzdálený stroj</translation>
-    </message>
-    <message>
-        <source>&amp;Host:</source>
-        <translation type="obsolete">&amp;Hostitel:</translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation type="obsolete">&amp;Uživatelské jméno:</translation>
-    </message>
-    <message>
-        <source>&amp;Password:</source>
-        <translation type="obsolete">He&amp;slo:</translation>
-    </message>
-    <message>
-        <source>&amp;Engine path:</source>
-        <translation type="obsolete">Cesta ke &amp;stroji:</translation>
-    </message>
-    <message>
-        <source>&amp;Inferior path:</source>
-        <translation type="obsolete">&amp;Podřízená cesta:</translation>
-    </message>
-</context>
-<context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -29346,7 +26189,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Nastavení filtru</translation>
@@ -29369,7 +26212,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>Prohlížeč obrázků</translation>
@@ -29400,7 +26243,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -29433,9 +26276,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <source>Description:</source>
         <translation>Popis:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Uložit makro</translation>
@@ -29444,24 +26284,9 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
-    <message>
-        <source>Description:</source>
-        <translation>Popis:</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::CodeStyleSettingsPropertiesPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation type="obsolete">Jazyk:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>Výběr průvodce pro zveřejnění</translation>
@@ -29477,21 +26302,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
         <translation>Projekt &apos;%1&apos; nyní nelze zveřejnit.</translation>
-    </message>
-</context>
-<context>
-    <name>ToolChainOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation type="obsolete">Klonovat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
     </message>
 </context>
 <context>
@@ -29528,22 +26338,15 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>ComponentNameDialog</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
     </message>
     <message>
-        <source>Component name:</source>
-        <translation type="obsolete">Název součástky:</translation>
-    </message>
-    <message>
         <source>Choose...</source>
         <translation type="obsolete">Vybrat...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -29570,25 +26373,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>StatusDisplay</name>
-    <message>
-        <source>No QML events recorded</source>
-        <translation type="obsolete">Nebyly nahrány žádné události QML</translation>
-    </message>
-    <message>
-        <source>Profiling application</source>
-        <translation type="obsolete">Profiluje se aplikace</translation>
-    </message>
-    <message>
-        <source>Loading data</source>
-        <translation type="obsolete">Nahrávají se data</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation type="obsolete">Program zastaven před nahráním všech dat</translation>
-    </message>
-</context>
-<context>
     <name>TimeDisplay</name>
     <message>
         <source>length: %1</source>
@@ -29596,7 +26380,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -29639,7 +26423,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Knihovna:</translation>
@@ -29824,7 +26608,7 @@ Předchozí verze Qt mají omezení v sestavování vhodných souborů SIS.</tra
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -30032,7 +26816,7 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Používá se k určení informace o typu QML pro na knihovně založené přídavné moduly.</translation>
@@ -30093,9 +26877,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
         <source>Compiler:</source>
         <translation>Překladač:</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Název verze:</translation>
@@ -30108,9 +26889,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
         <source>Edit</source>
         <translation>Upravit</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Název</translation>
@@ -30134,45 +26912,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     <message>
         <source>Add...</source>
         <translation>Přidat...</translation>
-    </message>
-</context>
-<context>
-    <name>GenericLinuxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">Stránka průvodce</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation type="obsolete">Název nastavení:</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation type="obsolete">Název hostitelského počítače nebo IP adresa zařízení:</translation>
-    </message>
-    <message>
-        <source>The user name to log into the device:</source>
-        <translation type="obsolete">Uživatelské jméno pro přihlášení se k zařízení:</translation>
-    </message>
-    <message>
-        <source>The authentication type:</source>
-        <translation type="obsolete">Druh ověření pravosti:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Heslo</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation type="obsolete">Klíč</translation>
-    </message>
-    <message>
-        <source>The user&apos;s password:</source>
-        <translation type="obsolete">Heslo uživatele:</translation>
-    </message>
-    <message>
-        <source>The file containing the user&apos;s private key:</source>
-        <translation type="obsolete">Soubor se soukromým klíčem uživatele:</translation>
     </message>
 </context>
 <context>
@@ -30463,168 +27202,14 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>BehaviorSettingsWidget</name>
-    <message>
-        <source>Cleanup actions which are automatically performed right before the file is saved to disk.</source>
-        <translation type="obsolete">Opravy, které se automaticky provádějí bezprostředně před uložením souboru na disk.</translation>
-    </message>
-    <message>
-        <source>Cleanups Upon Saving</source>
-        <translation type="obsolete">Opravy při uložení</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace upon saving.</source>
-        <translation type="obsolete">Odstraní při ukládání prázdné znaky na konci řádků.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Vyčistit prázdné znaky</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Vyčistí prázdné znaky v celém dokumentu a nejen ve změněných částech.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">V celém &amp;dokumentu</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Opraví prázdné znaky na začátku řádků podle nastavení zarážek.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Opravit odsazení</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Doplnit nový řádek na konci souboru</translation>
-    </message>
-    <message>
-        <source>File Encodings</source>
-        <translation type="obsolete">Kódování souborů</translation>
-    </message>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Default encoding: </source>
         <translation type="obsolete">Výchozí kódování: </translation>
     </message>
     <message>
-        <source>UTF-8 BOM:</source>
-        <translation type="obsolete">UTF-8 BOM:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;How text editors should deal with UTF-8 Byte Order Marks. The options are:&lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;Add If Encoding Is UTF-8:&lt;/i&gt; always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is &lt;i&gt;System&lt;/i&gt;, as Qt Creator does not know what it actually is.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Keep If Already Present: &lt;/i&gt;save the file with a BOM if it already had one when it was loaded.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Always Delete:&lt;/i&gt; never write an UTF-8 BOM, possibly deleting a pre-existing one.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.&lt;/p&gt;
-&lt;p&gt;This setting does &lt;b&gt;not&lt;/b&gt; influence the use of UTF-16 and UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Udává, jak se chovají textové editory, co se týče UTF-8 BOM (Byte Order Marks). Na výběr je:&lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;Přidat, je-li kódování UTF-8&lt;/i&gt; Vždy přidat. BOM při ukládání souboru s kódováním UTF-8. Toto však nebude fungovat, je-li kódování &lt;i&gt;System&lt;/i&gt;, neboť Qt Creator v tomto případě kódování nedokáže určit.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Zachovat, je-li už přítomno: &lt;/i&gt;Uložit soubor s BOM, pokud jej mělo již při nahrání, což bylo zjištěno.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Smazat vždy:&lt;/i&gt; Nikdy nezapisovat UTF-8 BOM, existující podle okolností odstranit.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Dejte pozor na to, že UTF-8 BOMs nejsou běžné a některé editory s nimi nezacházejí správně. Z toho důvodu to nedává obvykle skoro žádný smysl je přidávat.&lt;/p&gt;
-&lt;p&gt;Toto nastavení &lt;b&gt;neovlivní&lt;/b&gt; používání UTF-16 a UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Add If Encoding Is UTF-8</source>
-        <translation type="obsolete">Přidat, pokud je kódování UTF-8</translation>
-    </message>
-    <message>
-        <source>Keep If Already Present</source>
-        <translation type="obsolete">Zachovat, pokud je už přítomno</translation>
-    </message>
-    <message>
-        <source>Always Delete</source>
-        <translation type="obsolete">Smazat vždy</translation>
-    </message>
-    <message>
         <source>Mouse</source>
         <translation type="obsolete">Myš</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Povolit navádění &amp;myší</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Povolit přibližování a oddalování pomocí &amp;kolečka myši</translation>
-    </message>
-    <message>
-        <source>Typing</source>
-        <translation type="obsolete">Při psaní</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Povolit automatické &amp;odsazení</translation>
-    </message>
-    <message>
-        <source>Backspace indentation:</source>
-        <translation type="obsolete">Odsazení při zpětné klávese (Backspace):</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Specifies how backspace interacts with indentation.
-
-&lt;ul&gt;
-&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
-&lt;/li&gt;
-
-&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
-&lt;/li&gt;
-
-&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
-
-&lt;ul&gt;
-&lt;li&gt;Žádné: Žádné zvláštní chování. Obvyklé chování zpětné klávesy.
-&lt;/li&gt;
-
-&lt;li&gt;Sledovat předchozí odsazení: V prázdném místě na začátku je ukazovátko postaveno zpět na nejbližší úroveň odsazení použitou na předchozích řádcích.
-&lt;/li&gt;
-
-&lt;li&gt;Zrušit odsazení: Pokud je znak nacházející se za ukazovátkem mezera, chová se zpětná klávesa jako zpětný tabulátor.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Žádné</translation>
-    </message>
-    <message>
-        <source>Follows Previous Indents</source>
-        <translation type="obsolete">Sledovat předchozí odsazení</translation>
-    </message>
-    <message>
-        <source>Unindents</source>
-        <translation type="obsolete">Zrušit odsazení</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">Klávesa pro zarážku provede automatické odsazení:</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Nikdy</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Pouze v prázdném místu na začátku řádku</translation>
-    </message>
-    <message>
-        <source>Always write a newline character at the end of the file.</source>
-        <translation type="obsolete">Vždy psát znak pro nový řádek na konci souboru.</translation>
     </message>
     <message>
         <source>Enable &amp;tooltips only when Shift key is down</source>
@@ -30696,92 +27281,18 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     </message>
 </context>
 <context>
-    <name>SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Group: </source>
-        <translation type="obsolete">Skupina: </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Revert Built-in</source>
-        <translation type="obsolete">Vrátit zpět vnitřní kousek</translation>
-    </message>
-    <message>
-        <source>Restore Removed Built-ins</source>
-        <translation type="obsolete">Obnovit všechny vnitřní kousky</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Nastavit znovu vše</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabPreferencesWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Tab settings:</source>
-        <translation type="obsolete">Nastavení zarážek:</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Vložit místo zarážek prázdné &amp;znaky (mezery)</translation>
-    </message>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
         <translation type="obsolete">Automaticky určit vycházeje z nejbližšího odsazeného řádku (předchozí řádek upřednostňován před dalším řádkem)</translation>
     </message>
     <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Založeno na okolních řádcích</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Povolit automatické &amp;odsazení</translation>
-    </message>
-    <message>
         <source>Backspace will go back one indentation level instead of one space.</source>
         <translation type="obsolete">Zpětná klávesa (Backspace) jde zpět o jednu úroveň odsazení. Sleduje tedy hloubku odsazení místo toho, aby smazala jen jeden znak.</translation>
     </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">&amp;Zpětná klávesa sleduje hloubku odsazení</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">Klávesa pro zarážku provede automatické odsazení:</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Nikdy</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Pouze v prázdném místu na začátku řádku</translation>
-    </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -30802,9 +27313,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <source>Save Suppression</source>
         <translation>Uložit soubor vyloučení</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Obecná nastavení</translation>
@@ -31006,7 +27514,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Configure</source>
         <translation type="obsolete">Nastavit</translation>
@@ -31588,7 +28096,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>ExampleDelegate</name>
+    <name>QtC::Core</name>
     <message>
         <source>Tags:</source>
         <translation type="obsolete">Klíčová slova:</translation>
@@ -31636,25 +28144,14 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>RecentProjects</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Recently Edited Projects</source>
         <translation type="obsolete">Naposledy upravované projekty</translation>
     </message>
-</context>
-<context>
-    <name>RecentSessions</name>
     <message>
         <source>Recently Used Sessions</source>
         <translation type="obsolete">Naposledy používaná sezení</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (poslední sezení)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (nynější sezení)</translation>
     </message>
 </context>
 <context>
@@ -31665,7 +28162,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skryje tento panel nástrojů.</translation>
@@ -31686,9 +28183,6 @@ With cache simulation, further event counters are enabled:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Skryje tento panel nástrojů. Tento panel může být v nastavení nebo v kontextové nabídce trvale zakázán.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation>Dvojité klepnutí pro náhled</translation>
@@ -31699,14 +28193,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::FileWidget</name>
-    <message>
-        <source>Open File</source>
-        <translation>Otevřít soubor</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJS::Bind</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>Byla očekávána dvě čísla oddělená čárkou</translation>
@@ -31715,13 +28202,6 @@ With cache simulation, further event counters are enabled:
         <source>package import requires a version number</source>
         <translation>Importování balíčku vyžaduje číslo verze</translation>
     </message>
-    <message>
-        <source>file or directory not found</source>
-        <translation type="obsolete">Soubor nebo adresář nenalezen</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -31896,7 +28376,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Proces:&quot;%1&quot; se nepodařilo spustit</translation>
@@ -31937,15 +28417,9 @@ With cache simulation, further event counters are enabled:
         <translation>Provádí se %1 %2 ...
 </translation>
     </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 se v CESTĚ (PATH) nepodařilo najít
-</translation>
-    </message>
 </context>
 <context>
-    <name>Utils::DebuggerLanguageChooser</name>
+    <name>QtC::Utils</name>
     <message>
         <source>C++</source>
         <translation type="obsolete">C++</translation>
@@ -31962,9 +28436,6 @@ With cache simulation, further event counters are enabled:
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Jaké jsou předpoklady?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;NENÍ NASTAVENO&gt;</translation>
@@ -31987,9 +28458,6 @@ With cache simulation, further event counters are enabled:
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;HODNOTA&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Kořenový adresář nelze odstranit..</translation>
@@ -32042,23 +28510,14 @@ With cache simulation, further event counters are enabled:
         <source>Cannot create temporary file in %1: %2</source>
         <translation>Nepodařilo se vytvořit žádný dočasný soubor v %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation>IP adresa je neplatná.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Chyba v příkazovém řádku.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
         <translation type="obsolete">Server se nepodařilo spustit subsystém sftp.</translation>
@@ -32154,14 +28613,11 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::Internal::SshChannelManager</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">Neplatný identifikátor kanálu %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">Chyba v protokolu SSH: %1</translation>
@@ -32177,10 +28633,6 @@ Server: %2.</translation>
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
         <translation type="obsolete">Neplatný identifikátor serveru &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">Neočekávaný paket typu %1.</translation>
     </message>
     <message>
         <source>Private key error: %1</source>
@@ -32222,9 +28674,6 @@ Server: %2.</translation>
         <source>Private key file error: %1</source>
         <translation type="obsolete">Chyba v soukromém klíči: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>Příkaz &apos;%1&apos; byl ukončen úspěšně.</translation>
@@ -32356,7 +28805,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Rozbor</translation>
@@ -32423,7 +28872,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -32635,7 +29084,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Cloning</source>
         <translation>Klonování</translation>
@@ -32654,7 +29103,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -32669,39 +29118,28 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Editor zápisu (commit)</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Příkaz Bazaar</translation>
     </message>
 </context>
 <context>
-    <name>BinEditorFile</name>
-    <message>
-        <source>Cannot open %1: %2</source>
-        <translation type="obsolete">Nelze otevřít soubor &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Chyba souboru</translation>
-    </message>
-</context>
-<context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>Pohled na třídu</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Změny v souborech cmake budou ukázány po vytvoření projektového stromu.</translation>
@@ -32716,7 +29154,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolModel</name>
+    <name>QtC::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>Nezařazeno do skupin</translation>
@@ -32746,9 +29184,6 @@ Server: %2.</translation>
         <extracomment>Sample external tool text</extracomment>
         <translation>Užitečný text</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Přepsat stávající soubory</translation>
@@ -32761,9 +29196,6 @@ Would you like to overwrite them?</source>
 %1.
 Chcete je nechat přepsat?</translation>
     </message>
-</context>
-<context>
-    <name>EditorManager</name>
     <message>
         <source>Go Back</source>
         <translation>Jít zpět</translation>
@@ -32773,36 +29205,9 @@ Chcete je nechat přepsat?</translation>
         <translation>Jít vpřed</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>Rozdělit jedno vedle druhého</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Otevřít v novém okně</translation>
-    </message>
-    <message>
         <source>Close Document</source>
         <translation>Zavřít dokument</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Zavřít</translation>
-    </message>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation>Další otevřený dokument na seznamu</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>Předchozí otevřený dokument na seznamu</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -32821,13 +29226,6 @@ Chcete je nechat přepsat?</translation>
         <source>&apos;%1&apos; finished</source>
         <translation>&apos;%1&apos; dokončeno</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
-    <message>
-        <source>Configure...</source>
-        <translation>Nastavení...</translation>
-    </message>
     <message>
         <source>&amp;External</source>
         <translation>&amp;Externí</translation>
@@ -32840,16 +29238,10 @@ Chcete je nechat přepsat?</translation>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Chyba: Externí nástroj v %1 obsahuje již zadané ID</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFile</name>
     <message>
         <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
         <translation type="obsolete">Soubor byl obnoven z automaticky uložené záložní kopie. Vyberte &lt;i&gt;Uložit&lt;/i&gt; pro potvrzení nebo &lt;i&gt;Obnovit&lt;/i&gt; pro zahození změn.</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>Do not show again</source>
         <translation>Neukazovat znovu</translation>
@@ -32857,17 +29249,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Do Not Show Again</source>
         <translation>Neukazovat znovu</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">Kouzelné záhlaví</translation>
     </message>
     <message>
         <source>Add Magic Header</source>
@@ -32921,9 +29302,6 @@ Chcete je nechat přepsat?</translation>
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Poznámka: Velké oblasti se mohou na rychlosti otevírání souborů odrazit záporně.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>Typ MIME</translation>
@@ -32952,13 +29330,6 @@ Chcete je nechat přepsat?</translation>
             <numerusform>%n vzorů hledání se již používá.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
     <message>
         <source>No MIME type selected.</source>
         <translation>Nevybrán žádný typ MIME.</translation>
@@ -32975,23 +29346,6 @@ Chcete je nechat přepsat?</translation>
         <source>Changes will take effect in the next time you start Qt Creator.</source>
         <translation>Změny se projeví po novém spuštění Qt Creatoru.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
-    <message>
-        <source>MIME Types</source>
-        <translation>Typy MIME</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation>Zapnout tabulku &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>Zapnout tabulku %1</translation>
@@ -33000,13 +29354,6 @@ Chcete je nechat přepsat?</translation>
         <source>Hide Sidebar</source>
         <translation>Skrýt postranní panel</translation>
     </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation>Ukázat postranní panel</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted
 </source>
@@ -33017,16 +29364,10 @@ Chcete je nechat přepsat?</translation>
         <source>Additional output omitted</source>
         <translation>Dodatečný výstup opomenut</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Externí nástroje</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>Bylo nalezeno skladiště verzovacího systému %1, ale %1 ještě není nastaven.</translation>
@@ -33096,7 +29437,7 @@ správy verzí (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
@@ -33112,14 +29453,7 @@ správy verzí (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
-    <message>
-        <source>Expected a namespace-name</source>
-        <translation type="obsolete">Požadováno zadání jmenného prostoru</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CPPEditorWidget</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Roztřídit podle abecedy</translation>
@@ -33132,16 +29466,10 @@ správy verzí (%2)</translation>
         <source>Unused variable</source>
         <translation>Nepoužívaná proměnná</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Přidat deklaraci pro %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Přidat definici v %1</translation>
@@ -33158,20 +29486,10 @@ správy verzí (%2)</translation>
         <source>Add Definition Outside Class</source>
         <translation>Přidat definici vně třídy</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertQtPropertyMembers</name>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
         <translation type="obsolete">Doplnit chybějící prvky Q_PROPERTY...</translation>
     </message>
-    <message>
-        <source>Generate Missing Q_PROPERTY Members...</source>
-        <translation type="obsolete">Doplnit chybějící prvky Q_PROPERTY...</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Rozbalit vše</translation>
@@ -33180,16 +29498,6 @@ správy verzí (%2)</translation>
         <source>Collapse All</source>
         <translation>Složit vše</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Není dostupná žádná hierarchie tříd</translation>
@@ -33202,23 +29510,14 @@ správy verzí (%2)</translation>
         <source>Derived</source>
         <translation>Odvozené</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Hierarchie tříd</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
     <message>
         <source>Code style settings:</source>
         <translation type="obsolete">Nastavení stylu kódování:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global C++</source>
         <comment>Settings</comment>
@@ -33241,9 +29540,6 @@ správy verzí (%2)</translation>
         <source>Old Creator</source>
         <translation>Stará konvence Creatoru</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>Symboly C++</translation>
@@ -33296,32 +29592,9 @@ Příznaky: %3</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Typy:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Třídy</translation>
-    </message>
-    <message>
-        <source>Methods</source>
-        <translation>Metody</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funkce</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Výčty</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Deklarace</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -33333,7 +29606,7 @@ Příznaky: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -33352,7 +29625,7 @@ Příznaky: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Podmínka:</translation>
@@ -34522,7 +30795,7 @@ Má se to zkusit ještě jednou?</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>Úkon</translation>
@@ -34535,20 +30808,13 @@ Má se to zkusit ještě jednou?</translation>
         <source>User command #%1</source>
         <translation>Uživatelský příkaz #%1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
     <message>
         <source>User Command Mapping</source>
         <translation>Přiřazení příkazů</translation>
     </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
-    </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>Skrýt soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
@@ -34569,39 +30835,13 @@ Má se to zkusit ještě jednou?</translation>
 
 %1</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>Upravit soubory...</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation>Upravit soubory</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation>Skrýt soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
-    </message>
-    <message>
-        <source>Show files matching:</source>
-        <translation>Ukázat soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation>Použít filtr</translation>
-    </message>
-    <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation>Vytváří se seznam souborů...
-
-%1</translation>
     </message>
     <message numerus="yes">
         <source>Not showing %n files that are outside of the base directory.
@@ -34617,7 +30857,7 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Místní větve</translation>
@@ -34710,14 +30950,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -34755,16 +30988,13 @@ když bude zavolán mimo git bash.</translation>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation>Vertex Shader (Desktop OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nový %1</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Qt Creator Offline Help</source>
         <translation>Nápověda pro Qt Creator</translation>
@@ -34779,7 +31009,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Cannot open image file %1</source>
         <translation type="obsolete">Nelze otevřít soubor s obrázkem %1</translation>
@@ -34796,9 +31026,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Pause Animation</source>
         <translation>Pozastavit animaci</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>Přiblížit</translation>
@@ -34857,14 +31084,11 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makra</translation>
     </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Přehrání makra</translation>
@@ -34881,16 +31105,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Stop Recording Macro</source>
         <translation>Zastavit nahrávání makra</translation>
     </message>
-</context>
-<context>
-    <name>Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>Makra</translation>
-    </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation>&amp;Makra</translation>
@@ -34906,10 +31120,6 @@ když bude zavolán mimo git bash.</translation>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Zastavit nahrávání makra</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -34937,7 +31147,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -34956,7 +31166,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -34967,14 +31177,11 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;vlastní&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Připojit ladicí program k tomuto procesu</translation>
@@ -35011,9 +31218,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Application Output Window</source>
         <translation>Okno s výstupem programu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>Disable</source>
         <translation>Zakázat</translation>
@@ -35055,9 +31259,6 @@ když bude zavolán mimo git bash.</translation>
         <source>No Build Steps</source>
         <translation>Prázdný postup sestavování</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style Settings</source>
         <translation type="obsolete">Nastavení stylu kódování</translation>
@@ -35079,7 +31280,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>error: </source>
         <extracomment>Task is of type: error</extracomment>
@@ -35109,9 +31310,6 @@ když bude zavolán mimo git bash.</translation>
         <extracomment>Task is of type: warning</extracomment>
         <translation>Varování:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
@@ -35123,20 +31321,9 @@ když bude zavolán mimo git bash.</translation>
         <translation>Nasadit místně</translation>
     </message>
     <message>
-        <source>No deployment</source>
-        <extracomment>Default DeployConfiguration display name</extracomment>
-        <translation type="obsolete">Žádné nasazení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
         <source>Deploy Configuration</source>
         <translation>Nastavení nasazení</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -35147,16 +31334,10 @@ když bude zavolán mimo git bash.</translation>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>Projekt %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Cesta k &amp;překladači:</translation>
@@ -35173,37 +31354,22 @@ když bude zavolán mimo git bash.</translation>
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>Inicializace:</translation>
@@ -35222,14 +31388,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projekty</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>%1 (last session)</source>
         <translation type="obsolete">%1 (poslední sezení)</translation>
@@ -35240,7 +31399,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::RunControl</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -35270,9 +31429,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Do not ask again</source>
         <translation>Neptat se znovu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>&amp;Show in Editor</source>
         <translation type="obsolete">&amp;Ukázat v editoru</translation>
@@ -35285,9 +31441,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Show task location in an editor.</source>
         <translation>Ukázat umístění úkolu v editoru.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>Ukázat &amp;výstup</translation>
@@ -35300,16 +31453,6 @@ když bude zavolán mimo git bash.</translation>
         <source>O</source>
         <translation>O - Výstup</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">&amp;Ladič:</translation>
@@ -35334,9 +31477,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
     <message>
         <source>Auto-detected</source>
         <translation>Automaticky zjištěno</translation>
@@ -35389,9 +31529,6 @@ když bude zavolán mimo git bash.</translation>
         <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation type="obsolete">Následující sady nástrojů již byly nastaveny:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Nebyly nastaveny znovu ještě jednou.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Tool Chains</source>
         <translation type="obsolete">Sady nástrojů</translation>
@@ -35401,20 +31538,9 @@ když bude zavolán mimo git bash.</translation>
         <translation>Překladače</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Clone</source>
         <translation>Klonovat</translation>
     </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileAccessor</name>
     <message>
         <source>Using Old Project Settings File</source>
         <translation type="obsolete">Používá se soubor s nastavením projektu nějaké starší verze</translation>
@@ -35439,9 +31565,6 @@ Soubory s nastavením .user obsahují nastavení zvláštní pro prostředí. Ne
 
 Chcete přesto soubor s nastavením nahrát?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>Žádné nasazení</translation>
@@ -35454,9 +31577,6 @@ Chcete přesto soubor s nastavením nahrát?</translation>
         <source>Deploy to Symbian device</source>
         <translation type="obsolete">Nasazení na zařízení Symbian</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Opatřit anotacemi</translation>
@@ -35746,7 +31866,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>Nový %1</translation>
@@ -35784,14 +31904,6 @@ a vlastností součástek QML přímo.</translation>
         <translation>Název součástky:</translation>
     </message>
     <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation type="obsolete">Vybrat...</translation>
-    </message>
-    <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Ukázat nástrojový pruh Qt Quick</translation>
     </message>
@@ -35803,16 +31915,6 @@ a vlastností součástek QML přímo.</translation>
         <source>Refactoring</source>
         <translation>Refactoring</translation>
     </message>
-</context>
-<context>
-    <name>QmlJsEditor</name>
-    <message>
-        <source>QML</source>
-        <translation type="obsolete">QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Použití QML/JS:</translation>
@@ -35969,7 +32071,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Methods and functions</source>
         <translation type="obsolete">Metody a funkce</translation>
@@ -36148,7 +32250,7 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>Nebyl zadán žádný spustitelný soubor ke spuštění.</translation>
@@ -36344,7 +32446,7 @@ Chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectPlugin</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Open Qt4 Options</source>
         <translation type="obsolete">Otevřít nastavení pro knihovnu Qt4</translation>
@@ -36377,9 +32479,6 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
         <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
         <translation type="obsolete">Pozorovatel QML se používá pro nabídnutí dodatečných funkcí pro programy QML, jako je například interaktivní náhled na změny kódu a další nástroje ke zkoumání. Musí být pro každou použitou verzi Qt sestaven odděleně. To se děje na stránce &apos;Nastavení Qt&apos; pomocí výběru nynější instalace Qt a klepnutí na &apos;Sestavit znovu&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
     <message>
         <source>Manage Qt versions</source>
         <translation type="obsolete">Spravovat verze Qt</translation>
@@ -36409,16 +32508,9 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
         <translation type="obsolete">Prováděcí prostředí</translation>
     </message>
     <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
         <source>Invalid Qt version</source>
         <translation type="obsolete">Neplatná verze Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -36431,20 +32523,13 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
         <translation>%1 ukončen. Vrácená hodnota %2
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Spustit</translation>
-    </message>
     <message>
         <source>Not enough free ports for QML debugging. </source>
         <translation>Není dostatek volných portů pro ladění QML. </translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Přidat knihovnu</translation>
@@ -37388,7 +33473,7 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">Přidat sestavování z:</translation>
@@ -37556,7 +33641,7 @@ Vybere verze Qt pro Simulator a mobilní cíle, pokud jsou dostupné.</translati
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Automaticky změnit orientaci</translation>
@@ -37901,7 +33986,7 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation>Překladač &apos;%1&apos; (%2) nemůže vytvořit kód pro Qt ve verzi &apos;%3&apos; (%4).</translation>
@@ -37966,16 +34051,13 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
         <source>Building helpers</source>
         <translation>Pomocné knihovny pro sestavení</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>Jak začít</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Vyžaduje Qt 4.7.1 nebo novější.</translation>
@@ -38012,7 +34094,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -38032,7 +34114,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Dostupné jen pro &quot;Qt pro Desktop&quot; a &quot;Qt pro Qt Simulator&quot;.</translation>
@@ -38043,11 +34125,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Cílový adresář %1 se nepodařilo vytvořit.</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -38060,7 +34138,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;Zadejte název&gt;</translation>
@@ -38096,10 +34174,6 @@ Důvod: %2</translation>
     <message>
         <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Následující ABIs nejsou v současnosti podporovány: &lt;ul&gt;&lt;li&gt;%1&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation>Pomocné knihovny pro výstup dat</translation>
     </message>
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
@@ -38194,9 +34268,6 @@ Důvod: %2</translation>
         <source>SBS v2 directory:</source>
         <translation type="obsolete">Adresář SBS-v2:</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW z %1</translation>
@@ -38210,7 +34281,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
         <translation type="obsolete">Operace zrušena uživatelem, uklízí se...</translation>
@@ -38255,9 +34326,6 @@ Důvod: %2</translation>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Zřízení nového nastavení zařízení pro obecný Linux</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Data připojení</translation>
@@ -38274,9 +34342,6 @@ Důvod: %2</translation>
         <source>Generic Linux Device</source>
         <translation>Obecné linuxové zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavení dokončeno</translation>
@@ -38291,16 +34356,10 @@ In addition, device connectivity will be tested.</source>
         <translation>Bude vytvořeno nové nastavení zařízení.
 Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(výchozí pro %1)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">Spustit průvodce</translation>
@@ -38313,9 +34372,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Available device types:</source>
         <translation type="obsolete">Dostupné typy zařízení:</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation type="obsolete">Zařízení s podporou pro MADDE-(Fremantle, Harmattan, MeeGo)</translation>
@@ -38332,9 +34388,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Other MeeGo OS</source>
         <translation type="obsolete">Jiné MeeGo OS</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation type="obsolete">Zkouší se nastavení. Může to nějakou dobu trvat.</translation>
@@ -38401,16 +34454,10 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>List of installed Qt packages:</source>
         <translation type="obsolete">Seznam nainstalových balíčků Qt:</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Installing package to device...</source>
         <translation type="obsolete">Instaluje se balíček na zařízení...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation type="obsolete">Nepodařilo se najít žádný odpovídající krok balíčkování.</translation>
@@ -38423,9 +34470,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Deploy package via UTFS mount</source>
         <translation type="obsolete">Nasazení prostřednictvím UTFS mount</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation type="obsolete">Všechny soubory zkopírovány.</translation>
@@ -38434,9 +34478,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Deploy files via UTFS mount</source>
         <translation type="obsolete">Nasazení souborů prostřednictvím UTFS mount</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation type="obsolete">Vyberte ikonu (její velikost bude změněna na %1x%1 pixelů, pokud to bude potřeba)</translation>
@@ -38457,9 +34498,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Could not save icon to &apos;%1&apos;.</source>
         <translation type="obsolete">Ikonu se nepodařilo uložit pod &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">Obecné informace</translation>
@@ -38468,16 +34506,10 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Device Status Check</source>
         <translation type="obsolete">Přezkoušení stavu zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">Přezkoušení již existujících klíčů</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">Vytvoření klíče</translation>
@@ -38506,9 +34538,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Could Not Save Key File</source>
         <translation type="obsolete">Chyba při ukládání souboru s klíčem</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">Nasazení klíče</translation>
@@ -38529,23 +34558,14 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
         <translation type="obsolete">Klíč byl úspěšně poslán. Nyní můžete program &quot;%1&quot; zavřít a pokračovat.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation type="obsolete">Nyní bude vytvořeno nové nastavení zařízení.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">Zřízení nového nastavení zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>SDK Connectivity</source>
         <translation>Propojitelnost SDK</translation>
@@ -38558,16 +34578,10 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Unknown OS</source>
         <translation type="obsolete">Neznámý operační systém</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation type="obsolete">Nelze provést žádné nasazení do sysroot: Nenalezen žádný balíčkovací krok.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation type="obsolete">Bez nastavení sestavování nelze provést žádnou instalaci na sysroot.</translation>
@@ -38588,23 +34602,14 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Installation to sysroot failed, continuing anyway.</source>
         <translation type="obsolete">Instalace balíčku na sysroot se nezdařila, ale pokračuje se.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation type="obsolete">Instalovat balíček Debian na sysroot</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation type="obsolete">Instalovat balíček RPM na sysroot</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation type="obsolete">Bez nastavení sestavování nelze na sysroot kopírovat.</translation>
@@ -38627,9 +34632,6 @@ ale přesto se pokračuje dál.</translation>
         <source>Copy files to sysroot</source>
         <translation type="obsolete">Kopírovat soubory na sysroot</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Package up to date.</source>
         <translation type="obsolete">Balíček je nejnovější.</translation>
@@ -38666,9 +34668,6 @@ ale přesto se pokračuje dál.</translation>
         <source>Exit code: %1</source>
         <translation type="obsolete">Kód ukončení: %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation type="obsolete">Vytvořit soubor balíčku Debian</translation>
@@ -38709,9 +34708,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation type="obsolete">Chyba: Soubor &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Create RPM Package</source>
         <translation type="obsolete">Vytvořit soubor balíčku RPM</translation>
@@ -38720,9 +34716,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Could not move package file from %1 to %2.</source>
         <translation type="obsolete">Soubor s balíčkem se nepodařilo přesunout z %1 do %2.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Nevšímat si chybějících souborů</translation>
@@ -38735,9 +34728,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Create tarball:</source>
         <translation>Vytvořit Tarovu kouli (tarball):</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation type="obsolete">Požadovaná velikost: %1x%2 pixelů</translation>
@@ -38786,9 +34776,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Could Not Set Version Number</source>
         <translation type="obsolete">Nepodařilo se nastavit číslo verze</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation type="obsolete">Zrušeno.</translation>
@@ -38931,9 +34918,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
         <translation type="obsolete">Nezadal jste ikonu pro správce balíčků. Je potřeba ji nastavit v Projekty -&gt; Spuštění -&gt; Vytvoření balíčku -&gt; Podrobnosti.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -38946,9 +34930,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Choose a private key file</source>
         <translation type="obsolete">Vyberte soubor se soukromým klíčem</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -38957,9 +34938,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
         <translation type="obsolete">Tento průvodce vytvoří zdrojový archiv a volitelně jej nahraje na sestavovací server, kde bude projekt sestaven, zabalen a potom přesunut do skladiště &quot;Extras-devel free&quot;, odkud jej mohou uživatelé instalovat na svá zařízení N900. Pro funkci nahrávání je potřeba přihlášení k garage.maemo.org.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -38976,9 +34954,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Result</source>
         <translation type="obsolete">Výsledek</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Error: Copy command failed.</source>
         <translation type="obsolete">Chyba: Příkaz ke kopírování selhal.</translation>
@@ -38987,9 +34962,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
         <translation type="obsolete">Kopíruje se soubor &apos;%1&apos; do adresáře &apos;%2&apos; na zařízení...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No directories to mount</source>
         <translation type="obsolete">Žádné adresáře k připojení</translation>
@@ -39050,9 +35022,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Timeout waiting for UTFS servers to connect.</source>
         <translation type="obsolete">Překročení časového omezení při čekání na spojení se serverem UTFS.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation type="obsolete">Místní adresář</translation>
@@ -39061,16 +35030,10 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Remote mount point</source>
         <translation type="obsolete">Vzdálený přípojný bod</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation type="obsolete">Na zařízení není dostatek volných přípojek.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation type="obsolete">Vyberte, prosím, adresář, který se má připojit</translation>
@@ -39108,16 +35071,10 @@ Chybový výstup byl: &apos;%1&apos;</translation>
             <numerusform>Varování: Chcete připojit %1 adresářů, ale vaše zařízení má v režimu ladění dostupných jen %n přípojek.&lt;br&gt;S tímto nastavením nebudete moci provést ladění vašeho programu.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Spustit na zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Chyba v Qemu</translation>
@@ -39138,23 +35095,14 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
         <translation type="obsolete">V současnosti je Qemu nastaveno tak, aby byl režim OpenGL určen automaticky, což, jak je známo, ne vždy pracuje. Místo toho byste mohl použít softwarový rendering.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">Nastavení zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation type="obsolete">Nastavení Meego QEmu</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Uložit soubor s veřejným klíčem</translation>
@@ -39163,9 +35111,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Save Private Key File</source>
         <translation type="obsolete">Uložit soubor se soukromým klíčem</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation type="obsolete">Nasazení se nezdařilo, neboť Qemu neběželo. Bylo nyní spuštěno, ale bude ještě potřebovat nějaký čas, než bude připraveno. Pak to, prosím, zkuste znovu.</translation>
@@ -39186,9 +35131,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Unmounting host directories...</source>
         <translation type="obsolete">Odpojují se hostitelské adresáře...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">Maemo GCC</translation>
@@ -39201,37 +35143,22 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>%1 GCC (%2)</source>
         <translation type="obsolete">%1 GCC (%2)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Cesta k MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Cesta k cíli MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ladič:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation type="obsolete">Soubor s balíčkem byl nahrán.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
         <translation type="obsolete">Nasazení balíčku Debian prostřednictvím nahrání SFTS</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
         <translation type="obsolete">Nasazení balíčku RPM prostřednictvím nahrání SFTS</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Waiting for file name...</source>
         <translation type="obsolete">Čeká se na název souboru...</translation>
@@ -39256,9 +35183,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Close</source>
         <translation>Zavřít</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation type="obsolete">Kopírovat soubory na zařízení Maemo5</translation>
@@ -39279,9 +35203,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Build Tarball and Install to Linux Host</source>
         <translation type="obsolete">Vytvořit archiv tar a nainstalovat na linuxové zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation type="obsolete">Soubor &apos;%1&apos; nelze otevřít: %2</translation>
@@ -39314,9 +35235,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Error creating MeeGo templates</source>
         <translation type="obsolete">Chyba při vytváření předloh MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Unable to create Debian templates: No Qt version set</source>
         <translation type="obsolete">Nepodařilo se vytvořit žádné předlohy pro Debian. Není nastavena žádná verze Qt</translation>
@@ -39329,9 +35247,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
         <translation type="obsolete">Nepodařilo se vytvořit žádné soubory předloh pro Debian: dh_make selhal (%1)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>The .pro file &apos;%1&apos; is being parsed.</source>
         <translation type="obsolete">Soubor .pro &apos;%1&apos; se právě zpracovává.</translation>
@@ -39358,9 +35273,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation type="obsolete">Spustit na vzdáleném zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation> (na vzdáleném, obecném linuxovém zařízení)</translation>
@@ -39369,9 +35281,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(na vzdáleném, obecném linuxovém zařízení)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation type="obsolete">Natáhnout prostředí zařízení</translation>
@@ -39468,9 +35377,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Fetching environment failed: %1</source>
         <translation type="obsolete">Natažení prostředí se nezdařilo: %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -39489,9 +35395,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <translation type="obsolete">Vzdálený proces byl ukončen. Vrácená hodnota %1.
 </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation type="obsolete">Spustit na vzdáleném linuxovém zařízení</translation>
@@ -39510,7 +35413,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -39521,7 +35424,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>Zastavit sledování</translation>
@@ -39530,9 +35433,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Stop monitoring task files.</source>
         <translation>Zastavit sledování souborů s úkoly.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
         <translation>Soubor s úkolem</translation>
@@ -39541,9 +35441,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>File Error</source>
         <translation>Chyba souboru</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Soubor s úkolem %1 nelze otevřít: %2</translation>
@@ -39554,7 +35451,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseTextEditorWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -39587,16 +35484,10 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Add UTF-8 BOM on Save</source>
         <translation>Přidat UTF-8 BOM při uložení</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 z %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FallbackSelectorWidget</name>
     <message>
         <source>Settings:</source>
         <translation type="obsolete">Nastavení:</translation>
@@ -39614,16 +35505,9 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Restore</source>
         <translation type="obsolete">Obnovit</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Obecné zvýrazňování</translation>
-    </message>
-    <message>
-        <source>Download Definitions</source>
-        <translation type="obsolete">Stáhnout vymezení</translation>
     </message>
     <message>
         <source>Download Definitions...</source>
@@ -39649,9 +35533,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Not possible to retrieve data.</source>
         <translation>Nepodařilo se dostat žádná data.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>Název</translation>
@@ -39700,9 +35581,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Download Selected Definitions</source>
         <translation>Stáhnout vybrané soubory s definicemi</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
     <message>
         <source>Registering definitions</source>
         <translation>Přihlašují se definice</translation>
@@ -39733,9 +35611,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Download Error</source>
         <translation>Chyba při stahování</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Přehled není dostupný</translation>
@@ -39748,16 +35623,10 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Filter tree</source>
         <translation>Přefiltrovat strom</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Přehled</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>Pro tento soubor se nepodařilo najít žádnou definici zvýrazňování skladby. Chcete se pokusit nějakou definici najít?</translation>
@@ -39774,23 +35643,10 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Show highlighter options</source>
         <translation type="obsolete">Ukázat nastavení vymezení zvýrazňování skladby</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Nepodařilo se vytvořit adresář na uživatelské úryvky %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>Chyba</translation>
@@ -39811,9 +35667,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Error reverting snippet.</source>
         <translation>Chyba při vracení úryvku zpět.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Úryvky</translation>
@@ -39823,25 +35676,18 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Chyba při ukládání sbírky úryvků</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
-    <message>
         <source>No snippet selected.</source>
         <translation>Žádný úryvek nebyl vybrán.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Profiling %1
 </source>
         <translation>Profilování %1
 </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Profilování Valgrind používá nástroj &quot;callgrind&quot; pro záznam volání funkcí během spuštění programu.</translation>
@@ -39850,9 +35696,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Profile Costs of this Function and its Callees</source>
         <translation>Náklady na profilování u této funkce a jí volaných funkcí</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>Volající</translation>
@@ -39997,9 +35840,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Populating...</source>
         <translation>Vytváří se pohled...</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Všechny funkce s poměrem zahrnutým nákladů větším než %1 (%2 jsou skryty)</translation>
@@ -40098,9 +35938,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>Chyba při vyhodnocování výstupu Valgrind %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Volaná funkce</translation>
@@ -40117,9 +35954,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Calls</source>
         <translation>Volání</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Předchozí příkaz ještě není ukončen.</translation>
@@ -40156,9 +35990,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Downloading remote profile data...</source>
         <translation>Stahují se vzdálená data profilování...</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkce:</translation>
@@ -40227,9 +36058,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Incl. Cost: %1</source>
         <translation>Zahrnuté náklady: %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 v %2</translation>
@@ -40238,9 +36066,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>%1:%2 in %3</source>
         <translation>%1:%2 v %3</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Poslední úroveň</translation>
@@ -40297,9 +36122,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Position:</source>
         <translation>Poloha:</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Nebylo nalezeno žádné síťové rozhraní pro vzdálenou analýzu.</translation>
@@ -40332,9 +36154,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>No Network Interface was chosen for remote analysis</source>
         <translation type="obsolete">Nebylo vybráno žádné síťové rozhraní pro dálkově řízený rozbor</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>Nenalezeny žádné chyby</translation>
@@ -40375,9 +36194,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Helgrind Thread ID</source>
         <translation>ID vlákna Helgrind</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Umístění:</translation>
@@ -40390,9 +36206,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Object:</source>
         <translation>Objekt:</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Nepodařilo se zpracovat šestnáctkové číslo (hexadecimální) z &quot;%1&quot; (%2); není platné</translation>
@@ -40445,9 +36258,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Unexpected exception caught during parsing.</source>
         <translation>Při zpracování se vyskytla neočekávaná výjimka.</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Popis</translation>
@@ -40468,9 +36278,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>File</source>
         <translation>Soubor</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Command-line arguments: %1</source>
         <translation type="obsolete">Argumenty příkazového řádku: %1</translation>
@@ -40507,16 +36314,13 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Application Output</source>
         <translation type="obsolete">Výstup programu</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation type="obsolete">Analyzátor</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonSettingsWidget</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>Příkaz používaný pro vrácení jednotlivých změn</translation>
@@ -40525,9 +36329,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Command used for reverting diff chunks.</source>
         <translation>Příkaz používaný pro vrácení jednotlivých změn.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Proces &apos;%1&apos; nelze spustit: %2</translation>
@@ -40540,9 +36341,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Working...</source>
         <translation>Pracuje...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Opatřit anotacemi &quot;%1&quot;</translation>
@@ -40550,10 +36348,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Copy &quot;%1&quot;</source>
         <translation>Kopírovat &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Describe change %1</source>
-        <translation type="obsolete">Ukázat podrobnosti ke změně %1</translation>
     </message>
     <message>
         <source>Describe Change %1</source>
@@ -40601,18 +36395,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsJobRunner</name>
-    <message>
-        <source>Unable to start process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Proces &apos;%1&apos; nelze spustit: %2</translation>
-    </message>
-    <message>
-        <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation type="obsolete">Překročení časového omezení %1s  při čekání na ukončení %2.</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Vítejte</translation>
@@ -40717,7 +36500,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalTool</name>
+    <name>QtC::Core</name>
     <message>
         <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
         <translation>Vytvoří ze souborů ts od překladatele překladové soubory qm, které mohou být použity programem</translation>
@@ -40790,13 +36573,9 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Edit with vi</source>
         <translation>Upravit ve vi</translation>
     </message>
-    <message>
-        <source>Error while parsing external tool %1: %2</source>
-        <translation>Chyba při zpracování externího nástroje %1: %2</translation>
-    </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - Zprávy zavaděče přídavných modulů</translation>
@@ -40826,7 +36605,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation>Vykreslení</translation>
@@ -40857,7 +36636,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Details</source>
         <translation type="obsolete">Podrobnosti</translation>
@@ -41110,35 +36889,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Current settings:</source>
-        <translation type="obsolete">Nynější nastavení:</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation type="obsolete">Kopírovat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Upravit...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Kopírovat styl kódování</translation>
@@ -41160,10 +36911,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Jste si jist, že chcete tento styl kódování smazat natrvalo?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Smazat</translation>
-    </message>
-    <message>
         <source>Import Code Style</source>
         <translation>Importovat styl kódování</translation>
     </message>
@@ -41172,8 +36919,8 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Styly kódování (*.xml);;Všechny soubory (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
-        <translation>Nelze importovat styl kódování z %1</translation>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Nelze importovat styl kódování z &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot import code style</source>
@@ -41197,13 +36944,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Pokračovat</translation>
     </message>
 </context>
 <context>
@@ -41258,7 +36998,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::Ssh</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Password Required</source>
         <translation type="obsolete">Heslo vyžadováno</translation>
@@ -41267,9 +37007,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Please enter the password for your private key.</source>
         <translation type="obsolete">Zadejte, prosím, heslo pro svůj soukromý klíč.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>Není dostupná žádná další paměť.</translation>
@@ -41280,7 +37017,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Podrobný</translation>
@@ -41323,7 +37060,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>QtC::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Spuštění prohlížeče souborů se nezdařilo</translation>
@@ -41347,10 +37084,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>&apos;%1&apos; vrátil následující chybu:
 
 %2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation>Nastavení...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
@@ -41393,28 +37126,13 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Soubor %1 se nepodařilo smazat.</translation>
     </message>
     <message>
-        <source>Show in Explorer...</source>
-        <translation type="obsolete">Ukázat v průzkumníku...</translation>
-    </message>
-    <message>
         <source>Show in Finder...</source>
         <translation type="obsolete">Ukázat v nálezci...</translation>
-    </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Ukázat obsaženou složku...</translation>
     </message>
     <message>
         <source>Open Command Prompt Here...</source>
         <translation type="obsolete">Otevřít výzvu k příkazu zde...</translation>
     </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Otevřít terminál zde...</translation>
-    </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Adresář %1 nelze vytvořit.</translation>
@@ -41440,7 +37158,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Výjimka C++</translation>
@@ -41487,7 +37205,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Find::IFindFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>Rozlišovat velká a malá písmena</translation>
@@ -41516,16 +37234,9 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Hledání bylo zrušeno.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters</source>
@@ -41536,28 +37247,12 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Hledat ještě jednou</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation>Nahradit:</translation>
-    </message>
-    <message>
         <source>Replace all occurrences</source>
         <translation>Nahradit všechny výskyty</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Zachovat velikost písmen</translation>
-    </message>
-    <message>
         <source>This change cannot be undone.</source>
         <translation>Tuto změnu nelze vrátit zpět.</translation>
-    </message>
-    <message>
-        <source>Do not warn again</source>
-        <translation type="obsolete">Nevarovat znovu</translation>
     </message>
     <message numerus="yes">
         <source>The search resulted in more than %n items, do you still want to continue?</source>
@@ -41585,19 +37280,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SettingsAccessor</name>
-    <message>
-        <source>Using Old Project Settings File</source>
-        <translation type="obsolete">Používá se soubor s nastavením projektu nějaké starší verze</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Použije se verzovaná zajišťovací kopie souboru s nastavením .user, protože nynější soubor byl vytvořen novější, neslučitelnou verzí Qt Creatoru.&lt;/p&gt;&lt;p&gt;Na změny v nastavení projektu, které byly provedeny po posledním použití této verze Qt Creatoru pro tento projekt, nebude brán zřetel, a nyní následující změny &lt;b&gt;nebudou&lt;/b&gt; na novou verzi přeneseny.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation type="obsolete">Soubor s nastavením projektu z jiného prostředí?</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>No valid .user file found for &apos;%1&apos;</source>
         <translation>Nepodařilo se najít žádný platný soubor .user pro &apos;%1&apos;</translation>
@@ -41628,18 +37311,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Soubor s nastavením pro &apos;%1&apos; z jiného prostředí?</translation>
     </message>
     <message>
-        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
-
-The .user settings files contain environment specific settings. They should not be copied to a different environment. 
-
-Do you still want to load the settings file?</source>
-        <translation type="obsolete">Qt Creator zjistil, že soubor s uživatelským nastavením .user byl vytvořen pro jiné vývojářské nastavení, možná pochází z jiného stroje.
-
-Soubory s nastavením .user obsahují nastavení zvláštní pro prostředí. Neměly by se kopírovat do jiného prostředí.
-
-Chcete přesto soubor s nastavením nahrát?</translation>
-    </message>
-    <message>
         <source>Unsupported Shared Settings File</source>
         <translation>Nepodporovaný .shared soubor s nastavením</translation>
     </message>
@@ -41665,14 +37336,14 @@ Pokud zvolíte nepokračovat, Qt Creator se soubor .shared nahrát nepokusí.</t
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
 </context>
 <context>
-    <name>FindExportedCppTypes</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">Tento typ bude v editoru QML Qt Creatoru viditelný jen tehdy, když je název typu řetězec znaků tvořený písmeny (literal)</translation>
@@ -41691,7 +37362,7 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>Hlavičky</translation>
@@ -41738,7 +37409,7 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Všechny soubory jsou v aktuálním stavu. Není potřeba žádná instalace.</translation>
@@ -41779,9 +37450,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Connection error: %1</source>
         <translation>Chyba ve spojení: %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deployment failed: %1</source>
         <translation type="obsolete">Nasazení se nezdařilo: %1</translation>
@@ -41802,9 +37470,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Deploy step finished.</source>
         <translation>Nasazení hotovo.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Spuštění SFTP se nezdařilo: %1</translation>
@@ -41845,9 +37510,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Uploading file &apos;%1&apos;...</source>
         <translation>Nahrává se soubor &apos;%1&apos;...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Přírůstkové nasazení</translation>
@@ -41942,9 +37604,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <translation>Následující zadané porty se na zařízení používají: %1
 </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Připravuje se spojení SFTP...</translation>
@@ -41969,9 +37628,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Failed to upload package: %2</source>
         <translation>Chyba při nahrávání balíčku: %2</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation type="obsolete">Aktualizovatelné projektové soubory</translation>
@@ -41992,9 +37648,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>&amp;Uncheck All</source>
         <translation type="obsolete">Odstranit označení u vš&amp;eho</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Spustit uživatelskystanovený vzdálený příkaz</translation>
@@ -42023,9 +37676,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Remote command finished successfully.</source>
         <translation>Vzdálený příkaz byl úspěšně vykonán.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>Nasadit na vzdáleném linuxovém zařízení</translation>
@@ -42038,16 +37688,10 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>(No device)</source>
         <translation type="obsolete">(Žádné zařízení)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation type="obsolete">&lt;b&gt;%1 za použití zařízení&lt;/b&gt;: %2</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>Chyba při spouštění vzdáleného procesu na zařízení: %1</translation>
@@ -42074,9 +37718,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>
 Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Chyba při vytváření spojení: %1</translation>
@@ -42119,9 +37760,6 @@ Remote stderr was: %1</source>
         <translation type="obsolete">
 Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">Vzdálený proces se nepodařilo spustit: %1</translation>
@@ -42136,9 +37774,6 @@ Remote error output was: %1</source>
         <translation type="obsolete">
 Vzdálený chybový výstup byl: %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation type="obsolete">Nastavení klíče SSH</translation>
@@ -42187,9 +37822,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Failed to create directory: &apos;%1&apos;.</source>
         <translation type="obsolete">Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Chyba ve veřejném klíči: %1</translation>
@@ -42198,9 +37830,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Key deployment failed: %1.</source>
         <translation>Nasazení klíče se nezdařilo: %1.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">Vybrat Sysroot</translation>
@@ -42249,9 +37878,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Running command: %1</source>
         <translation type="obsolete">Provádí se příkaz: %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Vytvoření balíčku úspěšně dokončeno.</translation>
@@ -42301,9 +37927,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Create tarball</source>
         <translation>Vytvořit Tarovu kouli (archiv tar)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(výchozí)</translation>
@@ -42312,9 +37935,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>%1 (default)</source>
         <translation>%1 (výchozí)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Nepodařilo se najít žádný odpovídající krok k vytvoření archivu tar.</translation>
@@ -42325,21 +37945,14 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Změnou obsahu náhledu zjistíte, jak se nynější nastavení projeví na uživatelsky stanovených úryvcích kódu. Změny v náhledu nemají žádný vliv na současná nastavení.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Upravit styl kódování</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Název stylu kódování:</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
@@ -42349,13 +37962,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Copy Built-in Code Style</source>
         <translation>Kopírovat vestavěný styl kódování</translation>
     </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (kopie)</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation>Soubory v souborovém systému</translation>
@@ -42391,7 +37997,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>Nepodařilo se najít umístění nástroje na správu. Prověřte, prosím, svoji instalaci, pokud jste tento přídavný modul nezapnuli ručně.</translation>
@@ -42414,7 +38020,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -42431,9 +38037,6 @@ Filtr: %2
 &apos;%1&apos; úspěšně proveden (vrácená hodnota %2).
 </translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Chyba: Překročení času u správy verzí po %1s.</translation>
@@ -42442,13 +38045,9 @@ Filtr: %2
         <source>Unable to start process, binary is empty</source>
         <translation>Nepodařilo se spustit proces, protože nebyl zadán žádný spustitelný soubor</translation>
     </message>
-    <message>
-        <source>Error: Executable timed out after %1s.</source>
-        <translation>Chyba: Překročení času po %1s.</translation>
-    </message>
 </context>
 <context>
-    <name>Utils::SshKeyCreationDialog</name>
+    <name>QtC::Utils</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation type="obsolete">Nastavení klíče SSH</translation>
@@ -42550,7 +38149,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Vytvořit nový AVD</translation>
@@ -43709,77 +39308,22 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandMappings</name>
-    <message>
-        <source>Command Mappings</source>
-        <translation>Přiřazení příkazů</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation>Příkaz</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Label</source>
         <translation>Popis</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Cíl</translation>
     </message>
     <message>
         <source>Reset all to default</source>
         <translation>Nastavit vše znovu na výchozí</translation>
     </message>
     <message>
-        <source>Reset All</source>
-        <translation>Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation>Importovat...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation>Exportovat...</translation>
-    </message>
-    <message>
-        <source>Target Identifier</source>
-        <translation>Identifikátor cíle</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation>Cíl:</translation>
-    </message>
-    <message>
         <source>Reset to default</source>
         <translation>Nastavit znovu výchozí</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
         <source>Registered MIME Types</source>
         <translation>Přihlášené MIME typy</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation>Nastavit vše znovu na výchozí.</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation>Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
     </message>
     <message>
         <source>Patterns:</source>
@@ -43788,10 +39332,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Magic Header</source>
         <translation>Kouzelné záhlaví</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
     </message>
     <message>
         <source>Range</source>
@@ -43810,19 +39350,8 @@ p, li { white-space: pre-wrap; }
         <translation>Upravit...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>Filter</source>
         <translation>Filtr</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation>Proměnné</translation>
     </message>
     <message>
         <source>Select a variable to insert.</source>
@@ -43830,7 +39359,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -43941,7 +39470,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation>Přípona hlavičkových souborů:</translation>
@@ -44040,7 +39569,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Spustit ladicí program</translation>
@@ -44095,7 +39624,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -44104,9 +39633,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Language:</source>
         <translation>Jazyk:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Výběr průvodce pro nastavení zařízení</translation>
@@ -44116,27 +39642,12 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <translation>Dostupné typy zařízení:</translation>
     </message>
     <message>
-        <source>Start Wizard</source>
-        <translation>Spustit průvodce</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
-    <message>
         <source>Linux Device Configurations</source>
         <translation>Nastavení linuxového zařízení</translation>
     </message>
     <message>
         <source>&amp;Device:</source>
         <translation>&amp;Zařízení:</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Obecné</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Typ:</translation>
     </message>
     <message>
         <source>&amp;Name:</source>
@@ -44255,7 +39766,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Výběr</translation>
@@ -44274,7 +39785,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Argumenty příkazového řádku pro &apos;make&apos;:</translation>
@@ -44369,14 +39880,14 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Záznam o sestavení pomocného ladicího programu</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Druh ověření pravosti:</translation>
@@ -44469,9 +39980,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>You can enter lists and ranges like this: &apos;1024,1026-1028,1030&apos;.</source>
         <translation>Můžete zadat seznamy a oblasti jako jsou tyto: 1024,1026-1028,1030.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -44504,16 +40012,10 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>The file containing the user&apos;s private key:</source>
         <translation>Soubor se soukromým klíčem uživatele:</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>Zkouška zařízení</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -44534,9 +40036,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Files to deploy:</source>
         <translation>Soubory pro nasazení:</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>List of Remote Processes</source>
         <translation type="obsolete">Seznam vzdálených procesů</translation>
@@ -44559,14 +40058,11 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Při psaní</translation>
@@ -44781,20 +40277,9 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <source>Pressing Alt displays context-sensitive help or type information as tooltips.</source>
         <translation>Stisknutí klávesy Alt zobrazí vysvětlivky s kontextovou nápovědou nebo informací o typu.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>Nynější nastavení:</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>Kopírovat...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -44811,13 +40296,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Import...</source>
         <translation>Importovat...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>Zobrazení</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -44887,13 +40365,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <source>Shows tabs and spaces.</source>
         <translation>Ukáže tabulátory a mezery.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -44913,23 +40384,12 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <translation>Použít záložní umístění</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Chování</translation>
-    </message>
-    <message>
         <source>Alert when a highlight definition is not found</source>
         <translation type="obsolete">Zobrazit upozornění, pokud se nepodařilo najít žádný soubor s definicí</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
         <translation>Vyloučené soubory (vzor hledání):</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -44938,10 +40398,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Add</source>
         <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -44954,13 +40410,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Reset All</source>
         <translation>Nastavit znovu vše</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -45068,7 +40517,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>errorLabel</source>
         <translation>errorLabel</translation>
@@ -45087,7 +40536,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -45122,7 +40571,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -45179,9 +40628,6 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
         <source>Directory:</source>
         <translation>Adresář:</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Uklidit skladiště</translation>
@@ -45190,9 +40636,6 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
         <source>Select All</source>
         <translation>Vybrat vše</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Zalomit popis revize na:</translation>
@@ -45255,29 +40698,10 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsConfigurationPage</name>
-    <message>
-        <source>Configure...</source>
-        <translation type="obsolete">Nastavení...</translation>
-    </message>
-</context>
-<context>
-    <name>develop</name>
-    <message>
-        <source>Develop</source>
-        <translation>Vývoj</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>Sezení</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Recent Projects</source>
         <translation>Naposledy otevřené projekty</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation>Nový projekt</translation>
     </message>
     <message>
         <source>Open Project</source>
@@ -45289,7 +40713,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Příklady</translation>
@@ -45363,7 +40787,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>Návody</translation>
@@ -45400,11 +40824,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
-    <message>
-        <source>Clone</source>
-        <translation>Klonovat</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Rename</source>
         <translation>Přejmenovat</translation>
@@ -45413,9 +40833,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <source>Delete</source>
         <translation>Smazat</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (poslední sezení)</translation>
@@ -45426,7 +40843,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -45439,7 +40856,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>StaticAnalysisMessages</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation type="obsolete">&apos;%1&apos; se nesmí používat jako konstruktor</translation>
@@ -45457,20 +40874,8 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <translation type="obsolete">Očekávána číselná hodnota</translation>
     </message>
     <message>
-        <source>boolean value expected</source>
-        <translation type="obsolete">Očekávána logická hodnota</translation>
-    </message>
-    <message>
-        <source>string value expected</source>
-        <translation type="obsolete">Očekáván řetězec</translation>
-    </message>
-    <message>
         <source>invalid URL</source>
         <translation type="obsolete">Neplatná adresa (URL)</translation>
-    </message>
-    <message>
-        <source>file or directory does not exist</source>
-        <translation type="obsolete">Soubor nebo adresář neexistuje</translation>
     </message>
     <message>
         <source>invalid color</source>
@@ -45501,14 +40906,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <translation type="obsolete">Neplatný název vlastnosti &apos;%1&apos;</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; does not have members</source>
-        <translation type="obsolete">&apos; %1&apos; nemá členy</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; is not a member of &apos;%2&apos;</source>
-        <translation type="obsolete">&apos; %1&apos; nepatří k &apos;%2&apos;</translation>
-    </message>
-    <message>
         <source>assignment in condition</source>
         <translation type="obsolete">Přiřazení v podmínce</translation>
     </message>
@@ -45519,10 +40916,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     <message>
         <source>do not use &apos;eval&apos;</source>
         <translation type="obsolete">Nepoužívat &apos;eval&apos;</translation>
-    </message>
-    <message>
-        <source>unreachable</source>
-        <translation type="obsolete">Nedosažitelná</translation>
     </message>
     <message>
         <source>do not use &apos;with&apos;</source>
@@ -45633,10 +41026,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <translation type="obsolete">Funkce začínající velkým písmenem by se měly volat s &apos;new&apos;</translation>
     </message>
     <message>
-        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
-        <translation type="obsolete">&apos;new&apos; by se měl používat jen s funkcemi, které začínají velkým písmenem</translation>
-    </message>
-    <message>
         <source>use spaces around binary operators</source>
         <translation type="obsolete">Užívat mezery okolo binárních operátorů</translation>
     </message>
@@ -45698,14 +41087,11 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::BaseTreeView</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation>Přizpůsobit šířku sloupců obsahu</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>Přidat</translation>
@@ -45730,9 +41116,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <source>Rename...</source>
         <translation>Přejmenovat...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SftpFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation type="obsolete">Typ souboru</translation>
@@ -45749,9 +41132,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <source>Error listing contents of directory &apos;%1&apos;: %2</source>
         <translation type="obsolete">Chyba při vypisování obsahu adresáře &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
         <translation type="obsolete">Proces ukončen signálem</translation>
@@ -46034,7 +41414,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Create AVD error</source>
         <translation type="obsolete">Chyba při vytváření AVD</translation>
@@ -46073,7 +41453,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Android</source>
         <translation>Android</translation>
@@ -46116,7 +41496,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo neodpovídá&lt;/span&gt;</translation>
@@ -46264,14 +41644,14 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Deploy to Android device/emulator</source>
         <translation type="obsolete">Nasadit na zařízení/emulátor Android</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nastavení nasazení&lt;/b&gt;</translation>
@@ -46290,14 +41670,14 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation type="obsolete">Vytvořit balíček pro Android (*.apk)</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Packaging for Android</source>
         <translation>Vytvoření balíčku pro Android</translation>
@@ -46422,14 +41802,14 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Deploy to device</source>
         <translation type="obsolete">Nasadit na zařízení</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Copy application data</source>
         <translation>Kopírovat data programu</translation>
@@ -46870,7 +42250,7 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     </message>
 </context>
 <context>
-    <name>BinEditorDocument</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binární editor nemůže otevřít prázdné soubory.</translation>
@@ -46885,22 +42265,18 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Sestavit cíl CMake</translation>
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
+    <name>QtC::Core</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Soubory se nepodařilo uložit.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Chyba souboru</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -46927,39 +42303,12 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
         <translation type="obsolete">Soubor je pouze pro čtení</translation>
     </message>
     <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Soubor &lt;i&gt;%1&lt;/i&gt; je pouze pro čtení.</translation>
-    </message>
-    <message>
         <source>Make &amp;Writable</source>
         <translation type="obsolete">Udělat &amp;zapisovatelným</translation>
     </message>
     <message>
-        <source>&amp;Save As...</source>
-        <translation type="obsolete">&amp;Uložit jako...</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Otevřít s pomocí systému na ověřování verzí (VCS) (%1)</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation type="obsolete">Uložit jako...</translation>
-    </message>
-    <message>
         <source>Cannot reload %1</source>
         <translation>%1 se nahrát znovu nepodařilo</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
-    <message>
-        <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
-        <translation type="obsolete">Soubor byl obnoven z automaticky uložené záložní kopie. Vyberte &lt;i&gt;Uložit&lt;/i&gt; pro potvrzení nebo &lt;i&gt;Obnovit&lt;/i&gt; pro zahození změn.</translation>
     </message>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
@@ -46967,7 +42316,7 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Vytáhnout funkci</translation>
@@ -46984,20 +42333,13 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
         <source>Invalid function name</source>
         <translation>Neplatný název funkce</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Třídy</translation>
-    </message>
     <message>
         <source>C++ Classes</source>
         <translation>Třídy C++</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Delete Breakpoint</source>
         <translation>Smazat bod přerušení</translation>
@@ -47520,7 +42862,7 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>untracked</source>
         <translation>neverzováno</translation>
@@ -47893,7 +43235,7 @@ nepatří k ověřeným Remotes v %3. Vybrat jinou složku?</translation>
     </message>
 </context>
 <context>
-    <name>Locator::Internal::ExecuteFilter</name>
+    <name>QtC::Core</name>
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
@@ -47938,43 +43280,15 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Local PC</source>
         <translation>Místní PC</translation>
     </message>
     <message>
-        <source>Desktop</source>
-        <translation>Stolní počítač</translation>
-    </message>
-    <message>
-        <source>Run locally</source>
-        <translation type="obsolete">Spustit místně</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Stolní počítač</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
-    <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (výchozí pro %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation>Zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation>Zařízení</translation>
@@ -47989,44 +43303,22 @@ Chcete jej ukončit?</translation>
         <extracomment>Device is not connected</extracomment>
         <translation type="obsolete">Připojeno</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
     <message>
         <source>Edit Environment</source>
         <translation>Upravit prostředí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
-    <message>
-        <source>New session name</source>
-        <translation>Název nového sezení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation type="obsolete">Nastavení ladiče</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK:</translation>
@@ -48041,7 +43333,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Add a comment to suppress this message</source>
         <translation type="obsolete">Přidat poznámku pro potlačení této zprávy</translation>
@@ -48091,7 +43383,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
@@ -48368,7 +43660,7 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Jump to previous event</source>
         <translation>Jít na předchozí událost</translation>
@@ -48427,7 +43719,7 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Events</source>
         <translation>Události</translation>
@@ -48438,7 +43730,7 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Device</source>
         <translation type="obsolete">Zařízení</translation>
@@ -48510,15 +43802,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
-    <message>
-        <source>Examples</source>
-        <translation>Příklady</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation>Návody</translation>
-    </message>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>Má se projekt zkopírovat do zapisovatelného umístění?</translation>
@@ -48561,7 +43845,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>embedded</source>
         <translation type="obsolete">Vloženo</translation>
@@ -48570,23 +43854,17 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>Embedded Linux</source>
         <translation type="obsolete">Vložený Linux</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation type="obsolete">Dvojité klepnutí pro úpravu souboru s projektem</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CountingLabel</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 nalezen</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>Otevřené dokumenty</translation>
@@ -48607,7 +43885,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Description</source>
         <translation>Popis</translation>
@@ -48622,7 +43900,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>Záznamy CO UDĚLAT</translation>
@@ -48661,14 +43939,14 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do</source>
         <translation>CO UDĚLAT</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Open URL in browser...</source>
         <translation type="obsolete">Otevřít adresu (URL) v prohlížeči...</translation>
@@ -48685,9 +43963,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>Copy URL Location</source>
         <translation>Kopírovat umístění adresy (URL)</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send email to...</source>
         <translation type="obsolete">Poslat e-mail...</translation>
@@ -48706,7 +43981,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keyword</source>
         <translation type="obsolete">Klíčové slovo</translation>
@@ -48825,7 +44100,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Získat (checkout)</translation>
@@ -48976,7 +44251,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Core::RemoveFileDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Remove File</source>
         <translation>Odstranit soubor</translation>
@@ -48995,14 +44270,14 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Packages to deploy:</source>
         <translation>Balíčky k nasazení:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&amp;Device name:</source>
         <translation>Název &amp;zařízení:</translation>
@@ -49065,7 +44340,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>The name to identify this configuration:</source>
         <translation>Název nastavení:</translation>
@@ -49124,7 +44399,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Public key file:</source>
         <translation>Soubor s veřejným klíčem:</translation>
@@ -49151,7 +44426,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device:</source>
         <translation>Zařízení:</translation>
@@ -49162,7 +44437,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>SDK:</source>
         <translation>SDK:</translation>
@@ -49406,7 +44681,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Utils::ElfReader</name>
+    <name>QtC::Utils</name>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
         <translation>&apos;%1&apos; je neplatným objektem ELF (%2)</translation>
@@ -49460,7 +44735,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Run on Android</source>
         <translation>Spustit na Androidu</translation>
@@ -49555,7 +44830,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -49566,7 +44841,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Vybrat č&amp;innost:</translation>
@@ -49920,7 +45195,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Choose Cmake Executable</source>
         <translation type="obsolete">Vybrat spustitelný soubor Cmake</translation>
@@ -49971,7 +45246,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -49980,16 +45255,13 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Otevřít s pomocí systému na správu verzí (VCS) (%1)</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Změny se nepodařilo použít, protože cílový soubor byl změněn</translation>
@@ -50008,7 +45280,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Vybrat spustitelný soubor</translation>
@@ -50168,14 +45440,14 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation>&amp;Připojit k procesu</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Starting executable failed:
 </source>
@@ -50524,7 +45796,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Select Change</source>
         <translation>Vybrat změnu</translation>
@@ -50555,7 +45827,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Error Creating Debian Project Templates</source>
         <translation>Chyba při vytváření předloh pro projekt Debian</translation>
@@ -50634,7 +45906,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>&amp;Edit (%1)</source>
         <translation type="obsolete">&amp;Upravit (%1)</translation>
@@ -50649,7 +45921,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Cannot run: Device is not able to create processes.</source>
         <translation>Nelze spustit: Zařízení nedokáže vytvořit procesy.</translation>
@@ -50702,9 +45974,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Remote application finished with exit code 0.</source>
         <translation>Vzdálený program byl ukončen. Vrácená hodnota 0.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation>Sada:</translation>
@@ -50730,19 +45999,9 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <translation>&amp;Filtr:</translation>
     </message>
     <message>
-        <source>&amp;Attach to Process</source>
-        <translation>&amp;Připojit k procesu</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
-    <message>
         <source>Remote Error</source>
         <translation>Vzdálená chyba</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>ID procesu</translation>
@@ -50751,9 +46010,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Command Line</source>
         <translation>Příkazový řádek</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Chyba ve spojení: %1</translation>
@@ -50780,9 +46036,6 @@ Remote error output was: %1</source>
         <translation>
 Vzdálený chybový výstup byl: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
     <message>
         <source>Cannot terminate process %1: %2</source>
         <translation>Nelze ukončit proces %1: %2</translation>
@@ -50791,9 +46044,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Cannot open process %1: %2</source>
         <translation>Nelze otevřít proces %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Chyba při vytváření spojení: %1</translation>
@@ -50836,16 +46086,9 @@ Remote stderr was: %1</source>
         <translation>
 Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>Bez názvu</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon %1</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -50855,9 +46098,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Warning:</source>
         <translation>Varování:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>Sys Root &quot;%1&quot; není adresář.</translation>
@@ -50866,9 +46106,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Sys Root</source>
         <translation>Sys Root</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation>Překladač</translation>
@@ -50881,9 +46118,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>No compiler set in kit.</source>
         <translation>V sadě není nastaven žádný překladač.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation>Neznámý typ zařízení</translation>
@@ -50892,9 +46126,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Device type</source>
         <translation>Typ zařízení</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>Device does not match device type.</source>
         <translation>Zařízení neodpovídá typu zařízení.</translation>
@@ -50908,17 +46139,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <translation>Není nastaveno žádné zařízení.</translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation>Zařízení</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Nenastaveno</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
-    <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation>Kořenový adresář obrazu systému k použití.&lt;br&gt;Ponechte prázdné, když sestavujete pro desktop.</translation>
     </message>
@@ -50926,16 +46146,9 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Sysroot:</source>
         <translation>Sysroot:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
         <translation>Překladač k použití pro sestavování.&lt;br&gt;Ujistěte se, že bude překladač vytvářet spustitelné soubory slučitelné s cílovým zařízením, verzí Qt a jinými použitými knihovnami.</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
     </message>
     <message>
         <source>Compiler:</source>
@@ -50945,9 +46158,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>&lt;No compiler available&gt;</source>
         <translation>&lt;Žádný překladač není dostupný&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>The type of device to run applications on.</source>
         <translation>Typ zařízení pro spuštění programů.</translation>
@@ -50956,9 +46166,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Device type:</source>
         <translation>Typ zařízení:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
         <source>Manage</source>
         <translation>Spravovat</translation>
@@ -50975,19 +46182,9 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Device:</source>
         <translation>Zařízení:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
     <message>
         <source>Desktop</source>
         <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -51005,69 +46202,29 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Obrázky (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Automaticky zjištěno</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Ručně</translation>
-    </message>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (výchozí)</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
         <source>Kits</source>
         <translation>Sady</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Klonovat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Make Default</source>
         <translation>Udělat výchozí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Unknown error.</source>
         <translation>Neznámá chyba.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Default build</source>
         <translation>Výchozí sestavení</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>Tento typ bude v editoru QML Qt Creatoru viditelný jen tehdy, když je název typu řetězec znaků tvořený písmeny (literal)</translation>
@@ -51086,7 +46243,7 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Loading data</source>
         <translation>Nahrávají se data</translation>
@@ -51105,14 +46262,14 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Spouští se: &quot;%1&quot; %2</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>The device runtime version(%1) does not match the API level version(%2).
 This may cause unexpected behavior when debugging.
@@ -51159,7 +46316,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Create BAR packages</source>
         <translation type="obsolete">Vytvořit balíčky BAR</translation>
@@ -51238,7 +46395,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Use the Qt libraries shipped with the BlackBerry device.</source>
         <translation>Použít knihovny Qt dodávané se zařízením BlackBerry.</translation>
@@ -51305,14 +46462,14 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Create BAR Packages</source>
         <translation>Vytvořit balíčky BAR</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy to BlackBerry Device</source>
         <translation>Nasadit na zařízení BlackBerry</translation>
@@ -51363,7 +46520,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Enabled</source>
         <translation>Povoleno</translation>
@@ -51378,7 +46535,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy packages</source>
         <translation>Nasadit balíčky</translation>
@@ -51397,21 +46554,21 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&lt;b&gt;Deploy packages&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nasadit balíčky&lt;/b&gt; </translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy Package</source>
         <translation>Nasadit balíček</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry</source>
         <translation>BlackBerry</translation>
@@ -51430,14 +46587,14 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry Device</source>
         <translation>Zařízení BlackBerry</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavení dokončeno</translation>
@@ -51456,7 +46613,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry %1</source>
         <comment>Qt Version is meant for BlackBerry</comment>
@@ -51468,7 +46625,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 on BlackBerry device</source>
         <translation>%1 na zařízení BlackBerry</translation>
@@ -51479,14 +46636,14 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 on BlackBerry Device</source>
         <translation>%1 na zařízení BlackBerry</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>No active deploy configuration</source>
         <translation>Není žádné činné nastavení nasazovování</translation>
@@ -51505,14 +46662,14 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>No SDK path set</source>
         <translation>Není nastavena žádná cesta k SDK</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>The %1 process closed unexpectedly.</source>
         <translation>Proces %1 byl neočekávaně ukončen.</translation>
@@ -51523,28 +46680,28 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>Nasadit na zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>New QNX Device Configuration Setup</source>
         <translation>Zřízení nového nastavení zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>Zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -51560,21 +46717,21 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>Cesta ke knihovnám Qt na zařízení:</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>%1 na zařízení QNX</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Run on remote QNX device</source>
         <translation type="obsolete">Spustit na vzdáleném zařízení QNX</translation>
@@ -51585,7 +46742,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>mkspec k použití při sestavování projektu s qmake.&lt;br&gt;Toto nastavení se přehlíží, když se používají jiné sestavovací systémy.</translation>
@@ -51630,7 +46787,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Command:</source>
         <translation type="obsolete">Příkaz:</translation>
@@ -51668,7 +46825,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>No executable.</source>
         <translation>Žádný spustitelný soubor.</translation>
@@ -51701,9 +46858,6 @@ nelze najít v cestě.</translation>
         <source>Run %1</source>
         <translation>Spustit %1</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>Knihovna Qt k použití pro všechny projekty používající tuto sadu.&lt;br&gt;Je požadována verze Qt pro projekty založené na qmake a jako volitelná při použití jiných sestavovacích systémů.</translation>
@@ -51720,9 +46874,6 @@ nelze najít v cestě.</translation>
         <source>%1 (invalid)</source>
         <translation>%1 (neplatný)</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Verze Qt</translation>
@@ -51733,7 +46884,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Obecný Linux</translation>
@@ -51746,9 +46897,6 @@ nelze najít v cestě.</translation>
         <source>Deploy Public Key...</source>
         <translation>Poslat veřejný klíč...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Vzdálený proces spadl.</translation>
@@ -51777,23 +46925,14 @@ nelze najít v cestě.</translation>
         <source>Cannot check for free disk space: &apos;%1&apos; is not an absolute path.</source>
         <translation>Nelze ověřit volné místo na disku: &apos;%1&apos; není absolutní cesta.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MiB</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Ověřit volné místo na disku</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Debugging failed.</source>
         <translation>Ladění se nezdařilo.</translation>
@@ -51804,7 +46943,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Přidat soubory</translation>
@@ -51853,9 +46992,6 @@ nelze najít v cestě.</translation>
         <source>Could not copy the file to %1.</source>
         <translation>Soubor se nepodařilo zkopírovat do %1.</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Název souboru je prázdný.</translation>
@@ -51872,16 +47008,13 @@ nelze najít v cestě.</translation>
         <source>Cannot write file. Disk full?</source>
         <translation>Soubor se nepodařilo zapsat. Možná že už na pevném disku není místo pro ukládání?</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>Všechny soubory (*)</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Nalezeny místní změny. Vyberte úkon:</translation>
@@ -51922,7 +47055,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Dry run</source>
         <translation>Spustit na zkoušku</translation>
@@ -52359,7 +47492,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Package Information</source>
         <translation>Informace o balíčku</translation>
@@ -52386,7 +47519,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>PKCS 12 archives (*.p12)</source>
         <translation>Archivy PKCS 12 (*.p12)</translation>
@@ -52429,7 +47562,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Request Debug Token</source>
         <translation>Požádat o symbol pro ladění</translation>
@@ -52472,7 +47605,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Import Certificate</source>
         <translation>Importovat certifikát</translation>
@@ -52659,7 +47792,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>NDK Environment File</source>
         <translation>Soubor prostředí NDK</translation>
@@ -52817,7 +47950,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Generate developer certificate automatically</source>
         <translation>Vytvořit vývojářský certifikát automaticky</translation>
@@ -52852,7 +47985,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::SubmitEditorWidget</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Odeslání Subversion</translation>
@@ -52900,25 +48033,17 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Pokračovat</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Nelze najít soubor %1.</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>Nepodařilo se zpracovat dokument.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Očekáván dokument obsahující definici jednoho objektu.</translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
@@ -52928,16 +48053,10 @@ nelze najít v cestě.</translation>
         <source>Expected expression statement to be a literal.</source>
         <translation>Očekáván výraz tvořený písmeny (literal).</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Vlastnost je stanovena dvakrát.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &apos;%1&apos; as a constructor.</source>
         <translation>&apos;%1&apos; se nesmí používat jako konstruktor.</translation>
@@ -53220,7 +48339,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>GDB server</source>
         <translation>Server GDB:</translation>
@@ -53255,14 +48374,14 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Note text:</source>
         <translation>Text poznámky:</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Ninja (%1)</source>
         <translation>Ninja (%1)</translation>
@@ -53297,14 +48416,11 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Parsing</source>
         <translation>Syntaktický rozbor</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked &apos;override&apos;</source>
         <translation>Jen virtuální metody lze označit jako &apos;override&apos;</translation>
@@ -53313,9 +48429,6 @@ nelze najít v cestě.</translation>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Jen virtuální funkce lze označit jako &apos;override&apos;</translation>
     </message>
-</context>
-<context>
-    <name>CPlusPlus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
         <translation>Jen virtuální metody lze označit jako &apos;final&apos;</translation>
@@ -53332,16 +48445,13 @@ nelze najít v cestě.</translation>
         <source>Too many arguments</source>
         <translation>Příliš mnoho argumentů</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>Příliš málo argumentů</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>CDB Symbol Paths</source>
         <translation type="obsolete">Cesty k symbolům CDB</translation>
@@ -53468,7 +48578,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
         <translation>Barva při %1,%2: červená: %3 zelená: %4 modrá: %5 alfa: %6</translation>
@@ -53491,21 +48601,15 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Editor rozdílů</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorEditable</name>
     <message>
         <source>Ignore Whitespaces</source>
         <translation type="obsolete">Nevšímat si prázdných míst</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>Diff...</source>
         <translation>Rozdíly...</translation>
@@ -53523,9 +48627,6 @@ nelze najít v cestě.</translation>
         <extracomment>Editor title</extracomment>
         <translation>Rozdíly u &quot;%1&quot;, &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::DiffViewEditorWidget</name>
     <message>
         <source>No difference</source>
         <translation>Žádný rozdíl</translation>
@@ -53544,7 +48645,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>File input for the merge tool requires Git 1.7.8, or later.</source>
         <translatorcomment>XXX: ověřit?</translatorcomment>
@@ -53637,14 +48738,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
-    <message>
-        <source>Custom</source>
-        <translation>Vlastní</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -53657,9 +48751,6 @@ Vzdálený: %4</translation>
         <source>Empty</source>
         <translation>Prázdný</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation>Vlastní nastavení syntaktického analyzátoru...</translation>
@@ -53685,16 +48776,8 @@ Vzdálený: %4</translation>
         <translation>Čárkou oddělený seznam mkspecs.</translation>
     </message>
     <message>
-        <source>&amp;Compiler path:</source>
-        <translation>Cesta k &amp;překladači:</translation>
-    </message>
-    <message>
         <source>&amp;Make path:</source>
         <translation>Cesta k &amp;Make:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
     </message>
     <message>
         <source>&amp;Predefined macros:</source>
@@ -53716,16 +48799,10 @@ Vzdálený: %4</translation>
         <source>&amp;Error parser:</source>
         <translation>&amp;Chyba syntaktického analyzátoru:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
     <message>
         <source>%1 (%2 %3 in %4)</source>
         <translation>%1 (%2 %3 v %4)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -53741,7 +48818,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Vyhodnocuje se projekt Qbs.</translation>
@@ -54189,7 +49266,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation>Vyj&amp;mout</translation>
@@ -54239,7 +49316,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizardDialog</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation>Nový projekt Qt Quick UI</translation>
@@ -54252,9 +49329,6 @@ Vzdálený: %4</translation>
         <source>Component Set</source>
         <translation>Sada součástek</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Program Qt Quick</translation>
@@ -54273,14 +49347,14 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>%1 does not appear to be a valid application descriptor file</source>
         <translation>%1 nevypadá na to, že jde o platný soubor s popisem programu</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
@@ -54307,14 +49381,14 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Bar descriptor editor</source>
         <translation>Editor popisu pro Bar</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Permission</source>
         <translation>Oprávnění</translation>
@@ -54481,7 +49555,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Active</source>
         <translation>Činný</translation>
@@ -54540,7 +49614,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Failed to start blackberry-signer process.</source>
         <translation>Nepodařilo se spustit podpisový proces pro BlackBerry.</translation>
@@ -54563,14 +49637,14 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Keys</source>
         <translation>Klíče</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>NDK</source>
         <translation>NDK</translation>
@@ -54588,7 +49662,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Bar descriptor file (BlackBerry)</source>
         <translation>Soubor s popisem Bar (BlackBerry)</translation>
@@ -54619,14 +49693,11 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>All Versions</source>
         <translation>Všechny verze</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Úplná cesta k adresáři bin hostitele verze Qt nynějšího projektu.</translation>
@@ -54635,16 +49706,13 @@ Vzdálený: %4</translation>
         <source>Full path to the target bin directory of the current project&apos;s Qt version. You probably want %1 instead.</source>
         <translation>Úplná cesta k adresáři bin cíle verze Qt nynějšího projektu. Pravděpodobně místo toho chcete %1.</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation>Pro QMake nebyla nalezena žádná továrna: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Display context-sensitive help or type information on mouseover.</source>
         <translation>Zobrazit kontextově citlivou nápovědu nebo informace o typu, když se ukazovátko myši nachází nad prvkem.</translation>
@@ -54663,7 +49731,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Soubory bez oprávnění pro zápis</translation>
@@ -54671,10 +49739,6 @@ Vzdálený: %4</translation>
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
         <translation>Následující soubory jsou chráněny proti zápisu. Chcete oprávnění změnit?</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Udělat zapisovatelným</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -54788,7 +49852,7 @@ Chcete je nyní načíst?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -54811,7 +49875,7 @@ Chcete je nyní načíst?</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Odvést do Gerritu...</translation>
@@ -54890,7 +49954,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>User name:</source>
         <translation>Uživatelské jméno:</translation>
@@ -54901,11 +49965,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Machine type:</source>
         <translation>Typ stroje:</translation>
@@ -54928,7 +49988,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Install root:</source>
         <translation>Install root:</translation>
@@ -54970,7 +50030,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Destination</source>
         <translation>Cíl</translation>
@@ -54985,7 +50045,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Author ID:</source>
         <translation>ID autora:</translation>
@@ -55004,7 +50064,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Description:</source>
         <translation>Popis:</translation>
@@ -55043,7 +50103,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device Environment</source>
         <translation>Prostředí zařízení</translation>
@@ -55086,7 +50146,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Package ID:</source>
         <translation>ID balíčku:</translation>
@@ -55101,7 +50161,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Select All</source>
         <translation>Vybrat vše</translation>
@@ -55112,7 +50172,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device name:</source>
         <translation>Název zařízení:</translation>
@@ -55131,7 +50191,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Your environment is ready to be configured.</source>
         <translation>Vaše prostředí je připraveno k nastavování.</translation>
@@ -55190,7 +50250,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Package signing passwords</source>
         <translation>Hesla k podepsání balíčku</translation>
@@ -55208,14 +50268,14 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>CppQmlTypesLoader</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>%1 seems not to be encoded in UTF8 or has a BOM.</source>
         <translation>%1 není kódován v UTF8, nebo nemá BOM.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>QtC::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>Chyba v XML na řádku %1, sloupec %2: %3</translation>
@@ -55226,7 +50286,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation>Nevybrán žádný nástroj pro rozbor.</translation>
@@ -55407,7 +50467,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditorWidget</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Paměť při 0x%1</translation>
@@ -55510,7 +50570,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>QtC::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -55523,9 +50583,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Založeno na Qt %1 (%2, %3 bit)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Přepnout podrobnosti postupu</translation>
@@ -55538,9 +50595,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Alt+Shift+0</source>
         <translation>Alt+Shift+0</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableManager</name>
     <message>
         <source>%1: Full path including file name.</source>
         <translation>%1: Úplná cesta včetně názvu souboru.</translation>
@@ -55559,7 +50613,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>C++ Class</source>
         <translation>Třída C++</translation>
@@ -55676,9 +50730,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Update Code Model</source>
         <translation>Obnovit model kódu</translation>
     </message>
-</context>
-<context>
-    <name>QuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Vytvořit funkce Getter a Setter</translation>
@@ -55687,9 +50738,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation>Doplnit chybějící prvky Q_PROPERTY...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Přesunout definice vně třídy</translation>
@@ -55706,9 +50754,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Vložit virtuální funkce základních tříd</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Vložit virtuální funkce</translation>
@@ -55751,14 +50796,14 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>Ú&amp;pravy</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Cesty k symbolům</translation>
@@ -55849,7 +50894,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditor</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -55884,7 +50929,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Smazat</translation>
@@ -55899,7 +50944,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Working tree</source>
         <translation>Pracovní kopie</translation>
@@ -55938,7 +50983,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>No device configured.</source>
         <translation>Nebylo nastaveno žádné zařízení.</translation>
@@ -55955,38 +51000,17 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Check for a configured device</source>
         <translation>Prověřit, zda je nastaveno zařízení</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
     <message>
         <source>Run Environment</source>
         <translation>Prováděcí prostředí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Základní prostředí pro toto nastavení spuštění:</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
-    </message>
-</context>
-<context>
-    <name>PythonEditor::FileWizard</name>
+    <name>QtC::Python</name>
     <message>
         <source>Python source file</source>
         <translation>Zdrojový soubor Python</translation>
@@ -55999,9 +51023,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>New %1</source>
         <translation>Nový %1</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizard</name>
     <message>
         <source>Python class</source>
         <translation>Třída Pythonu</translation>
@@ -56018,9 +51039,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Creates C++/Boost file with bindings for Python</source>
         <translation>Vytvoří soubor C++-/Boost s vazbami pro Python</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassNamePage</name>
     <message>
         <source>Enter Class Name</source>
         <translation>Zadejte název třídy</translation>
@@ -56029,9 +51047,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>The source file name will be derived from the class name</source>
         <translation>Název zdrojového soubory se odvodí z názvu pro třídu</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizardDialog</name>
     <message>
         <source>Python Class Wizard</source>
         <translation>Nová třída Pythonu</translation>
@@ -56042,7 +51057,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Qbs Install</source>
         <translation>Instalace Qbs</translation>
@@ -56243,14 +51258,14 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>System Environment</source>
         <translation>Prostředí systému</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Check Development Mode</source>
         <translation>Přezkoušet vývojářský režim</translation>
@@ -56265,7 +51280,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&lt;b&gt;Check development mode&lt;/b&gt;</source>
         <translation>&lt;b&gt;Přezkoušet vývojářský režim&lt;/b&gt;</translation>
@@ -56276,14 +51291,14 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Authentication failed. Please make sure the password for the device is correct.</source>
         <translation>Autentizace se nezdařila. Ujistěte se, prosím, že heslo pro zařízení je správné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry Development Environment Setup Wizard</source>
         <translation>Průvodce pro nastavení vývojářského prostředí BlackBerry</translation>
@@ -56414,7 +51429,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Welcome to the BlackBerry Development Environment Setup Wizard.
 This wizard will guide you through the essential steps to deploy a ready-to-go development environment for BlackBerry 10 devices.</source>
@@ -56427,14 +51442,14 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Configure the NDK Path</source>
         <translation>Nastavit cestu k NKD</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
@@ -56493,14 +51508,11 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -56516,14 +51528,14 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Refaktoring se nepodařilo použít.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizardDialog</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; or newer.</source>
         <translation>Vytvoří projekt Qt Quick 1 UI s jediným souborem QML, který obsahuje hlavní pohled.&amp;lt;br/&amp;gt;Projekty Qt Quick 1 UI není potřeba je sestavovat a lze je spouštět přímo v prohlížeči QML. K vytvoření a ke spuštění tohoto typu projektů není potřeba, aby bylo ve vašem počítači nainstalováno vývojářské prostředí.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Vyžaduje &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; nebo novější.</translation>
@@ -56538,7 +51550,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Target API:</source>
         <translation>Cílové API:</translation>
@@ -56653,7 +51665,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>QtC::BareMetal</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -56685,11 +51697,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Add the file to version control (%1)</source>
         <translation>Přidat soubor do správy verzí (%1)</translation>
@@ -56700,7 +51708,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Dodatečné příkazy pro preprocesor</translation>
@@ -56713,13 +51721,6 @@ monitor reset</source>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Dodatečné příkazy pro preprocesor C++ pro %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>Code Completion and Semantic Highlighting</source>
         <translation>Doplnění kódu a sémantické zvýrazňování</translation>
@@ -56727,10 +51728,6 @@ monitor reset</source>
     <message>
         <source>C</source>
         <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>Objective C</source>
@@ -56752,13 +51749,9 @@ monitor reset</source>
         <source>Ignore pre-compiled headers</source>
         <translation>Přehlížet předpřeložené hlavičky</translation>
     </message>
-    <message>
-        <source>Headers</source>
-        <translation>Hlavičky</translation>
-    </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>QtC::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>Základní argumenty:</translation>
@@ -56783,16 +51776,6 @@ monitor reset</source>
         <source>Configuration is faulty. Check the Issues output pane for details.</source>
         <translation>Nastavení je chybové. Zkontrolujte tabulku s potížemi kvůli podrobnostem.</translation>
     </message>
-</context>
-<context>
-    <name>IosDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-</context>
-<context>
-    <name>IosRunConfiguration</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -56805,9 +51788,6 @@ monitor reset</source>
         <source>Executable:</source>
         <translation>Spustitelný soubor:</translation>
     </message>
-</context>
-<context>
-    <name>IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Nastavení iOS</translation>
@@ -56818,7 +51798,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Custom Parser</source>
         <translation>Vlastní syntaktický analyzátor</translation>
@@ -56848,10 +51828,6 @@ monitor reset</source>
         <translation>&amp;Zpráva:</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation>Zkouška</translation>
-    </message>
-    <message>
         <source>E&amp;rror message:</source>
         <translation>Hlášení o &amp;chybě:</translation>
     </message>
@@ -56862,10 +51838,6 @@ monitor reset</source>
     <message>
         <source>File name:</source>
         <translation>Název souboru:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>Textový štítek</translation>
     </message>
     <message>
         <source>Line number:</source>
@@ -56887,9 +51859,6 @@ monitor reset</source>
         <source>Pattern does not match the error message.</source>
         <translation>Vzor neodpovídá zprávě o chybě.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Zkouška zařízení</translation>
@@ -56919,7 +51888,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Debug Token</source>
         <translation>Symbol pro ladění</translation>
@@ -56958,7 +51927,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Device Information</source>
         <translation>Informace o zařízení</translation>
@@ -56993,7 +51962,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Select Native SDK path:</source>
         <translation>Vybrat cestu k nativnímu SDK:</translation>
@@ -57008,7 +51977,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Please wait...</source>
         <translation>Počkejte, prosím...</translation>
@@ -57051,7 +52020,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Please select target:</source>
         <translation>Vyberte, prosím, cíl:</translation>
@@ -57082,7 +52051,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Password:</source>
         <translation>Heslo:</translation>
@@ -57109,7 +52078,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Nastavit filtry</translation>
@@ -57425,7 +52394,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Nasadit na zařízení nebo emulátor Android</translation>
@@ -57604,7 +52573,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>QtC::BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
@@ -57664,7 +52633,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Core::DocumentModel</name>
+    <name>QtC::Core</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;žádný dokument&gt;</translation>
@@ -57675,21 +52644,15 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Není dostupná žádná hierarchie hlavičkových souborů</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Hierarchie hlavičkových souborů</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Hlavičkové soubory</translation>
@@ -57708,7 +52671,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Vytvořit funkce Getter a Setter</translation>
@@ -57719,7 +52682,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>VirtualFunctionsAssistProcessor</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation>...Hledají se přepsání</translation>
@@ -57733,7 +52696,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>Nerozpoznáno</translation>
@@ -57824,18 +52787,10 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffShowEditor</name>
-    <message>
-        <source>Hide Change Description</source>
-        <translation>Skrýt popis změny</translation>
-    </message>
-    <message>
-        <source>Show Change Description</source>
-        <translation>Ukázat popis změny</translation>
-    </message>
+    <name>QtC::DiffEditor</name>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Switch to Text Diff Editor</source>
         <translation>Přepnout na editor rozdílů v textu</translation>
@@ -57846,29 +52801,16 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>QtC::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>Sestavení iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
-</context>
-<context>
-    <name>Ios</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Could not find device specific debug symbols at %1. Debugging initialization will be slow until you open the Organizer window of Xcode with the device connected to have the symbols generated.</source>
         <translation>Symboly pro ladění zvláštní pro zařízení se nepodařilo najít v %1. Spuštění ladění bude pomalé, dokud neotevřete okno organizéru Xcode s připojeným zařízením, abyste měli symboly vytvořeny.</translation>
@@ -57885,23 +52827,14 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Run failed unexpectedly.</source>
         <translation>Spuštění se neočekávaně nezdařilo.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy to iOS</source>
         <translation>Poslat na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfigurationFactory</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Poslat na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Poslat na %1</translation>
@@ -57926,34 +52859,18 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>The Info.plist might be incorrect.</source>
         <translation>Info.plist může být nesprávný.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>Nasadit na zařízení nebo emulátor iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy to %1&lt;/b&gt;</source>
         <translation>&lt;b&gt;Poslat na %1&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
         <translation>Zařízení iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Název zařízení</translation>
@@ -57991,9 +52908,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Do you want to see how to set it up for development?</source>
         <translation>Chcete vidět, jak je nastavit, aby se dalo použít pro vývoj?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>ABI(s) verze Qt se nepodařilo určit.</translation>
@@ -58003,9 +52917,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Spustit na %1</translation>
@@ -58046,16 +52957,10 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>%1 is not connected.</source>
         <translation>%1 není připojeno.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfigurationWidget</name>
     <message>
         <source>iOS run settings</source>
         <translation>Nastavení spuštění na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Spouští se vzdálený proces.</translation>
@@ -58064,9 +52969,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Run ended unexpectedly.</source>
         <translation>Spuštění skončilo neočekávaně.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Run failed. The settings in the Organizer window of Xcode might be incorrect.</source>
         <translation>Spuštění se nezdařilo. Nastavení v okně organizéru Xcode může být nesprávné.</translation>
@@ -58075,30 +52977,14 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>The device is locked, please unlock.</source>
         <translation>Zařízení je zamknuto. Odemkněte je, prosím.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
     <message>
         <source>iOS Configurations</source>
         <translation>Nastavení iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>Simulátor iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>Simulátor iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>Subprocess Error %1</source>
         <translation>Chyba podprocesu %1</translation>
@@ -58109,49 +52995,18 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
-    <message>
-        <source>Playing Macro</source>
-        <translation>Přehrání makra</translation>
-    </message>
-    <message>
-        <source>An error occurred while replaying the macro, execution stopped.</source>
-        <translation>Při přehrávání makra se vyskytla chyba, provádění bylo zastaveno.</translation>
-    </message>
+    <name>QtC::Macros</name>
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation>Režim makra. Napište &quot;%1&quot; pro zastavení nahrávání a &quot;%2&quot; pro přehrání makra.</translation>
     </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Zastavit nahrávání makra</translation>
-    </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>ICC</source>
         <translation>ICC</translation>
     </message>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Vlastní</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
         <translation>Nelze ukončit proces s PID %1: %2</translation>
@@ -58188,9 +53043,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>could not break the process.</source>
         <translation>Proces se nepodařilo přerušit.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
         <source>Failed to kill remote process: %1</source>
         <translation>Nepodařilo se zabít vzdálený proces: %1</translation>
@@ -58203,9 +53055,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Terminated by request.</source>
         <translation>Ukončeno na požádání.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation>Importovat sestavení z...</translation>
@@ -58214,35 +53063,22 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Import</source>
         <translation>Importovat</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process can not access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
         <translation>Proces nemůže přistupovat k souboru, protože tento je používán jiným procesem.
 Zavřete, prosím, všechny běžící instance své aplikace, předtím než začnete se sestavováním.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>%1 - temporary</source>
         <translation>%1 - dočasný</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
 </context>
 <context>
-    <name>ProjectExplorer::TargetSetupPage</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;Nenalezeny žádné platné sady.&lt;/span&gt;</translation>
@@ -58264,13 +53100,6 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
         <comment>%1: Project name</comment>
         <translation>Qt Creator může pro projekt &lt;b&gt;%1&lt;/b&gt; použít následující sady:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -58281,16 +53110,6 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Varování:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Nastavit projekt</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
     <message>
         <source>Configure Project</source>
         <translation>Nastavit projekt</translation>
@@ -58313,29 +53132,10 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::ClassNamePage</name>
-    <message>
-        <source>Enter Class Name</source>
-        <translation>Zadejte název třídy</translation>
-    </message>
-    <message>
-        <source>The source file name will be derived from the class name</source>
-        <translation>Název zdrojového soubory se odvodí z názvu pro třídu</translation>
-    </message>
+    <name>QtC::Python</name>
 </context>
 <context>
-    <name>PythonEditor::Internal::ClassWizardDialog</name>
-    <message>
-        <source>Python Class Wizard</source>
-        <translation>Nová třída Pythonu</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation>Vybrat sadu součástek Qt Quick</translation>
@@ -58415,7 +53215,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Animations</source>
         <translation>Animace</translation>
@@ -58438,14 +53238,11 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>Neplatný kořenový prvek: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlComponentSetPage</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation>Vybrat sadu součástek Qt Quick</translation>
@@ -58456,7 +53253,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>NDK Already Known</source>
         <translation>NDK již známo</translation>
@@ -58467,7 +53264,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>BlackBerry NDK Installation Wizard</source>
         <translation>Průvodce instalací NDK BlackBerry</translation>
@@ -58478,7 +53275,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Options</source>
         <translation>Volby</translation>
@@ -58513,7 +53310,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>An error has occurred while adding target from:
  %1</source>
@@ -58609,7 +53406,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Import Existing Momentics Cascades Project</source>
         <translation>Importovat stávající projekt Momentics Cascades</translation>
@@ -58628,7 +53425,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Momentics Cascades Project</source>
         <translation>Projekt Momentics Cascades</translation>
@@ -58664,14 +53461,14 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Cesta k &amp;překladači:</translation>
@@ -58687,35 +53484,31 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Cannot show slog2info output. Error: %1</source>
         <translation>Nelze ukázat výstup slog2info. Chyba: %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Verze Qt</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Vrácená hodnota je %1. stderr:</translation>
     </message>
 </context>
 <context>
-    <name>Update</name>
-    <message>
-        <source>Update</source>
-        <translation>Aktualizovat</translation>
-    </message>
+    <name>QtC::UpdateInfo</name>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiler</translation>
@@ -58724,9 +53517,6 @@ se vyskytla chyba</translation>
         <source>Profiling %1</source>
         <translation>Profilování %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Provádí se rozbor paměti</translation>
@@ -58737,7 +53527,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>AnalyzerManager</name>
+    <name>QtC::Debugger</name>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished, %n issues were found.</source>
         <translation>
@@ -58763,10 +53553,6 @@ se vyskytla chyba</translation>
         <translation>Soubor se záznamem byl zpracován; nebyly nalezeny žádné problémy.</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <translation>Ladění</translation>
-    </message>
-    <message>
         <source>Release</source>
         <translation>Vydání</translation>
     </message>
@@ -58784,7 +53570,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Obecné volby pro Valgrind: %1</translation>
@@ -58813,16 +53599,10 @@ se vyskytla chyba</translation>
         <source>Process terminated.</source>
         <translation>Proces ukončen.</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Function Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Profilování funkcí s Valgrind používá nástroj &quot;callgrind&quot; pro záznam volání funkcí během spuštění programu.</translation>
@@ -58847,23 +53627,17 @@ se vyskytla chyba</translation>
         <source>Profile Costs of This Function and Its Callees</source>
         <translation>Náklady na profilování u této funkce a jí volaných funkcí</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Nepodařilo se určit PID vzdáleného procesu.</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Nastavení Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizard</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 4.8 or newer.</source>
         <translation>Vytvoří projekt Qt Quick 1 UI s jediným souborem QML, který obsahuje hlavní pohled.
@@ -58918,7 +53692,7 @@ Projekty Qt Quick 2 UI není potřeba sestavovat a lze je spouštět přímo v p
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Creates a deployable Qt Quick 1 application using the QtQuick 1.1 import. Requires Qt 4.8 or newer.</source>
         <translation>Vytvoří nasaditelný program Qt Quick 1 pomocí Qt Quick import. Vyžaduje Qt 4.8 nebo novější.</translation>
@@ -58969,7 +53743,7 @@ Projekty Qt Quick 2 UI není potřeba sestavovat a lze je spouštět přímo v p
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Uncommit</source>
         <translation type="unfinished"></translation>
@@ -59005,7 +53779,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
+    <name>QtC::Beautifier</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -59038,24 +53812,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Artistic Style</source>
         <translation>Umělecký styl</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Nastavení</translation>
-    </message>
     <message>
         <source>Clang Format command:</source>
         <translation>Příkaz pro formátování Clang:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Volby</translation>
     </message>
     <message>
         <source>Use Predefined Style:</source>
@@ -59073,9 +53832,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Clang Format</source>
         <translation>Formát Clang</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Název</translation>
@@ -59091,13 +53847,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Documentation for &apos;%1&apos;</source>
         <translation>Dokumentace pro &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -59119,24 +53868,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Edit Configuration</source>
         <translation>Upravit nastavení</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Nastavení</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation type="unfinished">Příkaz Uncrustify:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Volby</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -59147,16 +53881,12 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Použít $HOME/uncrustify.cfg</translation>
     </message>
     <message>
-        <source>Use self-defined style:</source>
-        <translation>Použít vlastní styl:</translation>
-    </message>
-    <message>
         <source>Uncrustify</source>
         <translation type="unfinished">Uncrustify</translation>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsPropertiesPage</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Pre-compiled headers:</source>
         <translation>Předpřeložené hlavičky:</translation>
@@ -59183,172 +53913,10 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindDialog</name>
-    <message>
-        <source>&amp;Search</source>
-        <translation>&amp;Hledat</translation>
-    </message>
-    <message>
-        <source>Search &amp;&amp; &amp;Replace</source>
-        <translation>Hledat a &amp;nahradit</translation>
-    </message>
-    <message>
-        <source>Sear&amp;ch for:</source>
-        <translation>&amp;Hledat:</translation>
-    </message>
-    <message>
-        <source>Case sensiti&amp;ve</source>
-        <translation>Rozlišující psaní &amp;velkých a malých písmen</translation>
-    </message>
-    <message>
-        <source>Whole words o&amp;nly</source>
-        <translation>Pouze celá &amp;slova</translation>
-    </message>
-    <message>
-        <source>Use re&amp;gular expressions</source>
-        <translation>Používat re&amp;gulární výrazy</translation>
-    </message>
-    <message>
-        <source>Sco&amp;pe:</source>
-        <translation>&amp;Oblast:</translation>
-    </message>
+    <name>QtC::Core</name>
 </context>
 <context>
-    <name>Core::Internal::FindWidget</name>
-    <message>
-        <source>Find</source>
-        <translation>Hledat</translation>
-    </message>
-    <message>
-        <source>Find:</source>
-        <translation>Hledat:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Nahradit:</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Nahradit a hledat</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Nahradit vše</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Pokročilé...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
-    </message>
-    <message>
-        <source>File types:</source>
-        <translation>Souborové typy:</translation>
-    </message>
-    <message>
-        <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
-        <translation>Zadejte seznam filtrů souborových názvů oddělených čárkou. Filtry mohou obsahovat vzory hledání.</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-    <message>
-        <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
-To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <translation>Zadejte krátké slovo nebo zkratku, které omezí nálezy na soubory nálezající se v tomto adresářovém stromu.
-Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, následované mezerou a hledaným výrazem.</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Upravit...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Directories:</source>
-        <translation>Adresáře:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
-    <message>
-        <source>Add Filter Configuration</source>
-        <translation>Přidat nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Include hidden files</source>
-        <translation>Ukazovat skryté soubory</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation>Filtr:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
-    <message>
-        <source>Configure Filters</source>
-        <translation>Nastavit filtry</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Upravit...</translation>
-    </message>
-    <message>
-        <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
-        <translation>Vyhledávací filtry, které své údaje neaktualizují okamžitě (např. vlastní filtry pro adresáře), se aktualizují po uplynutí této doby.</translation>
-    </message>
-    <message>
-        <source>Refresh interval:</source>
-        <translation>Doba mezi obnovami:</translation>
-    </message>
-    <message>
-        <source> min</source>
-        <translation> minuty</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Check device runtime</source>
         <translation>Ověřit běhové prostředí zařízení</translation>
@@ -59363,7 +53931,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -59394,7 +53962,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy Qt to BlackBerry Device</source>
         <translation>Nasadit Qt na zařízení BlackBerry</translation>
@@ -59471,7 +54039,7 @@ Opravdu chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Indexing</source>
         <translation>Indexování</translation>
@@ -59480,9 +54048,6 @@ Opravdu chcete pokračovat?</translation>
         <source>QML import scan</source>
         <translation>Sken importování QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -59562,18 +54127,10 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>Utils::FancyLineEdit</name>
-    <message>
-        <source>Filter</source>
-        <translation>Filtr</translation>
-    </message>
-    <message>
-        <source>Clear text</source>
-        <translation>Smazat text</translation>
-    </message>
+    <name>QtC::Utils</name>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Configure Android...</source>
         <translation>Nastavit Android...</translation>
@@ -59592,7 +54149,7 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>AbstractSettings</name>
+    <name>QtC::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Nelze uložit styly. %1 neexistuje.</translation>
@@ -59621,16 +54178,10 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation>Nelze přečíst soubor s dokumentací &quot;%1&quot;: %2.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier</name>
     <message>
         <source>Beautifier</source>
         <translation>Zkrášlovadlo</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>Nepodařilo se vytvořit žádný dočasný soubor v &quot;%1&quot;: %2.</translation>
@@ -59666,39 +54217,27 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>Příkaz %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangFormatSettings</name>
     <message>
         <source>No description available.</source>
         <translation>Popis nedostupný.</translation>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Umístění: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangIndexer</name>
     <message>
         <source>C++ Indexing</source>
         <translation>Indexování C++</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
     <message>
         <source>Clang Settings</source>
         <translation>Nastavení pro Clang</translation>
@@ -59711,9 +54250,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>All Files (*)</source>
         <translation>Všechny soubory (*)</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::CompletionProposalsBuilder</name>
     <message>
         <source>Is deprecated</source>
         <extracomment>deprecated C++ symbol</extracomment>
@@ -59727,9 +54263,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Signal of %1, returns %2</source>
         <translation>Signál: %1, vrací %2</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Diagnostic</name>
     <message>
         <source>ignored</source>
         <translation>Přehlíženo</translation>
@@ -59750,9 +54283,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>fatal</source>
         <translation>Selhání</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::PchManager</name>
     <message>
         <source>Successfully generated PCH file &quot;%1&quot;.</source>
         <translation>Soubor PCH &quot;%1&quot; byl úspěšně vytvořen.</translation>
@@ -59767,282 +54297,14 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>Core::FindPlugin</name>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <translation>&amp;Hledat/Nahradit</translation>
-    </message>
-    <message>
-        <source>Advanced Find</source>
-        <translation>Rozšířené hledání</translation>
-    </message>
-    <message>
-        <source>Open Advanced Find...</source>
-        <translation>Otevřít rozšířené hledání...</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Rozšířené...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation>Ctrl+Shift+F</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
-    <message>
-        <source>Shift+Enter</source>
-        <translation>Shift+Enter</translation>
-    </message>
-    <message>
-        <source>Shift+Return</source>
-        <translation>Shift+Return</translation>
-    </message>
-    <message>
-        <source>Find/Replace</source>
-        <translation>Hledat/Nahradit</translation>
-    </message>
-    <message>
-        <source>Enter Find String</source>
-        <translation>Zadat vzor hledání</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
-    </message>
-    <message>
-        <source>Find Next</source>
-        <translation>Najít další</translation>
-    </message>
-    <message>
-        <source>Find Previous</source>
-        <translation>Najít předchozí</translation>
-    </message>
-    <message>
-        <source>Find Next (Selected)</source>
-        <translation>Najít další (vybrané)</translation>
-    </message>
-    <message>
-        <source>Ctrl+F3</source>
-        <translation>Ctrl+F3</translation>
-    </message>
-    <message>
-        <source>Find Previous (Selected)</source>
-        <translation>Najít předchozí (vybrané)</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F3</source>
-        <translation>Ctrl+Shift+F3</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Nahradit a hledat</translation>
-    </message>
-    <message>
-        <source>Ctrl+=</source>
-        <translation>Ctrl+=</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find Previous</source>
-        <translation>Nahradit a najít předchozí</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Nahradit vše</translation>
-    </message>
-    <message>
-        <source>Case Sensitive</source>
-        <translation>Rozlišující velká a malá písmena</translation>
-    </message>
-    <message>
-        <source>Whole Words Only</source>
-        <translation>Pouze celá slova</translation>
-    </message>
-    <message>
-        <source>Use Regular Expressions</source>
-        <translation>Používat regulární výrazy</translation>
-    </message>
-    <message>
-        <source>Preserve Case when Replacing</source>
-        <translation>Zachovat při nahrazování velikost</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
-    <message>
-        <source>Case sensitive</source>
-        <translation>Rozlišovat velká a malá písmena</translation>
-    </message>
-    <message>
-        <source>Whole words</source>
-        <translation>Celá slova</translation>
-    </message>
-    <message>
-        <source>Regular expressions</source>
-        <translation>Regulární výrazy</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Zachovat velikost písmen</translation>
-    </message>
-    <message>
-        <source>Flags: %1</source>
-        <translation>Příznaky: %1</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Žádné</translation>
-    </message>
-    <message>
-        <source>, </source>
-        <translation>, </translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
-    <message>
-        <source>Search was canceled.</source>
-        <translation>Hledání bylo zrušeno.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Zrušit</translation>
-    </message>
+    <name>QtC::Core</name>
     <message>
         <source>Repeat the search with same parameters.</source>
         <translation>Opakovat hledání se stejnými parametry.</translation>
     </message>
     <message>
-        <source>Search again</source>
-        <translation>Hledat ještě jednou</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Nahradit:</translation>
-    </message>
-    <message>
         <source>Replace all occurrences.</source>
         <translation>Nahradit všechny výskyty.</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Zachovat velikost písmen</translation>
-    </message>
-    <message>
-        <source>This change cannot be undone.</source>
-        <translation>Tuto změnu nelze vrátit zpět.</translation>
-    </message>
-    <message numerus="yes">
-        <source>The search resulted in more than %n items, do you still want to continue?</source>
-        <translation>
-            <numerusform>Výsledkem hledání je více než %n položka. Stále ještě chcete pokračovat?</numerusform>
-            <numerusform>Výsledkem hledání je více než %n položky. Stále ještě chcete pokračovat?</numerusform>
-            <numerusform>Výsledkem hledání je více než %n položek. Stále ještě chcete pokračovat?</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>Pokračovat</translation>
-    </message>
-    <message>
-        <source>No matches found.</source>
-        <translation>Nebyly nalezeny žádné odpovídající shody.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n matches found.</source>
-        <translation>
-            <numerusform>Nalezena %n shoda.</numerusform>
-            <numerusform>Nalezeny %n shody.</numerusform>
-            <numerusform>Nalezeno %n shod.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
-    <message>
-        <source>New Search</source>
-        <translation>Nové hledání</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>Rozbalit vše</translation>
-    </message>
-    <message>
-        <source>%1 %2</source>
-        <translation>%1 %2</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>Složit vše</translation>
-    </message>
-    <message>
-        <source>Search Results</source>
-        <translation>Výsledky hledání</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilter</name>
-    <message>
-        <source>Generic Directory Filter</source>
-        <translation>Obecný adresářový filtr</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Select Directory</source>
-        <translation>Vybrat adresář</translation>
-    </message>
-    <message>
-        <source>%1 filter update: 0 files</source>
-        <translation>%1 stav filtru: žádný soubor</translation>
-    </message>
-    <message numerus="yes">
-        <source>%1 filter update: %n files</source>
-        <translation>
-            <numerusform>%1 stav filtru: jeden soubor</numerusform>
-            <numerusform>%1 stav filtru: %n soubory</numerusform>
-            <numerusform>%1 stav filtru: %n souborů</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%1 filter update: canceled</source>
-        <translation>%1 stav filtru: zrušeno</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
-    <message>
-        <source>Execute Custom Commands</source>
-        <translation>Spustit vlastní příkazy</translation>
-    </message>
-    <message>
-        <source>Previous command is still running (&apos;%1&apos;).
-Do you want to kill it?</source>
-        <translation>Předchozí příkaz stále běží (&apos;%1&apos;).
-Chcete jej ukončit?</translation>
-    </message>
-    <message>
-        <source>Kill Previous Process?</source>
-        <translation>Ukončit předchozí proces?</translation>
-    </message>
-    <message>
-        <source>Command &apos;%1&apos; finished.</source>
-        <translation>Příkaz &apos;%1&apos; dokončen.</translation>
-    </message>
-    <message>
-        <source>Command &apos;%1&apos; failed.</source>
-        <translation>Příkaz &apos;%1&apos; selhal.</translation>
     </message>
     <message>
         <source>Could not find executable for &apos;%1&apos;.</source>
@@ -60056,90 +54318,13 @@ Chcete jej ukončit?</translation>
         <source>Could not start process: %1.</source>
         <translation>Proces &quot;%1.&quot; se nepodařilo spustit.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
-    <message>
-        <source>Files in File System</source>
-        <translation>Soubory v souborovém systému</translation>
-    </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
-    <message>
-        <source>Ctrl+K</source>
-        <translation>Ctrl+K</translation>
-    </message>
-    <message>
-        <source>Type to locate</source>
-        <translation>Vzor hledání</translation>
-    </message>
-    <message>
-        <source>Type to locate (%1)</source>
-        <translation>Vzor hledání (%1)</translation>
-    </message>
     <message>
         <source>Indexing</source>
         <translation>Indexování</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
-    <message>
-        <source>Available filters</source>
-        <translation>Dostupné filtry</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
-    <message>
-        <source>Refresh</source>
-        <translation>Obnovit</translation>
-    </message>
-    <message>
-        <source>Locate...</source>
-        <translation>Najít...</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Volby</translation>
-    </message>
-    <message>
-        <source>&lt;type here&gt;</source>
-        <translation>&lt;Sem napište&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Otevřít dokumenty</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsPage</name>
-    <message>
-        <source>%1 (prefix: %2)</source>
-        <translation>%1 (Předpona: %2)</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>Připojit k procesu ještě nezapočato</translation>
@@ -60194,54 +54379,18 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditorController</name>
-    <message>
-        <source>No difference</source>
-        <translation>Žádný rozdíl</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::DiffEditorManager</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Čeká se na data...</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideDiffEditorWidget</name>
-    <message numerus="yes">
-        <source>Skipped %n lines...</source>
-        <translation>
-            <numerusform>Přeskočen %n řádek...</numerusform>
-            <numerusform>Přeskočeny %n řádky...</numerusform>
-            <numerusform>Přeskočeno %n řádků...</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>[%1] %2</source>
-        <translation>[%1] %2</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideDiffEditorWidget</name>
     <message>
         <source>No controller</source>
         <translation>Žádný ovladač</translation>
     </message>
-    <message>
-        <source>No difference</source>
-        <translation>Žádný rozdíl</translation>
-    </message>
 </context>
 <context>
-    <name>ProjectExplorer::KitConfigWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Edit Files</source>
         <translation>Upravit soubory</translation>
@@ -60278,9 +54427,6 @@ Tyto soubory jsou zachovány.</numerusform>
 Tyto soubory jsou zachovány.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation>Přidat existující adresář</translation>
@@ -60295,24 +54441,24 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>QmlDesigner</name>
+    <name>QtC::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>anonymous function</source>
         <translation>Anonymní funkce</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Qt %1 for %2</source>
         <translation>Qt %1 pro %2</translation>
@@ -60351,7 +54497,7 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Check Device Status</source>
         <translation>Ověřit stav zařízení</translation>
@@ -60413,7 +54559,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Runtime %1</source>
         <translation>Běhové prostředí %1</translation>
@@ -60464,7 +54610,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Signing keys are needed for signing BlackBerry applications and managing debug tokens.</source>
         <translation>Podpisové klíče jsou potřeba k podpisování aplikací BlackBerry a na správu symbolů pro ladění.</translation>
@@ -60515,7 +54661,7 @@ Přesto chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;How to Setup Qt Creator for BlackBerry 10 development&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;%1&quot;&gt;Jak nastavit Qt Creator pro vývoj pro BlackBerry 10&lt;/a&gt;</translation>
@@ -60568,7 +54714,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Choose imported Cascades project directory</source>
         <translation>Vybrat adresář projektu pro importovaný Cascade</translation>
@@ -60579,7 +54725,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>Zdrojový adresář projektu:</translation>
@@ -60590,7 +54736,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>No free ports for debugging.</source>
         <translation>Žádné volné porty pro ladění.</translation>
@@ -60601,32 +54747,21 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>PrefixLangDialog</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Jazyk:</translation>
-    </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Předpona: %2</translation>
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Nepoužívaná proměnná</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsPlugin</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Název verzovacího systému používaného nynějším projektem.</translation>

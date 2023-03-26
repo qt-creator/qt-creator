@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdquickfixes.h"
 
@@ -24,11 +24,10 @@ void ClangdQuickFixFactory::match(const CppEditor::Internal::CppQuickFixInterfac
     if (!client)
         return;
 
-    const auto uri = DocumentUri::fromFilePath(interface.filePath());
     QTextCursor cursor(interface.textDocument());
     cursor.setPosition(interface.position());
     cursor.select(QTextCursor::LineUnderCursor);
-    const QList<Diagnostic> &diagnostics = client->diagnosticsAt(uri, cursor);
+    const QList<Diagnostic> &diagnostics = client->diagnosticsAt(interface.filePath(), cursor);
     for (const Diagnostic &diagnostic : diagnostics) {
         ClangdDiagnostic clangdDiagnostic(diagnostic);
         if (const auto actions = clangdDiagnostic.codeActions()) {
@@ -47,15 +46,13 @@ public:
     }
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *perform() override
     {
-        m_interface = interface;
-
         // Step 1: Collect clangd code actions asynchronously
-        LanguageClientQuickFixAssistProcessor::perform(interface);
+        LanguageClientQuickFixAssistProcessor::perform();
 
         // Step 2: Collect built-in quickfixes synchronously
-        m_builtinOps = CppEditor::quickFixOperations(interface);
+        m_builtinOps = CppEditor::quickFixOperations(interface());
 
         return nullptr;
     }
@@ -82,13 +79,12 @@ private:
                     ops << op;
                 }
             }
-            return GenericProposal::createProposal(m_interface, ops + m_builtinOps);
+            return GenericProposal::createProposal(interface(), ops + m_builtinOps);
         }
         return nullptr;
     }
 
     QuickFixOperations m_builtinOps;
-    const AssistInterface *m_interface = nullptr;
 };
 
 ClangdQuickFixProvider::ClangdQuickFixProvider(ClangdClient *client)

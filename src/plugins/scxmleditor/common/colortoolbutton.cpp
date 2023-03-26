@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "colortoolbutton.h"
 #include "colorpicker.h"
@@ -32,7 +32,7 @@ ColorToolButton::ColorToolButton(const QString &key, const QString &iconName, co
     setToolTip(tooltip);
     setPopupMode(QToolButton::MenuButtonPopup);
 
-    connect(this, &ColorToolButton::clicked, this, [this]() {
+    connect(this, &ColorToolButton::clicked, this, [this] {
         setCurrentColor(m_color);
     });
 

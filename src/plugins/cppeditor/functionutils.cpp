@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "functionutils.h"
 
@@ -220,7 +220,7 @@ void FunctionUtilsTest::testVirtualFunctions()
     QFETCH(QByteArray, source);
     QFETCH(VirtualityList, virtualityList);
     QFETCH(QList<int>, firstVirtualList);
-    Document::Ptr document = Document::create(QLatin1String("virtuals"));
+    Document::Ptr document = Document::create(Utils::FilePath::fromPathPart(u"virtuals"));
     document->setUtf8Source(source);
     document->check(); // calls parse();
     QCOMPARE(document->diagnosticMessages().size(), 0);

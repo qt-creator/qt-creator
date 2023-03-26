@@ -1,9 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishsettings.h"
 
 #include "squishconstants.h"
+#include "squishmessages.h"
 #include "squishtools.h"
 #include "squishtr.h"
 
@@ -20,7 +21,6 @@
 #include <QDialogButtonBox>
 #include <QFrame>
 #include <QHeaderView>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
 #include <QVBoxLayout>
@@ -46,7 +46,7 @@ SquishSettings::SquishSettings()
         QTC_ASSERT(edit, return false);
         if (!squishPath.pathChooser()->defaultValidationFunction()(edit, error))
             return false;
-        const FilePath squishServer = FilePath::fromString(edit->text())
+        const FilePath squishServer = FilePath::fromUserInput(edit->text())
                 .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
         const bool valid = squishServer.isExecutableFile();
         if (!valid && error)
@@ -90,8 +90,7 @@ SquishSettings::SquishSettings()
     minimizeIDE.setToolTip(Tr::tr("Minimize IDE automatically while running or recording test cases."));
     minimizeIDE.setDefaultValue(true);
 
-    connect(&local, &BoolAspect::volatileValueChanged,
-            this, [this] (bool checked) {
+    connect(&local, &BoolAspect::volatileValueChanged, this, [this](bool checked) {
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });
@@ -376,7 +375,7 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     auto edit = new QPushButton(Tr::tr("Edit"), this);
     auto remove = new QPushButton(Tr::tr("Remove"), this);
 
-    auto updateButtons = [add, edit, remove] (const QModelIndex &idx) {
+    auto updateButtons = [add, edit, remove](const QModelIndex &idx) {
         add->setEnabled(idx.isValid());
         bool enabled = idx.isValid() && idx.parent() != QModelIndex();
         edit->setEnabled(enabled);
@@ -419,7 +418,7 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
 
     // query settings
     SquishTools *squishTools = SquishTools::instance();
-    squishTools->queryServerSettings([this, progress] (const QString &out, const QString &) {
+    squishTools->queryServerSettings([this, progress](const QString &out, const QString &) {
         m_serverSettings.setFromXmlOutput(out);
         m_originalSettings.setFromXmlOutput(out);
         repopulateApplicationView();
@@ -692,10 +691,9 @@ SquishServerSettingsDialog::SquishServerSettingsDialog(QWidget *parent)
 
 void SquishServerSettingsDialog::configWriteFailed(QProcess::ProcessError error)
 {
-    QMessageBox::critical(Core::ICore::dialogParent(),
-                          Tr::tr("Error"),
-                          Tr::tr("Failed to write configuration changes.\n"
-                                 "Squish server finished with process error %1.").arg(error));
+    const QString detail = Tr::tr("Failed to write configuration changes.\n"
+                                  "Squish server finished with process error %1.").arg(error);
+    SquishMessages::criticalMessage(detail);
 }
 
 } // namespace Internal

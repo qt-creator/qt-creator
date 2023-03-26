@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pluginview.h"
+
+#include "extensionsystemtr.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
 #include "pluginspec_p.h"
@@ -98,22 +100,22 @@ public:
         switch (column) {
         case NameColumn:
             if (role == Qt::DisplayRole)
-                return m_spec->isExperimental() ? PluginView::tr("%1 (experimental)").arg(m_spec->name())
+                return m_spec->isExperimental() ? Tr::tr("%1 (experimental)").arg(m_spec->name())
                                                 : m_spec->name();
             if (role == SortRole)
                 return m_spec->name();
             if (role == Qt::ToolTipRole) {
                 QString toolTip;
                 if (!m_spec->isAvailableForHostPlatform())
-                    toolTip = PluginView::tr("Path: %1\nPlugin is not available on this platform.");
+                    toolTip = Tr::tr("Path: %1\nPlugin is not available on this platform.");
                 else if (m_spec->isEnabledIndirectly())
-                    toolTip = PluginView::tr("Path: %1\nPlugin is enabled as dependency of an enabled plugin.");
+                    toolTip = Tr::tr("Path: %1\nPlugin is enabled as dependency of an enabled plugin.");
                 else if (m_spec->isForceEnabled())
-                    toolTip = PluginView::tr("Path: %1\nPlugin is enabled by command line argument.");
+                    toolTip = Tr::tr("Path: %1\nPlugin is enabled by command line argument.");
                 else if (m_spec->isForceDisabled())
-                    toolTip = PluginView::tr("Path: %1\nPlugin is disabled by command line argument.");
+                    toolTip = Tr::tr("Path: %1\nPlugin is disabled by command line argument.");
                 else
-                    toolTip = PluginView::tr("Path: %1");
+                    toolTip = Tr::tr("Path: %1");
                 return toolTip.arg(QDir::toNativeSeparators(m_spec->filePath()));
             }
             if (role == Qt::DecorationRole) {
@@ -130,17 +132,17 @@ public:
                 if (role == Qt::CheckStateRole || role == SortRole)
                     return Qt::Unchecked;
                 if (role == Qt::ToolTipRole)
-                    return PluginView::tr("Plugin is not available on this platform.");
+                    return Tr::tr("Plugin is not available on this platform.");
             } else if (m_spec->isRequired()) {
                 if (role == Qt::CheckStateRole || role == SortRole)
                     return Qt::Checked;
                 if (role == Qt::ToolTipRole)
-                    return PluginView::tr("Plugin is required.");
+                    return Tr::tr("Plugin is required.");
             } else {
                 if (role == Qt::CheckStateRole || role == SortRole)
                     return m_spec->isEnabledBySettings() ? Qt::Checked : Qt::Unchecked;
                 if (role == Qt::ToolTipRole)
-                    return PluginView::tr("Load on startup");
+                    return Tr::tr("Load on startup");
             }
             break;
 
@@ -211,7 +213,7 @@ public:
 
         if (column == LoadedColumn) {
             if (role == Qt::ToolTipRole)
-                return PluginView::tr("Load on Startup");
+                return Tr::tr("Load on Startup");
             if (role == Qt::CheckStateRole || role == SortRole) {
                 int checkedCount = 0;
                 for (PluginSpec *spec : m_plugins) {
@@ -284,7 +286,7 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     m_model = new TreeModel<TreeItem, CollectionItem, PluginItem>(this);
-    m_model->setHeader({ tr("Name"), tr("Load"), tr("Version"), tr("Vendor") });
+    m_model->setHeader({ Tr::tr("Name"), Tr::tr("Load"), Tr::tr("Version"), Tr::tr("Vendor") });
 
     m_sortModel = new CategorySortFilterModel(this);
     m_sortModel->setSourceModel(m_model);
@@ -303,10 +305,10 @@ PluginView::PluginView(QWidget *parent)
     connect(PluginManager::instance(), &PluginManager::pluginsChanged,
             this, &PluginView::updatePlugins);
 
-    connect(m_categoryView, &QAbstractItemView::activated,
+    connect(m_categoryView, &QAbstractItemView::activated, this,
             [this](const QModelIndex &idx) { emit pluginActivated(pluginForIndex(idx)); });
 
-    connect(m_categoryView->selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(m_categoryView->selectionModel(), &QItemSelectionModel::currentChanged, this,
             [this](const QModelIndex &idx) { emit currentPluginChanged(pluginForIndex(idx)); });
 
     updatePlugins();
@@ -353,7 +355,7 @@ void PluginView::updatePlugins()
     std::vector<CollectionItem *> collections;
     const auto end = pluginCollections.cend();
     for (auto it = pluginCollections.cbegin(); it != end; ++it) {
-        const QString name = it.key().isEmpty() ? tr("Utilities") : it.key();
+        const QString name = it.key().isEmpty() ? Tr::tr("Utilities") : it.key();
         collections.push_back(new CollectionItem(name, it.value(), this));
     }
     Utils::sort(collections, &CollectionItem::m_name);
@@ -384,13 +386,13 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         }
         additionalPlugins.subtract(plugins);
         if (!additionalPlugins.isEmpty()) {
-            if (QMessageBox::question(this, tr("Enabling Plugins"),
-                                      tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
-                                      .arg(pluginListString(plugins))
-                                      .arg(pluginListString(additionalPlugins)),
-                                      QMessageBox::Ok | QMessageBox::Cancel,
-                                      QMessageBox::Ok) != QMessageBox::Ok)
+            if (QMessageBox::question(this, Tr::tr("Enabling Plugins"),
+                             Tr::tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
+                             .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
+                             QMessageBox::Ok | QMessageBox::Cancel,
+                             QMessageBox::Ok) != QMessageBox::Ok) {
                 return false;
+            }
         }
     } else {
         for (PluginSpec *spec : plugins) {
@@ -401,13 +403,13 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         }
         additionalPlugins.subtract(plugins);
         if (!additionalPlugins.isEmpty()) {
-            if (QMessageBox::question(this, tr("Disabling Plugins"),
-                                      tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
-                                      .arg(pluginListString(plugins))
-                                      .arg(pluginListString(additionalPlugins)),
-                                      QMessageBox::Ok | QMessageBox::Cancel,
-                                      QMessageBox::Ok) != QMessageBox::Ok)
+            if (QMessageBox::question(this, Tr::tr("Disabling Plugins"),
+                             Tr::tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
+                             .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
+                             QMessageBox::Ok | QMessageBox::Cancel,
+                             QMessageBox::Ok) != QMessageBox::Ok) {
                 return false;
+            }
         }
     }
 

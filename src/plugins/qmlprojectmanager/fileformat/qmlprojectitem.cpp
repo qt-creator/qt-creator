@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
@@ -8,10 +8,12 @@
 
 #include <QDir>
 
+using namespace Utils;
+
 namespace QmlProjectManager {
 
 // kind of initialization
-void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
+void QmlProjectItem::setSourceDirectory(const FilePath &directoryPath)
 {
     if (m_sourceDirectory == directoryPath)
         return;
@@ -19,7 +21,7 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
     m_sourceDirectory = directoryPath;
 
     for (auto &fileFilter : m_content) {
-        fileFilter->setDefaultDirectory(directoryPath);
+        fileFilter->setDefaultDirectory(directoryPath.toFSPathString());
         connect(fileFilter.get(),
                 &FileFilterBaseItem::filesChanged,
                 this,
@@ -27,7 +29,7 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
     }
 }
 
-void QmlProjectItem::setTargetDirectory(const QString &directoryPath)
+void QmlProjectItem::setTargetDirectory(const FilePath &directoryPath)
 {
     m_targetDirectory = directoryPath;
 }

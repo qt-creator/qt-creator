@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "componentviewcontroller.h"
 
@@ -28,6 +28,8 @@
 
 // TODO implement removing include dependencies that are not longer used
 // TODO refactor add/remove relations between ancestor packages into extra controller class
+
+using namespace Utils;
 
 namespace ModelEditor {
 namespace Internal {
@@ -148,22 +150,22 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
 
     const QStringList filePaths = findFilePathOfComponent(component);
     for (const QString &filePath : filePaths) {
-        CPlusPlus::Document::Ptr document = snapshot.document(filePath);
+        CPlusPlus::Document::Ptr document = snapshot.document(FilePath::fromString(filePath));
         if (document) {
             const QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
             for (const CPlusPlus::Document::Include &include : includes) {
-                QString includeFilePath = include.resolvedFileName();
+                Utils::FilePath includeFilePath = include.resolvedFileName();
                 // replace proxy header with real one
                 CPlusPlus::Document::Ptr includeDocument = snapshot.document(includeFilePath);
                 if (includeDocument) {
                     QList<CPlusPlus::Document::Include> includes = includeDocument->resolvedIncludes();
                     if (includes.count() == 1 &&
-                            QFileInfo(includes.at(0).resolvedFileName()).fileName() == QFileInfo(includeFilePath).fileName())
+                            includes.at(0).resolvedFileName().fileName() == includeFilePath.fileName())
                     {
                         includeFilePath = includes.at(0).resolvedFileName();
                     }
                 }
-                qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath);
+                qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath.toString());
                 if (includeComponent && includeComponent != component) {
                     // add dependency between components
                     if (!m_modelUtilities->haveDependency(component, includeComponent)) {

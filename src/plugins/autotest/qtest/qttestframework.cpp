@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qttestframework.h"
 
@@ -18,10 +18,7 @@ ITestParser *QtTestFramework::createTestParser()
 
 ITestTreeItem *QtTestFramework::createRootNode()
 {
-    return new QtTestTreeItem(
-                this,
-                displayName(),
-                Utils::FilePath(), ITestTreeItem::Root);
+    return new QtTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 const char *QtTestFramework::name() const
@@ -37,6 +34,14 @@ QString QtTestFramework::displayName() const
 unsigned QtTestFramework::priority() const
 {
     return QtTest::Constants::FRAMEWORK_PRIORITY;
+}
+
+QStringList QtTestFramework::testNameForSymbolName(const QString &symbolName) const
+{
+    int index = symbolName.lastIndexOf("::");
+    if (index == -1)
+        return {};
+    return { symbolName.left(index), symbolName.mid(index + 2) };
 }
 
 } // namespace Internal

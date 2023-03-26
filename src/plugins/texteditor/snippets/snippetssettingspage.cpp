@@ -1,19 +1,23 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snippetssettingspage.h"
+
 #include "snippeteditor.h"
 #include "snippetprovider.h"
 #include "snippet.h"
 #include "snippetscollection.h"
 #include "snippetssettings.h"
+#include "../fontsettings.h"
+#include "../textdocument.h"
+#include "../texteditorconstants.h"
+#include "../texteditorsettings.h"
+#include "../texteditortr.h"
 
 #include <coreplugin/icore.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -118,8 +122,8 @@ bool SnippetsTableModel::setData(const QModelIndex &modelIndex, const QVariant &
             if (!Snippet::isValidTrigger(s)) {
                 QMessageBox::critical(
                     Core::ICore::dialogParent(),
-                    tr("Error"),
-                    tr("Not a valid trigger. A valid trigger can only contain letters, "
+                    Tr::tr("Error"),
+                    Tr::tr("Not a valid trigger. A valid trigger can only contain letters, "
                        "numbers, or underscores, where the first character is "
                        "limited to letter or underscore."));
                 if (snippet.trigger().isEmpty())
@@ -143,9 +147,9 @@ QVariant SnippetsTableModel::headerData(int section, Qt::Orientation orientation
         return QVariant();
 
     if (section == 0)
-        return tr("Trigger");
+        return Tr::tr("Trigger");
     else
-        return tr("Trigger Variant");
+        return Tr::tr("Trigger Variant");
 }
 
 void SnippetsTableModel::load(const QString &groupId)
@@ -197,8 +201,8 @@ void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
 {
     const Snippet &snippet = m_collection->revertedSnippet(modelIndex.row(), m_activeGroupId);
     if (snippet.id().isEmpty()) {
-        QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"),
-                              tr("Error reverting snippet."));
+        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"),
+                              Tr::tr("Error reverting snippet."));
         return;
     }
     replaceSnippet(snippet, modelIndex);
@@ -243,8 +247,6 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
 // SnippetsSettingsPagePrivate
 class SnippetsSettingsPagePrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::SnippetsSettingsPage)
-
 public:
     SnippetsSettingsPagePrivate();
     ~SnippetsSettingsPagePrivate() override { delete m_model; }
@@ -321,7 +323,7 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     m_snippetsTable->setRootIsDecorated(false);
     m_snippetsTable->setModel(m_model);
 
-    m_revertButton = new QPushButton(tr("Revert Built-in"));
+    m_revertButton = new QPushButton(Tr::tr("Revert Built-in"));
     m_revertButton->setEnabled(false);
 
     auto snippetSplitter = new QSplitter(Qt::Vertical);
@@ -332,18 +334,18 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
 
     using namespace Utils::Layouting;
     Column {
-        Row { tr("Group:"), m_groupCombo, st },
+        Row { Tr::tr("Group:"), m_groupCombo, st },
         Row {
             snippetSplitter,
             Column {
-                PushButton { text(tr("Add")),
+                PushButton { text(Tr::tr("Add")),
                              onClicked([this] { addSnippet(); }, this) },
-                PushButton { text(tr("Remove")),
+                PushButton { text(Tr::tr("Remove")),
                              onClicked([this] { removeSnippet(); }, this) },
                 m_revertButton,
-                PushButton { text(tr("Restore Removed Built-ins")),
+                PushButton { text(Tr::tr("Restore Removed Built-ins")),
                              onClicked([this] { restoreRemovedBuiltInSnippets(); }, this) },
-                PushButton { text(tr("Reset All")),
+                PushButton { text(Tr::tr("Reset All")),
                              onClicked([this] { resetAllSnippets(); }, this) },
                 st,
             }
@@ -395,7 +397,7 @@ void SnippetsSettingsPagePrivate::apply()
             m_snippetsCollectionChanged = false;
         } else {
             QMessageBox::critical(Core::ICore::dialogParent(),
-                                  tr("Error While Saving Snippet Collection"), errorString);
+                                  Tr::tr("Error While Saving Snippet Collection"), errorString);
         }
     }
 }
@@ -467,7 +469,7 @@ void SnippetsSettingsPagePrivate::removeSnippet()
 {
     const QModelIndex &modelIndex = m_snippetsTable->selectionModel()->currentIndex();
     if (!modelIndex.isValid()) {
-        QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"), tr("No snippet selected."));
+        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"), Tr::tr("No snippet selected."));
         return;
     }
     m_model->removeSnippet(modelIndex);
@@ -546,13 +548,14 @@ void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings
 }
 
 // SnippetsSettingsPage
+
 SnippetsSettingsPage::SnippetsSettingsPage()
     : d(new SnippetsSettingsPagePrivate)
 {
     setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
-    setDisplayName(SnippetsSettingsPagePrivate::tr("Snippets"));
+    setDisplayName(Tr::tr("Snippets"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 

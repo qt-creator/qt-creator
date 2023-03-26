@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gettingstartedwelcomepage.h"
 
@@ -45,6 +45,8 @@ namespace QtSupport {
 namespace Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
+
+Q_GLOBAL_STATIC(ExampleSetModel, s_exampleSetModel)
 
 ExamplesWelcomePage::ExamplesWelcomePage(bool showExamples)
     : m_showExamples(showExamples)
@@ -94,7 +96,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
     const QString defaultRootDirectory = DocumentManager::projectsDirectory().toString();
     QtcSettings *settings = ICore::settings();
-    chooser->setFilePath(FilePath::fromVariant(settings->value(C_FALLBACK_ROOT, defaultRootDirectory)));
+    chooser->setFilePath(FilePath::fromSettings(settings->value(C_FALLBACK_ROOT, defaultRootDirectory)));
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
@@ -122,33 +124,35 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                                  QMessageBox::NoButton);
             return QString();
         } else {
-            QString error;
             QString targetDir = destBaseDir + QLatin1Char('/') + exampleDirName;
-            if (FileUtils::copyRecursively(FilePath::fromString(projectDir),
-                    FilePath::fromString(targetDir), &error)) {
+
+            expected_str<void> result
+                = FilePath::fromString(projectDir).copyRecursively(FilePath::fromString(targetDir));
+
+            if (result) {
                 // set vars to new location
                 const QStringList::Iterator end = filesToOpen.end();
                 for (QStringList::Iterator it = filesToOpen.begin(); it != end; ++it)
                     it->replace(projectDir, targetDir);
 
-                foreach (const QString &dependency, dependencies) {
+                for (const QString &dependency : dependencies) {
                     const FilePath targetFile = FilePath::fromString(targetDir)
                             .pathAppended(QDir(dependency).dirName());
-                    if (!FileUtils::copyRecursively(FilePath::fromString(dependency), targetFile,
-                            &error)) {
+                    result = FilePath::fromString(dependency).copyRecursively(targetFile);
+                    if (!result) {
                         QMessageBox::warning(ICore::dialogParent(),
                                              Tr::tr("Cannot Copy Project"),
-                                             error);
+                                             result.error());
                         // do not fail, just warn;
                     }
                 }
 
-
                 return targetDir + QLatin1Char('/') + proFileInfo.fileName();
             } else {
-                QMessageBox::warning(ICore::dialogParent(), Tr::tr("Cannot Copy Project"), error);
+                QMessageBox::warning(ICore::dialogParent(),
+                                     Tr::tr("Cannot Copy Project"),
+                                     result.error());
             }
-
         }
     }
     if (code == Keep)
@@ -258,10 +262,6 @@ public:
         : m_isExamples(isExamples)
     {
         m_exampleDelegate.setShowExamples(isExamples);
-        static auto s_examplesModel = new ExamplesListModel(this);
-        m_examplesModel = s_examplesModel;
-
-        auto filteredModel = new ExamplesListModelFilter(m_examplesModel, !m_isExamples, this);
 
         auto searchBox = new SearchBox(this);
         m_searcher = searchBox->m_lineEdit;
@@ -284,13 +284,16 @@ public:
             exampleSetSelector->setPalette(pal);
             exampleSetSelector->setMinimumWidth(Core::ListItemDelegate::GridItemWidth);
             exampleSetSelector->setMaximumWidth(Core::ListItemDelegate::GridItemWidth);
-            ExampleSetModel *exampleSetModel = m_examplesModel->exampleSetModel();
-            exampleSetSelector->setModel(exampleSetModel);
-            exampleSetSelector->setCurrentIndex(exampleSetModel->selectedExampleSet());
-            connect(exampleSetSelector, &QComboBox::activated,
-                    exampleSetModel, &ExampleSetModel::selectExampleSet);
-            connect(exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
-                    exampleSetSelector, &QComboBox::setCurrentIndex);
+            exampleSetSelector->setModel(s_exampleSetModel);
+            exampleSetSelector->setCurrentIndex(s_exampleSetModel->selectedExampleSet());
+            connect(exampleSetSelector,
+                    &QComboBox::activated,
+                    s_exampleSetModel,
+                    &ExampleSetModel::selectExampleSet);
+            connect(s_exampleSetModel,
+                    &ExampleSetModel::selectedExampleSetChanged,
+                    exampleSetSelector,
+                    &QComboBox::setCurrentIndex);
 
             hbox->setSpacing(Core::WelcomePageHelpers::HSpacing);
             hbox->addWidget(exampleSetSelector);
@@ -302,17 +305,15 @@ public:
         grid->addWidget(searchBar, 0, 1);
         grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 2);
 
-        auto gridView = new GridView(this);
-        gridView->setModel(filteredModel);
+        auto gridView = new SectionedGridView(this);
+        new ExamplesViewController(s_exampleSetModel, gridView, isExamples, this);
+
         gridView->setItemDelegate(&m_exampleDelegate);
-        if (auto sb = gridView->verticalScrollBar())
-            sb->setSingleStep(25);
         grid->addWidget(gridView, 1, 1, 1, 2);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
                 this, &ExamplesPageWidget::onTagClicked);
-        connect(m_searcher, &QLineEdit::textChanged,
-                filteredModel, &ExamplesListModelFilter::setSearchString);
+        connect(m_searcher, &QLineEdit::textChanged, gridView, &SectionedGridView::setSearchString);
     }
 
     void onTagClicked(const QString &tag)
@@ -324,7 +325,6 @@ public:
 
     const bool m_isExamples;
     ExampleDelegate m_exampleDelegate;
-    QPointer<ExamplesListModel> m_examplesModel;
     QLineEdit *m_searcher;
 };
 

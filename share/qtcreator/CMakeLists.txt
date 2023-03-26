@@ -32,7 +32,7 @@ set(resource_files
   debugger/README.txt
   debugger/setup.cfg
   debugger/android_stdtypes.py
-  debugger/mac_stdtypes.py
+  debugger/libcpp_stdtypes.py
   debugger/stdtypes.py
   debugger/utils.py
 )

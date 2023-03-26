@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -134,9 +134,7 @@ public:
 
     virtual Utils::FilePath compilerCommand() const; // FIXME: De-virtualize.
     void setCompilerCommand(const Utils::FilePath &command);
-    virtual bool matchesCompilerCommand(
-        const Utils::FilePath &command,
-        const Utils::Environment &env = Utils::Environment::systemEnvironment()) const;
+    virtual bool matchesCompilerCommand(const Utils::FilePath &command) const;
 
     virtual QList<Utils::OutputLineParser *> createOutputParsers() const = 0;
 

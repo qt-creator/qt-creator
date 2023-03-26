@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,10 +7,9 @@
 
 #include "cppmodelmanager.h"
 
-#include <coreplugin/find/textfindconstants.h>
+#include <utils/futuresynchronizer.h>
 
 #include <QFuture>
-#include <QStringList>
 
 namespace Core { class SearchResultItem; }
 
@@ -44,24 +43,27 @@ public:
         SearchScope scope;
     };
 
+    SymbolSearcher(const SymbolSearcher::Parameters &parameters, const QSet<QString> &fileNames);
+    void runSearch(QFutureInterface<Core::SearchResultItem> &future);
 
-public:
-    SymbolSearcher(QObject *parent = nullptr);
-    ~SymbolSearcher() override = 0;
-    virtual void runSearch(QFutureInterface<Core::SearchResultItem> &future) = 0;
+private:
+    const CPlusPlus::Snapshot m_snapshot;
+    const Parameters m_parameters;
+    const QSet<QString> m_fileNames;
 };
-
 
 class CPPEDITOR_EXPORT CppIndexingSupport
 {
 public:
-    virtual ~CppIndexingSupport() = 0;
+    CppIndexingSupport();
+    ~CppIndexingSupport();
 
-    virtual QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
-                                             CppModelManager::ProgressNotificationMode mode)
-        = 0;
-    virtual SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
-                                                 const QSet<QString> &fileNames) = 0;
+    static bool isFindErrorsIndexingActive();
+
+    QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
+                                     CppModelManager::ProgressNotificationMode mode);
+private:
+    Utils::FutureSynchronizer m_synchronizer;
 };
 
 } // namespace CppEditor

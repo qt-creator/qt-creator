@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "linenumberfilter.h"
 
-#include "texteditor.h"
+#include "texteditortr.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -18,16 +18,16 @@ using LineColumn = QPair<int, int>;
 Q_DECLARE_METATYPE(LineColumn)
 
 using namespace Core;
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+
+namespace TextEditor::Internal {
 
 LineNumberFilter::LineNumberFilter(QObject *parent)
   : ILocatorFilter(parent)
 {
     setId("Line in current document");
-    setDisplayName(tr("Line in Current Document"));
-    setDescription(tr("Jumps to the given line in the current document."));
-    setDefaultSearchText(tr("<line>:<column>"));
+    setDisplayName(Tr::tr("Line in Current Document"));
+    setDescription(Tr::tr("Jumps to the given line in the current document."));
+    setDefaultSearchText(Tr::tr("<line>:<column>"));
     setPriority(High);
     setDefaultShortcutString("l");
     setDefaultIncludedByDefault(true);
@@ -59,11 +59,11 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorF
         data.second = column - 1;  // column API is 0-based
         QString text;
         if (line > 0 && column > 0)
-            text = tr("Line %1, Column %2").arg(line).arg(column);
+            text = Tr::tr("Line %1, Column %2").arg(line).arg(column);
         else if (line > 0)
-            text = tr("Line %1").arg(line);
+            text = Tr::tr("Line %1").arg(line);
         else
-            text = tr("Column %1").arg(column);
+            text = Tr::tr("Column %1").arg(column);
         value.append(LocatorFilterEntry(this, text, QVariant::fromValue(data)));
     }
     return value;
@@ -85,3 +85,5 @@ void LineNumberFilter::accept(const LocatorFilterEntry &selection,
         EditorManager::activateEditor(editor);
     }
 }
+
+} // TextEditor::Internal

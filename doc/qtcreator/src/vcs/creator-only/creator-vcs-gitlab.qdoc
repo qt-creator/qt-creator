@@ -88,7 +88,7 @@
 
     \QC automatically opens the project. If the cloned project has several
     project files (such as CMakeList.txt, .pro, and .qbs), \QC prompts you to
-    select the one to open. If it does not contain a project file that \QC can
+    select the one to open. If it does not have a project file that \QC can
     open, select \uicontrol File > \uicontrol {New Project} >
     \uicontrol {Import Project} > \uicontrol {Import Existing Project} to
     import the project as a generic project. For more information, see

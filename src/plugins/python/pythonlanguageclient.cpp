@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythonlanguageclient.h"
 
@@ -37,7 +37,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFutureWatcher>
-#include <QGridLayout>
 #include <QGroupBox>
 #include <QJsonDocument>
 #include <QPushButton>
@@ -214,7 +213,7 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
             const FilePath workspacePath = documentPath.parentDir();
             if (!m_extraWorkspaceDirs.contains(workspacePath)) {
                 WorkspaceFoldersChangeEvent event;
-                event.setAdded({WorkSpaceFolder(DocumentUri::fromFilePath(workspacePath),
+                event.setAdded({WorkSpaceFolder(hostPathToServerUri(workspacePath),
                                                 workspacePath.fileName())});
                 DidChangeWorkspaceFoldersParams params;
                 params.setEvent(event);
@@ -250,7 +249,7 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
                         updateExtraCompilerContents(extraCompiler, file);
                     });
             if (extraCompiler->isDirty())
-                static_cast<ExtraCompiler *>(extraCompiler)->run();
+                extraCompiler->compileFile();
         } else {
             m_extraCompilers[project] << oldCompilers.takeAt(index);
         }
@@ -261,7 +260,6 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
 
 void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const FilePath &file)
 {
-    const QString text = QString::fromUtf8(compiler->content(file));
     const FilePath target = m_extraCompilerOutputDir.pathAppended(file.fileName());
 
     target.writeFileContents(compiler->content(file));
@@ -269,7 +267,7 @@ void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const File
 
 void PyLSClient::closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler)
 {
-    const FilePath file = compiler->targets().first();
+    const FilePath file = compiler->targets().constFirst();
     m_extraCompilerOutputDir.pathAppended(file.fileName()).removeFile();
     compiler->disconnect(this);
 }
@@ -314,6 +312,7 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
 void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                                                     TextEditor::TextDocument *document)
 {
+    instance()->resetEditorInfoBar(document);
     if (!PythonSettings::pylsEnabled())
         return;
 
@@ -352,7 +351,6 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
     if (state.state == PythonLanguageServerState::CanNotBeInstalled)
         return;
 
-    resetEditorInfoBar(document);
     Utils::InfoBar *infoBar = document->infoBar();
     if (state.state == PythonLanguageServerState::CanBeInstalled
         && infoBar->canInfoBeAdded(installPylsInfoBarId)) {

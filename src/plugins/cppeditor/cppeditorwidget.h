@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,6 +9,8 @@
 #include <texteditor/texteditor.h>
 
 #include <QScopedPointer>
+
+#include <functional>
 
 namespace TextEditor {
 class IAssistProposal;
@@ -43,7 +45,7 @@ public:
     QSharedPointer<Internal::FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
-    TextEditor::AssistInterface *createAssistInterface(
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
             TextEditor::AssistKind kind,
             TextEditor::AssistReason reason) const override;
 
@@ -61,6 +63,10 @@ public:
     void findUsages(QTextCursor cursor);
     void renameUsages(const QString &replacement = QString(),
                       QTextCursor cursor = QTextCursor());
+    void renameUsages(const Utils::FilePath &filePath,
+                      const QString &replacement = QString(),
+                      QTextCursor cursor = QTextCursor(),
+                      const std::function<void()> &callback = {});
     void renameSymbolUnderCursor() override;
 
     bool selectBlockUp() override;
@@ -123,13 +129,14 @@ private:
 
     unsigned documentRevision() const;
     bool isOldStyleSignalOrSlot() const;
-    bool followQrcUrl(const QTextCursor &cursor, const Utils::LinkHandler &processLinkCallback);
+    bool followUrl(const QTextCursor &cursor, const Utils::LinkHandler &processLinkCallback);
 
     QMenu *createRefactorMenu(QWidget *parent) const;
 
     const ProjectPart *projectPart() const;
 
     void handleOutlineChanged(const QWidget* newOutline);
+    void showRenameWarningIfFileIsGenerated(const Utils::FilePath &filePath);
 
 private:
     QScopedPointer<Internal::CppEditorWidgetPrivate> d;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,7 +10,7 @@ namespace Constants {
 
 const char C_RESOURCEEDITOR[] = "Qt4.ResourceEditor";
 const char RESOURCEEDITOR_ID[] = "Qt4.ResourceEditor";
-const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Resource Editor");
+const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Resource Editor");
 
 const char REFRESH[] = "ResourceEditor.Refresh";
 

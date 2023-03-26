@@ -1,8 +1,10 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmldebugconnection.h"
+
 #include "qmldebugclient.h"
+#include "qmldebugtr.h"
 #include "qpacketprotocol.h"
 
 #include <utils/temporaryfile.h>
@@ -44,14 +46,14 @@ static QString socketStateToString(QAbstractSocket::SocketState state)
 {
     QString stateString;
     QDebug(&stateString) << state;
-    return QmlDebugConnection::tr("Socket state changed to %1").arg(stateString);
+    return Tr::tr("Socket state changed to %1").arg(stateString);
 }
 
 static QString socketErrorToString(QAbstractSocket::SocketError error)
 {
     QString errorString;
     QDebug(&errorString) << error;
-    return QmlDebugConnection::tr("Error: %1").arg(errorString);
+    return Tr::tr("Error: %1").arg(errorString);
 }
 
 void QmlDebugConnectionPrivate::advertisePlugins()

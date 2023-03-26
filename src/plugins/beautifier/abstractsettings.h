@@ -1,7 +1,9 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
+
+#include <utils/filepath.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -21,10 +23,8 @@ class QVersionNumber;
 QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
-namespace Utils { class FilePath; }
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class VersionUpdater;
 
@@ -53,7 +53,7 @@ public:
     virtual QString styleFileName(const QString &key) const;
 
     Utils::FilePath command() const;
-    void setCommand(const QString &cmd);
+    void setCommand(const Utils::FilePath &cmd);
     QVersionNumber version() const;
 
     QString supportedMimeTypesAsString() const;
@@ -82,11 +82,10 @@ private:
     std::unique_ptr<VersionUpdater> m_versionUpdater;
     QStringList m_stylesToRemove;
     QSet<QString> m_changedStyles;
-    QString m_command;
+    Utils::FilePath m_command;
     QHash<QString, int> m_options;
     QStringList m_docu;
     QStringList m_supportedMimeTypes;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

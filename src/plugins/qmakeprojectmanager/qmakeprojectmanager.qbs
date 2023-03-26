@@ -20,7 +20,6 @@ Project {
             name: "General"
             files: [
                 "addlibrarywizard.cpp", "addlibrarywizard.h",
-                "externaleditors.cpp", "externaleditors.h",
                 "librarydetailscontroller.cpp", "librarydetailscontroller.h",
                 "makefileparse.cpp", "makefileparse.h",
                 "profilecompletionassist.cpp", "profilecompletionassist.h",

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "genericlinuxdeviceconfigurationwidget.h"
 
@@ -63,14 +63,22 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 
     m_keyLabel = new QLabel(Tr::tr("Private key file:"));
 
-    m_keyFileLineEdit = new Utils::PathChooser(this);
+    m_keyFileLineEdit = new PathChooser(this);
 
     auto createKeyButton = new QPushButton(Tr::tr("Create New..."));
 
     m_machineTypeValueLabel = new QLabel(this);
 
-    m_gdbServerLineEdit = new QLineEdit(this);
-    m_gdbServerLineEdit->setPlaceholderText(Tr::tr("Leave empty to look up executable in $PATH"));
+    const QString hint = Tr::tr("Leave empty to look up executable in $PATH");
+    m_gdbServerLineEdit = new PathChooser(this);
+    m_gdbServerLineEdit->setExpectedKind(PathChooser::ExistingCommand);
+    m_gdbServerLineEdit->setPlaceholderText(hint);
+    m_gdbServerLineEdit->setToolTip(hint);
+
+    m_qmlRuntimeLineEdit = new PathChooser(this);
+    m_qmlRuntimeLineEdit->setExpectedKind(PathChooser::ExistingCommand);
+    m_qmlRuntimeLineEdit->setPlaceholderText(hint);
+    m_qmlRuntimeLineEdit->setToolTip(hint);
 
     auto sshPortLabel = new QLabel(Tr::tr("&SSH port:"));
     sshPortLabel->setBuddy(m_sshPortSpinBox);
@@ -83,8 +91,9 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         Tr::tr("&Host name:"), m_hostLineEdit, sshPortLabel, m_sshPortSpinBox, m_hostKeyCheckBox, st, br,
         Tr::tr("Free ports:"), m_portsLineEdit, m_portsWarningLabel, Tr::tr("Timeout:"), m_timeoutSpinBox, st, br,
         Tr::tr("&Username:"), m_userLineEdit, st, br,
-        m_keyLabel, m_keyFileLineEdit, createKeyButton, st, br,
-        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, st, br
+        m_keyLabel, m_keyFileLineEdit, createKeyButton, br,
+        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, br,
+        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, br
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,
@@ -109,11 +118,12 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged);
     connect(createKeyButton, &QAbstractButton::clicked,
             this, &GenericLinuxDeviceConfigurationWidget::createNewKey);
-    connect(m_gdbServerLineEdit, &QLineEdit::editingFinished,
+    connect(m_gdbServerLineEdit, &PathChooser::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished);
+    connect(m_qmlRuntimeLineEdit, &PathChooser::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::qmlRuntimeEditingFinished);
     connect(m_hostKeyCheckBox, &QCheckBox::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
-    m_gdbServerLineEdit->setToolTip(m_gdbServerLineEdit->placeholderText());
 
     initGui();
 }
@@ -169,7 +179,12 @@ void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 
 void GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished()
 {
-    device()->setDebugServerPath(device()->filePath(m_gdbServerLineEdit->text()));
+    device()->setDebugServerPath(m_gdbServerLineEdit->filePath());
+}
+
+void GenericLinuxDeviceConfigurationWidget::qmlRuntimeEditingFinished()
+{
+    device()->setQmlRunCommand(m_qmlRuntimeLineEdit->filePath());
 }
 
 void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()
@@ -208,6 +223,7 @@ void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
     keyFileEditingFinished();
     handleFreePortsChanged();
     gdbServerEditingFinished();
+    qmlRuntimeEditingFinished();
 }
 
 void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()
@@ -252,8 +268,8 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_timeoutSpinBox->setValue(sshParams.timeout);
     m_userLineEdit->setText(sshParams.userName());
     m_keyFileLineEdit->setFilePath(sshParams.privateKeyFile);
-    // FIXME: Use a remote executable line edit
-    m_gdbServerLineEdit->setText(device()->debugServerPath().path());
+    m_gdbServerLineEdit->setFilePath(device()->debugServerPath());
+    m_qmlRuntimeLineEdit->setFilePath(device()->qmlRunCommand());
 
     updatePortsWarningLabel();
 }

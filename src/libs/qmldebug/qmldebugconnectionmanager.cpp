@@ -1,8 +1,10 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmldebugconnectionmanager.h"
+
 #include "qmldebugconnection.h"
+#include "qmldebugtr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/url.h>
@@ -195,7 +197,7 @@ void QmlDebugConnectionManager::destroyConnection()
 
 void QmlDebugConnectionManager::qmlDebugConnectionOpened()
 {
-    logState(tr("Debug connection opened."));
+    logState(Tr::tr("Debug connection opened."));
     QTC_ASSERT(m_connection, return);
     QTC_ASSERT(m_connection->isConnected(), return);
     stopConnectionTimer();
@@ -204,7 +206,7 @@ void QmlDebugConnectionManager::qmlDebugConnectionOpened()
 
 void QmlDebugConnectionManager::qmlDebugConnectionClosed()
 {
-    logState(tr("Debug connection closed."));
+    logState(Tr::tr("Debug connection closed."));
     QTC_ASSERT(m_connection, return);
     QTC_ASSERT(!m_connection->isConnected(), return);
     destroyConnection();
@@ -213,7 +215,7 @@ void QmlDebugConnectionManager::qmlDebugConnectionClosed()
 
 void QmlDebugConnectionManager::qmlDebugConnectionFailed()
 {
-    logState(tr("Debug connection failed."));
+    logState(Tr::tr("Debug connection failed."));
     QTC_ASSERT(m_connection, return);
     QTC_ASSERT(!m_connection->isConnected(), /**/);
 

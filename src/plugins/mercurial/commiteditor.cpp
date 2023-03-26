@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "commiteditor.h"
 
@@ -9,9 +9,8 @@
 #include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
 
-#include <QDebug>
-
 using namespace VcsBase;
+using namespace Utils;
 
 namespace Mercurial::Internal {
 
@@ -26,7 +25,7 @@ MercurialCommitWidget *CommitEditor::commitWidget() const
     return static_cast<MercurialCommitWidget *>(widget());
 }
 
-void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &branch,
+void CommitEditor::setFields(const FilePath &repositoryRoot, const QString &branch,
                              const QString &userName, const QString &email,
                              const QList<VcsBaseClient::StatusItem> &repoStatus)
 {
@@ -34,7 +33,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
     if (!mercurialWidget)
         return;
 
-    mercurialWidget->setFields(repositoryRoot.absoluteFilePath(), branch, userName, email);
+    mercurialWidget->setFields(repositoryRoot.absoluteFilePath().toString(), branch, userName, email);
 
     fileModel = new SubmitFileModel(this);
     fileModel->setRepositoryRoot(repositoryRoot.absoluteFilePath());

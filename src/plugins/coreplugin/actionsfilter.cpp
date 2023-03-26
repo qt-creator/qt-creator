@@ -1,11 +1,12 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "actionsfilter.h"
 
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
+#include "coreplugintr.h"
 #include "icore.h"
 #include "locator/locatormanager.h"
 
@@ -31,16 +32,15 @@ size_t qHash(const QPointer<QAction> &p, size_t seed)
 }
 QT_END_NAMESPACE
 
-using namespace Core::Internal;
-using namespace Core;
+namespace Core::Internal {
 
 ActionsFilter::ActionsFilter()
 {
     setId("Actions from the menu");
-    setDisplayName(tr("Global Actions & Actions from the Menu"));
-    setDescription(
-        tr("Triggers an action. If it is from the menu it matches any part of a menu hierarchy, "
-           "separated by \">\". For example \"sess def\" matches \"File > Sessions > Default\"."));
+    setDisplayName(Tr::tr("Global Actions & Actions from the Menu"));
+    setDescription(Tr::tr("Triggers an action. If it is from the menu it matches any part "
+                          "of a menu hierarchy, separated by \">\". For example \"sess def\" "
+                          "matches \"File > Sessions > Default\"."));
     setDefaultShortcutString("t");
     setDefaultSearchText({});
     setDefaultKeySequence(QKeySequence("Ctrl+Shift+K"));
@@ -199,10 +199,8 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
                                             const QStringList &path,
                                             QList<const QMenu *> &processedMenus)
 {
-    QList<LocatorFilterEntry> entries;
     if (!m_enabledActions.contains(action))
         return;
-    const QString whatsThis = action->whatsThis();
     const QString text = actionText(action);
     if (QMenu *menu = action->menu()) {
         if (processedMenus.contains(menu))
@@ -343,3 +341,5 @@ void ActionsFilter::restoreState(const QJsonObject &object)
             m_lastTriggered.append({nullptr, Utils::Id::fromString(command.toString())});
     }
 }
+
+} // Core::Internal

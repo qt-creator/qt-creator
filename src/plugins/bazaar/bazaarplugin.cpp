@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bazaarplugin.h"
 
@@ -64,7 +64,7 @@ namespace Bazaar::Internal {
 
 // Submit editor parameters
 const char COMMIT_ID[] = "Bazaar Commit Log Editor";
-const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Commit Log Editor");
+const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Commit Log Editor");
 const char COMMITMIMETYPE[] = "text/vnd.qtcreator.bazaar.commit";
 
 // Menu items
@@ -172,7 +172,7 @@ public:
     bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) final;
     bool vcsCreateRepository(const Utils::FilePath &directory) final;
     void vcsAnnotate(const Utils::FilePath &file, int line) final;
-    void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
+    void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,
                                              const Utils::FilePath &baseDirectory,
@@ -184,7 +184,7 @@ public:
     // String -> repository, StringList -> files
     void changed(const QVariant &);
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
-    bool submitEditorAboutToClose() final;
+    bool activateCommit() final;
 
     // File menu action slots
     void addCurrentFile();
@@ -334,12 +334,9 @@ BazaarPlugin::~BazaarPlugin()
     d = nullptr;
 }
 
-bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void BazaarPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
     d = new BazaarPluginPrivate;
-    return true;
 }
 
 void BazaarPlugin::extensionsInitialized()
@@ -460,8 +457,7 @@ void BazaarPluginPrivate::logCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
-                  QStringList(), true);
+    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), {}, true);
 }
 
 void BazaarPluginPrivate::revertCurrentFile()
@@ -708,7 +704,7 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
-    commitEditor->setFields(m_submitRepository.toString(), branch,
+    commitEditor->setFields(m_submitRepository, branch,
                             m_settings.userName.value(),
                             m_settings.userEmail.value(), status);
 }
@@ -784,7 +780,7 @@ void BazaarPluginPrivate::uncommit()
         m_client.synchronousUncommit(state.topLevel(), dialog.revision(), dialog.extraOptions());
 }
 
-bool BazaarPluginPrivate::submitEditorAboutToClose()
+bool BazaarPluginPrivate::activateCommit()
 {
     auto commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);
@@ -931,7 +927,7 @@ bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
 {
-    m_client.annotate(file.parentDir(), file.fileName(), QString(), line);
+    m_client.annotate(file.parentDir(), file.fileName(), line);
 }
 
 VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,

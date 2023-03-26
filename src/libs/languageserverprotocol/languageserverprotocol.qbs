@@ -10,6 +10,8 @@ Project {
         files: [
             "basemessage.cpp",
             "basemessage.h",
+            "callhierarchy.cpp",
+            "callhierarchy.h",
             "client.cpp",
             "client.h",
             "clientcapabilities.cpp",

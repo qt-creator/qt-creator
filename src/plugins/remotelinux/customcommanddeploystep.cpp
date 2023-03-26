@@ -1,9 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customcommanddeploystep.h"
 
-#include "abstractremotelinuxdeployservice.h"
 #include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
@@ -16,48 +15,24 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
 class CustomCommandDeployService : public AbstractRemoteLinuxDeployService
 {
 public:
-    CustomCommandDeployService();
-
     void setCommandLine(const QString &commandLine);
-
-    bool isDeploymentNecessary() const override { return true; }
-    CheckResult isDeploymentPossible() const override;
+    CheckResult isDeploymentPossible() const final;
 
 protected:
-    void doDeploy() override;
-    void stopDeployment() override;
+    Group deployRecipe() final;
+
+private:
+    bool isDeploymentNecessary() const final { return true; }
 
     QString m_commandLine;
-    QtcProcess m_process;
 };
-
-CustomCommandDeployService::CustomCommandDeployService()
-{
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
-    });
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        emit stdErrData(QString::fromUtf8(m_process.readAllStandardError()));
-    });
-    connect(&m_process, &QtcProcess::done, this, [this] {
-        if (m_process.error() != QProcess::UnknownError
-                || m_process.exitStatus() != QProcess::NormalExit) {
-            emit errorMessage(Tr::tr("Remote process failed: %1").arg(m_process.errorString()));
-        } else if (m_process.exitCode() != 0) {
-            emit errorMessage(Tr::tr("Remote process finished with exit code %1.")
-                .arg(m_process.exitCode()));
-        } else {
-            emit progressMessage(Tr::tr("Remote command finished successfully."));
-        }
-        stopDeployment();
-    });
-}
 
 void CustomCommandDeployService::setCommandLine(const QString &commandLine)
 {
@@ -72,18 +47,33 @@ CheckResult CustomCommandDeployService::isDeploymentPossible() const
     return AbstractRemoteLinuxDeployService::isDeploymentPossible();
 }
 
-void CustomCommandDeployService::doDeploy()
+Group CustomCommandDeployService::deployRecipe()
 {
-    emit progressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
-    m_process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
-                             {"-c", m_commandLine}});
-    m_process.start();
-}
-
-void CustomCommandDeployService::stopDeployment()
-{
-    m_process.close();
-    handleDeploymentDone();
+    const auto setupHandler = [this](QtcProcess &process) {
+        emit progressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
+        process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
+                                 {"-c", m_commandLine}});
+        QtcProcess *proc = &process;
+        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
+            emit stdOutData(proc->readAllStandardOutput());
+        });
+        connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
+            emit stdErrData(proc->readAllStandardError());
+        });
+    };
+    const auto doneHandler = [this](const QtcProcess &) {
+        emit progressMessage(Tr::tr("Remote command finished successfully."));
+    };
+    const auto errorHandler = [this](const QtcProcess &process) {
+        if (process.error() != QProcess::UnknownError
+                || process.exitStatus() != QProcess::NormalExit) {
+            emit errorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
+        } else if (process.exitCode() != 0) {
+            emit errorMessage(Tr::tr("Remote process finished with exit code %1.")
+                .arg(process.exitCode()));
+        }
+    };
+    return Group { Process(setupHandler, doneHandler, errorHandler) };
 }
 
 class CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep

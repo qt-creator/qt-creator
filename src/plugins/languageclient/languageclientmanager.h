@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -42,9 +42,7 @@ public:
     static Client *startClient(const BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
     static const QList<Client *> clients();
     static void addClient(Client *client);
-
-    static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
-    static void reportFinished(const LanguageServerProtocol::MessageId &id, Client *byClient);
+    static void restartClient(Client *client);
 
     static void shutdownClient(Client *client);
     static void deleteClient(Client *client);
@@ -64,7 +62,6 @@ public:
     static const BaseSettings *settingForClient(Client *setting);
     static Client *clientForDocument(TextEditor::TextDocument *document);
     static Client *clientForFilePath(const Utils::FilePath &filePath);
-    static Client *clientForUri(const LanguageServerProtocol::DocumentUri &uri);
     static const QList<Client *> clientsForProject(const ProjectExplorer::Project *project);
     template<typename T> static bool hasClients();
 
@@ -101,10 +98,10 @@ private:
     QList<Client *> reachableClients();
 
     QList<Client *> m_clients;
+    QSet<Client *> m_restartingClients;
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QList<Client *>> m_clientsForSetting;
     QHash<TextEditor::TextDocument *, QPointer<Client>> m_clientForDocument;
-    QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
     DocumentLocatorFilter m_currentDocumentLocatorFilter;
     WorkspaceLocatorFilter m_workspaceLocatorFilter;
     WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;

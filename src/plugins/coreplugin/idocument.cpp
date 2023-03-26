@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "idocument.h"
+
+#include "coreplugintr.h"
 
 #include <utils/filepath.h>
 #include <utils/infobar.h>
@@ -613,7 +615,7 @@ void IDocument::setRestoredFrom(const Utils::FilePath &path)
     d->autoSavePath = path;
     d->restored = true;
     Utils::InfoBarEntry info(Id(kRestoredAutoSave),
-                             tr("File was restored from auto-saved copy. "
+                             Tr::tr("File was restored from auto-saved copy. "
                                 "Select Save to confirm or Revert to Saved to discard changes."));
     infoBar()->addInfo(info);
 }

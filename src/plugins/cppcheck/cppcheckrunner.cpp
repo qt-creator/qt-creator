@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcheckrunner.h"
 #include "cppchecktool.h"
@@ -11,8 +11,7 @@
 
 using namespace Utils;
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 CppcheckRunner::CppcheckRunner(CppcheckTool &tool) : m_tool(tool)
 {
@@ -21,7 +20,7 @@ CppcheckRunner::CppcheckRunner(CppcheckTool &tool) : m_tool(tool)
         getConf.setCommand({"getconf", {"ARG_MAX"}});
         getConf.start();
         getConf.waitForFinished(2000);
-        const QByteArray argMax = getConf.readAllStandardOutput().replace("\n", "");
+        const QByteArray argMax = getConf.readAllRawStandardOutput().replace("\n", "");
         m_maxArgumentsLength = std::max(argMax.toInt(), m_maxArgumentsLength);
     }
 
@@ -149,5 +148,4 @@ void CppcheckRunner::handleDone()
         checkQueued();
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

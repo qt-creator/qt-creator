@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTMatcher.h>
@@ -17,6 +17,7 @@
 #include <cplusplus/TranslationUnit.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/filepath.h>
 
 #include "utils.h"
 
@@ -425,7 +426,7 @@ static Document::Ptr parse(const QString &fileName, const QByteArray &source,
         if (verbose)
             std::cout << "Parsing as " << qPrintable(parseModeToString(parseMode)) << "...";
 
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(Utils::FilePath::fromString(fileName));
         doc->control()->setDiagnosticClient(errorHandler);
         doc->setUtf8Source(source);
         const bool parsed = doc->parse(parseMode);
@@ -510,11 +511,9 @@ int main(int argc, char *argv[])
     }
 
     // Process options & arguments
-    const bool helpRequested = args.contains(QLatin1String("-h"))
-        || args.contains(QLatin1String("-help"));
-    if (helpRequested) {
+    if (args.contains(QLatin1String("-h")) || args.contains(QLatin1String("-help"))) {
         printUsage();
-        return helpRequested ? EXIT_SUCCESS : EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
     if (args.contains(QLatin1String("-v"))) {

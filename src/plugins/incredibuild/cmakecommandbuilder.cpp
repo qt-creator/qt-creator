@@ -1,7 +1,9 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakecommandbuilder.h"
+
+#include "incredibuildtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -16,12 +18,16 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
-QList<Utils::Id> CMakeCommandBuilder::migratableSteps() const
+QList<Id> CMakeCommandBuilder::migratableSteps() const
 {
     return {CMakeProjectManager::Constants::CMAKE_BUILD_STEP_ID};
+}
+
+QString CMakeCommandBuilder::displayName() const
+{
+    return Tr::tr("CMake");
 }
 
 FilePath CMakeCommandBuilder::defaultCommand() const
@@ -42,7 +48,7 @@ QString CMakeCommandBuilder::defaultArguments() const
     if (buildDir.isEmpty())
         buildDir = ".";
 
-    return Utils::ProcessArgs::joinArgs({"--build", buildDir, "--target", "all"});
+    return ProcessArgs::joinArgs({"--build", buildDir, "--target", "all"});
 }
 
 QString CMakeCommandBuilder::setMultiProcessArg(QString args)
@@ -54,5 +60,4 @@ QString CMakeCommandBuilder::setMultiProcessArg(QString args)
     return args;
 }
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

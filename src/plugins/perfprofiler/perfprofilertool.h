@@ -1,12 +1,11 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "perfprofilerconstants.h"
 #include "perfprofilerflamegraphview.h"
 #include "perfprofilerstatisticsview.h"
-#include "perfprofilertr.h"
 #include "perfprofilertraceview.h"
 #include "perftimelinemodelmanager.h"
 
@@ -84,7 +83,8 @@ private:
     void finalize();
 
     Utils::Perspective m_perspective{Constants::PerfProfilerPerspectiveId,
-                                     ::PerfProfiler::Tr::tr("Performance Analyzer")};
+                                     QCoreApplication::translate("QtC::PerfProfiler",
+                                                                 "Performance Analyzer")};
 
     QAction *m_startAction = nullptr;
     QAction *m_stopAction = nullptr;

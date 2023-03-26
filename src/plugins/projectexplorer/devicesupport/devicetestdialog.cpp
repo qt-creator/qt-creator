@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "devicetestdialog.h"
+
+#include "../projectexplorertr.h"
 
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -82,13 +84,13 @@ void DeviceTestDialog::handleErrorMessage(const QString &message)
 void DeviceTestDialog::handleTestFinished(DeviceTester::TestResult result)
 {
     d->finished = true;
-    d->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
+    d->buttonBox->button(QDialogButtonBox::Cancel)->setText(Tr::tr("Close"));
 
     if (result == DeviceTester::TestSuccess)
-        addText(tr("Device test finished successfully."),
+        addText(Tr::tr("Device test finished successfully."),
                 Utils::Theme::OutputPanes_NormalMessageTextColor, true);
     else
-        addText(tr("Device test failed."), Utils::Theme::OutputPanes_ErrorMessageTextColor, true);
+        addText(Tr::tr("Device test failed."), Utils::Theme::OutputPanes_ErrorMessageTextColor, true);
 }
 
 void DeviceTestDialog::addText(const QString &text, Utils::Theme::Color color, bool bold)

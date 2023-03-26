@@ -1,10 +1,11 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientplugin.h"
 
 #include "client.h"
 #include "languageclientmanager.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -32,25 +33,23 @@ LanguageClientPlugin *LanguageClientPlugin::instance()
     return m_instance;
 }
 
-bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorString*/)
+void LanguageClientPlugin::initialize()
 {
     using namespace Core;
 
     LanguageClientManager::init();
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,
-                                                tr("Generic StdIO Language Server"),
+                                                Tr::tr("Generic StdIO Language Server"),
                                                 []() { return new StdIOSettings; }});
 
     //register actions
     ActionContainer *toolsDebugContainer = ActionManager::actionContainer(
         Core::Constants::M_TOOLS_DEBUG);
 
-    auto inspectAction = new QAction(tr("Inspect Language Clients..."), this);
+    auto inspectAction = new QAction(Tr::tr("Inspect Language Clients..."), this);
     connect(inspectAction, &QAction::triggered, this, &LanguageClientManager::showInspector);
     toolsDebugContainer->addAction(
         ActionManager::registerAction(inspectAction, "LanguageClient.InspectLanguageClients"));
-
-    return true;
 }
 
 void LanguageClientPlugin::extensionsInitialized()

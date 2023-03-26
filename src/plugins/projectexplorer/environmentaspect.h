@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -34,10 +34,10 @@ public:
     Utils::EnvironmentItems userEnvironmentChanges() const { return m_userChanges; }
     void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
 
-    void addSupportedBaseEnvironment(const QString &displayName,
-                                     const std::function<Utils::Environment()> &getter);
-    void addPreferredBaseEnvironment(const QString &displayName,
-                                     const std::function<Utils::Environment()> &getter);
+    int addSupportedBaseEnvironment(const QString &displayName,
+                                    const std::function<Utils::Environment()> &getter);
+    int addPreferredBaseEnvironment(const QString &displayName,
+                                    const std::function<Utils::Environment()> &getter);
 
     QString currentDisplayName() const;
 
@@ -53,6 +53,9 @@ public:
         Utils::Environment environment;
     };
 
+    using Utils::BaseAspect::setupLabel;
+    using Utils::BaseAspect::label;
+
 signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const Utils::EnvironmentItems &diff);
@@ -63,6 +66,9 @@ protected:
     void toMap(QVariantMap &map) const override;
 
     void setIsLocal(bool local) { m_isLocal = local; }
+
+    static constexpr char BASE_KEY[] = "PE.EnvironmentAspect.Base";
+    static constexpr char CHANGES_KEY[] = "PE.EnvironmentAspect.Changes";
 
 private:
     // One possible choice in the Environment aspect.

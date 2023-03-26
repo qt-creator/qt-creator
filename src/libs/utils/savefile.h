@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "utils_global.h"
+
+#include "filepath.h"
 
 #include <QFile>
 
@@ -17,10 +19,8 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT SaveFile : public QFile
 {
-    Q_OBJECT
-
 public:
-    explicit SaveFile(const QString &filename);
+    explicit SaveFile(const FilePath &filePath);
     ~SaveFile() override;
 
     bool open(OpenMode flags = QIODevice::WriteOnly) override;
@@ -31,9 +31,9 @@ public:
     static void initializeUmask();
 
 private:
-    const QString m_finalFileName;
+    const FilePath m_finalFilePath;
     std::unique_ptr<QTemporaryFile> m_tempFile;
     bool m_finalized = true;
 };
 
-} // namespace Utils
+} // Utils

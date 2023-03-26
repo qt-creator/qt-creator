@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -126,11 +126,6 @@ public:
 
 class DIFFEDITOR_EXPORT DiffUtils {
 public:
-    enum PatchFormattingFlags {
-        AddLevel = 0x1, // Add 'a/' , '/b' for git am
-        GitFormat = AddLevel | 0x2, // Add line 'diff ..' as git does
-    };
-
     static ChunkData calculateOriginalData(const QList<Utils::Diff> &leftDiffList,
                                            const QList<Utils::Diff> &rightDiffList);
     static FileData calculateContextData(const ChunkData &originalData,
@@ -146,13 +141,10 @@ public:
                              const QString &leftFileName,
                              const QString &rightFileName,
                              bool lastChunk = false);
-    static QString makePatch(const QList<FileData> &fileDataList,
-                             unsigned formatFlags = 0);
+    static QString makePatch(const QList<FileData> &fileDataList);
     static QList<FileData> readPatch(const QString &patch,
                                      bool *ok = nullptr,
                                      QFutureInterfaceBase *jobController = nullptr);
-    // For progress reporting
-    static int interpolate(int x, int x1, int x2, int y1, int y2);
 };
 
 } // namespace DiffEditor

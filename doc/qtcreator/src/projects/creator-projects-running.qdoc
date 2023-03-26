@@ -61,7 +61,7 @@
     useful when developing Qt Quick applications because the QML files are
     interpreted at runtime. Therefore, the application does not need to be
     built again if you edited only QML files. This saves time especially if
-    the application contains large image files that would need to be bundled
+    the application has large image files that would need to be bundled
     into the resource file before running the application.
 
     \image qtcreator-application-output.png

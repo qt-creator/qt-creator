@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "kitmanager.h"
 
@@ -8,10 +8,8 @@
 #include "kit.h"
 #include "kitfeatureprovider.h"
 #include "kitinformation.h"
-#include "kitmanagerconfigwidget.h"
-#include "project.h"
 #include "projectexplorerconstants.h"
-#include "task.h"
+#include "projectexplorertr.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
@@ -267,6 +265,14 @@ void KitManager::restoreKits()
                 bestTc = tc;
                 continue;
             }
+
+            if (bestTc->priority() > tc->priority())
+                continue;
+            if (bestTc->priority() < tc->priority()) {
+                bestTc = tc;
+                continue;
+            }
+
             const QString bestFilePath = bestTc->compilerCommand().toString();
             const QString currentFilePath = tc->compilerCommand().toString();
             if (bestFilePath.contains("icecc"))
@@ -282,6 +288,7 @@ void KitManager::restoreKits()
                 bestTc = tc;
                 continue;
             }
+
             if (bestFilePath.length() > currentFilePath.length())
                 bestTc = tc;
         }
@@ -344,7 +351,7 @@ void KitManager::restoreKits()
                 continue;
             }
             if (isHostKit(kit.get()))
-                kit->setUnexpandedDisplayName(tr("Desktop (%1)").arg(it.key().toString()));
+                kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
             else
                 kit->setUnexpandedDisplayName(it.key().toString());
             DeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
@@ -396,7 +403,7 @@ void KitManager::restoreKits()
         }
 
         if (hostKits.size() == 1)
-            hostKits.first()->setUnexpandedDisplayName(tr("Desktop"));
+            hostKits.first()->setUnexpandedDisplayName(Tr::tr("Desktop"));
     }
 
     Kit *k = kitForBinary;
@@ -726,7 +733,7 @@ KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
     : m_kit(kit), m_kitInformation(ki)
 {
     const Id id = ki->id();
-    m_mutableAction = new QAction(tr("Mark as Mutable"));
+    m_mutableAction = new QAction(Tr::tr("Mark as Mutable"));
     m_mutableAction->setCheckable(true);
     m_mutableAction->setChecked(m_kit->isMutable(id));
     m_mutableAction->setEnabled(!m_kit->isSticky(id));
@@ -749,7 +756,7 @@ void KitAspectWidget::addToLayoutWithLabel(QWidget *parent)
         emit labelLinkActivated(link);
     });
 
-    LayoutExtender builder(parent->layout(), Layouting::WithFormAlignment);
+    Layouting::LayoutExtender builder(parent->layout(), Layouting::WithFormAlignment);
     builder.finishRow();
     builder.addItem(label);
     addToLayout(builder);
@@ -773,7 +780,7 @@ QWidget *KitAspectWidget::createManageButton(Id pageId)
 
 QString KitAspectWidget::msgManage()
 {
-    return tr("Manage...");
+    return Tr::tr("Manage...");
 }
 
 // --------------------------------------------------------------------

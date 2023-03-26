@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "servercapabilities.h"
 
@@ -154,6 +154,28 @@ void ServerCapabilities::setSemanticTokensProvider(
     const SemanticTokensOptions &semanticTokensProvider)
 {
     insert(semanticTokensProviderKey, semanticTokensProvider);
+}
+
+std::optional<std::variant<bool, WorkDoneProgressOptions> >
+ServerCapabilities::callHierarchyProvider() const
+{
+    const QJsonValue &provider = value(callHierarchyProviderKey);
+    if (provider.isBool())
+        return provider.toBool();
+    else if (provider.isObject())
+        return WorkDoneProgressOptions(provider.toObject());
+    return std::nullopt;
+}
+
+void ServerCapabilities::setCallHierarchyProvider(
+    const std::variant<bool, WorkDoneProgressOptions> &callHierarchyProvider)
+{
+    QJsonValue val;
+    if (std::holds_alternative<bool>(callHierarchyProvider))
+        val = std::get<bool>(callHierarchyProvider);
+    else if (std::holds_alternative<WorkDoneProgressOptions>(callHierarchyProvider))
+        val = QJsonObject(std::get<WorkDoneProgressOptions>(callHierarchyProvider));
+    insert(callHierarchyProviderKey, val);
 }
 
 std::optional<std::variant<bool, WorkDoneProgressOptions>>

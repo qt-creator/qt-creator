@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Kovalev Dmitry <kovalevda1991@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jlinkgdbserverprovider.h"
 
@@ -121,7 +121,7 @@ bool JLinkGdbServerProvider::isValid() const
 QVariantMap JLinkGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(executableFileKeyC, m_executableFile.toVariant());
+    data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(jlinkDeviceKeyC, m_jlinkDevice);
     data.insert(jlinkHostInterfaceKeyC, m_jlinkHost);
     data.insert(jlinkHostInterfaceIPAddressKeyC, m_jlinkHostAddr);
@@ -136,7 +136,7 @@ bool JLinkGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
+    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_jlinkDevice = data.value(jlinkDeviceKeyC).toString();
     m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
     m_jlinkHost = data.value(jlinkHostInterfaceKeyC).toString();

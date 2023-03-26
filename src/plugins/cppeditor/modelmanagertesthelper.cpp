@@ -1,26 +1,29 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modelmanagertesthelper.h"
 
 #include "cpptoolstestcase.h"
-#include "cppworkingcopy.h"
 #include "projectinfo.h"
 
 #include <projectexplorer/session.h>
+
+#include <utils/algorithm.h>
 
 #include <QtTest>
 
 #include <cassert>
 
+using namespace Utils;
+
 namespace CppEditor::Tests {
 
-TestProject::TestProject(const QString &name, QObject *parent, const Utils::FilePath &filePath) :
+TestProject::TestProject(const QString &name, QObject *parent, const FilePath &filePath) :
     ProjectExplorer::Project("x-binary/foo", filePath),
     m_name(name)
 {
     setParent(parent);
-    setId(Utils::Id::fromString(name));
+    setId(Id::fromString(name));
     setDisplayName(name);
     qRegisterMetaType<QSet<QString> >();
 }
@@ -65,7 +68,7 @@ void ModelManagerTestHelper::cleanup()
 }
 
 ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(
-        const QString &name, const Utils::FilePath &filePath)
+        const QString &name, const FilePath &filePath)
 {
     auto tp = new TestProject(name, this, filePath);
     m_projects.push_back(tp);
@@ -74,7 +77,7 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(
     return tp;
 }
 
-QSet<QString> ModelManagerTestHelper::updateProjectInfo(
+QSet<FilePath> ModelManagerTestHelper::updateProjectInfo(
         const ProjectInfo::ConstPtr &projectInfo)
 {
     resetRefreshedSourceFiles();
@@ -89,12 +92,12 @@ void ModelManagerTestHelper::resetRefreshedSourceFiles()
     m_refreshHappened = false;
 }
 
-QSet<QString> ModelManagerTestHelper::waitForRefreshedSourceFiles()
+QSet<FilePath> ModelManagerTestHelper::waitForRefreshedSourceFiles()
 {
     while (!m_refreshHappened)
         QCoreApplication::processEvents();
 
-    return m_lastRefreshedSourceFiles;
+    return Utils::transform(m_lastRefreshedSourceFiles, &FilePath::fromString);
 }
 
 void ModelManagerTestHelper::waitForFinishedGc()
@@ -116,4 +119,4 @@ void ModelManagerTestHelper::gcFinished()
     m_gcFinished = true;
 }
 
-} // namespace CppEditor::Tests
+} // CppEditor::Tests

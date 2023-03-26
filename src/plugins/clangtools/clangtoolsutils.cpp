@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtoolsutils.h"
 
@@ -7,6 +7,7 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -37,17 +38,17 @@ static QString fixitStatus(FixitStatus status)
 {
     switch (status) {
     case FixitStatus::NotAvailable:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "No Fixits");
+        return Tr::tr("No Fixits");
     case FixitStatus::NotScheduled:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Not Scheduled");
+        return Tr::tr("Not Scheduled");
     case FixitStatus::Invalidated:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Invalidated");
+        return Tr::tr("Invalidated");
     case FixitStatus::Scheduled:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Scheduled");
+        return Tr::tr("Scheduled");
     case FixitStatus::FailedToApply:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Failed to Apply");
+        return Tr::tr("Failed to Apply");
     case FixitStatus::Applied:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Applied");
+        return Tr::tr("Applied");
     }
     return QString();
 }
@@ -61,31 +62,31 @@ QString createDiagnosticToolTipString(
     QList<StringPair> lines;
 
     if (!diagnostic.category.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Category:"),
+        lines.push_back({Tr::tr("Category:"),
                          diagnostic.category.toHtmlEscaped()});
     }
 
     if (!diagnostic.type.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Type:"),
+        lines.push_back({Tr::tr("Type:"),
                          diagnostic.type.toHtmlEscaped()});
     }
 
     if (!diagnostic.description.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Description:"),
+        lines.push_back({Tr::tr("Description:"),
                          diagnostic.description.toHtmlEscaped()});
     }
 
-    lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
+    lines.push_back({Tr::tr("Location:"),
                      createFullLocationString(diagnostic.location)});
 
     if (status) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
+        lines.push_back({Tr::tr("Fixit status:"),
                          fixitStatus(*status)});
     }
 
     if (showSteps && !diagnostic.explainingSteps.isEmpty()) {
         StringPair steps;
-        steps.first = QCoreApplication::translate("ClangTools::Diagnostic", "Steps:");
+        steps.first = Tr::tr("Steps:");
         for (const ExplainingStep &step : diagnostic.explainingSteps) {
             if (!steps.second.isEmpty())
                 steps.second += "<br>";
@@ -99,7 +100,7 @@ QString createDiagnosticToolTipString(
 
     const QString url = documentationUrl(diagnostic.name);
     if (!url.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Documentation:"),
+        lines.push_back({Tr::tr("Documentation:"),
                          QString("<a href=\"%1\">%1</a>").arg(url)});
     }
 
@@ -128,7 +129,7 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location)
 
 QString hintAboutBuildBeforeAnalysis()
 {
-    return ClangTool::tr(
+    return Tr::tr(
         "In general, the project should be built before starting the analysis to ensure that the "
         "code to analyze is valid.<br/><br/>"
         "Building the project might also run code generators that update the source files as "
@@ -139,26 +140,10 @@ void showHintAboutBuildBeforeAnalysis()
 {
     Utils::CheckableMessageBox::doNotShowAgainInformation(
         Core::ICore::dialogParent(),
-        ClangTool::tr("Info About Build the Project Before Analysis"),
+        Tr::tr("Info About Build the Project Before Analysis"),
         hintAboutBuildBeforeAnalysis(),
         Core::ICore::settings(),
         "ClangToolsDisablingBuildBeforeAnalysisHint");
-}
-
-FilePath shippedClangTidyExecutable()
-{
-    const FilePath shippedExecutable = Core::ICore::clangTidyExecutable(CLANG_BINDIR);
-    if (shippedExecutable.isExecutableFile())
-        return shippedExecutable;
-    return {};
-}
-
-FilePath shippedClazyStandaloneExecutable()
-{
-    const FilePath shippedExecutable = Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
-    if (shippedExecutable.isExecutableFile())
-        return shippedExecutable;
-    return {};
 }
 
 FilePath fullPath(const FilePath &executable)
@@ -190,36 +175,48 @@ static FilePath findValidExecutable(const FilePaths &candidates)
     return {};
 }
 
-FilePath clangTidyFallbackExecutable()
+FilePath toolShippedExecutable(ClangToolType tool)
 {
-    return findValidExecutable({
-        shippedClangTidyExecutable(),
-        Constants::CLANG_TIDY_EXECUTABLE_NAME,
-    });
+    const FilePath shippedExecutable = tool == ClangToolType::Tidy
+                                     ? Core::ICore::clangTidyExecutable(CLANG_BINDIR)
+                                     : Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
+    if (shippedExecutable.isExecutableFile())
+        return shippedExecutable;
+    return {};
 }
 
-FilePath clangTidyExecutable()
+FilePath toolExecutable(ClangToolType tool)
 {
-    const FilePath fromSettings = ClangToolsSettings::instance()->clangTidyExecutable();
+    const FilePath fromSettings = ClangToolsSettings::instance()->executable(tool);
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
-    return clangTidyFallbackExecutable();
+    return toolFallbackExecutable(tool);
 }
 
-FilePath clazyStandaloneFallbackExecutable()
+FilePath toolFallbackExecutable(ClangToolType tool)
 {
-    return findValidExecutable({
-        shippedClazyStandaloneExecutable(),
-        Constants::CLAZY_STANDALONE_EXECUTABLE_NAME,
-    });
+    const FilePath fallback = tool == ClangToolType::Tidy
+                            ? FilePath(Constants::CLANG_TIDY_EXECUTABLE_NAME)
+                            : FilePath(Constants::CLAZY_STANDALONE_EXECUTABLE_NAME);
+    return findValidExecutable({toolShippedExecutable(tool), fallback});
 }
 
-FilePath clazyStandaloneExecutable()
+QString clangToolName(CppEditor::ClangToolType tool)
 {
-    const FilePath fromSettings = ClangToolsSettings::instance()->clazyStandaloneExecutable();
-    if (!fromSettings.isEmpty())
-        return fullPath(fromSettings);
-    return clazyStandaloneFallbackExecutable();
+    return tool == ClangToolType::Tidy ? Tr::tr("Clang-Tidy") : Tr::tr("Clazy");
+}
+
+bool isVFSOverlaySupported(const FilePath &executable)
+{
+    static QMap<FilePath, bool> vfsCapabilities;
+    auto it = vfsCapabilities.find(executable);
+    if (it == vfsCapabilities.end()) {
+        QtcProcess p;
+        p.setCommand({executable, {"--help"}});
+        p.runBlocking();
+        it = vfsCapabilities.insert(executable, p.allOutput().contains("vfsoverlay"));
+    }
+    return it.value();
 }
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
@@ -231,8 +228,7 @@ ClangDiagnosticConfig builtinConfig()
 {
     ClangDiagnosticConfig config;
     config.setId(Constants::DIAG_CONFIG_TIDY_AND_CLAZY);
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Default Clang-Tidy and Clazy checks"));
+    config.setDisplayName(Tr::tr("Default Clang-Tidy and Clazy checks"));
     config.setIsReadOnly(true);
     config.setClangOptions({"-w"}); // Do not emit any clang-only warnings
     config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseDefaultChecks);

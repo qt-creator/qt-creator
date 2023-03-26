@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "namecontroller.h"
 
@@ -102,7 +102,7 @@ QString NameController::calcRelativePath(const QString &absoluteFileName, const 
 QString NameController::calcElementNameSearchId(const QString &elementName)
 {
     QString searchId;
-    foreach (const QChar &c, elementName) {
+    for (const QChar &c : elementName) {
         if (c.isLetterOrNumber())
             searchId += c.toLower();
     }

@@ -1,9 +1,10 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "beautifierplugin.h"
 
 #include "beautifierconstants.h"
+#include "beautifiertr.h"
 #include "generaloptionspage.h"
 #include "generalsettings.h"
 
@@ -32,12 +33,9 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QScrollBar>
@@ -45,8 +43,7 @@
 
 using namespace TextEditor;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 bool isAutoFormatApplicable(const Core::IDocument *document,
                             const QList<Utils::MimeType> &allowedMimeTypes)
@@ -93,16 +90,12 @@ public:
 
 static BeautifierPluginPrivate *dd = nullptr;
 
-bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
+void BeautifierPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(QCoreApplication::translate("Beautifier", "Bea&utifier"));
+    menu->menu()->setTitle(Tr::tr("Bea&utifier"));
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
-    return true;
 }
 
 void BeautifierPlugin::extensionsInitialized()
@@ -175,49 +168,48 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 
 void BeautifierPlugin::showError(const QString &error)
 {
-    Core::MessageManager::writeFlashing(tr("Error in Beautifier: %1").arg(error.trimmed()));
+    Core::MessageManager::writeFlashing(Tr::tr("Error in Beautifier: %1").arg(error.trimmed()));
 }
 
 QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)
 {
-    return tr("Cannot get configuration file for %1.").arg(command);
+    return Tr::tr("Cannot get configuration file for %1.").arg(command);
 }
 
 QString BeautifierPlugin::msgFormatCurrentFile()
 {
     //: Menu entry
-    return tr("Format &Current File");
+    return Tr::tr("Format &Current File");
 }
 
 QString BeautifierPlugin::msgFormatSelectedText()
 {
     //: Menu entry
-    return tr("Format &Selected Text");
+    return Tr::tr("Format &Selected Text");
 }
 
 QString BeautifierPlugin::msgFormatAtCursor()
 {
     //: Menu entry
-    return tr("&Format at Cursor");
+    return Tr::tr("&Format at Cursor");
 }
 
 QString BeautifierPlugin::msgFormatLines()
 {
     //: Menu entry
-    return tr("Format &Line(s)");
+    return Tr::tr("Format &Line(s)");
 }
 
 QString BeautifierPlugin::msgDisableFormattingSelectedText()
 {
     //: Menu entry
-    return tr("&Disable Formatting for Selected Text");
+    return Tr::tr("&Disable Formatting for Selected Text");
 }
 
 QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
 {
     //: File dialog title for path chooser when choosing binary
-    return tr("%1 Command").arg(command);
+    return Tr::tr("%1 Command").arg(command);
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

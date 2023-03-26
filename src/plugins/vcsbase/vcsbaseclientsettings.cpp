@@ -1,7 +1,9 @@
 // Copyright (C) 2016 Brian McGillion and Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsbaseclientsettings.h"
+
+#include "vcsbasetr.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -35,7 +37,7 @@ VcsBaseSettings::VcsBaseSettings()
     logCount.setSettingsKey("LogCount");
     logCount.setRange(0, 1000 * 1000);
     logCount.setDefaultValue(100);
-    logCount.setLabelText(tr("Log count:"));
+    logCount.setLabelText(Tr::tr("Log count:"));
 
     registerAspect(&path);
     path.setSettingsKey("Path");
@@ -44,8 +46,8 @@ VcsBaseSettings::VcsBaseSettings()
     timeout.setSettingsKey("Timeout");
     timeout.setRange(0, 3600 * 24 * 365);
     timeout.setDefaultValue(30);
-    timeout.setLabelText(tr("Timeout:"));
-    timeout.setSuffix(tr("s"));
+    timeout.setLabelText(Tr::tr("Timeout:"));
+    timeout.setSuffix(Tr::tr("s"));
 }
 
 VcsBaseSettings::~VcsBaseSettings() = default;

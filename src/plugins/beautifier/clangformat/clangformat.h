@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,13 +8,10 @@
 #include "clangformatoptionspage.h"
 #include "clangformatsettings.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ClangFormat : public BeautifierAbstractTool
 {
-    Q_OBJECT
-
 public:
     ClangFormat();
 
@@ -39,5 +36,4 @@ private:
     ClangFormatOptionsPage m_page{&m_settings};
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

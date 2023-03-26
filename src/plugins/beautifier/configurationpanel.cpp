@@ -1,9 +1,10 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "configurationpanel.h"
 
 #include "abstractsettings.h"
+#include "beautifiertr.h"
 #include "configurationdialog.h"
 
 #include <utils/layoutbuilder.h>
@@ -21,9 +22,9 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent)
     m_configurations = new QComboBox;
     m_configurations->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    m_edit = new QPushButton(tr("Edit"));
-    m_remove = new QPushButton(tr("Remove"));
-    auto add = new QPushButton(tr("Add"));
+    m_edit = new QPushButton(Tr::tr("Edit"));
+    m_remove = new QPushButton(Tr::tr("Remove"));
+    auto add = new QPushButton(Tr::tr("Add"));
 
     using namespace Utils::Layouting;
 
@@ -70,7 +71,7 @@ void ConfigurationPanel::remove()
 void ConfigurationPanel::add()
 {
     ConfigurationDialog dialog;
-    dialog.setWindowTitle(tr("Add Configuration"));
+    dialog.setWindowTitle(Tr::tr("Add Configuration"));
     dialog.setSettings(m_settings);
     if (dialog.exec() == QDialog::Accepted) {
         const QString key = dialog.key();
@@ -83,7 +84,7 @@ void ConfigurationPanel::edit()
 {
     const QString key = m_configurations->currentText();
     ConfigurationDialog dialog;
-    dialog.setWindowTitle(tr("Edit Configuration"));
+    dialog.setWindowTitle(Tr::tr("Edit Configuration"));
     dialog.setSettings(m_settings);
     dialog.setKey(key);
     if (dialog.exec() == QDialog::Accepted) {

@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangutils.h"
+
+#include "clangcodemodeltr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -40,7 +42,7 @@ using namespace Utils;
 namespace ClangCodeModel {
 namespace Internal {
 
-ProjectPart::ConstPtr projectPartForFile(const QString &filePath)
+ProjectPart::ConstPtr projectPartForFile(const FilePath &filePath)
 {
     if (const auto parser = CppEditor::BaseEditorDocumentParser::get(filePath))
         return parser->projectPartInfo().projectPart;
@@ -110,22 +112,24 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     bool clStyle)
 {
     QJsonObject fileObject;
-    fileObject["file"] = projFile.path;
+    fileObject["file"] = projFile.path.toString();
     QJsonArray args;
 
     if (purpose == CompilationDbPurpose::Project) {
         args = QJsonArray::fromStringList(arguments);
 
-        const ProjectFile::Kind kind = ProjectFile::classify(projFile.path);
+        const ProjectFile::Kind kind = ProjectFile::classify(projFile.path.path());
         if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                 || projectPart.toolchainType == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-            if (ProjectFile::isC(kind))
-                args.append("/TC");
-            else if (ProjectFile::isCxx(kind))
-                args.append("/TP");
+            if (!ProjectFile::isObjC(kind)) {
+                if (ProjectFile::isC(kind))
+                    args.append("/TC");
+                else if (ProjectFile::isCxx(kind))
+                    args.append("/TP");
+            }
         } else {
             QStringList langOption
-                    = createLanguageOptionGcc(kind,
+                    = createLanguageOptionGcc(projectPart.language, kind,
                                               projectPart.languageExtensions
                                               & LanguageExtension::ObjectiveC);
             for (const QString &langOptionPart : langOption)
@@ -136,7 +140,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
-    args.append(QDir::toNativeSeparators(projFile.path));
+    args.append(projFile.path.toUserOutput());
     fileObject["arguments"] = args;
     fileObject["directory"] = buildDir.toString();
     return fileObject;
@@ -150,15 +154,14 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
                                                   FilePath clangIncludeDir)
 {
     QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
-        QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
+        Tr::tr("Could not retrieve build directory.")));
     QTC_ASSERT(!projectInfoList.isEmpty(),
                return GenerateCompilationDbResult(QString(), "Could not retrieve project info."));
     QTC_CHECK(baseDir.ensureWritableDir());
     QFile compileCommandsFile(baseDir.pathAppended("compile_commands.json").toFSPathString());
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
     if (!fileOpened) {
-        return GenerateCompilationDbResult(QString(),
-                QCoreApplication::translate("ClangUtils", "Could not create \"%1\": %2")
+        return GenerateCompilationDbResult(QString(), Tr::tr("Could not create \"%1\": %2")
                     .arg(compileCommandsFile.fileName(), compileCommandsFile.errorString()));
     }
     compileCommandsFile.write("[");
@@ -195,15 +198,14 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
     return GenerateCompilationDbResult(compileCommandsFile.fileName(), QString());
 }
 
-QString currentCppEditorDocumentFilePath()
+FilePath currentCppEditorDocumentFilePath()
 {
-    QString filePath;
+    FilePath filePath;
 
     const auto currentEditor = Core::EditorManager::currentEditor();
     if (currentEditor && CppEditor::CppModelManager::isCppEditor(currentEditor)) {
-        const auto currentDocument = currentEditor->document();
-        if (currentDocument)
-            filePath = currentDocument->filePath().toString();
+        if (const auto currentDocument = currentEditor->document())
+            filePath = currentDocument->filePath();
     }
 
     return filePath;
@@ -238,9 +240,9 @@ QString DiagnosticTextInfo::category() const
 
     const int index = m_squareBracketStartIndex + 1;
     if (isClazyOption(m_text.mid(index)))
-        return QCoreApplication::translate("ClangDiagnosticWidget", "Clazy Issue");
+        return Tr::tr("Clazy Issue");
     else
-        return QCoreApplication::translate("ClangDiagnosticWidget", "Clang-Tidy Issue");
+        return Tr::tr("Clang-Tidy Issue");
 }
 
 bool DiagnosticTextInfo::isClazyOption(const QString &option)
@@ -268,7 +270,7 @@ QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &proje
                 ? ProjectFile::CHeader : ProjectFile::CXXHeader;
     }
     if (usePch == UsePrecompiledHeaders::Yes
-            && projectPart.precompiledHeaders.contains(file.path)) {
+            && projectPart.precompiledHeaders.contains(file.path.path())) {
         usePch = UsePrecompiledHeaders::No;
     }
     optionsBuilder.updateFileLanguage(fileKind);

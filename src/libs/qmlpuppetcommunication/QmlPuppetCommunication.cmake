@@ -1,6 +1,6 @@
 add_qtc_library(QmlPuppetCommunication STATIC
     PROPERTIES AUTOUIC OFF
-    DEPENDS Qt5::Core Qt5::CorePrivate Qt5::Gui
+    DEPENDS Qt::Core Qt::CorePrivate Qt::Gui
 )
 
 extend_qtc_library(QmlPuppetCommunication
@@ -40,7 +40,20 @@ extend_qtc_library(QmlPuppetCommunication
     propertyvaluecontainer.cpp propertyvaluecontainer.h
     reparentcontainer.cpp reparentcontainer.h
     sharedmemory.h
-    $<IF:$<BOOL:${UNIX}>,sharedmemory_unix.cpp,sharedmemory_qt.cpp>
+)
+
+extend_qtc_library(QmlPuppetCommunication
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/container
+  CONDITION UNIX
+  SOURCES
+    sharedmemory_unix.cpp
+)
+
+extend_qtc_library(QmlPuppetCommunication
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/container
+  CONDITION NOT UNIX
+  SOURCES
+    sharedmemory_qt.cpp
 )
 
 extend_qtc_library(QmlPuppetCommunication

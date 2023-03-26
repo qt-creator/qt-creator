@@ -14,8 +14,6 @@
 
     \title Creating Qt Quick Projects
 
-    \image qtcreator-new-qt-quick-project.png "New Project dialog"
-
     The following table lists the wizard templates for creating a new
     Qt Quick project from scratch.
 
@@ -27,34 +25,37 @@
         \row
             \li Application (Qt)
             \li Qt Quick Application
-            \li Creates a Qt Quick 2 application project that can contain both
+            \li Creates a Qt Quick application project that can have both
                 QML and C++ code. You can build the application and deploy it
                 to desktop, embedded, and mobile target platforms.
+
+                You can select an option to create a project that you can open
+                in \QDS.
         \row
             \li Application (Qt for Python)
             \li Qt for Python - Qt Quick Application
-            \li Creates a Python project that contains an empty Qt Quick
+            \li Creates a Python project that has an empty Qt Quick
                 Application.
         \row
             \li Other Project
             \li Qt Quick UI Prototype
             \li Creates a Qt Quick UI project with a single QML file that
-                contains the main view. You can preview Qt Quick 2 UI projects
+                has the main view. You can preview Qt Quick UI projects
                 in the QML Scene preview tool. You do not need to build them
-                because they do not contain any C++ code.
+                because they do not have any C++ code.
 
                 This project type is compatible with \QDS. However, use this
                 template only if you are prototyping. You cannot create
                 a full application by using this template.
 
-                Qt Quick UI projects cannot be deployed to embedded or mobile
-                target platforms. For those platforms, create a Qt Quick
+                You cannot deploy Qt Quick UI projects to embedded or
+                mobile target platforms. For those platforms, create a Qt Quick
                 application instead.
         \row
             \li Library
             \li Qt Quick 2 Extension Plugin
             \li Creates C++ plugins that make it possible to offer extensions
-                that can be loaded dynamically into Qt Quick 2 applications.
+                that can be loaded dynamically into Qt Quick applications.
     \endtable
 
     \note The SDK for a particular target platform might install additional
@@ -72,6 +73,8 @@
             \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}
             > \uicontrol Choose.
 
+            \image qtcreator-project-qt-quick.webp {New Project dialog}
+
         \li In the \uicontrol {Project Location} dialog, \uicontrol Name field,
             enter a name for the project. Keep in mind that you cannot easily
             change the project name later.
@@ -83,6 +86,11 @@
 
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
             the \uicontrol {Define Build System} dialog.
+
+            \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
+
+            To create a project that you can develop with a visual editor in
+            \QDS, select \uicontrol {Create a project that you can open in \QDS}.
 
         \li In the \uicontrol {Build system} field, select the build system to
             use for building and running the project: \l qmake,
@@ -101,19 +109,8 @@
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
-            \e main.qml for editing. You can use the \l {Installing Qt}
+            \e Main.qml for editing. You can use the \l {Installing Qt}
             {Qt Maintenance Tool} to install Qt Virtual Keyboard.
-
-        \li Select \uicontrol Next to open the \uicontrol {Translation File}
-            dialog.
-
-        \li In the \uicontrol Language field, select a language that you plan
-            to \l {Using Qt Linguist}{translate} the application to. You can
-            add other languages later by editing the project file.
-
-        \li In the \uicontrol {Translation file} field, you can edit the
-            name for the translation source file that will be generated
-            for the selected language.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.
@@ -136,7 +133,7 @@
 
     \endlist
 
-    \QC creates a QML file, \e main.qml, that you can modify in the
+    \QC creates a QML file, \e Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
     \include creator-python-project.qdocinc python qml project wizards
@@ -146,7 +143,7 @@
     Qt Quick UI Prototype projects are useful for testing or prototyping user
     interfaces,
     or for setting up a separate project just for QML editing, for example. You
-    cannot use them for application development because they do not contain:
+    cannot use them for application development because they do not have:
 
     \list
         \li C++ code

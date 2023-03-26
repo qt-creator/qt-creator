@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythonsettings.h"
 
@@ -692,8 +692,10 @@ static QString idForPythonFromPath(const QList<Interpreter> &pythons)
 static PythonSettings *settingsInstance = nullptr;
 
 PythonSettings::PythonSettings()
-    : QObject(PythonPlugin::instance())
 {
+    QTC_ASSERT(!settingsInstance, return);
+    settingsInstance = this;
+
     setObjectName("PythonSettings");
     ExtensionSystem::PluginManager::addObject(this);
 
@@ -716,12 +718,6 @@ PythonSettings::~PythonSettings()
 {
     ExtensionSystem::PluginManager::removeObject(this);
     settingsInstance = nullptr;
-}
-
-void PythonSettings::init()
-{
-    QTC_ASSERT(!settingsInstance, return );
-    settingsInstance = new PythonSettings();
 }
 
 void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId)
@@ -825,7 +821,7 @@ void PythonSettings::initFromSettings(QSettings *settings)
         auto interpreterList = interpreterVar.toList();
         const Interpreter interpreter{interpreterList.value(0).toString(),
                                       interpreterList.value(1).toString(),
-                                      FilePath::fromVariant(interpreterList.value(2)),
+                                      FilePath::fromSettings(interpreterList.value(2)),
                                       interpreterList.value(3, true).toBool()};
         if (interpreterList.size() == 3)
             oldSettings << interpreter;
@@ -869,7 +865,7 @@ void PythonSettings::writeToSettings(QSettings *settings)
     for (const Interpreter &interpreter : m_interpreters) {
         QVariantList interpreterVar{interpreter.id,
                                     interpreter.name,
-                                    interpreter.command.toVariant()};
+                                    interpreter.command.toSettings()};
         interpretersVar.append(QVariant(interpreterVar)); // old settings
         interpreterVar.append(interpreter.autoDetected);
         interpretersVar.append(QVariant(interpreterVar)); // new settings
@@ -886,7 +882,7 @@ void PythonSettings::detectPythonOnDevice(const Utils::FilePaths &searchPaths,
                                           const QString &detectionSource,
                                           QString *logMessage)
 {
-    QStringList messages{tr("Searching Python binaries...")};
+    QStringList messages{Tr::tr("Searching Python binaries...")};
     auto alreadyConfigured = interpreterOptionsPage().interpreters();
     for (const FilePath &path : searchPaths) {
         const FilePath python = path.pathAppended("python3").withExecutableSuffix();
@@ -897,7 +893,7 @@ void PythonSettings::detectPythonOnDevice(const Utils::FilePaths &searchPaths,
         auto interpreter = createInterpreter(python, "Python on", "on " + deviceName);
         interpreter.detectionSource = detectionSource;
         interpreterOptionsPage().addInterpreter(interpreter);
-        messages.append(tr("Found \"%1\" (%2)").arg(interpreter.name, python.toUserOutput()));
+        messages.append(Tr::tr("Found \"%1\" (%2)").arg(interpreter.name, python.toUserOutput()));
     }
     if (logMessage)
         *logMessage = messages.join('\n');

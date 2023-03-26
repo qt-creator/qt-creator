@@ -1,10 +1,12 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "perfprofilertool.h"
 
 #include "perfconfigwidget.h"
 #include "perfloaddialog.h"
 #include "perfprofilerplugin.h"
-#include "perfprofilertool.h"
+#include "perfprofilertr.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"
 
@@ -35,7 +37,6 @@
 #include <utils/utilsicons.h>
 
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QMessageBox>
 
@@ -594,7 +595,7 @@ void PerfProfilerTool::showLoadPerfDialog()
     m_fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
     m_fileFinder.setSysroot(sysroot(kit));
     m_fileFinder.setProjectFiles(sourceFiles());
-    m_traceManager->loadFromPerfData(dlg.traceFilePath(), dlg.executableDirPath(), kit);
+    m_traceManager->loadFromPerfData(FilePath::fromUserInput(dlg.traceFilePath()), dlg.executableDirPath(), kit);
 }
 
 void PerfProfilerTool::showLoadTraceDialog()
@@ -613,7 +614,7 @@ void PerfProfilerTool::showLoadTraceDialog()
     const Kit *kit = target ? target->kit() : nullptr;
     populateFileFinder(currentProject, kit);
 
-    m_traceManager->loadFromTraceFile(filePath.toString());
+    m_traceManager->loadFromTraceFile(filePath);
 }
 
 void PerfProfilerTool::showSaveTraceDialog()
@@ -625,10 +626,10 @@ void PerfProfilerTool::showSaveTraceDialog()
     if (filePath.isEmpty())
         return;
     if (!filePath.endsWith(".ptq"))
-        filePath = filePath + ".ptq";
+        filePath = filePath.stringAppended(".ptq");
 
     setToolActionsEnabled(false);
-    m_traceManager->saveToTraceFile(filePath.toString());
+    m_traceManager->saveToTraceFile(filePath);
 }
 
 void PerfProfilerTool::setAggregated(bool aggregated)

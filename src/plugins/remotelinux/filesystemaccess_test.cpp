@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filesystemaccess_test.h"
 
@@ -148,9 +148,9 @@ void FileSystemAccessTest::testDirStatus()
         [&fileExists](const FilePath &filePath) {
             if (filePath.baseName() == "test") {
                 fileExists = true;
-                return true;
+                return IterationPolicy::Continue;
             }
-            return false;
+            return IterationPolicy::Stop;
         },
         {{"test"}, QDir::Files});
 
@@ -257,7 +257,7 @@ void FileSystemAccessTest::testFileTransfer()
 
     ProcessResultData result;
     QEventLoop loop;
-    connect(&fileTransfer, &FileTransfer::done, [&result, &loop]
+    connect(&fileTransfer, &FileTransfer::done, this, [&result, &loop]
             (const ProcessResultData &resultData) {
         result = resultData;
         loop.quit();

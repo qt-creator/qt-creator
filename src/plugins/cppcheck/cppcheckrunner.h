@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,15 +9,12 @@
 #include <QHash>
 #include <QTimer>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckTool;
 
 class CppcheckRunner final : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit CppcheckRunner(CppcheckTool &tool);
     ~CppcheckRunner() override;
@@ -47,5 +44,4 @@ private:
     int m_maxArgumentsLength = 32767;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

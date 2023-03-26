@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsannotatetaskhandler.h"
 
+#include "projectexplorertr.h"
 #include "task.h"
 
 #include <coreplugin/iversioncontrol.h>
@@ -39,8 +40,8 @@ void VcsAnnotateTaskHandler::handle(const Task &task)
 
 QAction *VcsAnnotateTaskHandler::createAction(QObject *parent) const
 {
-    QAction *vcsannotateAction = new QAction(tr("&Annotate"), parent);
-    vcsannotateAction->setToolTip(tr("Annotate using version control system."));
+    QAction *vcsannotateAction = new QAction(Tr::tr("&Annotate"), parent);
+    vcsannotateAction->setToolTip(Tr::tr("Annotate using version control system."));
     return vcsannotateAction;
 }
 

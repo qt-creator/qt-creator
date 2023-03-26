@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcodemodelsettingspage.h"
 
 #include "clangdiagnosticconfigsselectionwidget.h"
 #include "clangdiagnosticconfigswidget.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
@@ -39,8 +40,6 @@ namespace CppEditor::Internal {
 
 class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::CppCodeModelSettingsWidget)
-
 public:
     CppCodeModelSettingsWidget(CppCodeModelSettings *s);
 
@@ -63,18 +62,18 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
     : m_settings(s)
 {
     m_interpretAmbiguousHeadersAsCHeaders
-        = new QCheckBox(tr("Interpret ambiguous headers as C headers"));
+        = new QCheckBox(Tr::tr("Interpret ambiguous headers as C headers"));
 
-    m_skipIndexingBigFilesCheckBox = new QCheckBox(tr("Do not index files greater than"));
+    m_skipIndexingBigFilesCheckBox = new QCheckBox(Tr::tr("Do not index files greater than"));
     m_skipIndexingBigFilesCheckBox->setChecked(m_settings->skipIndexingBigFiles());
 
     m_bigFilesLimitSpinBox = new QSpinBox;
-    m_bigFilesLimitSpinBox->setSuffix(tr("MB"));
+    m_bigFilesLimitSpinBox->setSuffix(Tr::tr("MB"));
     m_bigFilesLimitSpinBox->setRange(1, 500);
     m_bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
 
-    m_ignoreFilesCheckBox = new QCheckBox(tr("Ignore files"));
-    m_ignoreFilesCheckBox->setToolTip(tr(
+    m_ignoreFilesCheckBox = new QCheckBox(Tr::tr("Ignore files"));
+    m_ignoreFilesCheckBox->setToolTip(Tr::tr(
         "<html><head/><body><p>Ignore files that match these wildcard patterns, one wildcard per line.</p></body></html>"));
 
     m_ignoreFilesCheckBox->setChecked(m_settings->ignoreFiles());
@@ -86,17 +85,17 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
        m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
     });
 
-    m_ignorePchCheckBox = new QCheckBox(tr("Ignore precompiled headers"));
-    m_ignorePchCheckBox->setToolTip(tr(
+    m_ignorePchCheckBox = new QCheckBox(Tr::tr("Ignore precompiled headers"));
+    m_ignorePchCheckBox->setToolTip(Tr::tr(
         "<html><head/><body><p>When precompiled headers are not ignored, the parsing for code "
         "completion and semantic highlighting will process the precompiled header before "
         "processing any file.</p></body></html>"));
 
-    m_useBuiltinPreprocessorCheckBox = new QCheckBox(tr("Use built-in preprocessor to show "
-                                                        "pre-processed files"));
+    m_useBuiltinPreprocessorCheckBox = new QCheckBox(Tr::tr("Use built-in preprocessor to show "
+                                                            "pre-processed files"));
     m_useBuiltinPreprocessorCheckBox->setToolTip
-            (tr("Uncheck this to invoke the actual compiler "
-                "to show a pre-processed source file in the editor."));
+            (Tr::tr("Uncheck this to invoke the actual compiler "
+                    "to show a pre-processed source file in the editor."));
 
     m_interpretAmbiguousHeadersAsCHeaders->setChecked(
                 m_settings->interpretAmbigiousHeadersAsCHeaders());
@@ -108,7 +107,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
 
     Column {
         Group {
-            title(tr("General")),
+            title(Tr::tr("General")),
             Column {
                 m_interpretAmbiguousHeadersAsCHeaders,
                 m_ignorePchCheckBox,
@@ -181,9 +180,9 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
 CppCodeModelSettingsPage::CppCodeModelSettingsPage(CppCodeModelSettings *settings)
 {
     setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
-    setDisplayName(CppCodeModelSettingsWidget::tr("Code Model"));
+    setDisplayName(Tr::tr("Code Model"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CppEditor", "C++"));
+    setDisplayCategory(Tr::tr("C++"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
     setWidgetCreator([settings] { return new CppCodeModelSettingsWidget(settings); });
 }
@@ -211,36 +210,32 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     : d(new Private)
 {
     const ClangdSettings settings(settingsData);
-    const QString indexingToolTip = tr(
-        "If background indexing is enabled, global symbol searches will yield\n"
-        "more accurate results, at the cost of additional CPU load when\n"
-        "the project is first opened.\n"
-        "The indexing result is persisted in the project's build directory.\n"
-        "\n"
-        "If you disable background indexing, a faster, but less accurate,\n"
-        "built-in indexer is used instead.\n"
-        "\n"
-        "The thread priority for building the background index can be adjusted since clangd 15.\n"
-        "Background Priority: Minimum priority, runs on idle CPUs. May leave 'performance' cores "
-        "unused.\n"
-        "Normal Priority: Reduced priority compared to interactive work.\n"
+    const QString indexingToolTip = Tr::tr(
+        "<p>If background indexing is enabled, global symbol searches will yield more accurate "
+        "results, at the cost of additional CPU load when the project is first opened. The "
+        "indexing result is persisted in the project's build directory. If you disable background "
+        "indexing, a faster, but less accurate, built-in indexer is used instead. The thread "
+        "priority for building the background index can be adjusted since clangd 15.</p>"
+        "<p>Background Priority: Minimum priority, runs on idle CPUs. May leave 'performance' "
+        "cores unused.</p>"
+        "<p>Normal Priority: Reduced priority compared to interactive work.</p>"
         "Low Priority: Same priority as other clangd work.");
-    const QString workerThreadsToolTip = tr(
+    const QString workerThreadsToolTip = Tr::tr(
         "Number of worker threads used by clangd. Background indexing also uses this many "
         "worker threads.");
-    const QString autoIncludeToolTip = tr(
+    const QString autoIncludeToolTip = Tr::tr(
         "Controls whether clangd may insert header files as part of symbol completion.");
-    const QString documentUpdateToolTip = tr(
+    const QString documentUpdateToolTip = Tr::tr(
         "Defines the amount of time Qt Creator waits before sending document changes to the "
         "server.\n"
         "If the document changes again while waiting, this timeout resets.");
-    const QString sizeThresholdToolTip = tr(
+    const QString sizeThresholdToolTip = Tr::tr(
         "Files greater than this will not be opened as documents in clangd.\n"
         "The built-in code model will handle highlighting, completion and so on.");
-    const QString completionResultToolTip = tr(
+    const QString completionResultToolTip = Tr::tr(
         "The maximum number of completion results returned by clangd.");
 
-    d->useClangdCheckBox.setText(tr("Use clangd"));
+    d->useClangdCheckBox.setText(Tr::tr("Use clangd"));
     d->useClangdCheckBox.setChecked(settings.useClangd());
     d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     d->clangdChooser.setFilePath(settings.clangdFilePath());
@@ -253,7 +248,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             d->indexingComboBox.setCurrentIndex(d->indexingComboBox.count() - 1);
     }
     d->indexingComboBox.setToolTip(indexingToolTip);
-    d->autoIncludeHeadersCheckBox.setText(tr("Insert header files on completion"));
+    d->autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
     d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
@@ -265,7 +260,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     d->documentUpdateThreshold.setSingleStep(100);
     d->documentUpdateThreshold.setSuffix(" ms");
     d->documentUpdateThreshold.setToolTip(documentUpdateToolTip);
-    d->sizeThresholdCheckBox.setText(tr("Ignore files greater than"));
+    d->sizeThresholdCheckBox.setText(Tr::tr("Ignore files greater than"));
     d->sizeThresholdCheckBox.setChecked(settings.sizeThresholdEnabled());
     d->sizeThresholdCheckBox.setToolTip(sizeThresholdToolTip);
     d->sizeThresholdSpinBox.setMinimum(1);
@@ -274,34 +269,34 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     d->sizeThresholdSpinBox.setValue(settings.sizeThresholdInKb());
     d->sizeThresholdSpinBox.setToolTip(sizeThresholdToolTip);
 
-    const auto completionResultsLabel = new QLabel(tr("Completion results:"));
+    const auto completionResultsLabel = new QLabel(Tr::tr("Completion results:"));
     completionResultsLabel->setToolTip(completionResultToolTip);
     d->completionResults.setMinimum(0);
     d->completionResults.setMaximum(std::numeric_limits<int>::max());
     d->completionResults.setValue(settings.completionResults());
     d->completionResults.setToolTip(completionResultToolTip);
-    d->completionResults.setSpecialValueText(tr("No limit"));
+    d->completionResults.setSpecialValueText(Tr::tr("No limit"));
 
     const auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(&d->useClangdCheckBox);
 
     const auto formLayout = new QFormLayout;
-    const auto chooserLabel = new QLabel(tr("Path to executable:"));
+    const auto chooserLabel = new QLabel(Tr::tr("Path to executable:"));
     formLayout->addRow(chooserLabel, &d->clangdChooser);
     formLayout->addRow(QString(), &d->versionWarningLabel);
 
     const auto indexingPriorityLayout = new QHBoxLayout;
     indexingPriorityLayout->addWidget(&d->indexingComboBox);
     indexingPriorityLayout->addStretch(1);
-    const auto indexingPriorityLabel = new QLabel(tr("Background indexing:"));
+    const auto indexingPriorityLabel = new QLabel(Tr::tr("Background indexing:"));
     indexingPriorityLabel->setToolTip(indexingToolTip);
     formLayout->addRow(indexingPriorityLabel, indexingPriorityLayout);
 
     const auto threadLimitLayout = new QHBoxLayout;
     threadLimitLayout->addWidget(&d->threadLimitSpinBox);
     threadLimitLayout->addStretch(1);
-    const auto threadLimitLabel = new QLabel(tr("Worker thread count:"));
+    const auto threadLimitLabel = new QLabel(Tr::tr("Worker thread count:"));
     threadLimitLabel->setToolTip(workerThreadsToolTip);
     formLayout->addRow(threadLimitLabel, threadLimitLayout);
 
@@ -314,7 +309,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto documentUpdateThresholdLayout = new QHBoxLayout;
     documentUpdateThresholdLayout->addWidget(&d->documentUpdateThreshold);
     documentUpdateThresholdLayout->addStretch(1);
-    const auto documentUpdateThresholdLabel = new QLabel(tr("Document update threshold:"));
+    const auto documentUpdateThresholdLabel = new QLabel(Tr::tr("Document update threshold:"));
     documentUpdateThresholdLabel->setToolTip(documentUpdateToolTip);
     formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
     const auto sizeThresholdLayout = new QHBoxLayout;
@@ -334,18 +329,18 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     if (!isForProject) {
         d->sessionsModel.setStringList(settingsData.sessionsWithOneClangd);
         d->sessionsModel.sort(0);
-        d->sessionsGroupBox = new QGroupBox(tr("Sessions with a single clangd instance"));
+        d->sessionsGroupBox = new QGroupBox(Tr::tr("Sessions with a single clangd instance"));
         const auto sessionsView = new Utils::ListView;
         sessionsView->setModel(&d->sessionsModel);
         sessionsView->setToolTip(
-                    tr("By default, Qt Creator runs one clangd process per project.\n"
+                    Tr::tr("By default, Qt Creator runs one clangd process per project.\n"
                        "If you have sessions with tightly coupled projects that should be\n"
                        "managed by the same clangd process, add them here."));
         const auto outerSessionsLayout = new QHBoxLayout;
         const auto innerSessionsLayout = new QHBoxLayout(d->sessionsGroupBox);
         const auto buttonsLayout = new QVBoxLayout;
-        const auto addButton = new QPushButton(tr("Add ..."));
-        const auto removeButton = new QPushButton(tr("Remove"));
+        const auto addButton = new QPushButton(Tr::tr("Add ..."));
+        const auto removeButton = new QPushButton(Tr::tr("Remove"));
         buttonsLayout->addWidget(addButton);
         buttonsLayout->addWidget(removeButton);
         buttonsLayout->addStretch(1);
@@ -380,7 +375,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             if (sessions.isEmpty())
                 return;
             sessions.sort();
-            dlg.setLabelText(tr("Choose a session:"));
+            dlg.setLabelText(Tr::tr("Choose a session:"));
             dlg.setComboBoxItems(sessions);
             if (dlg.exec() == QDialog::Accepted) {
                 currentSessions << dlg.textValue();
@@ -391,7 +386,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     }
 
     const auto configFilesHelpLabel = new QLabel;
-    configFilesHelpLabel->setText(tr("Additional settings are available via "
+    configFilesHelpLabel->setText(Tr::tr("Additional settings are available via "
             "<a href=\"https://clangd.llvm.org/config\"> clangd configuration files</a>.<br>"
             "User-specific settings go <a href=\"%1\">here</a>, "
             "project-specific settings can be configured by putting a .clangd file into "
@@ -442,17 +437,9 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         if (!d->clangdChooser.isValid())
             return;
         const Utils::FilePath clangdPath = d->clangdChooser.filePath();
-        const QVersionNumber clangdVersion = ClangdSettings::clangdVersion(clangdPath);
-        if (clangdVersion.isNull()) {
-            labelSetter.setWarning(tr("Failed to retrieve clangd version: "
-                                      "Unexpected clangd output."));
-            return;
-        }
-        if (clangdVersion < QVersionNumber(14)) {
-            labelSetter.setWarning(tr("The clangd version is %1, but %2 or greater is required.")
-                                   .arg(clangdVersion.toString()).arg(14));
-            return;
-        }
+        QString errorMessage;
+        if (!Utils::checkClangdVersion(clangdPath, &errorMessage))
+            labelSetter.setWarning(errorMessage);
     };
     connect(&d->clangdChooser, &Utils::PathChooser::textChanged, this, updateWarningLabel);
     updateWarningLabel();
@@ -505,8 +492,6 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
 
 class ClangdSettingsPageWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::ClangdSettingsWidget)
-
 public:
     ClangdSettingsPageWidget() : m_widget(ClangdSettings::instance().data(), false)
     {
@@ -523,7 +508,7 @@ private:
 ClangdSettingsPage::ClangdSettingsPage()
 {
     setId(Constants::CPP_CLANGD_SETTINGS_ID);
-    setDisplayName(ClangdSettingsWidget::tr("Clangd"));
+    setDisplayName(Tr::tr("Clangd"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new ClangdSettingsPageWidget; });
 }

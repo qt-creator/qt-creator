@@ -157,7 +157,7 @@
         \include creator-baremetal-settings.qdocinc baremetal-common
 
         \li In the \uicontrol {Root scripts directory} field, enter the
-            path to the directory that contains configuration scripts.
+            path to the directory that has configuration scripts.
 
         \li In the \uicontrol {Configuration file} field, enter the path
             to the device configuration file.
@@ -186,8 +186,7 @@
             verbose logging.
 
         \li Select the \uicontrol {Extended mode} check box to continue
-            listening for connection requests after after the connection
-            is closed.
+            listening for connection requests after the connection is closed.
 
         \li Select the \uicontrol {Reset on connection} check box to
             reset the board when the connection is created.

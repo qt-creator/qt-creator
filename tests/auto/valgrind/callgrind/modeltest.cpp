@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modeltest.h"
 
@@ -117,11 +117,13 @@ void ModelTestWidget::showViewContextMenu(const QPoint &pos)
         const int columns = data->events().size() + data->positions().size() + 2;
         QStandardItemModel *model = new QStandardItemModel(rows, columns, view);
         int headerColumn = 0;
-        foreach (const QString &event, data->events()) {
+        const QStringList events = data->events();
+        for (const QString &event : events) {
             model->setHeaderData(headerColumn++, Qt::Horizontal, event);
         }
         const int lastEventColumn = headerColumn;
-        foreach (const QString &pos, data->positions()) {
+        const QStringList positions = data->positions();
+        for (const QString &pos : positions) {
             model->setHeaderData(headerColumn++, Qt::Horizontal, pos);
         }
         const int lastPosColumn = headerColumn;

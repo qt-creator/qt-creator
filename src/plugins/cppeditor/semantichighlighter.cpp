@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "semantichighlighter.h"
 
@@ -26,69 +26,6 @@ static Q_LOGGING_CATEGORY(log, "qtc.cppeditor.semantichighlighter", QtWarningMsg
 namespace CppEditor {
 
 static Utils::Id parenSource() { return "CppEditor"; }
-
-static const QList<std::pair<HighlightingResult, QTextBlock>>
-splitRawStringLiteral(const HighlightingResult &result, const QTextBlock &startBlock)
-{
-    if (result.textStyles.mainStyle != C_STRING)
-        return {{result, startBlock}};
-
-    QTextCursor cursor(startBlock);
-    cursor.setPosition(cursor.position() + result.column - 1);
-    cursor.setPosition(cursor.position() + result.length, QTextCursor::KeepAnchor);
-    const QString theString = cursor.selectedText();
-
-    // Find all the components of a raw string literal. If we don't succeed, then it's
-    // something else.
-    if (!theString.endsWith('"'))
-        return {{result, startBlock}};
-    int rOffset = -1;
-    if (theString.startsWith("R\"")) {
-        rOffset = 0;
-    } else if (theString.startsWith("LR\"")
-               || theString.startsWith("uR\"")
-               || theString.startsWith("UR\"")) {
-        rOffset = 1;
-    } else if (theString.startsWith("u8R\"")) {
-        rOffset = 2;
-    }
-    if (rOffset == -1)
-        return {{result, startBlock}};
-    const int delimiterOffset = rOffset + 2;
-    const int openParenOffset = theString.indexOf('(', delimiterOffset);
-    if (openParenOffset == -1)
-        return {{result, startBlock}};
-    const QStringView delimiter = theString.mid(delimiterOffset, openParenOffset - delimiterOffset);
-    const int endDelimiterOffset = theString.length() - 1 - delimiter.length();
-    if (theString.mid(endDelimiterOffset, delimiter.length()) != delimiter)
-        return {{result, startBlock}};
-    if (theString.at(endDelimiterOffset - 1) != ')')
-        return {{result, startBlock}};
-
-    // Now split the result. For clarity, we display only the actual content as a string,
-    // and the rest (including the delimiter) as a keyword.
-    HighlightingResult prefix = result;
-    prefix.textStyles.mainStyle = C_KEYWORD;
-    prefix.textStyles.mixinStyles = {};
-    prefix.length = delimiterOffset + delimiter.length() + 1;
-    cursor.setPosition(startBlock.position() + result.column - 1 + prefix.length);
-    QTextBlock stringBlock = cursor.block();
-    HighlightingResult actualString = result;
-    actualString.line = stringBlock.blockNumber() + 1;
-    actualString.column = cursor.positionInBlock() + 1;
-    actualString.length = endDelimiterOffset - openParenOffset - 2;
-    cursor.setPosition(cursor.position() + actualString.length);
-    QTextBlock suffixBlock = cursor.block();
-    HighlightingResult suffix = result;
-    suffix.textStyles.mainStyle = C_KEYWORD;
-    suffix.textStyles.mixinStyles = {};
-    suffix.line = suffixBlock.blockNumber() + 1;
-    suffix.column = cursor.positionInBlock() + 1;
-    suffix.length = delimiter.length() + 2;
-    QTC_CHECK(prefix.length + actualString.length + suffix.length == result.length);
-
-    return {{prefix, startBlock}, {actualString, stringBlock}, {suffix, suffixBlock}};
-}
 
 SemanticHighlighter::SemanticHighlighter(TextDocument *baseTextDocument)
     : QObject(baseTextDocument)
@@ -155,8 +92,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
 
     SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
-    incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap,
-                                           &splitRawStringLiteral);
+    incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap);
 
     // In addition to the paren matching that the syntactic highlighter does
     // (parentheses, braces, brackets, comments), here we inject info from the code model
@@ -176,6 +112,12 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
                     ->findBlock(endRange);
             const QTextBlock endBlock = lastBlockForResult.next();
             for (QTextBlock block = firstBlockForResult; block != endBlock; block = block.next()) {
+                QTC_ASSERT(block.isValid(),
+                           qDebug() << from << to << i << result.line << result.column
+                           << result.kind << result.textStyles.mainStyle
+                           << firstBlockForResult.blockNumber() << firstBlockForResult.position()
+                           << lastBlockForResult.blockNumber() << lastBlockForResult.position();
+                        break);
                 Parentheses syntacticParens = getClearedParentheses(block);
 
                 // Remove mis-detected parentheses inserted by syntactic highlighter.

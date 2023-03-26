@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modeleditor_plugin.h"
 
@@ -58,10 +58,8 @@ ModelEditorPlugin::~ModelEditorPlugin()
     delete d;
 }
 
-bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ModelEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
     d = new ModelEditorPluginPrivate;
 
     Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
@@ -70,8 +68,6 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
             &d->uiController, &UiController::saveSettings);
     connect(&d->settingsController, &SettingsController::loadSettings,
             &d->uiController, &UiController::loadSettings);
-
-    return true;
 }
 
 void ModelEditorPlugin::extensionsInitialized()

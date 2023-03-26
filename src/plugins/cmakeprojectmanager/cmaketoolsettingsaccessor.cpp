@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmaketoolsettingsaccessor.h"
 
@@ -61,22 +61,18 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 
     if (HostOsInfo::isMacHost()) {
         path.append("/Applications/CMake.app/Contents/bin");
-        path.append("/usr/local/bin");
-        path.append("/opt/local/bin");
+        path.append("/usr/local/bin");    // homebrew intel
+        path.append("/opt/homebrew/bin"); // homebrew arm
+        path.append("/opt/local/bin");    // macports
     }
-
-    const QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
 
     FilePaths suspects;
     for (const FilePath &base : std::as_const(path)) {
         if (base.isEmpty())
             continue;
-
-        for (const QString &exec : execs) {
-            const FilePath suspect = base.resolvePath(exec);
-            if (suspect.isExecutableFile())
-                suspects << suspect;
-        }
+        const FilePath suspect = base / "cmake";
+        if (std::optional<FilePath> foundExe = suspect.refersToExecutableFile(FilePath::WithAnySuffix))
+            suspects << *foundExe;
     }
 
     std::vector<std::unique_ptr<CMakeTool>> found;

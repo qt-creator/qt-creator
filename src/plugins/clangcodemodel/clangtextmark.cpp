@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtextmark.h"
 
+#include "clangcodemodeltr.h"
 #include "clangconstants.h"
 #include "clangdclient.h"
 #include "clangdiagnostictooltipwidget.h"
@@ -10,6 +11,7 @@
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
+
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -43,7 +45,7 @@ namespace {
 
 Project *projectForCurrentEditor()
 {
-    const QString filePath = currentCppEditorDocumentFilePath();
+    const FilePath filePath = currentCppEditorDocumentFilePath();
     if (filePath.isEmpty())
         return nullptr;
 
@@ -75,15 +77,15 @@ void disableDiagnosticInConfig(ClangDiagnosticConfig &config, const ClangDiagnos
         config.setClangOptions(config.clangOptions() + QStringList(diagnostic.disableOption));
         break;
     case DiagnosticType::Tidy:
-        config.setClangTidyChecks(config.clangTidyChecks() + QString(",-")
+        config.setChecks(ClangToolType::Tidy, config.checks(ClangToolType::Tidy) + QString(",-")
                                   + DiagnosticTextInfo(diagnostic.text).option());
         break;
     case DiagnosticType::Clazy: {
         const DiagnosticTextInfo textInfo(diagnostic.text);
         const QString checkName = DiagnosticTextInfo::clazyCheckName(textInfo.option());
-        QStringList newChecks = config.clazyChecks().split(',');
+        QStringList newChecks = config.checks(ClangToolType::Clazy).split(',');
         newChecks.removeOne(checkName);
-        config.setClazyChecks(newChecks.join(','));
+        config.setChecks(ClangToolType::Clazy, newChecks.join(','));
         break;
     }
     }
@@ -119,8 +121,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
 
     // Create copy if needed
     if (config.isReadOnly()) {
-        const QString name = QCoreApplication::translate("ClangDiagnosticConfig",
-                                                         "Project: %1 (based on %2)")
+        const QString name = Tr::tr("Project: %1 (based on %2)")
                                  .arg(project->displayName(), config.displayName());
         config = ClangDiagnosticConfigsModel::createCustomConfig(config, name);
     }
@@ -139,9 +140,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     projectSettings.setDiagnosticConfigId(config.id());
 
     // Notify the user about changed project specific settings
-    const QString text
-        = QCoreApplication::translate("ClangDiagnosticConfig",
-                                      "Changes applied in Projects Mode > Clang Code Model");
+    const QString text = Tr::tr("Changes applied in Projects Mode > Clang Code Model");
     FadingIndicator::showText(Core::ICore::mainWindow(),
                               text,
                               FadingIndicator::SmallText);
@@ -163,7 +162,9 @@ ClangSourceRange convertRange(const FilePath &filePath, const Range &src)
     return ClangSourceRange(start, end);
 }
 
-ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &filePath)
+ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
+                                  const FilePath &filePath,
+                                  const DocumentUri::PathMapper &mapper)
 {
     ClangDiagnostic target;
     target.location = convertRange(filePath, src.range()).start;
@@ -188,7 +189,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &f
                 line = match.captured(6).toInt(&ok);
                 column = 0;
             }
-            FilePath auxFilePath = FilePath::fromUserInput(match.captured(1));
+            FilePath auxFilePath = mapper(FilePath::fromUserInput(match.captured(1)));
             if (auxFilePath.isRelativePath() && auxFilePath.fileName() == filePath.fileName())
                 auxFilePath = filePath;
             aux.location = {auxFilePath, line, column - 1};
@@ -226,7 +227,8 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &f
         for (auto it = changes->cbegin(); it != changes->cend(); ++it) {
             for (const TextEdit &textEdit : it.value()) {
                 fixItDiag.fixIts << ClangFixIt(textEdit.newText(),
-                        convertRange(it.key().toFilePath(), textEdit.range()));
+                                               convertRange(it.key().toFilePath(mapper),
+                                                            textEdit.range()));
             }
         }
         target.children << fixItDiag;
@@ -268,16 +270,19 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
                                const Diagnostic &diagnostic,
                                bool isProjectFile,
                                ClangdClient *client)
-    : TextEditor::TextMark(filePath, int(diagnostic.range().start().line() + 1), client->id())
+    : TextEditor::TextMark(filePath,
+                           int(diagnostic.range().start().line() + 1),
+                           {client->name(), client->id()})
     , m_lspDiagnostic(diagnostic)
-    , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath))
+    , m_diagnostic(
+          convertDiagnostic(ClangdDiagnostic(diagnostic), filePath, client->hostPathMapper()))
     , m_client(client)
 {
     setSettingsPage(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
 
     const bool isError = diagnostic.severity()
             && *diagnostic.severity() == DiagnosticSeverity::Error;
-    setDefaultToolTip(isError ? tr("Code Model Error") : tr("Code Model Warning"));
+    setDefaultToolTip(isError ? Tr::tr("Code Model Error") : Tr::tr("Code Model Warning"));
     setPriority(isError ? TextEditor::TextMark::HighPriority
                         : TextEditor::TextMark::NormalPriority);
     setIcon(isError ? Icons::CODEMODEL_ERROR.icon() : Icons::CODEMODEL_WARNING.icon());
@@ -293,7 +298,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         QList<QAction *> actions;
         QAction *action = new QAction();
         action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
-        action->setToolTip(tr("Copy to Clipboard", "Clang Code Model Marks"));
+        action->setToolTip(Tr::tr("Copy to Clipboard", "Clang Code Model Marks"));
         QObject::connect(action, &QAction::triggered, [diag] {
             const QString text = ClangDiagnosticWidget::createText({diag},
                                                                    ClangDiagnosticWidget::InfoBar);
@@ -306,7 +311,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         if (project && isDiagnosticConfigChangable(project, diag)) {
             action = new QAction();
             action->setIcon(Icons::BROKEN.icon());
-            action->setToolTip(tr("Disable Diagnostic in Current Project"));
+            action->setToolTip(Tr::tr("Disable Diagnostic in Current Project"));
             QObject::connect(action, &QAction::triggered, [diag] {
                 disableDiagnosticInCurrentProjectConfig(diag);
             });
@@ -318,9 +323,8 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
 
 bool ClangdTextMark::addToolTipContent(QLayout *target) const
 {
-    const auto canApplyFixIt = [c = m_client, diag = m_lspDiagnostic, fp = fileName()] {
-        return QTC_GUARD(c) && c->reachable()
-               && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
+    const auto canApplyFixIt = [c = m_client, diag = m_lspDiagnostic, fp = filePath()] {
+        return QTC_GUARD(c) && c->reachable() && c->hasDiagnostic(fp, diag);
     };
     const QString clientName = QTC_GUARD(m_client) ? m_client->name() : "clangd [unknown]";
     target->addWidget(ClangDiagnosticWidget::createWidget({m_diagnostic},

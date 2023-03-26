@@ -1,22 +1,16 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
-class QdbQtVersion : public QtSupport::QtVersion
+class QdbQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    QdbQtVersion() = default;
-    ~QdbQtVersion() = default;
-
-    QString description() const final;
-    QSet<Utils::Id> targetDeviceTypes() const final;
+    QdbQtVersionFactory();
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

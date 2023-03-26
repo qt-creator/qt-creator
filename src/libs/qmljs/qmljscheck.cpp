@@ -1,10 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscheck.h"
+
 #include "qmljsbind.h"
 #include "qmljsevaluate.h"
+#include "qmljstr.h"
 #include "qmljsutils.h"
+
 #include "parser/qmljsast_p.h"
 
 #include <utils/algorithm.h>
@@ -433,7 +436,8 @@ protected:
         }
 
         if (_possiblyUndeclaredUses.contains(name)) {
-            foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+            const QList<SourceLocation> values = _possiblyUndeclaredUses.value(name);
+            for (const SourceLocation &loc : values) {
                 addMessage(WarnVarUsedBeforeDeclaration, loc, name);
             }
             _possiblyUndeclaredUses.remove(name);
@@ -469,7 +473,8 @@ protected:
 
         if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(ast)) {
             if (_possiblyUndeclaredUses.contains(name)) {
-                foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+                const QList<SourceLocation> values = _possiblyUndeclaredUses.value(name);
+                for (const SourceLocation &loc : values) {
                     addMessage(WarnFunctionUsedBeforeDeclaration, loc, name);
                 }
                 _possiblyUndeclaredUses.remove(name);
@@ -1159,7 +1164,7 @@ bool Check::visit(UiPublicMember *ast)
             const Value *init = evaluator(ast->statement);
             QString preferredType;
             if (init->asNumberValue())
-                preferredType = tr("'int' or 'real'");
+                preferredType = Tr::tr("'int' or 'real'");
             else if (init->asStringValue())
                 preferredType = "'string'";
             else if (init->asBooleanValue())
@@ -1214,7 +1219,7 @@ bool Check::visit(IdentifierExpression *)
 //        if (const Reference *ref = value_cast<Reference>(_lastValue)) {
 //            _lastValue = _context->lookupReference(ref);
 //            if (!_lastValue)
-//                error(ast->identifierToken, tr("could not resolve"));
+//                error(ast->identifierToken, Tr::tr("could not resolve"));
 //        }
 //    }
 //    return false;
@@ -1231,7 +1236,7 @@ bool Check::visit(FieldMemberExpression *)
 //    const ObjectValue *obj = _lastValue->asObjectValue();
 //    if (!obj) {
 //        error(locationFromRange(ast->base->firstSourceLocation(), ast->base->lastSourceLocation()),
-//              tr("does not have members"));
+//              Tr::tr("does not have members"));
 //    }
 //    if (!obj || ast->name.isEmpty()) {
 //        _lastValue = 0;
@@ -1239,7 +1244,7 @@ bool Check::visit(FieldMemberExpression *)
 //    }
 //    _lastValue = obj->lookupMember(ast->name.toString(), _context);
 //    if (!_lastValue)
-//        error(ast->identifierToken, tr("unknown member"));
+//        error(ast->identifierToken, Tr::tr("unknown member"));
 //    return false;
 }
 
@@ -1642,7 +1647,7 @@ void Check::checkExtraParentheses(ExpressionNode *expression)
 
 void Check::addMessages(const QList<Message> &messages)
 {
-    foreach (const Message &msg, messages)
+    for (const Message &msg : messages)
         addMessage(msg);
 }
 
@@ -1682,7 +1687,8 @@ void Check::scanCommentsForAnnotations()
     m_disabledMessageTypesByLine.clear();
     const QRegularExpression disableCommentPattern = Message::suppressionPattern();
 
-    foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
+    const QList<SourceLocation> comments = _doc->engine()->comments();
+    for (const SourceLocation &commentLoc : comments) {
         const QString &comment = _doc->source().mid(int(commentLoc.begin()), int(commentLoc.length));
 
         // enable all checks annotation
@@ -1728,7 +1734,7 @@ void Check::warnAboutUnnecessarySuppressions()
 {
     for (auto it = m_disabledMessageTypesByLine.cbegin(), end = m_disabledMessageTypesByLine.cend();
            it != end; ++it) {
-        foreach (const MessageTypeAndSuppression &entry, it.value()) {
+        for (const MessageTypeAndSuppression &entry : it.value()) {
             if (!entry.wasSuppressed)
                 addMessage(WarnUnnecessaryMessageSuppression, entry.suppressionSource);
         }
@@ -1738,7 +1744,7 @@ void Check::warnAboutUnnecessarySuppressions()
 bool Check::isQtQuick2() const
 {
     if (_doc->language() == Dialect::Qml) {
-        foreach (const Import &import, _imports->all()) {
+        for (const Import &import : _imports->all()) {
             if (import.info.name() == "QtQuick"
                     && import.info.version().majorVersion() == 2)
                 return true;
@@ -2069,7 +2075,7 @@ void Check::checkCaseFallthrough(StatementList *statements, SourceLocation error
                     afterLastStatement = it->statement->lastSourceLocation().end();
             }
 
-            foreach (const SourceLocation &comment, _doc->engine()->comments()) {
+            for (const SourceLocation &comment : _doc->engine()->comments()) {
                 if (comment.begin() < afterLastStatement
                         || comment.end() > nextLoc.begin())
                     continue;

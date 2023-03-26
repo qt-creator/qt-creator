@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "dependenciespanel.h"
+
 #include "project.h"
+#include "projectexplorertr.h"
 #include "session.h"
 
 #include <coreplugin/icore.h>
@@ -64,7 +66,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
 {
     if (m_projects.isEmpty())
         return role == Qt::DisplayRole
-            ? tr("<No other projects in this session>")
+            ? Tr::tr("<No other projects in this session>")
             : QVariant();
 
     const Project *p = m_projects.at(index.row());
@@ -94,8 +96,8 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
                 emit dataChanged(index, index);
                 return true;
             } else {
-                QMessageBox::warning(Core::ICore::dialogParent(), QCoreApplication::translate("DependenciesModel", "Unable to Add Dependency"),
-                                     QCoreApplication::translate("DependenciesModel", "This would create a circular dependency."));
+                QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Unable to Add Dependency"),
+                                     Tr::tr("This would create a circular dependency."));
             }
         } else if (c == Qt::Unchecked) {
             if (SessionManager::hasDependency(m_project, p)) {
@@ -211,8 +213,8 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent) : Proj
     layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
 
     m_cascadeSetActiveCheckBox = new QCheckBox;
-    m_cascadeSetActiveCheckBox->setText(tr("Synchronize configuration"));
-    m_cascadeSetActiveCheckBox->setToolTip(tr("Synchronize active kit, build, and deploy configuration between projects."));
+    m_cascadeSetActiveCheckBox->setText(Tr::tr("Synchronize configuration"));
+    m_cascadeSetActiveCheckBox->setToolTip(Tr::tr("Synchronize active kit, build, and deploy configuration between projects."));
     m_cascadeSetActiveCheckBox->setChecked(SessionManager::isProjectConfigurationCascading());
     connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
             SessionManager::instance(), &SessionManager::setProjectConfigurationCascading);

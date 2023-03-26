@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -22,12 +22,12 @@ public:
         PlainText
     };
 
-    QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
+    QtTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                        Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
                        const Utils::FilePath &projectFile, OutputMode mode, TestType type);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;
-    TestResultPtr createDefaultResult() const override;
+    TestResult createDefaultResult() const override;
 
 private:
     void processXMLOutput(const QByteArray &outputLine);

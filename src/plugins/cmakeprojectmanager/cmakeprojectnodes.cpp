@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeprojectnodes.h"
 
@@ -108,6 +108,9 @@ QVariant CMakeTargetNode::data(Id role) const
         return {};
     };
 
+    if (role == Constants::BUILD_FOLDER_ROLE)
+        return m_buildDirectory.toVariant();
+
     if (role == Android::Constants::AndroidAbi)
         return value(Android::Constants::ANDROID_ABI);
 
@@ -187,7 +190,7 @@ void CMakeTargetNode::build()
 
 void CMakeTargetNode::setTargetInformation(const QList<FilePath> &artifacts, const QString &type)
 {
-    m_tooltip = Tr::tr("Target type: ") + type + "<br>";
+    m_tooltip = Tr::tr("Target type:") + " " + type + "<br>";
     if (artifacts.isEmpty()) {
         m_tooltip += Tr::tr("No build artifacts");
     } else {

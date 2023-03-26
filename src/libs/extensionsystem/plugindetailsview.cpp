@@ -1,18 +1,23 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "plugindetailsview.h"
-#include "ui_plugindetailsview.h"
 
+#include "extensionsystemtr.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 
+#include <QCoreApplication>
 #include <QDir>
-#include <QJsonObject>
-#include <QJsonValue>
+#include <QLabel>
+#include <QListWidget>
 #include <QRegularExpression>
+#include <QTextEdit>
+
+using namespace ExtensionSystem;
 
 /*!
     \class ExtensionSystem::PluginDetailsView
@@ -28,16 +33,87 @@
     \sa ExtensionSystem::PluginView
 */
 
-using namespace ExtensionSystem;
+namespace ExtensionSystem::Internal {
+
+class PluginDetailsViewPrivate
+{
+public:
+    PluginDetailsViewPrivate(PluginDetailsView *detailsView)
+        : q(detailsView)
+        , name(createContentsLabel())
+        , version(createContentsLabel())
+        , compatVersion(createContentsLabel())
+        , vendor(createContentsLabel())
+        , component(createContentsLabel())
+        , url(createContentsLabel())
+        , location(createContentsLabel())
+        , platforms(createContentsLabel())
+        , description(createTextEdit())
+        , copyright(createContentsLabel())
+        , license(createTextEdit())
+        , dependencies(new QListWidget(q))
+    {
+        using namespace Utils::Layouting;
+
+        // clang-format off
+        Form {
+            Tr::tr("Name:"), name, br,
+            Tr::tr("Version:"), version, br,
+            Tr::tr("Compatibility version:"), compatVersion, br,
+            Tr::tr("Vendor:"), vendor, br,
+            Tr::tr("Group:"), component, br,
+            Tr::tr("URL:"), url, br,
+            Tr::tr("Location:"), location, br,
+            Tr::tr("Platforms:"), platforms, br,
+            Tr::tr("Description:"), description, br,
+            Tr::tr("Copyright:"), copyright, br,
+            Tr::tr("License:"), license, br,
+            Tr::tr("Dependencies:"), dependencies
+        }.attachTo(q, WithoutMargins);
+        // clang-format on
+    }
+
+    PluginDetailsView *q = nullptr;
+
+    QLabel *name = nullptr;
+    QLabel *version = nullptr;
+    QLabel *compatVersion = nullptr;
+    QLabel *vendor = nullptr;
+    QLabel *component = nullptr;
+    QLabel *url = nullptr;
+    QLabel *location = nullptr;
+    QLabel *platforms = nullptr;
+    QTextEdit *description = nullptr;
+    QLabel *copyright = nullptr;
+    QTextEdit *license = nullptr;
+    QListWidget *dependencies = nullptr;
+
+private:
+    QLabel *createContentsLabel() {
+        QLabel *label = new QLabel(q);
+        label->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::TextSelectableByMouse);
+        label->setOpenExternalLinks(true);
+        return label;
+    }
+    QTextEdit *createTextEdit() {
+        QTextEdit *textEdit = new QTextEdit(q);
+        textEdit->setTabChangesFocus(true);
+        textEdit->setReadOnly(true);
+        return textEdit;
+    }
+};
+
+} // namespace ExtensionSystem::Internal
+
+using namespace Internal;
 
 /*!
     Constructs a new view with given \a parent widget.
 */
 PluginDetailsView::PluginDetailsView(QWidget *parent)
-	: QWidget(parent),
-          m_ui(new Internal::Ui::PluginDetailsView())
+    : QWidget(parent)
+    , d(new PluginDetailsViewPrivate(this))
 {
-    m_ui->setupUi(this);
 }
 
 /*!
@@ -45,7 +121,7 @@ PluginDetailsView::PluginDetailsView(QWidget *parent)
 */
 PluginDetailsView::~PluginDetailsView()
 {
-    delete m_ui;
+    delete d;
 }
 
 /*!
@@ -54,28 +130,28 @@ PluginDetailsView::~PluginDetailsView()
 */
 void PluginDetailsView::update(PluginSpec *spec)
 {
-    m_ui->name->setText(spec->name());
+    d->name->setText(spec->name());
     const QString revision = spec->revision();
-    const QString versionString = spec->version() + (revision.isEmpty() ? QString()
-                                                                        : " (" + revision + ")");
-    m_ui->version->setText(versionString);
-    m_ui->compatVersion->setText(spec->compatVersion());
-    m_ui->vendor->setText(spec->vendor());
-    const QString link = QString::fromLatin1("<a href=\"%1\">%1</a>").arg(spec->url());
-    m_ui->url->setText(link);
-    QString component = tr("None");
-    if (!spec->category().isEmpty())
-        component = spec->category();
-    m_ui->component->setText(component);
-    m_ui->location->setText(QDir::toNativeSeparators(spec->filePath()));
-    m_ui->description->setText(spec->description());
-    m_ui->copyright->setText(spec->copyright());
-    m_ui->license->setText(spec->license());
-    const QRegularExpression platforms = spec->platformSpecification();
-    const QString pluginPlatformString = platforms.pattern().isEmpty() ? tr("All") : platforms.pattern();
-    const QString platformString = tr("%1 (current: \"%2\")").arg(pluginPlatformString,
-                                                                  PluginManager::platformName());
-    m_ui->platforms->setText(platformString);
-    const QStringList depStrings = Utils::transform<QList>(spec->dependencies(), &PluginDependency::toString);
-    m_ui->dependencies->addItems(depStrings);
+    const QString versionString = spec->version()
+            + (revision.isEmpty() ? QString() : " (" + revision + ")");
+    d->version->setText(versionString);
+    d->compatVersion->setText(spec->compatVersion());
+    d->vendor->setText(spec->vendor());
+    d->component->setText(spec->category().isEmpty() ? Tr::tr("None") : spec->category());
+    d->url->setText(QString::fromLatin1("<a href=\"%1\">%1</a>").arg(spec->url()));
+    d->location->setText(QDir::toNativeSeparators(spec->filePath()));
+    const QString pattern = spec->platformSpecification().pattern();
+    const QString platform = pattern.isEmpty() ? Tr::tr("All") : pattern;
+    const QString platformString = Tr::tr("%1 (current: \"%2\")")
+                                   .arg(platform, PluginManager::platformName());
+    d->platforms->setText(platformString);
+    QString description = spec->description();
+    if (!description.isEmpty() && !spec->longDescription().isEmpty())
+        description += "\n\n";
+    description += spec->longDescription();
+    d->description->setText(description);
+    d->copyright->setText(spec->copyright());
+    d->license->setText(spec->license());
+    d->dependencies->addItems(Utils::transform<QList>(spec->dependencies(),
+                                                      &PluginDependency::toString));
 }

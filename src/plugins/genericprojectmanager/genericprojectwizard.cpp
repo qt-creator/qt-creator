@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "genericprojectwizard.h"
-#include "genericprojectconstants.h"
+
 #include "filesselectionwizardpage.h"
+#include "genericprojectconstants.h"
+#include "genericprojectmanagertr.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -43,18 +45,18 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(const Core::BaseFileWizar
                                                        QWidget *parent) :
     Core::BaseFileWizard(factory, QVariantMap(), parent)
 {
-    setWindowTitle(tr("Import Existing Project"));
+    setWindowTitle(Tr::tr("Import Existing Project"));
 
     // first page
     m_firstPage = new Utils::FileWizardPage;
-    m_firstPage->setTitle(tr("Project Name and Location"));
-    m_firstPage->setFileNameLabel(tr("Project name:"));
-    m_firstPage->setPathLabel(tr("Location:"));
+    m_firstPage->setTitle(Tr::tr("Project Name and Location"));
+    m_firstPage->setFileNameLabel(Tr::tr("Project name:"));
+    m_firstPage->setPathLabel(Tr::tr("Location:"));
     addPage(m_firstPage);
 
     // second page
     m_secondPage = new FilesSelectionWizardPage(this);
-    m_secondPage->setTitle(tr("File Selection"));
+    m_secondPage->setTitle(Tr::tr("File Selection"));
     addPage(m_secondPage);
 }
 
@@ -93,10 +95,10 @@ GenericProjectWizard::GenericProjectWizard()
 {
     setSupportedProjectTypes({Constants::GENERICPROJECT_ID});
     setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
-    setDisplayName(tr("Import Existing Project"));
+    setDisplayName(Tr::tr("Import Existing Project"));
     setId("Z.Makefile");
-    setDescription(tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. "
-                      "This allows you to use %1 as a code editor.")
+    setDescription(Tr::tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. "
+                          "This allows you to use %1 as a code editor.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));

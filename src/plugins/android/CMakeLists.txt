@@ -1,5 +1,5 @@
 add_qtc_plugin(Android
-  DEPENDS QmlDebug Qt5::Xml LanguageServerProtocol
+  DEPENDS QmlDebug Qt::Xml LanguageServerProtocol
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
   SOURCES
     android.qrc
@@ -39,7 +39,6 @@ add_qtc_plugin(Android
     androidsdkmanagerwidget.cpp androidsdkmanagerwidget.h
     androidsdkmodel.cpp androidsdkmodel.h
     androidsdkpackage.cpp androidsdkpackage.h
-    androidservicewidget.cpp androidservicewidget.h androidservicewidget_p.h
     androidsettingswidget.cpp androidsettingswidget.h
     androidsignaloperation.cpp androidsignaloperation.h
     androidtoolchain.cpp androidtoolchain.h
@@ -53,10 +52,13 @@ add_qtc_plugin(Android
     javaparser.cpp javaparser.h
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
     splashscreenwidget.cpp splashscreenwidget.h
+    sdkmanageroutputparser.cpp sdkmanageroutputparser.h
 )
 
 extend_qtc_plugin(Android
   CONDITION WITH_TESTS
   SOURCES
+    androidsdkmanager_test.cpp androidsdkmanager_test.h
+    sdkmanageroutputparser_test.cpp sdkmanageroutputparser_test.h
     android_tst.qrc
 )

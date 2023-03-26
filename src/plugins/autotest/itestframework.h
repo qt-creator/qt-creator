@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -72,9 +72,11 @@ public:
     bool grouping() const { return m_grouping; }
     void setGrouping(bool group) { m_grouping = group; }
     // framework specific tool tip to be displayed on the general settings page
-    virtual QString groupingToolTip() const { return QString(); }
+    virtual QString groupingToolTip() const { return {}; }
 
     ITestFramework *asFramework() final { return this; }
+    // helper for matching a function symbol's name to a test of this framework
+    virtual QStringList testNameForSymbolName(const QString &symbolName) const;
 
 protected:
     virtual ITestParser *createTestParser() = 0;

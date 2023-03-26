@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -14,12 +14,12 @@ QT_BEGIN_NAMESPACE
 class QJsonDocument;
 QT_END_NAMESPACE
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbWatcher : public QObject
 {
     Q_OBJECT
+
 public:
     QdbWatcher(QObject *parent = nullptr);
     virtual ~QdbWatcher();
@@ -49,6 +49,5 @@ private:
     RequestType m_requestType;
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal
 

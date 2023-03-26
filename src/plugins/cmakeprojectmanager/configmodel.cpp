@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "configmodel.h"
 
@@ -101,6 +101,11 @@ CMakeConfigItem ConfigModel::DataItem::toCMakeConfigItem() const
     return cmi;
 }
 
+QString ConfigModel::DataItem::expandedValue(Utils::MacroExpander *expander)
+{
+    return toCMakeConfigItem().expandedValue(expander);
+}
+
 // ConfigModel
 
 ConfigModel::ConfigModel(QObject *parent) : Utils::TreeModel<>(parent)
@@ -165,7 +170,7 @@ void ConfigModel::appendConfiguration(const QString &key,
     if (m_kitConfiguration.contains(key))
         internalItem.kitValue = QString::fromUtf8(
             isInitial ? m_kitConfiguration.value(key).value
-                      : m_macroExpander->expand(m_kitConfiguration.value(key).value));
+                      : m_kitConfiguration.value(key).expandedValue(m_macroExpander).toUtf8());
     m_configuration.append(internalItem);
     setConfiguration(m_configuration);
 }
@@ -504,7 +509,7 @@ void ConfigModel::generateTree()
     for (InternalDataItem &di : m_configuration) {
         auto it = initialHash.find(di.key);
         if (it != initialHash.end())
-            di.initialValue = macroExpander()->expand(it->value);
+            di.initialValue = it->expandedValue(macroExpander());
 
         root->appendChild(new Internal::ConfigModelTreeItem(&di));
     }
@@ -550,7 +555,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
         return dataItem->isUserNew ? "1" : "0";
     }
 
-    auto fontRole = [this]() -> QFont {
+    auto fontRole = [this] {
         QFont font;
         font.setBold((dataItem->isUserChanged || dataItem->isUserNew) && !dataItem->isUnset);
         font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);

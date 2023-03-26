@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "basetreeview.h"
 
@@ -8,6 +8,7 @@
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "treemodel.h"
+#include "utilstr.h"
 
 #include <QDebug>
 #include <QFontMetrics>
@@ -151,45 +152,43 @@ public:
         }
     }
 
-
-    void considerItems(int column, QModelIndex start, int *minimum, bool single) const
-    {
-        QModelIndex a = start;
-        a = a.sibling(a.row(), column);
-        QFontMetrics fm = q->fontMetrics();
-        const int ind = q->indentation();
-        QAbstractItemModel *m = q->model();
-        for (int i = 0; i < 100 && a.isValid(); ++i) {
-            const QString s = m->data(a).toString();
-            int w = fm.horizontalAdvance(s) + 10;
-            if (column == 0) {
-                for (QModelIndex b = a.parent(); b.isValid(); b = b.parent())
-                    w += ind;
-            }
-            if (w > *minimum)
-                *minimum = w;
-            if (single)
-                break;
-            a = q->indexBelow(a);
-        }
-    }
-
     int suggestedColumnSize(int column) const
     {
-        QHeaderView *h = q->header();
+        const QHeaderView *h = q->header();
         QTC_ASSERT(h, return -1);
-        QAbstractItemModel *m = q->model();
+        const QAbstractItemModel *m = q->model();
         QTC_ASSERT(m, return -1);
 
-        QFontMetrics fm = q->fontMetrics();
+        const QFontMetrics fm = q->fontMetrics();
+        const int ind = q->indentation();
+        const int avg = fm.averageCharWidth();
         int minimum = fm.horizontalAdvance(m->headerData(column, Qt::Horizontal).toString())
-            + 2 * fm.horizontalAdvance(QLatin1Char('m'));
-        considerItems(column, q->indexAt(QPoint(1, 1)), &minimum, false);
+            + 2 * avg;
+
+        auto considerItems = [&](const QModelIndex &start, bool single) {
+            QModelIndex a = start;
+            a = a.sibling(a.row(), column);
+            for (int i = 0; i < 100 && a.isValid(); ++i) {
+                const QString s = m->data(a).toString();
+                int w = avg * s.size() + 20;
+                if (column == 0) {
+                    for (QModelIndex b = a.parent(); b.isValid(); b = b.parent())
+                        w += ind;
+                }
+                if (w > minimum)
+                    minimum = w;
+                if (single)
+                    break;
+                a = q->indexBelow(a);
+            }
+        };
+
+        considerItems(q->indexAt(QPoint(1, 1)), false);
 
         const QVariant extraIndices = m->data(QModelIndex(), BaseTreeView::ExtraIndicesForColumnWidth);
         const QList<QModelIndex> values = extraIndices.value<QModelIndexList>();
         for (const QModelIndex &a : values)
-            considerItems(column, a, &minimum, true);
+            considerItems(a, true);
 
         return minimum;
     }
@@ -542,7 +541,7 @@ void BaseTreeView::enableColumnHiding()
             shown += !isColumnHidden(i);
         for (int i = 0; i < columns; ++i) {
             QString columnName = model()->headerData(i, Qt::Horizontal).toString();
-            QAction *act = menu.addAction(tr("Show %1 Column").arg(columnName));
+            QAction *act = menu.addAction(Tr::tr("Show %1 Column").arg(columnName));
             act->setCheckable(true);
             act->setChecked(!isColumnHidden(i));
             // Prevent disabling the last visible column as there's no way back.

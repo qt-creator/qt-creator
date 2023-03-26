@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdlocatorfilters.h"
 
@@ -7,6 +7,7 @@
 #include "clangmodelmanagersupport.h"
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditortr.h>
 #include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/indexitem.h>
@@ -18,7 +19,9 @@
 #include <set>
 #include <tuple>
 
+using namespace LanguageClient;
 using namespace LanguageServerProtocol;
+using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -39,7 +42,7 @@ public:
     }
 };
 
-class LspWorkspaceFilter : public LanguageClient::WorkspaceLocatorFilter
+class LspWorkspaceFilter : public WorkspaceLocatorFilter
 {
 public:
     LspWorkspaceFilter()
@@ -68,7 +71,7 @@ public:
     }
 };
 
-class LspClassesFilter : public LanguageClient::WorkspaceClassLocatorFilter
+class LspClassesFilter : public WorkspaceClassLocatorFilter
 {
 public:
     LspClassesFilter() {
@@ -95,7 +98,7 @@ public:
     }
 };
 
-class LspFunctionsFilter : public LanguageClient::WorkspaceMethodLocatorFilter
+class LspFunctionsFilter : public WorkspaceMethodLocatorFilter
 {
 public:
     LspFunctionsFilter()
@@ -116,11 +119,11 @@ ClangGlobalSymbolFilter::ClangGlobalSymbolFilter()
 }
 
 ClangGlobalSymbolFilter::ClangGlobalSymbolFilter(ILocatorFilter *cppFilter,
-                                                 ILocatorFilter *lspFilter)
+                                                 WorkspaceLocatorFilter *lspFilter)
     : m_cppFilter(cppFilter), m_lspFilter(lspFilter)
 {
     setId(CppEditor::Constants::LOCATOR_FILTER_ID);
-    setDisplayName(CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME);
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
@@ -134,17 +137,13 @@ ClangGlobalSymbolFilter::~ClangGlobalSymbolFilter()
 void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
 {
     m_cppFilter->prepareSearch(entry);
-    QList<LanguageClient::Client *> clients;
+    QList<Client *> clients;
     for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
-        if (LanguageClient::Client * const client
-                = ClangModelManagerSupport::clientForProject(project)) {
+        if (Client * const client = ClangModelManagerSupport::clientForProject(project))
             clients << client;
-        }
     }
-    if (!clients.isEmpty()) {
-        static_cast<LanguageClient::WorkspaceLocatorFilter *>(m_lspFilter)
-            ->prepareSearch(entry, clients);
-    }
+    if (!clients.isEmpty())
+        m_lspFilter->prepareSearch(entry, clients);
 }
 
 QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
@@ -153,18 +152,16 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     QList<Core::LocatorFilterEntry> matches = m_cppFilter->matchesFor(future, entry);
     const QList<Core::LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
     if (!lspMatches.isEmpty()) {
-        std::set<std::tuple<Utils::FilePath, int, int>> locations;
+        std::set<std::tuple<FilePath, int, int>> locations;
         for (const auto &entry : std::as_const(matches)) {
             const CppEditor::IndexItem::Ptr item
                     = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
-            locations.insert(std::make_tuple(Utils::FilePath::fromString(item->fileName()),
-                                             item->line(),
-                                             item->column()));
+            locations.insert(std::make_tuple(item->filePath(), item->line(), item->column()));
         }
         for (const auto &entry : lspMatches) {
-            if (!entry.internalData.canConvert<Utils::Link>())
+            if (!entry.internalData.canConvert<Link>())
                 continue;
-            const auto link = qvariant_cast<Utils::Link>(entry.internalData);
+            const auto link = qvariant_cast<Link>(entry.internalData);
             if (locations.find(std::make_tuple(link.targetFilePath, link.targetLine,
                                                link.targetColumn)) == locations.cend()) {
                 matches << entry; // TODO: Insert sorted?
@@ -189,7 +186,7 @@ ClangClassesFilter::ClangClassesFilter()
     : ClangGlobalSymbolFilter(new CppClassesFilter, new LspClassesFilter)
 {
     setId(CppEditor::Constants::CLASSES_FILTER_ID);
-    setDisplayName(CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME);
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
@@ -198,12 +195,12 @@ ClangFunctionsFilter::ClangFunctionsFilter()
     : ClangGlobalSymbolFilter(new CppFunctionsFilter, new LspFunctionsFilter)
 {
     setId(CppEditor::Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }
 
-class LspCurrentDocumentFilter : public LanguageClient::DocumentLocatorFilter
+class LspCurrentDocumentFilter : public DocumentLocatorFilter
 {
 public:
     LspCurrentDocumentFilter()
@@ -226,7 +223,7 @@ private:
                     static_cast<SymbolKind>(info.kind()), info.name(),
                     info.detail().value_or(QString()));
         const Position &pos = info.range().start();
-        entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
+        entry.internalData = QVariant::fromValue(LineColumn(pos.line(), pos.character()));
         entry.extraInfo = parent.extraInfo;
         if (!entry.extraInfo.isEmpty())
             entry.extraInfo.append("::");
@@ -254,7 +251,7 @@ public:
 ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter() : d(new Private)
 {
     setId(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(".");
     setPriority(High);
     setDefaultIncludedByDefault(false);

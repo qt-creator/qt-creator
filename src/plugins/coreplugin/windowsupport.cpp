@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "windowsupport.h"
 
@@ -7,9 +7,11 @@
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 #include "coreconstants.h"
+#include "coreplugintr.h"
 #include "icore.h"
 
 #include <app/app_version.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -126,12 +128,12 @@ void WindowSupport::updateFullScreenAction()
 {
     if (m_window->isFullScreen()) {
         if (Utils::HostOsInfo::isMacHost())
-            m_toggleFullScreenAction->setText(tr("Exit Full Screen"));
+            m_toggleFullScreenAction->setText(Tr::tr("Exit Full Screen"));
         else
             m_toggleFullScreenAction->setChecked(true);
     } else {
         if (Utils::HostOsInfo::isMacHost())
-            m_toggleFullScreenAction->setText(tr("Enter Full Screen"));
+            m_toggleFullScreenAction->setText(Tr::tr("Enter Full Screen"));
         else
             m_toggleFullScreenAction->setChecked(false);
     }
@@ -156,14 +158,16 @@ void WindowList::addWindow(QWidget *window)
     m_windowActionIds.append(id);
     auto action = new QAction(window->windowTitle());
     m_windowActions.append(action);
-    QObject::connect(action, &QAction::triggered, [action, this]() { activateWindow(action); });
+    QObject::connect(action, &QAction::triggered,
+                     action, [action, this] { activateWindow(action); });
     action->setCheckable(true);
     action->setChecked(false);
     Command *cmd = ActionManager::registerAction(action, id);
     cmd->setAttribute(Command::CA_UpdateText);
     ActionManager::actionContainer(Constants::M_WINDOW)->addAction(cmd, Constants::G_WINDOW_LIST);
     action->setVisible(window->isVisible() || window->isMinimized()); // minimized windows are hidden but should be shown
-    QObject::connect(window, &QWidget::windowTitleChanged, [window, this]() { updateTitle(window); });
+    QObject::connect(window, &QWidget::windowTitleChanged,
+                     window, [window, this] { updateTitle(window); });
     if (m_dockMenu)
         m_dockMenu->addAction(action);
     if (window->isActiveWindow())

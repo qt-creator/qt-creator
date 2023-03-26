@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppchecktextmarkmanager.h"
 #include "cppchecktool.h"
@@ -15,19 +15,20 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 
-namespace Cppcheck {
-namespace Internal {
+using namespace Core;
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace Cppcheck::Internal {
 
 CppcheckTrigger::CppcheckTrigger(CppcheckTextMarkManager &marks, CppcheckTool &tool) :
       m_marks(marks),
       m_tool(tool)
 {
-    using EditorManager = Core::EditorManager;
-    using SessionManager = ProjectExplorer::SessionManager;
     using CppModelManager = CppEditor::CppModelManager;
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
-            this, [this](Core::IEditor *editor) {checkEditors({editor});});
+            this, [this](IEditor *editor) {checkEditors({editor});});
     connect(EditorManager::instance(), &EditorManager::editorsClosed,
             this, &CppcheckTrigger::removeEditors);
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
@@ -48,7 +49,7 @@ void CppcheckTrigger::recheck()
     checkEditors();
 }
 
-void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
+void CppcheckTrigger::checkEditors(const QList<IEditor *> &editors)
 {
     if (!m_currentProject)
         return;
@@ -59,15 +60,15 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
     if (!info)
         return;
 
-    const QList<Core::IEditor *> editorList = !editors.isEmpty()
-            ? editors : Core::DocumentModel::editorsForOpenedDocuments();
+    const QList<IEditor *> editorList = !editors.isEmpty()
+            ? editors : DocumentModel::editorsForOpenedDocuments();
 
-    Utils::FilePaths toCheck;
-    for (const Core::IEditor *editor : editorList) {
+    FilePaths toCheck;
+    for (const IEditor *editor : editorList) {
         QTC_ASSERT(editor, continue);
-        Core::IDocument *document = editor->document();
+        IDocument *document = editor->document();
         QTC_ASSERT(document, continue);
-        const Utils::FilePath &path = document->filePath();
+        const FilePath &path = document->filePath();
         if (path.isEmpty())
             continue;
 
@@ -77,13 +78,12 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
         if (!m_currentProject->isKnownFile(path))
             continue;
 
-        const QString &pathString = path.toString();
-        if (!info->sourceFiles().contains(pathString))
+        if (!info->sourceFiles().contains(path))
             continue;
 
-        connect(document, &Core::IDocument::aboutToReload,
+        connect(document, &IDocument::aboutToReload,
                 this, [this, document]{checkChangedDocument(document);});
-        connect(document, &Core::IDocument::contentsChanged,
+        connect(document, &IDocument::contentsChanged,
                 this, [this, document] {
             if (!document->isModified())
                 checkChangedDocument(document);
@@ -99,20 +99,20 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
     }
 }
 
-void CppcheckTrigger::removeEditors(const QList<Core::IEditor *> &editors)
+void CppcheckTrigger::removeEditors(const QList<IEditor *> &editors)
 {
     if (!m_currentProject)
         return;
 
-    const QList<Core::IEditor *> editorList = !editors.isEmpty()
-            ? editors : Core::DocumentModel::editorsForOpenedDocuments();
+    const QList<IEditor *> editorList = !editors.isEmpty()
+            ? editors : DocumentModel::editorsForOpenedDocuments();
 
-    Utils::FilePaths toRemove;
-    for (const Core::IEditor *editor : editorList) {
+    FilePaths toRemove;
+    for (const IEditor *editor : editorList) {
         QTC_ASSERT(editor, return);
-        const Core::IDocument *document = editor->document();
+        const IDocument *document = editor->document();
         QTC_ASSERT(document, return);
-        const Utils::FilePath &path = document->filePath();
+        const FilePath &path = document->filePath();
         if (path.isEmpty())
             return;
 
@@ -128,14 +128,14 @@ void CppcheckTrigger::removeEditors(const QList<Core::IEditor *> &editors)
         remove(toRemove);
 }
 
-void CppcheckTrigger::checkChangedDocument(Core::IDocument *document)
+void CppcheckTrigger::checkChangedDocument(IDocument *document)
 {
     QTC_ASSERT(document, return);
 
     if (!m_currentProject)
         return;
 
-    const Utils::FilePath &path = document->filePath();
+    const FilePath &path = document->filePath();
     QTC_ASSERT(!path.isEmpty(), return);
     if (!m_checkedFiles.contains(path))
         return;
@@ -144,16 +144,16 @@ void CppcheckTrigger::checkChangedDocument(Core::IDocument *document)
     check({path});
 }
 
-void CppcheckTrigger::changeCurrentProject(ProjectExplorer::Project *project)
+void CppcheckTrigger::changeCurrentProject(Project *project)
 {
     m_currentProject = project;
     m_checkedFiles.clear();
     remove({});
     m_tool.setProject(project);
-    checkEditors(Core::DocumentModel::editorsForOpenedDocuments());
+    checkEditors(DocumentModel::editorsForOpenedDocuments());
 }
 
-void CppcheckTrigger::updateProjectFiles(ProjectExplorer::Project *project)
+void CppcheckTrigger::updateProjectFiles(Project *project)
 {
     if (project != m_currentProject)
         return;
@@ -161,19 +161,18 @@ void CppcheckTrigger::updateProjectFiles(ProjectExplorer::Project *project)
     m_checkedFiles.clear();
     remove({});
     m_tool.setProject(project);
-    checkEditors(Core::DocumentModel::editorsForOpenedDocuments());
+    checkEditors(DocumentModel::editorsForOpenedDocuments());
 }
 
-void CppcheckTrigger::check(const Utils::FilePaths &files)
+void CppcheckTrigger::check(const FilePaths &files)
 {
     m_tool.check(files);
 }
 
-void CppcheckTrigger::remove(const Utils::FilePaths &files)
+void CppcheckTrigger::remove(const FilePaths &files)
 {
     m_marks.clearFiles(files);
     m_tool.stop(files);
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

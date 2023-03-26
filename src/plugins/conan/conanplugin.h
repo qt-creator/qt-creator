@@ -1,15 +1,14 @@
 // Copyright (C) 2018 Jochen Seemann
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <extensionsystem/iplugin.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace ProjectExplorer { class Project; }
 
-namespace ConanPackageManager {
-namespace Internal {
+namespace Conan::Internal {
 
 class ConanSettings;
 
@@ -21,17 +20,15 @@ class ConanPlugin final : public ExtensionSystem::IPlugin
 public:
     static ConanSettings *conanSettings();
     static Utils::FilePath conanFilePath(ProjectExplorer::Project *project,
-                           const Utils::FilePath &defaultFilePath = Utils::FilePath());
+                           const Utils::FilePath &defaultFilePath = {});
 
 private:
     ~ConanPlugin() final;
     void projectAdded(ProjectExplorer::Project *project);
 
-    void extensionsInitialized() final;
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
     class ConanPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace ConanPackageManager
+} // Conan::Internal

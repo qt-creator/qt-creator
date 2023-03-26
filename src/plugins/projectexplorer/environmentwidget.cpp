@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "environmentwidget.h"
+
+#include "projectexplorertr.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/itemviewfind.h>
@@ -18,6 +20,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/utilstr.h>
 
 #include <QDialogButtonBox>
 #include <QDir>
@@ -49,16 +52,15 @@ public:
 
 class PathListDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(EnvironmentWidget)
 public:
     PathListDialog(const QString &varName, const QString &paths, QWidget *parent) : QDialog(parent)
     {
         const auto mainLayout = new QVBoxLayout(this);
         const auto viewLayout = new QHBoxLayout;
         const auto buttonsLayout = new QVBoxLayout;
-        const auto addButton = new QPushButton(tr("Add..."));
-        const auto removeButton = new QPushButton(tr("Remove"));
-        const auto editButton = new QPushButton(tr("Edit..."));
+        const auto addButton = new QPushButton(Tr::tr("Add..."));
+        const auto removeButton = new QPushButton(Tr::tr("Remove"));
+        const auto editButton = new QPushButton(Tr::tr("Edit..."));
         buttonsLayout->addWidget(addButton);
         buttonsLayout->addWidget(removeButton);
         buttonsLayout->addWidget(editButton);
@@ -80,7 +82,7 @@ public:
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
         connect(addButton, &QPushButton::clicked, this, [this] {
-            const FilePath dir = FileUtils::getExistingDirectory(this, tr("Choose Directory"));
+            const FilePath dir = FileUtils::getExistingDirectory(this, Tr::tr("Choose Directory"));
             if (!dir.isEmpty())
                 addPath(dir.toUserOutput());
         });
@@ -139,7 +141,7 @@ public:
 
         if (auto edit = qobject_cast<QLineEdit *>(w))
             edit->setValidator(new Utils::NameValueValidator(
-                edit, m_model, m_view, index, EnvironmentWidget::tr("Variable already exists.")));
+                edit, m_model, m_view, index, Tr::tr("Variable already exists.")));
         return w;
     }
 private:
@@ -226,24 +228,24 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     auto buttonLayout = new QVBoxLayout();
 
     d->m_editButton = new QPushButton(this);
-    d->m_editButton->setText(tr("Ed&it"));
+    d->m_editButton->setText(Tr::tr("Ed&it"));
     buttonLayout->addWidget(d->m_editButton);
 
     d->m_addButton = new QPushButton(this);
-    d->m_addButton->setText(tr("&Add"));
+    d->m_addButton->setText(Tr::tr("&Add"));
     buttonLayout->addWidget(d->m_addButton);
 
     d->m_resetButton = new QPushButton(this);
     d->m_resetButton->setEnabled(false);
-    d->m_resetButton->setText(tr("&Reset"));
+    d->m_resetButton->setText(Tr::tr("&Reset"));
     buttonLayout->addWidget(d->m_resetButton);
 
     d->m_unsetButton = new QPushButton(this);
     d->m_unsetButton->setEnabled(false);
-    d->m_unsetButton->setText(tr("&Unset"));
+    d->m_unsetButton->setText(Tr::tr("&Unset"));
     buttonLayout->addWidget(d->m_unsetButton);
 
-    d->m_toggleButton = new QPushButton(tr("Disable"), this);
+    d->m_toggleButton = new QPushButton(Tr::tr("Disable"), this);
     buttonLayout->addWidget(d->m_toggleButton);
     connect(d->m_toggleButton, &QPushButton::clicked, this, [this] {
         d->m_model->toggleVariable(d->m_environmentView->currentIndex());
@@ -253,11 +255,11 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     if (type == TypeLocal) {
         d->m_appendPathButton = new QPushButton(this);
         d->m_appendPathButton->setEnabled(false);
-        d->m_appendPathButton->setText(tr("Append Path..."));
+        d->m_appendPathButton->setText(Tr::tr("Append Path..."));
         buttonLayout->addWidget(d->m_appendPathButton);
         d->m_prependPathButton = new QPushButton(this);
         d->m_prependPathButton->setEnabled(false);
-        d->m_prependPathButton->setText(tr("Prepend Path..."));
+        d->m_prependPathButton->setText(Tr::tr("Prepend Path..."));
         buttonLayout->addWidget(d->m_prependPathButton);
         connect(d->m_appendPathButton, &QAbstractButton::clicked,
                 this, &EnvironmentWidget::appendPathButtonClicked);
@@ -266,13 +268,13 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     }
 
     d->m_batchEditButton = new QPushButton(this);
-    d->m_batchEditButton->setText(tr("&Batch Edit..."));
+    d->m_batchEditButton->setText(Tr::tr("&Batch Edit..."));
     buttonLayout->addWidget(d->m_batchEditButton);
 
     d->m_terminalButton = new QPushButton(this);
-    d->m_terminalButton->setText(tr("Open &Terminal"));
-    d->m_terminalButton->setToolTip(tr("Open a terminal with this environment set up."));
-    d->m_terminalButton->setEnabled(type == TypeLocal);
+    d->m_terminalButton->setText(Tr::tr("Open &Terminal"));
+    d->m_terminalButton->setToolTip(Tr::tr("Open a terminal with this environment set up."));
+    d->m_terminalButton->setEnabled(true);
     buttonLayout->addWidget(d->m_terminalButton);
     buttonLayout->addStretch();
 
@@ -374,24 +376,24 @@ void EnvironmentWidget::updateSummaryText()
 
     QString text;
     for (const Utils::EnvironmentItem &item : std::as_const(list)) {
-        if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
+        if (item.name != ::Utils::Tr::tr("<VARIABLE>")) {
             if (!d->m_baseEnvironmentText.isEmpty() || !text.isEmpty())
                 text.append(QLatin1String("<br>"));
             switch (item.operation) {
             case Utils::EnvironmentItem::Unset:
-                text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
+                text.append(Tr::tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
                 break;
             case Utils::EnvironmentItem::SetEnabled:
-                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                text.append(Tr::tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
                 break;
             case Utils::EnvironmentItem::Append:
-                text.append(tr("Append <b>%2</b> to <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                text.append(Tr::tr("Append <b>%2</b> to <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
                 break;
             case Utils::EnvironmentItem::Prepend:
-                text.append(tr("Prepend <b>%2</b> to <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                text.append(Tr::tr("Prepend <b>%2</b> to <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
                 break;
             case Utils::EnvironmentItem::SetDisabled:
-                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b> [disabled]").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                text.append(Tr::tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b> [disabled]").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
                 break;
             }
         }
@@ -400,14 +402,14 @@ void EnvironmentWidget::updateSummaryText()
     if (text.isEmpty()) {
         //: %1 is "System Environment" or some such.
         if (!d->m_baseEnvironmentText.isEmpty())
-            text.prepend(tr("Use <b>%1</b>").arg(d->m_baseEnvironmentText));
+            text.prepend(Tr::tr("Use <b>%1</b>").arg(d->m_baseEnvironmentText));
         else
-            text.prepend(tr("<b>No environment changes</b>"));
+            text.prepend(Tr::tr("<b>No environment changes</b>"));
     } else {
         //: Yup, word puzzle. The Set/Unset phrases above are appended to this.
         //: %1 is "System Environment" or some such.
         if (!d->m_baseEnvironmentText.isEmpty())
-            text.prepend(tr("Use <b>%1</b> and").arg(d->m_baseEnvironmentText));
+            text.prepend(Tr::tr("Use <b>%1</b> and").arg(d->m_baseEnvironmentText));
     }
 
     d->m_detailsContainer->setSummaryText(text);
@@ -467,7 +469,7 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
 void EnvironmentWidget::amendPathList(Utils::NameValueItem::Operation op)
 {
     const QString varName = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
-    const FilePath dir = FileUtils::getExistingDirectory(this, tr("Choose Directory"));
+    const FilePath dir = FileUtils::getExistingDirectory(this, Tr::tr("Choose Directory"));
     if (dir.isEmpty())
         return;
     Utils::NameValueItems changes = d->m_model->userChanges();
@@ -505,13 +507,13 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
         d->m_resetButton->setEnabled(modified || unset);
         d->m_unsetButton->setEnabled(!unset);
         d->m_toggleButton->setEnabled(!unset);
-        d->m_toggleButton->setText(d->m_model->isEnabled(name) ? tr("Disable") : tr("Enable"));
+        d->m_toggleButton->setText(d->m_model->isEnabled(name) ? Tr::tr("Disable") : Tr::tr("Enable"));
     } else {
         d->m_editButton->setEnabled(false);
         d->m_resetButton->setEnabled(false);
         d->m_unsetButton->setEnabled(false);
         d->m_toggleButton->setEnabled(false);
-        d->m_toggleButton->setText(tr("Disable"));
+        d->m_toggleButton->setText(Tr::tr("Disable"));
     }
     if (d->m_appendPathButton) {
         const bool isPathList = d->m_model->currentEntryIsPathList(current);

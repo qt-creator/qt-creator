@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "progressmanager.h"
 
@@ -47,11 +47,17 @@ void ProgressManager::setClickHandlerForToken(const LanguageServerProtocol::Prog
     m_clickHandlers.insert(token, handler);
 }
 
+void ProgressManager::setCancelHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+                                               const std::function<void ()> &handler)
+{
+    m_cancelHandlers.insert(token, handler);
+}
+
 void ProgressManager::reset()
 {
     const QList<ProgressToken> &tokens = m_progress.keys();
     for (const ProgressToken &token : tokens)
-        endProgress(token);
+        endProgressReport(token);
 }
 
 bool ProgressManager::isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params)
@@ -78,10 +84,14 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
     const QString title = m_titles.value(token, begin.title());
     Core::FutureProgress *progress = Core::ProgressManager::addTask(
             interface->future(), title, languageClientProgressId(token));
-    progress->setCancelEnabled(false);
     const std::function<void()> clickHandler = m_clickHandlers.value(token);
     if (clickHandler)
         QObject::connect(progress, &Core::FutureProgress::clicked, clickHandler);
+    const std::function<void()> cancelHandler = m_cancelHandlers.value(token);
+    if (cancelHandler)
+        QObject::connect(progress, &Core::FutureProgress::canceled, cancelHandler);
+    else
+        progress->setCancelEnabled(false);
     m_progress[token] = {progress, interface};
     if (LOGPROGRESS().isDebugEnabled())
         m_timer[token].start();
@@ -125,10 +135,10 @@ void ProgressManager::endProgress(const ProgressToken &token, const WorkDoneProg
                                                  .toString(Qt::ISODateWithMs));
         }
     }
-    endProgress(token);
+    endProgressReport(token);
 }
 
-void ProgressManager::endProgress(const ProgressToken &token)
+void ProgressManager::endProgressReport(const ProgressToken &token)
 {
     const LanguageClientProgress &progress = m_progress.take(token);
     if (progress.futureInterface)

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "callgrindengine.h"
 
@@ -256,9 +256,8 @@ void CallgrindToolRunner::triggerParse()
         m_hostOutputFile = FilePath::fromString(dataFile.fileName());
     }
 
-    const auto afterCopy = [this](bool res) {
-        QTC_CHECK(res);
-        QTC_ASSERT(m_hostOutputFile.exists(), return);
+    const auto afterCopy = [this](expected_str<void> res) {
+        QTC_ASSERT_EXPECTED(res, return);
         showStatusMessage(Tr::tr("Parsing Profile Data..."));
         m_parser.parse(m_hostOutputFile);
     };

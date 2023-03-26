@@ -1,5 +1,5 @@
 add_qtc_executable(cpaster
-  DEPENDS Core Utils Qt5::Network
+  DEPENDS Core Utils Qt::Network
   SOURCES
     argumentscollector.cpp argumentscollector.h
     main.cpp

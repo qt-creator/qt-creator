@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import platform;
 import re;
@@ -43,6 +43,7 @@ def __closeInfoBarEntry__(leftButtonText):
                   "window=':Qt Creator_Core::Internal::MainWindow'")
     doNotShowAgain = toolButton % "Do Not Show Again"
     leftWidget = "leftWidget={%s}" % (toolButton % leftButtonText)
+    test.log("closing %s" % leftButtonText)
     clickButton(waitForObject("{%s %s}" % (doNotShowAgain, leftWidget)))
 
 # additionalParameters must be a list or tuple of strings or None
@@ -184,6 +185,16 @@ def substituteTildeWithinQtVersion(settingsDir):
     test.log("Substituted all tildes with '%s' inside qtversion.xml..." % home)
 
 
+def substituteOnlineInstallerPath(settingsDir):
+    qtversions = os.path.join(settingsDir, "QtProject", 'qtcreator', 'qtversion.xml')
+    dflt = "C:/Qt" if platform.system() in ('Microsoft', 'Windows') else os.path.expanduser("~/Qt")
+    replacement = str(os.getenv("SYSTEST_QTOI_BASEPATH", dflt)).replace('\\', '/')
+    while replacement.endswith('/'):
+        replacement = replacement[:-1]
+    __substitute__(qtversions, "SQUISH_QTOI_BASEPATH", replacement)
+    test.log("Substituted online installer base path (%s) inside qtversions.xml." % replacement)
+
+
 def substituteDefaultCompiler(settingsDir):
     compiler = None
     if platform.system() == 'Darwin':
@@ -226,20 +237,45 @@ def substituteCdb(settingsDir):
     test.log("Injected architecture '%s' and bitness '%s' in cdb path..." % (architecture, bitness))
 
 
-def substituteMsvcPaths(settingsDir):
+def substituteMsvcPaths(settingsDir, version, targetBitness=64):
+    if not version in ['2017', '2019']:
+        test.fatal('Unexpected MSVC version - "%s" not implemented yet.' % version)
+        return
+
+    hostArch = "Hostx64" if targetBitness == 64 else "Hostx86"
+    targetArch = "x64" if targetBitness == 64 else "x86"
     for msvcFlavor in ["Community", "BuildTools"]:
         try:
-            msvc2017Path = os.path.join("C:\\Program Files (x86)", "Microsoft Visual Studio",
-                                        "2017", msvcFlavor, "VC", "Tools", "MSVC")
-            msvc2017Path = os.path.join(msvc2017Path, os.listdir(msvc2017Path)[0], "bin",
-                                        "HostX64", "x64")
+            msvcPath = os.path.join("C:\\Program Files (x86)", "Microsoft Visual Studio",
+                                    version, msvcFlavor, "VC", "Tools", "MSVC")
+            msvcPath = os.path.join(msvcPath, os.listdir(msvcPath)[0], "bin", hostArch, targetArch)
             __substitute__(os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml'),
-                           "SQUISH_MSVC2017_PATH", msvc2017Path)
+                           "SQUISH_MSVC%s_%d_PATH" % (version, targetBitness), msvcPath)
             return
         except:
             continue
-    test.warning("PATH variable for MSVC2017 could not be set, some tests will fail.",
-                 "Please make sure that MSVC2017 is installed correctly.")
+    test.warning("PATH variable for MSVC%s could not be set, some tests will fail." % version,
+                 "Please make sure that MSVC%s is installed correctly." % version)
+
+
+def prependWindowsKit(settingsDir, targetBitness=64):
+    targetArch = "x64" if targetBitness == 64 else "x86"
+    profilesPath = os.path.join(settingsDir, 'QtProject', 'qtcreator', 'profiles.xml')
+    winkits = os.path.join("C:\\Program Files (x86)", "Windows Kits", "10")
+    if not os.path.exists(winkits):
+        __substitute__(profilesPath, "SQUISH_ENV_MODIFICATION", "")
+        return
+    possibleVersions = os.listdir(os.path.join(winkits, 'bin'))
+    possibleVersions.reverse() # prefer higher versions
+    for version in possibleVersions:
+        if not version.startswith("10"):
+            continue
+        toolsPath = os.path.join(winkits, 'bin', version, targetArch)
+        if os.path.exists(os.path.join(toolsPath, 'rc.exe')):
+            __substitute__(profilesPath, "SQUISH_ENV_MODIFICATION", "PATH=+%s" % toolsPath)
+            return
+    test.warning("Windows Kit path could not be added, some tests mail fail.")
+    __substitute__(profilesPath, "SQUISH_ENV_MODIFICATION", "")
 
 
 def __guessABI__(supportedABIs, use64Bit):
@@ -336,7 +372,11 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
         substituteDefaultCompiler(tmpSettingsDir)
     elif platform.system() in ('Windows', 'Microsoft'):
         substituteCdb(tmpSettingsDir)
-        substituteMsvcPaths(tmpSettingsDir)
+        substituteMsvcPaths(tmpSettingsDir, '2017', 64)
+        substituteMsvcPaths(tmpSettingsDir, '2017', 32)
+        substituteMsvcPaths(tmpSettingsDir, '2019', 64)
+        prependWindowsKit(tmpSettingsDir, 32)
+    substituteOnlineInstallerPath(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
 

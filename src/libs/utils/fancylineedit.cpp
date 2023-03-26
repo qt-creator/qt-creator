@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fancylineedit.h"
 
@@ -9,6 +9,7 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -418,8 +419,8 @@ void FancyLineEdit::setFiltering(bool on)
 
         setButtonIcon(Right, icon);
         setButtonVisible(Right, true);
-        setPlaceholderText(tr("Filter"));
-        setButtonToolTip(Right, tr("Clear text"));
+        setPlaceholderText(Tr::tr("Filter"));
+        setButtonToolTip(Right, Tr::tr("Clear text"));
         setAutoHideButton(Right, true);
         connect(this, &FancyLineEdit::rightButtonClicked, this, &QLineEdit::clear);
     } else {

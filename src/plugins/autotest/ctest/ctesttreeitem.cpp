@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ctesttreeitem.h"
 
@@ -20,11 +20,13 @@
 #include <utils/link.h>
 #include  <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 CTestTreeItem::CTestTreeItem(ITestBase *testBase, const QString &name,
-                             const Utils::FilePath &filepath, Type type)
+                             const FilePath &filepath, Type type)
     : ITestTreeItem(testBase, name, filepath, type)
 {
 }
@@ -69,7 +71,7 @@ QVariant CTestTreeItem::data(int column, int role) const
         return checked();
     if (role == LinkRole) {
         QVariant itemLink;
-        itemLink.setValue(Utils::Link(filePath(), line()));
+        itemLink.setValue(Link(filePath(), line()));
         return itemLink;
     }
     return ITestTreeItem::data(column, role);
@@ -89,7 +91,7 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
     QStringList options{"--timeout", QString::number(AutotestPlugin::settings()->timeout / 1000)};
     auto ctestSettings = static_cast<CTestSettings *>(testBase()->testSettings());
     options << ctestSettings->activeSettingsAsOptions();
-    Utils::CommandLine command = buildSystem->commandLineForTests(selected, options);
+    CommandLine command = buildSystem->commandLineForTests(selected, options);
     if (command.executable().isEmpty())
         return {};
 
@@ -97,12 +99,12 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
     config->setProject(project);
     config->setCommandLine(command);
     const ProjectExplorer::RunConfiguration *runConfig = target->activeRunConfiguration();
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
     if (QTC_GUARD(runConfig)) {
         if (auto envAspect = runConfig->aspect<ProjectExplorer::EnvironmentAspect>())
             env = envAspect->environment();
     }
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         env.set("QT_FORCE_STDERR_LOGGING", "1");
         env.set("QT_LOGGING_TO_CONSOLE", "1");
     }

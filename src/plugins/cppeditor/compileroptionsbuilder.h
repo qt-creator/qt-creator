@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -18,7 +18,7 @@ enum class UseBuildSystemWarnings : char { Yes, No };
 
 CPPEDITOR_EXPORT QStringList XclangArgs(const QStringList &args);
 CPPEDITOR_EXPORT QStringList clangArgsForCl(const QStringList &args);
-CPPEDITOR_EXPORT QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt);
+CPPEDITOR_EXPORT QStringList createLanguageOptionGcc(Utils::Language language, ProjectFile::Kind fileKind, bool objcExt);
 
 class CPPEDITOR_EXPORT CompilerOptionsBuilder
 {

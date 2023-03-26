@@ -1,11 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "helpmanager_implementation.h"
 
 #include "coreplugin.h"
 
+#include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
+
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -22,12 +24,17 @@ static Implementation *m_instance = nullptr;
 
 static bool checkInstance()
 {
-    auto plugin = Internal::CorePlugin::instance();
-    // HelpManager API can only be used after the actual implementation has been created by the
-    // Help plugin, so check that the plugins have all been created. That is the case
-    // when the Core plugin is initialized.
-    QTC_CHECK(plugin && plugin->pluginSpec()
-              && plugin->pluginSpec()->state() >= ExtensionSystem::PluginSpec::Initialized);
+    static bool afterPluginCreation = false;
+    if (!afterPluginCreation) {
+        using namespace ExtensionSystem;
+        auto plugin = Internal::CorePlugin::instance();
+        // HelpManager API can only be used after the actual implementation has been created by the
+        // Help plugin, so check that the plugins have all been created. That is the case
+        // when the Core plugin is initialized.
+        PluginSpec *pluginSpec = PluginManager::specForPlugin(plugin);
+        afterPluginCreation = (plugin && pluginSpec && pluginSpec->state() >= PluginSpec::Initialized);
+        QTC_CHECK(afterPluginCreation);
+    }
     return m_instance != nullptr;
 }
 

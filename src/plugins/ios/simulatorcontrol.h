@@ -1,21 +1,22 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QFuture>
 #include <QDebug>
+
 #include <memory>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class SimulatorControlPrivate;
 
-
-class SimulatorEntity {
+class SimulatorEntity
+{
 public:
     QString name;
     QString identifier;
@@ -40,7 +41,8 @@ public:
     QString runtimeName;
 };
 
-class RuntimeInfo : public SimulatorEntity{
+class RuntimeInfo : public SimulatorEntity
+{
 public:
     QString version;
     QString build;
@@ -91,8 +93,7 @@ public:
     static QFuture<ResponseData> takeSceenshot(const QString &simUdid, const QString &filePath);
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
 
 Q_DECLARE_METATYPE(Ios::Internal::DeviceTypeInfo)
 Q_DECLARE_METATYPE(Ios::Internal::RuntimeInfo)

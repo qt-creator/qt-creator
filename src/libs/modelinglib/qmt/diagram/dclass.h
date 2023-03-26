@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -24,9 +24,9 @@ public:
 
     QString umlNamespace() const { return m_umlNamespace; }
     void setUmlNamespace(const QString &umlNamespace);
-    QList<QString> templateParameters() const { return m_templateParameters; }
+    const QList<QString> templateParameters() const { return m_templateParameters; }
     void setTemplateParameters(const QList<QString> &templateParameters);
-    QList<MClassMember> members() const { return m_members; }
+    const QList<MClassMember> members() const { return m_members; }
     void setMembers(const QList<MClassMember> &members);
     QSet<Uid> visibleMembers() const { return m_visibleMembers; }
     void setVisibleMembers(const QSet<Uid> &visibleMembers);

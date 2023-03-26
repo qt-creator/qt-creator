@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -99,7 +99,7 @@ public:
     static Project *projectForFile(const Utils::FilePath &fileName);
     static Project *projectWithProjectFilePath(const Utils::FilePath &filePath);
 
-    static QStringList projectsForSessionName(const QString &session);
+    static Utils::FilePaths projectsForSessionName(const QString &session);
 
     static void reportProjectLoadingProgress();
     static bool loadingSession();

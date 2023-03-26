@@ -1,23 +1,12 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include <QtGlobal>
 #include <utils/id.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Constants {
 
-#ifdef Q_OS_WIN32
-#define ANDROID_BAT_SUFFIX ".bat"
-#else
-#define ANDROID_BAT_SUFFIX ""
-#endif
-
-} // namespace Internal
-
-namespace Constants {
 const char ANDROID_SETTINGS_ID[] = "BB.Android Configurations";
 const char ANDROID_TOOLCHAIN_TYPEID[] = "Qt4ProjectManager.ToolChain.Android";
 const char ANDROID_QT_TYPE[] = "Qt4ProjectManager.QtVersion.Android";
@@ -52,6 +41,7 @@ const char ANDROID_DEPLOYMENT_SETTINGS_FILE[] = "ANDROID_DEPLOYMENT_SETTINGS_FIL
 const char ANDROID_SO_LIBS_PATHS[] = "ANDROID_SO_LIBS_PATHS";
 const char JAVA_HOME_ENV_VAR[] = "JAVA_HOME";
 
+const char ANDROID_RUNCONFIG_ID[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 const char ANDROID_PACKAGE_INSTALL_STEP_ID[] = "Qt4ProjectManager.AndroidPackageInstallationStep";
 const char ANDROID_BUILD_APK_ID[] = "QmakeProjectManager.AndroidBuildApkStep";
 const char ANDROID_DEPLOY_QT_ID[] = "Qt4ProjectManager.AndroidDeployQtStep";
@@ -83,6 +73,6 @@ const Utils::Id AndroidAvdPath = "AndroidAvdPath";
 
 // SDK Tools
 const char cmdlineToolsName[] = "cmdline-tools";
+const char ndkPackageName[] = "ndk";
 
-} // namespace Constants;
-} // namespace Android
+} // Android::Constants

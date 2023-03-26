@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,6 +8,8 @@
 #include "filepath.h"
 #include "hostosinfo.h"
 
+#include <QList>
+#include <QPair>
 #include <QStringList>
 
 namespace Utils {
@@ -64,7 +66,8 @@ public:
      *  Assumes that the name of the actual command is *not* part of the line.
      *  Terminates after the first command if the command line is complex.
      */
-    class QTCREATOR_UTILS_EXPORT ArgIterator {
+    class QTCREATOR_UTILS_EXPORT ArgIterator
+    {
     public:
         ArgIterator(QString *str, OsType osType = HostOsInfo::hostOs())
             : m_str(str), m_osType(osType)
@@ -80,6 +83,7 @@ public:
         //! Insert argument into the command line after the last one fetched via next().
         //! This may be used before the first call to next() to insert at the front.
         void appendArg(const QString &str);
+
     private:
         QString *m_str, m_value;
         int m_pos = 0;
@@ -88,7 +92,8 @@ public:
         OsType m_osType;
     };
 
-    class QTCREATOR_UTILS_EXPORT ConstArgIterator {
+    class QTCREATOR_UTILS_EXPORT ConstArgIterator
+    {
     public:
         ConstArgIterator(const QString &str, OsType osType = HostOsInfo::hostOs())
             : m_str(str), m_ait(&m_str, osType)
@@ -96,6 +101,7 @@ public:
         bool next() { return m_ait.next(); }
         bool isSimple() const { return m_ait.isSimple(); }
         QString value() const { return m_ait.value(); }
+
     private:
         QString m_str;
         ArgIterator m_ait;
@@ -122,15 +128,22 @@ public:
 
     void addArg(const QString &arg);
     void addArg(const QString &arg, OsType osType);
+    void addMaskedArg(const QString &arg);
+    void addMaskedArg(const QString &arg, OsType osType);
     void addArgs(const QStringList &inArgs);
     void addArgs(const QStringList &inArgs, OsType osType);
     void addArgs(const QString &inArgs, RawType);
+    CommandLine &operator<<(const QString &arg);
+    CommandLine &operator<<(const QStringList &arg);
 
     void prependArgs(const QStringList &inArgs);
     void prependArgs(const QString &inArgs, RawType);
 
     void addCommandLineAsArgs(const CommandLine &cmd);
     void addCommandLineAsArgs(const CommandLine &cmd, RawType);
+
+    void addCommandLineAsSingleArg(const CommandLine &cmd);
+    void addCommandLineWithAnd(const CommandLine &cmd);
 
     QString toUserOutput() const;
     QString displayName() const;
@@ -145,19 +158,15 @@ public:
 
     bool isEmpty() const { return m_executable.isEmpty(); }
 
-    friend bool operator==(const CommandLine &first, const CommandLine &second) {
-        return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;
-    }
-
 private:
+    friend QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second);
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const CommandLine &cmd);
+
     FilePath m_executable;
     QString m_arguments;
+    QList<QPair<int, int>> m_masked;
 };
 
-} // namespace Utils
-
-QT_BEGIN_NAMESPACE
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::CommandLine &cmd);
-QT_END_NAMESPACE
+} // Utils
 
 Q_DECLARE_METATYPE(Utils::CommandLine)

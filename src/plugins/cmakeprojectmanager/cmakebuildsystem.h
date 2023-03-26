@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,7 +11,6 @@
 #include <projectexplorer/buildsystem.h>
 
 #include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/temporarydirectory.h>
 
 namespace CppEditor { class CppProjectUpdater; }
@@ -19,6 +18,7 @@ namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
 }
+namespace Utils { class QtcProcess; }
 
 namespace CMakeProjectManager {
 
@@ -120,6 +120,11 @@ signals:
     void warningOccurred(const QString &message);
 
 private:
+    QList<QPair<Utils::Id, QString>> generators() const override;
+    void runGenerator(Utils::Id id) override;
+    ProjectExplorer::ExtraCompiler *findExtraCompiler(
+            const ExtraCompilerFilter &filter) const override;
+
     enum ForceEnabledChanged { False, True };
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
 
@@ -203,8 +208,8 @@ private:
 
     // CTest integration
     Utils::FilePath m_ctestPath;
+    std::unique_ptr<Utils::QtcProcess> m_ctestProcess;
     QList<ProjectExplorer::TestCaseInfo> m_testNames;
-    Utils::FutureSynchronizer m_futureSynchronizer;
 
     CMakeConfig m_configurationFromCMake;
     CMakeConfig m_configurationChanges;

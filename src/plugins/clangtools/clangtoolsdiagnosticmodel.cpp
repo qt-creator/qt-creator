@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtoolsdiagnosticmodel.h"
 
 #include "clangtoolsdiagnosticview.h"
 #include "clangtoolsprojectsettings.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
 
@@ -190,11 +191,11 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
     QList<StringPair> lines;
 
     if (!step.message.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::ExplainingStep", "Message:"),
+        lines.push_back({Tr::tr("Message:"),
                          step.message.toHtmlEscaped()});
     }
 
-    lines.push_back({QCoreApplication::translate("ClangTools::ExplainingStep", "Location:"),
+    lines.push_back({Tr::tr("Location:"),
                      createFullLocationString(step.location)});
 
     QString html = QLatin1String("<html>"

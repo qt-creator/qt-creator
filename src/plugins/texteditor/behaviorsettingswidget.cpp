@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "behaviorsettingswidget.h"
 
@@ -9,6 +9,7 @@
 #include "simplecodestylepreferenceswidget.h"
 #include "storagesettings.h"
 #include "tabsettingswidget.h"
+#include "texteditortr.h"
 #include "typingsettings.h"
 
 #include <coreplugin/coreconstants.h>
@@ -32,7 +33,6 @@ namespace TextEditor {
 
 struct BehaviorSettingsWidgetPrivate
 {
-
     SimpleCodeStylePreferencesWidget *tabPreferencesWidget;
     QComboBox *tabKeyBehavior;
     QComboBox *smartBackspaceBehavior;
@@ -71,15 +71,15 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->tabPreferencesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed); // FIXME: Desirable?
 
     d->tabKeyBehavior = new QComboBox;
-    d->tabKeyBehavior->addItem(tr("Never"));
-    d->tabKeyBehavior->addItem(tr("Always"));
-    d->tabKeyBehavior->addItem(tr("In Leading White Space"));
+    d->tabKeyBehavior->addItem(Tr::tr("Never"));
+    d->tabKeyBehavior->addItem(Tr::tr("Always"));
+    d->tabKeyBehavior->addItem(Tr::tr("In Leading White Space"));
 
     d->smartBackspaceBehavior = new QComboBox;
-    d->smartBackspaceBehavior->addItem(tr("None"));
-    d->smartBackspaceBehavior->addItem(tr("Follows Previous Indents"));
-    d->smartBackspaceBehavior->addItem(tr("Unindents"));
-    d->smartBackspaceBehavior->setToolTip(tr("<html><head/><body>\n"
+    d->smartBackspaceBehavior->addItem(Tr::tr("None"));
+    d->smartBackspaceBehavior->addItem(Tr::tr("Follows Previous Indents"));
+    d->smartBackspaceBehavior->addItem(Tr::tr("Unindents"));
+    d->smartBackspaceBehavior->setToolTip(Tr::tr("<html><head/><body>\n"
 "Specifies how backspace interacts with indentation.\n"
 "\n"
 "<ul>\n"
@@ -94,43 +94,43 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 "</ul></body></html>\n"
 ""));
 
-    d->autoIndent = new QCheckBox(tr("Enable automatic &indentation"));
+    d->autoIndent = new QCheckBox(Tr::tr("Enable automatic &indentation"));
 
-    d->preferSingleLineComments = new QCheckBox(tr("Prefer single line comments"));
+    d->preferSingleLineComments = new QCheckBox(Tr::tr("Prefer single line comments"));
 
-    d->skipTrailingWhitespace = new QCheckBox(tr("Skip clean whitespace for file types:"));
-    d->skipTrailingWhitespace->setToolTip(tr("For the file patterns listed, do not trim trailing whitespace."));
+    d->skipTrailingWhitespace = new QCheckBox(Tr::tr("Skip clean whitespace for file types:"));
+    d->skipTrailingWhitespace->setToolTip(Tr::tr("For the file patterns listed, do not trim trailing whitespace."));
     d->skipTrailingWhitespace->setEnabled(false);
     d->skipTrailingWhitespace->setChecked(false);
 
     d->ignoreFileTypes = new QLineEdit;
     d->ignoreFileTypes->setEnabled(false);
     d->ignoreFileTypes->setAcceptDrops(false);
-    d->ignoreFileTypes->setToolTip(tr("List of wildcard-aware file patterns, separated by commas or semicolons."));
+    d->ignoreFileTypes->setToolTip(Tr::tr("List of wildcard-aware file patterns, separated by commas or semicolons."));
 
-    d->addFinalNewLine = new QCheckBox(tr("&Ensure newline at end of file"));
-    d->addFinalNewLine->setToolTip(tr("Always writes a newline character at the end of the file."));
+    d->addFinalNewLine = new QCheckBox(Tr::tr("&Ensure newline at end of file"));
+    d->addFinalNewLine->setToolTip(Tr::tr("Always writes a newline character at the end of the file."));
 
-    d->cleanWhitespace = new QCheckBox(tr("&Clean whitespace"));
-    d->cleanWhitespace->setToolTip(tr("Removes trailing whitespace upon saving."));
+    d->cleanWhitespace = new QCheckBox(Tr::tr("&Clean whitespace"));
+    d->cleanWhitespace->setToolTip(Tr::tr("Removes trailing whitespace upon saving."));
 
-    d->cleanIndentation = new QCheckBox(tr("Clean indentation"));
+    d->cleanIndentation = new QCheckBox(Tr::tr("Clean indentation"));
     d->cleanIndentation->setEnabled(false);
-    d->cleanIndentation->setToolTip(tr("Corrects leading whitespace according to tab settings."));
+    d->cleanIndentation->setToolTip(Tr::tr("Corrects leading whitespace according to tab settings."));
 
-    d->inEntireDocument = new QCheckBox(tr("In entire &document"));
+    d->inEntireDocument = new QCheckBox(Tr::tr("In entire &document"));
     d->inEntireDocument->setEnabled(false);
-    d->inEntireDocument->setToolTip(tr("Cleans whitespace in entire document instead of only for changed parts."));
+    d->inEntireDocument->setToolTip(Tr::tr("Cleans whitespace in entire document instead of only for changed parts."));
 
     d->encodingBox = new CodecChooser;
     d->encodingBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     d->encodingBox->setMinimumContentsLength(20);
 
     d->utf8BomBox = new QComboBox;
-    d->utf8BomBox->addItem(tr("Add If Encoding Is UTF-8"));
-    d->utf8BomBox->addItem(tr("Keep If Already Present"));
-    d->utf8BomBox->addItem(tr("Always Delete"));
-    d->utf8BomBox->setToolTip(tr("<html><head/><body>\n"
+    d->utf8BomBox->addItem(Tr::tr("Add If Encoding Is UTF-8"));
+    d->utf8BomBox->addItem(Tr::tr("Keep If Already Present"));
+    d->utf8BomBox->addItem(Tr::tr("Always Delete"));
+    d->utf8BomBox->setToolTip(Tr::tr("<html><head/><body>\n"
 "<p>How text editors should deal with UTF-8 Byte Order Marks. The options are:</p>\n"
 "<ul ><li><i>Add If Encoding Is UTF-8:</i> always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is <i>System</i>, as the text editor does not know what it actually is.</li>\n"
 "<li><i>Keep If Already Present: </i>save the file with a BOM if it already had one when it was loaded.</li>\n"
@@ -141,29 +141,29 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->defaultLineEndings = new QComboBox;
     d->defaultLineEndings->addItems(ExtraEncodingSettings::lineTerminationModeNames());
 
-    d->mouseHiding = new QCheckBox(tr("Hide mouse cursor while typing"));
-    d->mouseNavigation = new QCheckBox(tr("Enable &mouse navigation"));
-    d->scrollWheelZooming = new QCheckBox(tr("Enable scroll &wheel zooming"));
-    d->camelCaseNavigation = new QCheckBox(tr("Enable built-in camel case &navigation"));
+    d->mouseHiding = new QCheckBox(Tr::tr("Hide mouse cursor while typing"));
+    d->mouseNavigation = new QCheckBox(Tr::tr("Enable &mouse navigation"));
+    d->scrollWheelZooming = new QCheckBox(Tr::tr("Enable scroll &wheel zooming"));
+    d->camelCaseNavigation = new QCheckBox(Tr::tr("Enable built-in camel case &navigation"));
 
-    d->smartSelectionChanging = new QCheckBox(tr("Enable smart selection changing"));
-    d->smartSelectionChanging->setToolTip(tr("Using Select Block Up / Down actions will now provide smarter selections."));
+    d->smartSelectionChanging = new QCheckBox(Tr::tr("Enable smart selection changing"));
+    d->smartSelectionChanging->setToolTip(Tr::tr("Using Select Block Up / Down actions will now provide smarter selections."));
 
-    d->keyboardTooltips = new QCheckBox(tr("Show help tooltips using keyboard shortcut (Alt)"));
-    d->keyboardTooltips->setToolTip(tr("Pressing Alt displays context-sensitive help or type information as tooltips."));
+    d->keyboardTooltips = new QCheckBox(Tr::tr("Show help tooltips using keyboard shortcut (Alt)"));
+    d->keyboardTooltips->setToolTip(Tr::tr("Pressing Alt displays context-sensitive help or type information as tooltips."));
 
     d->constrainTooltipsBox = new QComboBox;
-    d->constrainTooltipsBox->addItem(tr("On Mouseover"));
-    d->constrainTooltipsBox->addItem(tr("On Shift+Mouseover"));
+    d->constrainTooltipsBox->addItem(Tr::tr("On Mouseover"));
+    d->constrainTooltipsBox->addItem(Tr::tr("On Shift+Mouseover"));
 
-    d->groupBoxTyping = new QGroupBox(tr("Typing"));
+    d->groupBoxTyping = new QGroupBox(Tr::tr("Typing"));
 
-    d->groupBoxStorageSettings = new QGroupBox(tr("Cleanups Upon Saving"));
-    d->groupBoxStorageSettings->setToolTip(tr("Cleanup actions which are automatically performed "
+    d->groupBoxStorageSettings = new QGroupBox(Tr::tr("Cleanups Upon Saving"));
+    d->groupBoxStorageSettings->setToolTip(Tr::tr("Cleanup actions which are automatically performed "
                                               "right before the file is saved to disk."));
-    d->groupBoxEncodings = new QGroupBox(tr("File Encodings"));
+    d->groupBoxEncodings = new QGroupBox(Tr::tr("File Encodings"));
 
-    d->groupBoxMouse = new QGroupBox(tr("Mouse and Keyboard"));
+    d->groupBoxMouse = new QGroupBox(Tr::tr("Mouse and Keyboard"));
 
     using namespace Utils::Layouting;
 
@@ -171,9 +171,9 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     Column {
         d->autoIndent,
-        tr("Backspace indentation:"),
+        Tr::tr("Backspace indentation:"),
             indent(d->smartBackspaceBehavior),
-        tr("Tab key performs auto-indent:"),
+        Tr::tr("Tab key performs auto-indent:"),
             indent(d->tabKeyBehavior),
         d->preferSingleLineComments
     }.attachTo(d->groupBoxTyping);
@@ -188,9 +188,9 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     Row {
         Form {
-            tr("Default encoding:"), d->encodingBox, br,
-            tr("UTF-8 BOM:"), d->utf8BomBox, br,
-            tr("Default line endings:"), d->defaultLineEndings, br,
+            Tr::tr("Default encoding:"), d->encodingBox, br,
+            Tr::tr("UTF-8 BOM:"), d->utf8BomBox, br,
+            Tr::tr("Default line endings:"), d->defaultLineEndings, br,
         }, st
     }.attachTo(d->groupBoxEncodings);
 
@@ -201,7 +201,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         d->camelCaseNavigation,
         d->smartSelectionChanging,
         d->keyboardTooltips,
-        tr("Show help tooltips using the mouse:"),
+        Tr::tr("Show help tooltips using the mouse:"),
             Row { Space(30), d->constrainTooltipsBox, st }
     }.attachTo(d->groupBoxMouse);
 
@@ -332,10 +332,10 @@ void BehaviorSettingsWidget::updateConstrainTooltipsBoxTooltip() const
 {
     if (d->constrainTooltipsBox->currentIndex() == 0) {
         d->constrainTooltipsBox->setToolTip(
-            tr("Displays context-sensitive help or type information on mouseover."));
+            Tr::tr("Displays context-sensitive help or type information on mouseover."));
     } else {
         d->constrainTooltipsBox->setToolTip(
-            tr("Displays context-sensitive help or type information on Shift+Mouseover."));
+            Tr::tr("Displays context-sensitive help or type information on Shift+Mouseover."));
     }
 }
 

@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../shared/qmls.py")
 
@@ -37,20 +37,19 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.SampleApp.qml\\.qrc./.MyComponent\\.qml"
+    myCompTE = "SampleApp.appSampleApp.MyComponent\\.qml"
     # there should be new QML file generated with name "MyComponent.qml"
     try:
-        waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 5000)
+        # openDocument() doesn't wait for expected elements, so it might be faster than the updates
+        # to the tree. Explicitly wait here to avoid timing issues. Using wFOI() instead of
+        # snooze() allows to proceed earlier, just in case it can find the item.
+        waitForObjectItem(":Qt Creator_Utils::NavigationTreeView",
+                          addBranchWildcardToRoot(myCompTE), 2000)
     except:
-        try:
-            waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", addBranchWildcardToRoot(myCompTE), 1000)
-        except:
-            test.fail("Refactoring failed - file MyComponent.qml was not generated properly in project explorer")
-            saveAndExit()
-            return
-    test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
+        pass
     # open MyComponent.qml file for verification
-    if not openDocument(myCompTE):
+    if not test.verify(openDocument(myCompTE),
+                       "Was MyComponent.qml properly generated in project explorer?"):
         test.fatal("Could not open MyComponent.qml.")
         saveAndExit()
         return

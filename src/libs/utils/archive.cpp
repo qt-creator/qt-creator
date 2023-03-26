@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "archive.h"
 
@@ -7,6 +7,7 @@
 #include "mimeutils.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
+#include "utilstr.h"
 
 #include <QSettings>
 
@@ -105,8 +106,8 @@ static std::optional<Tool> unzipTool(const FilePath &src, const FilePath &dest)
         const std::optional<Tool> resolvedTool = resolveTool(tool);
         if (resolvedTool) {
             Tool result = *resolvedTool;
-            const QString srcStr = src.toString();
-            const QString destStr = dest.toString();
+            const QString srcStr = src.path();
+            const QString destStr = dest.path();
             const QString args = result.command.arguments().replace("%{src}", srcStr).replace("%{dest}", destStr);
             result.command.setArguments(args);
             return result;
@@ -120,15 +121,15 @@ bool Archive::supportsFile(const FilePath &filePath, QString *reason)
     const QVector<Tool> tools = toolsForFilePath(filePath);
     if (tools.isEmpty()) {
         if (reason)
-            *reason = tr("File format not supported.");
+            *reason = Tr::tr("File format not supported.");
         return false;
     }
     if (!anyOf(tools, [tools](const Tool &t) { return resolveTool(t); })) {
         if (reason) {
             const QStringList execs = transform<QStringList>(tools, [](const Tool &tool) {
-                return tool.command.executable().toString();
+                return tool.command.executable().toUserOutput();
             });
-            *reason = tr("Could not find any unarchiving executable in PATH (%1).")
+            *reason = Tr::tr("Could not find any unarchiving executable in PATH (%1).")
                           .arg(execs.join(", "));
         }
         return false;
@@ -162,16 +163,16 @@ void Archive::unarchive()
     m_process.reset(new QtcProcess);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit outputReceived(QString::fromUtf8(m_process->readAllStandardOutput()));
+        emit outputReceived(m_process->readAllStandardOutput());
     });
     QObject::connect(m_process.get(), &QtcProcess::done, this, [this] {
         const bool successfulFinish = m_process->result() == ProcessResult::FinishedWithSuccess;
         if (!successfulFinish)
-            emit outputReceived(tr("Command failed."));
+            emit outputReceived(Tr::tr("Command failed."));
         emit finished(successfulFinish);
     });
 
-    emit outputReceived(tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
+    emit outputReceived(Tr::tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
                  .arg(m_commandLine.toUserOutput(), m_workingDirectory.toUserOutput()));
 
     m_process->setCommand(m_commandLine);

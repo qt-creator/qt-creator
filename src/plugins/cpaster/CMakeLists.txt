@@ -3,7 +3,7 @@ add_subdirectory(frontend)
 add_qtc_plugin(CodePaster
   PLUGIN_DEPENDS Core TextEditor
   DEFINES CPASTER_PLUGIN_GUI
-  DEPENDS Qt5::Network
+  DEPENDS Qt::Network
   INCLUDES ../../shared/cpaster
   SOURCES
     codepasterservice.h

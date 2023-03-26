@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "corejsextensions.h"
 
@@ -16,8 +16,9 @@
 #include <QVariant>
 #include <QVersionNumber>
 
-namespace Core {
-namespace Internal {
+using namespace Utils;
+
+namespace Core::Internal {
 
 QString UtilsJsExtension::qtVersion() const
 {
@@ -83,7 +84,9 @@ QString UtilsJsExtension::absoluteFilePath(const QString &in) const
 
 QString UtilsJsExtension::relativeFilePath(const QString &path, const QString &base) const
 {
-    return QDir(base).relativeFilePath(path);
+    const FilePath basePath = FilePath::fromString(base).cleanPath();
+    const FilePath filePath = FilePath::fromString(path).cleanPath();
+    return FilePath::calcRelativePath(filePath.toFSPathString(), basePath.toFSPathString());
 }
 
 bool UtilsJsExtension::exists(const QString &in) const
@@ -129,7 +132,8 @@ QString UtilsJsExtension::mktemp(const QString &pattern) const
 
     QTemporaryFile file(tmp);
     file.setAutoRemove(false);
-    QTC_ASSERT(file.open(), return QString());
+    const bool isOpen = file.open();
+    QTC_ASSERT(isOpen, return {});
     file.close();
     return file.fileName();
 }
@@ -175,5 +179,4 @@ QString UtilsJsExtension::qtQuickVersion(const QString &filePath) const
     return QLatin1String("2.15");
 }
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

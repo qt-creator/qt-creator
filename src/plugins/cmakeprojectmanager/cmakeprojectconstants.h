@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -18,6 +18,13 @@ const char BUILD_FILE[] = "CMakeProject.BuildFile";
 const char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
 const char QML_DEBUG_SETTING[] = "CMakeProject.EnableQmlDebugging";
 
+const char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
+const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";
+const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
+const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
+
+const char PACKAGE_MANAGER_DIR[] = ".qtc/package-manager";
+
 // Project
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
@@ -29,6 +36,7 @@ const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 namespace Settings {
 const char GENERAL_ID[] = "CMakeSpecifcSettings";
 const char TOOLS_ID[] = "K.CMake.Tools";
+const char FORMATTER_ID[] = "K.CMake.Formatter";
 const char CATEGORY[] = "K.CMake";
 } // namespace Settings
 
@@ -46,12 +54,18 @@ const char BUILD_TARGET_CONTEXT_MENU[] = "CMake.BuildTargetContextMenu";
 // Build Step
 const char CMAKE_BUILD_STEP_ID[] = "CMakeProjectManager.MakeStep";
 
+// Install Step
+const char CMAKE_INSTALL_STEP_ID[] = "CMakeProjectManager.InstallStep";
+
+
 // Features
 const char CMAKE_FEATURE_ID[] = "CMakeProjectManager.Wizard.FeatureCMake";
 
 // Tool
 const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 
+// Data
+const char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";
 
 } // namespace Constants
 } // namespace CMakeProjectManager

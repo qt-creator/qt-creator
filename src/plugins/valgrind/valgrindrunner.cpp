@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "valgrindrunner.h"
 
@@ -34,12 +34,10 @@ public:
             emit q->finished();
         });
         connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-            emit q->appendMessage(QString::fromUtf8(m_process.readAllStandardOutput()),
-                                  StdOutFormat);
+            emit q->appendMessage(m_process.readAllStandardOutput(), StdOutFormat);
         });
         connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-            emit q->appendMessage(QString::fromUtf8(m_process.readAllStandardError()),
-                                  StdErrFormat);
+            emit q->appendMessage(m_process.readAllStandardError(), StdErrFormat);
         });
 
         connect(&m_xmlServer, &QTcpServer::newConnection, this, &Private::xmlSocketConnected);

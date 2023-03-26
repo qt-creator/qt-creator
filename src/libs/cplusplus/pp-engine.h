@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 /*
   Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
@@ -29,12 +29,16 @@
 #include <cplusplus/Lexer.h>
 #include <cplusplus/Token.h>
 
+#include <utils/guard.h>
+
 #include <QVector>
 #include <QBitArray>
 #include <QByteArray>
 #include <QPair>
 
 #include <functional>
+
+namespace Utils { class FilePath; }
 
 namespace CPlusPlus {
 
@@ -52,11 +56,13 @@ class CPLUSPLUS_EXPORT Preprocessor
     typedef Internal::Value Value;
 
 public:
-    static QString configurationFileName();
+    static const Utils::FilePath &configurationFileName();
 
 public:
     Preprocessor(Client *client, Environment *env);
 
+    QByteArray run(const Utils::FilePath &filePath, const QByteArray &source,
+                   bool noLines = false, bool markGeneratedTokens = true);
     QByteArray run(const QString &filename, const QByteArray &source,
                    bool noLines = false, bool markGeneratedTokens = true);
 
@@ -237,6 +243,7 @@ private:
     Environment *m_env;
     QByteArray m_scratchBuffer;
     CancelChecker m_cancelChecker;
+    Utils::Guard m_includeDepthGuard;
 
     bool m_expandFunctionlikeMacros;
     bool m_keepComments;

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,8 +17,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckTool;
 class CppcheckTrigger;
@@ -48,7 +47,6 @@ public:
 
 class OptionsWidget final : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CppcheckOptionsPage)
 public:
     explicit OptionsWidget(QWidget *parent = nullptr);
     void load(const CppcheckOptions &options);
@@ -74,7 +72,6 @@ private:
 
 class CppcheckOptionsPage final : public Core::IOptionsPage
 {
-    Q_OBJECT
 public:
     explicit CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &trigger);
 
@@ -91,5 +88,4 @@ private:
     QPointer<OptionsWidget> m_widget;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

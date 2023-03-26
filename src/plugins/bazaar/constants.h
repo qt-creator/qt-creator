@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -23,15 +23,15 @@ const char ANNOTATE_CHANGESET_ID[] = "([.0-9]+)";
 
 // Base editor parameters
 const char FILELOG_ID[] = "Bazaar File Log Editor";
-const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar File Log Editor");
+const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar File Log Editor");
 const char LOGAPP[] = "text/vnd.qtcreator.bazaar.log";
 
 const char ANNOTATELOG_ID[] = "Bazaar Annotation Editor";
-const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Annotation Editor");
+const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Annotation Editor");
 const char ANNOTATEAPP[] = "text/vnd.qtcreator.bazaar.annotation";
 
 const char DIFFLOG_ID[] = "Bazaar Diff Editor";
-const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Diff Editor");
+const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::VcsBase", "Bazaar Diff Editor");
 const char DIFFAPP[] = "text/x-patch";
 
 // File status hint

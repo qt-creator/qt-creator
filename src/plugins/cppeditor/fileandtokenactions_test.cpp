@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fileandtokenactions_test.h"
 
@@ -51,6 +51,7 @@
 using namespace Core;
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor::Internal::Tests {
 
@@ -129,24 +130,24 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     QVERIFY(waitUntilAProjectIsLoaded());
 
     // Collect files to process
-    QStringList filesToOpen;
+    FilePaths filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
     const QList<ProjectInfo::ConstPtr> projectInfos = m_modelManager->projectInfos();
 
    for (const ProjectInfo::ConstPtr &info : projectInfos) {
         qDebug() << "Project" << info->projectFilePath().toUserOutput() << "- files to process:"
                  << info->sourceFiles().size();
-       const QSet<QString> sourceFiles = info->sourceFiles();
-       for (const QString &sourceFile : sourceFiles)
+       const QSet<FilePath> sourceFiles = info->sourceFiles();
+       for (const FilePath &sourceFile : sourceFiles)
             filesToOpen << sourceFile;
     }
 
     Utils::sort(filesToOpen);
 
     // Process all files from the projects
-    for (const QString &filePath : std::as_const(filesToOpen)) {
+    for (const FilePath &filePath : std::as_const(filesToOpen)) {
         // Skip e.g. "<configuration>"
-        if (!QFileInfo::exists(filePath))
+        if (!filePath.exists())
             continue;
 
         qDebug() << " --" << filePath;
@@ -175,7 +176,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
 
         const Snapshot snapshot = globalSnapshot();
         Document::Ptr document = snapshot.preprocessedDocument(
-            editorWidget->document()->toPlainText().toUtf8(), Utils::FilePath::fromString(filePath));
+            editorWidget->document()->toPlainText().toUtf8(), filePath);
         QVERIFY(document);
         document->parse();
         TranslationUnit *translationUnit = document->translationUnit();

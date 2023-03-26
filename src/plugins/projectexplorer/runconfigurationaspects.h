@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -29,7 +29,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public Utils::BaseAspect
 public:
     TerminalAspect();
 
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     bool useTerminal() const;
     void setUseTerminalHint(bool useTerminal);
@@ -62,7 +62,7 @@ public:
     explicit WorkingDirectoryAspect(const Utils::MacroExpander *expander,
                                     EnvironmentAspect *envAspect);
 
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     Utils::FilePath workingDirectory() const;
     Utils::FilePath defaultWorkingDirectory() const;
@@ -91,7 +91,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
 public:
     explicit ArgumentsAspect(const Utils::MacroExpander *macroExpander);
 
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     QString arguments() const;
     QString unexpandedArguments() const;
@@ -163,12 +163,13 @@ public:
 
     void setSettingsKey(const QString &key);
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironmentChange(const Utils::EnvironmentChange &change);
+    void setEnvironment(const Utils::Environment &env);
     void setDisplayStyle(Utils::StringAspect::DisplayStyle style);
 
     struct Data : BaseAspect::Data
@@ -235,7 +236,7 @@ public:
 
     void fromMap(const QVariantMap &) override;
     void toMap(QVariantMap &) const override;
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     struct Data : Utils::BaseAspect::Data { Interpreter interpreter; };
 
@@ -255,6 +256,21 @@ class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::StringAspect
 
 public:
     MainScriptAspect() = default;
+};
+
+class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    X11ForwardingAspect(const Utils::MacroExpander *macroExpander);
+
+    struct Data : StringAspect::Data { QString display; };
+
+    QString display() const;
+
+private:
+    const Utils::MacroExpander *m_macroExpander;
 };
 
 } // namespace ProjectExplorer

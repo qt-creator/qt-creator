@@ -1,16 +1,17 @@
 // Copyright (C) 2016 Przemyslaw Gorszkowski <pgorszkowski@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppincludehierarchy.h"
 
 #include "baseeditordocumentprocessor.h"
-#include "editordocumenthandle.h"
-#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
+#include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppmodelmanager.h"
+#include "editordocumenthandle.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
@@ -58,24 +59,24 @@ static Snapshot globalSnapshot()
 struct FileAndLine
 {
     FileAndLine() = default;
-    FileAndLine(const QString &f, int l) : file(f), line(l) {}
+    FileAndLine(const FilePath &f, int l) : file(f), line(l) {}
 
-    QString file;
+    FilePath file;
     int line = 0;
 };
 
 using FileAndLines = QList<FileAndLine>;
 
-static FileAndLines findIncluders(const QString &filePath)
+static FileAndLines findIncluders(const FilePath &filePath)
 {
     FileAndLines result;
     const Snapshot snapshot = globalSnapshot();
     for (auto cit = snapshot.begin(), citEnd = snapshot.end(); cit != citEnd; ++cit) {
-        const QString filePathFromSnapshot = cit.key().toString();
+        const FilePath filePathFromSnapshot = cit.key();
         Document::Ptr doc = cit.value();
         const QList<Document::Include> resolvedIncludes = doc->resolvedIncludes();
         for (const auto &includeFile : resolvedIncludes) {
-            const QString includedFilePath = includeFile.resolvedFileName();
+            const FilePath includedFilePath = includeFile.resolvedFileName();
             if (includedFilePath == filePath)
                 result.append(FileAndLine(filePathFromSnapshot, int(includeFile.line())));
         }
@@ -83,7 +84,7 @@ static FileAndLines findIncluders(const QString &filePath)
     return result;
 }
 
-static FileAndLines findIncludes(const QString &filePath, const Snapshot &snapshot)
+static FileAndLines findIncludes(const FilePath &filePath, const Snapshot &snapshot)
 {
     FileAndLines result;
     if (Document::Ptr doc = snapshot.document(filePath)) {
@@ -101,11 +102,11 @@ public:
     enum SubTree { RootItem, InIncludes, InIncludedBy };
     CppIncludeHierarchyItem() = default;
 
-    void createChild(const QString &filePath, SubTree subTree,
+    void createChild(const FilePath &filePath, SubTree subTree,
                      int line = 0, bool definitelyNoChildren = false)
     {
         auto item = new CppIncludeHierarchyItem;
-        item->m_fileName = filePath.mid(filePath.lastIndexOf('/') + 1);
+        item->m_fileName = filePath.fileName();
         item->m_filePath = filePath;
         item->m_line = line;
         item->m_subTree = subTree;
@@ -120,7 +121,7 @@ public:
             item->setChildrenChecked();
     }
 
-    QString filePath() const
+    FilePath filePath() const
     {
         return isPhony() ? model()->editorFilePath() : m_filePath;
     }
@@ -138,7 +139,7 @@ private:
 
     Qt::ItemFlags flags(int) const override
     {
-        const Utils::Link link(Utils::FilePath::fromString(m_filePath), m_line);
+        const Utils::Link link(m_filePath, m_line);
         if (link.hasValidTarget())
             return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -148,7 +149,7 @@ private:
     void fetchMore() override;
 
     QString m_fileName;
-    QString m_filePath;
+    FilePath m_filePath;
     int m_line = 0;
     SubTree m_subTree = RootItem;
     bool m_isCyclic = false;
@@ -160,9 +161,9 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
     Q_UNUSED(column)
     if (role == Qt::DisplayRole) {
         if (isPhony() && childCount() == 0)
-            return QString(m_fileName + ' ' + CppIncludeHierarchyModel::tr("(none)"));
+            return QString(m_fileName + ' ' + Tr::tr("(none)"));
         if (m_isCyclic)
-            return QString(m_fileName + ' ' + CppIncludeHierarchyModel::tr("(cyclic)"));
+            return QString(m_fileName + ' ' + Tr::tr("(cyclic)"));
         return m_fileName;
     }
 
@@ -171,11 +172,11 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
 
     switch (role) {
         case Qt::ToolTipRole:
-            return m_filePath;
+            return m_filePath.displayName();
         case Qt::DecorationRole:
-            return FileIconProvider::icon(FilePath::fromString(m_filePath));
+            return FileIconProvider::icon(m_filePath);
         case LinkRole:
-            return QVariant::fromValue(Link(FilePath::fromString(m_filePath), m_line));
+            return QVariant::fromValue(Link(m_filePath, m_line));
     }
 
     return QVariant();
@@ -197,7 +198,7 @@ void CppIncludeHierarchyItem::fetchMore()
 
     model()->m_seen.insert(m_filePath);
 
-    const QString editorFilePath = model()->editorFilePath();
+    const FilePath editorFilePath = model()->editorFilePath();
 
     setChildrenChecked();
     if (m_subTree == InIncludes) {
@@ -220,12 +221,14 @@ void CppIncludeHierarchyItem::fetchMore()
     }
 }
 
-void CppIncludeHierarchyModel::buildHierarchy(const QString &document)
+void CppIncludeHierarchyModel::buildHierarchy(const FilePath &document)
 {
     m_editorFilePath = document;
     rootItem()->removeChildren();
-    rootItem()->createChild(tr("Includes"), CppIncludeHierarchyItem::InIncludes);
-    rootItem()->createChild(tr("Included by"), CppIncludeHierarchyItem::InIncludedBy);
+    rootItem()->createChild(FilePath::fromPathPart(Tr::tr("Includes")),
+                            CppIncludeHierarchyItem::InIncludes);
+    rootItem()->createChild(FilePath::fromPathPart(Tr::tr("Included by")),
+                            CppIncludeHierarchyItem::InIncludedBy);
 }
 
 void CppIncludeHierarchyModel::setSearching(bool on)
@@ -366,7 +369,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
     m_treeView->setItemDelegate(&m_delegate);
     connect(m_treeView, &QAbstractItemView::activated, this, &CppIncludeHierarchyWidget::onItemActivated);
 
-    m_includeHierarchyInfoLabel = new QLabel(tr("No include hierarchy available"), this);
+    m_includeHierarchyInfoLabel = new QLabel(Tr::tr("No include hierarchy available"), this);
     m_includeHierarchyInfoLabel->setAlignment(Qt::AlignCenter);
     m_includeHierarchyInfoLabel->setAutoFillBackground(true);
     m_includeHierarchyInfoLabel->setBackgroundRole(QPalette::Base);
@@ -381,7 +384,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
     m_toggleSync = new QToolButton(this);
     m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
-    m_toggleSync->setToolTip(tr("Synchronize with Editor"));
+    m_toggleSync->setToolTip(Tr::tr("Synchronize with Editor"));
     connect(m_toggleSync, &QToolButton::clicked,
             this, &CppIncludeHierarchyWidget::syncFromEditorManager);
 
@@ -411,7 +414,7 @@ void CppIncludeHierarchyWidget::perform()
         return;
 
     const Utils::FilePath documentPath = m_editor->textDocument()->filePath();
-    m_model.buildHierarchy(documentPath.toString());
+    m_model.buildHierarchy(documentPath);
 
     m_inspectedFile->setText(m_editor->textDocument()->displayName());
     m_inspectedFile->setLink(Utils::Link(documentPath));
@@ -494,7 +497,7 @@ void CppIncludeHierarchyWidget::syncFromEditorManager()
 
 CppIncludeHierarchyFactory::CppIncludeHierarchyFactory()
 {
-    setDisplayName(tr("Include Hierarchy"));
+    setDisplayName(Tr::tr("Include Hierarchy"));
     setPriority(800);
     setId(Constants::INCLUDE_HIERARCHY_ID);
 }

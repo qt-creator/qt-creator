@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iassistproposalwidget.h"
+
+#include "assistinterface.h"
 
 using namespace TextEditor;
 
@@ -29,6 +31,11 @@ using namespace TextEditor;
 IAssistProposalWidget::IAssistProposalWidget()
     : QFrame(nullptr, Qt::Popup)
 {}
+
+void IAssistProposalWidget::updateProposal(std::unique_ptr<AssistInterface> &&interface)
+{
+    filterProposal(interface->textAt(m_basePosition, interface->position() - m_basePosition));
+}
 
 IAssistProposalWidget::~IAssistProposalWidget() = default;
 

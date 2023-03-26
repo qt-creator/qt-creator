@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cpplocatordata.h"
 
-#include "stringtable.h"
+#include <utils/stringtable.h>
+
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -25,7 +27,7 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
     bool isPending = false;
     for (int i = 0, ei = m_pendingDocuments.size(); i < ei; ++i) {
         const CPlusPlus::Document::Ptr &doc = m_pendingDocuments.at(i);
-        if (doc->fileName() == document->fileName()) {
+        if (doc->filePath() == document->filePath()) {
             isPending = true;
             if (document->revision() >= doc->revision())
                 m_pendingDocuments[i] = document;
@@ -33,7 +35,7 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
         }
     }
 
-    if (!isPending && QFileInfo(document->fileName()).suffix() != "moc")
+    if (!isPending && document->filePath().suffix() != "moc")
         m_pendingDocuments.append(document);
 
     flushPendingDocument(false);
@@ -50,14 +52,14 @@ void CppLocatorData::onAboutToRemoveFiles(const QStringList &files)
         m_infosByFile.remove(file);
 
         for (int i = 0; i < m_pendingDocuments.size(); ++i) {
-            if (m_pendingDocuments.at(i)->fileName() == file) {
+            if (m_pendingDocuments.at(i)->filePath().path() == file) {
                 m_pendingDocuments.remove(i);
                 break;
             }
         }
     }
 
-    Internal::StringTable::scheduleGC();
+    StringTable::scheduleGC();
     flushPendingDocument(false);
 }
 
@@ -70,7 +72,7 @@ void CppLocatorData::flushPendingDocument(bool force) const
         return;
 
     for (CPlusPlus::Document::Ptr doc : std::as_const(m_pendingDocuments))
-        m_infosByFile.insert(Internal::StringTable::insert(doc->fileName()), m_search(doc));
+        m_infosByFile.insert(StringTable::insert(doc->filePath().toString()), m_search(doc));
 
     m_pendingDocuments.clear();
     m_pendingDocuments.reserve(MaxPendingDocuments);

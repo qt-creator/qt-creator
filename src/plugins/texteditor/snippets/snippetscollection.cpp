@@ -1,18 +1,20 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snippetscollection.h"
+
 #include "snippetprovider.h"
 #include "reuse.h"
+#include "../texteditortr.h"
 
 #include <coreplugin/icore.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
-#include <QLatin1String>
 #include <QFile>
-#include <QFileInfo>
 #include <QDir>
 #include <QDebug>
 #include <QXmlStreamReader>
@@ -282,7 +284,7 @@ void SnippetsCollection::reload()
 bool SnippetsCollection::synchronize(QString *errorString)
 {
     if (!m_userSnippetsFile.parentDir().ensureWritableDir()) {
-        *errorString = tr("Cannot create user snippet directory %1")
+        *errorString = Tr::tr("Cannot create user snippet directory %1")
                 .arg(m_userSnippetsFile.parentDir().toUserOutput());
         return false;
     }
@@ -354,8 +356,7 @@ QList<Snippet> SnippetsCollection::readXML(const FilePath &fileName, const QStri
                         } else if (isGroupKnown(groupId) && (snippetId.isEmpty() || snippetId == id)) {
                             Snippet snippet(groupId, id);
                             snippet.setTrigger(trigger);
-                            snippet.setComplement(QCoreApplication::translate(
-                                                      "TextEditor::Internal::Snippets",
+                            snippet.setComplement(Tr::tr(
                                                       atts.value(kComplement).toString().toLatin1(),
                                                       atts.value(kId).toString().toLatin1()));
                             snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));

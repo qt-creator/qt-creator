@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakebuildstep.h"
 
@@ -22,6 +22,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/xcodebuildparser.h>
@@ -29,7 +30,6 @@
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 
-#include <QBoxLayout>
 #include <QListWidget>
 #include <QRegularExpression>
 #include <QTreeView>
@@ -157,7 +157,7 @@ Qt::ItemFlags CMakeTargetItem::flags(int) const
 // CMakeBuildStep
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
-    AbstractProcessStep(bsl, id)
+    CMakeAbstractProcessStep(bsl, id)
 {
     m_cmakeArguments = addAspect<StringAspect>();
     m_cmakeArguments->setSettingsKey(CMAKE_ARGUMENTS_KEY);
@@ -213,7 +213,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
 
 QVariantMap CMakeBuildStep::toMap() const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    QVariantMap map(CMakeAbstractProcessStep::toMap());
     map.insert(BUILD_TARGETS_KEY, m_buildTargets);
     map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
@@ -240,50 +240,19 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
 
 bool CMakeBuildStep::init()
 {
-    if (!AbstractProcessStep::init())
+    if (!CMakeAbstractProcessStep::init())
         return false;
-
-    BuildConfiguration *bc = buildConfiguration();
-    QTC_ASSERT(bc, return false);
-
-    if (!bc->isEnabled()) {
-        emit addTask(BuildSystemTask(Task::Error,
-                                     Tr::tr("The build configuration is currently disabled.")));
-        emitFaultyConfigurationMessage();
-        return false;
-    }
-
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
-    if (!tool || !tool->isValid()) {
-        emit addTask(BuildSystemTask(Task::Error,
-                          Tr::tr("A CMake tool must be set up for building. "
-                             "Configure a CMake tool in the kit options.")));
-        emitFaultyConfigurationMessage();
-        return false;
-    }
 
     if (m_buildTargets.contains(QString())) {
         RunConfiguration *rc = target()->activeRunConfiguration();
         if (!rc || rc->buildKey().isEmpty()) {
             emit addTask(BuildSystemTask(Task::Error,
-                                         QCoreApplication::translate("ProjectExplorer::Task",
+                                         ::ProjectExplorer::Tr::tr(
                                     "You asked to build the current Run Configuration's build target only, "
                                     "but it is not associated with a build target. "
                                     "Update the Make Step in your build settings.")));
             emitFaultyConfigurationMessage();
             return false;
-        }
-    }
-
-    // Warn if doing out-of-source builds with a CMakeCache.txt is the source directory
-    const Utils::FilePath projectDirectory = bc->target()->project()->projectDirectory();
-    if (bc->buildDirectory() != projectDirectory) {
-        if (projectDirectory.pathAppended("CMakeCache.txt").exists()) {
-            emit addTask(BuildSystemTask(Task::Warning,
-                              Tr::tr("There is a CMakeCache.txt file in \"%1\", which suggest an "
-                                 "in-source build was done before. You are now building in \"%2\", "
-                                 "and the CMakeCache.txt file might confuse CMake.")
-                              .arg(projectDirectory.toUserOutput(), bc->buildDirectory().toUserOutput())));
         }
     }
 
@@ -314,46 +283,43 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
         p->setRedirectionDetector(progressParser);
     formatter->addLineParsers(additionalParsers);
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
-    AbstractProcessStep::setupOutputFormatter(formatter);
+    CMakeAbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void CMakeBuildStep::doRun()
 {
     // Make sure CMake state was written to disk before trying to build:
-    m_waiting = false;
     auto bs = static_cast<CMakeBuildSystem *>(buildSystem());
+    QString message;
     if (bs->persistCMakeState()) {
-        emit addOutput(Tr::tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
-        m_waiting = true;
-    } else if (buildSystem()->isWaitingForParse()) {
-        emit addOutput(Tr::tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
-        m_waiting = true;
-    }
-
-    if (m_waiting) {
-        m_runTrigger = connect(target(), &Target::parsingFinished,
-                               this, [this](bool success) { handleProjectWasParsed(success); });
+        message = Tr::tr("Persisting CMake state...");
+    } else if (bs->isWaitingForParse()) {
+        message = Tr::tr("Running CMake in preparation to build...");
     } else {
         runImpl();
+        return;
     }
+    emit addOutput(message, OutputFormat::NormalMessage);
+    m_runTrigger = connect(target(), &Target::parsingFinished,
+                           this, [this](bool success) { handleProjectWasParsed(success); });
 }
 
 void CMakeBuildStep::runImpl()
 {
     // Do the actual build:
-    AbstractProcessStep::doRun();
+    CMakeAbstractProcessStep::doRun();
 }
 
 void CMakeBuildStep::handleProjectWasParsed(bool success)
 {
-    m_waiting = false;
     disconnect(m_runTrigger);
     if (isCanceled()) {
         emit finished(false);
     } else if (success) {
         runImpl();
     } else {
-        AbstractProcessStep::stdError(Tr::tr("Project did not parse successfully, cannot build."));
+        emit addOutput(Tr::tr("Project did not parse successfully, cannot build."),
+                       OutputFormat::ErrorMessage);
         emit finished(false);
     }
 }
@@ -717,10 +683,10 @@ QString CMakeBuildStep::baseEnvironmentText() const
         return Tr::tr("System Environment");
 }
 
-void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
+void CMakeBuildStep::finish(ProcessResult result)
 {
-    AbstractProcessStep::processFinished(exitCode, status);
-    emit progress(100, QString());
+    emit progress(100, {});
+    AbstractProcessStep::finish(result);
 }
 
 // CMakeBuildStepFactory

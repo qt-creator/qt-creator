@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -91,7 +91,6 @@ public:
     template<typename... TypeName>
     bool hasDynamicTypeName(const std::tuple<TypeName...> &typeNames) const
     {
-        auto dynamicTypeName_ = dynamicTypeName();
         return std::apply([&](auto... typeName) { return hasDynamicTypeName(typeName...); },
                           typeNames);
     }

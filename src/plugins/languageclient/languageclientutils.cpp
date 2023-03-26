@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientutils.h"
 
@@ -7,6 +7,7 @@
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
 #include "languageclientoutline.h"
+#include "languageclienttr.h"
 #include "snippet.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
@@ -62,7 +63,7 @@ bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
     if (edits.isEmpty())
         return true;
     const DocumentUri &uri = edit.textDocument().uri();
-    const FilePath &filePath = uri.toFilePath();
+    const FilePath &filePath = client->serverUriToHostPath(uri);
     LanguageClientValue<int> version = edit.textDocument().version();
     if (!version.isNull() && version.value(0) < client->documentVersion(filePath))
         return false;
@@ -71,12 +72,19 @@ bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
 
 bool applyTextEdits(const Client *client, const DocumentUri &uri, const QList<TextEdit> &edits)
 {
+    return applyTextEdits(client, client->serverUriToHostPath(uri), edits);
+}
+
+bool applyTextEdits(const Client *client,
+                    const Utils::FilePath &filePath,
+                    const QList<LanguageServerProtocol::TextEdit> &edits)
+{
     if (edits.isEmpty())
         return true;
     RefactoringChangesData * const backend = client->createRefactoringChangesBackend();
     RefactoringChanges changes(backend);
     RefactoringFilePtr file;
-    file = changes.file(uri.toFilePath());
+    file = changes.file(filePath);
     file->setChangeSet(editsToChangeSet(edits, file->document()));
     if (backend) {
         for (const TextEdit &edit : edits)
@@ -130,7 +138,7 @@ void updateCodeActionRefactoringMarker(Client *client,
                                        const QList<CodeAction> &actions,
                                        const DocumentUri &uri)
 {
-    TextDocument* doc = TextDocument::textDocumentForFilePath(uri.toFilePath());
+    TextDocument* doc = TextDocument::textDocumentForFilePath(client->serverUriToHostPath(uri));
     if (!doc)
         return;
     const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
@@ -142,7 +150,7 @@ void updateCodeActionRefactoringMarker(Client *client,
         const QTextCursor cursor = endOfLineCursor(range.start().toTextCursor(doc->document()));
         const auto it = markersAtBlock.find(cursor.blockNumber());
         if (it != markersAtBlock.end()) {
-            it->tooltip = LanguageClientManager::tr("Show available quick fixes");
+            it->tooltip = Tr::tr("Show available quick fixes");
             it->callback = [cursor](TextEditorWidget *editor) {
                 editor->setTextCursor(cursor);
                 editor->invokeAssist(TextEditor::QuickFix);
@@ -239,7 +247,7 @@ void updateEditorToolBar(Core::IEditor *editor)
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
                                          Utils::Theme::IconsBaseColor}}).icon();
         extras->m_popupAction = widget->toolBar()->addAction(
-                    icon, client->name(), [document = QPointer(document)] {
+                    icon, client->name(), [document = QPointer(document), client = QPointer<Client>(client)] {
             auto menu = new QMenu;
             auto clientsGroup = new QActionGroup(menu);
             clientsGroup->setExclusive(true);
@@ -258,10 +266,16 @@ void updateEditorToolBar(Core::IEditor *editor)
             menu->addActions(clientsGroup->actions());
             if (!clientsGroup->actions().isEmpty())
                 menu->addSeparator();
-            menu->addAction("Inspect Language Clients", [] {
+            if (client && client->reachable()) {
+                menu->addAction(Tr::tr("Restart %1").arg(client->name()), [client] {
+                    if (client && client->reachable())
+                        LanguageClientManager::restartClient(client);
+                });
+            }
+            menu->addAction(Tr::tr("Inspect Language Clients"), [] {
                 LanguageClientManager::showInspector();
             });
-            menu->addAction("Manage...", [] {
+            menu->addAction(Tr::tr("Manage..."), [] {
                 Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
             });
             menu->popup(QCursor::pos());

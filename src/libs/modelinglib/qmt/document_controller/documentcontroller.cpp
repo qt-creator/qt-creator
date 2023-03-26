@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "documentcontroller.h"
 
@@ -29,6 +29,8 @@
 #include "qmt/style/stylecontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/tasks/findrootdiagramvisitor.h"
+
+#include "../../modelinglibtr.h"
 
 #include <QFileInfo>
 
@@ -178,7 +180,7 @@ void DocumentController::selectAllOnDiagram(MDiagram *diagram)
 MPackage *DocumentController::createNewPackage(MPackage *parent)
 {
     auto newPackage = new MPackage();
-    newPackage->setName(tr("New Package"));
+    newPackage->setName(Tr::tr("New Package"));
     m_modelController->addObject(parent, newPackage);
     return newPackage;
 }
@@ -186,7 +188,7 @@ MPackage *DocumentController::createNewPackage(MPackage *parent)
 MClass *DocumentController::createNewClass(MPackage *parent)
 {
     auto newClass = new MClass();
-    newClass->setName(tr("New Class"));
+    newClass->setName(Tr::tr("New Class"));
     m_modelController->addObject(parent, newClass);
     return newClass;
 }
@@ -194,7 +196,7 @@ MClass *DocumentController::createNewClass(MPackage *parent)
 MComponent *DocumentController::createNewComponent(MPackage *parent)
 {
     auto newComponent = new MComponent();
-    newComponent->setName(tr("New Component"));
+    newComponent->setName(Tr::tr("New Component"));
     m_modelController->addObject(parent, newComponent);
     return newComponent;
 }
@@ -205,7 +207,7 @@ MCanvasDiagram *DocumentController::createNewCanvasDiagram(MPackage *parent)
     if (!m_diagramSceneController->findDiagramBySearchId(parent, parent->name()))
         newDiagram->setName(parent->name());
     else
-        newDiagram->setName(tr("New Diagram"));
+        newDiagram->setName(Tr::tr("New Diagram"));
     m_modelController->addObject(parent, newDiagram);
     return newDiagram;
 }

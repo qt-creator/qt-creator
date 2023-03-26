@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,8 +8,8 @@
 
 namespace QmlJSEditor {
 
-QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix
-    (const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
+QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix(
+    const Internal::QmlJSQuickFixAssistInterface *interface, QuickFixOperations &result);
 
 QMLJSEDITOR_EXPORT void performComponentFromObjectDef
     (const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef);

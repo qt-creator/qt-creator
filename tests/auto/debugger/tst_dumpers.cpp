@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggerprotocol.h"
 #include "simplifytype.h"
@@ -686,8 +686,15 @@ struct Profile
 struct Cxx11Profile : public Profile
 {
     Cxx11Profile()
-      : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
-                "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+        : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
+                  "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+    {}
+};
+
+struct Cxx17Profile : public Profile
+{
+    Cxx17Profile()
+        : Profile("CONFIG += c++17\n")
     {}
 };
 
@@ -1131,6 +1138,7 @@ private slots:
     void dumper_data();
     void init();
     void cleanup();
+    void cleanupTestCase();
 
 private:
     void disarm() { t->buildTemp.setAutoRemove(!keepTemp()); }
@@ -1153,6 +1161,7 @@ private:
     bool m_isMacGdb = false;
     bool m_isQnxGdb = false;
     bool m_useGLibCxxDebug = false;
+    int m_totalDumpTime = 0;
 };
 
 void tst_Dumpers::initTestCase()
@@ -1308,6 +1317,11 @@ void tst_Dumpers::cleanup()
         logger.write(t->input.toUtf8());
     }
     delete t;
+}
+
+void tst_Dumpers::cleanupTestCase()
+{
+    qCDebug(lcDumpers) << "Dumpers total: " << QTime::fromMSecsSinceStartOfDay(m_totalDumpTime);
 }
 
 void tst_Dumpers::dumper()
@@ -1812,8 +1826,11 @@ void tst_Dumpers::dumper()
     debugger.setWorkingDirectory(t->buildPath);
     debugger.start(exe, args);
     QVERIFY(debugger.waitForStarted());
+    QElapsedTimer dumperTimer;
+    dumperTimer.start();
     debugger.write(cmds.toLocal8Bit());
     QVERIFY(debugger.waitForFinished());
+    m_totalDumpTime += dumperTimer.elapsed();
     output = debugger.readAllStandardOutput();
     QByteArray fullOutput = output;
     //qCDebug(lcDumpers) << "stdout: " << output;
@@ -3455,18 +3472,22 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QPointer")
             << Data("#include <QPointer>\n"
-                    "#include <QTimer>\n",
+                    "#include <QTimer>\n"
+                    "struct MyClass : public QObject { int val = 44; };\n",
 
                     "QTimer timer;\n"
                     "QPointer<QTimer> ptr0;\n"
-                    "QPointer<QTimer> ptr1(&timer);",
+                    "QPointer<QTimer> ptr1(&timer);"
+                    "QPointer<MyClass> ptr2(new MyClass());",
 
-                    "&timer, &ptr0, &ptr1")
+                    "&timer, &ptr0, &ptr1, &ptr2")
 
                + CoreProfile()
 
                + Check("ptr0", "(null)", "@QPointer<@QTimer>")
-               + Check("ptr1", "", "@QPointer<@QTimer>");
+               + Check("ptr1", "", "@QPointer<@QTimer>")
+               + Check("ptr2.data", "", "MyClass") % NoLldbEngine
+               + Check("ptr2.data.val", "44", "int") % NoLldbEngine;
 
 
     QTest::newRow("QScopedPointer")
@@ -3492,7 +3513,11 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QSharedPointer")
             << Data("#include <QSharedPointer>\n"
-                    "#include <QString>\n" + fooData,
+                    "#include <QString>\n"
+                    "struct Base1 { int b1 = 42; virtual ~Base1() {} };\n"
+                    "struct Base2 { int b2 = 43; };\n"
+                    "struct MyClass : public Base2, public Base1 { int val = 44; };\n"
+                    + fooData,
 
                     "QSharedPointer<int> ptr10;\n"
                     "QSharedPointer<int> ptr11 = ptr10;\n"
@@ -3515,13 +3540,17 @@ void tst_Dumpers::dumper_data()
                     "QSharedPointer<Foo> ptr50(new Foo(1));\n"
                     "QWeakPointer<Foo> ptr51(ptr50);\n"
                     "QWeakPointer<Foo> ptr52 = ptr50;\n"
-                    "QWeakPointer<Foo> ptr53 = ptr50;\n",
+                    "QWeakPointer<Foo> ptr53 = ptr50;\n"
+
+                    "QSharedPointer<Base1> ptr60(new MyClass());\n"
+                    "QWeakPointer<Base1> ptr61(ptr60);\n",
 
                     "&ptr10, &ptr11, &ptr12, "
                     "&ptr20, &ptr21, &ptr22, "
                     "&ptr30, &ptr31, &ptr32, &ptr33, "
                     "&ptr40, &ptr41, &ptr42, &ptr43, "
-                    "&ptr50, &ptr51, &ptr52, &ptr53")
+                    "&ptr50, &ptr51, &ptr52, &ptr53, "
+                    "&ptr60, &ptr61")
 
                + CoreProfile()
 
@@ -3549,7 +3578,12 @@ void tst_Dumpers::dumper_data()
 
                + Check("ptr50", "", "@QSharedPointer<Foo>")
                + Check("ptr50.data", "", "Foo")
-               + Check("ptr53", "", "@QWeakPointer<Foo>");
+               + Check("ptr53", "", "@QWeakPointer<Foo>")
+
+               + Check("ptr60.data", "", "MyClass") % NoLldbEngine
+               + Check("ptr61.data", "", "MyClass") % NoLldbEngine
+               + Check("ptr60.data.val", "44", "int") % NoLldbEngine
+               + Check("ptr61.data.val", "44", "int") % NoLldbEngine;
 
 
     QTest::newRow("QLazilyAllocated")
@@ -5562,6 +5596,42 @@ void tst_Dumpers::dumper_data()
 
                + Check("empty", "<0 items>", "std::initializer_list<int>");
 
+
+    QTest::newRow("StdOptional")
+        << Data("#include <optional>\n"
+                "#include <vector>\n",
+
+                "std::optional<bool> o1;\n"
+                "std::optional<bool> o2 = true;\n"
+                "std::optional<std::vector<int>> o3 = std::vector<int>{1,2,3};",
+
+                "&o1, &o2, &o3")
+
+               + Cxx17Profile()
+
+               + Check("o1", "<uninitialized>", "std::optional<bool>")
+               + Check("o2", "1", "bool") // 1 -> true is done on display
+               + Check("o3", "<3 items>", "std::vector<int>")
+               + Check("o3.1", "[1]", "2", "int");
+
+
+    QTest::newRow("StdVariant")
+        << Data("#include <variant>\n"
+                "#include <vector>\n",
+
+                "std::variant<bool, std::vector<int>> v1 = false;\n"
+                "std::variant<bool, std::vector<int>> v2 = true;\n"
+                "std::variant<bool, std::vector<int>> v3 = std::vector<int>{1,2,3};",
+
+                "&v1, &v2, &v3")
+
+               + Cxx17Profile()
+
+               + Check("v1", "0", "bool")
+               + Check("v2", "1", "bool") // 1 -> true is done on display
+               + Check("v3", "<3 items>", "std::vector<int>")
+               + Check("v3.1", "[1]", "2", "int");
+
 //    class Goo
 //    {
 //    public:
@@ -7335,7 +7405,11 @@ void tst_Dumpers::dumper_data()
         "struct A { int a = 1; char aa = 'a'; };\n"
         "struct B : virtual A { int b = 2; float bb = 2; };\n"
         "struct C : virtual A { int c = 3; double cc = 3; };\n"
-        "struct D : virtual B, virtual C { int d = 4; };\n";
+        "struct D : virtual B, virtual C { int d = 4; };\n"
+
+        "struct Base1 { int b1 = 42; virtual ~Base1() {} };\n"
+        "struct Base2 { int b2 = 43; };\n"
+        "struct MyClass : public Base2, public Base1 { int val = 44; };\n";
 
 
     QTest::newRow("Inheritance")
@@ -7353,9 +7427,11 @@ void tst_Dumpers::dumper_data()
                     "D dd;\n\n"
 
                     "D *dp = new D;\n"
-                    "D &dr = dd;",
+                    "D &dr = dd;\n"
 
-                    "&c.S2::v, &tt.T2::v, &dp, &dr")
+                    "Base1 *array[] = {new MyClass};\n",
+
+                    "&c.S2::v, &tt.T2::v, &dp, &dr, &array")
 
                 + Cxx11Profile()
 
@@ -7391,7 +7467,9 @@ void tst_Dumpers::dumper_data()
                 + Check("dr.@2.@1.a", "1", "int") % NoLldbEngine // C::a
                 + Check("dr.@1.b", "2", "int")
                 + Check("dr.@2.c", "3", "int")
-                + Check("dr.d", "4", "int");
+                + Check("dr.d", "4", "int")
+
+                + Check("array.0.val", "44", "int") % NoLldbEngine;
 
 
     QTest::newRow("Gdb13393")
@@ -7836,7 +7914,7 @@ void tst_Dumpers::dumper_data()
             + QmlPrivateProfile()
             + QtVersion(0x50000)
 
-            + Check("q2", FloatValue("2.5"), "@QV4::Value (double)")
+            + Check("q2", FloatValue("2.5"), "@QV4::Value (double)") % QtVersion(0, 0x604ff)
             //+ Check("v10", "(null)", "@QJSValue (null)") # Works in GUI. Why?
             + Check("v11", "true", "@QJSValue (bool)")
             + Check("v12", "1", "@QJSValue (int)")
@@ -8040,17 +8118,6 @@ void tst_Dumpers::dumper_data()
 
                + Check("str", "first, second, third", "QtcDumperTest_String");
 
-
-    QTest::newRow("UndefinedStaticMembers")
-            << Data("struct Foo { int a = 15; static int b; }; \n",
-
-                    "Foo f;",
-
-                    "&f")
-
-            + Check("f.a", "15", "int")
-            + Check("f.b", "<optimized out>", "") % GdbEngine
-            + Check("f.b", "", "<Value unavailable error>") % CdbEngine;
 
 
     QTest::newRow("LongDouble")

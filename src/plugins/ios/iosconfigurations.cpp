@@ -1,12 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iosconfigurations.h"
+
 #include "iosconstants.h"
 #include "iosdevice.h"
-#include "iossimulator.h"
-#include "simulatorcontrol.h"
 #include "iosprobe.h"
+#include "iossimulator.h"
+#include "iostr.h"
+#include "simulatorcontrol.h"
 
 #include <coreplugin/icore.h>
 
@@ -283,7 +285,7 @@ void IosConfigurations::updateAutomaticKitList()
                     const auto init = [&](Kit *k) {
                         k->setAutoDetected(true);
                         const QString baseDisplayName = isSimulatorDeviceId(pDeviceType)
-                                ? tr("%1 Simulator").arg(qtVersion->unexpandedDisplayName())
+                                ? Tr::tr("%1 Simulator").arg(qtVersion->unexpandedDisplayName())
                                 : qtVersion->unexpandedDisplayName();
                         k->setUnexpandedDisplayName(baseDisplayName);
                         setupKit(k, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
@@ -585,6 +587,7 @@ Toolchains IosToolChainFactory::autoDetect(const ToolchainDetector &detector) co
             auto createOrAdd = [&](ClangToolChain *toolChain, Id l) {
                 if (!toolChain) {
                     toolChain = new ClangToolChain;
+                    toolChain->setPriority(ToolChain::PriorityHigh);
                     toolChain->setDetection(ToolChain::AutoDetection);
                     toolChain->setLanguage(l);
                     toolChain->setDisplayName(target.name);
@@ -616,8 +619,8 @@ QString DevelopmentTeam::displayName() const
 
 QString DevelopmentTeam::details() const
 {
-    return tr("%1 - Free Provisioning Team : %2")
-            .arg(m_identifier).arg(m_freeTeam ? tr("Yes") : tr("No"));
+    return Tr::tr("%1 - Free Provisioning Team : %2")
+            .arg(m_identifier).arg(m_freeTeam ? Tr::tr("Yes") : Tr::tr("No"));
 }
 
 QDebug &operator<<(QDebug &stream, DevelopmentTeamPtr team)
@@ -641,7 +644,7 @@ QString ProvisioningProfile::displayName() const
 
 QString ProvisioningProfile::details() const
 {
-    return tr("Team: %1\nApp ID: %2\nExpiration date: %3").arg(m_team->identifier()).arg(m_appID)
+    return Tr::tr("Team: %1\nApp ID: %2\nExpiration date: %3").arg(m_team->identifier()).arg(m_appID)
             .arg(QLocale::system().toString(m_expirationDate.toLocalTime(), QLocale::ShortFormat));
 }
 

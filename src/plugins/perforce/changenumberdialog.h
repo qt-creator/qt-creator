@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <QDialog>
 
-#include "ui_changenumberdialog.h"
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 // Input a change number for pending changes.
 class ChangeNumberDialog : public QDialog
@@ -19,9 +20,7 @@ public:
     int number() const;
 
 private:
-    Ui::ChangeNumberDialog m_ui;
-
+    QLineEdit *m_lineEdit = nullptr;
 };
 
-} // namespace Perforce
-} // namespace Internal
+} // Perforce::Internal

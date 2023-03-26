@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakeevaluator.h"
 #include "qmakeevaluator_p.h"
@@ -923,7 +923,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
     else if (varName == statics.strQMAKESPEC) {
         if (!values(varName).isEmpty()) {
             QString spec = values(varName).constFirst().toQString();
-            if (IoUtils::isAbsolutePath(spec)) {
+            if (IoUtils::isAbsolutePath(deviceRoot(), spec)) {
                 m_qmakespec = spec;
                 m_qmakespecName = IoUtils::fileName(m_qmakespec).toString();
                 m_featureRoots = 0;
@@ -1084,6 +1084,7 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
 {
     QMakeVfs::VfsFlags flags = (m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
     QString superdir;
+    const QString device = deviceRoot();
     if (m_option->do_cache) {
         QString conffile;
         QString cachefile = m_option->cachefile;
@@ -1093,7 +1094,7 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
             superdir = m_outputDir;
             forever {
                 QString superfile = superdir + QLatin1String("/.qmake.super");
-                if (m_vfs->exists(superfile, flags)) {
+                if (m_vfs->exists(device, superfile, flags)) {
                     m_superfile = QDir::cleanPath(superfile);
                     break;
                 }
@@ -1108,10 +1109,10 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
             QString dir = m_outputDir;
             forever {
                 conffile = sdir + QLatin1String("/.qmake.conf");
-                if (!m_vfs->exists(conffile, flags))
+                if (!m_vfs->exists(device, conffile, flags))
                     conffile.clear();
                 cachefile = dir + QLatin1String("/.qmake.cache");
-                if (!m_vfs->exists(cachefile, flags))
+                if (!m_vfs->exists(device, cachefile, flags))
                     cachefile.clear();
                 if (!conffile.isEmpty() || !cachefile.isEmpty()) {
                     if (dir != sdir)
@@ -1139,7 +1140,7 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
     QString dir = m_outputDir;
     forever {
         QString stashfile = dir + QLatin1String("/.qmake.stash");
-        if (dir == (!superdir.isEmpty() ? superdir : m_buildRoot) || m_vfs->exists(stashfile, flags)) {
+        if (dir == (!superdir.isEmpty() ? superdir : m_buildRoot) || m_vfs->exists(deviceRoot(), stashfile, flags)) {
             m_stashfile = QDir::cleanPath(stashfile);
             break;
         }
@@ -1177,7 +1178,7 @@ bool QMakeEvaluator::loadSpecInternal()
     const ProString &orig_spec = first(ProKey("QMAKESPEC_ORIGINAL"));
     if (!orig_spec.isEmpty()) {
         QString spec = orig_spec.toQString();
-        if (IoUtils::isAbsolutePath(spec))
+        if (IoUtils::isAbsolutePath(deviceRoot(), spec))
             m_qmakespec = spec;
     }
 #  endif
@@ -1230,10 +1231,10 @@ bool QMakeEvaluator::loadSpec()
     if (qmakespec.isEmpty())
         qmakespec = m_hostBuild ? QLatin1String("default-host") : QLatin1String("default");
 #endif
-    if (IoUtils::isRelativePath(qmakespec)) {
-        foreach (const QString &root, m_mkspecPaths) {
+    if (IoUtils::isRelativePath(deviceRoot(), qmakespec)) {
+        for (const QString &root : std::as_const(m_mkspecPaths)) {
             QString mkspec = root + QLatin1Char('/') + qmakespec;
-            if (IoUtils::exists(mkspec)) {
+            if (IoUtils::exists(deviceRoot(), mkspec)) {
                 qmakespec = mkspec;
                 goto cool;
             }
@@ -1265,7 +1266,7 @@ bool QMakeEvaluator::loadSpec()
             return false;
     }
     QMakeVfs::VfsFlags flags = (m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
-    if (!m_stashfile.isEmpty() && m_vfs->exists(m_stashfile, flags)) {
+    if (!m_stashfile.isEmpty() && m_vfs->exists(deviceRoot(), m_stashfile, flags)) {
         valuesRef(ProKey("_QMAKE_STASH_")) << ProString(m_stashfile);
         if (evaluateFile(
                 m_stashfile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
@@ -1288,7 +1289,7 @@ void QMakeEvaluator::setupProject()
 void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
 {
     if (!cmds.isEmpty()) {
-        ProFile *pro = m_parser->parsedProBlock(QStringView(cmds), 0, where, -1);
+        ProFile *pro = m_parser->parsedProBlock(deviceRoot(), QStringView(cmds), 0, where, -1);
         if (pro->isOk()) {
             m_locationStack.push(m_current);
             visitProBlock(pro, pro->tokPtr());
@@ -1462,17 +1463,21 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
     return vr;
 }
 
+const QString &QMakeEvaluator::deviceRoot() const
+{
+    return m_option->device_root;
+}
 
 void QMakeEvaluator::updateMkspecPaths()
 {
     QStringList ret;
     const QString concat = QLatin1String("/mkspecs");
 
-    const auto paths = m_option->getPathListEnv(QLatin1String("QMAKEPATH"));
+    const QStringList paths = m_option->getPathListEnv(QLatin1String("QMAKEPATH"));
     for (const QString &it : paths)
         ret << it + concat;
 
-    foreach (const QString &it, m_qmakepath)
+    for (const QString &it : std::as_const(m_qmakepath))
         ret << it + concat;
 
     if (!m_buildRoot.isEmpty())
@@ -1513,7 +1518,7 @@ void QMakeEvaluator::updateFeaturePaths()
     for (const QString &item : items)
         feature_bases << (item + mkspecs_concat);
 
-    foreach (const QString &item, m_qmakepath)
+    for (const QString &item : std::as_const(m_qmakepath))
         feature_bases << (item + mkspecs_concat);
 
     if (!m_qmakespec.isEmpty()) {
@@ -1525,7 +1530,7 @@ void QMakeEvaluator::updateFeaturePaths()
         while (!specdir.isRoot() && specdir.cdUp()) {
             const QString specpath = specdir.path();
             if (specpath.endsWith(mkspecs_concat)) {
-                if (IoUtils::exists(specpath + features_concat))
+                if (IoUtils::exists(deviceRoot(), specpath + features_concat))
                     feature_bases << specpath;
                 break;
             }
@@ -1535,7 +1540,7 @@ void QMakeEvaluator::updateFeaturePaths()
     feature_bases << (m_option->propertyValue(ProKey("QT_HOST_DATA/get")) + mkspecs_concat);
     feature_bases << (m_option->propertyValue(ProKey("QT_HOST_DATA/src")) + mkspecs_concat);
 
-    foreach (const QString &fb, feature_bases) {
+    for (const QString &fb : std::as_const(feature_bases)) {
         const auto sfxs = values(ProKey("QMAKE_PLATFORM"));
         for (const ProString &sfx : sfxs)
             feature_roots << (fb + features_concat + sfx + QLatin1Char('/'));
@@ -1549,8 +1554,8 @@ void QMakeEvaluator::updateFeaturePaths()
     feature_roots.removeDuplicates();
 
     QStringList ret;
-    foreach (const QString &root, feature_roots)
-        if (IoUtils::exists(root))
+    for (const QString &root : std::as_const(feature_roots))
+        if (IoUtils::exists(deviceRoot(), root))
             ret << root;
     m_featureRoots = new QMakeFeatureRoots(ret);
 }
@@ -1578,6 +1583,11 @@ int QMakeEvaluator::currentFileId() const
     if (pro)
         return pro->id();
     return 0;
+}
+
+QString QMakeEvaluator::resolvePath(const QString &fileName) const
+{
+    return QMakeInternal::IoUtils::resolvePath(deviceRoot(), currentDirectory(), fileName);
 }
 
 QString QMakeEvaluator::currentFileName() const
@@ -1793,7 +1803,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditional(
     QStringView cond, const QString &where, int line)
 {
     VisitReturn ret = ReturnFalse;
-    ProFile *pro = m_parser->parsedProBlock(cond, 0, where, line, QMakeParser::TestGrammar);
+    ProFile *pro = m_parser->parsedProBlock(deviceRoot(), cond, 0, where, line, QMakeParser::TestGrammar);
     if (pro->isOk()) {
         m_locationStack.push(m_current);
         ret = visitProBlock(pro, pro->tokPtr());
@@ -1909,7 +1919,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFile(
     QMakeParser::ParseFlags pflags = QMakeParser::ParseUseCache;
     if (!(flags & LoadSilent))
         pflags |= QMakeParser::ParseReportMissing;
-    if (ProFile *pro = m_parser->parsedProFile(fileName, pflags)) {
+    if (ProFile *pro = m_parser->parsedProFile(deviceRoot(), fileName, pflags)) {
         m_locationStack.push(m_current);
         VisitReturn ok = visitProFile(pro, type, flags);
         m_current = m_locationStack.pop();
@@ -1983,7 +1993,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFeatureFile(
             }
             for (int root = start_root; root < paths.size(); ++root) {
                 QString fname = paths.at(root) + fn;
-                if (IoUtils::exists(fname)) {
+                if (IoUtils::exists(deviceRoot(), fname)) {
                     fn = fname;
                     goto cool;
                 }

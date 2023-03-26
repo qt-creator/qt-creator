@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,7 +11,7 @@ namespace Constants {
 const char INFO_READ_ONLY[] = "ScxmlEditor.ReadOnly";
 
 const char C_SCXMLEDITOR[] = "Qt5.ScxmlEditor";
-const char C_SCXMLEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "SCXML Editor");
+const char C_SCXMLEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "SCXML Editor");
 
 const char K_SCXML_EDITOR_ID[] = "ScxmlEditor.XmlEditor";
 const char C_SCXML_EDITOR[] = "Scxml Editor";

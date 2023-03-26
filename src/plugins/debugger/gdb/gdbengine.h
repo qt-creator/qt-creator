@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -130,11 +130,12 @@ private: ////////// General Interface //////////
 
     bool m_rerunPending = false;
     bool m_ignoreNextTrap = false;
+    bool m_detectTargetIncompat = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 
     Q_INVOKABLE void handleResponse(const QString &buff);
-    void handleAsyncOutput(const QString &asyncClass, const GdbMi &result);
+    void handleAsyncOutput(const QStringView asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(DebuggerResponse *response);
     void handleStop1(const GdbMi &data);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "valgrindengine.h"
 
@@ -54,7 +54,6 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 void ValgrindToolRunner::start()
 {
     FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
-    fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(fp, &FutureProgress::canceled,
             this, &ValgrindToolRunner::handleProgressCanceled);
     connect(fp, &FutureProgress::finished,

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 /*
   Copyright 2005 Roberto Raggi <roberto@kdevelop.org>
@@ -26,6 +26,8 @@
 #include "PPToken.h"
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
+
+#include <utils/filepath.h>
 
 #include <QByteArray>
 #include <QVector>
@@ -66,10 +68,10 @@ public:
     void addFormal(const QByteArray &formal)
     { _formals.append(formal); }
 
-    const QString &fileName() const
+    const Utils::FilePath &filePath() const
     { return _fileName; }
 
-    void setFileName(const QString &fileName)
+    void setFilePath(const Utils::FilePath &fileName)
     { _fileName = fileName; }
 
     unsigned fileRevision() const
@@ -140,7 +142,7 @@ private:
     QByteArray _definitionText;
     QVector<PPToken> _definitionTokens;
     QVector<QByteArray> _formals;
-    QString _fileName;
+    Utils::FilePath _fileName;
     unsigned _hashcode;
     unsigned _fileRevision;
     int _line;
@@ -155,4 +157,4 @@ private:
     };
 };
 
-} // namespace CPlusPlus
+} // CPlusPlus

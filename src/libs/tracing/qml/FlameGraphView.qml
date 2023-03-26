@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtCreator.Tracing
 
@@ -41,7 +41,7 @@ ScrollView {
     property var details: function(flameGraph) { return []; }
     property var summary: function(attached) {
         if (!attached.dataValid)
-            return qsTranslate("Tracing", "others");
+            return qsTranslate("QtC::Tracing", "others");
 
         return attached.data(summaryRole) + " (" + percent(sizeRole, attached) + "%)";
     }
@@ -231,7 +231,7 @@ ScrollView {
                 // and because FlameGraph.data(...) cannot be notified anyway.
                 function title() {
                     return FlameGraph.data(root.detailsTitleRole)
-                            || qsTranslate("Tracing", "unknown");
+                            || qsTranslate("QtC::Tracing", "unknown");
                 }
 
                 function note() {
@@ -267,16 +267,11 @@ ScrollView {
                     return null;
             }
 
-            onClearSelection: {
-                flamegraph.selectedTypeId = -1;
-                selectedNode = null;
-            }
-
             dialogTitle: {
                 if (currentNode)
                     return currentNode.title();
                 else if (root.model === null || root.model.rowCount() === 0)
-                    return qsTranslate("Tracing", "No data available");
+                    return qsTranslate("QtC::Tracing", "No data available");
                 else
                     return "";
             }

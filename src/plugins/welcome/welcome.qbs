@@ -14,5 +14,6 @@ QtcPlugin {
         "introductionwidget.h",
         "welcome.qrc",
         "welcomeplugin.cpp",
+        "welcometr.h",
     ]
 }

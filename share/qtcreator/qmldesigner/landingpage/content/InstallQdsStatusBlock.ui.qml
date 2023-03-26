@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 /*
 This is a UI file (.ui.qml) that is intended to be edited in Qt Design Studio only.
@@ -35,19 +35,19 @@ Rectangle {
             width: parent.width
             topPadding: 0
             padding: Theme.Values.spacing
-            text: qsTr("No Qt Design Studio installation found")
+            text: qsTranslate("QtC::QmlProjectManager", "No Qt Design Studio installation found")
         }
 
         PageText {
             id: suggestionText
             width: parent.width
             padding: Theme.Values.spacing
-            text: qsTr("Would you like to install it now?")
+            text: qsTranslate("QtC::QmlProjectManager", "Would you like to install it now?")
         }
 
         PushButton {
             id: installButton
-            text: qsTr("Install")
+            text: qsTranslate("QtC::QmlProjectManager", "Install")
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }

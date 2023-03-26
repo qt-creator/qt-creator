@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxtoolchain.h"
 
@@ -75,7 +75,7 @@ static void setQnxEnvironment(Environment &env, const EnvironmentItems &qnxEnv)
 {
     // We only need to set QNX_HOST, QNX_TARGET, and QNX_CONFIGURATION_EXCLUSIVE
     // needed when running qcc
-    foreach (const EnvironmentItem &item, qnxEnv) {
+    for (const EnvironmentItem &item : qnxEnv) {
         if (item.name == QLatin1String("QNX_HOST") ||
             item.name == QLatin1String("QNX_TARGET") ||
             item.name == QLatin1String("QNX_CONFIGURATION_EXCLUSIVE"))
@@ -88,7 +88,7 @@ static void setQnxEnvironment(Environment &env, const EnvironmentItems &qnxEnv)
 static QStringList reinterpretOptions(const QStringList &args)
 {
     QStringList arguments;
-    foreach (const QString &str, args) {
+    for (const QString &str : args) {
         if (str.startsWith(QLatin1String("--sysroot=")))
             continue;
         QString arg = str;
@@ -97,7 +97,6 @@ static QStringList reinterpretOptions(const QStringList &args)
                 arg.prepend(QLatin1String("-Wp,"));
         arguments << arg;
     }
-
     return arguments;
 }
 
@@ -136,7 +135,7 @@ QStringList QnxToolChain::suggestedMkspecList() const
 QVariantMap QnxToolChain::toMap() const
 {
     QVariantMap data = GccToolChain::toMap();
-    data.insert(QLatin1String(CompilerSdpPath), m_sdpPath.toVariant());
+    data.insert(QLatin1String(CompilerSdpPath), m_sdpPath.toSettings());
     data.insert(QLatin1String(CpuDirKey), m_cpuDir);
     return data;
 }
@@ -146,7 +145,7 @@ bool QnxToolChain::fromMap(const QVariantMap &data)
     if (!GccToolChain::fromMap(data))
         return false;
 
-    m_sdpPath = FilePath::fromVariant(data.value(CompilerSdpPath));
+    m_sdpPath = FilePath::fromSettings(data.value(CompilerSdpPath));
     m_cpuDir = data.value(QLatin1String(CpuDirKey)).toString();
 
     // Make the ABIs QNX specific (if they aren't already).

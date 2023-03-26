@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -42,6 +42,7 @@ private:
     int m_verboseLevel = 0; // 0..99
     bool m_extendedMode = false; // Listening for connections after disconnect
     bool m_resetBoard = true;
+    bool m_connectUnderReset = false; // Makes it possible to connect to the device before code execution
     TransportLayer m_transport = RawUsb;
 
     friend class StLinkUtilGdbServerProviderConfigWidget;
@@ -80,6 +81,7 @@ private:
     Utils::PathChooser *m_executableFileChooser = nullptr;
     QSpinBox *m_verboseLevelSpinBox = nullptr;
     QCheckBox *m_extendedModeCheckBox = nullptr;
+    QCheckBox *m_resetOnConnectCheckBox = nullptr;
     QCheckBox *m_resetBoardCheckBox = nullptr;
     QComboBox *m_transportLayerComboBox = nullptr;
     QPlainTextEdit *m_initCommandsTextEdit = nullptr;

@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "functionhintproposalwidget.h"
+
 #include "ifunctionhintproposalmodel.h"
 #include "codeassistant.h"
+#include "../texteditortr.h"
 
 #include <utils/algorithm.h>
 #include <utils/faketooltip.h>
@@ -138,6 +140,7 @@ FunctionHintProposalWidget::FunctionHintProposalWidget()
     });
 
     setFocusPolicy(Qt::NoFocus);
+    setFragile(true);
 }
 
 FunctionHintProposalWidget::~FunctionHintProposalWidget()
@@ -149,9 +152,6 @@ void FunctionHintProposalWidget::setAssistant(CodeAssistant *assistant)
 {
     d->m_assistant = assistant;
 }
-
-void FunctionHintProposalWidget::setReason(AssistReason)
-{}
 
 void FunctionHintProposalWidget::setKind(AssistKind)
 {}
@@ -190,7 +190,7 @@ void FunctionHintProposalWidget::showProposal(const QString &prefix)
     d->m_popupFrame->show();
 }
 
-void FunctionHintProposalWidget::updateProposal(const QString &prefix)
+void FunctionHintProposalWidget::filterProposal(const QString &prefix)
 {
     updateAndCheck(prefix);
 }
@@ -343,7 +343,7 @@ bool FunctionHintProposalWidget::updateAndCheck(const QString &prefix)
 void FunctionHintProposalWidget::updateContent()
 {
     d->m_hintLabel->setText(d->m_model->text(d->m_currentHint));
-    d->m_numberLabel->setText(tr("%1 of %2").arg(d->m_currentHint + 1).arg(d->m_totalHints));
+    d->m_numberLabel->setText(Tr::tr("%1 of %2").arg(d->m_currentHint + 1).arg(d->m_totalHints));
     updatePosition();
 }
 

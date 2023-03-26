@@ -1,5 +1,5 @@
 add_qtc_library(AdvancedDockingSystem
-  DEPENDS Qt5::Widgets Qt5::Core Qt5::Gui Utils
+  DEPENDS Qt::Widgets Qt::Core Qt::Gui Utils
   SOURCES
     ads_globals.cpp ads_globals.h
     advanceddockingsystemtr.h
@@ -22,7 +22,6 @@ add_qtc_library(AdvancedDockingSystem
     workspacedialog.cpp workspacedialog.h
     workspacemodel.cpp workspacemodel.h
     workspaceview.cpp workspaceview.h
-    workspacedialog.ui
 )
 
 extend_qtc_library(AdvancedDockingSystem

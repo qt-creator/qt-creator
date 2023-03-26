@@ -1,6 +1,6 @@
 add_qtc_plugin(CppEditor
-  DEPENDS Qt5::Network Qt5::Xml
-  PUBLIC_DEPENDS CPlusPlus Qt5::Widgets
+  DEPENDS Qt::Network Qt::Xml
+  PUBLIC_DEPENDS CPlusPlus Qt::Widgets
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   PLUGIN_TEST_DEPENDS QbsProjectManager QmakeProjectManager
   SOURCES
@@ -10,7 +10,6 @@ add_qtc_plugin(CppEditor
     builtincursorinfo.cpp builtincursorinfo.h
     builtineditordocumentparser.cpp builtineditordocumentparser.h
     builtineditordocumentprocessor.cpp builtineditordocumentprocessor.h
-    builtinindexingsupport.cpp builtinindexingsupport.h
     clangdiagnosticconfig.cpp clangdiagnosticconfig.h
     clangdiagnosticconfigsmodel.cpp clangdiagnosticconfigsmodel.h
     clangdiagnosticconfigsselectionwidget.cpp clangdiagnosticconfigsselectionwidget.h
@@ -21,14 +20,14 @@ add_qtc_plugin(CppEditor
     cppcanonicalsymbol.cpp cppcanonicalsymbol.h
     cppchecksymbols.cpp cppchecksymbols.h
     cppcodeformatter.cpp cppcodeformatter.h
-    cppcodemodelinspectordialog.cpp cppcodemodelinspectordialog.h cppcodemodelinspectordialog.ui
+    cppcodemodelinspectordialog.cpp cppcodemodelinspectordialog.h
     cppcodemodelinspectordumper.cpp cppcodemodelinspectordumper.h
     cppcodemodelsettings.cpp cppcodemodelsettings.h
     cppcodemodelsettingspage.cpp cppcodemodelsettingspage.h
     cppcodestylepreferences.cpp cppcodestylepreferences.h
     cppcodestylepreferencesfactory.cpp cppcodestylepreferencesfactory.h
     cppcodestylesettings.cpp cppcodestylesettings.h
-    cppcodestylesettingspage.cpp cppcodestylesettingspage.h cppcodestylesettingspage.ui
+    cppcodestylesettingspage.cpp cppcodestylesettingspage.h
     cppcodestylesnippets.h
     cppcompletionassist.cpp cppcompletionassist.h
     cppcompletionassistprocessor.cpp cppcompletionassistprocessor.h
@@ -46,7 +45,7 @@ add_qtc_plugin(CppEditor
     cppeditorwidget.cpp cppeditorwidget.h
     cppelementevaluator.cpp cppelementevaluator.h
     cppfileiterationorder.cpp cppfileiterationorder.h
-    cppfilesettingspage.cpp cppfilesettingspage.h cppfilesettingspage.ui
+    cppfilesettingspage.cpp cppfilesettingspage.h
     cppfindreferences.cpp cppfindreferences.h
     cppfollowsymbolundercursor.cpp cppfollowsymbolundercursor.h
     cppfunctiondecldeflink.cpp cppfunctiondecldeflink.h
@@ -80,7 +79,7 @@ add_qtc_plugin(CppEditor
     cppquickfixprojectsettingswidget.cpp cppquickfixprojectsettingswidget.h
     cppquickfixsettings.cpp cppquickfixsettings.h
     cppquickfixsettingspage.cpp cppquickfixsettingspage.h
-    cppquickfixsettingswidget.cpp cppquickfixsettingswidget.h cppquickfixsettingswidget.ui
+    cppquickfixsettingswidget.cpp cppquickfixsettingswidget.h
     cpprefactoringchanges.cpp cpprefactoringchanges.h
     cppselectionchanger.cpp cppselectionchanger.h
     cppsemanticinfo.h
@@ -109,7 +108,6 @@ add_qtc_plugin(CppEditor
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h
     senddocumenttracker.cpp senddocumenttracker.h
-    stringtable.cpp stringtable.h
     symbolfinder.cpp symbolfinder.h
     symbolsfindfilter.cpp symbolsfindfilter.h
     typehierarchybuilder.cpp typehierarchybuilder.h

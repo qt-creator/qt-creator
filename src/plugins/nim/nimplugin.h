@@ -1,5 +1,5 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,7 +16,7 @@ public:
     NimPlugin() = default;
     ~NimPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 #ifdef WITH_TESTS

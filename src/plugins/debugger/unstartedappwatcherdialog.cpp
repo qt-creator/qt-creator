@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Petar Perisin <petar.perisin@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "unstartedappwatcherdialog.h"
 
@@ -29,7 +29,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -240,6 +239,8 @@ void UnstartedAppWatcherDialog::findProcess()
     ProcessInfo fallback;
     const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
     for (const ProcessInfo &processInfo : processInfoList) {
+        if (m_excluded.contains(processInfo.processId))
+            continue;
         if (Utils::FileUtils::normalizedPathName(processInfo.executable) == appName) {
             pidFound(processInfo);
             return;
@@ -318,13 +319,18 @@ void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)
         m_kitChooser->setEnabled(true);
         break;
 
-    case WatchingState:
+    case WatchingState: {
         m_waitingLabel->setText(Tr::tr("Waiting for process to start..."));
         m_watchingPushButton->setEnabled(true);
         m_watchingPushButton->setChecked(true);
         m_pathChooser->setEnabled(false);
         m_kitChooser->setEnabled(false);
+        m_excluded.clear();
+        const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+        for (const ProcessInfo &processInfo : processInfoList)
+            m_excluded.insert(processInfo.processId);
         break;
+    }
 
     case FoundState:
         m_waitingLabel->setText(Tr::tr("Attach"));

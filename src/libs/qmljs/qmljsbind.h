@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,7 +17,6 @@ class Document;
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
     Q_DISABLE_COPY(Bind)
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Bind)
 
 public:
     Bind(Document *doc, QList<DiagnosticMessage> *messages,
@@ -25,7 +24,7 @@ public:
     ~Bind();
 
     bool isJsLibrary() const;
-    QList<ImportInfo> imports() const;
+    const QList<ImportInfo> imports() const;
 
     ObjectValue *idEnvironment() const;
     ObjectValue *rootObjectValue() const;

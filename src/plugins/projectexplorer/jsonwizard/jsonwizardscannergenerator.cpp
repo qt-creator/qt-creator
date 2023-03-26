@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jsonwizardscannergenerator.h"
 
 #include "../projectmanager.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -13,7 +14,6 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QVariant>
 
@@ -28,8 +28,7 @@ bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessa
         return true;
 
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizard",
-                                                    "Key is not an object.");
+        *errorMessage = Tr::tr("Key is not an object.");
         return false;
     }
 
@@ -40,8 +39,7 @@ bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessa
     for (const QString &pattern : patterns) {
         QRegularExpression regexp(pattern);
         if (!regexp.isValid()) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizard",
-                                                        "Pattern \"%1\" is no valid regular expression.");
+            *errorMessage = Tr::tr("Pattern \"%1\" is no valid regular expression.");
             return false;
         }
         m_subDirectoryExpressions << regexp;
@@ -64,8 +62,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
     if (!m_binaryPattern.isEmpty()) {
         binaryPattern = QRegularExpression(expander->expand(m_binaryPattern));
         if (!binaryPattern.isValid()) {
-            qWarning() << QCoreApplication::translate("ProjectExplorer::Internal::JsonWizard",
-                                                      "ScannerGenerator: Binary pattern \"%1\" not valid.")
+            qWarning() << Tr::tr("ScannerGenerator: Binary pattern \"%1\" not valid.")
                           .arg(m_binaryPattern);
             return result;
         }

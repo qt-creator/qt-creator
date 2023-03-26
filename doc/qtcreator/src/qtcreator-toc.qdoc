@@ -46,6 +46,7 @@
                 \li \l{Using Bazaar}
                 \li \l{Using ClearCase}
                 \li \l{Using CVS}
+                \li \l{Using Fossil}
                 \li \l{Using Git}
                 \li \l{Using GitLab}
                 \li \l{Using Mercurial}
@@ -69,7 +70,7 @@
                     \endlist
                 \li \l{Specifying Run Settings}
                 \li \l{Specifying Editor Settings}
-                \li \l{Specifying Code Style Settings}
+                \li \l{Specifying Code Style}
                 \li \l{Specifying Dependencies}
                 \li \l{Specifying Environment Settings}
                 \li \l{Using Custom Output Parsers}
@@ -164,7 +165,24 @@
             \list
                 \li \l{Setting Up Debugger}
                 \li \l{Launching the Debugger}
-                \li \l{Interacting with the Debugger}
+                \li \l{Debug Mode Views}
+                    \list
+                        \li \l{Viewing Call Stack Trace}
+                        \li \l{Setting Breakpoints}
+                        \li \l{Viewing Threads}
+                        \li \l{Viewing Modules}
+                        \li \l{Viewing Source Files}
+                        \li \l{Local Variables and Function Parameters}
+                        \li \l{Evaluating Expressions}
+                        \li \l{Viewing and Editing Register State}
+                        \li \l{Directly Interacting with Native Debuggers}
+                        \li \l{Viewing Disassembled Code}
+                        \li
+                    \endlist
+                \li \l{Stopping Applications}
+                \li \l{Examining Data}
+                \li \l{Remote Debugging}
+                \li \l{Debugger Preferences}
                 \li \l{Using Debugging Helpers}
                 \li \l{Debugging Qt Quick Projects}
                 \li \l{Debugging a C++ Example Application}

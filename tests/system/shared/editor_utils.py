@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 def jumpToFirstLine(editor):
     home = "<Home>" if platform.system() == 'Darwin' else "<Ctrl+Home>"
@@ -374,24 +374,42 @@ def addBranchWildcardToRoot(rootNode):
     return rootNode[:pos] + " [[]*[]]" + rootNode[pos:]
 
 def openDocument(treeElement):
+    # split into tree elements
+    treePathElements = re.split(r"(?<!\\)\.", treeElement)
+    # 'unmask' the extension delimiter
+    treePathElements = list(x.replace("\\.", ".") for x in treePathElements)
     try:
+        parentIndex = None
         selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Projects")
         navigator = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-        try:
-            item = waitForObjectItem(navigator, treeElement, 3000)
-        except:
-            treeElement = addBranchWildcardToRoot(treeElement)
-            item = waitForObjectItem(navigator, treeElement)
-        expected = str(item.text).split("/")[-1]
-        for _ in range(2):
-            # Expands items as needed what might make scrollbars appear.
-            # These might cover the item to click.
-            # In this case, do it again to hit the item then.
-            doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
-            mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-            if waitFor("str(mainWindow.windowTitle).startswith(expected + ' ')", 5000):
-                return True
-        test.log("Expected file (%s) was not being opened in openDocument()" % expected)
+
+        for i, t in enumerate(treePathElements):
+            indices = dumpIndices(navigator.model(), parentIndex)
+            foundT = False
+            for index in indices:
+                iText = str(index.text)
+                if (iText == t
+                    or (i == 0 and re.match(t + " [[].+[]]", iText) is not None)):
+                    foundT = True
+                    parentIndex = index
+                    break
+            if not foundT:
+                raise Exception("Failed to get index '%s' (%d)." % (t, i))
+            if not navigator.isExpanded(parentIndex):
+                navigator.scrollTo(parentIndex)
+                rect = navigator.visualRect(parentIndex)
+                doubleClick(navigator, rect.x + 50, rect.y + 5, 0, Qt.LeftButton)
+        # now we should have a full expanded tree up to the requested file
+        rect = navigator.visualRect(parentIndex)
+        doubleClick(navigator, rect.x + 50, rect.y + 5, 0, Qt.LeftButton)
+        mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+        fileNameWithoutLinePrefix = treePathElements[-1]
+        matching = re.match("^(.+)(:\\d+)$", fileNameWithoutLinePrefix)
+        if matching is not None:
+            fileNameWithoutLinePrefix = matching.group(1)
+        if waitFor("str(mainWindow.windowTitle).startswith(fileNameWithoutLinePrefix + ' ')", 5000):
+            return True
+        test.log("Expected file (%s) was not being opened in openDocument()" % treePathElements[-1])
         return False
     except:
         t,v = sys.exc_info()[:2]

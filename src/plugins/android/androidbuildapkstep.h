@@ -1,12 +1,13 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "android_global.h"
-
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/processparameters.h>
+
+#include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -26,7 +27,7 @@ public:
     QVariantMap toMap() const override;
 
     // signing
-    Utils::FilePath keystorePath();
+    Utils::FilePath keystorePath() const;
     void setKeystorePath(const Utils::FilePath &path);
     void setKeystorePassword(const QString &pwd);
     void setCertificateAlias(const QString &alias);
@@ -51,7 +52,8 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
-    void stdError(const QString &output) override;
+    QVersionNumber buildToolsVersion() const;
+    void setBuildToolsVersion(const QVersionNumber &version);
 
     QVariant data(Utils::Id id) const override;
 
@@ -61,14 +63,15 @@ private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QWidget *createConfigWidget() override;
-    void processStarted() override;
-    void processFinished(int exitCode, QProcess::ExitStatus status) override;
+    void finish(Utils::ProcessResult result) override;
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
 
     void doRun() override;
+    void stdError(const QString &output);
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
+    void updateBuildToolsVersionInJsonFile();
 
     bool m_buildAAB = false;
     bool m_signPackage = false;
@@ -77,6 +80,7 @@ private:
     bool m_openPackageLocationForRun = false;
     bool m_addDebugger = true;
     QString m_buildTargetSdk;
+    QVersionNumber m_buildToolsVersion;
 
     Utils::FilePath m_keystorePath;
     QString m_keystorePasswd;
@@ -84,8 +88,7 @@ private:
     QString m_certificatePasswd;
     Utils::FilePath m_packagePath;
 
-    Utils::FilePath m_command;
-    QString m_argumentsPasswordConcealed;
+    ProjectExplorer::ProcessParameters m_concealedParams;
     bool m_skipBuilding = false;
     Utils::FilePath m_inputFile;
 };

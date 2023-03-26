@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "subversionsettings.h"
 
 #include "subversionclient.h"
 #include "subversionplugin.h"
+#include "subversiontr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -36,8 +37,8 @@ SubversionSettings::SubversionSettings()
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setHistoryCompleter("Subversion.Command.History");
     binaryPath.setDefaultValue("svn" QTC_HOST_EXE_SUFFIX);
-    binaryPath.setDisplayName(tr("Subversion Command"));
-    binaryPath.setLabelText(tr("Subversion command:"));
+    binaryPath.setDisplayName(Tr::tr("Subversion Command"));
+    binaryPath.setLabelText(Tr::tr("Subversion command:"));
 
     registerAspect(&useAuthentication);
     useAuthentication.setSettingsKey("Authentication");
@@ -46,17 +47,17 @@ SubversionSettings::SubversionSettings()
     registerAspect(&userName);
     userName.setSettingsKey("User");
     userName.setDisplayStyle(StringAspect::LineEditDisplay);
-    userName.setLabelText(tr("Username:"));
+    userName.setLabelText(Tr::tr("Username:"));
 
     registerAspect(&password);
     password.setSettingsKey("Password");
     password.setDisplayStyle(StringAspect::LineEditDisplay);
-    password.setLabelText(tr("Password:"));
+    password.setLabelText(Tr::tr("Password:"));
 
     registerAspect(&spaceIgnorantAnnotation);
     spaceIgnorantAnnotation.setSettingsKey("SpaceIgnorantAnnotation");
     spaceIgnorantAnnotation.setDefaultValue(true);
-    spaceIgnorantAnnotation.setLabelText(tr("Ignore whitespace changes in annotation"));
+    spaceIgnorantAnnotation.setLabelText(Tr::tr("Ignore whitespace changes in annotation"));
 
     registerAspect(&diffIgnoreWhiteSpace);
     diffIgnoreWhiteSpace.setSettingsKey("DiffIgnoreWhiteSpace");
@@ -66,13 +67,13 @@ SubversionSettings::SubversionSettings()
 
     registerAspect(&logCount);
     logCount.setDefaultValue(1000);
-    logCount.setLabelText(tr("Log count:"));
+    logCount.setLabelText(Tr::tr("Log count:"));
 
     registerAspect(&timeout);
-    timeout.setLabelText(tr("Timeout:"));
-    timeout.setSuffix(tr("s"));
+    timeout.setLabelText(Tr::tr("Timeout:"));
+    timeout.setSuffix(Tr::tr("s"));
 
-    QObject::connect(&useAuthentication, &BaseAspect::changed, [this] {
+    QObject::connect(&useAuthentication, &BaseAspect::changed, this, [this] {
         userName.setEnabled(useAuthentication.value());
         password.setEnabled(useAuthentication.value());
     });
@@ -86,7 +87,7 @@ bool SubversionSettings::hasAuthentication() const
 SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
 {
     setId(VcsBase::Constants::VCS_ID_SUBVERSION);
-    setDisplayName(SubversionSettings::tr("Subversion"));
+    setDisplayName(Tr::tr("Subversion"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setSettings(settings);
 
@@ -96,12 +97,12 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
 
         Column {
             Group {
-                title(SubversionSettings::tr("Configuration")),
+                title(Tr::tr("Configuration")),
                 Column { s.binaryPath }
             },
 
             Group {
-                title(SubversionSettings::tr("Authentication"), &s.useAuthentication),
+                title(Tr::tr("Authentication"), &s.useAuthentication),
                 Form {
                     s.userName,
                     s.password,
@@ -109,7 +110,7 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
             },
 
             Group {
-                title(SubversionSettings::tr("Miscellaneous")),
+                title(Tr::tr("Miscellaneous")),
                 Column {
                     Row { s.logCount, s.timeout, st },
                     s.spaceIgnorantAnnotation,

@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "virtualfilesystemoverlay.h"
 
@@ -44,7 +44,7 @@ void VirtualFileSystemOverlay::update()
             QString error;
             saved.path = m_root.filePath(doc->filePath().fileName() + ".auto");
             while (saved.path.exists())
-                saved.path = saved.path + ".1";
+                saved.path = saved.path.stringAppended(".1");
             if (!doc->save(&error, saved.path, true)) {
                 qCDebug(LOG) << error;
                 continue;
@@ -92,17 +92,17 @@ void VirtualFileSystemOverlay::update()
     overlayFile.close();
 }
 
-Utils::FilePath VirtualFileSystemOverlay::overlayFilePath() { return m_overlayFilePath; }
+Utils::FilePath VirtualFileSystemOverlay::overlayFilePath() const { return m_overlayFilePath; }
 
-Utils::FilePath VirtualFileSystemOverlay::autoSavedFilePath(Core::IDocument *doc)
+Utils::FilePath VirtualFileSystemOverlay::autoSavedFilePath(Core::IDocument *doc) const
 {
-    auto it = m_saved.find(doc);
-    if (it != m_saved.end())
+    const auto it = m_saved.constFind(doc);
+    if (it != m_saved.constEnd())
         return it.value().path;
     return doc->filePath();
 }
 
-Utils::FilePath VirtualFileSystemOverlay::originalFilePath(const Utils::FilePath &file)
+Utils::FilePath VirtualFileSystemOverlay::originalFilePath(const Utils::FilePath &file) const
 {
     return m_mapping.value(file, file);
 }

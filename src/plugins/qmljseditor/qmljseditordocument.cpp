@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljseditordocument.h"
 
@@ -483,7 +483,9 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
             &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
 
     // semantic info
-    m_semanticInfoUpdater = new SemanticInfoUpdater(this);
+    m_semanticInfoUpdater = new SemanticInfoUpdater();
+    connect(m_semanticInfoUpdater, &SemanticInfoUpdater::finished,
+            m_semanticInfoUpdater, &QObject::deleteLater);
     connect(m_semanticInfoUpdater, &SemanticInfoUpdater::updated,
             this, &QmlJSEditorDocumentPrivate::acceptNewSemanticInfo);
     m_semanticInfoUpdater->start();
@@ -509,7 +511,6 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
 QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
 {
     m_semanticInfoUpdater->abort();
-    m_semanticInfoUpdater->wait();
     // clean up all marks, otherwise a callback could try to access deleted members.
     // see QTCREATORBUG-20199
     cleanDiagnosticMarks();

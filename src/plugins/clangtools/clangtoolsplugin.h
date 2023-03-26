@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,8 +8,7 @@
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class ProjectPanelFactory; }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 ProjectExplorer::ProjectPanelFactory *projectPanelFactory();
 
@@ -23,14 +22,11 @@ public:
     ~ClangToolsPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     void registerAnalyzeActions();
     void onCurrentEditorChanged();
-
-    QVector<QObject *> createTestObjects() const final;
 
     class ClangToolsPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal

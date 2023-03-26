@@ -1,5 +1,5 @@
 // Copyright (C) 2023 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
@@ -30,7 +30,7 @@ T.MenuItem {
             id: iconLabel
             text: control.checked ? StudioTheme.Constants.tickIcon : ""
             visible: true
-            color: control.enabled ? control.highlighted ? control.style.text.selectedText                                                         : control.style.text.idle                                    : control.style.text.disabled
+            color: control.enabled ? control.highlighted ? control.style.text.selectedText : control.style.text.idle : control.style.text.disabled
             font.family: StudioTheme.Constants.iconFont.family
             font.pixelSize: control.style.baseIconFontSize
             anchors.verticalCenter: parent.verticalCenter
@@ -41,7 +41,7 @@ T.MenuItem {
             x: control.style.squareControlSize.width
             text: control.text
             font: control.font
-            color: control.enabled ? control.highlighted ? control.style.text.selectedText                                                         : control.style.text.idle                                    : control.style.text.disabled
+            color: control.enabled ? control.highlighted ? control.style.text.selectedText : control.style.text.idle : control.style.text.disabled
             anchors.verticalCenter: parent.verticalCenter
         }
     }

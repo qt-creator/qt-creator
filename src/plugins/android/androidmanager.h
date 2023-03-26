@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -78,7 +78,7 @@ public:
     static Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
     static void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
     static Utils::FilePath manifestSourcePath(const ProjectExplorer::Target *target);
-    static Utils::FilePath apkPath(const ProjectExplorer::Target *target);
+    static Utils::FilePath packagePath(const ProjectExplorer::Target *target);
     static bool matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis);
     static QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis);
     static ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
@@ -87,12 +87,13 @@ public:
 
     static void installQASIPackage(ProjectExplorer::Target *target, const Utils::FilePath &packagePath);
 
-    static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
-    static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd,
+    static bool checkKeystorePassword(const Utils::FilePath &keystorePath,
+                                      const QString &keystorePasswd);
+    static bool checkCertificatePassword(const Utils::FilePath &keystorePath,
+                                         const QString &keystorePasswd,
                                          const QString &alias, const QString &certificatePasswd);
-    static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
-                                       const QString &alias);
-    static bool updateGradleProperties(ProjectExplorer::Target *target, const QString &buildKey);
+    static bool checkCertificateExists(const Utils::FilePath &keystorePath,
+                                       const QString &keystorePasswd, const QString &alias);
 
     static QProcess *runAdbCommandDetached(const QStringList &args, QString *err = nullptr,
                                            bool deleteOnFinish = false);

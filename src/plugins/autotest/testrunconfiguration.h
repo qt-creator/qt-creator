@@ -1,11 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "testconfiguration.h"
-
-#include "autotesttr.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 
@@ -16,6 +14,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
+
 namespace Autotest {
 namespace Internal {
 
@@ -25,7 +25,7 @@ public:
     TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
         : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
     {
-        setDefaultDisplayName(Tr::tr("AutoTest Debug"));
+        setDefaultDisplayName(QCoreApplication::translate("QtC::Autotest", "AutoTest Debug"));
 
         bool enableQuick = false;
         if (auto debuggable = dynamic_cast<DebuggableTestConfiguration *>(config))

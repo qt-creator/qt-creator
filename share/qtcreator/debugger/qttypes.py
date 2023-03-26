@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import platform
 import struct
@@ -418,7 +418,24 @@ def qdump__QDir(d, value):
     d.putExpandable()
     privAddress = d.extractPointer(value)
     bit32 = d.ptrSize() == 4
-    qt5 = d.qtVersion() >= 0x050000
+
+    # change fc3942114da adds FileCache
+    # QStringList nameFilters;
+    # QDir::SortFlags sort;
+    # QDir::Filters filters;
+    # std::unique_ptr<QAbstractFileEngine> fileEngine;
+    # QFileSystemEntry dirEntry;
+    # struct FileCache
+    # {
+    #     QMutex mutex;
+    #     QStringList files;
+    #     QFileInfoList fileInfos;
+    #     std::atomic<bool> fileListsInitialized = false;
+    #     QFileSystemEntry absoluteDirEntry;
+    #     QFileSystemMetaData metaData;
+    # };
+    # mutable FileCache fileCache;
+
 
     # Change 9fc0965 reorders members again.
     #   bool fileListsInitialized
@@ -454,7 +471,9 @@ def qdump__QDir(d, value):
     #   + 2 byte padding
     fileSystemEntrySize = 2 * d.ptrSize() + 8
 
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersion() >= 0x060600:
+        case = 3
+    elif d.qtVersion() >= 0x060000:
         case = 2
     elif d.qtVersion() >= 0x050300:
         case = 1
@@ -467,7 +486,20 @@ def qdump__QDir(d, value):
         firstValue = d.extractInt(privAddress + d.ptrSize())
         case = 1 if firstValue == 0 or firstValue == 1 else 0
 
-    if case == 2:
+    if case == 3:
+        if bit32:
+            dirEntryOffset = 24
+            fileCacheOffset = 52
+            filesOffset = fileCacheOffset + 4
+            fileInfosOffset = fileCacheOffset + 16
+            absoluteDirEntryOffset = fileCacheOffset + 32
+        else:
+            dirEntryOffset = 48
+            fileCacheOffset = 104
+            filesOffset = fileCacheOffset + 8
+            fileInfosOffset = fileCacheOffset + 32
+            absoluteDirEntryOffset = fileCacheOffset + 64
+    elif case == 2:
         if bit32:
             filesOffset = 4
             fileInfosOffset = 16
@@ -507,6 +539,7 @@ def qdump__QDir(d, value):
                     d.call('int', value, 'count')  # Fill cache.
                 except:
                     pass
+
                 #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
                 #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
                 with SubItem(d, 'absolutePath'):
@@ -2123,7 +2156,7 @@ def qdumpHelper__QVariant6(d, value):
         d.split('HHIIIpp', metaTypeInterface)
 
     # Well-known simple type.
-    if variantType <= 6:
+    if variantType >= 1 and variantType <= 6:
         qdumpHelper_QVariants_A[variantType](d, value)
         return None
 
@@ -2328,7 +2361,10 @@ def qdump_QWeakPointerHelper(d, value, isWeak, innerType=None):
     if innerType is None:
         innerType = value.type[0]
     with Children(d):
-        short = d.putSubItem('data', d.createValue(val, innerType))
+        dataAddress = value.laddress
+        if isWeak:
+            dataAddress = dataAddress + d.ptrSize()
+        short = d.putSubItem('data', d.createValue(dataAddress, d.createPointerType(innerType)))
         d.putIntItem('weakref', weakref)
         d.putIntItem('strongref', strongref)
     d.putValue(short.value, short.encoding)
@@ -2851,43 +2887,82 @@ def qdump_32__QJSValue(d, value):
 
 def qdump_64__QJSValue_6(d, value):
     dd = value.split('Q')[0]
-    typ = dd >> 47
-
     if dd == 0:
         d.putValue('(undefined)')
         d.putType(value.type.name + ' (undefined)')
-    elif typ == 5:
-        d.putValue('(null)')
-        d.putType(value.type.name + ' (null)')
-    elif typ == 6:
-        d.putValue('true' if dd & 1 else 'false')
-        d.putType(value.type.name + ' (bool)')
-    elif typ == 7:
-        d.putValue(dd & 0xfffffffff)
-        d.putType(value.type.name + ' (int)')
-    elif typ > 7:
-        val = d.Value(d)
-        val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
-        val._type = d.createType('double')
-        d.putItem(val)
-        d.putType(value.type.name + ' (double)')
-    elif typ <= 3: # Heap
-        if dd & 1: # String
+    if d.qtVersion() < 0x60500:
+        typ = dd >> 47
+        if typ == 5:
+            d.putValue('(null)')
+            d.putType(value.type.name + ' (null)')
+        elif typ == 6:
+            d.putValue('true' if dd & 1 else 'false')
+            d.putType(value.type.name + ' (bool)')
+        elif typ == 7:
+            d.putValue(dd & 0xfffffffff)
+            d.putType(value.type.name + ' (int)')
+        elif typ > 7:
             val = d.Value(d)
-            val.ldata = struct.pack('q', dd & ~1)
-            val._type = d.createType('@QString*')
+            val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
+            val._type = d.createType('double')
             d.putItem(val)
-            d.putType(value.type.name + ' (QString)')
+            d.putType(value.type.name + ' (double)')
+        elif typ <= 3: # Heap
+            if dd & 1: # String
+                val = d.Value(d)
+                val.ldata = struct.pack('q', dd & ~1)
+                val._type = d.createType('@QString*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (QString)')
+            else:
+                # FIXME: Arrays, Objects missing.
+                val = d.split('{@QV4::Managed*}', value)[0]
+                d.putItem(val)
+                d.putItemCount(1)
         else:
-            # FIXME: Arrays, Objects missing.
-            val = d.split('{@QV4::Managed*}', value)[0]
-            d.putItem(val)
+            d.putEmptyValue()
             d.putItemCount(1)
+            d.putPlainChildren(value)
+            return
+
     else:
-        d.putEmptyValue()
-        d.putItemCount(1)
-        d.putPlainChildren(value)
-        return
+        typ = dd & 7
+        isPointer = typ & 1
+        if typ == 0:
+            d.putValue('(undefined)')
+            d.putType(value.type.name + ' (undefined)')
+        elif typ == 2:
+            d.putValue('(null)')
+            d.putType(value.type.name + ' (null)')
+        elif typ == 4:
+            d.putValue(dd >> 32)
+            d.putType(value.type.name + ' (int)')
+        elif typ == 6:
+            d.putValue('true' if dd >> 32 & 1 else 'false')
+            d.putType(value.type.name + ' (bool)')
+        elif isPointer:
+            pointer = dd >> 3
+            pointer = pointer << 3
+            val = d.Value(d)
+            val.ldata = struct.pack('q', pointer)
+            if typ == 1:
+                val._type = d.createType('double*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (double)')
+            elif typ == 3:
+                val._type = d.createType('@QV4::Value*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (QV4::Value)')
+            elif typ == 5:
+                val._type = d.createType('@QString*')
+                d.putItem(val)
+                d.putType(value.type.name + ' (QString)')
+
+        else:
+            d.putEmptyValue()
+            d.putItemCount(1)
+            d.putPlainChildren(value)
+            return
 
     if d.isExpanded():
         with Children(d):

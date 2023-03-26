@@ -36,7 +36,7 @@
            \c {imports\asset_imports}.
 
         \li For Qt Quick UI projects (.qmlproject), specify the path to
-            the directory that contains the module in the .qmlproject file
+            the directory that has the module in the .qmlproject file
             of the application where you want to use the module
             as a value of the \c importPaths variable. For example
             \c{importPaths: [ "imports", "asset_imports" ]}.
@@ -77,7 +77,7 @@
 
     When \l{Defining QML Types from C++}{registering QML types}, make sure that
     the QML module has a \c{plugins.qmltypes} file. Ideally, it should be located
-    in the same directory as the \c qmldir file. The \c qmltypes file contains a
+    in the same directory as the \c qmldir file. The \c qmltypes file has a
     description of the components exported by the module's plugins and is loaded
     by \QC when the module is imported.
 

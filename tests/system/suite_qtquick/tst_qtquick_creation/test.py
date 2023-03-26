@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -8,7 +8,7 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    available = [("5.14", "Qt Quick Application", Targets.DESKTOP_5_14_1_DEFAULT),
+    available = [("6.2", "Qt Quick Application", Targets.DESKTOP_6_2_4),
                  ]
 
     for qtVersion, appTemplate, targ in available:
@@ -33,7 +33,7 @@ def main():
                 checkCompile()
             else:
                 appOutput = logApplicationOutput()
-                test.verify(not ("main.qml" in appOutput or "MainForm.ui.qml" in appOutput),
+                test.verify(not ("Main.qml" in appOutput or "MainForm.ui.qml" in appOutput),
                             "Does the Application Output indicate QML errors?")
         invokeMenuItem("File", "Close All Projects and Editors")
 

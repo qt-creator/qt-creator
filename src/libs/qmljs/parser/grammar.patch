@@ -1,8 +1,10 @@
 diff --git a/src/libs/qmljs/parser/qmldirparser.cpp b/src/libs/qmljs/parser/qmldirparser.cpp
-index 747d2010f3..e9d22624ef 100644
+index 49b7ee9d0c..690d1ef557 100644
 --- a/src/libs/qmljs/parser/qmldirparser.cpp
 +++ b/src/libs/qmljs/parser/qmldirparser.cpp
-@@ -25,14 +25,10 @@
+@@ -1,72 +1,42 @@
+ // Copyright (C) 2021 The Qt Company Ltd.
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
  
  #include "qmldirparser_p.h"
  
@@ -17,7 +19,19 @@ index 747d2010f3..e9d22624ef 100644
  static int parseInt(QStringView str, bool *ok)
  {
      int pos = 0;
-@@ -50,45 +46,19 @@ static int parseInt(QStringView str, bool *ok)
+     int number = 0;
+-    while (pos < str.length() && str.at(pos).isDigit()) {
++    while (pos < str.size() && str.at(pos).isDigit()) {
+         if (pos != 0)
+             number *= 10;
+         number += str.at(pos).unicode() - '0';
+         ++pos;
+     }
+-    if (pos != str.length())
++    if (pos != str.size())
+         *ok = false;
+     else
+         *ok = true;
      return number;
  }
  
@@ -32,7 +46,13 @@ index 747d2010f3..e9d22624ef 100644
 -            *minor = parseInt(QStringView(str.constData() + dotIndex + 1, str.length() - dotIndex - 1),
 -                              &ok);
 -        return ok;
--    }
++        const int major = parseInt(QStringView(str).left(dotIndex), &ok);
++        if (!ok)
++            return QTypeRevision();
++        const int minor = parseInt(QStringView(str).mid(dotIndex + 1, str.size() - dotIndex - 1),
++                                   &ok);
++        return ok ? QTypeRevision::fromVersion(major, minor) : QTypeRevision();
+     }
 -    return false;
 -}
 -
@@ -59,19 +79,13 @@ index 747d2010f3..e9d22624ef 100644
 -        major = parseInt(QStringView(str.constData(), str.length()),
 -                         &ok);
 -        minor = ComponentVersion::MaxVersion;
-+        const int major = parseInt(QStringView(str).left(dotIndex), &ok);
-+        if (!ok)
-+            return QTypeRevision();
-+        const int minor = parseInt(QStringView(str).mid(dotIndex + 1, str.length() - dotIndex - 1),
-+                                   &ok);
-+        return ok ? QTypeRevision::fromVersion(major, minor) : QTypeRevision();
-     }
+-    }
 -    return ComponentVersion(major, minor);
 +    return QTypeRevision();
  }
  
  void QmlDirParser::clear()
-@@ -132,12 +102,12 @@ bool QmlDirParser::parse(const QString &source)
+@@ -110,12 +80,12 @@ bool QmlDirParser::parse(const QString &source)
      auto readImport = [&](const QString *sections, int sectionCount, Import::Flags flags) {
          Import import;
          if (sectionCount == 2) {
@@ -87,7 +101,7 @@ index 747d2010f3..e9d22624ef 100644
                  if (version.isValid()) {
                      import = Import(sections[1], version, flags);
                  } else {
-@@ -275,7 +245,7 @@ bool QmlDirParser::parse(const QString &source)
+@@ -253,7 +243,7 @@ bool QmlDirParser::parse(const QString &source)
                              QStringLiteral("internal types require 2 arguments, but %1 were provided").arg(sectionCount - 1));
                  continue;
              }
@@ -96,7 +110,7 @@ index 747d2010f3..e9d22624ef 100644
              entry.internal = true;
              _components.insert(entry.typeName, entry);
          } else if (sections[0] == QLatin1String("singleton")) {
-@@ -286,16 +256,16 @@ bool QmlDirParser::parse(const QString &source)
+@@ -264,16 +254,16 @@ bool QmlDirParser::parse(const QString &source)
              } else if (sectionCount == 3) {
                  // handle qmldir directory listing case where singleton is defined in the following pattern:
                  // singleton TestSingletonType TestSingletonType.qml
@@ -117,7 +131,7 @@ index 747d2010f3..e9d22624ef 100644
                      entry.singleton = true;
                      _components.insert(entry.typeName, entry);
                  } else {
-@@ -361,19 +331,19 @@ bool QmlDirParser::parse(const QString &source)
+@@ -339,19 +339,19 @@ bool QmlDirParser::parse(const QString &source)
              _linkTarget = sections[1];
          } else if (sectionCount == 2) {
              // No version specified (should only be used for relative qmldir files)
@@ -142,7 +156,7 @@ index 747d2010f3..e9d22624ef 100644
                      _components.insert(entry.typeName, entry);
                  }
              } else {
-@@ -420,15 +390,19 @@ QList<QmlJS::DiagnosticMessage> QmlDirParser::errors(const QString &uri) const
+@@ -398,15 +398,19 @@ QList<QmlJS::DiagnosticMessage> QmlDirParser::errors(const QString &uri) const
  
  QDebug &operator<< (QDebug &debug, const QmlDirParser::Component &component)
  {
@@ -167,10 +181,16 @@ index 747d2010f3..e9d22624ef 100644
  }
  
 diff --git a/src/libs/qmljs/parser/qmldirparser_p.h b/src/libs/qmljs/parser/qmldirparser_p.h
-index d5a0aabfd0..c1869b7cc8 100644
+index 3d4ba5fdc0..9712ab2a6e 100644
 --- a/src/libs/qmljs/parser/qmldirparser_p.h
 +++ b/src/libs/qmljs/parser/qmldirparser_p.h
-@@ -36,15 +36,12 @@
+@@ -1,5 +1,5 @@
+ // Copyright (C) 2021 The Qt Company Ltd.
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+ 
+ #pragma once
+ 
+@@ -14,20 +14,17 @@
  // We mean it.
  //
  
@@ -191,7 +211,13 @@ index d5a0aabfd0..c1869b7cc8 100644
  
  QT_QML_BEGIN_NAMESPACE
  
-@@ -90,17 +87,19 @@ public:
+ class QmlEngine;
+-class QML_PARSER_EXPORT QmlDirParser
++class Q_QML_COMPILER_PRIVATE_EXPORT QmlDirParser
+ {
+ public:
+     void clear();
+@@ -68,17 +65,19 @@ public:
      {
          Component() = default;
  
@@ -216,7 +242,7 @@ index d5a0aabfd0..c1869b7cc8 100644
          bool internal = false;
          bool singleton = false;
      };
-@@ -109,16 +108,17 @@ public:
+@@ -87,43 +86,46 @@ public:
      {
          Script() = default;
  
@@ -238,7 +264,14 @@ index d5a0aabfd0..c1869b7cc8 100644
      };
  
      struct Import
-@@ -131,13 +131,15 @@ public:
+     {
+         enum Flag {
+             Default = 0x0,
+             Auto = 0x1,     // forward the version of the importing module
+             Optional = 0x2, // is not automatically imported but only a tooling hint
+             OptionalDefault
+             = 0x4, // tooling hint only, denotes this entry should be imported by tooling
+         };
          Q_DECLARE_FLAGS(Flags, Flag)
  
          Import() = default;
@@ -255,13 +288,37 @@ index d5a0aabfd0..c1869b7cc8 100644
 -        LanguageUtils::ComponentVersion version;     // invalid version is latest version, unless Flag::Auto
 +        QTypeRevision version; // invalid version is latest version, unless Flag::Auto
          Flags flags;
+ 
+         friend bool operator==(const Import &a, const Import &b)
+         {
+             return a.module == b.module && a.version == b.version && a.flags == b.flags;
+         }
      };
  
+     QMultiHash<QString,Component> components() const { return _components; }
 diff --git a/src/libs/qmljs/parser/qmlimportresolver.cpp b/src/libs/qmljs/parser/qmlimportresolver.cpp
-index e74c5840c1..e7416ef7f0 100644
+index 1d9582f76a..0c1c79860e 100644
 --- a/src/libs/qmljs/parser/qmlimportresolver.cpp
 +++ b/src/libs/qmljs/parser/qmlimportresolver.cpp
-@@ -40,20 +40,20 @@ enum ImportVersion { FullyVersioned, PartiallyVersioned, Unversioned };
+@@ -1,16 +1,13 @@
+ // Copyright (C) 2021 The Qt Company Ltd.
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+ 
+ #include "qmlimportresolver_p.h"
+-#include <QtCore/QList>
+-#include <QtCore/QStringList>
+-#include <QtCore/QStringView>
+ 
+ QT_QML_BEGIN_NAMESPACE
+ 
+ enum ImportVersion { FullyVersioned, PartiallyVersioned, Unversioned };
+ 
+-/*!
++/*
+     Forms complete paths to a module, from a list of base paths,
+     a module URI and version specification.
+ 
+@@ -21,20 +18,20 @@ enum ImportVersion { FullyVersioned, PartiallyVersioned, Unversioned };
      - base/QtQml.2/Models
      - base/QtQml/Models
  */
@@ -279,7 +336,8 @@ index e74c5840c1..e7416ef7f0 100644
  
      QStringList importPaths;
      // fully & partially versioned parts + 1 unversioned for each base path
-     importPaths.reserve(2 * parts.count() + 1);
+-    importPaths.reserve(2 * parts.count() + 1);
++    importPaths.reserve(2 * parts.size() + 1);
  
 -    auto versionString = [](LanguageUtils::ComponentVersion version, ImportVersion mode)
 -    {
@@ -287,7 +345,7 @@ index e74c5840c1..e7416ef7f0 100644
          if (mode == FullyVersioned) {
              // extension with fully encoded version number (eg. MyModule.3.2)
              return QString::fromLatin1(".%1.%2").arg(version.majorVersion())
-@@ -67,7 +67,7 @@ QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths
+@@ -48,7 +45,7 @@ QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths
          return QString();
      };
  
@@ -296,7 +354,7 @@ index e74c5840c1..e7416ef7f0 100644
          QString str;
          for (auto it = refs.cbegin(); it != refs.cend(); ++it) {
              if (it != refs.cbegin())
-@@ -77,9 +77,10 @@ QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths
+@@ -58,9 +55,10 @@ QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths
          return str;
      };
  
@@ -310,11 +368,26 @@ index e74c5840c1..e7416ef7f0 100644
      for (int mode = initial; mode <= Unversioned; ++mode) {
          const QString ver = versionString(version, ImportVersion(mode));
  
+@@ -74,7 +72,7 @@ QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths
+ 
+             if (mode != Unversioned) {
+                 // insert in the middle
+-                for (int index = parts.count() - 2; index >= 0; --index) {
++                for (int index = parts.size() - 2; index >= 0; --index) {
+                     importPaths += dir + joinStringRefs(parts.mid(0, index + 1), Slash)
+                             + ver + Slash
+                             + joinStringRefs(parts.mid(index + 1), Slash);
 diff --git a/src/libs/qmljs/parser/qmlimportresolver_p.h b/src/libs/qmljs/parser/qmlimportresolver_p.h
-index 68c052d408..8f18de3d0b 100644
+index 4c9ed68d11..0a36cd3c9b 100644
 --- a/src/libs/qmljs/parser/qmlimportresolver_p.h
 +++ b/src/libs/qmljs/parser/qmlimportresolver_p.h
-@@ -40,11 +40,12 @@
+@@ -1,5 +1,5 @@
+ // Copyright (C) 2021 The Qt Company Ltd.
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+ 
+ #pragma once
+ 
+@@ -18,11 +18,12 @@
  
  #include "qmljsglobal_p.h"
  #include <QtCore/qstring.h>
@@ -325,72 +398,35 @@ index 68c052d408..8f18de3d0b 100644
  
 -QML_PARSER_EXPORT QStringList qQmlResolveImportPaths(QStringView uri, const QStringList &basePaths,
 -                                   LanguageUtils::ComponentVersion version);
-+QML_PARSER_EXPORT QStringList qQmlResolveImportPaths(QStringView uri,
-+                                                     const QStringList &basePaths,
-+                                                     QTypeRevision version);
++Q_QML_COMPILER_PRIVATE_EXPORT QStringList qQmlResolveImportPaths(QStringView uri,
++                                                                 const QStringList &basePaths,
++                                                                 QTypeRevision version);
  
  QT_QML_END_NAMESPACE
-diff --git a/src/libs/qmljs/parser/qmljs.g b/src/libs/qmljs/parser/qmljs.g
-index 5f62edf4d1..19f4e200e5 100644
---- a/src/libs/qmljs/parser/qmljs.g
-+++ b/src/libs/qmljs/parser/qmljs.g
-@@ -381,7 +381,7 @@ public:
-     inline DiagnosticMessage diagnosticMessage() const
-     {
-         for (const DiagnosticMessage &d : diagnostic_messages) {
--            if (d.kind != Severity::Warning)
-+            if (d.type != QtWarningMsg)
-                 return d;
-         }
- 
-@@ -425,7 +425,7 @@ protected:
-         DiagnosticMessage error;
-         error.loc = location;
-         error.message = message;
--        error.kind = DiagnosticMessage::qtMsgTypeToKind(kind);
-+        error.type = kind;
-         return error;
-     }
- 
-@@ -446,8 +446,8 @@ protected:
-     Value *sym_stack = nullptr;
-     int *state_stack = nullptr;
-     SourceLocation *location_stack = nullptr;
--    QVector<QStringView> string_stack;
--    QVector<QStringView> rawString_stack;
-+    QList<QStringView> string_stack;
-+    QList<QStringView> rawString_stack;
- 
-     AST::Node *program = nullptr;
- 
-@@ -849,7 +849,7 @@ UiVersionSpecifier: T_VERSION_NUMBER T_DOT T_VERSION_NUMBER;
-     case $rule_number: {
-         const int major = sym(1).dval;
-         const int minor = sym(3).dval;
--        if (major < 0  || major >= 255 || minor < 0 || minor >= 255) {
-+        if (!QTypeRevision::isValidSegment(major) || !QTypeRevision::isValidSegment(minor)) {
-             diagnostic_messages.append(
-                     compileError(loc(1),
-                     QLatin1String("Invalid version. Version numbers must be >= 0 and < 255.")));
-@@ -862,11 +862,12 @@ UiVersionSpecifier: T_VERSION_NUMBER T_DOT T_VERSION_NUMBER;
-     } break;
- ./
- 
-+
- UiVersionSpecifier: T_VERSION_NUMBER;
- /.
-     case $rule_number: {
-         const int major = sym(1).dval;
--        if (major < 0 || major >= 255) {
-+        if (!QTypeRevision::isValidSegment(major)) {
-             diagnostic_messages.append(
-                     compileError(loc(1),
-                     QLatin1String("Invalid major version. Version numbers must be >= 0 and < 255.")));
 diff --git a/src/libs/qmljs/parser/qmljsast_p.h b/src/libs/qmljs/parser/qmljsast_p.h
-index 78b9f4b080..dcbcb5fd0d 100644
+index ba5cc3a719..b7280b1f56 100644
 --- a/src/libs/qmljs/parser/qmljsast_p.h
 +++ b/src/libs/qmljs/parser/qmljsast_p.h
-@@ -654,12 +654,14 @@ class QML_PARSER_EXPORT UiVersionSpecifier : public Node
+@@ -19,16 +19,15 @@
+ 
+ #include "qmljs/parser/qmljsmemorypool_p.h"
+ 
+ #include <QtCore/qtaggedpointer.h>
+ #include <QtCore/qversionnumber.h>
+ 
+-QT_BEGIN_NAMESPACE
+-class QString;
+-QT_END_NAMESPACE
+ #include <type_traits>
+ 
+ QT_QML_BEGIN_NAMESPACE
+ 
++class QString;
++
+ namespace QmlJS {
+ class Parser;
+ }
+@@ -634,12 +614,14 @@ class QML_PARSER_EXPORT UiVersionSpecifier : public Node
  public:
      QMLJS_DECLARE_AST_NODE(UiVersionSpecifier)
  
@@ -407,7 +443,7 @@ index 78b9f4b080..dcbcb5fd0d 100644
      {
          kind = K;
      }
-@@ -674,8 +676,7 @@ public:
+@@ -654,8 +636,7 @@ public:
      }
  
      // attributes:
@@ -417,38 +453,34 @@ index 78b9f4b080..dcbcb5fd0d 100644
      SourceLocation majorToken;
      SourceLocation minorToken;
  };
-@@ -881,14 +882,14 @@ struct QML_PARSER_EXPORT BoundName
-     };
+@@ -3418,19 +3403,19 @@ public:
  
-     QString id;
--    TypeAnnotation *typeAnnotation;
--    Type typeAnnotationType;
-+    QTaggedPointer<TypeAnnotation, Type> typeAnnotation;
-     BoundName(const QString &id, TypeAnnotation *typeAnnotation, Type type = Declared)
--    : id(id), typeAnnotation(typeAnnotation), typeAnnotationType(type)
-+        : id(id)
-+        , typeAnnotation(typeAnnotation, type)
-     {}
-     BoundName() = default;
-     QString typeName() const { return typeAnnotation ? typeAnnotation->type->toString() : QString(); }
--    bool isInjected() const { return typeAnnotation && typeAnnotationType == Injected; }
-+    bool isInjected() const { return typeAnnotation.tag() == Injected; }
- };
+     SourceLocation defaultToken() const
+     {
+-        return hasAttributes ? m_attributes->defaultToken() : SourceLocation{};
++      return hasAttributes ? m_attributes->defaultToken() : SourceLocation{};
+     }
+     bool isDefaultMember() const { return defaultToken().isValid(); }
  
- struct BoundNames : public QVector<BoundName>
-@@ -3486,7 +3487,6 @@ public:
-     SourceLocation identifierToken;
-     SourceLocation colonToken;
-     SourceLocation semicolonToken;
--
- private:
-     union {
-         SourceLocation m_propertyToken = SourceLocation{};
+     SourceLocation requiredToken() const
+     {
+-        return hasAttributes ? m_attributes->requiredToken() : SourceLocation{};
++      return hasAttributes ? m_attributes->requiredToken() : SourceLocation{};
+     }
+     bool isRequired() const { return requiredToken().isValid(); }
+ 
+     SourceLocation readonlyToken() const
+     {
+-        return hasAttributes ? m_attributes->readonlyToken() : SourceLocation{};
++      return hasAttributes ? m_attributes->readonlyToken() : SourceLocation{};
+     }
+     bool isReadonly() const { return readonlyToken().isValid(); }
+ 
 diff --git a/src/libs/qmljs/parser/qmljslexer.cpp b/src/libs/qmljs/parser/qmljslexer.cpp
-index 6c4eb70744..90f567d19c 100644
+index 248f1f92f3..4f8eefa4c6 100644
 --- a/src/libs/qmljs/parser/qmljslexer.cpp
 +++ b/src/libs/qmljs/parser/qmljslexer.cpp
-@@ -27,6 +27,7 @@
+@@ -5,6 +5,7 @@
  #include "qmljsengine_p.h"
  #include "qmljskeywords_p.h"
  
@@ -456,26 +488,29 @@ index 6c4eb70744..90f567d19c 100644
  #include "qmljs/parser/qmljsdiagnosticmessage_p.h"
  #include "qmljs/parser/qmljsmemorypool_p.h"
  
-@@ -35,14 +36,6 @@
+@@ -13,11 +14,9 @@
  #include <QtCore/qdebug.h>
  #include <QtCore/QScopedValueRollback>
  
 -QT_BEGIN_NAMESPACE
--#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
--Q_CORE_EXPORT double qstrntod(const char *s00, int len, char const **se, bool *ok);
--#else
 -Q_CORE_EXPORT double qstrntod(const char *s00, qsizetype len, char const **se, bool *ok);
--#endif
 -QT_END_NAMESPACE
--
+ #include <optional>
+ 
++QT_QML_BEGIN_NAMESPACE
  using namespace QmlJS;
  
  static inline int regExpFlagFromChar(const QChar &ch)
 diff --git a/src/libs/qmljs/parser/qmljslexer_p.h b/src/libs/qmljs/parser/qmljslexer_p.h
-index a442748d74..dc7f7f7308 100644
+index c34636f2ba..73a853a6d1 100644
 --- a/src/libs/qmljs/parser/qmljslexer_p.h
 +++ b/src/libs/qmljs/parser/qmljslexer_p.h
-@@ -47,7 +47,7 @@ QT_QML_BEGIN_NAMESPACE
+@@ -22,12 +22,12 @@
+ 
+ QT_QML_BEGIN_NAMESPACE
+ 
+ class QDebug;
+ 
  namespace QmlJS {
  
  class Engine;
@@ -484,11 +519,33 @@ index a442748d74..dc7f7f7308 100644
  class Directives;
  
  class QML_PARSER_EXPORT Lexer: public QmlJSGrammar
+diff --git a/src/libs/qmljs/parser/qmljsmemorypool_p.h b/src/libs/qmljs/parser/qmljsmemorypool_p.h
+index b13e795be5..8d0321af27 100644
+--- a/src/libs/qmljs/parser/qmljsmemorypool_p.h
++++ b/src/libs/qmljs/parser/qmljsmemorypool_p.h
+@@ -14,7 +14,7 @@
+ // We mean it.
+ //
+ 
+-#include "qmljsglobal_p.h"
++#include <QtCore/private/qglobal_p.h>
+ #include <QtCore/qstring.h>
+ #include <QtCore/qvector.h>
+ 
 diff --git a/src/libs/qmljs/parser/qmljssourcelocation_p.h b/src/libs/qmljs/parser/qmljssourcelocation_p.h
-index 29be90fd9b..865c008f19 100644
+index 8713cad548..8f9148d079 100644
 --- a/src/libs/qmljs/parser/qmljssourcelocation_p.h
 +++ b/src/libs/qmljs/parser/qmljssourcelocation_p.h
-@@ -95,8 +95,11 @@ public:
+@@ -3,7 +3,7 @@
+ 
+ #pragma once
+ 
+-#include "qmljsglobal_p.h"
++#include <QtCore/private/qglobal_p.h>
+ #include <QtCore/qhashfunctions.h>
+ 
+ //
+@@ -73,8 +73,11 @@ public:
  
      friend size_t qHash(const SourceLocation &location, size_t seed = 0)
      {
@@ -502,3 +559,25 @@ index 29be90fd9b..865c008f19 100644
      }
  
      friend bool operator==(const SourceLocation &a, const SourceLocation &b)
+diff --git a/src/libs/qmljs/parser/qmljs.g b/src/libs/qmljs/parser/qmljs.g
+index 6789f6e673..fdd31500a3 100644
+--- a/src/libs/qmljs/parser/qmljs.g
++++ b/src/libs/qmljs/parser/qmljs.g
+@@ -286,7 +286,7 @@ public:
+     inline DiagnosticMessage diagnosticMessage() const
+     {
+         for (const DiagnosticMessage &d : diagnostic_messages) {
++            if (d.type != QtWarningMsg)
+-            if (d.isWarning())
+                 return d;
+         }
+
+@@ -330,7 +330,7 @@ protected:
+         DiagnosticMessage error;
+         error.loc = location;
+         error.message = message;
++        error.type = kind;
+-        error.kind = DiagnosticMessage::qtMsgTypeToKind(kind);
+         return error;
+     }
+

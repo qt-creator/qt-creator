@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pathselectionitem.h"
 
@@ -153,7 +153,7 @@ QPainterPath PathSelectionItem::shape() const
 {
     QPainterPath shape;
     shape.setFillRule(Qt::WindingFill);
-    foreach (const GraphicsHandleItem *handle, m_handles)
+    for (const GraphicsHandleItem *handle : m_handles)
         shape.addPath(handle->shape());
     // TODO duplicate of ArrowItem::GraphicsShaftItem's shape
     QPolygonF polygon;
@@ -179,7 +179,7 @@ void PathSelectionItem::setPointSize(const QSizeF &size)
 QList<QPointF> PathSelectionItem::points() const
 {
     QList<QPointF> points;
-    foreach (GraphicsHandleItem *handle, m_handles)
+    for (GraphicsHandleItem *handle : m_handles)
         points.append(handle->pos());
     return points;
 }
@@ -195,7 +195,7 @@ void PathSelectionItem::setPoints(const QList<QPointF> &points)
         m_handles.removeLast();
     }
     int pointIndex = 0;
-    foreach (const QPointF &point, points) {
+    for (const QPointF &point : std::as_const(points)) {
         GraphicsHandleItem *handle;
         if (focusEndBItem && pointIndex == points.size() - 1) {
             handle = focusEndBItem;
@@ -254,7 +254,7 @@ void PathSelectionItem::update()
 {
     prepareGeometryChange();
     int i = 0;
-    foreach (GraphicsHandleItem *handle, m_handles) {
+    for (GraphicsHandleItem *handle : std::as_const(m_handles)) {
         handle->setPointSize(m_pointSize);
         handle->setSelection(m_isSecondarySelected
                              ? (isEndHandle(i) ? GraphicsHandleItem::NotSelected : GraphicsHandleItem::SecondarySelected)

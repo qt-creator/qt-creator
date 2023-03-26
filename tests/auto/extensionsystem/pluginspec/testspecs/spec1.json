@@ -11,7 +11,8 @@
             "blubbblubb",
             "end of terms"
         ],
-        "Description" : [
+        "Description" : "This plugin is just a test.",
+        "LongDescription" : [
             "This plugin is just a test.",
             "    it demonstrates the great use of the plugin spec."
         ],

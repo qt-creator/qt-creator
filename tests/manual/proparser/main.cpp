@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakeglobals.h"
 #include "qmakevfs.h"
@@ -58,9 +58,9 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
 #endif
     visitor.setOutputDir(out_pwd);
 
-    ProFile *pro;
-    if (!(pro = parser->parsedProFile(fileName))) {
-        if (!QFile::exists(fileName)) {
+    ProFile *pro = parser->parsedProFile(option->device_root, fileName);
+    if (!pro) {
+        if (!QFileInfo::exists(option->device_root + fileName)) {
             qCritical("Input file %s does not exist.", qPrintable(fileName));
             return 3;
         }
@@ -74,7 +74,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
     if (visitor.templateType() == ProFileEvaluator::TT_Subdirs) {
         QStringList subdirs = visitor.values(QLatin1String("SUBDIRS"));
         subdirs.removeDuplicates();
-        foreach (const QString &subDirVar, subdirs) {
+        for (const QString &subDirVar : std::as_const(subdirs)) {
             QString realDir;
             const QString subDirKey = subDirVar + QLatin1String(".subdir");
             const QString subDirFileKey = subDirVar + QLatin1String(".file");
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
     option.useEnvironment();
     if (out_pwd.isEmpty())
         out_pwd = in_pwd;
-    option.setDirectories(in_pwd, out_pwd);
+    option.setDirectories(in_pwd, out_pwd, {});
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &evalHandler);

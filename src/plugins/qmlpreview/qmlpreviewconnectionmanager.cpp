@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlpreviewconnectionmanager.h"
 
@@ -146,35 +146,40 @@ void QmlPreviewConnectionManager::createPreviewClient()
     connect(this, &QmlPreviewConnectionManager::zoom,
                      m_qmlPreviewClient.data(), &QmlPreviewClient::zoom);
 
-    connect(m_qmlPreviewClient.data(), &QmlPreviewClient::pathRequested,
-                     this, [this](const QString &path) {
-        const bool found = m_projectFileFinder.findFileOrDirectory(
-                    path, [&](const QString &filename, int confidence) {
-            if (m_fileLoader && confidence == path.length()) {
-                bool success = false;
-                QByteArray contents = m_fileLoader(filename, &success);
-                if (success) {
-                    if (!m_fileSystemWatcher.watchesFile(filename)) {
-                        m_fileSystemWatcher.addFile(filename,
-                            Utils::FileSystemWatcher::WatchModifiedDate);
-                    }
-                    m_qmlPreviewClient->announceFile(path, contents);
-                } else {
-                    m_qmlPreviewClient->announceError(path);
-                }
-            } else {
-                m_qmlPreviewClient->announceError(path);
-            }
-        }, [&](const QStringList &entries, int confidence) {
-            if (confidence == path.length())
-                m_qmlPreviewClient->announceDirectory(path, entries);
-            else
-                m_qmlPreviewClient->announceError(path);
-        });
+    connect(m_qmlPreviewClient.data(),
+            &QmlPreviewClient::pathRequested,
+            this,
+            [this](const QString &path) {
+                const bool found = m_projectFileFinder.findFileOrDirectory(
+                    Utils::FilePath::fromString(path),
+                    [&](const Utils::FilePath &filename, int confidence) {
+                        if (m_fileLoader && confidence == path.length()) {
+                            bool success = false;
+                            QByteArray contents = m_fileLoader(filename.toFSPathString(), &success);
+                            if (success) {
+                                if (!m_fileSystemWatcher.watchesFile(filename)) {
+                                    m_fileSystemWatcher
+                                        .addFile(filename,
+                                                 Utils::FileSystemWatcher::WatchModifiedDate);
+                                }
+                                m_qmlPreviewClient->announceFile(path, contents);
+                            } else {
+                                m_qmlPreviewClient->announceError(path);
+                            }
+                        } else {
+                            m_qmlPreviewClient->announceError(path);
+                        }
+                    },
+                    [&](const QStringList &entries, int confidence) {
+                        if (confidence == path.length())
+                            m_qmlPreviewClient->announceDirectory(path, entries);
+                        else
+                            m_qmlPreviewClient->announceError(path);
+                    });
 
-        if (!found)
-            m_qmlPreviewClient->announceError(path);
-    });
+                if (!found)
+                    m_qmlPreviewClient->announceError(path);
+            });
 
     connect(m_qmlPreviewClient.data(),
             &QmlPreviewClient::errorReported,

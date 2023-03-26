@@ -1,12 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidconfigurations.h"
-#include "androidconstants.h"
-#include "androidmanager.h"
 #include "androidsdkmanager.h"
 #include "androidtr.h"
 #include "avdmanageroutputparser.h"
+#include "sdkmanageroutputparser.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -21,47 +20,29 @@
 #include <QSettings>
 #include <QTextCodec>
 
-#ifdef WITH_TESTS
-#   include <QTest>
-#   include "androidplugin.h"
-#endif // WITH_TESTS
-
 namespace {
-static Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
+Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
+const char commonArgsKey[] = "Common Arguments:";
 }
+
+using namespace Utils;
 
 namespace Android {
 namespace Internal {
 
-const char installLocationKey[] = "Installed Location:";
-const char revisionKey[] = "Version:";
-const char descriptionKey[] = "Description:";
-const char commonArgsKey[] = "Common Arguments:";
 
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
 
-Q_GLOBAL_STATIC_WITH_ARGS(QRegularExpression, assertionReg,
-                          ("(\\(\\s*y\\s*[\\/\\\\]\\s*n\\s*\\)\\s*)(?<mark>[\\:\\?])",
-                           QRegularExpression::CaseInsensitiveOption
-                           | QRegularExpression::MultilineOption))
-
-using namespace Utils;
 using SdkCmdFutureInterface = QFutureInterface<AndroidSdkManager::OperationOutput>;
 
-/*!
-    Parses the \a line for a [spaces]key[spaces]value[spaces] pattern and returns
-    \c true if \a key is found, false otherwise. Result is copied into \a value.
- */
-static bool valueForKey(QString key, const QString &line, QString *value = nullptr)
+static const QRegularExpression &assertionRegExp()
 {
-    auto trimmedInput = line.trimmed();
-    if (trimmedInput.startsWith(key)) {
-        if (value)
-            *value = trimmedInput.section(key, 1, 1).trimmed();
-        return true;
-    }
-    return false;
+    static const QRegularExpression theRegExp
+        (R"((\(\s*y\s*[\/\\]\s*n\s*\)\s*)(?<mark>[\:\?]))", // (y/N)?
+        QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption);
+
+    return theRegExp;
 }
 
 int parseProgress(const QString &out, bool &foundAssertion)
@@ -69,8 +50,9 @@ int parseProgress(const QString &out, bool &foundAssertion)
     int progress = -1;
     if (out.isEmpty())
         return progress;
-    QRegularExpression reg("(?<progress>\\d*)%");
-    QStringList lines = out.split(QRegularExpression("[\\n\\r]"), Qt::SkipEmptyParts);
+    static const QRegularExpression reg("(?<progress>\\d*)%");
+    static const QRegularExpression regEndOfLine("[\\n\\r]");
+    const QStringList lines = out.split(regEndOfLine, Qt::SkipEmptyParts);
     for (const QString &line : lines) {
         QRegularExpressionMatch match = reg.match(line);
         if (match.hasMatch()) {
@@ -79,7 +61,7 @@ int parseProgress(const QString &out, bool &foundAssertion)
                 progress = -1;
         }
         if (!foundAssertion)
-            foundAssertion = assertionReg->match(line).hasMatch();
+            foundAssertion = assertionRegExp().match(line).hasMatch();
     }
     return progress;
 }
@@ -218,87 +200,6 @@ public:
     bool m_packageListingSuccessful = false;
 };
 
-/*!
-    \class SdkManagerOutputParser
-    \brief The SdkManagerOutputParser class is a helper class to parse the output of the \c sdkmanager
-    commands.
- */
-class SdkManagerOutputParser
-{
-    class GenericPackageData
-    {
-    public:
-        bool isValid() const { return !revision.isNull() && !description.isNull(); }
-        QStringList headerParts;
-        QVersionNumber revision;
-        QString description;
-        Utils::FilePath installedLocation;
-        QMap<QString, QString> extraData;
-    };
-
-public:
-    enum MarkerTag
-    {
-        None                        = 0x001,
-        InstalledPackagesMarker     = 0x002,
-        AvailablePackagesMarkers    = 0x004,
-        AvailableUpdatesMarker      = 0x008,
-        EmptyMarker                 = 0x010,
-        PlatformMarker              = 0x020,
-        SystemImageMarker           = 0x040,
-        BuildToolsMarker            = 0x080,
-        SdkToolsMarker              = 0x100,
-        PlatformToolsMarker         = 0x200,
-        EmulatorToolsMarker         = 0x400,
-        NdkMarker                   = 0x800,
-        ExtrasMarker                = 0x1000,
-        CmdlineSdkToolsMarker       = 0x2000,
-        GenericToolMarker           = 0x4000,
-        SectionMarkers = InstalledPackagesMarker | AvailablePackagesMarkers | AvailableUpdatesMarker
-    };
-
-    SdkManagerOutputParser(AndroidSdkPackageList &container) : m_packages(container) {}
-    void parsePackageListing(const QString &output);
-
-    AndroidSdkPackageList &m_packages;
-
-private:
-    void compilePackageAssociations();
-    void parsePackageData(MarkerTag packageMarker, const QStringList &data);
-    bool parseAbstractData(GenericPackageData &output, const QStringList &input, int minParts,
-                           const QString &logStrTag,
-                           const QStringList &extraKeys = QStringList()) const;
-    AndroidSdkPackage *parsePlatform(const QStringList &data) const;
-    QPair<SystemImage *, int> parseSystemImage(const QStringList &data) const;
-    BuildTools *parseBuildToolsPackage(const QStringList &data) const;
-    SdkTools *parseSdkToolsPackage(const QStringList &data) const;
-    PlatformTools *parsePlatformToolsPackage(const QStringList &data) const;
-    EmulatorTools *parseEmulatorToolsPackage(const QStringList &data) const;
-    Ndk *parseNdkPackage(const QStringList &data) const;
-    ExtraTools *parseExtraToolsPackage(const QStringList &data) const;
-    GenericSdkPackage *parseGenericTools(const QStringList &data) const;
-    MarkerTag parseMarkers(const QString &line);
-
-    MarkerTag m_currentSection = MarkerTag::None;
-    QHash<AndroidSdkPackage *, int> m_systemImages;
-};
-
-using MarkerTagsType = std::map<SdkManagerOutputParser::MarkerTag, const char *>;
-Q_GLOBAL_STATIC_WITH_ARGS(MarkerTagsType, markerTags, ({
-    {SdkManagerOutputParser::MarkerTag::InstalledPackagesMarker,    "Installed packages:"},
-    {SdkManagerOutputParser::MarkerTag::AvailablePackagesMarkers,   "Available Packages:"},
-    {SdkManagerOutputParser::MarkerTag::AvailableUpdatesMarker,     "Available Updates:"},
-    {SdkManagerOutputParser::MarkerTag::PlatformMarker,             "platforms"},
-    {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
-    {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
-    {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
-    {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker,      Constants::cmdlineToolsName},
-    {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
-    {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
-    {SdkManagerOutputParser::MarkerTag::NdkMarker,                  "ndk"},
-    {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
-}));
-
 AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config):
     m_d(new AndroidSdkManagerPrivate(*this, config))
 {
@@ -376,6 +277,20 @@ SdkPlatformList AndroidSdkManager::filteredSdkPlatforms(int minApiLevel,
     return result;
 }
 
+BuildToolsList AndroidSdkManager::filteredBuildTools(int minApiLevel,
+                                                     AndroidSdkPackage::PackageState state)
+{
+    const AndroidSdkPackageList list = m_d->filteredPackages(state,
+                                                             AndroidSdkPackage::BuildToolsPackage);
+    BuildToolsList result;
+    for (AndroidSdkPackage *p : list) {
+        auto platform = dynamic_cast<BuildTools *>(p);
+        if (platform && platform->revision().majorVersion() >= minApiLevel)
+            result << platform;
+    }
+    return result;
+}
+
 void AndroidSdkManager::reloadPackages(bool forceReload)
 {
     m_d->refreshSdkPackages(forceReload);
@@ -443,402 +358,6 @@ void AndroidSdkManager::cancelOperatons()
 void AndroidSdkManager::acceptSdkLicense(bool accept)
 {
     m_d->setLicenseInput(accept);
-}
-
-void SdkManagerOutputParser::parsePackageListing(const QString &output)
-{
-    QStringList packageData;
-    bool collectingPackageData = false;
-    MarkerTag currentPackageMarker = MarkerTag::None;
-
-    auto processCurrentPackage = [&]() {
-        if (collectingPackageData) {
-            collectingPackageData = false;
-            parsePackageData(currentPackageMarker, packageData);
-            packageData.clear();
-        }
-    };
-
-    QRegularExpression delimiters("[\\n\\r]");
-    const auto lines = output.split(delimiters);
-    for (const QString &outputLine : lines) {
-
-        // NOTE: we don't want to parse Dependencies part as it does not add value
-        if (outputLine.startsWith("        "))
-            continue;
-
-        // We don't need to parse this because they would still be listed on available packages
-        if (m_currentSection == AvailableUpdatesMarker)
-            continue;
-
-        MarkerTag marker = parseMarkers(outputLine.trimmed());
-        if (marker & SectionMarkers) {
-            // Section marker found. Update the current section being parsed.
-            m_currentSection = marker;
-            processCurrentPackage();
-            continue;
-        }
-
-        if (m_currentSection == None)
-            continue; // Continue with the verbose output until a valid section starts.
-
-        if (marker == EmptyMarker) {
-            // Empty marker. Occurs at the end of a package details.
-            // Process the collected package data, if any.
-            processCurrentPackage();
-            continue;
-        }
-
-        if (marker == None) {
-            if (collectingPackageData)
-                packageData << outputLine; // Collect data until next marker.
-            else
-                continue;
-        } else {
-            // Package marker found.
-            processCurrentPackage(); // New package starts. Process the collected package data, if any.
-            currentPackageMarker = marker;
-            collectingPackageData = true;
-            packageData << outputLine;
-        }
-    }
-    compilePackageAssociations();
-}
-
-void SdkManagerOutputParser::compilePackageAssociations()
-{
-    // Return true if package p is already installed i.e. there exists a installed package having
-    // same sdk style path and same revision as of p.
-    auto isInstalled = [](const AndroidSdkPackageList &container, AndroidSdkPackage *p) {
-        return Utils::anyOf(container, [p](AndroidSdkPackage *other) {
-            return other->state() == AndroidSdkPackage::Installed &&
-                    other->sdkStylePath() == p->sdkStylePath() &&
-                    other->revision() == p->revision();
-        });
-    };
-
-    auto deleteAlreadyInstalled = [isInstalled](AndroidSdkPackageList &packages) {
-        for (auto p = packages.begin(); p != packages.end();) {
-            if ((*p)->state() == AndroidSdkPackage::Available && isInstalled(packages, *p)) {
-                delete *p;
-                p = packages.erase(p);
-            } else {
-                ++p;
-            }
-        }
-    };
-
-    // Remove already installed packages.
-    deleteAlreadyInstalled(m_packages);
-
-    // Filter out available images that are already installed.
-    AndroidSdkPackageList images = m_systemImages.keys();
-    deleteAlreadyInstalled(images);
-
-    // Associate the system images with sdk platforms.
-    for (AndroidSdkPackage *image : std::as_const(images)) {
-        int imageApi = m_systemImages[image];
-        auto itr = std::find_if(m_packages.begin(), m_packages.end(),
-                                [imageApi](const AndroidSdkPackage *p) {
-            const SdkPlatform *platform = nullptr;
-            if (p->type() == AndroidSdkPackage::SdkPlatformPackage)
-                platform = static_cast<const SdkPlatform*>(p);
-            return platform && platform->apiLevel() == imageApi;
-        });
-        if (itr != m_packages.end()) {
-            auto platform = static_cast<SdkPlatform*>(*itr);
-            platform->addSystemImage(static_cast<SystemImage *>(image));
-        }
-    }
-}
-
-void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QStringList &data)
-{
-    QTC_ASSERT(!data.isEmpty() && packageMarker != None, return);
-
-    AndroidSdkPackage *package = nullptr;
-    auto createPackage = [&](std::function<AndroidSdkPackage *(SdkManagerOutputParser *,
-                                                               const QStringList &)> creator) {
-        if ((package = creator(this, data)))
-            m_packages.append(package);
-    };
-
-    switch (packageMarker) {
-    case MarkerTag::BuildToolsMarker:
-        createPackage(&SdkManagerOutputParser::parseBuildToolsPackage);
-        break;
-
-    case MarkerTag::SdkToolsMarker:
-        createPackage(&SdkManagerOutputParser::parseSdkToolsPackage);
-        break;
-
-    case MarkerTag::CmdlineSdkToolsMarker:
-        createPackage(&SdkManagerOutputParser::parseSdkToolsPackage);
-        break;
-
-    case MarkerTag::PlatformToolsMarker:
-        createPackage(&SdkManagerOutputParser::parsePlatformToolsPackage);
-        break;
-
-    case MarkerTag::EmulatorToolsMarker:
-        createPackage(&SdkManagerOutputParser::parseEmulatorToolsPackage);
-        break;
-
-    case MarkerTag::PlatformMarker:
-        createPackage(&SdkManagerOutputParser::parsePlatform);
-        break;
-
-    case MarkerTag::SystemImageMarker:
-    {
-        QPair<SystemImage *, int> result = parseSystemImage(data);
-        if (result.first) {
-            m_systemImages[result.first] = result.second;
-            package = result.first;
-        }
-    }
-        break;
-
-    case MarkerTag::NdkMarker:
-        createPackage(&SdkManagerOutputParser::parseNdkPackage);
-        break;
-
-    case MarkerTag::ExtrasMarker:
-        createPackage(&SdkManagerOutputParser::parseExtraToolsPackage);
-        break;
-
-    case MarkerTag::GenericToolMarker:
-        createPackage(&SdkManagerOutputParser::parseGenericTools);
-        break;
-
-    default:
-        qCDebug(sdkManagerLog) << "Unhandled package: " << markerTags->at(packageMarker);
-        break;
-    }
-
-    if (package) {
-        switch (m_currentSection) {
-        case MarkerTag::InstalledPackagesMarker:
-            package->setState(AndroidSdkPackage::Installed);
-            break;
-        case MarkerTag::AvailablePackagesMarkers:
-        case MarkerTag::AvailableUpdatesMarker:
-            package->setState(AndroidSdkPackage::Available);
-            break;
-        default:
-            qCDebug(sdkManagerLog) << "Invalid section marker: " << markerTags->at(m_currentSection);
-            break;
-        }
-    }
-}
-
-bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPackageData &output,
-                                               const QStringList &input, int minParts,
-                                               const QString &logStrTag,
-                                               const QStringList &extraKeys) const
-{
-    if (input.isEmpty()) {
-        qCDebug(sdkManagerLog) << logStrTag + ": Empty input";
-        return false;
-    }
-
-    output.headerParts = input.at(0).split(';');
-    if (output.headerParts.count() < minParts) {
-        qCDebug(sdkManagerLog) << logStrTag + "%1: Unexpected header:" << input;
-        return false;
-    }
-
-    QStringList keys = extraKeys;
-    keys << installLocationKey << revisionKey << descriptionKey;
-    for (const QString &line : input) {
-        QString value;
-        for (const auto &key: std::as_const(keys)) {
-            if (valueForKey(key, line, &value)) {
-                if (key == installLocationKey)
-                    output.installedLocation = Utils::FilePath::fromUserInput(value);
-                else if (key == revisionKey)
-                    output.revision = QVersionNumber::fromString(value);
-                else if (key == descriptionKey)
-                    output.description = value;
-                else
-                    output.extraData[key] = value;
-                break;
-            }
-        }
-    }
-
-    return output.isValid();
-}
-
-AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data) const
-{
-    SdkPlatform *platform = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 2, "Platform")) {
-        const int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
-        if (apiLevel == -1) {
-            qCDebug(sdkManagerLog) << "Platform: Cannot parse api level:"<< data;
-            return nullptr;
-        }
-        platform = new SdkPlatform(packageData.revision, data.at(0), apiLevel);
-        platform->setDescriptionText(packageData.description);
-        platform->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Platform: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return platform;
-}
-
-QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QStringList &data) const
-{
-    QPair <SystemImage *, int> result(nullptr, -1);
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 4, "System-image")) {
-        const int apiLevel = platformNameToApiLevel(packageData.headerParts.at(1));
-        if (apiLevel == -1) {
-            qCDebug(sdkManagerLog) << "System-image: Cannot parse api level:"<< data;
-            return result;
-        }
-        auto image = new SystemImage(packageData.revision, data.at(0),
-                                     packageData.headerParts.at(3));
-        image->setInstalledLocation(packageData.installedLocation);
-        image->setDisplayText(packageData.description);
-        image->setDescriptionText(packageData.description);
-        image->setApiLevel(apiLevel);
-        result = {image, apiLevel};
-    } else {
-        qCDebug(sdkManagerLog) << "System-image: Minimum required data unavailable: "<< data;
-    }
-    return result;
-}
-
-BuildTools *SdkManagerOutputParser::parseBuildToolsPackage(const QStringList &data) const
-{
-    BuildTools *buildTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 2, "Build-tools")) {
-        buildTools = new BuildTools(packageData.revision, data.at(0));
-        buildTools->setDescriptionText(packageData.description);
-        buildTools->setDisplayText(packageData.description);
-        buildTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Build-tools: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return buildTools;
-}
-
-SdkTools *SdkManagerOutputParser::parseSdkToolsPackage(const QStringList &data) const
-{
-    SdkTools *sdkTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "SDK-tools")) {
-        sdkTools = new SdkTools(packageData.revision, data.at(0));
-        sdkTools->setDescriptionText(packageData.description);
-        sdkTools->setDisplayText(packageData.description);
-        sdkTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "SDK-tools: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return sdkTools;
-}
-
-PlatformTools *SdkManagerOutputParser::parsePlatformToolsPackage(const QStringList &data) const
-{
-    PlatformTools *platformTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Platform-tools")) {
-        platformTools = new PlatformTools(packageData.revision, data.at(0));
-        platformTools->setDescriptionText(packageData.description);
-        platformTools->setDisplayText(packageData.description);
-        platformTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Platform-tools: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return platformTools;
-}
-
-EmulatorTools *SdkManagerOutputParser::parseEmulatorToolsPackage(const QStringList &data) const
-{
-    EmulatorTools *emulatorTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Emulator-tools")) {
-        emulatorTools = new EmulatorTools(packageData.revision, data.at(0));
-        emulatorTools->setDescriptionText(packageData.description);
-        emulatorTools->setDisplayText(packageData.description);
-        emulatorTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Emulator-tools: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return emulatorTools;
-}
-
-Ndk *SdkManagerOutputParser::parseNdkPackage(const QStringList &data) const
-{
-    Ndk *ndk = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "NDK")) {
-        ndk = new Ndk(packageData.revision, data.at(0));
-        ndk->setDescriptionText(packageData.description);
-        ndk->setDisplayText(packageData.description);
-        ndk->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "NDK: Parsing failed. Minimum required data unavailable:"
-                               << data;
-    }
-    return ndk;
-}
-
-ExtraTools *SdkManagerOutputParser::parseExtraToolsPackage(const QStringList &data) const
-{
-    ExtraTools *extraTools = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Extras")) {
-        extraTools = new ExtraTools(packageData.revision, data.at(0));
-        extraTools->setDescriptionText(packageData.description);
-        extraTools->setDisplayText(packageData.description);
-        extraTools->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Extra-tools: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return extraTools;
-}
-
-GenericSdkPackage *SdkManagerOutputParser::parseGenericTools(const QStringList &data) const
-{
-    GenericSdkPackage *sdkPackage = nullptr;
-    GenericPackageData packageData;
-    if (parseAbstractData(packageData, data, 1, "Generic")) {
-        sdkPackage = new GenericSdkPackage(packageData.revision, data.at(0));
-        sdkPackage->setDescriptionText(packageData.description);
-        sdkPackage->setDisplayText(packageData.description);
-        sdkPackage->setInstalledLocation(packageData.installedLocation);
-    } else {
-        qCDebug(sdkManagerLog) << "Generic: Parsing failed. Minimum required data "
-                                  "unavailable:" << data;
-    }
-    return sdkPackage;
-}
-
-SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QString &line)
-{
-    if (line.isEmpty())
-        return EmptyMarker;
-
-    for (auto pair : *markerTags) {
-        if (line.startsWith(QLatin1String(pair.second)))
-            return pair.first;
-    }
-
-    QRegularExpressionMatch match = QRegularExpression("^[a-zA-Z]+[A-Za-z0-9;._-]+").match(line);
-    if (match.hasMatch() && match.captured(0) == line)
-        return GenericToolMarker;
-
-    return None;
 }
 
 AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager,
@@ -1012,7 +531,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     QTextCodec *codec = QTextCodec::codecForLocale();
     int inputCounter = 0, steps = -1;
     while (!licenseCommand.waitForFinished(200)) {
-        QString stdOut = codec->toUnicode(licenseCommand.readAllStandardOutput());
+        QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
         bool assertionFound = false;
         if (!stdOut.isEmpty())
             assertionFound = onLicenseStdOut(stdOut, reviewingLicenses, result, fi);
@@ -1079,7 +598,7 @@ bool AndroidSdkManagerPrivate::onLicenseStdOut(const QString &output, bool notif
                                                SdkCmdFutureInterface &fi)
 {
     m_licenseTextCache.append(output);
-    QRegularExpressionMatch assertionMatch = assertionReg->match(m_licenseTextCache);
+    const QRegularExpressionMatch assertionMatch = assertionRegExp().match(m_licenseTextCache);
     if (assertionMatch.hasMatch()) {
         if (notify) {
             result.stdOutput = m_licenseTextCache;
@@ -1127,55 +646,6 @@ void AndroidSdkManagerPrivate::clearPackages()
         delete p;
     m_allPackages.clear();
 }
-
-#ifdef WITH_TESTS
-void AndroidPlugin::testAndroidSdkManagerProgressParser_data()
-{
-    QTest::addColumn<QString>("output");
-    QTest::addColumn<int>("progress");
-    QTest::addColumn<bool>("foundAssertion");
-
-    // Output of "sdkmanager --licenses", Android SDK Tools version 4.0
-    QTest::newRow("Loading local repository")
-            << "Loading local repository...                                                     \r"
-            << -1
-            << false;
-
-    QTest::newRow("Fetch progress (single line)")
-            << "[=============                          ] 34% Fetch remote repository...        \r"
-            << 34
-            << false;
-
-    QTest::newRow("Fetch progress (multi line)")
-            << "[=============================          ] 73% Fetch remote repository...        \r"
-               "[=============================          ] 75% Fetch remote repository...        \r"
-            << 75
-            << false;
-
-    QTest::newRow("Some SDK package licenses not accepted")
-            << "7 of 7 SDK package licenses not accepted.\n"
-            << -1
-            << false;
-
-    QTest::newRow("Unaccepted licenses assertion")
-            << "\nReview licenses that have not been accepted (y/N)? "
-            << -1
-            << true;
-}
-
-void AndroidPlugin::testAndroidSdkManagerProgressParser()
-{
-    QFETCH(QString, output);
-    QFETCH(int, progress);
-    QFETCH(bool, foundAssertion);
-
-    bool actualFoundAssertion = false;
-    const int actualProgress = parseProgress(output, actualFoundAssertion);
-
-    QCOMPARE(progress, actualProgress);
-    QCOMPARE(foundAssertion, actualFoundAssertion);
-}
-#endif // WITH_TESTS
 
 } // namespace Internal
 } // namespace Android

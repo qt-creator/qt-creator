@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "removefiledialog.h"
 
 #include "filepath.h"
 #include "layoutbuilder.h"
+#include "utilstr.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -17,7 +18,7 @@ RemoveFileDialog::RemoveFileDialog(const FilePath &filePath, QWidget *parent)
     : QDialog(parent)
 {
     const bool isFile = filePath.isFile();
-    setWindowTitle(isFile ? tr("Remove File") : tr("Remove Folder"));
+    setWindowTitle(isFile ? Tr::tr("Remove File") : Tr::tr("Remove Folder"));
     resize(514, 159);
 
     QFont font;
@@ -27,9 +28,9 @@ RemoveFileDialog::RemoveFileDialog(const FilePath &filePath, QWidget *parent)
     fileNameLabel->setFont(font);
     fileNameLabel->setWordWrap(true);
 
-    m_deleteFileCheckBox = new QCheckBox(tr("&Delete file permanently"));
+    m_deleteFileCheckBox = new QCheckBox(Tr::tr("&Delete file permanently"));
 
-    auto removeVCCheckBox = new QCheckBox(tr("&Remove from version control"));
+    auto removeVCCheckBox = new QCheckBox(Tr::tr("&Remove from version control"));
     removeVCCheckBox->setVisible(false); // TODO
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
@@ -37,7 +38,7 @@ RemoveFileDialog::RemoveFileDialog(const FilePath &filePath, QWidget *parent)
     using namespace Layouting;
 
     Column {
-        isFile ? tr("File to remove:") : tr("Folder to remove:"),
+        isFile ? Tr::tr("File to remove:") : Tr::tr("Folder to remove:"),
         fileNameLabel,
         Space(10),
         m_deleteFileCheckBox,

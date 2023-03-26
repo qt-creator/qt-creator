@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qt5informationnodeinstanceserver.h"
 
@@ -1448,7 +1448,7 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
 {
-    foreach (const TokenCommand &command, m_tokenList)
+    for (const TokenCommand &command : std::as_const(m_tokenList))
         nodeInstanceClient()->token(command);
 
     m_tokenList.clear();
@@ -1471,7 +1471,8 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuic
     if (QQuickDesignerSupport::isDirty(item, informationsDirty))
         return true;
 
-    foreach (QQuickItem *childItem, item->childItems()) {
+    const QList<QQuickItem *> childItems = item->childItems();
+    for (QQuickItem *childItem : childItems) {
         if (!hasInstanceForObject(childItem)) {
             if (QQuickDesignerSupport::isDirty(childItem, informationsDirty))
                 return true;
@@ -1971,7 +1972,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         QVector<InstancePropertyPair> propertyChangedList;
 
         if (quickWindow()) {
-            foreach (QQuickItem *item, allItems()) {
+            for (QQuickItem *item : allItems()) {
                 if (item && hasInstanceForObject(item)) {
                     ServerNodeInstance instance = instanceForObject(item);
 
@@ -1987,7 +1988,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 }
             }
 
-            foreach (const InstancePropertyPair& property, changedPropertyList()) {
+            for (const InstancePropertyPair& property : changedPropertyList()) {
                 const ServerNodeInstance instance = property.first;
                 if (instance.isValid()) {
                     if (property.second.contains("anchors"))
@@ -2031,7 +2032,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
 void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
 {
-    foreach (const ReparentContainer &container, command.reparentInstances()) {
+    for (const ReparentContainer &container : command.reparentInstances()) {
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -2094,7 +2095,7 @@ void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<Se
     QSet<ServerNodeInstance> parentSet;
     QList<ServerNodeInstance> noParentList;
 
-    foreach (const ServerNodeInstance &child, childList) {
+    for (const ServerNodeInstance &child : childList) {
         if (child.isValid()) {
             if (!child.hasParent()) {
                 noParentList.append(child);
@@ -2109,7 +2110,7 @@ void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<Se
         }
     }
 
-    foreach (const ServerNodeInstance &parent, parentSet)
+    for (const ServerNodeInstance &parent : std::as_const(parentSet))
         nodeInstanceClient()->childrenChanged(createChildrenChangedCommand(parent, parent.childItems()));
 
     if (!noParentList.isEmpty())
@@ -2122,7 +2123,8 @@ void Qt5InformationNodeInstanceServer::completeComponent(const CompleteComponent
     Qt5NodeInstanceServer::completeComponent(command);
 
     QList<ServerNodeInstance> instanceList;
-    foreach (qint32 instanceId, command.instances()) {
+    const QVector<qint32> instances = command.instances();
+    for (qint32 instanceId : instances) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
             if (instance.isValid()) {

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -48,7 +48,6 @@ class LANGUAGECLIENT_EXPORT LanguageClientQuickFixProvider : public TextEditor::
 {
 public:
     explicit LanguageClientQuickFixProvider(Client *client);
-    IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
 protected:
@@ -64,7 +63,7 @@ class LANGUAGECLIENT_EXPORT LanguageClientQuickFixAssistProcessor
 public:
     explicit LanguageClientQuickFixAssistProcessor(Client *client) : m_client(client) {}
     bool running() override { return m_currentRequest.has_value(); }
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform() override;
     void cancel() override;
 
 protected:
@@ -77,7 +76,6 @@ private:
     virtual TextEditor::GenericProposal *handleCodeActionResult(
         const LanguageServerProtocol::CodeActionResult &result);
 
-    QSharedPointer<const TextEditor::AssistInterface> m_assistInterface;
     Client *m_client = nullptr; // not owned
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
 };

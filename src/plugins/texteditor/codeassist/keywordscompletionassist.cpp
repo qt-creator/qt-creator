@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "keywordscompletionassist.h"
 
@@ -150,34 +150,33 @@ KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(const Keywo
     , m_keywords(keywords)
 {}
 
-IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *KeywordsCompletionAssistProcessor::performAsync()
 {
-    QScopedPointer<const AssistInterface> assistInterface(interface);
-    if (isInComment(interface))
+    if (isInComment(interface()))
         return nullptr;
 
-    int pos = interface->position();
+    int pos = interface()->position();
 
     // Find start position
-    QChar chr = interface->characterAt(pos - 1);
+    QChar chr = interface()->characterAt(pos - 1);
     if (chr == '(')
         --pos;
     // Skip to the start of a name
     do {
-        chr = interface->characterAt(--pos);
+        chr = interface()->characterAt(--pos);
     } while (chr.isLetterOrNumber() || chr == '_');
 
     ++pos;
 
     int startPosition = pos;
 
-    if (interface->reason() == IdleEditor) {
-        QChar characterUnderCursor = interface->characterAt(interface->position());
-        if (characterUnderCursor.isLetterOrNumber() || interface->position() - startPosition
+    if (interface()->reason() == IdleEditor) {
+        QChar characterUnderCursor = interface()->characterAt(interface()->position());
+        if (characterUnderCursor.isLetterOrNumber() || interface()->position() - startPosition
                 < TextEditorSettings::completionSettings().m_characterThreshold) {
             QList<AssistProposalItemInterface *> items;
             if (m_dynamicCompletionFunction)
-                m_dynamicCompletionFunction(interface, &items, startPosition);
+                m_dynamicCompletionFunction(interface(), &items, startPosition);
             if (items.isEmpty())
                 return nullptr;
             return new GenericProposal(startPosition, items);
@@ -187,11 +186,11 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
     // extract word
     QString word;
     do {
-        word += interface->characterAt(pos);
-        chr = interface->characterAt(++pos);
+        word += interface()->characterAt(pos);
+        chr = interface()->characterAt(++pos);
     } while ((chr.isLetterOrNumber() || chr == '_') && chr != '(');
 
-    if (m_keywords.isFunction(word) && interface->characterAt(pos) == '(') {
+    if (m_keywords.isFunction(word) && interface()->characterAt(pos) == '(') {
         QStringList functionSymbols = m_keywords.argsForFunction(word);
         if (functionSymbols.size() == 0)
             return nullptr;
@@ -201,7 +200,7 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
         const int originalStartPos = startPosition;
         QList<AssistProposalItemInterface *> items;
         if (m_dynamicCompletionFunction)
-            m_dynamicCompletionFunction(interface, &items, startPosition);
+            m_dynamicCompletionFunction(interface(), &items, startPosition);
         if (startPosition == originalStartPos) {
             items.append(m_snippetCollector.collect());
             items.append(generateProposalList(m_keywords.variables(), m_variableIcon));
@@ -255,11 +254,6 @@ void KeywordsCompletionAssistProvider::setDynamicCompletionFunction(
         const DynamicCompletionFunction &func)
 {
     m_completionFunc = func;
-}
-
-IAssistProvider::RunType KeywordsCompletionAssistProvider::runType() const
-{
-    return Synchronous;
 }
 
 IAssistProcessor *KeywordsCompletionAssistProvider::createProcessor(const AssistInterface *) const

@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "boosttestoutputreader.h"
 
@@ -14,23 +14,29 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
-BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
-                                             Utils::QtcProcess *testApplication,
-                                             const Utils::FilePath &buildDirectory,
-                                             const Utils::FilePath &projectFile,
+BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
+                                             QtcProcess *testApplication,
+                                             const FilePath &buildDirectory,
+                                             const FilePath &projectFile,
                                              LogLevel log, ReportLevel report)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
     , m_logLevel(log)
     , m_reportLevel(report)
 {
-    if (m_testApplication)
-        connect(m_testApplication, &Utils::QtcProcess::done, this, &BoostTestOutputReader::onDone);
+    if (!testApplication)
+        return;
+
+    connect(testApplication, &QtcProcess::done, this, [this, testApplication] {
+        onDone(testApplication->exitCode());
+    });
 }
 
 // content of "error:..." / "info:..." / ... messages
@@ -42,23 +48,23 @@ static QString caseFromContent(const QString &content)
         if (index != 17 || length <= 18) {
             qCDebug(orLog) << "double quote position" << index << " or content length" << length
                            << "wrong on content" << content;
-            return QString();
+            return {};
         }
         index = content.indexOf('"', 18);
         if (index == -1) {
             qCDebug(orLog) << "no closing double quote" << content;
-            return QString();
+            return {};
         }
         return content.mid(18, index - 1);
     }
 
     int index = content.indexOf(": in ");
     if (index == -1) // "info: check true has passed"
-        return QString();
+        return {};
 
     if (index <= 4 || length < index + 4) {
         qCDebug(orLog) << "unexpected position" << index << "for info" << content;
-        return QString();
+        return {};
     }
 
     QString result = content.mid(index + 5);
@@ -66,7 +72,7 @@ static QString caseFromContent(const QString &content)
     const QRegularExpressionMatch matcher = functionName.match(result);
     if (!matcher.hasMatch()) {
         qCDebug(orLog) << "got no match";
-        return QString();
+        return {};
     }
     return matcher.captured(1);
 }
@@ -74,20 +80,18 @@ static QString caseFromContent(const QString &content)
 void BoostTestOutputReader::sendCompleteInformation()
 {
     QTC_ASSERT(m_result != ResultType::Invalid, return);
-    BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-    result->setTestSuite(m_currentSuite);
-    result->setTestCase(m_currentTest);
+    BoostTestResult result(id(), m_currentModule, m_projectFile, m_currentTest, m_currentSuite);
     if (m_lineNumber) {
-        result->setLine(m_lineNumber);
-        result->setFileName(m_fileName);
-    } else if (const ITestTreeItem *it = result->findTestTreeItem()) {
-        result->setLine(it->line());
-        result->setFileName(it->filePath());
+        result.setLine(m_lineNumber);
+        result.setFileName(m_fileName);
+    } else if (const ITestTreeItem *it = result.findTestTreeItem()) {
+        result.setLine(it->line());
+        result.setFileName(it->filePath());
     }
 
-    result->setDescription(m_description);
-    result->setResult(m_result);
-    reportResult(TestResultPtr(result));
+    result.setDescription(m_description);
+    result.setResult(m_result);
+    reportResult(result);
     m_result = ResultType::Invalid;
 }
 
@@ -213,10 +217,10 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
     if (match.hasMatch()) {
         if (m_result != ResultType::Invalid)
             sendCompleteInformation();
-        BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-        result->setDescription(match.captured(0));
-        result->setResult(ResultType::MessageInfo);
-        reportResult(TestResultPtr(result));
+        BoostTestResult result(id(), m_currentModule, m_projectFile);
+        result.setDescription(match.captured(0));
+        result.setResult(ResultType::MessageInfo);
+        reportResult(result);
         return;
     }
 
@@ -235,17 +239,17 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
             sendCompleteInformation();
         if (match.captured(1).startsWith("Entering")) {
             m_currentModule = match.captured(2);
-            BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-            result->setDescription(Tr::tr("Executing test module %1").arg(m_currentModule));
-            result->setResult(ResultType::TestStart);
-            reportResult(TestResultPtr(result));
+            BoostTestResult result(id(), m_currentModule, m_projectFile);
+            result.setDescription(Tr::tr("Executing test module %1").arg(m_currentModule));
+            result.setResult(ResultType::TestStart);
+            reportResult(result);
             m_description.clear();
         } else {
             QTC_CHECK(m_currentModule == match.captured(3));
-            BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-            result->setDescription(Tr::tr("Test module execution took %1").arg(match.captured(4)));
-            result->setResult(ResultType::TestEnd);
-            reportResult(TestResultPtr(result));
+            BoostTestResult result(id(), m_currentModule, m_projectFile);
+            result.setDescription(Tr::tr("Test module execution took %1").arg(match.captured(4)));
+            result.setResult(ResultType::TestEnd);
+            reportResult(result);
 
             m_currentTest.clear();
             m_currentSuite.clear();
@@ -326,16 +330,16 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
     if (match.hasMatch()) {
         if (m_result != ResultType::Invalid)
             sendCompleteInformation();
-        BoostTestResult *result = new BoostTestResult(id(), m_projectFile, QString());
-        int failed = match.captured(1).toInt();
-        int fatals = m_summary.value(ResultType::MessageFatal);
+        BoostTestResult result(id(), {}, m_projectFile);
+        const int failed = match.captured(1).toInt();
+        const int fatals = m_summary.value(ResultType::MessageFatal);
         QString txt = Tr::tr("%1 failures detected in %2.").arg(failed).arg(match.captured(3));
-        int passed = qMax(0, m_testCaseCount - failed);
+        const int passed = qMax(0, m_testCaseCount - failed);
         if (m_testCaseCount != -1)
             txt.append(' ').append(Tr::tr("%1 tests passed.").arg(passed));
-        result->setDescription(txt);
-        result->setResult(ResultType::MessageInfo);
-        reportResult(TestResultPtr(result));
+        result.setDescription(txt);
+        result.setResult(ResultType::MessageInfo);
+        reportResult(result);
         if (m_reportLevel == ReportLevel::Confirm) { // for the final summary
             m_summary[ResultType::Pass] += passed;
             m_summary[ResultType::Fail] += failed - fatals;
@@ -347,13 +351,13 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
     if (line == noErrors) {
         if (m_result != ResultType::Invalid)
             sendCompleteInformation();
-        BoostTestResult *result = new BoostTestResult(id(), m_projectFile, QString());
+        BoostTestResult result(id(), {}, m_projectFile);
         QString txt = Tr::tr("No errors detected.");
         if (m_testCaseCount != -1)
             txt.append(' ').append(Tr::tr("%1 tests passed.").arg(m_testCaseCount));
-        result->setDescription(txt);
-        result->setResult(ResultType::MessageInfo);
-        reportResult(TestResultPtr(result));
+        result.setDescription(txt);
+        result.setResult(ResultType::MessageInfo);
+        reportResult(result);
         if (m_reportLevel == ReportLevel::Confirm) // for the final summary
             m_summary.insert(ResultType::Pass, m_testCaseCount);
         return;
@@ -373,19 +377,15 @@ void BoostTestOutputReader::processStdError(const QByteArray &outputLine)
     emit newOutputLineAvailable(outputLine, OutputChannel::StdErr);
 }
 
-TestResultPtr BoostTestOutputReader::createDefaultResult() const
+TestResult BoostTestOutputReader::createDefaultResult() const
 {
-    BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-    result->setTestSuite(m_currentSuite);
-    result->setTestCase(m_currentTest);
-
-    return TestResultPtr(result);
+    return BoostTestResult(id(), m_currentModule, m_projectFile, m_currentTest, m_currentSuite);
 }
 
-void BoostTestOutputReader::onDone() {
-    int exitCode = m_testApplication->exitCode();
+void BoostTestOutputReader::onDone(int exitCode)
+{
     if (m_reportLevel == ReportLevel::No && m_testCaseCount != -1) {
-        int reportedFailsAndSkips = m_summary[ResultType::Fail] + m_summary[ResultType::Skip];
+        const int reportedFailsAndSkips = m_summary[ResultType::Fail] + m_summary[ResultType::Skip];
         m_summary.insert(ResultType::Pass, m_testCaseCount - reportedFailsAndSkips);
     }
     // boost::exit_success (0), boost::exit_test_failure (201)
@@ -420,11 +420,11 @@ void BoostTestOutputReader::onDone() {
 
 void BoostTestOutputReader::reportNoOutputFinish(const QString &description, ResultType type)
 {
-    BoostTestResult *result = new BoostTestResult(id(), m_projectFile, m_currentModule);
-    result->setTestCase(Tr::tr("Running tests without output."));
-    result->setDescription(description);
-    result->setResult(type);
-    reportResult(TestResultPtr(result));
+    BoostTestResult result(id(), m_currentModule, m_projectFile,
+                           Tr::tr("Running tests without output."));
+    result.setDescription(description);
+    result.setResult(type);
+    reportResult(result);
 }
 
 } // namespace Internal

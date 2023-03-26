@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "parseissuesdialog.h"
 
@@ -8,6 +8,7 @@
 #include "kitchooser.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "taskhub.h"
 
 #include <QButtonGroup>
@@ -40,23 +41,23 @@ public:
 
 ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new Private)
 {
-    setWindowTitle(tr("Parse Build Output"));
+    setWindowTitle(Tr::tr("Parse Build Output"));
 
-    d->stderrCheckBox.setText(tr("Output went to stderr"));
+    d->stderrCheckBox.setText(Tr::tr("Output went to stderr"));
     d->stderrCheckBox.setChecked(true);
 
-    d->clearTasksCheckBox.setText(tr("Clear existing tasks"));
+    d->clearTasksCheckBox.setText(Tr::tr("Clear existing tasks"));
     d->clearTasksCheckBox.setChecked(true);
 
-    const auto loadFileButton = new QPushButton(tr("Load from File..."));
+    const auto loadFileButton = new QPushButton(Tr::tr("Load from File..."));
     connect(loadFileButton, &QPushButton::clicked, this, [this] {
-        const FilePath filePath = FileUtils::getOpenFilePath(this, tr("Choose File"));
+        const FilePath filePath = FileUtils::getOpenFilePath(this, Tr::tr("Choose File"));
         if (filePath.isEmpty())
             return;
         QFile file(filePath.toString());
         if (!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::critical(this, tr("Could Not Open File"),
-                                  tr("Could not open file: \"%1\": %2")
+            QMessageBox::critical(this, Tr::tr("Could Not Open File"),
+                                  Tr::tr("Could not open file: \"%1\": %2")
                                   .arg(filePath.toUserOutput(), file.errorString()));
             return;
         }
@@ -79,7 +80,7 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
     buttonBox->button(QDialogButtonBox::Ok)->setEnabled(d->kitChooser.currentKit());
 
     const auto layout = new QVBoxLayout(this);
-    const auto outputGroupBox = new QGroupBox(tr("Build Output"));
+    const auto outputGroupBox = new QGroupBox(Tr::tr("Build Output"));
     layout->addWidget(outputGroupBox);
     const auto outputLayout = new QHBoxLayout(outputGroupBox);
     outputLayout->addWidget(&d->compileOutputEdit);
@@ -93,13 +94,13 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
     // TODO: Only very few parsers are available from a Kit (basically just the Toolchain one).
     //       If we introduced factories for IOutputParsers, we could offer the user
     //       to combine arbitrary parsers here.
-    const auto parserGroupBox = new QGroupBox(tr("Parsing Options"));
+    const auto parserGroupBox = new QGroupBox(Tr::tr("Parsing Options"));
     layout->addWidget(parserGroupBox);
     const auto parserLayout = new QVBoxLayout(parserGroupBox);
     const auto kitChooserWidget = new QWidget;
     const auto kitChooserLayout = new QHBoxLayout(kitChooserWidget);
     kitChooserLayout->setContentsMargins(0, 0, 0, 0);
-    kitChooserLayout->addWidget(new QLabel(tr("Use parsers from kit:")));
+    kitChooserLayout->addWidget(new QLabel(Tr::tr("Use parsers from kit:")));
     kitChooserLayout->addWidget(&d->kitChooser);
     parserLayout->addWidget(kitChooserWidget);
     parserLayout->addWidget(&d->clearTasksCheckBox);
@@ -117,7 +118,7 @@ void ParseIssuesDialog::accept()
     const QList<Utils::OutputLineParser *> lineParsers =
             d->kitChooser.currentKit()->createOutputParsers();
     if (lineParsers.isEmpty()) {
-        QMessageBox::critical(this, tr("Cannot Parse"), tr("Cannot parse: The chosen kit does "
+        QMessageBox::critical(this, Tr::tr("Cannot Parse"), Tr::tr("Cannot parse: The chosen kit does "
                                                            "not provide an output parser."));
         return;
     }

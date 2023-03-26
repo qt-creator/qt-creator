@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Benjamin Balga
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -21,7 +21,7 @@ class SerialTerminalPlugin : public ExtensionSystem::IPlugin
 public:
     explicit SerialTerminalPlugin() = default;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     ShutdownFlag aboutToShutdown() final;
 
 private:

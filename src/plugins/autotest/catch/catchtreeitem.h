@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Jochen Seemann
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -20,8 +20,8 @@ public:
     Q_FLAGS(TestState)
     Q_DECLARE_FLAGS(TestStates, TestState)
 
-    explicit CatchTreeItem(ITestFramework *testFramework, const QString &name = QString(),
-                           const Utils::FilePath &filePath = Utils::FilePath(), Type type = Root)
+    explicit CatchTreeItem(ITestFramework *testFramework, const QString &name = {},
+                           const Utils::FilePath &filePath = {}, Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type) {}
 
     void setStates(CatchTreeItem::TestStates state) { m_state = state; }

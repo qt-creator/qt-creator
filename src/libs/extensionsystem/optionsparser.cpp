@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "optionsparser.h"
 
+#include "extensionsystemtr.h"
 #include "pluginmanager.h"
 #include "pluginmanager_p.h"
 #include "pluginspec_p.h"
@@ -110,16 +111,14 @@ bool OptionsParser::checkForTestOptions()
                 if (PluginSpec *spec = m_pmPrivate->pluginByName(pluginName)) {
                     if (m_pmPrivate->containsTestSpec(spec)) {
                         if (m_errorString)
-                            *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                         "The plugin \"%1\" is specified twice for testing.").arg(pluginName);
+                            *m_errorString = Tr::tr("The plugin \"%1\" is specified twice for testing.").arg(pluginName);
                         m_hasError = true;
                     } else {
                         m_pmPrivate->testSpecs.emplace_back(spec, args);
                     }
                 } else  {
                     if (m_errorString)
-                        *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                     "The plugin \"%1\" does not exist.").arg(pluginName);
+                        *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(pluginName);
                     m_hasError = true;
                 }
             }
@@ -130,16 +129,14 @@ bool OptionsParser::checkForTestOptions()
             if (PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg)) {
                 if (!m_pmPrivate->containsTestSpec(spec)) {
                     if (m_errorString)
-                        *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                     "The plugin \"%1\" is not tested.").arg(m_currentArg);
+                        *m_errorString = Tr::tr("The plugin \"%1\" is not tested.").arg(m_currentArg);
                     m_hasError = true;
                 } else {
                     m_pmPrivate->removeTestSpec(spec);
                 }
             } else {
                 if (m_errorString)
-                    *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                 "The plugin \"%1\" does not exist.").arg(m_currentArg);
+                    *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(m_currentArg);
                 m_hasError = true;
             }
         }
@@ -154,7 +151,7 @@ bool OptionsParser::checkForScenarioOption()
         if (nextToken(RequiredToken)) {
             if (!m_pmPrivate->m_requestedScenario.isEmpty()) {
                 if (m_errorString) {
-                    *m_errorString = QCoreApplication::translate("PluginManager",
+                    *m_errorString = Tr::tr(
                         "Cannot request scenario \"%1\" as it was already requested.")
                         .arg(m_currentArg, m_pmPrivate->m_requestedScenario);
                 }
@@ -183,9 +180,7 @@ bool OptionsParser::checkForLoadOption()
             PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
             if (!spec) {
                 if (m_errorString)
-                    *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                 "The plugin \"%1\" does not exist.")
-                        .arg(m_currentArg);
+                    *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(m_currentArg);
                 m_hasError = true;
             } else {
                 spec->d->setForceEnabled(true);
@@ -210,8 +205,7 @@ bool OptionsParser::checkForNoLoadOption()
             PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
             if (!spec) {
                 if (m_errorString)
-                    *m_errorString = QCoreApplication::translate("PluginManager",
-                                                                 "The plugin \"%1\" does not exist.").arg(m_currentArg);
+                    *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(m_currentArg);
                 m_hasError = true;
             } else {
                 spec->d->setForceDisabled(true);
@@ -277,8 +271,7 @@ bool OptionsParser::checkForUnknownOption()
     if (!m_currentArg.startsWith(QLatin1Char('-')))
         return false;
     if (m_errorString)
-        *m_errorString = QCoreApplication::translate("PluginManager",
-                                                     "Unknown option %1").arg(m_currentArg);
+        *m_errorString = Tr::tr("Unknown option %1").arg(m_currentArg);
     m_hasError = true;
     return true;
 }
@@ -299,8 +292,7 @@ bool OptionsParser::nextToken(OptionsParser::TokenType type)
         if (type == OptionsParser::RequiredToken) {
             m_hasError = true;
             if (m_errorString)
-                *m_errorString = QCoreApplication::translate("PluginManager",
-                                                             "The option %1 requires an argument.").arg(m_currentArg);
+                *m_errorString = Tr::tr("The option %1 requires an argument.").arg(m_currentArg);
         }
         return false;
     }

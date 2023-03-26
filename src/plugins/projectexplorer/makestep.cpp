@@ -1,15 +1,15 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "makestep.h"
 
 #include "buildconfiguration.h"
 #include "gnumakeparser.h"
 #include "kitinformation.h"
-#include "project.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "target.h"
 #include "toolchain.h"
 
@@ -23,7 +23,6 @@
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
-#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QThread>
@@ -59,41 +58,41 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
 
     m_userArgumentsAspect = addAspect<StringAspect>();
     m_userArgumentsAspect->setSettingsKey(id.withSuffix(MAKE_ARGUMENTS_SUFFIX).toString());
-    m_userArgumentsAspect->setLabelText(tr("Make arguments:"));
+    m_userArgumentsAspect->setLabelText(Tr::tr("Make arguments:"));
     m_userArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
 
     m_userJobCountAspect = addAspect<IntegerAspect>();
     m_userJobCountAspect->setSettingsKey(id.withSuffix(JOBCOUNT_SUFFIX).toString());
-    m_userJobCountAspect->setLabel(tr("Parallel jobs:"));
+    m_userJobCountAspect->setLabel(Tr::tr("Parallel jobs:"));
     m_userJobCountAspect->setRange(1, 999);
     m_userJobCountAspect->setValue(defaultJobCount());
     m_userJobCountAspect->setDefaultValue(defaultJobCount());
 
-    const QString text = tr("Override MAKEFLAGS");
+    const QString text = Tr::tr("Override MAKEFLAGS");
     m_overrideMakeflagsAspect = addAspect<BoolAspect>();
     m_overrideMakeflagsAspect->setSettingsKey(id.withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString());
     m_overrideMakeflagsAspect->setLabel(text, BoolAspect::LabelPlacement::AtCheckBox);
 
     m_nonOverrideWarning = addAspect<TextDisplay>();
     m_nonOverrideWarning->setText("<html><body><p>" +
-         tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
+         Tr::tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
          .arg(text) + "</p></body></html>");
     m_nonOverrideWarning->setIconType(InfoLabel::Warning);
 
     m_disabledForSubdirsAspect = addAspect<BoolAspect>();
     m_disabledForSubdirsAspect->setSettingsKey(id.withSuffix(".disabledForSubdirs").toString());
-    m_disabledForSubdirsAspect->setLabel(tr("Disable in subdirectories:"));
-    m_disabledForSubdirsAspect->setToolTip(tr("Runs this step only for a top-level build."));
+    m_disabledForSubdirsAspect->setLabel(Tr::tr("Disable in subdirectories:"));
+    m_disabledForSubdirsAspect->setToolTip(Tr::tr("Runs this step only for a top-level build."));
 
     m_buildTargetsAspect = addAspect<MultiSelectionAspect>();
     m_buildTargetsAspect->setSettingsKey(id.withSuffix(BUILD_TARGETS_SUFFIX).toString());
-    m_buildTargetsAspect->setLabelText(tr("Targets:"));
+    m_buildTargetsAspect->setLabelText(Tr::tr("Targets:"));
 
     const auto updateMakeLabel = [this] {
         const FilePath defaultMake = defaultMakeCommand();
         const QString labelText = defaultMake.isEmpty()
-                ? tr("Make:")
-                : tr("Override %1:").arg(defaultMake.toUserOutput());
+                ? Tr::tr("Make:")
+                : Tr::tr("Override %1:").arg(defaultMake.toUserOutput());
         m_makeCommandAspect->setLabelText(labelText);
     };
 
@@ -139,7 +138,7 @@ void MakeStep::setupOutputFormatter(OutputFormatter *formatter)
 
 QString MakeStep::defaultDisplayName()
 {
-    return tr("Make");
+    return Tr::tr("Make");
 }
 
 static const QList<ToolChain *> preferredToolChains(const Kit *kit)
@@ -171,7 +170,7 @@ FilePath MakeStep::defaultMakeCommand() const
 
 QString MakeStep::msgNoMakeCommand()
 {
-    return tr("Make command missing. Specify Make command in step configuration.");
+    return Tr::tr("Make command missing. Specify Make command in step configuration.");
 }
 
 Task MakeStep::makeCommandMissingTask()
@@ -184,11 +183,6 @@ bool MakeStep::isJobCountSupported() const
     const QList<ToolChain *> tcs = preferredToolChains(kit());
     const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
     return tc && tc->isJobCountSupported();
-}
-
-int MakeStep::jobCount() const
-{
-    return m_userJobCountAspect->value();
 }
 
 bool MakeStep::jobCountOverridesMakeflags() const
@@ -338,10 +332,10 @@ QWidget *MakeStep::createConfigWidget()
     setSummaryUpdater([this] {
         const CommandLine make = effectiveMakeCommand(MakeStep::Display);
         if (make.executable().isEmpty())
-            return tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand());
+            return Tr::tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand());
 
         if (!buildConfiguration())
-            return tr("<b>Make:</b> No build configuration.");
+            return Tr::tr("<b>Make:</b> No build configuration.");
 
         ProcessParameters param;
         param.setMacroExpander(macroExpander());
@@ -350,7 +344,7 @@ QWidget *MakeStep::createConfigWidget()
         param.setEnvironment(buildEnvironment());
 
         if (param.commandMissing()) {
-            return tr("<b>Make:</b> %1 not found in the environment.")
+            return Tr::tr("<b>Make:</b> %1 not found in the environment.")
                         .arg(param.command().executable().toUserOutput()); // Override display text
         }
 

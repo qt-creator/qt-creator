@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iarewtoolchain.h"
 
@@ -462,7 +462,7 @@ Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                         if (!compilerPath.isEmpty()) {
                             // Build full compiler path.
                             compilerPath += entry.subExePath;
-                            const FilePath fn = FilePath::fromString(compilerPath);
+                            const FilePath fn = FilePath::fromUserInput(compilerPath);
                             if (compilerExists(fn)) {
                                 // Note: threeLevelKey is a guessed toolchain version.
                                 candidates.push_back({fn, threeLevelKey});

@@ -1,11 +1,13 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sshsettingspage.h"
+
 #include "sshsettings.h"
+#include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
@@ -21,8 +23,6 @@ namespace Internal {
 
 class SshSettingsWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::SshSettingsWidget)
-
 public:
     SshSettingsWidget();
     void saveSettings();
@@ -55,9 +55,9 @@ private:
 SshSettingsPage::SshSettingsPage()
 {
     setId(Constants::SSH_SETTINGS_PAGE_ID);
-    setDisplayName(SshSettingsWidget::tr("SSH"));
+    setDisplayName(Tr::tr("SSH"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "SSH"));
+    setDisplayCategory(Tr::tr("SSH"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
     setWidgetCreator([] { return new SshSettingsWidget; });
 }
@@ -71,12 +71,12 @@ SshSettingsWidget::SshSettingsWidget()
     setupAskpassPathChooser();
     setupKeygenPathChooser();
     auto * const layout = new QFormLayout(this);
-    layout->addRow(tr("Enable connection sharing:"), &m_connectionSharingCheckBox);
-    layout->addRow(tr("Connection sharing timeout:"), &m_connectionSharingSpinBox);
-    layout->addRow(tr("Path to ssh executable:"), &m_sshChooser);
-    layout->addRow(tr("Path to sftp executable:"), &m_sftpChooser);
-    layout->addRow(tr("Path to ssh-askpass executable:"), &m_askpassChooser);
-    layout->addRow(tr("Path to ssh-keygen executable:"), &m_keygenChooser);
+    layout->addRow(Tr::tr("Enable connection sharing:"), &m_connectionSharingCheckBox);
+    layout->addRow(Tr::tr("Connection sharing timeout:"), &m_connectionSharingSpinBox);
+    layout->addRow(Tr::tr("Path to ssh executable:"), &m_sshChooser);
+    layout->addRow(Tr::tr("Path to sftp executable:"), &m_sftpChooser);
+    layout->addRow(Tr::tr("Path to ssh-askpass executable:"), &m_askpassChooser);
+    layout->addRow(Tr::tr("Path to ssh-keygen executable:"), &m_keygenChooser);
     updateCheckboxEnabled();
     updateSpinboxEnabled();
 }
@@ -107,7 +107,7 @@ void SshSettingsWidget::setupConnectionSharingSpinBox()
 {
     m_connectionSharingSpinBox.setMinimum(1);
     m_connectionSharingSpinBox.setValue(SshSettings::connectionSharingTimeout());
-    m_connectionSharingSpinBox.setSuffix(tr(" minutes"));
+    m_connectionSharingSpinBox.setSuffix(Tr::tr(" minutes"));
 }
 
 void SshSettingsWidget::setupSshPathChooser()

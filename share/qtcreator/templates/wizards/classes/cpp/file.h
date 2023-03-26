@@ -32,6 +32,9 @@ class %{CN}
 @if '%{AddQObjectMacro}'
      Q_OBJECT
 @endif
+@if '%{AddQmlElementMacro}'
+     QML_ELEMENT
+@endif
 public:
 @if '%{Base}' === 'QObject' || %{JS: Cpp.hasQObjectParent('%{Base}')}
     explicit %{CN}(QObject *parent = nullptr);

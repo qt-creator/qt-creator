@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -48,6 +48,9 @@ public:
     virtual void init(const Utils::FilePaths &filesToParse, bool fullParse) = 0;
     virtual bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                  const Utils::FilePath &fileName) = 0;
+
+    virtual QStringList supportedExtensions() const { return {}; }
+
     virtual void release() = 0;
 
     ITestFramework *framework() const { return m_framework; }

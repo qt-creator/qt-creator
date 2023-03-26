@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "persistentsettings.h"
 
 #include "fileutils.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
-#include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
@@ -421,9 +421,7 @@ bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) co
     QString errorString;
     const bool success = save(data, &errorString);
     if (!success)
-        QMessageBox::critical(parent,
-                              QCoreApplication::translate("Utils::FileSaverBase", "File Error"),
-                              errorString);
+        QMessageBox::critical(parent, Tr::tr("File Error"), errorString);
     return success;
 }
 #endif // QT_GUI_LIB

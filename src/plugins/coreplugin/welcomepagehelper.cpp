@@ -1,7 +1,9 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "welcomepagehelper.h"
+
+#include "coreplugintr.h"
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -11,12 +13,14 @@
 
 #include <QEasingCurve>
 #include <QFontDatabase>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QHoverEvent>
-#include <QLayout>
+#include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmapCache>
+#include <QScrollArea>
 #include <QTimer>
 
 #include <qdrawutil.h>
@@ -115,6 +119,22 @@ void GridView::leaveEvent(QEvent *)
     viewportEvent(&hev); // Seemingly needed to kill the hover paint.
 }
 
+SectionGridView::SectionGridView(QWidget *parent)
+    : GridView(parent)
+{}
+
+bool SectionGridView::hasHeightForWidth() const
+{
+    return true;
+}
+
+int SectionGridView::heightForWidth(int width) const
+{
+    const int columnCount = width / Core::ListItemDelegate::GridItemWidth;
+    const int rowCount = (model()->rowCount() + columnCount - 1) / columnCount;
+    return rowCount * Core::ListItemDelegate::GridItemHeight;
+}
+
 const QSize ListModel::defaultImageSize(214, 160);
 
 ListModel::ListModel(QObject *parent)
@@ -124,8 +144,28 @@ ListModel::ListModel(QObject *parent)
 
 ListModel::~ListModel()
 {
-    qDeleteAll(m_items);
+    clear();
+}
+
+void ListModel::appendItems(const QList<ListItem *> &items)
+{
+    beginInsertRows(QModelIndex(), m_items.size(), m_items.size() + items.size());
+    m_items.append(items);
+    endInsertRows();
+}
+
+const QList<ListItem *> ListModel::items() const
+{
+    return m_items;
+}
+
+void ListModel::clear()
+{
+    beginResetModel();
+    if (m_ownsItems)
+        qDeleteAll(m_items);
     m_items.clear();
+    endResetModel();
 }
 
 int ListModel::rowCount(const QModelIndex &) const
@@ -148,8 +188,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         QPixmap pixmap;
         if (QPixmapCache::find(item->imageUrl, &pixmap))
             return pixmap;
-        if (pixmap.isNull())
-            pixmap = fetchPixmapAndUpdatePixmapCache(item->imageUrl);
+        if (pixmap.isNull() && m_fetchPixmapAndUpdatePixmapCache)
+            pixmap = m_fetchPixmapAndUpdatePixmapCache(item->imageUrl);
         return pixmap;
     }
     case ItemTagsRole:
@@ -157,6 +197,16 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     default:
         return QVariant();
     }
+}
+
+void ListModel::setPixmapFunction(const PixmapFunction &fetchPixmapAndUpdatePixmapCache)
+{
+    m_fetchPixmapAndUpdatePixmapCache = fetchPixmapAndUpdatePixmapCache;
+}
+
+void ListModel::setOwnsItems(bool owns)
+{
+    m_ownsItems = owns;
 }
 
 ListModelFilter::ListModelFilter(ListModel *sourceModel, QObject *parent) :
@@ -339,6 +389,11 @@ void ListModelFilter::setSearchString(const QString &arg)
     delayedUpdateFilter();
 }
 
+ListModel *ListModelFilter::sourceListModel() const
+{
+    return static_cast<ListModel *>(sourceModel());
+}
+
 bool ListModelFilter::leaveFilterAcceptsRowBeforeFiltering(const ListItem *, bool *) const
 {
     return false;
@@ -497,7 +552,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     const QFont tagsFont = sizedFont(10, option.widget);
     painter->setFont(tagsFont);
     const QFontMetrics fm = painter->fontMetrics();
-    const QString tagsLabelText = tr("Tags:");
+    const QString tagsLabelText = Tr::tr("Tags:");
     constexpr int tagsHorSpacing = 5;
     const QRect tagsLabelRect =
             QRect(0, 0, fm.horizontalAdvance(tagsLabelText) + tagsHorSpacing, fm.height())
@@ -574,6 +629,111 @@ void ListItemDelegate::goon()
 {
     if (m_currentWidget)
         m_currentWidget->update(m_previousIndex);
+}
+
+SectionedGridView::SectionedGridView(QWidget *parent)
+    : QStackedWidget(parent)
+    , m_allItemsView(new Core::GridView(this))
+{
+    auto allItemsModel = new ListModel(this);
+    allItemsModel->setPixmapFunction(m_pixmapFunction);
+    // it just "borrows" the items from the section models:
+    allItemsModel->setOwnsItems(false);
+    m_filteredAllItemsModel = new Core::ListModelFilter(allItemsModel, this);
+
+    auto area = new QScrollArea(this);
+    area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    area->setFrameShape(QFrame::NoFrame);
+    area->setWidgetResizable(true);
+
+    auto sectionedView = new QWidget;
+    auto layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addStretch();
+    sectionedView->setLayout(layout);
+    area->setWidget(sectionedView);
+
+    addWidget(area);
+
+    m_allItemsView->setModel(m_filteredAllItemsModel);
+    addWidget(m_allItemsView);
+}
+
+SectionedGridView::~SectionedGridView() = default;
+
+void SectionedGridView::setItemDelegate(QAbstractItemDelegate *delegate)
+{
+    m_allItemsView->setItemDelegate(delegate);
+    for (GridView *view : std::as_const(m_gridViews))
+        view->setItemDelegate(delegate);
+}
+
+void SectionedGridView::setPixmapFunction(const Core::ListModel::PixmapFunction &pixmapFunction)
+{
+    m_pixmapFunction = pixmapFunction;
+    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
+    allProducts->setPixmapFunction(pixmapFunction);
+    for (ListModel *model : std::as_const(m_sectionModels))
+        model->setPixmapFunction(pixmapFunction);
+}
+
+void SectionedGridView::setSearchString(const QString &searchString)
+{
+    int view = searchString.isEmpty() ? 0  // sectioned view
+                                      : 1; // search view
+    setCurrentIndex(view);
+    m_filteredAllItemsModel->setSearchString(searchString);
+}
+
+ListModel *SectionedGridView::addSection(const Section &section, const QList<ListItem *> &items)
+{
+    auto model = new ListModel(this);
+    model->setPixmapFunction(m_pixmapFunction);
+    model->appendItems(items);
+
+    auto gridView = new SectionGridView(this);
+    gridView->setItemDelegate(m_allItemsView->itemDelegate());
+    gridView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gridView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gridView->setModel(model);
+
+    m_sectionModels.insert(section, model);
+    const auto it = m_gridViews.insert(section, gridView);
+
+    auto sectionLabel = new QLabel(section.name);
+    m_sectionLabels.append(sectionLabel);
+    sectionLabel->setContentsMargins(0, Core::WelcomePageHelpers::ItemGap, 0, 0);
+    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
+    auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
+    auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
+
+    // insert new section depending on its priority, but before the last (stretch) item
+    int position = std::distance(m_gridViews.begin(), it) * 2; // a section has a label and a grid
+    QTC_ASSERT(position <= vbox->count() - 1, position = vbox->count() - 1);
+    vbox->insertWidget(position, sectionLabel);
+    vbox->insertWidget(position + 1, gridView);
+
+    // add the items also to the all products model to be able to search correctly
+    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
+    allProducts->appendItems(items);
+
+    // only show section label(s) if there is more than one section
+    m_sectionLabels.at(0)->setVisible(m_sectionLabels.size() > 1);
+
+    return model;
+}
+
+void SectionedGridView::clear()
+{
+    auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
+    allProducts->clear();
+    qDeleteAll(m_sectionModels);
+    qDeleteAll(m_sectionLabels);
+    qDeleteAll(m_gridViews);
+    m_sectionModels.clear();
+    m_sectionLabels.clear();
+    m_gridViews.clear();
 }
 
 } // namespace Core

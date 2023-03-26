@@ -1,13 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iosqtversion.h"
+
 #include "iosconstants.h"
-#include "iosconfigurations.h"
+#include "iostr.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
@@ -15,8 +17,25 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
 
-using namespace Ios::Internal;
 using namespace ProjectExplorer;
+
+namespace Ios::Internal {
+
+class IosQtVersion : public QtSupport::QtVersion
+{
+public:
+    IosQtVersion();
+
+    bool isValid() const override;
+    QString invalidReason() const override;
+
+    Abis detectQtAbis() const override;
+
+    QSet<Utils::Id> availableFeatures() const override;
+    QSet<Utils::Id> targetDeviceTypes() const override;
+
+    QString description() const override;
+};
 
 IosQtVersion::IosQtVersion() = default;
 
@@ -33,7 +52,7 @@ QString IosQtVersion::invalidReason() const
 {
     QString tmp = QtVersion::invalidReason();
     if (tmp.isEmpty() && qtAbis().isEmpty())
-        return tr("Failed to detect the ABIs used by the Qt version.");
+        return Tr::tr("Failed to detect the ABIs used by the Qt version.");
     return tmp;
 }
 
@@ -53,7 +72,7 @@ Abis IosQtVersion::detectQtAbis() const
 QString IosQtVersion::description() const
 {
     //: Qt Version is meant for Ios
-    return tr("iOS");
+    return Tr::tr("iOS");
 }
 
 QSet<Utils::Id> IosQtVersion::availableFeatures() const
@@ -83,3 +102,5 @@ IosQtVersionFactory::IosQtVersionFactory()
         return setup.platforms.contains("ios");
     });
 }
+
+} // Ios::Internal

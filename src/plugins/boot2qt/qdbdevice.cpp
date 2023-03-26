@@ -1,10 +1,11 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdbdevice.h"
 
-#include "qdbutils.h"
 #include "qdbconstants.h"
+#include "qdbtr.h"
+#include "qdbutils.h"
 
 #include <coreplugin/icore.h>
 
@@ -27,8 +28,7 @@ using namespace ProjectExplorer;
 using namespace RemoteLinux;
 using namespace Utils;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbProcessImpl : public LinuxProcessInterface
 {
@@ -58,7 +58,7 @@ public:
 
         m_appRunner.setCommand(command);
         m_appRunner.start();
-        showMessage(QdbDevice::tr("Starting command \"%1\" on device \"%2\".")
+        showMessage(Tr::tr("Starting command \"%1\" on device \"%2\".")
                     .arg(command.toUserOutput(), m_deviceName));
     }
 
@@ -78,18 +78,18 @@ private:
         if (failure) {
             QString errorString;
             if (!m_appRunner.errorString().isEmpty()) {
-                errorString = QdbDevice::tr("Command failed on device \"%1\": %2")
+                errorString = Tr::tr("Command failed on device \"%1\": %2")
                         .arg(m_deviceName, m_appRunner.errorString());
             } else {
-                errorString = QdbDevice::tr("Command failed on device \"%1\".").arg(m_deviceName);
+                errorString = Tr::tr("Command failed on device \"%1\".").arg(m_deviceName);
             }
             showMessage(errorString, true);
             if (!stdOut.isEmpty())
-                showMessage(QdbDevice::tr("stdout was: \"%1\"").arg(stdOut));
+                showMessage(Tr::tr("stdout was: \"%1\"").arg(stdOut));
             if (!stdErr.isEmpty())
-                showMessage(QdbDevice::tr("stderr was: \"%1\"").arg(stdErr));
+                showMessage(Tr::tr("stderr was: \"%1\"").arg(stdErr));
         } else {
-            showMessage(QdbDevice::tr("Commands on device \"%1\" finished successfully.")
+            showMessage(Tr::tr("Commands on device \"%1\" finished successfully.")
                         .arg(m_deviceName));
         }
         deleteLater();
@@ -104,13 +104,13 @@ private:
 
 QdbDevice::QdbDevice()
 {
-    setDisplayType(tr("Boot2Qt Device"));
+    setDisplayType(Tr::tr("Boot2Qt Device"));
 
-    addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
+    addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
         (void) new DeviceApplicationObserver(device, {device->filePath("reboot"), {}});
     }});
 
-    addDeviceAction({tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
+    addDeviceAction({Tr::tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
         (void) new DeviceApplicationObserver(device, {device->filePath("appcontroller"), {"--remove-default"}});
     }});
 }
@@ -170,14 +170,14 @@ class QdbSettingsPage : public QWizardPage
 public:
     QdbSettingsPage()
     {
-        setWindowTitle(QdbDevice::tr("WizardPage"));
-        setTitle(QdbDevice::tr("Device Settings"));
+        setWindowTitle(Tr::tr("WizardPage"));
+        setTitle(Tr::tr("Device Settings"));
 
         nameLineEdit = new QLineEdit(this);
-        nameLineEdit->setPlaceholderText(QdbDevice::tr("A short, free-text description"));
+        nameLineEdit->setPlaceholderText(Tr::tr("A short, free-text description"));
 
         addressLineEdit = new QLineEdit(this);
-        addressLineEdit->setPlaceholderText(QdbDevice::tr("Host name or IP address"));
+        addressLineEdit->setPlaceholderText(Tr::tr("Host name or IP address"));
 
         auto usbWarningLabel = new QLabel(this);
         usbWarningLabel->setText(QString("<html><head/><body><it><b>%1</it><p>%2</p></body></html>")
@@ -187,8 +187,8 @@ public:
                                       "<p>The connectivity to the device is tested after finishing."));
 
         auto formLayout = new QFormLayout(this);
-        formLayout->addRow(QdbDevice::tr("Device name:"), nameLineEdit);
-        formLayout->addRow(QdbDevice::tr("Device address:"), addressLineEdit);
+        formLayout->addRow(Tr::tr("Device name:"), nameLineEdit);
+        formLayout->addRow(Tr::tr("Device address:"), addressLineEdit);
         formLayout->addRow(usbWarningLabel);
 
         connect(nameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
@@ -214,7 +214,7 @@ public:
     QdbDeviceWizard(QWidget *parent)
         : QWizard(parent)
     {
-        setWindowTitle(QdbDevice::tr("Boot2Qt Network Device Setup"));
+        setWindowTitle(Tr::tr("Boot2Qt Network Device Setup"));
         settingsPage.setCommitPage(true);
 
         enum { SettingsPageId };
@@ -246,7 +246,7 @@ private:
 QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
     : IDeviceFactory(Constants::QdbLinuxOsType)
 {
-    setDisplayName(QdbDevice::tr("Boot2Qt Device"));
+    setDisplayName(Tr::tr("Boot2Qt Device"));
     setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
     setConstructionFunction(&QdbDevice::create);
     setCreator([] {
@@ -259,5 +259,4 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
     });
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

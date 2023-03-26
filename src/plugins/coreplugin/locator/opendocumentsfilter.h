@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -25,10 +25,12 @@ public:
                                          const QString &entry) override;
     void accept(const LocatorFilterEntry &selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
 
 public slots:
-    void refreshInternally();
+    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                         const QVector<int> &roles);
+    void slotRowsInserted(const QModelIndex &, int first, int last);
+    void slotRowsRemoved(const QModelIndex &, int first, int last);
 
 private:
     class Entry

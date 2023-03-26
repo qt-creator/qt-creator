@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "plugindialog.h"
 
@@ -30,15 +30,15 @@ PluginDialog::PluginDialog()
     vl->addLayout(hl);
     hl->setContentsMargins(0, 0, 0, 0);
     hl->setSpacing(6);
-    m_detailsButton = new QPushButton(tr("Details"), this);
-    m_errorDetailsButton = new QPushButton(tr("Error Details"), this);
+    m_detailsButton = new QPushButton("Details", this);
+    m_errorDetailsButton = new QPushButton("Error Details", this);
     m_detailsButton->setEnabled(false);
     m_errorDetailsButton->setEnabled(false);
     hl->addWidget(m_detailsButton);
     hl->addWidget(m_errorDetailsButton);
     hl->addStretch(5);
     resize(650, 300);
-    setWindowTitle(tr("Installed Plugins"));
+    setWindowTitle("Installed Plugins");
 
     connect(m_view, &ExtensionSystem::PluginView::currentPluginChanged,
                 this, &PluginDialog::updateButtons);
@@ -69,7 +69,7 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
             return;
     }
     QDialog dialog(this);
-    dialog.setWindowTitle(tr("Plugin Details of %1").arg(spec->name()));
+    dialog.setWindowTitle(QString("Plugin Details of %1").arg(spec->name()));
     QVBoxLayout *layout = new QVBoxLayout;
     dialog.setLayout(layout);
     ExtensionSystem::PluginDetailsView *details = new ExtensionSystem::PluginDetailsView(&dialog);
@@ -89,7 +89,7 @@ void PluginDialog::openErrorDetails()
     if (!spec)
         return;
     QDialog dialog(this);
-    dialog.setWindowTitle(tr("Plugin Errors of %1").arg(spec->name()));
+    dialog.setWindowTitle(QString("Plugin Errors of %1").arg(spec->name()));
     QVBoxLayout *layout = new QVBoxLayout;
     dialog.setLayout(layout);
     ExtensionSystem::PluginErrorView *errors = new ExtensionSystem::PluginErrorView(&dialog);

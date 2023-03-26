@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbsbuildstep.h"
 
@@ -32,7 +32,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
-#include <QBoxLayout>
 #include <QCheckBox>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -64,7 +63,7 @@ public:
     ArchitecturesAspect();
 
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
     QStringList selectedArchitectures() const;
     void setSelectedArchitectures(const QStringList& architectures);
     bool isManagedByTarget() const { return m_isManagedByTarget; }
@@ -87,7 +86,7 @@ ArchitecturesAspect::ArchitecturesAspect()
     setAllValues(m_abisToArchMap.keys());
 }
 
-void ArchitecturesAspect::addToLayout(LayoutBuilder &builder)
+void ArchitecturesAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     MultiSelectionAspect::addToLayout(builder);
     const auto changeHandler = [this] {
@@ -212,6 +211,8 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_buildVariant->addOption({ProjectExplorer::Tr::tr("Debug"), {}, Constants::QBS_VARIANT_DEBUG});
     m_buildVariant->addOption({ProjectExplorer::Tr::tr("Release"), {},
                                Constants::QBS_VARIANT_RELEASE});
+    m_buildVariant->addOption({ProjectExplorer::Tr::tr("Profile"), {},
+                               Constants::QBS_VARIANT_PROFILING});
 
     m_selectedAbis = addAspect<ArchitecturesAspect>();
     m_selectedAbis->setLabelText(QbsProjectManager::Tr::tr("ABIs:"));
@@ -386,11 +387,11 @@ Utils::FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) con
     const QString root =
             qbsConfiguration(variableHandling).value(Constants::QBS_INSTALL_ROOT_KEY).toString();
     if (!root.isNull())
-        return Utils::FilePath::fromString(root);
+        return Utils::FilePath::fromUserInput(root);
     QString defaultInstallDir = QbsSettings::defaultInstallDirTemplate();
     if (variableHandling == VariableHandling::ExpandVariables)
         defaultInstallDir = macroExpander()->expand(defaultInstallDir);
-    return FilePath::fromString(defaultInstallDir);
+    return FilePath::fromUserInput(defaultInstallDir);
 }
 
 int QbsBuildStep::maxJobs() const

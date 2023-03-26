@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "boosttestresult.h"
 #include "boosttestconstants.h"
@@ -11,93 +11,49 @@
 
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
-BoostTestResult::BoostTestResult(const QString &id, const Utils::FilePath &projectFile, const QString &name)
-    : TestResult(id, name), m_projectFile(projectFile)
+static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseName)
 {
+    return [testCaseName](const TestResult &result, bool selected) {
+        const QString &desc = result.description();
+        QString output;
+        switch (result.result()) {
+        case ResultType::Pass:
+        case ResultType::Fail:
+            output = testCaseName;
+            if (selected && !desc.isEmpty())
+                output.append('\n').append(desc);
+            break;
+        default:
+            output = desc;
+            if (!selected)
+                output = output.split('\n').first();
+        }
+        return output;
+    };
 }
 
-const QString BoostTestResult::outputString(bool selected) const
-{
-    const QString &desc = description();
-    QString output;
-    switch (result()) {
-    case ResultType::Pass:
-    case ResultType::Fail:
-        output = m_testCase;
-        if (selected && !desc.isEmpty())
-            output.append('\n').append(desc);
-        break;
-    default:
-        output = desc;
-        if (!selected)
-            output = output.split('\n').first();
-    }
-    return output;
-}
-
-bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
-{
-    if (!TestResult::isDirectParentOf(other, needsIntermediate))
-        return false;
-
-    if (result() != ResultType::TestStart)
-        return false;
-
-    bool weAreModule = (m_testCase.isEmpty() && m_testSuite.isEmpty());
-    bool weAreSuite = (m_testCase.isEmpty() && !m_testSuite.isEmpty());
-    bool weAreCase = (!m_testCase.isEmpty());
-
-    const BoostTestResult *boostOther = static_cast<const BoostTestResult *>(other);
-    bool otherIsSuite = boostOther->m_testCase.isEmpty() && !boostOther->m_testSuite.isEmpty();
-    bool otherIsCase = !boostOther->m_testCase.isEmpty();
-
-    if (otherIsSuite)
-        return weAreSuite ? boostOther->m_testSuite.startsWith(m_testSuite + '/') : weAreModule;
-
-    if (otherIsCase) {
-        if (weAreCase)
-            return boostOther->m_testCase == m_testCase && boostOther->m_testSuite == m_testSuite;
-        if (weAreSuite)
-            return boostOther->m_testSuite == m_testSuite;
-        if (weAreModule)
-            return boostOther->m_testSuite.isEmpty();
-    }
-    return false;
-}
-
-const ITestTreeItem *BoostTestResult::findTestTreeItem() const
-{
-    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(BoostTest::Constants::FRAMEWORK_NAME);
-    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
-    QTC_ASSERT(framework, return nullptr);
-    const TestTreeItem *rootNode = framework->rootNode();
-    if (!rootNode)
-        return nullptr;
-
-    return rootNode->findAnyChild([this](const Utils::TreeItem *item) {
-        return matches(static_cast<const BoostTestTreeItem *>(item));
-    });
-}
-
-bool BoostTestResult::matches(const BoostTestTreeItem *item) const
+static bool matches(const FilePath &fileName, const FilePath &projectFile, const QString &testCaseName,
+             const QString &testSuiteName, const BoostTestTreeItem *item)
 {
     // due to lacking information on the result side and a not fully appropriate tree we
     // might end up here with a differing set of tests, but it's the best we can do
     if (!item)
         return false;
-    if (m_testCase.isEmpty()) // a top level module node
-        return item->proFile() == m_projectFile;
-    if (item->proFile() != m_projectFile)
+    if (testCaseName.isEmpty()) // a top level module node
+        return item->proFile() == projectFile;
+    if (item->proFile() != projectFile)
         return false;
-    if (!fileName().isEmpty() && fileName() != item->filePath())
+    if (!fileName.isEmpty() && fileName != item->filePath())
         return false;
 
-    QString fullName = "::" + m_testCase;
-    fullName.prepend(m_testSuite.isEmpty() ? QString(BoostTest::Constants::BOOST_MASTER_SUITE)
-                                           : m_testSuite);
+    QString fullName = "::" + testCaseName;
+    fullName.prepend(testSuiteName.isEmpty() ? QString(BoostTest::Constants::BOOST_MASTER_SUITE)
+                                              : testSuiteName);
 
     BoostTestTreeItem::TestStates states = item->state();
     if (states & BoostTestTreeItem::Templated) {
@@ -112,6 +68,75 @@ bool BoostTestResult::matches(const BoostTestTreeItem *item) const
     return item->fullName() == fullName;
 }
 
+static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFile,
+                                                      const QString &testCaseName,
+                                                      const QString &testSuiteName)
+{
+    return [=](const TestResult &result) -> ITestTreeItem * {
+        const Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(BoostTest::Constants::FRAMEWORK_NAME);
+        ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+        QTC_ASSERT(framework, return nullptr);
+        const TestTreeItem *rootNode = framework->rootNode();
+        if (!rootNode)
+            return nullptr;
+
+        return rootNode->findAnyChild([&](const TreeItem *item) {
+            const auto testTreeItem = static_cast<const BoostTestTreeItem *>(item);
+            return testTreeItem && matches(result.fileName(), projectFile, testCaseName,
+                                           testSuiteName, testTreeItem);
+        });
+    };
+}
+
+struct BoostTestData
+{
+    QString m_testCaseName;
+    QString m_testSuiteName;
+};
+
+static ResultHooks::DirectParentHook directParentHook(const QString &testCaseName,
+                                                      const QString &testSuiteName)
+{
+    return [=](const TestResult &result, const TestResult &other, bool *) -> bool {
+        if (!other.extraData().canConvert<BoostTestData>())
+            return false;
+        const BoostTestData otherData = other.extraData().value<BoostTestData>();
+
+        if (result.result() != ResultType::TestStart)
+            return false;
+
+        bool thisModule = (testCaseName.isEmpty() && testSuiteName.isEmpty());
+        bool thisSuite = (testCaseName.isEmpty() && !testSuiteName.isEmpty());
+        bool thisCase = (!testCaseName.isEmpty());
+
+        bool otherSuite = otherData.m_testCaseName.isEmpty() && !otherData.m_testSuiteName.isEmpty();
+        bool otherCase = !otherData.m_testCaseName.isEmpty();
+
+        if (otherSuite)
+            return thisSuite ? otherData.m_testSuiteName.startsWith(testSuiteName + '/') : thisModule;
+
+        if (otherCase) {
+            if (thisCase)
+                return otherData.m_testCaseName == testCaseName && otherData.m_testSuiteName == testSuiteName;
+            if (thisSuite)
+                return otherData.m_testSuiteName == testSuiteName;
+            if (thisModule)
+                return otherData.m_testSuiteName.isEmpty();
+        }
+        return false;
+    };
+}
+
+BoostTestResult::BoostTestResult(const QString &id, const QString &name,
+                                 const FilePath &projectFile, const QString &testCaseName,
+                                 const QString &testSuiteName)
+    : TestResult(id, name, {QVariant::fromValue(BoostTestData{testCaseName, testSuiteName}),
+                            outputStringHook(testCaseName),
+                            findTestItemHook(projectFile, testCaseName, testSuiteName),
+                            directParentHook(testCaseName, testSuiteName)})
+{}
+
 } // namespace Internal
 } // namespace Autotest
 
+Q_DECLARE_METATYPE(Autotest::Internal::BoostTestData);

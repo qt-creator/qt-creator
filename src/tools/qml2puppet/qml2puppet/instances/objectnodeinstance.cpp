@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "objectnodeinstance.h"
 
@@ -300,7 +300,7 @@ static void removeObjectFromList(const QQmlProperty &property,
 
     listReference.clear();
 
-    foreach (QObject *object, objectList)
+    for (QObject *object : std::as_const(objectList))
         listReference.append(object);
 }
 
@@ -802,7 +802,8 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
 
     if (component->isError()) {
         qWarning() << "Error in:" << Q_FUNC_INFO << component->url().toString();
-        foreach (const QQmlError &error, component->errors())
+        const QList<QQmlError> errors = component->errors();
+        for (const QQmlError &error : errors)
             qWarning() << error;
         qWarning() << "file data:\n" << data;
     }
@@ -853,7 +854,8 @@ QObject *ObjectNodeInstance::createComponent([[maybe_unused]] const QString &com
 
     if (component.isError()) {
         qDebug() << componentPath;
-        foreach (const QQmlError &error, component.errors())
+        const QList<QQmlError> errors = component.errors();
+        for (const QQmlError &error : errors)
             qWarning() << error;
     }
 
@@ -888,7 +890,8 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
 
     if (component.isError()) {
         qWarning() << "Error in:" << Q_FUNC_INFO << component.url().toString();
-        foreach (const QQmlError &error, component.errors())
+        const QList<QQmlError> errors = component.errors();
+        for (const QQmlError &error : errors)
             qWarning() << error;
         qWarning() << "file data:\n" << data;
     }

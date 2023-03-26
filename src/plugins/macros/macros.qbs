@@ -35,6 +35,7 @@ QtcPlugin {
         "macrosconstants.h",
         "macrosplugin.cpp",
         "macrosplugin.h",
+        "macrostr.h",
         "macrotextfind.cpp",
         "macrotextfind.h",
         "savedialog.cpp",

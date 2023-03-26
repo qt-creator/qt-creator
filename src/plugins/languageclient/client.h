@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -42,6 +42,7 @@ class InterfaceController;
 class LanguageClientCompletionAssistProvider;
 class LanguageClientQuickFixProvider;
 class LanguageFilter;
+class ProgressManager;
 class SymbolSupport;
 
 class LANGUAGECLIENT_EXPORT Client : public QObject
@@ -49,7 +50,7 @@ class LANGUAGECLIENT_EXPORT Client : public QObject
     Q_OBJECT
 
 public:
-    explicit Client(BaseClientInterface *clientInterface); // takes ownership
+    explicit Client(BaseClientInterface *clientInterface, const Utils::Id &id = {}); // takes ownership
      ~Client() override;
 
     Client(const Client &) = delete;
@@ -109,7 +110,8 @@ public:
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
     virtual void openDocument(TextEditor::TextDocument *document);
-    void closeDocument(TextEditor::TextDocument *document);
+    void closeDocument(TextEditor::TextDocument *document,
+                       const std::optional<Utils::FilePath> &overwriteFilePath = {});
     void activateDocument(TextEditor::TextDocument *document);
     void activateEditor(Core::IEditor *editor);
     void deactivateDocument(TextEditor::TextDocument *document);
@@ -126,6 +128,7 @@ public:
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
     bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
     int documentVersion(const Utils::FilePath &filePath) const;
+    int documentVersion(const LanguageServerProtocol::DocumentUri &uri) const;
     void setDocumentChangeUpdateThreshold(int msecs);
 
     // workspace control
@@ -151,10 +154,9 @@ public:
     SymbolSupport &symbolSupport();
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
-    QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
-        const LanguageServerProtocol::DocumentUri &uri,
-        const QTextCursor &cursor) const;
-    bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+    QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(const Utils::FilePath &filePath,
+                                                            const QTextCursor &cursor) const;
+    bool hasDiagnostic(const Utils::FilePath &filePath,
                        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *document) const;
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
@@ -165,6 +167,10 @@ public:
     void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
     virtual bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const;
     virtual bool fileBelongsToProject(const Utils::FilePath &filePath) const;
+
+    LanguageServerProtocol::DocumentUri::PathMapper hostPathMapper() const;
+    Utils::FilePath serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const;
+    LanguageServerProtocol::DocumentUri hostPathToServerUri(const Utils::FilePath &path) const;
 
     // logging
     enum class LogTarget { Console, Ui };
@@ -195,10 +201,7 @@ signals:
 
 protected:
     void setError(const QString &message);
-    void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
-                                  const QString &message);
-    void setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
-                                 const std::function<void()> &handler);
+    ProgressManager *progressManager();
     void handleMessage(const LanguageServerProtocol::JsonRpcMessage &message);
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     virtual DiagnosticManager *createDiagnosticManager();

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "makefileparse.h"
 
@@ -252,7 +252,7 @@ MakeFileParse::MakeFileParse(const FilePath &makefile, Mode mode) : m_mode(mode)
     project = project.trimmed();
 
     // Src Pro file
-    m_srcProFile = makefile.parentDir().resolvePath(project).cleanPath();
+    m_srcProFile = makefile.parentDir().resolvePath(project);
     qCDebug(logging()) << "  source .pro file:" << m_srcProFile;
 
     QString command = findQMakeLine(makefile, QLatin1String("# Command:")).trimmed();

@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fontsettings.h"
+
 #include "fontsettingspage.h"
+#include "texteditortr.h"
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -79,7 +81,7 @@ void FontSettings::toSettings(QSettings *s) const
 
     auto schemeFileNames = s->value(QLatin1String(schemeFileNamesKey)).toMap();
     if (m_schemeFileName != defaultSchemeFileName() || schemeFileNames.contains(Utils::creatorTheme()->id())) {
-        schemeFileNames.insert(Utils::creatorTheme()->id(), m_schemeFileName.toVariant());
+        schemeFileNames.insert(Utils::creatorTheme()->id(), m_schemeFileName.toSettings());
         s->setValue(QLatin1String(schemeFileNamesKey), schemeFileNames);
     }
 
@@ -106,7 +108,7 @@ bool FontSettings::fromSettings(const FormatDescriptions &descriptions, const QS
         // Load the selected color scheme for the current theme
         auto schemeFileNames = s->value(group + QLatin1String(schemeFileNamesKey)).toMap();
         if (schemeFileNames.contains(Utils::creatorTheme()->id())) {
-            const FilePath scheme = FilePath::fromVariant(schemeFileNames.value(Utils::creatorTheme()->id()));
+            const FilePath scheme = FilePath::fromSettings(schemeFileNames.value(Utils::creatorTheme()->id()));
             loadColorScheme(scheme, descriptions);
         }
     }
@@ -158,10 +160,8 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }
 
-    if (category == C_OCCURRENCES_UNUSED) {
-        tf.setToolTip(QCoreApplication::translate("FontSettings_C_OCCURRENCES_UNUSED",
-                                                  "Unused variable"));
-    }
+    if (category == C_OCCURRENCES_UNUSED)
+        tf.setToolTip(Tr::tr("Unused variable"));
 
     if (f.foreground().isValid() && !isOverlayCategory(category))
         tf.setForeground(f.foreground());

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,7 +19,6 @@ public:
     ~FunctionHintProposalWidget() override;
 
     void setAssistant(CodeAssistant *assistant) override;
-    void setReason(AssistReason reason) override;
     void setKind(AssistKind kind) override;
     void setUnderlyingWidget(const QWidget *underlyingWidget) override;
     void setModel(ProposalModelPtr model) override;
@@ -27,7 +26,7 @@ public:
     void setIsSynchronized(bool isSync) override;
 
     void showProposal(const QString &prefix) override;
-    void updateProposal(const QString &prefix) override;
+    void filterProposal(const QString &prefix) override;
     void closeProposal() override;
 
     bool proposalIsVisible() const override;

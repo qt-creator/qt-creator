@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppelementevaluator.h"
 
@@ -21,6 +21,7 @@
 #include <QSet>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 
@@ -62,18 +63,18 @@ class CppInclude : public CppElement
 {
 public:
     explicit CppInclude(const Document::Include &includeFile)
-        : path(QDir::toNativeSeparators(includeFile.resolvedFileName()))
-        , fileName(Utils::FilePath::fromString(includeFile.resolvedFileName()).fileName())
+        : path(includeFile.resolvedFileName())
+        , fileName(path.fileName())
     {
         helpCategory = Core::HelpItem::Brief;
         helpIdCandidates = QStringList(fileName);
         helpMark = fileName;
-        link = Utils::Link(Utils::FilePath::fromString(path));
-        tooltip = path;
+        link = Utils::Link(path);
+        tooltip = path.toUserOutput();
     }
 
 public:
-    QString path;
+    FilePath path;
     QString fileName;
 };
 
@@ -86,7 +87,7 @@ public:
         const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
         helpIdCandidates = QStringList(macroName);
         helpMark = macroName;
-        link = Utils::Link(Utils::FilePath::fromString(macro.fileName()), macro.line());
+        link = Link(macro.filePath(), macro.line());
         tooltip = macro.toStringWithLineBreaks();
     }
 };
@@ -94,7 +95,7 @@ public:
 // CppDeclarableElement
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     : CppElement()
-    , iconType(Icons::iconTypeForSymbol(declaration))
+    , iconType(CPlusPlus::Icons::iconTypeForSymbol(declaration))
 {
     Overview overview;
     overview.showArgumentNames = true;
@@ -325,9 +326,7 @@ static Symbol *followClassDeclaration(Symbol *symbol, const Snapshot &snapshot, 
         return symbol;
 
     if (context) {
-        const QString fileName = QString::fromUtf8(classDeclaration->fileName(),
-                                                   classDeclaration->fileNameLength());
-        const Document::Ptr declarationDocument = snapshot.document(fileName);
+        const Document::Ptr declarationDocument = snapshot.document(classDeclaration->filePath());
         if (declarationDocument != context->thisDocument())
             (*context) = LookupContext(declarationDocument, snapshot);
     }
@@ -503,15 +502,15 @@ static QFuture<QSharedPointer<CppElement>> asyncExec(
 class FromExpressionFunctor
 {
 public:
-    FromExpressionFunctor(const QString &expression, const QString &fileName)
+    FromExpressionFunctor(const QString &expression, const FilePath &filePath)
         : m_expression(expression)
-        , m_fileName(fileName)
+        , m_filePath(filePath)
     {}
 
     bool operator()(const CPlusPlus::Snapshot &snapshot, Document::Ptr &doc, Scope **scope,
                     QString &expression)
     {
-        doc = snapshot.document(m_fileName);
+        doc = snapshot.document(m_filePath);
         if (doc.isNull())
             return false;
 
@@ -523,13 +522,13 @@ public:
     }
 private:
     const QString m_expression;
-    const QString m_fileName;
+    const FilePath m_filePath;
 };
 
 QFuture<QSharedPointer<CppElement>> CppElementEvaluator::asyncExecute(const QString &expression,
-                                                                      const QString &fileName)
+                                                                      const FilePath &filePath)
 {
-    return exec(FromExpressionFunctor(expression, fileName), asyncExec);
+    return exec(FromExpressionFunctor(expression, filePath), asyncExec);
 }
 
 class FromGuiFunctor
@@ -692,10 +691,10 @@ const QString &CppElementEvaluator::diagnosis() const
     return d->m_functor.m_diagnosis;
 }
 
-Utils::Link CppElementEvaluator::linkFromExpression(const QString &expression, const QString &fileName)
+Utils::Link CppElementEvaluator::linkFromExpression(const QString &expression, const FilePath &filePath)
 {
     const Snapshot &snapshot = CppModelManager::instance()->snapshot();
-    Document::Ptr doc = snapshot.document(fileName);
+    Document::Ptr doc = snapshot.document(filePath);
     if (doc.isNull())
         return Utils::Link();
     Scope *scope = doc->globalNamespace();

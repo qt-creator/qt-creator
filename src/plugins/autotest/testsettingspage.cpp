@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testsettingspage.h"
 
@@ -21,15 +21,15 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QTreeWidget>
-#include <QVBoxLayout>
 #include <QWidget>
+
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -43,8 +43,8 @@ public:
     TestSettings settings() const;
 
 private:
-    void populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks,
-                                      const QHash<Utils::Id, bool> &testTools);
+    void populateFrameworksListWidget(const QHash<Id, bool> &frameworks,
+                                      const QHash<Id, bool> &testTools);
     void testSettings(TestSettings &settings) const;
     void testToolsSettings(TestSettings &settings) const;
     void onFrameworkItemChanged();
@@ -63,7 +63,7 @@ private:
     QComboBox *m_runAfterBuildCB;
     QSpinBox *m_timeoutSpin;
     QTreeWidget *m_frameworkTreeWidget;
-    Utils::InfoLabel *m_frameworksWarn;
+    InfoLabel *m_frameworksWarn;
 };
 
 TestSettingsWidget::TestSettingsWidget(QWidget *parent)
@@ -148,12 +148,12 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     item->setText(1, Tr::tr("Group"));
     item->setToolTip(1, Tr::tr("Enables grouping of test cases."));
 
-    m_frameworksWarn = new Utils::InfoLabel;
+    m_frameworksWarn = new InfoLabel;
     m_frameworksWarn->setVisible(false);
     m_frameworksWarn->setElideMode(Qt::ElideNone);
-    m_frameworksWarn->setType(Utils::InfoLabel::Warning);
+    m_frameworksWarn->setType(InfoLabel::Warning);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     PushButton resetChoicesButton {
         text(Tr::tr("Reset Cached Choices")),
@@ -251,13 +251,13 @@ enum TestBaseInfo
     BaseType
 };
 
-void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks,
-                                                      const QHash<Utils::Id, bool> &testTools)
+void TestSettingsWidget::populateFrameworksListWidget(const QHash<Id, bool> &frameworks,
+                                                      const QHash<Id, bool> &testTools)
 {
     const TestFrameworks &registered = TestFrameworkManager::registeredFrameworks();
     m_frameworkTreeWidget->clear();
     for (const ITestFramework *framework : registered) {
-        const Utils::Id id = framework->id();
+        const Id id = framework->id();
         auto item = new QTreeWidgetItem(m_frameworkTreeWidget, {framework->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, frameworks.value(id) ? Qt::Checked : Qt::Unchecked);
@@ -274,7 +274,7 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, boo
     // ...and now the test tools
     const TestTools &registeredTools = TestFrameworkManager::registeredTestTools();
     for (const ITestTool *testTool : registeredTools) {
-        const Utils::Id id = testTool->id();
+        const Id id = testTool->id();
         auto item = new QTreeWidgetItem(m_frameworkTreeWidget, {testTool->displayName()});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
         item->setCheckState(0, testTools.value(id) ? Qt::Checked : Qt::Unchecked);
@@ -291,7 +291,7 @@ void TestSettingsWidget::testSettings(TestSettings &settings) const
     QTC_ASSERT(itemCount <= model->rowCount(), return);
     for (int row = 0; row < itemCount; ++row) {
         QModelIndex idx = model->index(row, 0);
-        const Utils::Id id = Utils::Id::fromSetting(idx.data(BaseId));
+        const Id id = Id::fromSetting(idx.data(BaseId));
         settings.frameworks.insert(id, idx.data(Qt::CheckStateRole) == Qt::Checked);
         idx = model->index(row, 1);
         settings.frameworksGrouping.insert(id, idx.data(Qt::CheckStateRole) == Qt::Checked);
@@ -308,7 +308,7 @@ void TestSettingsWidget::testToolsSettings(TestSettings &settings) const
     QTC_ASSERT(row <= end, return);
     for ( ; row < end; ++row) {
         const QModelIndex idx = model->index(row, 0);
-        const Utils::Id id = Utils::Id::fromSetting(idx.data(BaseId));
+        const Id id = Id::fromSetting(idx.data(BaseId));
         settings.tools.insert(id, idx.data(Qt::CheckStateRole) == Qt::Checked);
     }
 }
@@ -367,8 +367,8 @@ void TestSettingsPage::apply()
     if (!m_widget) // page was not shown at all
         return;
     const TestSettings newSettings = m_widget->settings();
-    const QList<Utils::Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
-                                                       [newSettings, this] (const Utils::Id &id) {
+    const QList<Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
+                                                 [newSettings, this](const Id &id) {
         return newSettings.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
     });
     *m_settings = newSettings;

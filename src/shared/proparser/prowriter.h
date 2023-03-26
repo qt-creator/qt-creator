@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -52,9 +52,9 @@ public:
             VarLocations *removedLocations = nullptr);
 
 private:
-    static bool locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
+    static bool locateVarValues(const QString &device, const ushort *tokPtr, const ushort *tokPtrEnd,
                                 const QString &scope, const QString &var, int *scopeStart, int *bestLine);
-    static QString compileScope(const QString &scope);
+    static QString compileScope(const QString &device, const QString &scope);
 };
 
 } // namespace Internal

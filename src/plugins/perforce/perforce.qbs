@@ -15,10 +15,8 @@ QtcPlugin {
         "annotationhighlighter.h",
         "changenumberdialog.cpp",
         "changenumberdialog.h",
-        "changenumberdialog.ui",
         "pendingchangesdialog.cpp",
         "pendingchangesdialog.h",
-        "pendingchangesdialog.ui",
         "perforcechecker.cpp",
         "perforcechecker.h",
         "perforceeditor.cpp",
@@ -31,6 +29,6 @@ QtcPlugin {
         "perforcesubmiteditor.h",
         "perforcesubmiteditorwidget.cpp",
         "perforcesubmiteditorwidget.h",
-        "submitpanel.ui",
+        "perforcetr.h",
     ]
 }

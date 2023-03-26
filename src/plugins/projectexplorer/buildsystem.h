@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,6 +19,7 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildStepList;
+class ExtraCompiler;
 class Node;
 
 struct TestCaseInfo
@@ -82,10 +83,16 @@ public:
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
     virtual QString name() const = 0;
 
+    // Owned by the build system. Use only in main thread. Can go away at any time.
+    ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) const;
+    ExtraCompiler *extraCompilerForTarget(const Utils::FilePath &target) const;
+
     virtual MakeInstallCommand makeInstallCommand(const Utils::FilePath &installRoot) const;
 
     virtual Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const;
     virtual QVariant additionalData(Utils::Id id) const;
+    virtual QList<QPair<Utils::Id, QString>> generators() const { return {}; }
+    virtual void runGenerator(Utils::Id) {}
 
     void setDeploymentData(const DeploymentData &deploymentData);
     DeploymentData deploymentData() const;
@@ -155,8 +162,11 @@ protected:
     // Call in GUI thread right after the actual parsing is done
     void emitParsingFinished(bool success);
 
+    using ExtraCompilerFilter = std::function<bool(const ExtraCompiler *)>;
 private:
     void requestParseHelper(int delay); // request a (delayed!) parser run.
+
+    virtual ExtraCompiler *findExtraCompiler(const ExtraCompilerFilter &filter) const;
 
     class BuildSystemPrivate *d = nullptr;
 };

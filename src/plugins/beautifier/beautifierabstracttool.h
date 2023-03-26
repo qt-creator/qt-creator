@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -12,13 +12,10 @@ class IDocument;
 class IEditor;
 }
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal  {
 
 class BeautifierAbstractTool : public QObject
 {
-    Q_OBJECT
-
 public:
     BeautifierAbstractTool() = default;
 
@@ -35,5 +32,4 @@ public:
     virtual bool isApplicable(const Core::IDocument *document) const = 0;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

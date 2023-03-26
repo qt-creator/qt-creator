@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectwizardpage.h"
 
 #include "project.h"
+#include "projectexplorertr.h"
 #include "projectmodels.h"
 #include "session.h"
 
@@ -11,6 +12,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/iwizardfactory.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -19,6 +21,7 @@
 #include <utils/treemodel.h>
 #include <utils/treeviewcombobox.h>
 #include <utils/wizard.h>
+
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QComboBox>
@@ -142,7 +145,7 @@ private:
 BestNodeSelector::BestNodeSelector(const FilePath &commonDirectory, const FilePaths &files) :
     m_commonDirectory(commonDirectory),
     m_files(files),
-    m_deployText(QCoreApplication::translate("ProjectWizard", "The files are implicitly added to the projects:") + QLatin1Char('\n'))
+    m_deployText(Tr::tr("The files are implicitly added to the projects:") + QLatin1Char('\n'))
 { }
 
 // Find the project the new files should be added
@@ -207,9 +210,9 @@ QString BestNodeSelector::deployingProjects() const
 
 static inline AddNewTree *createNoneNode(BestNodeSelector *selector)
 {
-    QString displayName = QCoreApplication::translate("ProjectWizard", "<None>");
+    QString displayName = Tr::tr("<None>");
     if (selector->deploys())
-        displayName = QCoreApplication::translate("ProjectWizard", "<Implicitly Add>");
+        displayName = Tr::tr("<Implicitly Add>");
     return new AddNewTree(displayName);
 }
 
@@ -272,7 +275,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     m_projectComboBox = new Utils::TreeViewComboBox;
     m_projectComboBox->setObjectName("projectComboBox");
     m_additionalInfo = new QLabel;
-    m_addToVersionControlLabel = new QLabel(tr("Add to &version control:"));
+    m_addToVersionControlLabel = new QLabel(Tr::tr("Add to &version control:"));
     m_addToVersionControlComboBox = new QComboBox;
     m_addToVersionControlComboBox->setObjectName("addToVersionControlComboBox");
     m_vcsManageButton = new QPushButton(ICore::msgShowOptionsDialog());
@@ -302,7 +305,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     connect(m_addToVersionControlComboBox, &QComboBox::currentIndexChanged,
             this, &ProjectWizardPage::versionControlChanged);
     connect(m_vcsManageButton, &QAbstractButton::clicked, this, &ProjectWizardPage::manageVcs);
-    setProperty(SHORT_TITLE_PROPERTY, tr("Summary"));
+    setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Summary"));
 
     connect(VcsManager::instance(), &VcsManager::configurationChanged,
             this, &ProjectExplorer::Internal::ProjectWizardPage::initializeVersionControls);
@@ -363,8 +366,8 @@ FolderNode *ProjectWizardPage::currentNode() const
 void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
 {
     m_projectLabel->setText(addingSubProject ?
-                                tr("Add as a subproject to project:")
-                              : tr("Add to &project:"));
+                                Tr::tr("Add as a subproject to project:")
+                              : Tr::tr("Add to &project:"));
 }
 
 void ProjectWizardPage::initializeVersionControls()
@@ -386,7 +389,7 @@ void ProjectWizardPage::initializeVersionControls()
 
     m_activeVersionControls.clear();
 
-    QStringList versionControlChoices = QStringList(tr("<None>"));
+    QStringList versionControlChoices = QStringList(Tr::tr("<None>"));
     if (!m_commonDirectory.isEmpty()) {
         IVersionControl *managingControl =
                 VcsManager::findVersionControlForDirectory(m_commonDirectory);
@@ -434,7 +437,7 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
         QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
         if (!versionControl->vcsCreateRepository(m_commonDirectory)) {
             *errorMessage =
-                    tr("A version control system repository could not be created in \"%1\".").
+                    Tr::tr("A version control system repository could not be created in \"%1\".").
                     arg(m_commonDirectory.toUserOutput());
             return false;
         }
@@ -443,7 +446,7 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
     if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
         for (const GeneratedFile &generatedFile : files) {
             if (!versionControl->vcsAdd(generatedFile.filePath())) {
-                *errorMessage = tr("Failed to add \"%1\" to the version control system.").
+                *errorMessage = Tr::tr("Failed to add \"%1\" to the version control system.").
                         arg(generatedFile.filePath().toUserOutput());
                 return false;
             }
@@ -534,7 +537,7 @@ void ProjectWizardPage::setFiles(const FilePaths &files)
     {
         QTextStream str(&fileMessage);
         str << "<qt>"
-            << (hasNoCommonDirectory ? tr("Files to be added:") : tr("Files to be added in"))
+            << (hasNoCommonDirectory ? Tr::tr("Files to be added:") : Tr::tr("Files to be added in"))
             << "<pre>";
 
         QStringList formattedFiles;

@@ -1,9 +1,11 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "utils_global.h"
+
+#include "filepath.h"
 
 #include <QMetaType>
 #include <QVector>
@@ -20,13 +22,13 @@ class QTCREATOR_UTILS_EXPORT TerminalCommand
 {
 public:
     TerminalCommand() = default;
-    TerminalCommand(const QString &command, const QString &openArgs,
+    TerminalCommand(const FilePath &command, const QString &openArgs,
                     const QString &executeArgs, bool needsQuotes = false);
 
     bool operator==(const TerminalCommand &other) const;
     bool operator<(const TerminalCommand &other) const;
 
-    QString command;
+    Utils::FilePath command;
     QString openArgs;
     QString executeArgs;
     bool needsQuotes = false;

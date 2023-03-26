@@ -21,7 +21,7 @@
     </message>
 </context>
 <context>
-    <name>AttachCoreDialog</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Debugger elindítása</translation>
@@ -55,7 +55,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::0</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="obsolete">&amp;Visszavonás</translation>
@@ -66,7 +66,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Visszacsinál</translation>
@@ -77,7 +77,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Künyvjelző hozzáadása</translation>
@@ -227,7 +227,7 @@
     </message>
 </context>
 <context>
-    <name>BreakCondition</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Condition:</source>
         <translation>Feltétel:</translation>
@@ -238,7 +238,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build Environment</source>
         <translation type="obsolete">Fordítási környezet</translation>
@@ -493,7 +493,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::0</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;Szimbólum kiválasztása&gt;</translation>
@@ -502,9 +502,6 @@
         <source>&lt;No Symbols&gt;</source>
         <translation type="obsolete">&lt;Nincsen szimbólum&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CPlusPlus::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Szimbólum kiválasztása&gt;</translation>
@@ -515,7 +512,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>A log kimenet elemzése nem sikerült</translation>
@@ -853,7 +850,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;KódBeillesztő</translation>
@@ -1060,7 +1057,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation>Kód kiegészítés</translation>
@@ -1091,7 +1088,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>QtC::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Link megnyitása</translation>
@@ -1102,7 +1099,7 @@
     </message>
 </context>
 <context>
-    <name>Core::0</name>
+    <name>QtC::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation type="obsolete">Hiba történt a fájl generálása közben</translation>
@@ -1415,9 +1412,6 @@ Felül szeretné írni azokat?</translation>
         <source>New %1</source>
         <translation type="obsolete">Új %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Nem lehet létrehozni a(z) %1 könyvtárat.</translation>
@@ -1468,9 +1462,6 @@ Would you like to overwrite them?</source>
 %2.
 Felül szeretné írni azokat?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Visszatérés az elmentett állapotra</translation>
@@ -1695,9 +1686,6 @@ Felül szeretné írni azokat?</translation>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Változó&lt;/th&gt;&lt;th&gt;kiterjesztés&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;fájl névre&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;aktuális sorszám&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;aktuális oszlopszám&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;a szerkesztő X Poziciója a képernyőn&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;a szerkesztő Y pozicója a képernyőn&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;a szerkesztő szélessége pixelekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;a szerkesztő magassága pixelekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;a szerkesztő szélessége karakterekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;a szerkesztő magassága karakterekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
     <message>
         <source>Cannot save file</source>
         <translation>Nem lehet elmenti a fájlt</translation>
@@ -1718,9 +1706,6 @@ Felül szeretné írni azokat?</translation>
         <source>Save File As</source>
         <translation>Mentés másként</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::0</name>
     <message>
         <source>Activate %1</source>
         <translation type="obsolete">%1 aktiválása</translation>
@@ -1758,16 +1743,8 @@ Felül szeretné írni azokat?</translation>
         <translation type="obsolete">Voriges Dokument</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation type="obsolete">Alt+Left</translation>
-    </message>
-    <message>
         <source>Next Document</source>
         <translation type="obsolete">Nächstes Dokument</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="obsolete">Alt+Right</translation>
     </message>
     <message>
         <source>Previous Group</source>
@@ -1788,14 +1765,6 @@ Felül szeretné írni azokat?</translation>
     <message>
         <source>Placeholder</source>
         <translation type="obsolete">Helyőrző</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Bezárás</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Írhatóvá tétel</translation>
     </message>
     <message>
         <source>File is writable</source>
@@ -1986,10 +1955,6 @@ Felül szeretné írni azokat?</translation>
         <source>New</source>
         <comment>Title of dialog</comment>
         <translation type="obsolete">Új</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation type="obsolete">Feldarabolás</translation>
     </message>
     <message>
         <source>Activate %1 Pane</source>
@@ -2411,23 +2376,14 @@ p {
         <source>Feedback</source>
         <translation type="obsolete">Visszajelzés</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
     <message>
         <source>Activate %1</source>
         <translation>%1 aktiválása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Szerkesztés</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
     <message>
         <source>Split Left/Right</source>
         <translation>Bal/Jobb feldarabolás</translation>
@@ -2457,16 +2413,8 @@ p {
         <translation>Voriges Dokument</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation>Alt+Left</translation>
-    </message>
-    <message>
         <source>Next Document</source>
         <translation>Nächstes Dokument</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation>Alt+Right</translation>
     </message>
     <message>
         <source>Previous Group</source>
@@ -2484,28 +2432,9 @@ p {
         <source>Move Document to Next Group</source>
         <translation>Dokument in nächste Gruppe verschieben</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
-    <message>
-        <source>Go Back</source>
-        <translation>Vissza</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Előre</translation>
-    </message>
     <message>
         <source>Placeholder</source>
         <translation>Helyőrző</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation>Írhatóvá tétel</translation>
     </message>
     <message>
         <source>File is writable</source>
@@ -2515,9 +2444,6 @@ p {
         <source>Copy full path to clipboard</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>General settings</source>
         <translation>Általános beállítások</translation>
@@ -2574,9 +2500,6 @@ p {
         <source>Variables</source>
         <translation>Változók</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -2722,41 +2645,10 @@ p {
         <source>Settings...</source>
         <translation>Beállítások...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
-    <message>
-        <source>General</source>
-        <translation>Általános</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation>%1 aktiválása</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Feldarabolás</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>&apos;%1&apos; panel aktiválása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Új Projekt</translation>
@@ -2765,24 +2657,13 @@ p {
         <source>1</source>
         <translation>1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Dokumentumok megnyitása</translation>
     </message>
     <message>
-        <source>Close %1</source>
-        <translation>%1 bezárása</translation>
-    </message>
-    <message>
         <source>Close Editor</source>
         <translation>Szerkesztő bezárása</translation>
-    </message>
-    <message>
-        <source>Close All Except %1</source>
-        <translation>Az összes bezárása a(z) %1 kivételével</translation>
     </message>
     <message>
         <source>Close Other Editors</source>
@@ -2792,26 +2673,13 @@ p {
         <source>Close All Editors</source>
         <translation>Az összes szerkesztő bezárása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>&apos;%1&apos; fájl megnyitása ezzel::</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
-    <message>
-        <source>Output</source>
-        <translation>Kimenet</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -2829,9 +2697,6 @@ p {
         <source>Output &amp;Panes</source>
         <translation>Kimeneti &amp;panelek</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Részletek</translation>
@@ -2839,10 +2704,6 @@ p {
     <message>
         <source>Error Details</source>
         <translation>Hiba részletek</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
     </message>
     <message>
         <source>Installed Plugins</source>
@@ -2856,16 +2717,10 @@ p {
         <source>Plugin Errors of %1</source>
         <translation>%1 beépülő modul hibák</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Folyamatok</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Do not Save</source>
         <translation>Ne mentse el</translation>
@@ -2882,9 +2737,6 @@ p {
         <source>Save Selected</source>
         <translation>Kiválasztottak elmentése</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Beállítások</translation>
@@ -2893,16 +2745,9 @@ p {
         <source>Options</source>
         <translation>Opciók</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Billentyűzet</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation>Környezet</translation>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
@@ -2916,20 +2761,6 @@ p {
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Billentyűzet leképezési terv exportálása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Feldarabolás</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>Qt Creator-ról</translation>
@@ -2942,16 +2773,10 @@ p {
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;%2 Qt-n alapszik (%3 bites)&lt;br/&gt;&lt;br/&gt;%4-re épül%5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Szerzői jog 2008-%6 %7. Minden jog fenntartva.&lt;br/&gt;&lt;br/&gt; A szolgáltatott programra úgy, ahogy van, semmi garancia sincs, beleértve a tervezés, eladhatóság és alkalmasság garanciáját egyéni célokra.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation>&apos;%1&apos;-es módra kapcsolás</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -2962,16 +2787,10 @@ p {
         <source>Unknown error</source>
         <translation>Ismeretlen hiba</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Új %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Utils::0</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation type="obsolete">Az osztály neve nem tartalmazhat névtér határoló jeleket.</translation>
@@ -3149,10 +2968,6 @@ p {
         <translation type="obsolete">Sör törlése</translation>
     </message>
     <message>
-        <source>Clear</source>
-        <translation type="obsolete">Kiürítés</translation>
-    </message>
-    <message>
         <source>From &quot;%1&quot;</source>
         <translation type="obsolete">&quot;%1&quot;-tól</translation>
     </message>
@@ -3210,7 +3025,7 @@ p {
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::0</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation type="obsolete">Rendezés betűrendbe</translation>
@@ -3287,9 +3102,6 @@ p {
         <source>Switch between Method Declaration/Definition</source>
         <translation type="obsolete">Deklaráció/definíció közötti váltás.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CPPEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation>Rendezés betűrendbe</translation>
@@ -3302,9 +3114,6 @@ p {
         <source>Yes, I know what I am doing.</source>
         <translation>Igen, tudom, hogy mit csinálok.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation>Osztály nevének bevitele</translation>
@@ -3317,30 +3126,18 @@ p {
         <source>Configure...</source>
         <translation>Konfigurálás...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Hiba történt a fájl tartalmak legenerálása közben.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>C++ osztály varázsló</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation>Szűrés nélküli</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
@@ -3393,9 +3190,6 @@ p {
         <source>Update code model</source>
         <translation>Kód modell frissítése</translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
     <message>
         <source>File Naming Conventions</source>
         <translation>Fájl elnevezési hagyományok</translation>
@@ -3416,27 +3210,10 @@ p {
         <source>License Template:</source>
         <translation>Licensz sablon:</translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Nincs ilyen fájl vagy könyvtár</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
-    <message>
-        <source>File Naming Conventions</source>
-        <translation>Fájl elnevezési hagyományok</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::0</name>
     <message>
         <source>Completion</source>
         <translation type="obsolete">Kiegészítés</translation>
@@ -3473,9 +3250,6 @@ p {
         <source>%1 of %2</source>
         <translation type="obsolete">%1 %2-től</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Kiegészítés</translation>
@@ -3484,23 +3258,14 @@ p {
         <source>Text Editor</source>
         <translation>Szöveg szerkesztő</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
     <message>
         <source>Classes</source>
         <translation>Osztályok</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>Methods in current Document</source>
         <translation>Eljárások az aktuális dokumentumban</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -3533,30 +3298,18 @@ p {
         <source>Cannot write to %1: %2</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching...</source>
         <translation>Keresés...</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods</source>
         <translation>Eljárások</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>Osztályok és eljárások</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppModelManager</name>
     <message>
         <source>Scanning</source>
         <translation>Szkennelés</translation>
@@ -3565,9 +3318,6 @@ p {
         <source>Indexing</source>
         <translation>Indexelés</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -3576,16 +3326,13 @@ p {
         <source>Switch Header/Source</source>
         <translation>Fejállomány/Forrás közti váltás</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 %2-től</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Common</source>
         <translation>Közös</translation>
@@ -3706,9 +3453,6 @@ p {
         <source>Stop Debugger</source>
         <translation>Debugger leállítása</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The Gdb process could not be stopped:
 %1</source>
@@ -3739,9 +3483,6 @@ p {
         <translation>A távoli szerverhez történő csatlakozás nem sikerült:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select start address</source>
         <translation>Start cím kiválasztása</translation>
@@ -3750,9 +3491,6 @@ p {
         <source>Enter an address: </source>
         <translation>Egy cím bevitele:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Futtatható fájl kiválasztása</translation>
@@ -3761,9 +3499,6 @@ p {
         <source>Select Core File</source>
         <translation>Mag fájlok kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Process ID</source>
         <translation>Folyamat azonosító</translation>
@@ -3780,9 +3515,6 @@ p {
         <source>Refresh</source>
         <translation>Felfrissítés</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Megjelölt fájl:</translation>
@@ -3828,10 +3560,6 @@ p {
         <translation>Sor szám:</translation>
     </message>
     <message>
-        <source>Condition:</source>
-        <translation>Feltétel:</translation>
-    </message>
-    <message>
         <source>Ignore Count:</source>
         <translation>Mellőzés számlálás:</translation>
     </message>
@@ -3855,9 +3583,6 @@ p {
         <source>Breakpoint will only be hit after being ignored so many times.</source>
         <translation>A töréspont sok alkalommal való mellőzés után lesz csak leütve.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Töréspontok</translation>
@@ -3922,9 +3647,6 @@ p {
         <source>Conditions on Breakpoint %1</source>
         <translation>Feltételek a(z) %1 törésponton</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Nem lehet betölteni a debugger engine könytárat &apos;%1&apos; nicht geladen werden: %2</translation>
@@ -4053,9 +3775,6 @@ p {
         <source>Thread %1: No debug information available (%2).</source>
         <translation>%1 Szál: Nincsen elérhető debugg információ (%2).</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>injection</source>
         <translation>Injekció</translation>
@@ -4100,9 +3819,6 @@ p {
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation>Dömperek kérése &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -4125,9 +3841,6 @@ p {
         <source>Autodetection</source>
         <translation>Automatikus észlelés</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Szimbólum szerver...</translation>
@@ -4140,9 +3853,6 @@ p {
         <source>Pick a local cache directory</source>
         <translation>Egy helyi gyorsítótár könyvtárra szedés</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Error Loading Symbols</source>
         <translation>Hiba történt a szimbólumok betöltésekor</translation>
@@ -4177,9 +3887,6 @@ p {
 </source>
         <translation>Nem sikerült hozzácsatolni a(z) &quot;%1&quot; maghoz:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Close Debugging Session</source>
         <translation>Debug szakasz bezárása</translation>
@@ -4192,9 +3899,6 @@ p {
         <source>A debugging session is still in progress. Terminating the session in the current state (%1) can leave the target in an inconsistent state. Would you still like to terminate it?</source>
         <translation>A debuggolási szakasz még mindig folyamatban van. A szakasz befejezése az aktuális helyzetben (%1) ellentmondó állapotban hagyhatja a célt. Mégis be szeretné fejezni?</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>%1 opció egy hiányzó paraméter.</translation>
@@ -4283,16 +3987,10 @@ p {
         <source>Attaching to core %1.</source>
         <translation>Hozzácsatolás a(z) %1 maghoz.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Debuggolás</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugger properties...</source>
         <translation>Debugger beállítások...</translation>
@@ -4421,9 +4119,6 @@ p {
         <source>Execute line</source>
         <translation>Sor végrehajtása</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Debuggolást segítő</translation>
@@ -4436,9 +4131,6 @@ p {
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Nem sikerült elindítani a Gdb folyamatot. Vagy a(z) &apos;%1&apos; felhasznált program hiányzik, vagy nincsenek meg a megfelelő jogai a program felhasználására.</translation>
@@ -4760,9 +4452,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Adapter crashed</source>
         <translation>Összeomlott az adapter</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Gdb</source>
         <translation>Gdb</translation>
@@ -4775,9 +4464,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation>Betöltési szkript fájl helyének kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Memory $</source>
         <translation>Memória $</translation>
@@ -4790,9 +4476,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Nem lehet megjeleníteni a memória tartalmat, mivel nem lett megjelenítő beépülő  modul betöltve bináris adatra.</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Modul név</translation>
@@ -4809,9 +4492,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>End address</source>
         <translation>Vég cím</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Modul</translation>
@@ -4864,9 +4544,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>Szimbólum &quot;%1&quot;-ben</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Nem lehet átmeneti fájlt létrehozni: %1</translation>
@@ -4879,9 +4556,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Nem sikerült a(z) FiFo megnyitása: %2</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Nem sikerült beállítani a kommunikációs a gyermek folyamattal: %1</translation>
@@ -4892,16 +4566,10 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>A futtatható elindítása nem sikerült:
 </translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Value (base %1)</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Regiszterek</translation>
@@ -4967,9 +4635,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
 </source>
         <translation>Nem sikerült elindítani a távoli futtatható fájlt:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; nem tartalmaz azonosítót</translation>
@@ -4990,9 +4655,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Full name</source>
         <translation>Teljes név</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>Forrás fájlok</translation>
@@ -5009,9 +4671,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Open file &quot;%1&quot;&apos;</source>
         <translation>A(z) &apos;&quot;%1&quot; fájl megnyitása</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Address:</source>
         <translation>Cím:</translation>
@@ -5064,20 +4723,10 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Open disassembler at %1</source>
         <translation>Disassembler megnyitása %1-nél</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Futtatható:</translation>
-    </message>
     <message>
         <source>Arguments:</source>
         <translation>Argumentumok:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Thread: %1</source>
         <translation>Szál: %1</translation>
@@ -5110,9 +4759,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Address</source>
         <translation>Cím</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Thread</source>
         <translation>Szál</translation>
@@ -5126,9 +4772,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
 </source>
         <translation>Nem sikerült a TRK szerver adapterhez való csatlakozás:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -5157,9 +4800,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Device:</source>
         <translation>Eszköz:</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;nem a hatókörben&gt;</translation>
@@ -5280,9 +4920,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Refresh code model snapshot</source>
         <translation>Kód modell fénykép felfrissítése</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Tartalom kitisztítása</translation>
@@ -5291,9 +4928,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Save contents</source>
         <translation>Tartalom mentése</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Debugging helper</source>
         <translation>Debuggolást segítő</translation>
@@ -5320,7 +4954,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation>Nem lehet függőséget hozzáadni</translation>
@@ -5331,7 +4965,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Designer</source>
         <translation>Tervező</translation>
@@ -5567,7 +5201,7 @@ A projekt újraépítése talán segít.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -5788,7 +5422,7 @@ A projekt újraépítése talán segít.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
+    <name>QtC::Help</name>
     <message>
         <source>Registered Documentation</source>
         <translation>Nyilvántartott dokumentum</translation>
@@ -5849,7 +5483,7 @@ Ez automatikus beállítja a megfelelő Qt verziót is.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::0</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Invalid</source>
         <translation type="obsolete">Érvénytelen</translation>
@@ -5944,9 +5578,6 @@ Reason: %3</source>
         <translation type="obsolete">Nem lehet betölteni a beépülőt, mert nem sikerült betölten a függőséget: %1(%2)
 Ok: %3</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::0</name>
     <message>
         <source>Name:</source>
         <translation type="obsolete">Név:</translation>
@@ -6027,9 +5658,6 @@ Ok: %3</translation>
         <source>Location</source>
         <translation type="obsolete">Hely</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
     <message>
         <source>Name:</source>
         <translation>Név:</translation>
@@ -6070,9 +5698,6 @@ Ok: %3</translation>
         <source>Dependencies:</source>
         <translation>Függőségek:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Státusz:</translation>
@@ -6081,9 +5706,6 @@ Ok: %3</translation>
         <source>Error Message:</source>
         <translation>Hiba üzenet:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation>A fájl nem létezik: &apos;%1&apos;</translation>
@@ -6096,9 +5718,6 @@ Ok: %3</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Hiba történt a(z) %1 fájl elemzése közben: %2, %3 sorban, %4 oszlopban</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation>Státusz</translation>
@@ -6119,9 +5738,6 @@ Ok: %3</translation>
         <source>Location</source>
         <translation>Hely</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Érvénytelen</translation>
@@ -6186,9 +5802,6 @@ Ok: %3</translation>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>A beépülő modul elérte az élettartamának és törölték</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -6217,7 +5830,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::0</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation type="obsolete">Vim stílusú szerkesztés kapcsolgatása</translation>
@@ -6226,9 +5839,6 @@ Ok: %3</translation>
         <source>FakeVim properties...</source>
         <translation type="obsolete">Vim utánzat beállítások...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation>Vim stílusú szerkesztés kapcsolgatása</translation>
@@ -6237,9 +5847,6 @@ Ok: %3</translation>
         <source>FakeVim properties...</source>
         <translation>Vim utánzat beállítások...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::0</name>
     <message>
         <source>%1,%2</source>
         <translation type="obsolete">%1,%2</translation>
@@ -6328,9 +5935,6 @@ Ok: %3</translation>
         <source>FakeVim Information</source>
         <translation type="obsolete">Vim utánzat információ</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>E20: Mark &apos;%1&apos; not set</source>
         <translation>E20: %1&apos;-es megjelölés nincsen beállítva</translation>
@@ -6401,9 +6005,6 @@ Ok: %3</translation>
         <source>Already at newest change</source>
         <translation>Ez már a legújabb változat</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Általános</translation>
@@ -6412,9 +6013,6 @@ Ok: %3</translation>
         <source>FakeVim</source>
         <translation>Vim utánzat</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Quit FakeVim</source>
         <translation>Kilépés a Vim utánzatból</translation>
@@ -6436,9 +6034,6 @@ Ok: %3</translation>
         <source>FakeVim Information</source>
         <translation>Vim utánzat információ</translation>
     </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Vim utánzat használata</translation>
@@ -6665,7 +6260,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Keresés...</translation>
@@ -6683,10 +6278,6 @@ Ok: %3</translation>
         <translation>&amp;Rákeresés:</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-    <message>
         <source>&amp;Case sensitive</source>
         <translation>&amp;Kis és nagybetűérzékeny</translation>
     </message>
@@ -6694,9 +6285,6 @@ Ok: %3</translation>
         <source>&amp;Whole words only</source>
         <translation>Kizárólag &amp;egész szavakat</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Keresés/Kicserélés</translation>
@@ -6709,9 +6297,6 @@ Ok: %3</translation>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation>Aktuális dokumentum</translation>
@@ -6719,10 +6304,6 @@ Ok: %3</translation>
     <message>
         <source>Enter Find String</source>
         <translation>A keresett szó bevitele</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
     </message>
     <message>
         <source>Find Next</source>
@@ -6760,9 +6341,6 @@ Ok: %3</translation>
         <source>Use Regular Expressions</source>
         <translation>Reguláris kifejezése használata</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Keresés</translation>
@@ -6783,9 +6361,6 @@ Ok: %3</translation>
         <source>All</source>
         <translation>Az összes</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>No matches found!</source>
         <translation>Egyezés nem található!</translation>
@@ -6793,10 +6368,6 @@ Ok: %3</translation>
     <message>
         <source>Expand All</source>
         <translation>Az összes kiterjesztése</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Kicserélés ezzel:</translation>
     </message>
     <message>
         <source>Replace all occurrences</source>
@@ -6812,7 +6383,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation>Gdb kölcsönhatás</translation>
@@ -6886,7 +6457,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
+    <name>QtC::Help</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -6973,7 +6544,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>%1 megsemmisítése:</translation>
@@ -6988,14 +6559,11 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;új&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::0</name>
     <message>
         <source>Build directory:</source>
         <translation type="obsolete">Építése könyvtár:</translation>
@@ -7044,9 +6612,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Second Page Title</source>
         <translation type="obsolete">Második oldal címe</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation>Létrehoz</translation>
@@ -7059,9 +6624,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>New Configuration Name:</source>
         <translation>Új konfiguráció név:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Építési könyvtár:</translation>
@@ -7074,9 +6636,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Generic Manager</source>
         <translation>Általános Menedzser</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>%1 megsemmisítése:</translation>
@@ -7085,9 +6644,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation>Makefile alapú Projekt importálása</translation>
@@ -7103,13 +6659,6 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation>%1 Projektet nem sikerült megnyitni.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <translation>Makefile alapú Projekt importálása</translation>
     </message>
     <message>
         <source>Generic Project</source>
@@ -7129,7 +6678,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
         <translation>Határozza meg a tároló URL-t, megnézési könyvtárat és útvonalat.</translation>
@@ -8391,7 +7940,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Új lap hozzáadása</translation>
@@ -8609,16 +8158,8 @@ Fájl kihagyása.</translation>
         <translation>Szűrők</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Segítség</translation>
-    </message>
-    <message>
         <source>General settings</source>
         <translation>Általános beállítások</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Segítség</translation>
     </message>
     <message>
         <source>Open Image</source>
@@ -8639,10 +8180,6 @@ Fájl kihagyása.</translation>
     <message>
         <source>Help index</source>
         <translation>Segítség - Index</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Segítség</translation>
     </message>
     <message>
         <source>Contents</source>
@@ -8749,10 +8286,6 @@ Fájl kihagyása.</translation>
         <translation>&amp;Link címének másolása</translation>
     </message>
     <message>
-        <source>Open Link in New Tab</source>
-        <translation>Link megnyitása új lapon</translation>
-    </message>
-    <message>
         <source>Select All</source>
         <translation>Az összes kijelőlése</translation>
     </message>
@@ -8798,29 +8331,21 @@ Fájl kihagyása.</translation>
     </message>
 </context>
 <context>
-    <name>IndexWindow</name>
+    <name>QtC::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Rákeresés:</translation>
     </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Link megnyitása</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation>Link megnyitása új lapon</translation>
-    </message>
 </context>
 <context>
-    <name>InputPane</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Nyomja meg a Ctrl-&lt;Return&gt; gombokat a sor végrehajtásához.</translation>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>QtC::Core</name>
     <message>
         <source>Filters</source>
         <translation>Szűrők</translation>
@@ -8829,9 +8354,6 @@ Fájl kihagyása.</translation>
         <source>Locator</source>
         <translation>Lokátor</translation>
     </message>
-</context>
-<context>
-    <name>Locator::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Szűrő konfiguráció</translation>
@@ -8844,16 +8366,9 @@ Fájl kihagyása.</translation>
         <source>Prefix:</source>
         <translation>Előtag:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Általános könyvtár szűrő</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Szűrő konfiguráció</translation>
     </message>
     <message>
         <source>Choose a directory to add</source>
@@ -8872,9 +8387,6 @@ Fájl kihagyása.</translation>
         <source>%1 filter update: canceled</source>
         <translation>%1 szűrő frissítés: mégse</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Név:</translation>
@@ -8888,18 +8400,10 @@ Fájl kihagyása.</translation>
         <translation>Határozza meg a névszűrőket, vesszővel elválasztva. A szűrők tartalmazhatnak helyettesítő jeleket.</translation>
     </message>
     <message>
-        <source>Prefix:</source>
-        <translation>Előtag:</translation>
-    </message>
-    <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Határozzon meg egy rövidítést, amit a fájlok kiegészítésének korlátozására lehet használni ebből a könyvtár szerkezetből.
 Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lokátor beviteli mezőbe, és aztán a keresett szót.Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeichen und dem Suchbegriff.</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Előtag korlátozás</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -8917,27 +8421,13 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Directories:</source>
         <translation>Könyvtárak:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
     <message>
         <source>Files in file system</source>
         <translation>Fájlrendszeren levő fájlok</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation>Szűrők konfigurálása</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Előtag:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Előtag korlátozás</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -8947,23 +8437,14 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Filter:</source>
         <translation>Szűrő:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Elérhető szűrők</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Indexing</source>
         <translation>Indexelés</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Felfrissítés</translation>
@@ -8984,23 +8465,14 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&lt;type here&gt;</source>
         <translation>&lt;típus ide&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation>Dokumentumok megnyitása</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (Prefix: %2)</source>
         <translation>%1 (Előtag: %2)</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Szűrők konfigurálása</translation>
@@ -9008,14 +8480,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     <message>
         <source>Add</source>
         <translation>Hozzáadás</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Szerkesztés</translation>
     </message>
     <message>
         <source>Refresh Interval:</source>
@@ -9142,15 +8606,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>%1 megsemmisítése:</translation>
-    </message>
-    <message>
-        <source>Make arguments:</source>
-        <translation>Make argumentumok:</translation>
-    </message>
+    <name>QtC::ProjectExplorer</name>
 </context>
 <context>
     <name>MimeType</name>
@@ -9417,7 +8873,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Plain Text Editor</source>
         <translation>Egyszerű szöveg szerkesztő</translation>
@@ -9434,9 +8890,6 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
         <source>.pro File Editor</source>
         <translation>.pro fájl szerkesztő</translation>
     </message>
-</context>
-<context>
-    <name>OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>Fájl megnyitása ezzel...</translation>
@@ -9447,7 +8900,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -9465,27 +8918,10 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that the plugin will use this for posting as well as fetching.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComProtocol</name>
     <message>
         <source>Error during paste</source>
         <translation>Hiba történt beillesztés közben</translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComSettings</name>
-    <message>
-        <source>Pastebin.com</source>
-        <translation>Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation>Kód beillesztés</translation>
-    </message>
-</context>
-<context>
-    <name>PasteView</name>
     <message>
         <source>Paste</source>
         <translation>Beillesztés</translation>
@@ -9504,7 +8940,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Perforce::0</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation type="obsolete">Nincs futtatható meghatározva</translation>
@@ -9529,9 +8965,6 @@ p, li { white-space: pre-wrap; }
         <source>The client does not seem to contain any mapped files.</source>
         <translation type="obsolete">Nem tűnik úgy, hogy a Perforce kliens tartalmazna leképezett fájlokat.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal</name>
     <message>
         <source>No executable specified</source>
         <translation>Nincs futtatható meghatározva</translation>
@@ -9556,9 +8989,6 @@ p, li { white-space: pre-wrap; }
         <source>The client does not seem to contain any mapped files.</source>
         <translation>Nem tűnik úgy, hogy a Perforce kliens tartalmazna leképezett fájlokat.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::0</name>
     <message>
         <source>Change Number</source>
         <translation type="obsolete">Változtatási szám</translation>
@@ -9933,9 +9363,6 @@ p, li { white-space: pre-wrap; }
         <source>User:</source>
         <translation type="obsolete">Felhasználó:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
     <message>
         <source>Change Number</source>
         <translation>Változtatási szám</translation>
@@ -9944,9 +9371,6 @@ p, li { white-space: pre-wrap; }
         <source>Change Number:</source>
         <translation>Változtatási szám:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Függőben levő P4 változtatások</translation>
@@ -9963,9 +9387,6 @@ p, li { white-space: pre-wrap; }
         <source>Change %1: %2</source>
         <translation>%1 változtatása: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -10119,10 +9540,6 @@ p, li { white-space: pre-wrap; }
         <translation>Az összes frissítése</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Feltöltés</translation>
-    </message>
-    <message>
         <source>Diff Selected Files</source>
         <translation>Különbség a kiválasztott fájlokban</translation>
     </message>
@@ -10243,16 +9660,10 @@ p, li { white-space: pre-wrap; }
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation>Hiba történt a(z) %1 futtatása közben: a fájl nincsen leképezve</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce feltöltés</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce prompt</translation>
@@ -10261,9 +9672,6 @@ p, li { white-space: pre-wrap; }
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Feltöltési prompt</translation>
@@ -10300,9 +9708,6 @@ p, li { white-space: pre-wrap; }
         <source>Perforce</source>
         <translation>Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Perforce parancs</translation>
@@ -10314,13 +9719,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Test succeeded.</source>
         <translation>Sikeres teszt.</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Feltöltés</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -10336,30 +9734,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Részletek</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Hiba részletek</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Telepített beépülő modulok</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>%1 beépülő modul részletek</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>%1 beépülő modul hibák</translation>
-    </message>
+    <name>QtC::Core</name>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>A(z) &apos;%1&apos; beépülő modul nem létezik.</translation>
@@ -10372,9 +9750,6 @@ p, li { white-space: pre-wrap; }
         <source>The option %1 requires an argument.</source>
         <translation>A(z) %1 opció egy argumentumot igényel.</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation></translation>
@@ -10437,7 +9812,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::0</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -10838,9 +10213,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Session (&apos;%1&apos;)</source>
         <translation type="obsolete">(&apos;%1&apos;) szakasz</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -10859,9 +10231,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Nem sikerült elindítani a(z) %1 folyamatot &lt;/b&gt;&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Nem sikerült elindítani a programot. Rossz útvonal vagy jogosultságok?</translation>
@@ -10874,9 +10243,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Some error has occurred while running the program.</source>
         <translation>Néhány hiba történt a program futtatása közben.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message>
         <source>Finished %n of %1 build steps</source>
         <translation>%1 %n építési lépése befejezve
@@ -10906,9 +10272,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
         <translation>&lt;b&gt;Építések lépések futtatása a(z) %2 projektre...&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation>Szokásos futtatható</translation>
@@ -10921,16 +10284,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Run %1</source>
         <translation>%1 futtatása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Szokásos futtatható</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Nem lehet létrehozni a(z) %1 cél könytárat.</translation>
@@ -10973,9 +10326,6 @@ Ok: %2</translation>
 </source>
         <translation>%1 futtatása ....</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;Nincs beállítva&gt;</translation>
@@ -10996,9 +10346,6 @@ Ok: %2</translation>
         <source>&lt;VALUE&gt;</source>
         <translation>&lt;ÉRTÉK&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Szerkesztés</translation>
@@ -11027,9 +10374,6 @@ Ok: %2</translation>
         <source>Summary: No changes to Environment</source>
         <translation>Összegzés: Nem történt változás a környezetben</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::0</name>
     <message>
         <source>Files in any project</source>
         <translation type="obsolete">Bármely projektben levő fájlok</translation>
@@ -11053,10 +10397,6 @@ Ok: %2</translation>
     <message>
         <source>Some error has occurred while running the program.</source>
         <translation type="obsolete">Néhány hiba történt a program futtatása közben.</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Futtatás</translation>
     </message>
     <message>
         <source>Starting %1...</source>
@@ -11317,10 +10657,6 @@ Ok: %2</translation>
         <translation type="obsolete">Generált fájlok elrejtése</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projektek</translation>
-    </message>
-    <message>
         <source>Filter tree</source>
         <translation type="obsolete">Szűrő fa</translation>
     </message>
@@ -11405,10 +10741,6 @@ Ok: %2</translation>
         <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Mi az a szakasz?&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>Session</source>
-        <translation type="obsolete">Szakasz</translation>
-    </message>
-    <message>
         <source>Untitled</source>
         <comment>default file name to display</comment>
         <translation type="obsolete">Címtelen</translation>
@@ -11455,23 +10787,14 @@ Ok: %2</translation>
         <translation type="obsolete">A következő fájlok lesznek hozzáadva:
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
     <message>
         <source>Active run configuration</source>
         <translation>Aktív futtatás konfiguráció</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation>Bármely projektben levő fájlok</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Az összes projekt</translation>
@@ -11480,9 +10803,6 @@ Ok: %2</translation>
         <source>File &amp;pattern:</source>
         <translation>Fájl &amp;minta:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation>Építési konfigurcáiók megváltoztatása &amp;&amp; folytatása</translation>
@@ -11515,16 +10835,10 @@ Ok: %2</translation>
         <source>Choose build configuration:</source>
         <translation>Válasszon építési konfigurációt:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
         <source>Build Settings</source>
         <translation>Építési beállítások</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>Edit Build Configuration:</source>
         <translation>Építési konfiguráció szerkesztése:</translation>
@@ -11561,9 +10875,6 @@ Ok: %2</translation>
         <source>New Configuration Name:</source>
         <translation>Új konfiguráció név:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>No Build Steps</source>
         <translation>Nincsenek építési lépések</translation>
@@ -11589,19 +10900,9 @@ Ok: %2</translation>
         <translation>Lépések kiürítése</translation>
     </message>
     <message>
-        <source>Build Steps</source>
-        <translation>Építése lépések</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
         <source>Compile Output</source>
         <translation>Fordítási kimenet</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>Építés visszavonása &amp;&amp; bezárása</translation>
@@ -11622,27 +10923,14 @@ Ok: %2</translation>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
         <translation>Vissza szeretné vonni az építési folyamatot és bezárni a Qt Creatort?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in current project</source>
         <translation>Fájlok a jelenlegi projektben</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>Aktuális Projekt</translation>
     </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translation>Fájl &amp;minta:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation>Név:</translation>
@@ -11691,16 +10979,10 @@ Ok: %2</translation>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation>Futtatható futtatása: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
     <message>
         <source>Dependencies</source>
         <translation>Függpségek</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation>%1-nek nincsen függősége.</translation>
@@ -11713,9 +10995,6 @@ Ok: %2</translation>
         <source>%1 depends on: %2.</source>
         <translation>%1 a(z) %2-től függ.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
     <message>
         <source>%1 of project %2</source>
         <translation>A(z) %2 projekt %1-e</translation>
@@ -11728,23 +11007,17 @@ Ok: %2</translation>
         <source>Renaming file %1 to %2 failed.</source>
         <translation>A(z) %1 fájl átnevezése %2-re nem sikerült.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
     <message>
         <source>Editor Settings</source>
         <translation>Szerkesztő beállítások</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Default File Encoding:</source>
         <translation>Alapértelmezett fájl kódolás:</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation>Fájlrendszer</translation>
@@ -11755,7 +11028,7 @@ Ok: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Starting %1...</source>
         <translation>%1 elindítása...</translation>
@@ -11764,16 +11037,10 @@ Ok: %2</translation>
         <source>%1 exited with code %2</source>
         <translation>%1 befejeződött %2-s kóddal</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation>Futtatás</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
     <message>
         <source>New session name</source>
         <translation>Új szakasz név</translation>
@@ -11782,9 +11049,6 @@ Ok: %2</translation>
         <source>Enter the name of the new session:</source>
         <translation>Gépelje be az új szakasz nevét:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
     <message>
         <source>Re-run this run-configuration</source>
         <translation>Futtatás-konfiguráció újrafuttatása</translation>
@@ -11805,16 +11069,10 @@ Ok: %2</translation>
         <source>Unable to close</source>
         <translation>Nem lehet bezárni</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
     <message>
         <source>Application Output Window</source>
         <translation>Alkalmazás kimeneti ablak</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
     <message>
         <source>Custom Process Step</source>
         <translation>Szokásos folyamat lépés</translation>
@@ -11824,9 +11082,6 @@ Ok: %2</translation>
         <comment>item in combobox</comment>
         <translation>Szokásos folyamat lépés</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
@@ -11835,32 +11090,18 @@ Ok: %2</translation>
         <source>(disabled)</source>
         <translation>(tiltva)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Enable Custom Process Step</source>
         <translation>Szokásos folyamat lépések engedélyezése</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
     </message>
     <message>
         <source>Command:</source>
         <translation>Parancs:</translation>
     </message>
     <message>
-        <source>Working Directory:</source>
-        <translation>Munka könyvtár:</translation>
-    </message>
-    <message>
         <source>Command Arguments:</source>
         <translation>Parancs argumentumok:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
         <source>Build and Run</source>
         <translation>Építés és futtatás</translation>
@@ -11868,13 +11109,6 @@ Ok: %2</translation>
     <message>
         <source>Projects</source>
         <translation>Projektek</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
-    <message>
-        <source>Build and Run</source>
-        <translation>Építés és futtatás</translation>
     </message>
     <message>
         <source>Save all files before Build</source>
@@ -11896,16 +11130,10 @@ Ok: %2</translation>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation>&lt;i&gt;jom&lt;/i&gt; egy megérkezett leváltás az &lt;i&gt;nmake&lt;/i&gt;-re, amelyik elosztja a fordítási folyamatot több CPU mag számára. További részletekért tekintse meg a &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Honlapot&lt;/a&gt;. Tiltsa le, ha problémát tapasztal az építésnél.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
         <translation>A következő projekt megnyitása nem sikerült: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Failed to add one or more files to project
 &apos;%1&apos; (%2).</source>
@@ -11916,9 +11144,6 @@ Ok: %2</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>A(z) &apos;%1&apos; hozzáadása nem sikerült a verziókövetőhöz.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
     <message>
         <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
         <translation>Projekt beállítások a(z) &lt;b&gt;%1&lt;/b&gt; projektre szerkesztése</translation>
@@ -11927,16 +11152,10 @@ Ok: %2</translation>
         <source>No Project loaded</source>
         <translation>Nincs Projekt betöltve</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
     <message>
         <source>Select Project</source>
         <translation>Projekt kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation>Fa egyszerűsítése</translation>
@@ -11949,27 +11168,14 @@ Ok: %2</translation>
         <source>Synchronize with Editor</source>
         <translation>Mit Editor synchronisieren</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projektek</translation>
-    </message>
     <message>
         <source>Filter tree</source>
         <translation>Szűrő fa</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation>Fejlesztés</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -12002,9 +11208,6 @@ Ok: %2</translation>
         <source>New Project...</source>
         <translation>Új Projekt...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Active Build and Run Configurations</source>
         <translation>Aktív építés és konfigurációk futtatása</translation>
@@ -12013,9 +11216,6 @@ Ok: %2</translation>
         <source>No project loaded.</source>
         <translation>Nincs Projekt betöltve.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation>Hozzáadás &amp;VC-hez (%1)</translation>
@@ -12024,9 +11224,6 @@ Ok: %2</translation>
         <source>Files to be added:</source>
         <translation>A hozzáadni kívánt fájlok:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Fájl eltávolítás</translation>
@@ -12043,16 +11240,10 @@ Ok: %2</translation>
         <source>&amp;Remove from Version Control</source>
         <translation>Verzió követőből való &amp;eltávolítás</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
     <message>
         <source>Run Settings</source>
         <translation>Beállítások futtatása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <source>Edit run configuration:</source>
         <translation>Futtatás konfiguráció szerkesztése:</translation>
@@ -12065,24 +11256,6 @@ Ok: %2</translation>
         <source>-</source>
         <translation>-</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Hozzáadás</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;#&quot;&gt;Make %1 aktív.&lt;/a&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Szakasz kezelő</translation>
@@ -12107,9 +11280,6 @@ Ok: %2</translation>
         <source>Switch to session</source>
         <translation>Szakasz kapcsolása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
     <message>
         <source>Session</source>
         <translation>Szakasz</translation>
@@ -12119,16 +11289,10 @@ Ok: %2</translation>
         <comment>default file name to display</comment>
         <translation>Címtelen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>A fájl nem található: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
         <translation>Építési problémák</translation>
@@ -12141,9 +11305,6 @@ Ok: %2</translation>
         <source>Show Warnings</source>
         <translation>Figyelmeztetések megjelenítése</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation>Nem sikerült elindítani a folyamatot!</translation>
@@ -12152,9 +11313,6 @@ Ok: %2</translation>
         <source>Cannot retrieve debugging output!</source>
         <translation>Nem sikerült kinyerni a debug kimeneteket!</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation>Projekt vezetés</translation>
@@ -12179,13 +11337,6 @@ Ok: %2</translation>
 </source>
         <translation>A következő fájlok lesznek hozzáadva:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projektek</translation>
-    </message>
     <message>
         <source>&amp;Build</source>
         <translation>&amp;Építés</translation>
@@ -12205,10 +11356,6 @@ Ok: %2</translation>
     <message>
         <source>Session Manager...</source>
         <translation>Szakasz kezelő...</translation>
-    </message>
-    <message>
-        <source>New Project...</source>
-        <translation>Új Projekt...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+N</source>
@@ -12253,10 +11400,6 @@ Ok: %2</translation>
     <message>
         <source>Close All Projects</source>
         <translation>Az összes projekt bezárása</translation>
-    </message>
-    <message>
-        <source>Session</source>
-        <translation>Szakasz</translation>
     </message>
     <message>
         <source>Set Build Configuration</source>
@@ -12317,10 +11460,6 @@ Ok: %2</translation>
     <message>
         <source>Clean Without Dependencies</source>
         <translation>Függőségek nélküli tisztogatás</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Futtatás</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
@@ -12440,9 +11579,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Could not delete file %1.</source>
         <translation>Nem sikerült törölni a(z) %1 fájlt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Hiba történt a szakasz visszaállítása közben</translation>
@@ -12473,7 +11609,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -12487,7 +11623,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>QMake Építési Konfiguráció:</translation>
@@ -12698,7 +11834,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::0</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation type="obsolete">QML Alkalmazás</translation>
@@ -12763,16 +11899,10 @@ a verziókövetőhöz (%2)?</translation>
         <source>Main QML File:</source>
         <translation type="obsolete">Fő QML fájl:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation>&lt;b&gt;QML Make&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
     <message>
         <source>QML Application</source>
         <translation>QML Alkalmazás</translation>
@@ -12789,9 +11919,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>The project %1 could not be opened.</source>
         <translation>Nem sikerült megnyitni %1 projektet.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation>Új QML projekt</translation>
@@ -12800,9 +11927,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation>Ez a varázsló egy QML alkalmazási projektet generál.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation>Létező QML könyvtár importálása</translation>
@@ -12811,17 +11935,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation>QML projekt létrehozása QML fájlok létező könyvtárából.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projektek</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation>Nem sikerült megnyitni %1 projektet.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation>QML projekt importálása</translation>
@@ -12838,9 +11951,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Location:</source>
         <translation>Hely:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <source>QML Viewer</source>
         <translation>QML nézegető</translation>
@@ -12859,7 +11969,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Hozzáadás</translation>
@@ -12886,7 +11996,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;A make parancs nem található: %1 a fordító környezetben&lt;/font&gt;</translation>
@@ -13765,7 +12875,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation>Első lépések</translation>
@@ -13919,7 +13029,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation>Qt4 Gui Alkalmazás</translation>
@@ -14918,7 +14028,7 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>A debuggolást segítő könyvtárban (%1) egy idejét múlt verzió található; %2 verzió igényelt.</translation>
@@ -15380,7 +14490,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Resource file</source>
         <translation type="obsolete">Forrás fájl</translation>
@@ -15413,9 +14523,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>untitled</source>
         <translation type="obsolete">cím nélküli</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation>Egy Qt forrásfájl létrehozása (.qrc).</translation>
@@ -15436,16 +14543,13 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&amp;Redo</source>
         <translation>&amp;Helyreállít</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>címtelen</translation>
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Változtatások elmentése</translation>
@@ -15578,7 +14682,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Fájlok hozzáadása</translation>
@@ -15627,9 +14731,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Could not copy the file to %1.</source>
         <translation>A fájl %1-be másolása nem sikerült.</translation>
     </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation>Fájl hozzáadása...</translation>
@@ -15675,27 +14776,15 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <translation>Nyelv megváltoztatása</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation>Nyelv:</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation>Fájl álnevek megváltoztatása</translation>
     </message>
-    <message>
-        <source>Alias:</source>
-        <translation>Álnév:</translation>
-    </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Gyorsbillentyű</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation>Szűrő:</translation>
     </message>
     <message>
         <source>Command</source>
@@ -15733,10 +14822,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Reset</source>
         <translation>Újraindítás</translation>
     </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
 </context>
 <context>
     <name>ShowBuildLog</name>
@@ -15746,50 +14831,21 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::0</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Snippets</source>
         <translation type="obsolete">Kódrészlet</translation>
     </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
     <message>
         <source>Snippets</source>
         <translation>Kódrészlet</translation>
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation>Kódrészlet</translation>
-    </message>
-</context>
-<context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger elindítása</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Futtatható:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumentumok:</translation>
-    </message>
+    <name>QtC::Debugger</name>
     <message>
         <source>Break at &apos;main&apos;:</source>
         <translation>Töréspont a &apos;main&apos;-re:</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger elindítása</translation>
     </message>
     <message>
         <source>Host and port:</source>
@@ -16021,7 +15077,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation>Egy projekt megnézése a Subversion tárolóból.</translation>
@@ -16030,9 +15086,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Subversion Checkout</source>
         <translation>Subversion megnézés</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository, checkout directory and path.</source>
         <translation>Határozza meg a tárolók, megtekintése könytárat és az útvonalat.</translation>
@@ -16041,9 +15094,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Repository:</source>
         <translation>Tároló:</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Feltöltési prompt</translation>
@@ -16068,16 +15118,10 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Subversion</source>
         <translation>Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Subversion parancs</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -16251,9 +15295,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation>A subversion nem válaszol az időtúllépési határon belül (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion feltöltés</translation>
@@ -16267,7 +15308,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>TextEditor::0</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation type="obsolete">%1 gefunden</translation>
@@ -16730,9 +15771,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Behavior</source>
         <translation type="obsolete">Viselkedés</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>%1 found</source>
         <translation>%1 gefunden</translation>
@@ -16745,9 +15783,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Use Regular E&amp;xpressions</source>
         <translation>Reguláris kife&amp;jezések használata</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>címtelen</translation>
@@ -16756,9 +15791,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation>&lt;em&gt;Binäre Daten&lt;/em&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Print Document</source>
         <translation>Dokumentum nyomtatása</translation>
@@ -16771,9 +15803,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Select Encoding</source>
         <translation>Kódolás kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>Sor: %1, Oszlop: %2</translation>
@@ -16782,9 +15811,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Line: %1, Col: 999</source>
         <translation>Sor: %1, Oszlop: 999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Tabs and Indentation</source>
         <translation>Tabulátorok és behúzás</translation>
@@ -16861,9 +15887,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&amp;Ensure newline at end of file</source>
         <translation>&amp;Győzödjön meg, hogy újsor van a fájlok végén</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Kijelzés</translation>
@@ -16920,9 +15943,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Enable &amp;mouse navigation</source>
         <translation>&amp;Egér navigálás engedélyezése</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation>Betű &amp; színek</translation>
@@ -16963,9 +15983,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Discard</source>
         <translation>Eldobás</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::0</name>
     <message>
         <source>Text Encoding</source>
         <translation type="obsolete">Szöveg kódolás</translation>
@@ -17096,9 +16113,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Meta+Space</source>
         <translation type="obsolete">Meta+Space</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Szöveg kódolás</translation>
@@ -17121,16 +16135,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Save with Encoding</source>
         <translation>Mentés kódolással</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Ez nem egy színterv fájl.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Bold</source>
         <translation>Félkövér</translation>
@@ -17155,16 +16163,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>x</source>
         <translation>x</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Aktuális fájl</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on Disk</source>
         <translation>Lemezen levő fájlok</translation>
@@ -17185,16 +16187,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Directory to search</source>
         <translation>Könyvtárra keresés</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>Felöltöztetett</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Betű</translation>
@@ -17220,13 +16216,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <translation>Másolás...</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Törlés</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
-    <message>
         <source>Line %1</source>
         <translation>%1-es sor</translation>
     </message>
@@ -17234,9 +16223,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Line in current document</source>
         <translation>Sor az aktuális dokumentumban</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation>Szöveges fájl létrehozása(.txt.</translation>
@@ -17269,9 +16255,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Alt+Return</source>
         <translation>Alt+Return</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Visszacsinál</translation>
@@ -17464,9 +16447,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>&lt;line number&gt;</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Szöveg</translation>
@@ -17587,10 +16567,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Behavior</source>
         <translation>Viselkedés</translation>
     </message>
-    <message>
-        <source>Display</source>
-        <translation>Kijelzés</translation>
-    </message>
 </context>
 <context>
     <name>ToolChain</name>
@@ -17640,7 +16616,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Topik kiválasztása</translation>
@@ -17674,7 +16650,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -17687,9 +16663,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>CheckBox</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Az osztály neve nem tartalmazhat névtér határoló jeleket.</translation>
@@ -17702,9 +16675,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The class name contains invalid characters.</source>
         <translation>Az osztálynév érvénytelen karakter(eke)t tartalmaz.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Nem lehet beállítani a kommunikációs csatornát: %1</translation>
@@ -17753,16 +16723,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Nem sikerült megszerezni a kilépési státuszt alacsony rendből: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Show Details</source>
         <translation>Részletek megjelenítése</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation>A nevet nem szabad üresen hagyni</translation>
@@ -17779,9 +16743,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The name must not match that of a MS Windows device. (%1).</source>
         <translation>A név nem egyezhet meg MS Windows eszközökkel. (%1).</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message>
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>%1: mégse. %n előfordulása található %2 fájlokban.
@@ -17797,9 +16758,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <translation>%1: %n előfordulása található %3 fájlok %2-ben.
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Class name:</source>
         <translation>Osztály név:</translation>
@@ -17860,9 +16818,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Invalid form file name: &apos;%1&apos;</source>
         <translation>Érvénytelen forma fájl név: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Kiválasztás...</translation>
@@ -17896,13 +16851,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <translation>A(z) &apos;%1&apos; útvonal nem egy fájl.</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Útvonal:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation>Beszúrás...</translation>
     </message>
@@ -17922,9 +16870,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>From &quot;%1&quot;</source>
         <translation>&quot;%1&quot;-tól</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and project location</source>
         <translation>Bemutatás és projekt hely</translation>
@@ -17949,16 +16894,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>A file with that name already exists.</source>
         <translation>Egy ilyen nevű fájl már létezik.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation>A név nem tartalmazgat &apos;.&apos; karaktert.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion feltöltés</translation>
@@ -17971,24 +16910,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>F&amp;iles</source>
         <translation>&amp;Fájlok</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation>A hely kiválasztása</translation>
     </message>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Útvonal:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>File megváltoztatva</translation>
@@ -18003,7 +16928,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Verzió követő</translation>
@@ -18012,9 +16937,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Common</source>
         <translation>Közös</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::0</name>
     <message>
         <source>State</source>
         <translation type="obsolete">Státusz</translation>
@@ -18055,9 +16977,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The check script returned exit code %1.</source>
         <translation type="obsolete">Das Skript zur Überprüfung wurde beendet, Rückgabewert %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Nem lehet megnyitni a Projektet</translation>
@@ -18082,9 +17001,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation>Nem lehet megnyitni a(z) &apos;%1&apos; projektet.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Varázsló lap</translation>
@@ -18097,9 +17013,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Path:</source>
         <translation>Útvonal:</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::0</name>
     <message>
         <source>Name</source>
         <translation type="obsolete">Név</translation>
@@ -18120,9 +17033,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation type="obsolete">Nem sikerült megnyitni &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout started...</source>
         <translation>Megnézés elindítva...</translation>
@@ -18135,9 +17045,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Succeeded.</source>
         <translation>Sikerült.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Név</translation>
@@ -18158,9 +17065,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation>Nem sikerült megnyitni &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Nem lehet elindítani a(z) %1-t: %2</translation>
@@ -18181,9 +17085,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Stopping...</source>
         <translation>Leállítás...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Státusz</translation>
@@ -18192,27 +17093,14 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>File</source>
         <translation>Fájl</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Describe change %1</source>
         <translation>%1 változtatás leírása</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Clear</source>
         <translation>Kiürítés</translation>
     </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Verzió követő</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation>Üzenet ellenőrzése</translation>
@@ -18245,13 +17133,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The check script returned exit code %1.</source>
         <translation>Das Skript zur Überprüfung wurde beendet, Rückgabewert %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
-    <message>
-        <source>Common</source>
-        <translation>Közös</translation>
-    </message>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Feltöltési üzenet megtördelése:</translation>
@@ -18281,13 +17162,6 @@ név &lt;email&gt; álnév &lt;email&gt;</translation>
     <message>
         <source>User fields configuration file:</source>
         <translation>Felhasználói mező konfigurációs fájl:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Verzió követő</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -18348,7 +17222,7 @@ p, li { white-space: pre-wrap; }(new line)
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Community</source>
         <translation>Közösség</translation>

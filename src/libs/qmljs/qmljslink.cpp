@@ -1,14 +1,16 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljslink.h"
 
 #include "parser/qmljsast_p.h"
-#include "qmljsdocument.h"
+
 #include "qmljsbind.h"
-#include "qmljsutils.h"
-#include "qmljsmodelmanagerinterface.h"
 #include "qmljsconstants.h"
+#include "qmljsdocument.h"
+#include "qmljsmodelmanagerinterface.h"
+#include "qmljstr.h"
+#include "qmljsutils.h"
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -293,7 +295,7 @@ void LinkPrivate::populateImportedTypes(Imports *imports, const Document::Ptr &d
                 imports->setImportFailed();
                 if (info.ast()) {
                     error(doc, info.ast()->fileNameToken,
-                          Link::tr("File or directory not found."));
+                          Tr::tr("File or directory not found."));
                 }
                 break;
             default:
@@ -455,7 +457,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
         error(doc,
               locationFromRange(importInfo.ast()->firstSourceLocation(),
                                 importInfo.ast()->lastSourceLocation()),
-              Link::tr(
+              Tr::tr(
                   "QML module not found (%1).\n\n"
                   "Import paths:\n"
                   "%2\n\n"
@@ -525,19 +527,19 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
                 import->valid = false;
                 error(doc,
                       errorLoc,
-                      Link::tr("Implicit import '%1' of QML module '%2' not found.\n\n"
-                               "Import paths:\n"
-                               "%3\n\n"
-                               "For qmake projects, use the QML_IMPORT_PATH variable to add import "
-                               "paths.\n"
-                               "For Qbs projects, declare and set a qmlImportPaths property in "
-                               "your product "
-                               "to add import paths.\n"
-                               "For qmlproject projects, use the importPaths property to add "
-                               "import paths.\n"
-                               "For CMake projects, make sure QML_IMPORT_PATH variable is in "
-                               "CMakeCache.txt.\n")
-                          .arg(importName,
+                      Tr::tr("Implicit import '%1' of QML module '%2' not found.\n\n"
+                             "Import paths:\n"
+                             "%3\n\n"
+                             "For qmake projects, use the QML_IMPORT_PATH variable to add import "
+                             "paths.\n"
+                             "For Qbs projects, declare and set a qmlImportPaths property in "
+                             "your product "
+                             "to add import paths.\n"
+                             "For qmlproject projects, use the importPaths property to add "
+                             "import paths.\n"
+                             "For CMake projects, make sure QML_IMPORT_PATH variable is in "
+                             "CMakeCache.txt.\n")
+                      .arg(importName,
                                importInfo.name(),
                                Utils::transform(m_importPaths, [](const Utils::FilePath &p) {
                                    return p.toString();
@@ -569,8 +571,9 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
             if (!optional && errorLoc.isValid()) {
                 appendDiagnostic(doc, DiagnosticMessage(
                                      Severity::ReadingTypeInfoWarning, errorLoc,
-                                     Link::tr("QML module contains C++ plugins, "
-                                              "currently reading type information... %1").arg(import->info.name())));
+                                     Tr::tr("QML module contains C++ plugins, "
+                                            "currently reading type information... %1")
+                                     .arg(import->info.name())));
                 import->valid = false;
             }
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError

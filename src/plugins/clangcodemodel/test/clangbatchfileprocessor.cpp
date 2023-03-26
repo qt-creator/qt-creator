@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangbatchfileprocessor.h"
 
@@ -243,13 +243,13 @@ public:
     static Command::Ptr parse(BatchFileLineTokenizer &arguments, const CommandContext &context);
 
 private:
-    QString m_documentFilePath;
+    Utils::FilePath m_documentFilePath;
 };
 
 OpenDocumentCommand::OpenDocumentCommand(const CommandContext &context,
                                          const QString &documentFilePath)
     : Command(context)
-    , m_documentFilePath(documentFilePath)
+    , m_documentFilePath(Utils::FilePath::fromString(documentFilePath))
 {
 }
 
@@ -298,8 +298,7 @@ bool OpenDocumentCommand::run()
 {
     qCDebug(debug) << "line" << context().lineNumber << "OpenDocumentCommand" << m_documentFilePath;
 
-    const bool openEditorSucceeded = Core::EditorManager::openEditor(
-        Utils::FilePath::fromString(m_documentFilePath));
+    const bool openEditorSucceeded = Core::EditorManager::openEditor(m_documentFilePath);
     QTC_ASSERT(openEditorSucceeded, return false);
 
     auto *processor = ClangEditorDocumentProcessor::get(m_documentFilePath);
@@ -393,8 +392,8 @@ bool InsertTextCommand::run()
 
     TextEditor::BaseTextEditor *editor = currentTextEditor();
     QTC_ASSERT(editor, return false);
-    const QString documentFilePath = editor->document()->filePath().toString();
-    auto *processor = ClangEditorDocumentProcessor::get(documentFilePath);
+    const Utils::FilePath documentFilePath = editor->document()->filePath();
+    auto processor = ClangEditorDocumentProcessor::get(documentFilePath);
     QTC_ASSERT(processor, return false);
 
     editor->insert(m_textToInsert);
@@ -705,7 +704,7 @@ bool runClangBatchFile(const QString &filePath)
     QTC_ASSERT(parser.parse(), return false);
     const QVector<Command::Ptr> commands = parser.commands();
 
-    Utils::ExecuteOnDestruction closeAllEditors([](){
+    Utils::ExecuteOnDestruction closeAllEditors([] {
         qWarning("ClangBatchFileProcessor: Finished, closing all documents.");
         QTC_CHECK(Core::EditorManager::closeAllEditors(/*askAboutModifiedEditors=*/ false));
     });

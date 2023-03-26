@@ -9,4 +9,8 @@ Project {
     QmlFiles {
         files: ["%{QmlComponent}"]
     }
+
+    ModuleFiles {
+        MCU.qulModules: ["Qul::ControlsTemplates"]
+    }
 }

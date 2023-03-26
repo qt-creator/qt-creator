@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,8 +10,7 @@
 
 #include <QDebug>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosConfigurations;
 class IosSimulatorFactory;
@@ -42,15 +41,12 @@ QDebug operator <<(QDebug debug, const IosDeviceType &deviceType);
 
 class IosSimulator final : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosSimulator)
-
 public:
     using ConstPtr = QSharedPointer<const IosSimulator>;
     using Ptr = QSharedPointer<IosSimulator>;
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
 
@@ -70,7 +66,6 @@ public:
     IosSimulatorFactory();
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
 
 Q_DECLARE_METATYPE(Ios::Internal::IosDeviceType)

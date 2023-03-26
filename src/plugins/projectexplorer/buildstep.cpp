@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "buildstep.h"
 
@@ -9,7 +9,6 @@
 #include "deployconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "sanitizerparser.h"
 #include "target.h"
@@ -19,12 +18,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/variablechooser.h>
-
-#include <QFormLayout>
-#include <QFutureWatcher>
-#include <QPointer>
 
 /*!
     \class ProjectExplorer::BuildStep
@@ -99,6 +93,14 @@
 /*!
     \fn  void ProjectExplorer::BuildStep::finished()
     This signal needs to be emitted if the build step runs in the GUI thread.
+*/
+
+/*!
+    \fn bool ProjectExplorer::BuildStep::isImmutable()
+
+    If this function returns \c true, the user cannot delete this build step for
+    this target and the user is prevented from changing the order in which
+    immutable steps are run. The default implementation returns \c false.
 */
 
 using namespace Utils;
@@ -287,33 +289,6 @@ QVariant BuildStep::data(Id id) const
     return {};
 }
 
-/*!
-  \fn BuildStep::isImmutable()
-
-    If this function returns \c true, the user cannot delete this build step for
-    this target and the user is prevented from changing the order in which
-    immutable steps are run. The default implementation returns \c false.
-*/
-
-QFuture<bool> BuildStep::runInThread(const std::function<bool()> &syncImpl)
-{
-    m_runInGuiThread = false;
-    m_cancelFlag = false;
-    auto * const watcher = new QFutureWatcher<bool>(this);
-    connect(watcher, &QFutureWatcher<bool>::finished, this, [this, watcher] {
-        emit finished(watcher->result());
-        watcher->deleteLater();
-    });
-    auto future = Utils::runAsync(syncImpl);
-    watcher->setFuture(future);
-    return future;
-}
-
-std::function<bool ()> BuildStep::cancelChecker() const
-{
-    return [step = QPointer<const BuildStep>(this)] { return step && step->isCanceled(); };
-}
-
 bool BuildStep::isCanceled() const
 {
     return m_cancelFlag;
@@ -321,7 +296,7 @@ bool BuildStep::isCanceled() const
 
 void BuildStep::doCancel()
 {
-    QTC_ASSERT(!m_runInGuiThread, qWarning() << "Build step" << displayName()
+    QTC_ASSERT(false, qWarning() << "Build step" << displayName()
                << "neeeds to implement the doCancel() function");
 }
 

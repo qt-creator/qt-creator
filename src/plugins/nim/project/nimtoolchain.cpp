@@ -1,5 +1,5 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nimtoolchain.h"
 
@@ -100,7 +100,7 @@ bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> 
     process.start();
     if (!process.waitForFinished())
         return false;
-    const QString version = QString::fromUtf8(process.readAllStandardOutput()).section('\n', 0, 0);
+    const QString version = process.readAllStandardOutput().section('\n', 0, 0);
     if (version.isEmpty())
         return false;
     const QRegularExpression regex("(\\d+)\\.(\\d+)\\.(\\d+)");

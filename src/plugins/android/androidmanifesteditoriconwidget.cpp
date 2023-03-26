@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidmanifesteditoriconwidget.h"
 #include "androidtr.h"
@@ -137,7 +137,7 @@ void AndroidManifestEditorIconWidget::setIconFromPath(const FilePath &iconPath)
         }
     }
     copyIcon();
-    FilePath iconFile = baseDir + m_targetIconPath + m_targetIconFileName;
+    FilePath iconFile = baseDir / m_targetIconPath / m_targetIconFileName;
     m_button->setIcon(QIcon(iconFile.toString()));
 }
 

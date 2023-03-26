@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -23,9 +23,8 @@ namespace LanguageClient {
 
 class Client;
 
-class LANGUAGECLIENT_EXPORT SymbolSupport
+class LANGUAGECLIENT_EXPORT SymbolSupport : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(SymbolSupport)
 public:
     explicit SymbolSupport(Client *client);
 
@@ -43,7 +42,9 @@ public:
 
     bool supportsRename(TextEditor::TextDocument *document);
     void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                      const QString &newSymbolName = {}, bool preferLowerCaseFileNames = true);
+                      const QString &newSymbolName = {},
+                      const std::function<void()> &callback = {},
+                      bool preferLowerCaseFileNames = true);
 
     static Core::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
     static QStringList getFileContents(const Utils::FilePath &filePath);
@@ -59,20 +60,24 @@ private:
         const QString &wordUnderCursor,
         const ResultHandler &handler);
 
-    void requestPrepareRename(const LanguageServerProtocol::TextDocumentPositionParams &params,
-                              const QString &placeholder, const QString &oldSymbolName,
+    void requestPrepareRename(TextEditor::TextDocument *document,
+                              const LanguageServerProtocol::TextDocumentPositionParams &params,
+                              const QString &placeholder,
+                              const QString &oldSymbolName, const std::function<void()> &callback,
                               bool preferLowerCaseFileNames);
     void requestRename(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
-                       const QString &newName, Core::SearchResult *search);
+                       Core::SearchResult *search);
     Core::SearchResult *createSearch(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
                                      const QString &placeholder, const QString &oldSymbolName,
+                                     const std::function<void()> &callback,
                                      bool preferLowerCaseFileNames);
     void startRenameSymbol(const LanguageServerProtocol::TextDocumentPositionParams &params,
                            const QString &placeholder, const QString &oldSymbolName,
-                           bool preferLowerCaseFileNames);
+                           const std::function<void()> &callback, bool preferLowerCaseFileNames);
     void handleRenameResponse(Core::SearchResult *search,
                               const LanguageServerProtocol::RenameRequest::Response &response);
     void applyRename(const QList<Core::SearchResultItem> &checkedItems, Core::SearchResult *search);
+    QString derivePlaceholder(const QString &oldSymbol, const QString &newSymbol);
 
     Client *m_client = nullptr;
     SymbolMapper m_defaultSymbolMapper;

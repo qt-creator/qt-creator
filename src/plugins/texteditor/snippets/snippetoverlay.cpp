@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snippetoverlay.h"
 
@@ -107,7 +107,7 @@ QTextCursor SnippetOverlay::nextSelectionCursor(const QTextCursor &cursor) const
             if (selections[selectionIndex].m_cursor_begin.position() > cursor.position())
                 return cursorForIndex(selectionIndex);
         }
-        return cursorForIndex(m_variables[nextVariableIndex].first());
+        return cursorForIndex(m_variables[nextVariableIndex].constFirst());
     }
     // currently not over a variable simply select the next available one
     for (const OverlaySelection &candidate : selections) {
@@ -133,7 +133,7 @@ QTextCursor SnippetOverlay::previousSelectionCursor(const QTextCursor &cursor) c
             if (selections.at(equivalents.at(i)).m_cursor_end.position() < cursor.position())
                 return cursorForIndex(equivalents.at(i));
         }
-        return cursorForIndex(m_variables[previousVariableIndex].last());
+        return cursorForIndex(m_variables[previousVariableIndex].constLast());
     }
     // currently not over a variable simply select the previous available one
     for (int i = selections.size() - 1; i >= 0; --i) {

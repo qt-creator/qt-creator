@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggersourcepathmappingwidget.h"
 
@@ -431,7 +431,7 @@ static QString findQtInstallPath(const FilePath &qmakePath)
         qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
     }
-    const QByteArray ba = proc.readAllStandardOutput().trimmed();
+    const QByteArray ba = proc.readAllRawStandardOutput().trimmed();
     QDir dir(QString::fromLocal8Bit(ba));
     if (dir.exists() && dir.cdUp())
         return dir.absolutePath();
@@ -491,7 +491,7 @@ void SourcePathMapAspect::toMap(QVariantMap &) const
     QTC_CHECK(false);
 }
 
-void SourcePathMapAspect::addToLayout(LayoutBuilder &builder)
+void SourcePathMapAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();

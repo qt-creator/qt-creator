@@ -21,19 +21,20 @@
     In the following screenshot, \QC annotates an error because a semicolon is
     missing at the end of the line:
 
-    \image qtcreator-syntaxerror.png
+    \image qtcreator-syntaxerror.png {Syntax error in the Edit mode}
 
     In the following screenshot, \QC issues a warning because the variable is
     not used:
 
     \image qtcreator-semanticerror.png
 
-    In the following screenshot, a Qt class name contains a typo:
+    In the following screenshot, a Qt class name has a typo:
 
-    \image qtcreator-typo-clang.png
+    \image qtcreator-typo-clang.png {Annotation tooltip in the Edit mode}
 
     You can use the icons in the tooltip popup to copy the error or
-    warning message to the clipboard or to ignore and hide it. Select
+    warning message to the clipboard, to hide messages of a particular type,
+    or to \l{Configuring clangd}{change the diagnostics settings}. Select
     the \uicontrol {Annotation Settings} link to specify the position
     of the line annotations.
 
@@ -46,7 +47,7 @@
     In addition to underlining, errors and warnings are marked with icons and
     annotated.
     \endif
-    When writing QML or JavaScript code, the annotations may contain error codes
+    When writing QML or JavaScript code, the annotations may have error codes
     listed in \l{JavaScript and QML Error Codes}.
 
     \image qml-syntax-check.png
@@ -728,8 +729,16 @@
     To automatically format QML/JS files upon saving, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
     \uicontrol {Enable auto format on file save}.
+    To only format files that belong to the current project, select
+    \uicontrol {Restrict to files contained in the current project}.
 
-    \image qtcreator-qml-js-editing.png "QML/JS Editing preferences"
+    To use an external tool, such as \l {qmlformat}, which automatically
+    formats QML files according to QML coding conventions, select
+    \uicontrol {Use custom command instead of built-in formatter}. In
+    the \uicontrol Command field, enter the path to the tool. In the
+    \uicontrol Arguments field, enter options for running the tool.
+
+    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
     \if defined(qtcreator)
     \section1 Inspecting Preprocessed C++ Code
@@ -745,7 +754,8 @@
     \uicontrol {Code Model}, this action also expands all
     \c {"#include <foo.h>"} statements to their actual contents.
 
-    \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
+    \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
+
 
     \endif
 

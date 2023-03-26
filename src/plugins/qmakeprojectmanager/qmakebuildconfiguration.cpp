@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakebuildconfiguration.h"
 
@@ -28,6 +28,7 @@
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -226,7 +227,6 @@ void QmakeBuildConfiguration::kitChanged()
 void QmakeBuildConfiguration::updateProblemLabel()
 {
     ProjectExplorer::Kit * const k = kit();
-    const QString proFileName = project()->projectFilePath().toString();
 
     // Check for Qt version:
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
@@ -274,7 +274,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
 
     if (allGood) {
         const Tasks issues = Utils::sorted(
-                    version->reportIssues(proFileName, buildDirectory().toString()));
+            version->reportIssues(project()->projectFilePath(), buildDirectory()));
         if (!issues.isEmpty()) {
             QString text = QLatin1String("<nobr>");
             for (const ProjectExplorer::Task &task : issues) {
@@ -376,16 +376,15 @@ QString QmakeBuildConfiguration::unalignedBuildDirWarning()
     return Tr::tr("The build directory should be at the same level as the source directory.");
 }
 
-bool QmakeBuildConfiguration::isBuildDirAtSafeLocation(const QString &sourceDir,
-                                                       const QString &buildDir)
+bool QmakeBuildConfiguration::isBuildDirAtSafeLocation(const FilePath &sourceDir,
+                                                       const FilePath &buildDir)
 {
-    return buildDir.count('/') == sourceDir.count('/');
+    return buildDir.path().count('/') == sourceDir.path().count('/');
 }
 
 bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
 {
-    return isBuildDirAtSafeLocation(project()->projectDirectory().toString(),
-                                    buildDirectory().toString());
+    return isBuildDirAtSafeLocation(project()->projectDirectory(), buildDirectory());
 }
 
 TriState QmakeBuildConfiguration::separateDebugInfo() const
@@ -691,7 +690,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
 
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.
-        info.displayName = BuildConfigurationTr::tr("Release");
+        info.displayName = ::ProjectExplorer::Tr::tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = Tr::tr("Release", "Shadow build directory suffix");
         if (settings.qtQuickCompiler.value() == TriState::Default) {
@@ -701,12 +700,12 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
-            info.displayName = BuildConfigurationTr::tr("Debug");
+            info.displayName = ::ProjectExplorer::Tr::tr("Debug");
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = Tr::tr("Debug", "Shadow build directory suffix");
         } else if (type == BuildConfiguration::Profile) {
             //: The name of the profile build configuration created by default for a qmake project.
-            info.displayName = BuildConfigurationTr::tr("Profile");
+            info.displayName = ::ProjectExplorer::Tr::tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = Tr::tr("Profile", "Shadow build directory suffix");
             if (settings.separateDebugInfo.value() == TriState::Default)
@@ -749,14 +748,14 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
     registerBuildConfiguration<QmakeBuildConfiguration>(Constants::QMAKE_BC_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
-    setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) {
+    setIssueReporter([](Kit *k, const FilePath &projectPath, const FilePath &buildDir) {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
         Tasks issues;
         if (version)
             issues << version->reportIssues(projectPath, buildDir);
         if (QmakeSettings::warnAgainstUnalignedBuildDir()
                 && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
-                    QFileInfo(projectPath).absoluteDir().path(), QDir(buildDir).absolutePath())) {
+                    projectPath.absolutePath(), buildDir.absoluteFilePath())) {
             issues.append(BuildSystemTask(Task::Warning,
                                           QmakeBuildConfiguration::unalignedBuildDirWarning()));
         }

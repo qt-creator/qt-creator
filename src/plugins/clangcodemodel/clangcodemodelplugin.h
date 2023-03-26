@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,8 +11,7 @@
 
 #include <QFutureWatcher>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
 {
@@ -21,21 +20,16 @@ class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
 
 public:
     ~ClangCodeModelPlugin() override;
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void initialize() override;
 
 private:
     void maybeHandleBatchFileAndExit() const;
 
-private:
     void generateCompilationDB();
-    void createCompilationDBButton();
+    void createCompilationDBAction();
 
     Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
-#ifdef WITH_TESTS
-    QVector<QObject *> createTestObjects() const override;
-#endif
 };
 
-} // namespace Internal
-} // namespace Clang
+} // ClangCodeModel::Internal

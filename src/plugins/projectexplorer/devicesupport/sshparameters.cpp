@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sshparameters.h"
 
@@ -64,7 +64,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
 bool SshParameters::setupSshEnvironment(QtcProcess *process)
 {
     Environment env = process->controlEnvironment();
-    if (!env.isValid())
+    if (!env.hasChanges())
         env = Environment::systemEnvironment();
     const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
     if (SshSettings::askpassFilePath().exists()) {

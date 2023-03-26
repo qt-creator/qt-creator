@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion and Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -27,11 +27,14 @@ namespace VcsBase {
 
 namespace Internal { class VcsCommandPrivate; }
 
+class VcsCommand;
+
 class VCSBASE_EXPORT CommandResult
 {
 public:
     CommandResult() = default;
     CommandResult(const Utils::QtcProcess &process);
+    CommandResult(const VcsCommand &command);
     CommandResult(Utils::ProcessResult result, const QString &exitMessage)
         : m_result(result), m_exitMessage(exitMessage) {}
 

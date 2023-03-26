@@ -4,7 +4,7 @@ endif()
 configure_file(core_logo.qrc.cmakein core_logo_cmake.qrc)
 
 add_qtc_plugin(Core
-  DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Sql Qt5::Gui Qt5::GuiPrivate
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
   SOURCES
     actionmanager/actioncontainer.cpp actionmanager/actioncontainer.h actionmanager/actioncontainer_p.h
@@ -144,6 +144,7 @@ add_qtc_plugin(Core
     progressmanager/progressbar.cpp progressmanager/progressbar.h
     progressmanager/progressmanager.cpp progressmanager/progressmanager.h progressmanager/progressmanager_p.h
     progressmanager/progressview.cpp progressmanager/progressview.h
+    progressmanager/taskprogress.cpp progressmanager/taskprogress.h
     rightpane.cpp rightpane.h
     settingsdatabase.cpp settingsdatabase.h
     sidebar.cpp sidebar.h
@@ -206,15 +207,9 @@ if ((NOT WIN32) AND (NOT APPLE))
 endif()
 
 set(FONTS_BASE "${QtCreator_SOURCE_DIR}/src/share/3rdparty/studiofonts/")
-if(${Qt5_VERSION} VERSION_LESS "6")
-extend_qtc_plugin(Core
-  SOURCES "${FONTS_BASE}/studiofonts.qrc"
-)
-else() # < Qt 6
 qt_add_resources(Core
   CoreWelcomeScreenFonts_rcc
   BASE ${FONTS_BASE}
   PREFIX "studiofonts"
   FILES "${FONTS_BASE}/TitilliumWeb-Regular.ttf"
 )
-endif()

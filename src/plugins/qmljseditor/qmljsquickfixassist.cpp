@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsquickfixassist.h"
 #include "qmljseditor.h"
@@ -48,20 +48,15 @@ QmlJSRefactoringFilePtr QmlJSQuickFixAssistInterface::currentFile() const
 // ---------------------------
 class QmlJSQuickFixAssistProcessor : public IAssistProcessor
 {
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *perform() override
     {
-        return GenericProposal::createProposal(interface, findQmlJSQuickFixes(interface));
+        return GenericProposal::createProposal(interface(), findQmlJSQuickFixes(interface()));
     }
 };
 
 // ---------------------------
 // QmlJSQuickFixAssistProvider
 // ---------------------------
-
-IAssistProvider::RunType QmlJSQuickFixAssistProvider::runType() const
-{
-    return Synchronous;
-}
 
 IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor(const AssistInterface *) const
 {

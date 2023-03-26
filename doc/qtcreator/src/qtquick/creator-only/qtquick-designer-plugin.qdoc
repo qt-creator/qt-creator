@@ -16,7 +16,7 @@
     UI files. The functionality is restricted and not all \QDS
     features are supported.
 
-    To use \QMLD, switch to the \uicontrol Design mode when a ui.qml or or .qml
+    To use \QMLD, switch to the \uicontrol Design mode when a ui.qml or .qml
     file is open.
 
     For more information about using \QMLD, see \l{Qt Design Studio Manual}.

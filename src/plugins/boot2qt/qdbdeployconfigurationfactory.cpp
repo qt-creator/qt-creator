@@ -1,9 +1,10 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdbdeployconfigurationfactory.h"
 
 #include "qdbconstants.h"
+#include "qdbtr.h"
 
 #include <projectexplorer/deploymentdataview.h>
 #include "projectexplorer/devicesupport/idevice.h"
@@ -15,15 +16,13 @@
 
 using namespace ProjectExplorer;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
 {
     setConfigBaseId(Constants::QdbDeployConfigurationId);
     addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
-    setDefaultDisplayName(QCoreApplication::translate("Qdb::Internal::QdbDeployConfiguration",
-                                                      "Deploy to Boot2Qt target"));
+    setDefaultDisplayName(Tr::tr("Deploy to Boot2Qt target"));
     setUseDeploymentDataView();
 
     addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](Target *target) {
@@ -59,5 +58,4 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
     });
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

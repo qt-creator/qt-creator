@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -38,6 +38,10 @@ public:
     Utils::BoolAspect followRenames;
     Utils::IntegerAspect lastResetIndex;
     Utils::BoolAspect refLogShowDate;
+    Utils::BoolAspect instantBlame;
+
+    mutable Utils::FilePath resolvedBinPath;
+    mutable bool tryResolve = true;
 
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 };

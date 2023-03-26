@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -32,7 +32,7 @@ class CPLUSPLUS_EXPORT Document
     Document(const Document &other);
     void operator =(const Document &other);
 
-    Document(const QString &fileName);
+    Document(const Utils::FilePath &filePath);
 
 public:
     typedef QSharedPointer<Document> Ptr;
@@ -49,7 +49,7 @@ public:
     const QDateTime &lastModified() const { return _lastModified; }
     void setLastModified(const QDateTime &lastModified);
 
-    const QString &fileName() const { return _fileName; }
+    const Utils::FilePath &filePath() const { return _filePath; }
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro,
@@ -113,7 +113,7 @@ public:
 
     void check(CheckMode mode = FullCheck);
 
-    static Ptr create(const QString &fileName);
+    static Ptr create(const Utils::FilePath &filePath);
 
     class CPLUSPLUS_EXPORT DiagnosticMessage
     {
@@ -125,13 +125,13 @@ public:
         };
 
     public:
-        DiagnosticMessage(int level, const QString &fileName,
+        DiagnosticMessage(int level, const Utils::FilePath &filePath,
                           int line, int column,
                           const QString &text,
                           int length = 0)
             : _level(level),
               _line(line),
-              _fileName(fileName),
+              _filePath(filePath),
               _column(column),
               _length(length),
               _text(text)
@@ -149,8 +149,8 @@ public:
         bool isFatal() const
         { return _level == Fatal; }
 
-        const QString &fileName() const
-        { return _fileName; }
+        const Utils::FilePath &filePath() const
+        { return _filePath; }
 
         int line() const
         { return _line; }
@@ -170,7 +170,7 @@ public:
     private:
         int _level;
         int _line;
-        QString _fileName;
+        Utils::FilePath _filePath;
         int _column;
         int _length;
         QString _text;
@@ -218,13 +218,13 @@ public:
     };
 
     class Include {
-        QString _resolvedFileName;
+        Utils::FilePath _resolvedFileName;
         QString _unresolvedFileName;
         int _line;
         Client::IncludeType _type;
 
     public:
-        Include(const QString &unresolvedFileName, const QString &resolvedFileName, int line,
+        Include(const QString &unresolvedFileName, const Utils::FilePath &resolvedFileName, int line,
                 Client::IncludeType type)
             : _resolvedFileName(resolvedFileName)
             , _unresolvedFileName(unresolvedFileName)
@@ -232,7 +232,7 @@ public:
             , _type(type)
         { }
 
-        const QString &resolvedFileName() const
+        const Utils::FilePath &resolvedFileName() const
         { return _resolvedFileName; }
 
         const QString &unresolvedFileName() const
@@ -300,7 +300,7 @@ public:
         }
     };
 
-    QStringList includedFiles() const;
+    Utils::FilePaths includedFiles() const;
     void addIncludeFile(const Include &include);
 
     const QList<Include> &resolvedIncludes() const
@@ -334,7 +334,7 @@ public:
     { return static_cast<CheckMode>(_checkMode); }
 
 private:
-    QString _fileName;
+    Utils::FilePath _filePath;
     Control *_control;
     TranslationUnit *_translationUnit;
     Namespace *_globalNamespace;
@@ -380,41 +380,32 @@ public:
     bool isEmpty() const;
 
     void insert(Document::Ptr doc); // ### remove
-    void remove(const Utils::FilePath &fileName); // ### remove
-    void remove(const QString &fileName)
-    { remove(Utils::FilePath::fromString(fileName)); }
+    void remove(const Utils::FilePath &filePath); // ### remove
 
     const_iterator begin() const { return _documents.begin(); }
     const_iterator end() const { return _documents.end(); }
 
-    bool contains(const Utils::FilePath &fileName) const;
-    bool contains(const QString &fileName) const
-    { return contains(Utils::FilePath::fromString(fileName)); }
+    bool contains(const Utils::FilePath &filePath) const;
 
-    Document::Ptr document(const Utils::FilePath &fileName) const;
-    Document::Ptr document(const QString &fileName) const
-    { return document(Utils::FilePath::fromString(fileName)); }
+    Document::Ptr document(const Utils::FilePath &filePath) const;
 
-    const_iterator find(const Utils::FilePath &fileName) const;
-    const_iterator find(const QString &fileName) const
-    { return find(Utils::FilePath::fromString(fileName)); }
+    const_iterator find(const Utils::FilePath &filePath) const;
 
     Snapshot simplified(Document::Ptr doc) const;
 
     Document::Ptr preprocessedDocument(const QByteArray &source,
-                                       const Utils::FilePath &fileName,
+                                       const Utils::FilePath &filePath,
                                        int withDefinedMacrosFromDocumentUntilLine = -1) const;
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
-                                     const QString &fileName) const;
+                                     const Utils::FilePath &filePath) const;
 
-    QSet<QString> allIncludesForDocument(const QString &fileName) const;
+    QSet<Utils::FilePath> allIncludesForDocument(const Utils::FilePath &filePath) const;
 
-    QList<IncludeLocation> includeLocationsOfDocument(const QString &fileNameOrPath) const;
+    QList<IncludeLocation> includeLocationsOfDocument(const Utils::FilePath &fileNameOrPath) const;
 
-    Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
-    Utils::FilePaths filesDependingOn(const QString &fileName) const
-    { return filesDependingOn(Utils::FilePath::fromString(fileName)); }
+    Utils::FilePaths filesDependingOn(const Utils::FilePath &filePath) const;
+
     void updateDependencyTable() const;
     void updateDependencyTable(QFutureInterfaceBase &futureInterface) const;
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../cplusplus_global.h"
 #include <cplusplus/pp.h>
@@ -152,12 +152,12 @@ public:
     virtual void stopSkippingBlocks(int utf16charsOffset)
     { m_skippedBlocks.last().end = utf16charsOffset; }
 
-    virtual void sourceNeeded(int line, const QString &includedFileName, IncludeType mode,
-                              const QStringList &initialIncludes = QStringList())
+    virtual void sourceNeeded(int line, const Utils::FilePath &includedFileName, IncludeType mode,
+                              const Utils::FilePaths &initialIncludes = {})
     {
         Q_UNUSED(initialIncludes)
 #if 1
-        m_recordedIncludes.append(Include(includedFileName, mode, line));
+        m_recordedIncludes.append(Include(includedFileName.toString(), mode, line));
         Q_UNUSED(m_env)
         Q_UNUSED(m_includeDepth)
 #else
@@ -203,7 +203,7 @@ public:
 
     QString resolveGlobally(const QString &currentFileName) const
     {
-        foreach (const QDir &dir, m_includePaths) {
+        for (const QDir &dir : m_includePaths) {
             QFileInfo f(dir, currentFileName);
             if (f.exists())
                 return f.filePath();
@@ -214,7 +214,7 @@ public:
 
     void setIncludePaths(const QStringList &includePaths)
     {
-        foreach (const QString &path, includePaths) {
+        for (const QString &path : includePaths) {
             QDir dir(path);
             if (dir.exists())
                 m_includePaths.append(dir);
@@ -292,7 +292,7 @@ namespace QTest {
     template<> char *toString(const QList<int> &list)
     {
         QByteArray ba = "QList<int>(";
-        foreach (const int& item, list) {
+        for (const int &item : list) {
             ba += QTest::toString(item);
             ba += ',';
         }
@@ -303,7 +303,7 @@ namespace QTest {
     template<> char *toString(const QList<QByteArray> &list)
     {
         QByteArray ba = "QList<QByteArray>(";
-        foreach (const QByteArray& item, list) {
+        for (const QByteArray &item : list) {
             ba += QTest::toString(item);
             ba += ',';
         }
@@ -392,8 +392,8 @@ private slots:
 QByteArray tst_Preprocessor::simplified(const QByteArray &buf)
 {
     QString out;
-    QList<QByteArray> lines = buf.split('\n');
-    foreach (const QByteArray &line, lines) {
+    const QList<QByteArray> lines = buf.split('\n');
+    for (const QByteArray &line : lines) {
         if (!line.startsWith('#')) {
             out.append(" ");
             out.append(QString::fromUtf8(line));

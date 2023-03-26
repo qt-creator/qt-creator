@@ -14,6 +14,8 @@
 #include <QHash>
 #include <QSharedData>
 
+#include <vector>
+
 namespace KSyntaxHighlighting
 {
 /**
@@ -124,6 +126,11 @@ public:
      */
     TextStyleData textStyleOverride(const QString &definitionName, const QString &attributeName) const;
 
+    /**
+     * Returns the TextStyle data for the given @p style.
+     */
+    TextStyleData textStyle(Theme::TextStyle style) const;
+
 private:
     int m_revision = 0;
     QString m_name;
@@ -134,7 +141,7 @@ private:
     QString m_filePath;
 
     //! TextStyles
-    TextStyleData m_textStyles[Theme::Others + 1];
+    std::vector<TextStyleData> m_textStyles;
 
     //! style overrides for individual itemData entries
     //! definition name -> attribute name -> style

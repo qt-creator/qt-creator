@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,18 +17,31 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Usage
 {
 public:
-    enum class Type { Declaration, Initialization, Read, Write, WritableRef, Other };
+    enum class Tag {
+        Declaration = 1 << 0,
+        Read = 1 << 1,
+        Write = 1 << 2,
+        WritableRef = 1 << 3,
+        Override = 1 << 4,
+        MocInvokable = 1 << 5,
+        Template = 1 << 6,
+        ConstructorDestructor = 1 << 7,
+        Operator = 1 << 8,
+        Used = 1 << 9,
+    };
+    using Tags = QFlags<Tag>;
 
     Usage() = default;
-    Usage(const Utils::FilePath &path, const QString &lineText, const QString &func, Type t,
+    Usage(const Utils::FilePath &path, const QString &lineText, const QString &func, Tags t,
           int line, int col, int len)
-        : path(path), lineText(lineText), containingFunction(func), type(t),
+        : path(path), lineText(lineText), containingFunction(func), tags(t),
           line(line), col(col), len(len) {}
 
     Utils::FilePath path;
     QString lineText;
     QString containingFunction;
-    Type type = Type::Other;
+    const Function *containingFunctionSymbol = nullptr;
+    Tags tags;
     int line = 0;
     int col = 0;
     int len = 0;
@@ -55,8 +68,8 @@ protected:
 
     void reportResult(unsigned tokenIndex, const Name *name, Scope *scope = nullptr);
     void reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates);
-    Usage::Type getType(int line, int column, int tokenIndex);
-    QString getContainingFunction(int line, int column);
+    Usage::Tags getTags(int line, int column, int tokenIndex);
+    Function *getContainingFunction(int line, int column);
 
     bool checkCandidates(const QList<LookupItem> &candidates) const;
     void checkExpression(unsigned startToken, unsigned endToken, Scope *scope = nullptr);
@@ -287,7 +300,7 @@ private:
     TypeOfExpression typeofExpression;
     Scope *_currentScope = nullptr;
     const bool _categorize = false;
-    class GetUsageType;
+    class GetUsageTags;
 };
 
 } // namespace CPlusPlus

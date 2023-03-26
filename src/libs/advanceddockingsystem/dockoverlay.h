@@ -10,10 +10,6 @@
 #include <QPointer>
 #include <QRect>
 
-QT_BEGIN_NAMESPACE
-class QGridLayout;
-QT_END_NAMESPACE
-
 namespace ADS {
 
 class DockOverlayPrivate;

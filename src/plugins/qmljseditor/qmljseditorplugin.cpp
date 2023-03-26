@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljseditingsettingspage.h"
 #include "qmljseditor.h"
@@ -30,12 +30,15 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/taskhub.h>
+#include <texteditor/command.h>
 #include <texteditor/formattexteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/json.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QTextDocument>
@@ -98,14 +101,9 @@ QmlJSEditorPlugin::~QmlJSEditorPlugin()
     m_instance = nullptr;
 }
 
-bool QmlJSEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void QmlJSEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new QmlJSEditorPluginPrivate;
-
-    return true;
 }
 
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
@@ -237,6 +235,35 @@ void QmlJSEditorPluginPrivate::renameUsages()
 void QmlJSEditorPluginPrivate::reformatFile()
 {
     if (m_currentDocument) {
+        if (QmlJsEditingSettings::get().useCustomFormatCommand()) {
+            QString formatCommand = QmlJsEditingSettings::get().formatCommand();
+            if (formatCommand.isEmpty())
+                formatCommand = QmlJsEditingSettings::get().defaultFormatCommand();
+            const auto exe = FilePath::fromUserInput(globalMacroExpander()->expand(formatCommand));
+            const QString args = globalMacroExpander()->expand(
+                QmlJsEditingSettings::get().formatCommandOptions());
+            const CommandLine commandLine(exe, args, CommandLine::Raw);
+            TextEditor::Command command;
+            command.setExecutable(commandLine.executable());
+            command.setProcessing(TextEditor::Command::FileProcessing);
+            command.addOptions(commandLine.splitArguments());
+            command.addOption("--inplace");
+            command.addOption("%file");
+
+            if (!command.isValid())
+                return;
+
+            const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(m_currentDocument);
+            if (editors.isEmpty())
+                return;
+            IEditor *currentEditor = EditorManager::currentEditor();
+            IEditor *editor = editors.contains(currentEditor) ? currentEditor : editors.first();
+            if (auto widget = TextEditor::TextEditorWidget::fromEditor(editor))
+                TextEditor::formatEditor(widget, command);
+
+            return;
+        }
+
         QmlJS::Document::Ptr document = m_currentDocument->semanticInfo().document;
         QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
 

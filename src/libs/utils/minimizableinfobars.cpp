@@ -1,11 +1,12 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "minimizableinfobars.h"
 
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QAction>
 #include <QToolButton>
@@ -45,7 +46,7 @@ void MinimizableInfoBars::createActions()
         auto action = new QAction(this);
         action->setToolTip(entry.text());
         action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
-        connect(action, &QAction::triggered, this, [this, id]() {
+        connect(action, &QAction::triggered, this, [this, id] {
             setShowInInfoBar(id, true);
             updateInfo(id);
         });
@@ -107,7 +108,7 @@ void MinimizableInfoBars::showInfoBar(const Id &id)
     // The minimizer() might delete the "Minimize" button immediately and as
     // result invalid reads will happen in QToolButton::mouseReleaseEvent().
     // Avoid this by running the minimizer in the next event loop iteration.
-    info.addCustomButton(MinimizableInfoBars::tr("Minimize"), [this, id] {
+    info.addCustomButton(Tr::tr("Minimize"), [this, id] {
         QMetaObject::invokeMethod(
             this,
             [id, this] {

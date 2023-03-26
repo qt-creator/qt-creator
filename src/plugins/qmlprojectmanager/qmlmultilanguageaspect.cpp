@@ -1,7 +1,9 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlmultilanguageaspect.h"
+
+#include "qmlprojectmanagertr.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -54,8 +56,8 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
 {
     setVisible(isMultilanguagePresent());
     setSettingsKey(Constants::USE_MULTILANGUAGE_KEY);
-    setLabel(tr("Use MultiLanguage in 2D view"), BoolAspect::LabelPlacement::AtCheckBox);
-    setToolTip(tr("Reads translations from MultiLanguage plugin."));
+    setLabel(Tr::tr("Use MultiLanguage in 2D view"), BoolAspect::LabelPlacement::AtCheckBox);
+    setToolTip(Tr::tr("Reads translations from MultiLanguage plugin."));
 
     setDefaultValue(!databaseFilePath().isEmpty());
     QVariantMap getDefaultValues;

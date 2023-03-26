@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -60,6 +60,7 @@ const char G_PROJECT_BUILD[]      = "Project.Group.Build";
 const char G_PROJECT_REBUILD[]    = "Project.Group.Rebuild";
 const char G_PROJECT_RUN[]        = "Project.Group.Run";
 const char G_PROJECT_FILES[]      = "Project.Group.Files";
+const char G_PROJECT_CLOSE[]      = "Project.Group.Close";
 const char G_PROJECT_TREE[]       = "Project.Group.Tree";
 const char G_PROJECT_LAST[]       = "Project.Group.Last";
 
@@ -101,7 +102,7 @@ const char BUILD_AND_RUN_SETTINGS_CATEGORY[]  = "K.BuildAndRun";
 const char BUILD_AND_RUN_SETTINGS_PAGE_ID[] = "A.ProjectExplorer.BuildAndRunOptions";
 
 // Device settings page
-const char DEVICE_SETTINGS_CATEGORY[] = "XW.Devices";
+const char DEVICE_SETTINGS_CATEGORY[] = "AM.Devices";
 const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
 
 // Task categories
@@ -114,16 +115,10 @@ const char TASK_CATEGORY_TASKLIST_ID[] = "Task.Category.TaskListId";
 
 // Wizard categories
 const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";
-const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
-
-const char QT_APPLICATION_WIZARD_CATEGORY[] = "F.Application";
-const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Application");
-
-const char LIBRARIES_WIZARD_CATEGORY[] = "G.Library";
-const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Library");
+const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "Other Project");
 
 const char IMPORT_WIZARD_CATEGORY[] = "T.Import";
-const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Import Project");
+const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "Import Project");
 
 // Wizard extra values
 const char PREFERRED_PROJECT_NODE[] = "ProjectExplorer.PreferredProjectNode";
@@ -170,12 +165,6 @@ const char ANDROID_ABI_ARMEABI_V7A[] = "armeabi-v7a";
 const char ANDROID_ABI_ARM64_V8A[] = "arm64-v8a";
 const char ANDROID_ABI_X86[] = "x86";
 const char ANDROID_ABI_X86_64[] = "x86_64";
-
-// Variable Names:
-const char VAR_CURRENTPROJECT_PREFIX[] = "CurrentProject";
-const char VAR_CURRENTPROJECT_NAME[] = "CurrentProject:Name";
-const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
-const char VAR_CURRENTBUILD_ENV[] = "CurrentBuild:Env";
 
 // JsonWizard:
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";

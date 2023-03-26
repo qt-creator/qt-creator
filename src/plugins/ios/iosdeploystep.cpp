@@ -1,15 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iosdeploystep.h"
 
-#include "iosbuildstep.h"
-#include "iosconfigurations.h"
 #include "iosconstants.h"
 #include "iosdevice.h"
 #include "iosrunconfiguration.h"
 #include "iossimulator.h"
 #include "iostoolhandler.h"
+#include "iostr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -21,20 +20,16 @@
 
 #include <utils/temporaryfile.h>
 
-#include <QDir>
 #include <QFile>
 #include <QSettings>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosDeployStep final : public BuildStep
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosDeployStep)
-
 public:
     enum TransferStatus {
         NoTransfer,
@@ -92,7 +87,7 @@ void IosDeployStep::updateDisplayNames()
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
-    setDisplayName(tr("Deploy to %1").arg(devName));
+    setDisplayName(Tr::tr("Deploy to %1").arg(devName));
 }
 
 bool IosDeployStep::init()
@@ -109,7 +104,7 @@ bool IosDeployStep::init()
     } else if (iossimulator()) {
         m_deviceType = runConfig->deviceType();
     } else {
-        emit addOutput(tr("Error: no device available, deploy failed."),
+        emit addOutput(Tr::tr("Error: no device available, deploy failed."),
                        OutputFormat::ErrorMessage);
         return false;
     }
@@ -121,14 +116,14 @@ void IosDeployStep::doRun()
     QTC_CHECK(m_transferStatus == NoTransfer);
     if (m_device.isNull()) {
         TaskHub::addTask(
-                    DeploymentTask(Task::Error, tr("Deployment failed. No iOS device found.")));
+                    DeploymentTask(Task::Error, Tr::tr("Deployment failed. No iOS device found.")));
         emit finished(!iossimulator().isNull());
         cleanup();
         return;
     }
     m_toolHandler = new IosToolHandler(m_deviceType, this);
     m_transferStatus = TransferInProgress;
-    emit progress(0, tr("Transferring application"));
+    emit progress(0, Tr::tr("Transferring application"));
     connect(m_toolHandler, &IosToolHandler::isTransferringApp,
             this, &IosDeployStep::handleIsTransferringApp);
     connect(m_toolHandler, &IosToolHandler::didTransferApp,
@@ -176,7 +171,7 @@ void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString 
         m_transferStatus = TransferFailed;
         if (!m_expectFail)
             TaskHub::addTask(DeploymentTask(Task::Error,
-                 tr("Deployment failed. The settings in the Devices window of Xcode might be incorrect.")));
+                 Tr::tr("Deployment failed. The settings in the Devices window of Xcode might be incorrect.")));
     }
     emit finished(status == IosToolHandler::Success);
 }
@@ -186,7 +181,7 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
     switch (m_transferStatus) {
     case TransferInProgress:
         m_transferStatus = TransferFailed;
-        TaskHub::addTask(DeploymentTask(Task::Error, tr("Deployment failed.")));
+        TaskHub::addTask(DeploymentTask(Task::Error, Tr::tr("Deployment failed.")));
         emit finished(false);
         break;
     case NoTransfer:
@@ -203,7 +198,7 @@ void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
     Q_UNUSED(handler)
     if (msg.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
-        TaskHub::addTask(DeploymentTask(Task::Warning, tr("The Info.plist might be incorrect.")));
+        TaskHub::addTask(DeploymentTask(Task::Warning, Tr::tr("The Info.plist might be incorrect.")));
 
     emit addOutput(msg, OutputFormat::ErrorMessage);
 }
@@ -269,7 +264,7 @@ void IosDeployStep::checkProvisioningProfile()
     QString provisioningProfile = provisionPlist.value(QLatin1String("Name")).toString();
     QString provisioningUid = provisionPlist.value(QLatin1String("UUID")).toString();
     CompileTask task(Task::Warning,
-              tr("The provisioning profile \"%1\" (%2) used to sign the application "
+              Tr::tr("The provisioning profile \"%1\" (%2) used to sign the application "
                  "does not cover the device %3 (%4). Deployment to it will fail.")
               .arg(provisioningProfile, provisioningUid, device->displayName(),
                    targetId));
@@ -291,11 +286,10 @@ IosSimulator::ConstPtr IosDeployStep::iossimulator() const
 IosDeployStepFactory::IosDeployStepFactory()
 {
     registerStep<IosDeployStep>(Constants::IOS_DEPLOY_STEP_ID);
-    setDisplayName(IosDeployStep::tr("Deploy to iOS device"));
+    setDisplayName(Tr::tr("Deploy to iOS device"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
     setRepeatable(false);
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

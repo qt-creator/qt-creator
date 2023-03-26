@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppquickfixassistant.h"
 
@@ -29,20 +29,15 @@ namespace Internal {
 // -------------------------
 class CppQuickFixAssistProcessor : public IAssistProcessor
 {
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *perform() override
     {
-        QSharedPointer<const AssistInterface> dummy(interface); // FIXME: Surely this cannot be our way of doing memory management???
-        return GenericProposal::createProposal(interface, quickFixOperations(interface));
+        return GenericProposal::createProposal(interface(), quickFixOperations(interface()));
     }
 };
 
 // -------------------------
 // CppQuickFixAssistProvider
 // -------------------------
-IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
-{
-    return Synchronous;
-}
 
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor(const AssistInterface *) const
 {

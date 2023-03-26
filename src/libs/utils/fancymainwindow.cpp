@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fancymainwindow.h"
 
 #include "algorithm.h"
 #include "qtcassert.h"
 #include "stringutils.h"
+#include "utilstr.h"
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -248,7 +249,7 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
 
     connect(&m_timer, &QTimer::timeout, this, &DockWidget::handleMouseTimeout);
     connect(this, &QDockWidget::topLevelChanged, this, &DockWidget::handleToplevelChanged);
-    connect(toggleViewAction(), &QAction::triggered, [this] {
+    connect(toggleViewAction(), &QAction::triggered, this, [this] {
         if (isVisible())
             raise();
     });
@@ -323,11 +324,11 @@ void DockWidget::handleToplevelChanged(bool floating)
 FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *parent) :
     q(parent),
     m_handleDockVisibilityChanges(true),
-    m_showCentralWidget(FancyMainWindow::tr("Central Widget"), nullptr),
+    m_showCentralWidget(Tr::tr("Central Widget"), nullptr),
     m_menuSeparator1(nullptr),
     m_menuSeparator2(nullptr),
-    m_resetLayoutAction(FancyMainWindow::tr("Reset to Default Layout"), nullptr),
-    m_autoHideTitleBars(FancyMainWindow::tr("Automatically Hide View Title Bars"), nullptr)
+    m_resetLayoutAction(Tr::tr("Reset to Default Layout"), nullptr),
+    m_autoHideTitleBars(Tr::tr("Automatically Hide View Title Bars"), nullptr)
 {
     m_showCentralWidget.setCheckable(true);
     m_showCentralWidget.setChecked(true);
@@ -377,7 +378,7 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget, bool immutable)
                 dockWidget->setProperty(dockWidgetActiveState, visible);
         });
 
-        connect(dockWidget->toggleViewAction(), &QAction::triggered, this, [dockWidget] {
+        connect(dockWidget->toggleViewAction(), &QAction::triggered, dockWidget, [dockWidget] {
             if (dockWidget->isVisible())
                 dockWidget->raise();
         }, Qt::QueuedConnection);

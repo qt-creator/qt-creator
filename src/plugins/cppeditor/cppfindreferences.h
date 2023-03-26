@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,10 +8,13 @@
 #include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
 #include <utils/filepath.h>
+#include <utils/link.h>
 
 #include <QObject>
 #include <QPointer>
 #include <QFuture>
+
+#include <functional>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
@@ -24,7 +27,7 @@ namespace CppEditor {
 class CppModelManager;
 
 Core::SearchResultColor::Style CPPEDITOR_EXPORT
-colorStyleForUsageType(CPlusPlus::Usage::Type type);
+colorStyleForUsageType(CPlusPlus::Usage::Tags tags);
 
 class CPPEDITOR_EXPORT CppSearchResultFilter : public Core::SearchResultFilter
 {
@@ -45,7 +48,7 @@ class CppFindReferencesParameters
 {
 public:
     QList<QByteArray> symbolId;
-    QByteArray symbolFileName;
+    Utils::FilePath symbolFilePath;
     QString prettySymbolName;
     Utils::FilePaths filesToRename;
     bool categorize = false;
@@ -64,10 +67,14 @@ public:
 public:
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
-                      const QString &replacement = QString());
+                      const QString &replacement = QString(),
+                      const std::function<void()> &callback = {});
 
     void findMacroUses(const CPlusPlus::Macro &macro);
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
+
+    void checkUnused(Core::SearchResult *search, const Utils::Link &link, CPlusPlus::Symbol *symbol,
+                     const CPlusPlus::LookupContext &context, const Utils::LinkHandler &callback);
 
 private:
     void setupSearch(Core::SearchResult *search);
@@ -76,7 +83,8 @@ private:
     void searchAgain(Core::SearchResult *search);
 
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
-                    const QString &replacement, bool replace);
+                    const QString &replacement, const std::function<void ()> &callback,
+                    bool replace);
     void findMacroUses(const CPlusPlus::Macro &macro, const QString &replacement,
                        bool replace);
     void findAll_helper(Core::SearchResult *search, CPlusPlus::Symbol *symbol,

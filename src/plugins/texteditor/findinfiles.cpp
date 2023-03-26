@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "findinfiles.h"
+
+#include "texteditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
@@ -18,15 +20,16 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QSettings>
 #include <QStackedWidget>
 
 using namespace Core;
-using namespace TextEditor;
 using namespace Utils;
+
+namespace TextEditor {
 
 static FindInFiles *m_instance = nullptr;
 static const char HistoryKey[] = "FindInFiles.Directories.History";
@@ -52,7 +55,7 @@ QString FindInFiles::id() const
 
 QString FindInFiles::displayName() const
 {
-    return tr("Files in File System");
+    return Tr::tr("Files in File System");
 }
 
 FileIterator *FindInFiles::files(const QStringList &nameFilters,
@@ -77,7 +80,7 @@ QString FindInFiles::label() const
     const QChar slash = QLatin1Char('/');
     const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
             .split(slash, Qt::SkipEmptyParts);
-    return tr("%1 \"%2\":")
+    return Tr::tr("%1 \"%2\":")
             .arg(title)
             .arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
 }
@@ -85,7 +88,7 @@ QString FindInFiles::label() const
 QString FindInFiles::toolTip() const
 {
     //: the last arg is filled by BaseFileFind::runNewSearch
-    QString tooltip = tr("Path: %1\nFilter: %2\nExcluding: %3\n%4")
+    QString tooltip = Tr::tr("Path: %1\nFilter: %2\nExcluding: %3\n%4")
             .arg(path().toUserOutput())
             .arg(fileNameFilters().join(','))
             .arg(fileExclusionFilters().join(','));
@@ -128,7 +131,7 @@ QWidget *FindInFiles::createConfigWidget()
         m_configWidget->setLayout(gridLayout);
 
         int row = 0;
-        auto searchEngineLabel = new QLabel(tr("Search engine:"));
+        auto searchEngineLabel = new QLabel(Tr::tr("Search engine:"));
         gridLayout->addWidget(searchEngineLabel, row, 0, Qt::AlignRight);
         m_searchEngineCombo = new QComboBox;
         connect(m_searchEngineCombo, &QComboBox::currentIndexChanged,
@@ -144,11 +147,11 @@ QWidget *FindInFiles::createConfigWidget()
         }
         gridLayout->addWidget(m_searchEngineWidget, row++, 2);
 
-        QLabel *dirLabel = new QLabel(tr("Director&y:"));
+        QLabel *dirLabel = new QLabel(Tr::tr("Director&y:"));
         gridLayout->addWidget(dirLabel, row, 0, Qt::AlignRight);
         m_directory = new PathChooser;
         m_directory->setExpectedKind(PathChooser::ExistingDirectory);
-        m_directory->setPromptDialogTitle(tr("Directory to Search"));
+        m_directory->setPromptDialogTitle(Tr::tr("Directory to Search"));
         connect(m_directory.data(), &PathChooser::textChanged, this,
                 [this] { pathChanged(m_directory->filePath()); });
         m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
@@ -231,3 +234,5 @@ FindInFiles *FindInFiles::instance()
 {
     return m_instance;
 }
+
+} // TextEditor

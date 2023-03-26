@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,6 +8,8 @@
 #include "infolabel.h"
 #include "macroexpander.h"
 #include "pathchooser.h"
+
+#include <QCoreApplication>
 
 #include <functional>
 #include <memory>
@@ -23,7 +25,7 @@ namespace Utils {
 
 class AspectContainer;
 class BoolAspect;
-class LayoutBuilder;
+namespace Layouting { class LayoutBuilder; }
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -96,7 +98,7 @@ public:
     virtual void toMap(QVariantMap &map) const;
     virtual void toActiveMap(QVariantMap &map) const { toMap(map); }
 
-    virtual void addToLayout(LayoutBuilder &builder);
+    virtual void addToLayout(Layouting::LayoutBuilder &builder);
 
     virtual QVariant volatileValue() const;
     virtual void setVolatileValue(const QVariant &val);
@@ -167,7 +169,7 @@ signals:
 protected:
     QLabel *label() const;
     void setupLabel();
-    void addLabeledItem(LayoutBuilder &builder, QWidget *widget);
+    void addLabeledItem(Layouting::LayoutBuilder &builder, QWidget *widget);
 
     void setDataCreatorHelper(const DataCreator &creator) const;
     void setDataClonerHelper(const DataCloner &cloner) const;
@@ -216,7 +218,7 @@ public:
         bool value;
     };
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QAction *action() override;
 
@@ -226,6 +228,7 @@ public:
 
     bool value() const;
     void setValue(bool val);
+    bool defaultValue() const;
     void setDefaultValue(bool val);
 
     enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
@@ -250,18 +253,21 @@ public:
     SelectionAspect();
     ~SelectionAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
     void finish() override;
 
     int value() const;
     void setValue(int val);
+
+    QString stringValue() const;
     void setStringValue(const QString &val);
+
+    int defaultValue() const;
     void setDefaultValue(int val);
     void setDefaultValue(const QString &val);
 
-    QString stringValue() const;
     QVariant itemValue() const;
 
     enum class DisplayStyle { RadioButtons, ComboBox };
@@ -301,7 +307,7 @@ public:
     MultiSelectionAspect();
     ~MultiSelectionAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     enum class DisplayStyle { ListView };
     void setDisplayStyle(DisplayStyle style);
@@ -330,7 +336,7 @@ public:
         FilePath filePath;
     };
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
@@ -341,6 +347,8 @@ public:
     void setValueAcceptor(ValueAcceptor &&acceptor);
     QString value() const;
     void setValue(const QString &val);
+
+    QString defaultValue() const;
     void setDefaultValue(const QString &val);
 
     void setShowToolTipOnLabel(bool show);
@@ -350,6 +358,7 @@ public:
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const PathChooser::Kind expectedKind);
     void setEnvironmentChange(const EnvironmentChange &change);
+    void setEnvironment(const Environment &env);
     void setBaseFileName(const FilePath &baseFileName);
     void setUndoRedoEnabled(bool readOnly);
     void setAcceptRichText(bool acceptRichText);
@@ -406,13 +415,15 @@ public:
     IntegerAspect();
     ~IntegerAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
 
     qint64 value() const;
     void setValue(qint64 val);
+
+    qint64 defaultValue() const;
     void setDefaultValue(qint64 defaultValue);
 
     void setRange(qint64 min, qint64 max);
@@ -441,13 +452,15 @@ public:
     DoubleAspect();
     ~DoubleAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
 
     double value() const;
     void setValue(double val);
+
+    double defaultValue() const;
     void setDefaultValue(double defaultValue);
 
     void setRange(double min, double max);
@@ -486,14 +499,16 @@ private:
 class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
 {
     Q_OBJECT
+
 public:
-    TriStateAspect(
-            const QString onString = tr("Enable"),
-            const QString &offString = tr("Disable"),
-            const QString &defaultString = tr("Leave at Default"));
+    TriStateAspect(const QString &onString = {},
+                   const QString &offString = {},
+                   const QString &defaultString = {});
 
     TriState value() const;
     void setValue(TriState setting);
+
+    TriState defaultValue() const;
     void setDefaultValue(TriState setting);
 };
 
@@ -505,7 +520,7 @@ public:
     StringListAspect();
     ~StringListAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QStringList value() const;
     void setValue(const QStringList &val);
@@ -527,11 +542,13 @@ public:
     IntegersAspect();
     ~IntegersAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
     void emitChangedValue() override;
 
     QList<int> value() const;
     void setValue(const QList<int> &value);
+
+    QList<int> defaultValue() const;
     void setDefaultValue(const QList<int> &value);
 
 signals:
@@ -547,7 +564,7 @@ public:
                 InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     void setIconType(InfoLabel::InfoType t);
     void setText(const QString &message);

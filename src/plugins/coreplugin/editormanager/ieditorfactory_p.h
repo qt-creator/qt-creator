@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -25,17 +25,7 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
                                   QList<EditorTypeLike *> *list)
 {
     QSet<EditorTypeLike *> matches;
-    // search breadth-first through parent hierarchy, e.g. for hierarchy
-    // * application/x-ruby
-    //     * application/x-executable
-    //         * application/octet-stream
-    //     * text/plain
-    QList<Utils::MimeType> queue;
-    QSet<QString> seen;
-    queue.append(mimeType);
-    seen.insert(mimeType.name());
-    while (!queue.isEmpty()) {
-        Utils::MimeType mt = queue.takeFirst();
+    Utils::visitMimeParents(mimeType, [&](const Utils::MimeType &mt) -> bool {
         // check for matching factories
         for (EditorTypeLike *factory : allFactories) {
             if (!matches.contains(factory)) {
@@ -48,18 +38,8 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
                 }
             }
         }
-        // add parent mime types
-        const QStringList parentNames = mt.parentMimeTypes();
-        for (const QString &parentName : parentNames) {
-            const Utils::MimeType parent = Utils::mimeTypeForName(parentName);
-            if (parent.isValid()) {
-                int seenSize = seen.size();
-                seen.insert(parent.name());
-                if (seen.size() != seenSize) // not seen before, so add
-                    queue.append(parent);
-            }
-        }
-    }
+        return true; // continue
+    });
 }
 
 } // Internal

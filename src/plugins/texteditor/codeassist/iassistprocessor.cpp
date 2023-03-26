@@ -1,7 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iassistprocessor.h"
+
+#include "assistinterface.h"
+
+#include <utils/qtcassert.h>
 
 using namespace TextEditor;
 
@@ -18,6 +22,14 @@ IAssistProcessor::IAssistProcessor() = default;
 
 IAssistProcessor::~IAssistProcessor() = default;
 
+IAssistProposal *IAssistProcessor::start(std::unique_ptr<AssistInterface> &&interface)
+{
+    QTC_ASSERT(!running(), return nullptr);
+    m_interface = std::move(interface);
+    QTC_ASSERT(m_interface, return nullptr);
+    return perform();
+}
+
 void IAssistProcessor::setAsyncProposalAvailable(IAssistProposal *proposal)
 {
     if (m_asyncCompletionsAvailableHandler)
@@ -30,15 +42,27 @@ void IAssistProcessor::setAsyncCompletionAvailableHandler(
     m_asyncCompletionsAvailableHandler = handler;
 }
 
+bool IAssistProcessor::running() { return false; }
+
+bool IAssistProcessor::needsRestart() const { return false; }
+
+void IAssistProcessor::cancel() {}
+
+AssistInterface *IAssistProcessor::interface() { return m_interface.get(); }
+const AssistInterface *IAssistProcessor::interface() const { return m_interface.get(); }
+
+#ifdef WITH_TESTS
+void IAssistProcessor::setupAssistInterface(std::unique_ptr<AssistInterface> &&interface)
+{
+    m_interface = std::move(interface);
+}
+#endif
+
 /*!
-    \fn IAssistProposal *TextEditor::IAssistProcessor::perform(const AssistInterface *interface)
+    \fn IAssistProposal *TextEditor::IAssistProcessor::start()
 
     Computes a proposal and returns it. Access to the document is made through the \a interface.
-    If this is an asynchronous processor the \a interface will be detached.
 
     The processor takes ownership of the interface. Also, one should be careful in the case of
     sharing data across asynchronous processors since there might be more than one instance of
-    them computing a proposal at a particular time.
-
-    \sa AssistInterface::detach()
-*/
+    them computing a proposal at a particular time.*/

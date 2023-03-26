@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addqtoperation.h"
 
@@ -291,7 +291,7 @@ QVariantMap AddQtData::addQt(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(sdkId));
 
-    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), saneQmake.toVariant());
+    data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), saneQmake.toSettings());
     data << KeyValuePair(QStringList() << qt << QLatin1String(TYPE), QVariant(m_type));
     data << KeyValuePair(QStringList() << qt << ABIS, QVariant(m_abis));
 

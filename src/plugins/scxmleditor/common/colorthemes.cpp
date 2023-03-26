@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "colorthemedialog.h"
 #include "colorthemes.h"
@@ -82,7 +82,7 @@ void ColorThemes::updateColorThemeMenu()
                 ? Tr::tr("Factory Default") : key == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT
                   ? Tr::tr("Colors from SCXML Document")
                   : key;
-        QAction *action = m_menu->addAction(actionText, this, [this, key]() {
+        QAction *action = m_menu->addAction(actionText, this, [this, key] {
             selectColorTheme(key);
         });
         action->setData(key);

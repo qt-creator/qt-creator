@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "autotest_global.h"
+#include "itestframework.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -39,20 +39,18 @@ public:
     AutotestPlugin();
     ~AutotestPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
 
     static TestSettings *settings();
     static TestProjectSettings *projectSettings(ProjectExplorer::Project *project);
+    static TestFrameworks activeTestFrameworks();
     static void updateMenuItemsEnabledState();
     static void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice);
     static ChoicePair cachedChoiceFor(const QString &buildTargetKey);
     static void clearChoiceCache();
     static void popupResultsPane();
-
-private:
-    QVector<QObject *> createTestObjects() const override;
 };
 
 } // namespace Internal

@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppchecksymbols.h"
 
 #include "cpplocalsymbols.h"
 
+#include "cppeditortr.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QDebug>
 
 // This is for experimeting highlighting ctors/dtors as functions (instead of types).
@@ -312,7 +313,7 @@ void CheckSymbols::run()
 {
     CollectSymbols collectTypes(_doc, _context.snapshot());
 
-    _fileName = _doc->fileName();
+    _filePath = _doc->filePath();
     _potentialTypes = collectTypes.types();
     _potentialFields = collectTypes.fields();
     _potentialFunctions = collectTypes.functions();
@@ -334,7 +335,7 @@ void CheckSymbols::run()
 
 bool CheckSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
 {
-    Document::DiagnosticMessage m(Document::DiagnosticMessage::Warning, _fileName, line, column, text, length);
+    Document::DiagnosticMessage m(Document::DiagnosticMessage::Warning, _filePath, line, column, text, length);
     _diagMsgs.append(m);
     return false;
 }
@@ -503,11 +504,9 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                         // Add a diagnostic message if non-virtual function has override/final marker
                         if ((_usages.back().kind != SemanticHighlighter::VirtualFunctionDeclarationUse)) {
                             if (funTy->isOverride())
-                                warning(declrIdNameAST, QCoreApplication::translate(
-                                            "CPlusplus::CheckSymbols", "Only virtual functions can be marked 'override'"));
+                                warning(declrIdNameAST, Tr::tr("Only virtual functions can be marked 'override'"));
                             else if (funTy->isFinal())
-                                warning(declrIdNameAST, QCoreApplication::translate(
-                                            "CPlusPlus::CheckSymbols", "Only virtual functions can be marked 'final'"));
+                                warning(declrIdNameAST, Tr::tr("Only virtual functions can be marked 'final'"));
                         }
                     }
                 }
@@ -776,8 +775,7 @@ void CheckSymbols::checkNamespace(NameAST *name)
 
     const unsigned length = tokenAt(name->lastToken() - 1).utf16charsEnd()
             - tokenAt(name->firstToken()).utf16charsBegin();
-    warning(line, column, QCoreApplication::translate("CPlusPlus::CheckSymbols",
-                                                      "Expected a namespace-name"), length);
+    warning(line, column, Tr::tr( "Expected a namespace-name"), length);
 }
 
 bool CheckSymbols::hasVirtualDestructor(Class *klass) const
@@ -1398,9 +1396,9 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
         // Add a diagnostic message if argument count does not match
         if (matchType == Match_TooFewArgs)
-            warning(line, column, QCoreApplication::translate("CplusPlus::CheckSymbols", "Too few arguments"), length);
+            warning(line, column, Tr::tr("Too few arguments"), length);
         else if (matchType == Match_TooManyArgs)
-            warning(line, column, QCoreApplication::translate("CPlusPlus::CheckSymbols", "Too many arguments"), length);
+            warning(line, column, Tr::tr("Too many arguments"), length);
 
         const Result use(line, column, length, kind);
         addUse(use);

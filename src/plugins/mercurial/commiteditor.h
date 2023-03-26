@@ -1,12 +1,10 @@
 // Copyright (C) 2016 Brian McGillion
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
-
-#include <QFileInfo>
 
 namespace VcsBase { class SubmitFileModel; }
 
@@ -21,7 +19,7 @@ class CommitEditor : public VcsBase::VcsBaseSubmitEditor
 public:
     CommitEditor();
 
-    void setFields(const QFileInfo &repositoryRoot, const QString &branch,
+    void setFields(const Utils::FilePath &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email,
                    const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus);
 
@@ -30,6 +28,7 @@ public:
 
 private:
     MercurialCommitWidget *commitWidget() const;
+
     VcsBase::SubmitFileModel *fileModel = nullptr;
 };
 

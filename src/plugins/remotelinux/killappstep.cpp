@@ -1,10 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "killappstep.h"
 
 #include "abstractremotelinuxdeploystep.h"
-#include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
@@ -17,88 +16,37 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
 class KillAppService : public AbstractRemoteLinuxDeployService
 {
 public:
-    ~KillAppService() override;
-
-    void setRemoteExecutable(const FilePath &filePath);
+    void setRemoteExecutable(const FilePath &filePath) { m_remoteExecutable = filePath; }
 
 private:
-    void handleStdErr();
-    void handleProcessFinished();
-
-    bool isDeploymentNecessary() const override;
-
-    void doDeploy() override;
-    void stopDeployment() override;
-
-    void handleSignalOpFinished(const QString &errorMessage);
-    void cleanup();
-    void finishDeployment();
+    bool isDeploymentNecessary() const final { return !m_remoteExecutable.isEmpty(); }
+    Group deployRecipe() final;
 
     FilePath m_remoteExecutable;
-    DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
-KillAppService::~KillAppService()
+Group KillAppService::deployRecipe()
 {
-    cleanup();
-}
-
-void KillAppService::setRemoteExecutable(const FilePath &filePath)
-{
-    m_remoteExecutable = filePath;
-}
-
-bool KillAppService::isDeploymentNecessary() const
-{
-    return !m_remoteExecutable.isEmpty();
-}
-
-void KillAppService::doDeploy()
-{
-    m_signalOperation = deviceConfiguration()->signalOperation();
-    if (!m_signalOperation) {
-        handleDeploymentDone();
-        return;
-    }
-    connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
-            this, &KillAppService::handleSignalOpFinished);
-    emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
-                            .arg(m_remoteExecutable.path()));
-    m_signalOperation->killProcess(m_remoteExecutable.path());
-}
-
-void KillAppService::cleanup()
-{
-    if (m_signalOperation) {
-        disconnect(m_signalOperation.data(), nullptr, this, nullptr);
-        m_signalOperation.clear();
-    }
-}
-
-void KillAppService::finishDeployment()
-{
-    cleanup();
-    handleDeploymentDone();
-}
-
-void KillAppService::stopDeployment()
-{
-    finishDeployment();
-}
-
-void KillAppService::handleSignalOpFinished(const QString &errorMessage)
-{
-    if (errorMessage.isEmpty())
+    const auto setupHandler = [this](DeviceProcessKiller &killer) {
+        killer.setProcessPath(m_remoteExecutable);
+        emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
+                             .arg(m_remoteExecutable.path()));
+    };
+    const auto doneHandler = [this](const DeviceProcessKiller &) {
         emit progressMessage(Tr::tr("Remote application killed."));
-    else
-        emit progressMessage(Tr::tr("Failed to kill remote application. Assuming it was not running."));
-    finishDeployment();
+    };
+    const auto errorHandler = [this](const DeviceProcessKiller &) {
+        emit progressMessage(Tr::tr("Failed to kill remote application. "
+                                    "Assuming it was not running."));
+    };
+    return Group { Killer(setupHandler, doneHandler, errorHandler) };
 }
 
 class KillAppStep : public AbstractRemoteLinuxDeployStep

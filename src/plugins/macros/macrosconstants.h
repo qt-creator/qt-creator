@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Nicolas Arnaud-Cormos
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,7 +17,6 @@ const char SAVE_LAST_MACRO[] = "Macros.SaveLastMacro";
 const char PREFIX_MACRO[] = "Macros.";
 
 const char M_OPTIONS_PAGE[] = "Macros";
-const char M_OPTIONS_TR_PAGE[] = QT_TRANSLATE_NOOP("Macros", "Macros");
 
 const char M_STATUS_BUFFER[] = "Macros.Status";
 

@@ -1,13 +1,13 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "settingsaccessor.h"
 
 #include "algorithm.h"
-#include "qtcassert.h"
 #include "persistentsettings.h"
+#include "qtcassert.h"
+#include "utilstr.h"
 
-#include <QApplication>
 #include <QDir>
 
 namespace {
@@ -115,8 +115,8 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FilePath &path) c
 {
     PersistentSettingsReader reader;
     if (!reader.load(path)) {
-        return RestoreData(Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Read File"),
-                                 QCoreApplication::translate("Utils::SettingsAccessor", "Could not open \"%1\".")
+        return RestoreData(Issue(Tr::tr("Failed to Read File"),
+                                 Tr::tr("Could not open \"%1\".")
                                  .arg(path.toUserOutput()), Issue::Type::ERROR));
     }
 
@@ -139,8 +139,8 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePat
                                                                    const QVariantMap &data) const
 {
     if (data.isEmpty()) {
-        return Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Write File"),
-                     QCoreApplication::translate("Utils::SettingsAccessor", "There was nothing to write."),
+        return Issue(Tr::tr("Failed to Write File"),
+                     Tr::tr("There was nothing to write."),
                      Issue::Type::WARNING);
     }
 
@@ -149,7 +149,7 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePat
         m_writer = std::make_unique<PersistentSettingsWriter>(path, docType);
 
     if (!m_writer->save(data, &errorMessage)) {
-        return Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Write File"),
+        return Issue(Tr::tr("Failed to Write File"),
                      errorMessage, Issue::Type::ERROR);
     }
     return {};
@@ -252,15 +252,14 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
         result.path = baseFilePath().parentDir();
 
     if (result.data.isEmpty()) {
-        Issue i(QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found"),
-                QApplication::translate("Utils::SettingsAccessor",
-                                        "<p>No valid settings file could be found.</p>"
-                                        "<p>All settings files found in directory \"%1\" "
-                                        "were unsuitable for the current version of %2, "
-                                        "for instance because they were written by an incompatible "
-                                        "version of %2, or because a different settings path "
-                                        "was used.</p>")
-                .arg(path.toUserOutput()).arg(applicationDisplayName), Issue::Type::ERROR);
+        Issue i(Tr::tr("No Valid Settings Found"),
+                Tr::tr("<p>No valid settings file could be found.</p>"
+                       "<p>All settings files found in directory \"%1\" "
+                       "were unsuitable for the current version of %2, "
+                       "for instance because they were written by an incompatible "
+                       "version of %2, or because a different settings path "
+                       "was used.</p>")
+                .arg(path.toUserOutput(), applicationDisplayName), Issue::Type::ERROR);
         i.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
         result.issue = i;
     }
@@ -522,11 +521,10 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
         return result;
     const int version = versionFromMap(result.data);
     if (version < firstSupportedVersion() || version > currentVersion()) {
-        Issue i(QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found"),
-                QApplication::translate("Utils::SettingsAccessor",
-                                        "<p>No valid settings file could be found.</p>"
-                                        "<p>All settings files found in directory \"%1\" "
-                                        "were either too new or too old to be read.</p>")
+        Issue i(Tr::tr("No Valid Settings Found"),
+                Tr::tr("<p>No valid settings file could be found.</p>"
+                       "<p>All settings files found in directory \"%1\" "
+                       "were either too new or too old to be read.</p>")
                 .arg(result.path.toUserOutput()), Issue::Type::ERROR);
         i.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
         result.issue = i;
@@ -535,16 +533,15 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
 
     if (result.path != baseFilePath() && !result.path.endsWith(".shared")
             && version < currentVersion()) {
-        Issue i(QApplication::translate("Utils::SettingsAccessor", "Using Old Settings"),
-                QApplication::translate("Utils::SettingsAccessor",
-                                        "<p>The versioned backup \"%1\" of the settings "
-                                        "file is used, because the non-versioned file was "
-                                        "created by an incompatible version of %2.</p>"
-                                        "<p>Settings changes made since the last time this "
-                                        "version of %2 was used are ignored, and "
-                                        "changes made now will <b>not</b> be propagated to "
-                                        "the newer version.</p>")
-                .arg(result.path.toUserOutput()).arg(applicationDisplayName), Issue::Type::WARNING);
+        Issue i(Tr::tr("Using Old Settings"),
+                Tr::tr("<p>The versioned backup \"%1\" of the settings "
+                       "file is used, because the non-versioned file was "
+                       "created by an incompatible version of %2.</p>"
+                       "<p>Settings changes made since the last time this "
+                       "version of %2 was used are ignored, and "
+                       "changes made now will <b>not</b> be propagated to "
+                       "the newer version.</p>")
+                .arg(result.path.toUserOutput(), applicationDisplayName), Issue::Type::WARNING);
         i.buttons.insert(QMessageBox::Ok, Continue);
         result.issue = i;
         return result;
@@ -552,16 +549,14 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
 
     const QByteArray readId = settingsIdFromMap(result.data);
     if (!settingsId().isEmpty() && !readId.isEmpty() && readId != settingsId()) {
-        Issue i(QApplication::translate("Utils::EnvironmentIdAccessor",
-                                        "Settings File for \"%1\" from a Different Environment?")
+        Issue i(Tr::tr("Settings File for \"%1\" from a Different Environment?")
                 .arg(applicationDisplayName),
-                QApplication::translate("Utils::EnvironmentIdAccessor",
-                                        "<p>No settings file created by this instance "
-                                        "of %1 was found.</p>"
-                                        "<p>Did you work with this project on another machine or "
-                                        "using a different settings path before?</p>"
-                                        "<p>Do you still want to load the settings file \"%2\"?</p>")
-                .arg(applicationDisplayName).arg(result.path.toUserOutput()), Issue::Type::WARNING);
+                Tr::tr("<p>No settings file created by this instance "
+                       "of %1 was found.</p>"
+                       "<p>Did you work with this project on another machine or "
+                       "using a different settings path before?</p>"
+                       "<p>Do you still want to load the settings file \"%2\"?</p>")
+                .arg(applicationDisplayName, result.path.toUserOutput()), Issue::Type::WARNING);
         i.defaultButton = QMessageBox::No;
         i.escapeButton = QMessageBox::No;
         i.buttons.clear();
@@ -616,13 +611,11 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
         // that perfectly match corresponding user ones. If we don't have valid user
         // settings to compare against, there's nothing we can do.
 
-        secondaryData.issue = Issue(QApplication::translate("Utils::SettingsAccessor",
-                                                            "Unsupported Merge Settings File"),
-                                    QApplication::translate("Utils::SettingsAccessor",
-                                                            "\"%1\" is not supported by %2. "
-                                                            "Do you want to try loading it anyway?")
-                                    .arg(secondaryData.path.toUserOutput())
-                                    .arg(applicationDisplayName), Issue::Type::WARNING);
+        secondaryData.issue = Issue(Tr::tr("Unsupported Merge Settings File"),
+                                    Tr::tr("\"%1\" is not supported by %2. "
+                                           "Do you want to try loading it anyway?")
+                                    .arg(secondaryData.path.toUserOutput(), applicationDisplayName),
+                                    Issue::Type::WARNING);
         secondaryData.issue->buttons.clear();
         secondaryData.issue->buttons.insert(QMessageBox::Yes, Continue);
         secondaryData.issue->buttons.insert(QMessageBox::No, DiscardAndContinue);

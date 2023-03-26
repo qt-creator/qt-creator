@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testresultspane.h"
 
@@ -15,15 +15,13 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/outputwindow.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -56,7 +54,7 @@ namespace Autotest {
 namespace Internal {
 
 ResultsTreeView::ResultsTreeView(QWidget *parent)
-    : Utils::TreeView(parent)
+    : TreeView(parent)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(NoFrame);
@@ -84,10 +82,8 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     visualOutputWidget->setLayout(outputLayout);
 
     QPalette pal;
-    pal.setColor(QPalette::Window,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
-    pal.setColor(QPalette::WindowText,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
+    pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
     m_summaryWidget = new QFrame;
     m_summaryWidget->setPalette(pal);
     m_summaryWidget->setAutoFillBackground(true);
@@ -111,34 +107,41 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_model = new TestResultModel(this);
     m_filterModel = new TestResultFilterModel(m_model, this);
     m_filterModel->setDynamicSortFilter(true);
+    m_filterModel->setRecursiveFilteringEnabled(true);
     m_treeView->setModel(m_filterModel);
     TestResultDelegate *trd = new TestResultDelegate(this);
     m_treeView->setItemDelegate(trd);
 
     outputLayout->addWidget(ItemViewFind::createSearchableWrapper(m_treeView));
 
-    m_textOutput = new QPlainTextEdit;
-    m_textOutput->setPalette(pal);
-    m_textOutput->setFont(TextEditor::TextEditorSettings::fontSettings().font());
+    m_textOutput = new Core::OutputWindow(Core::Context("AutoTest.TextOutput"),
+                                          "AutoTest.TextOutput.Filter");
+
+    m_textOutput->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     m_textOutput->setWordWrapMode(QTextOption::WordWrap);
     m_textOutput->setReadOnly(true);
     m_outputWidget->addWidget(m_textOutput);
 
-    auto agg = new Aggregation::Aggregate;
-    agg->add(m_textOutput);
-    agg->add(new BaseTextFind(m_textOutput));
+    setupFilterUi("AutoTest.TextOutput.Filter");
+    setupContext("AutoTest.TextOutput", m_textOutput);
+    setFilteringEnabled(false);
+    setZoomButtonsEnabled(false);
+    connect(this, &IOutputPane::zoomInRequested, m_textOutput, &Core::OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOutRequested, m_textOutput, &Core::OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoomRequested, m_textOutput, &Core::OutputWindow::resetZoom);
+    connect(this, &IOutputPane::fontChanged, m_textOutput, &OutputWindow::setBaseFont);
 
     createToolButtons();
 
-    connect(m_treeView, &Utils::TreeView::activated, this, &TestResultsPane::onItemActivated);
+    connect(m_treeView, &TreeView::activated, this, &TestResultsPane::onItemActivated);
     connect(m_treeView->selectionModel(), &QItemSelectionModel::currentChanged,
             trd, &TestResultDelegate::currentChanged);
-    connect(m_treeView, &Utils::TreeView::customContextMenuRequested,
+    connect(m_treeView, &TreeView::customContextMenuRequested,
             this, &TestResultsPane::onCustomContextMenuRequested);
-    connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, [this] () {
+    connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, this, [this] {
         onCopyItemTriggered(getTestResult(m_treeView->currentIndex()));
     });
-    connect(m_model, &TestResultModel::requestExpansion, [this] (const QModelIndex &idx) {
+    connect(m_model, &TestResultModel::requestExpansion, this, [this](const QModelIndex &idx) {
         m_treeView->expand(m_filterModel->mapFromSource(idx));
     });
     connect(TestRunner::instance(), &TestRunner::testRunStarted,
@@ -159,7 +162,7 @@ void TestResultsPane::createToolButtons()
     m_expandCollapse->setToolTip(Tr::tr("Expand All"));
     m_expandCollapse->setCheckable(true);
     m_expandCollapse->setChecked(false);
-    connect(m_expandCollapse, &QToolButton::clicked, [this] (bool checked) {
+    connect(m_expandCollapse, &QToolButton::clicked, this, [this](bool checked) {
         if (checked)
             m_treeView->expandAll();
         else
@@ -167,25 +170,21 @@ void TestResultsPane::createToolButtons()
     });
 
     m_runAll = new QToolButton(m_treeView);
-    m_runAll->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runAll->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action(),
                     Utils::Icons::RUN_SMALL_TOOLBAR.icon()));
 
     m_runSelected = new QToolButton(m_treeView);
-    m_runSelected->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runSelected->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action(),
                     Utils::Icons::RUN_SELECTED_TOOLBAR.icon()));
 
     m_runFailed = new QToolButton(m_treeView);
-    m_runFailed->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runFailed->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action(),
                     Icons::RUN_FAILED_TOOLBAR.icon()));
     m_runFile = new QToolButton(m_treeView);
-    m_runFile->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runFile->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action(),
                     Utils::Icons::RUN_FILE_TOOLBAR.icon()));
 
@@ -228,13 +227,12 @@ TestResultsPane::~TestResultsPane()
     s_instance = nullptr;
 }
 
-void TestResultsPane::addTestResult(const TestResultPtr &result)
+void TestResultsPane::addTestResult(const TestResult &result)
 {
     const QScrollBar *scrollBar = m_treeView->verticalScrollBar();
     m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
 
     m_model->addTestResult(result, m_expandCollapse->isChecked());
-    m_filterModel->invalidate();
     setIconBadgeNumber(m_model->resultTypeCount(ResultType::Fail)
                        + m_model->resultTypeCount(ResultType::MessageFatal)
                        + m_model->resultTypeCount(ResultType::UnexpectedPass));
@@ -242,33 +240,6 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
     navigateStateChanged();
 }
 
-static void checkAndFineTuneColors(QTextCharFormat *format)
-{
-    QTC_ASSERT(format, return);
-    const QColor bgColor = format->background().color();
-    QColor fgColor = format->foreground().color();
-
-    if (Utils::StyleHelper::isReadableOn(bgColor, fgColor))
-        return;
-
-    int h, s, v;
-    fgColor.getHsv(&h, &s, &v);
-    // adjust the color value to ensure better readability
-    if (Utils::StyleHelper::luminance(bgColor) < .5)
-        v = v + 64;
-    else
-        v = v - 64;
-
-    fgColor.setHsv(h, s, v);
-    if (!Utils::StyleHelper::isReadableOn(bgColor, fgColor)) {
-        s = (s + 128) % 255;    // adjust the saturation to ensure better readability
-        fgColor.setHsv(h, s, v);
-        if (!Utils::StyleHelper::isReadableOn(bgColor, fgColor))
-            return;
-    }
-
-    format->setForeground(fgColor);
-}
 
 void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel channel)
 {
@@ -278,20 +249,9 @@ void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel 
         return;
     }
 
-    const Utils::FormattedText formattedText
-            = Utils::FormattedText{QString::fromUtf8(outputLine), m_defaultFormat};
-    const QList<Utils::FormattedText> formatted = channel == OutputChannel::StdOut
-            ? m_stdOutHandler.parseText(formattedText)
-            : m_stdErrHandler.parseText(formattedText);
-
-    QTextCursor cursor = m_textOutput->textCursor();
-    cursor.beginEditBlock();
-    for (auto formattedText : formatted) {
-        checkAndFineTuneColors(&formattedText.format);
-        cursor.insertText(formattedText.text, formattedText.format);
-    }
-    cursor.insertText("\n");
-    cursor.endEditBlock();
+    m_textOutput->appendMessage(QString::fromUtf8(outputLine) + '\n',
+                                channel == OutputChannel::StdOut ? OutputFormat::StdOutFormat
+                                                                 : OutputFormat::StdErrFormat);
 }
 
 QWidget *TestResultsPane::outputWidget(QWidget *parent)
@@ -306,8 +266,11 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return {m_expandCollapse, m_runAll, m_runSelected, m_runFailed, m_runFile, m_stopTestRun,
-            m_outputToggleButton, m_filterButton};
+    QList<QWidget *> result = {m_expandCollapse, m_runAll, m_runSelected, m_runFailed,
+                               m_runFile, m_stopTestRun, m_outputToggleButton, m_filterButton};
+    for (QWidget *widget : IOutputPane::toolBarWidgets())
+        result.append(widget);
+    return result;
 }
 
 QString TestResultsPane::displayName() const
@@ -332,14 +295,6 @@ void TestResultsPane::clearContents()
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
     m_textOutput->clear();
-    m_defaultFormat.setBackground(Utils::creatorTheme()->palette().color(
-                                      m_textOutput->backgroundRole()));
-    m_defaultFormat.setForeground(Utils::creatorTheme()->palette().color(
-                                      m_textOutput->foregroundRole()));
-
-    // in case they had been forgotten to reset
-    m_stdErrHandler.endFormatScope();
-    m_stdOutHandler.endFormatScope();
     clearMarks();
 }
 
@@ -402,7 +357,7 @@ void TestResultsPane::goToNext()
 
     // if we have no current or could not find a next one, use the first item of the whole tree
     if (!nextCurrentIndex.isValid()) {
-        Utils::TreeItem *rootItem = m_model->itemForIndex(QModelIndex());
+        TreeItem *rootItem = m_model->itemForIndex(QModelIndex());
         // if the tree does not contain any item - don't do anything
         if (!rootItem || !rootItem->childCount())
             return;
@@ -452,28 +407,32 @@ void TestResultsPane::goToPrev()
     onItemActivated(nextCurrentIndex);
 }
 
+void TestResultsPane::updateFilter()
+{
+    m_textOutput->updateFilterProperties(filterText(), filterCaseSensitivity(), filterUsesRegexp(),
+                                         filterIsInverted());
+}
+
 void TestResultsPane::onItemActivated(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
 
-    const TestResult *testResult = m_filterModel->testResult(index);
-    if (testResult && !testResult->fileName().isEmpty())
-        EditorManager::openEditorAt(Utils::Link{testResult->fileName(), testResult->line(), 0});
+    const TestResult testResult = m_filterModel->testResult(index);
+    if (testResult.isValid() && !testResult.fileName().isEmpty())
+        EditorManager::openEditorAt(Link{testResult.fileName(), testResult.line(), 0});
 }
 
 void TestResultsPane::onRunAllTriggered()
 {
     TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(TestTreeModel::instance()->getAllTestCases());
-    runner->prepareToRunTests(TestRunMode::Run);
+    runner->runTests(TestRunMode::Run, TestTreeModel::instance()->getAllTestCases());
 }
 
 void TestResultsPane::onRunSelectedTriggered()
 {
     TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(TestTreeModel::instance()->getSelectedTests());
-    runner->prepareToRunTests(TestRunMode::Run);
+    runner->runTests(TestRunMode::Run, TestTreeModel::instance()->getSelectedTests());
 }
 
 void TestResultsPane::initializeFilterMenu()
@@ -505,10 +464,10 @@ void TestResultsPane::initializeFilterMenu()
     m_filterMenu->addSeparator();
     QAction *action = new QAction(Tr::tr("Check All Filters"), m_filterMenu);
     m_filterMenu->addAction(action);
-    connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(true); });
+    connect(action, &QAction::triggered, this, [this] { TestResultsPane::checkAllFilter(true); });
     action = new QAction(Tr::tr("Uncheck All Filters"), m_filterMenu);
     m_filterMenu->addAction(action);
-    connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(false); });
+    connect(action, &QAction::triggered, this, [this] { TestResultsPane::checkAllFilter(false); });
 }
 
 void TestResultsPane::updateSummaryLabel()
@@ -611,13 +570,13 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
 {
     const bool resultsAvailable = m_filterModel->hasResults();
     const bool enabled = !m_testRunning && resultsAvailable;
-    const TestResult *clicked = getTestResult(m_treeView->indexAt(pos));
+    const TestResult clicked = getTestResult(m_treeView->indexAt(pos));
     QMenu menu;
 
     QAction *action = new QAction(Tr::tr("Copy"), &menu);
     action->setShortcut(QKeySequence(QKeySequence::Copy));
-    action->setEnabled(resultsAvailable && clicked);
-    connect(action, &QAction::triggered, [this, clicked] () {
+    action->setEnabled(resultsAvailable && clicked.isValid());
+    connect(action, &QAction::triggered, this, [this, &clicked] {
        onCopyItemTriggered(clicked);
     });
     menu.addAction(action);
@@ -632,17 +591,17 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     connect(action, &QAction::triggered, this, &TestResultsPane::onSaveWholeTriggered);
     menu.addAction(action);
 
-    const auto correlatingItem = (enabled && clicked) ? clicked->findTestTreeItem() : nullptr;
+    const auto correlatingItem = (enabled && clicked.isValid()) ? clicked.findTestTreeItem() : nullptr;
     action = new QAction(Tr::tr("Run This Test"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::Run, clicked);
     });
     menu.addAction(action);
 
     action = new QAction(Tr::tr("Run This Test Without Deployment"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::RunWithoutDeploy, clicked);
     });
     menu.addAction(action);
@@ -656,14 +615,14 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
         }
     }
     action->setEnabled(debugEnabled);
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::Debug, clicked);
     });
     menu.addAction(action);
 
     action = new QAction(Tr::tr("Debug This Test Without Deployment"), &menu);
     action->setEnabled(debugEnabled);
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::DebugWithoutDeploy, clicked);
     });
     menu.addAction(action);
@@ -671,21 +630,19 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     menu.exec(m_treeView->mapToGlobal(pos));
 }
 
-const TestResult *TestResultsPane::getTestResult(const QModelIndex &idx)
+TestResult TestResultsPane::getTestResult(const QModelIndex &idx)
 {
     if (!idx.isValid())
-        return nullptr;
-
-    const TestResult *result = m_filterModel->testResult(idx);
-    QTC_CHECK(result);
-
+        return {};
+    const TestResult result = m_filterModel->testResult(idx);
+    QTC_CHECK(result.isValid());
     return result;
 }
 
-void TestResultsPane::onCopyItemTriggered(const TestResult *result)
+void TestResultsPane::onCopyItemTriggered(const TestResult &result)
 {
-    QTC_ASSERT(result, return);
-    setClipboardAndSelection(result->outputString(true));
+    QTC_ASSERT(result.isValid(), return);
+    setClipboardAndSelection(result.outputString(true));
 }
 
 void TestResultsPane::onCopyWholeTriggered()
@@ -707,12 +664,11 @@ void TestResultsPane::onSaveWholeTriggered()
     }
 }
 
-void TestResultsPane::onRunThisTestTriggered(TestRunMode runMode, const TestResult *result)
+void TestResultsPane::onRunThisTestTriggered(TestRunMode runMode, const TestResult &result)
 {
-    QTC_ASSERT(result, return);
+    QTC_ASSERT(result.isValid(), return);
 
-    const ITestTreeItem *item = result->findTestTreeItem();
-
+    const ITestTreeItem *item = result.findTestTreeItem();
     if (item)
         TestRunner::instance()->runTest(runMode, item);
 }
@@ -723,6 +679,8 @@ void TestResultsPane::toggleOutputStyle()
     m_outputWidget->setCurrentIndex(displayText ? 1 : 0);
     m_outputToggleButton->setIcon(displayText ? Icons::VISUAL_DISPLAY.icon()
                                               : Icons::TEXT_DISPLAY.icon());
+    setFilteringEnabled(displayText);
+    setZoomButtonsEnabled(displayText);
 }
 
 // helper for onCopyWholeTriggered() and onSaveWholeTriggered()
@@ -731,11 +689,11 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
     QString output;
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         QModelIndex current = m_model->index(row, 0, parent);
-        const TestResult *result = m_model->testResult(current);
-        QTC_ASSERT(result, continue);
+        const TestResult result = m_model->testResult(current);
+        QTC_ASSERT(result.isValid(), continue);
         if (auto item = m_model->itemForIndex(current))
             output.append(item->resultString()).append('\t');
-        output.append(result->outputString(true)).append('\n');
+        output.append(result.outputString(true)).append('\n');
         output.append(getWholeOutput(current));
     }
     return output;
@@ -743,25 +701,25 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
 
 void TestResultsPane::createMarks(const QModelIndex &parent)
 {
-    const TestResult *parentResult = m_model->testResult(parent);
-    ResultType parentType = parentResult ? parentResult->result() : ResultType::Invalid;
+    const TestResult parentResult = m_model->testResult(parent);
+    const ResultType parentType = parentResult.isValid() ? parentResult.result() : ResultType::Invalid;
     const QVector<ResultType> interested{ResultType::Fail, ResultType::UnexpectedPass};
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         const QModelIndex index = m_model->index(row, 0, parent);
-        const TestResult *result = m_model->testResult(index);
-        QTC_ASSERT(result, continue);
+        const TestResult result = m_model->testResult(index);
+        QTC_ASSERT(result.isValid(), continue);
 
         if (m_model->hasChildren(index))
             createMarks(index);
 
-        bool isLocationItem = result->result() == ResultType::MessageLocation;
-        if (interested.contains(result->result())
+        bool isLocationItem = result.result() == ResultType::MessageLocation;
+        if (interested.contains(result.result())
                 || (isLocationItem && interested.contains(parentType))) {
-            TestEditorMark *mark = new TestEditorMark(index, result->fileName(), result->line());
+            TestEditorMark *mark = new TestEditorMark(index, result.fileName(), result.line());
             mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
-            mark->setColor(Utils::Theme::OutputPanes_TestFailTextColor);
+            mark->setColor(Theme::OutputPanes_TestFailTextColor);
             mark->setPriority(TextEditor::TextMark::NormalPriority);
-            mark->setToolTip(result->description());
+            mark->setToolTip(result.description());
             m_marks << mark;
         }
     }

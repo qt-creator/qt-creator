@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidavdmanager.h"
 #include "androidtr.h"
@@ -76,30 +76,26 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         return result;
     }
 
-    QStringList arguments({"create", "avd", "-n", result.name});
-
-    arguments << "-k" << result.systemImage->sdkStylePath();
+    CommandLine avdManager(config.avdManagerToolPath(), {"create", "avd", "-n", result.name});
+    avdManager.addArgs({"-k", result.systemImage->sdkStylePath()});
 
     if (result.sdcardSize > 0)
-        arguments << "-c" << QString::fromLatin1("%1M").arg(result.sdcardSize);
+        avdManager.addArgs({"-c", QString("%1M").arg(result.sdcardSize)});
 
     if (!result.deviceDefinition.isEmpty() && result.deviceDefinition != "Custom")
-        arguments << "-d" << QString::fromLatin1("%1").arg(result.deviceDefinition);
+        avdManager.addArgs({"-d", QString("%1").arg(result.deviceDefinition)});
 
     if (result.overwrite)
-        arguments << "-f";
+        avdManager.addArg("-f");
 
-    const FilePath avdManagerTool = config.avdManagerToolPath();
-    qCDebug(avdManagerLog).noquote()
-            << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
+    qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
     QtcProcess proc;
     proc.setProcessMode(ProcessMode::Writer);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
-    proc.setCommand({avdManagerTool, arguments});
+    proc.setCommand(avdManager);
     proc.start();
     if (!proc.waitForStarted()) {
-        result.error = Tr::tr("Could not start process \"%1 %2\"")
-                .arg(avdManagerTool.toString(), arguments.join(' '));
+        result.error = Tr::tr("Could not start process \"%1\"").arg(avdManager.toUserOutput());
         return result;
     }
     QTC_CHECK(proc.isRunning());
@@ -110,7 +106,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     QByteArray question;
     while (errorOutput.isEmpty()) {
         proc.waitForReadyRead(500);
-        question += proc.readAllStandardOutput();
+        question += proc.readAllRawStandardOutput();
         if (question.endsWith(QByteArray("]:"))) {
             // truncate to last line
             int index = question.lastIndexOf(QByteArray("\n"));
@@ -124,7 +120,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         }
         // The exit code is always 0, so we need to check stderr
         // For now assume that any output at all indicates a error
-        errorOutput = QString::fromLocal8Bit(proc.readAllStandardError());
+        errorOutput = QString::fromLocal8Bit(proc.readAllRawStandardError());
         if (!proc.isRunning())
             break;
 
@@ -162,29 +158,30 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-static void avdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
+static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)
 {
-    const FilePath avdPath = FilePath::fromString(avdPathStr);
-    if (avdPath.exists()) {
-        const QString configFilePath = avdPath.pathAppended("config.ini").toString();
-        QFile configFile(configFilePath);
-        if (configFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
-            QString newContent;
-            QTextStream textStream(&configFile);
-            while (!textStream.atEnd()) {
-                QString line = textStream.readLine();
-                if (!line.contains("hw.device.manufacturer"))
-                    newContent.append(line + "\n");
-                else if (recoverMode)
-                    newContent.append(line.replace("#", "") + "\n");
-                else
-                    newContent.append("#" + line + "\n");
-            }
-            configFile.resize(0);
-            textStream << newContent;
-            configFile.close();
+    if (!avdPath.exists())
+        return;
+
+    const FilePath configFilePath = avdPath / "config.ini";
+    FileReader reader;
+    if (!reader.fetch(configFilePath, QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    FileSaver saver(configFilePath);
+    QTextStream textStream(reader.data());
+    while (!textStream.atEnd()) {
+        QString line = textStream.readLine();
+        if (line.contains("hw.device.manufacturer")) {
+            if (recoverMode)
+                line.replace("#", "");
+            else
+                line.prepend("#");
         }
+        line.append("\n");
+        saver.write(line.toUtf8());
     }
+    saver.finalize();
 }
 
 static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
@@ -199,8 +196,8 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
         otherwise, Android Studio would give an error during parsing also. So this fix
         aim to keep support for Qt Creator and Android Studio.
     */
-    QStringList allAvdErrorPaths;
-    QStringList avdErrorPaths;
+    FilePaths allAvdErrorPaths;
+    FilePaths avdErrorPaths;
 
     do {
         if (!AndroidAvdManager::avdManagerCommand(config, {"list", "avd"}, &output)) {
@@ -212,12 +209,12 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
         avdErrorPaths.clear();
         avdList = parseAvdList(output, &avdErrorPaths);
         allAvdErrorPaths << avdErrorPaths;
-        for (const QString &avdPathStr : std::as_const(avdErrorPaths))
-            avdConfigEditManufacturerTag(avdPathStr); // comment out manufacturer tag
-    } while (!avdErrorPaths.isEmpty());               // try again
+        for (const FilePath &avdPath : std::as_const(avdErrorPaths))
+            avdConfigEditManufacturerTag(avdPath); // comment out manufacturer tag
+    } while (!avdErrorPaths.isEmpty());            // try again
 
-    for (const QString &avdPathStr : std::as_const(allAvdErrorPaths))
-        avdConfigEditManufacturerTag(avdPathStr, true); // re-add manufacturer tag
+    for (const FilePath &avdPath : std::as_const(allAvdErrorPaths))
+        avdConfigEditManufacturerTag(avdPath, true); // re-add manufacturer tag
 
     return avdList;
 }
@@ -232,6 +229,23 @@ QString AndroidAvdManager::startAvd(const QString &name) const
     if (!findAvd(name).isEmpty() || startAvdAsync(name))
         return waitForAvd(name);
     return QString();
+}
+
+static bool is32BitUserSpace()
+{
+    // Do a similar check as android's emulator is doing:
+    if (HostOsInfo::isLinuxHost()) {
+        if (QSysInfo::WordSize == 32) {
+            QtcProcess proc;
+            proc.setTimeoutS(3);
+            proc.setCommand({"getconf", {"LONG_BIT"}});
+            proc.runBlocking();
+            if (proc.result() != ProcessResult::FinishedWithSuccess)
+                return true;
+            return proc.allOutput().trimmed() == "32";
+        }
+    }
+    return false;
 }
 
 bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
@@ -256,7 +270,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess, &QtcProcess::done, avdProcess, [avdProcess] {
         if (avdProcess->exitCode()) {
-            const QString errorOutput = QString::fromLatin1(avdProcess->readAllStandardOutput());
+            const QString errorOutput = QString::fromLatin1(avdProcess->readAllRawStandardOutput());
             QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
                 const QString title = Tr::tr("AVD Start Error");
                 QMessageBox::critical(Core::ICore::dialogParent(), title, errorOutput);
@@ -267,7 +281,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 
     // start the emulator
     CommandLine cmd(m_config.emulatorToolPath());
-    if (AndroidConfigurations::force32bitEmulator())
+    if (is32BitUserSpace())
         cmd.addArg("-force-32bit");
 
     cmd.addArgs(m_config.emulatorArgs(), CommandLine::Raw);
@@ -291,20 +305,20 @@ QString AndroidAvdManager::findAvd(const QString &avdName) const
 }
 
 QString AndroidAvdManager::waitForAvd(const QString &avdName,
-                                      const std::function<bool()> &cancelChecker) const
+                                      const QFutureInterfaceBase &fi) const
 {
     // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
     // 60 rounds of 2s sleeping, two minutes for the avd to start
     QString serialNumber;
     for (int i = 0; i < 60; ++i) {
-        if (cancelChecker && cancelChecker())
-            return QString();
+        if (fi.isCanceled())
+            return {};
         serialNumber = findAvd(avdName);
         if (!serialNumber.isEmpty())
-            return waitForBooted(serialNumber, cancelChecker) ?  serialNumber : QString();
+            return waitForBooted(serialNumber, fi) ? serialNumber : QString();
         QThread::sleep(2);
     }
-    return QString();
+    return {};
 }
 
 bool AndroidAvdManager::isAvdBooted(const QString &device) const
@@ -325,11 +339,11 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
 }
 
 bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
-                                      const std::function<bool()> &cancelChecker) const
+                                      const QFutureInterfaceBase &fi) const
 {
     // found a serial number, now wait until it's done booting...
     for (int i = 0; i < 60; ++i) {
-        if (cancelChecker && cancelChecker())
+        if (fi.isCanceled())
             return false;
         if (isAvdBooted(serialNumber))
             return true;

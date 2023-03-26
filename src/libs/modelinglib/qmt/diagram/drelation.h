@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -40,7 +40,7 @@ public:
     void setEndBUid(const Uid &uid);
     QString name() const { return m_name; }
     void setName(const QString &name);
-    QList<IntermediatePoint> intermediatePoints() const { return m_intermediatePoints; }
+    const QList<IntermediatePoint> intermediatePoints() const { return m_intermediatePoints; }
     void setIntermediatePoints(const QList<IntermediatePoint> &intermediatePoints);
 
     void accept(DVisitor *visitor) override;

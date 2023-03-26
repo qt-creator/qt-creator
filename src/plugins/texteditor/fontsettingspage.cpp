@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fontsettingspage.h"
 
 #include "colorschemeedit.h"
 #include "fontsettings.h"
 #include "texteditorsettings.h"
+#include "texteditortr.h"
 
 #include <coreplugin/icore.h>
 
@@ -18,29 +19,23 @@
 #include <utils/utilsicons.h>
 
 #include <QAbstractItemModel>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDebug>
 #include <QFileDialog>
+#include <QFontComboBox>
 #include <QFontDatabase>
+#include <QGroupBox>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMessageBox>
 #include <QPalette>
 #include <QPointer>
+#include <QPushButton>
 #include <QSettings>
+#include <QSpacerItem>
+#include <QSpinBox>
 #include <QTimer>
-
-#include <QtCore/QVariant>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QCheckBox>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QFontComboBox>
-#include <QtWidgets/QGridLayout>
-#include <QtWidgets/QGroupBox>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QSpinBox>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QWidget>
 
 using namespace TextEditor::Internal;
 using namespace Utils;
@@ -104,8 +99,6 @@ private:
 
 class FontSettingsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::FontSettingsPageWidget)
-
 public:
     FontSettingsPageWidget(FontSettingsPage *q, const FormatDescriptions &fd, FontSettings *fontSettings)
         : q(q),
@@ -116,24 +109,24 @@ public:
 
         resize(639, 306);
 
-        m_antialias = new QCheckBox(tr("Antialias"));
+        m_antialias = new QCheckBox(Tr::tr("Antialias"));
         m_antialias->setChecked(m_value.antialias());
 
         m_zoomSpinBox = new QSpinBox;
-        m_zoomSpinBox->setSuffix(tr("%"));
+        m_zoomSpinBox->setSuffix(Tr::tr("%"));
         m_zoomSpinBox->setRange(10, 3000);
         m_zoomSpinBox->setSingleStep(10);
         m_zoomSpinBox->setValue(m_value.fontZoom());
 
         m_lineSpacingSpinBox = new QSpinBox;
         m_lineSpacingSpinBox->setObjectName(QLatin1String("FontSettingsPage.LineSpacingSpinBox"));
-        m_lineSpacingSpinBox->setSuffix(tr("%"));
+        m_lineSpacingSpinBox->setSuffix(Tr::tr("%"));
         m_lineSpacingSpinBox->setRange(50, 3000);
         m_lineSpacingSpinBox->setValue(m_value.relativeLineSpacing());
 
         m_lineSpacingWarningLabel = new QLabel;
         m_lineSpacingWarningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
-        m_lineSpacingWarningLabel->setToolTip(tr("A line spacing value other than 100% disables "
+        m_lineSpacingWarningLabel->setToolTip(Tr::tr("A line spacing value other than 100% disables "
                                                  "text wrapping.\nA value less than 100% can result "
                                                  "in overlapping and misaligned graphics."));
         m_lineSpacingWarningLabel->setVisible(m_value.relativeLineSpacing() != 100);
@@ -147,13 +140,13 @@ public:
         sizeValidator->setBottom(0);
         m_sizeComboBox->setValidator(sizeValidator);
 
-        m_copyButton = new QPushButton(tr("Copy..."));
+        m_copyButton = new QPushButton(Tr::tr("Copy..."));
 
-        m_deleteButton = new QPushButton(tr("Delete"));
+        m_deleteButton = new QPushButton(Tr::tr("Delete"));
         m_deleteButton->setEnabled(false);
 
-        auto importButton = new QPushButton(tr("Import"));
-        auto exportButton = new QPushButton(tr("Export"));
+        auto importButton = new QPushButton(Tr::tr("Import"));
+        auto exportButton = new QPushButton(Tr::tr("Export"));
 
         m_schemeComboBox = new QComboBox;
         m_schemeComboBox->setModel(&m_schemeListModel);
@@ -168,19 +161,19 @@ public:
 
         Column {
             Group {
-                title(tr("Font")),
+                title(Tr::tr("Font")),
                 Column {
                     Row {
-                        tr("Family:"), m_fontComboBox, Space(20),
-                        tr("Size:"), m_sizeComboBox, Space(20),
-                        tr("Zoom:"), m_zoomSpinBox, Space(20),
-                        tr("Line spacing:"), m_lineSpacingSpinBox, m_lineSpacingWarningLabel, st
+                        Tr::tr("Family:"), m_fontComboBox, Space(20),
+                        Tr::tr("Size:"), m_sizeComboBox, Space(20),
+                        Tr::tr("Zoom:"), m_zoomSpinBox, Space(20),
+                        Tr::tr("Line spacing:"), m_lineSpacingSpinBox, m_lineSpacingWarningLabel, st
                     },
                     m_antialias
                 }
             },
             Group {
-                title(tr("Color Scheme for Theme \"%1\"")
+                title(Tr::tr("Color Scheme for Theme \"%1\"")
                     .arg(Utils::creatorTheme()->displayName())),
                 Column {
                     Row { m_schemeComboBox, m_copyButton, m_deleteButton, importButton, exportButton },
@@ -198,7 +191,7 @@ public:
                 this, &FontSettingsPageWidget::fontZoomChanged);
         connect(m_antialias, &QCheckBox::toggled,
                 this, &FontSettingsPageWidget::antialiasChanged);
-        connect(m_lineSpacingSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+        connect(m_lineSpacingSpinBox, &QSpinBox::valueChanged,
                 this, &FontSettingsPageWidget::lineSpacingChanged);
         connect(m_schemeComboBox, &QComboBox::currentIndexChanged,
                 this, &FontSettingsPageWidget::colorSchemeSelected);
@@ -527,9 +520,9 @@ void FontSettingsPageWidget::openCopyColorSchemeDialog()
     QInputDialog *dialog = new QInputDialog(m_copyButton->window());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setInputMode(QInputDialog::TextInput);
-    dialog->setWindowTitle(tr("Copy Color Scheme"));
-    dialog->setLabelText(tr("Color scheme name:"));
-    dialog->setTextValue(tr("%1 (copy)").arg(m_value.colorScheme().displayName()));
+    dialog->setWindowTitle(Tr::tr("Copy Color Scheme"));
+    dialog->setLabelText(Tr::tr("Color scheme name:"));
+    dialog->setTextValue(Tr::tr("%1 (copy)").arg(m_value.colorScheme().displayName()));
 
     connect(dialog, &QInputDialog::textValueSelected, this, &FontSettingsPageWidget::copyColorScheme);
     dialog->open();
@@ -574,14 +567,14 @@ void FontSettingsPageWidget::confirmDeleteColorScheme()
         return;
 
     QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
-                                              tr("Delete Color Scheme"),
-                                              tr("Are you sure you want to delete this color scheme permanently?"),
+                                              Tr::tr("Delete Color Scheme"),
+                                              Tr::tr("Are you sure you want to delete this color scheme permanently?"),
                                               QMessageBox::Discard | QMessageBox::Cancel,
                                               m_deleteButton->window());
 
     // Change the text and role of the discard button
     auto deleteButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
-    deleteButton->setText(tr("Delete"));
+    deleteButton->setText(Tr::tr("Delete"));
     messageBox->addButton(deleteButton, QMessageBox::AcceptRole);
     messageBox->setDefaultButton(deleteButton);
 
@@ -606,9 +599,9 @@ void FontSettingsPageWidget::importScheme()
 {
     const FilePath importedFile
         = Utils::FileUtils::getOpenFilePath(this,
-                                            tr("Import Color Scheme"),
+                                            Tr::tr("Import Color Scheme"),
                                             {},
-                                            tr("Color scheme (*.xml);;All files (*)"));
+                                            Tr::tr("Color scheme (*.xml);;All files (*)"));
 
     if (importedFile.isEmpty())
         return;
@@ -619,8 +612,8 @@ void FontSettingsPageWidget::importScheme()
     QInputDialog *dialog = new QInputDialog(m_copyButton->window());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setInputMode(QInputDialog::TextInput);
-    dialog->setWindowTitle(tr("Import Color Scheme"));
-    dialog->setLabelText(tr("Color scheme name:"));
+    dialog->setWindowTitle(Tr::tr("Import Color Scheme"));
+    dialog->setLabelText(Tr::tr("Color scheme name:"));
     dialog->setTextValue(importedFile.baseName());
 
     connect(dialog,
@@ -655,9 +648,9 @@ void FontSettingsPageWidget::exportScheme()
 
     const FilePath filePath
         = Utils::FileUtils::getSaveFilePath(this,
-                                            tr("Export Color Scheme"),
+                                            Tr::tr("Export Color Scheme"),
                                             entry.filePath,
-                                            tr("Color scheme (*.xml);;All files (*)"));
+                                            Tr::tr("Color scheme (*.xml);;All files (*)"));
 
     if (!filePath.isEmpty())
         m_value.colorScheme().save(filePath, Core::ICore::dialogParent());
@@ -670,15 +663,15 @@ void FontSettingsPageWidget::maybeSaveColorScheme()
 
     QMessageBox
         messageBox(QMessageBox::Warning,
-                   tr("Color Scheme Changed"),
-                   tr("The color scheme \"%1\" was modified, do you want to save the changes?")
+                   Tr::tr("Color Scheme Changed"),
+                   Tr::tr("The color scheme \"%1\" was modified, do you want to save the changes?")
                        .arg(m_schemeEdit->colorScheme().displayName()),
                    QMessageBox::Discard | QMessageBox::Save,
                    m_schemeComboBox->window());
 
     // Change the text of the discard button
     auto discardButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));
-    discardButton->setText(tr("Discard"));
+    discardButton->setText(Tr::tr("Discard"));
     messageBox.addButton(discardButton, QMessageBox::DestructiveRole);
     messageBox.setDefaultButton(QMessageBox::Save);
 
@@ -777,9 +770,9 @@ FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescr
        fontSettings->loadColorScheme(FontSettings::defaultSchemeFileName(), fd);
 
     setId(Constants::TEXT_EDITOR_FONT_SETTINGS);
-    setDisplayName(FontSettingsPageWidget::tr("Font && Colors"));
+    setDisplayName(Tr::tr("Font && Colors"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this, fontSettings, fd] { return new FontSettingsPageWidget(this, fd, fontSettings); });
 }

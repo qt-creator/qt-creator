@@ -221,9 +221,12 @@ static bool loadRule(const QString &defName, HighlightingContextData::Rule &rule
         rule.common.contextName = attrs.value(QLatin1String("context")).toString();
         rule.common.beginRegionName = attrs.value(QLatin1String("beginRegion")).toString();
         rule.common.endRegionName = attrs.value(QLatin1String("endRegion")).toString();
-        rule.common.attributeName = attrs.value(QLatin1String("attribute")).toString();
         rule.common.firstNonSpace = Xml::attrToBool(attrs.value(QLatin1String("firstNonSpace")));
         rule.common.lookAhead = Xml::attrToBool(attrs.value(QLatin1String("lookAhead")));
+        // attribute is only used when lookAhead is false
+        if (!rule.common.lookAhead) {
+            rule.common.attributeName = attrs.value(QLatin1String("attribute")).toString();
+        }
         bool colOk = false;
         rule.common.column = attrs.value(QLatin1String("column")).toInt(&colOk);
         if (!colOk) {

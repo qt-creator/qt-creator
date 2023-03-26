@@ -5,9 +5,7 @@ Project {
     name: "Utils"
 
     QtcLibrary {
-        property bool useNewMimeDatabase: true
-
-        cpp.includePaths: base.concat((useNewMimeDatabase ? "mimetypes2" : "mimetypes"), ".")
+        cpp.includePaths: base.concat("mimetypes2", ".")
         cpp.defines: base.concat([
             "UTILS_LIBRARY"
         ])
@@ -50,6 +48,8 @@ Project {
             "archive.h",
             "aspects.cpp",
             "aspects.h",
+            "asynctask.cpp",
+            "asynctask.h",
             "basetreeview.cpp",
             "basetreeview.h",
             "benchmarker.cpp",
@@ -64,6 +64,8 @@ Project {
             "changeset.h",
             "checkablemessagebox.cpp",
             "checkablemessagebox.h",
+            "clangutils.cpp",
+            "clangutils.h",
             "classnamevalidatinglineedit.cpp",
             "classnamevalidatinglineedit.h",
             "codegeneration.cpp",
@@ -185,6 +187,8 @@ Project {
             "macroexpander.cpp",
             "macroexpander.h",
             "mapreduce.h",
+            "mathutils.cpp",
+            "mathutils.h",
             "mimeutils.h",
             "minimizableinfobars.cpp",
             "minimizableinfobars.h",
@@ -204,6 +208,8 @@ Project {
             "navigationtreeview.h",
             "networkaccessmanager.cpp",
             "networkaccessmanager.h",
+            "optionpushbutton.h",
+            "optionpushbutton.cpp",
             "osspecificaspects.h",
             "outputformat.h",
             "outputformatter.cpp",
@@ -243,9 +249,6 @@ Project {
             "projectintropage.h",
             "proxyaction.cpp",
             "proxyaction.h",
-            "proxycredentialsdialog.cpp",
-            "proxycredentialsdialog.h",
-            "proxycredentialsdialog.ui",
             "qrcparser.cpp",
             "qrcparser.h",
             "qtcassert.cpp",
@@ -286,12 +289,16 @@ Project {
             "../3rdparty/span/span.hpp",
             "statuslabel.cpp",
             "statuslabel.h",
+            "stringtable.cpp",
+            "stringtable.h",
             "stringutils.cpp",
             "stringutils.h",
             "styledbar.cpp",
             "styledbar.h",
             "stylehelper.cpp",
             "stylehelper.h",
+            "tasktree.cpp",
+            "tasktree.h",
             "templateengine.cpp",
             "templateengine.h",
             "temporarydirectory.cpp",
@@ -409,7 +416,7 @@ Project {
 
         Group {
             name: "MimeTypes"
-            prefix: useNewMimeDatabase ? "mimetypes2/" : "mimetypes/"
+            prefix: "mimetypes2/"
             files: [
                 "mimedatabase.cpp",
                 "mimedatabase.h",
@@ -454,8 +461,7 @@ Project {
 
         Export {
             Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
-            cpp.includePaths: base.concat(exportingProduct.useNewMimeDatabase ? "mimetypes2"
-                                                                              : "mimetypes")
+            cpp.includePaths: base.concat("mimetypes2")
         }
     }
 }

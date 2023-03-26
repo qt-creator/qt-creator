@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fileapiparser.h"
 
@@ -75,7 +75,7 @@ static QJsonDocument readJsonFile(const FilePath &filePath)
     qCDebug(cmakeFileApi) << "readJsonFile:" << filePath;
     QTC_ASSERT(!filePath.isEmpty(), return {});
 
-    const std::optional<QByteArray> contents = filePath.fileContents();
+    const expected_str<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return {};
     const QJsonDocument doc = QJsonDocument::fromJson(*contents);
@@ -836,7 +836,7 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
 
     FileApiData result;
 
-    const auto cancelCheck = [&fi, &errorMessage]() -> bool {
+    const auto cancelCheck = [&fi, &errorMessage] {
         if (fi.isCanceled()) {
             errorMessage = Tr::tr("CMake parsing was canceled.");
             return true;
@@ -858,7 +858,9 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
                                          errorMessage);
 
     if (codeModels.size() == 0) {
-        errorMessage = "No CMake configuration found!";
+        errorMessage = Tr::tr("CMake project configuration failed. No CMake configuration for "
+                              "build type \"%1\" found.")
+                           .arg(cmakeBuildType);
         return result;
     }
 
@@ -919,9 +921,9 @@ FilePath FileApiParser::scanForCMakeReplyFile(const FilePath &buildDirectory)
 
 FilePaths FileApiParser::cmakeQueryFilePaths(const FilePath &buildDirectory)
 {
-    FilePath queryDir = buildDirectory / CMAKE_RELATIVE_QUERY_PATH;
+    const FilePath queryDir = buildDirectory / CMAKE_RELATIVE_QUERY_PATH;
     return transform(CMAKE_QUERY_FILENAMES, [&queryDir](const QString &name) {
-        return queryDir.resolvePath(FilePath::fromString(name));
+        return queryDir.resolvePath(name);
     });
 }
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsmodelmanager.h"
 #include "qmljstoolsconstants.h"
@@ -38,13 +38,12 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <utils/runextensions.h>
+#include <QLibraryInfo>
 #include <QTextDocument>
 #include <QTextStream>
 #include <QTimer>
 #include <QSet>
 #include <QString>
-#include <QLibraryInfo>
 #include <qglobal.h>
 
 using namespace Utils;
@@ -86,7 +85,7 @@ static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
     filePath.iterateDirectory(
         [&out](const FilePath &path) {
             out.append(path.canonicalPath());
-            return true;
+            return IterationPolicy::Continue;
         },
         {{"*.qrc"}, QDir::Files});
 }

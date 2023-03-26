@@ -1,5 +1,5 @@
 # Copyright (C) 2022 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 def openQbsProject(projectPath):
     cleanUpUserFiles(projectPath)
@@ -125,10 +125,10 @@ def __handleBuildSystem__(buildSystem):
     return buildSystem
 
 def __createProjectHandleQtQuickSelection__(minimumQtVersion):
-    comboBox = waitForObject("{leftWidget=':Minimal required Qt version:_QLabel' name='QtVersion' "
-                             "type='QComboBox' visible='1'}")
+    comboBox = waitForObject("{name='MinimumSupportedQtVersion' type='QComboBox' "
+                             "visible='1' window=':New_ProjectExplorer::JsonWizard'}")
     try:
-        selectFromCombo(comboBox, "Qt %s" % minimumQtVersion)
+        selectFromCombo(comboBox, minimumQtVersion)
     except:
         t,v = sys.exc_info()[:2]
         test.fatal("Exception while trying to select Qt version", "%s (%s)" % (str(t), str(v)))
@@ -188,7 +188,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             item = Targets.getStringForTarget(currentItem)
         found = versionFinder.search(item)
         if found:
-            if Qt5Path.toVersionTuple(found.group(1)) < Qt5Path.toVersionTuple(requiredQt):
+            if QtPath.toVersionTuple(found.group(1)) < QtPath.toVersionTuple(requiredQt):
                 available.discard(currentItem)
         elif currentItem.endswith(" (invalid)"):
             available.discard(currentItem)
@@ -272,7 +272,7 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
 
 
 def createNewQtQuickApplication(workingDir, projectName=None,
-                                targets=Targets.desktopTargetClasses(), minimumQtVersion="5.12",
+                                targets=Targets.desktopTargetClasses(), minimumQtVersion="6.2",
                                 template="Qt Quick Application", fromWelcome=False,
                                 buildSystem=None):
     available = __createProjectOrFileSelectType__("  Application (Qt)", template, fromWelcome)
@@ -280,7 +280,6 @@ def createNewQtQuickApplication(workingDir, projectName=None,
     __handleBuildSystem__(buildSystem)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
-    __createProjectHandleTranslationSelection__()
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
     if len(checkedTargets):
@@ -292,13 +291,13 @@ def createNewQtQuickApplication(workingDir, projectName=None,
 
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir, qtVersion = "5.12"):
+def createNewQtQuickUI(workingDir, qtVersion = "6.2"):
     available = __createProjectOrFileSelectType__("  Other Project", 'Qt Quick UI Prototype')
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
-    requiredQt = __createProjectHandleQtQuickSelection__(qtVersion)
-    __modifyAvailableTargets__(available, requiredQt)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __modifyAvailableTargets__(available, qtVersion)
     snooze(1)
     checkedTargets = __chooseTargets__(available, available)
     if len(checkedTargets):
@@ -310,11 +309,12 @@ def createNewQtQuickUI(workingDir, qtVersion = "5.12"):
 
     return checkedTargets, projectName
 
-def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_14_1_DEFAULT]):
+def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_6_2_4]):
     available = __createProjectOrFileSelectType__("  Library", "Qt Quick 2 Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
+    __handleBuildSystem__("CMake")
     nameLineEd = waitForObject("{name='ObjectName' type='Utils::FancyLineEdit' visible='1'}")
     replaceEditorContent(nameLineEd, "TestItem")
     uriLineEd = waitForObject("{name='Uri' type='Utils::FancyLineEdit' visible='1'}")
@@ -418,7 +418,7 @@ def __chooseTargets__(targets, availableTargets=None, additionalFunc=None):
                                                   "window=':Qt Creator_Core::Internal::MainWindow' "
                                                   "summaryText='%s' visible='1'}"
                                                   % Targets.getStringForTarget(current))
-                    detailsButton = getChildByClass(detailsWidget, "Utils::DetailsButton")
+                    detailsButton = getChildByClass(detailsWidget, "QToolButton")
                     clickButton(detailsButton)
                     additionalFunc()
                     clickButton(detailsButton)
@@ -503,13 +503,15 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
         version = res.group("version")
     else:
         version = None
-    if templateName.startswith("Qt Quick Application - "):
-        result = set([Targets.DESKTOP_5_14_1_DEFAULT])
+    if "Qt Quick" in templateName:
+        result = set([Targets.DESKTOP_6_2_4])
     elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")
         result = set()
         if 'Desktop' in supports:
-            result = result.union(set([Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT]))
+            result = result.union(set([Targets.DESKTOP_5_10_1_DEFAULT,
+                                       Targets.DESKTOP_5_14_1_DEFAULT,
+                                       Targets.DESKTOP_6_2_4]))
             if platform.system() != 'Darwin':
                 result.add(Targets.DESKTOP_5_4_1_GCC)
     elif 'Platform independent' in text:

@@ -915,6 +915,10 @@ OperatorNameId::Kind Bind::cppOperator(OperatorAST *ast)
         kind = OperatorNameId::ArrayAccessOp;
         break;
 
+    case T_LESS_EQUAL_GREATER:
+        kind = OperatorNameId::SpaceShipOp;
+        break;
+
     default:
         kind = OperatorNameId::InvalidOp;
     } // switch

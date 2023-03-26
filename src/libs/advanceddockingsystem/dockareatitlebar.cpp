@@ -4,8 +4,10 @@
 #include "dockareatitlebar.h"
 
 #include "ads_globals.h"
+#include "advanceddockingsystemtr.h"
 #include "dockareatabbar.h"
 #include "dockareawidget.h"
+#include "dockcomponentsfactory.h"
 #include "dockmanager.h"
 #include "dockoverlay.h"
 #include "dockwidget.h"
@@ -13,7 +15,6 @@
 #include "floatingdockcontainer.h"
 #include "floatingdragpreview.h"
 #include "iconprovider.h"
-#include "dockcomponentsfactory.h"
 
 #include <utils/qtcassert.h>
 
@@ -121,7 +122,7 @@ namespace ADS
 #endif
         QObject::connect(tabsMenu, &QMenu::aboutToShow, q, &DockAreaTitleBar::onTabsMenuAboutToShow);
         m_tabsMenuButton->setMenu(tabsMenu);
-        internal::setToolTip(m_tabsMenuButton, QObject::tr("List All Tabs"));
+        internal::setToolTip(m_tabsMenuButton, Tr::tr("List All Tabs"));
         m_tabsMenuButton->setSizePolicy(sizePolicy);
         m_tabsMenuButton->setIconSize(iconSize);
         m_tabsMenuButton->setFixedSize(buttonSize);
@@ -135,7 +136,7 @@ namespace ADS
         m_undockButton = new TitleBarButton(testConfigFlag(DockManager::DockAreaHasUndockButton));
         m_undockButton->setObjectName("detachGroupButton");
         //m_undockButton->setAutoRaise(true);
-        internal::setToolTip(m_undockButton, QObject::tr("Detach Group"));
+        internal::setToolTip(m_undockButton, Tr::tr("Detach Group"));
         internal::setButtonIcon(m_undockButton,
                                 QStyle::SP_TitleBarNormalButton,
                                 ADS::DockAreaUndockIcon);
@@ -156,9 +157,9 @@ namespace ADS
                                 QStyle::SP_TitleBarCloseButton,
                                 ADS::DockAreaCloseIcon);
         if (testConfigFlag(DockManager::DockAreaCloseButtonClosesTab))
-            internal::setToolTip(m_closeButton, QObject::tr("Close Active Tab"));
+            internal::setToolTip(m_closeButton, Tr::tr("Close Active Tab"));
         else
-            internal::setToolTip(m_closeButton, QObject::tr("Close Group"));
+            internal::setToolTip(m_closeButton, Tr::tr("Close Group"));
 
         m_closeButton->setSizePolicy(sizePolicy);
         m_closeButton->setIconSize(iconSize);
@@ -536,14 +537,14 @@ namespace ADS
             return;
 
         QMenu menu(this);
-        auto action = menu.addAction(tr("Detach Area"),
+        auto action = menu.addAction(Tr::tr("Detach Area"),
                                      this,
                                      &DockAreaTitleBar::onUndockButtonClicked);
         action->setEnabled(d->m_dockArea->features().testFlag(DockWidget::DockWidgetFloatable));
         menu.addSeparator();
-        action = menu.addAction(tr("Close Area"), this, &DockAreaTitleBar::onCloseButtonClicked);
+        action = menu.addAction(Tr::tr("Close Area"), this, &DockAreaTitleBar::onCloseButtonClicked);
         action->setEnabled(d->m_dockArea->features().testFlag(DockWidget::DockWidgetClosable));
-        menu.addAction(tr("Close Other Areas"), d->m_dockArea, &DockAreaWidget::closeOtherAreas);
+        menu.addAction(Tr::tr("Close Other Areas"), d->m_dockArea, &DockAreaWidget::closeOtherAreas);
         menu.exec(event->globalPos());
     }
 

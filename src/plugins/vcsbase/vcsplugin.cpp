@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsplugin.h"
 
@@ -7,6 +7,7 @@
 #include "nicknamedialog.h"
 #include "vcsbaseconstants.h"
 #include "vcsbasesubmiteditor.h"
+#include "vcsbasetr.h"
 #include "vcsoutputwindow.h"
 #include "wizard/vcscommandpage.h"
 #include "wizard/vcsconfigurationpage.h"
@@ -22,6 +23,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/futuresynchronizer.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -39,6 +41,7 @@ class VcsPluginPrivate
 public:
     CommonOptionsPage m_settingsPage;
     QStandardItemModel *m_nickNameModel = nullptr;
+    FutureSynchronizer m_futureSynchronizer;
 };
 
 static VcsPlugin *m_instance = nullptr;
@@ -56,11 +59,8 @@ VcsPlugin::~VcsPlugin()
     delete d;
 }
 
-bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void VcsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new VcsPluginPrivate;
 
     EditorManager::addCloseEditorListener([this](IEditor *editor) -> bool {
@@ -83,7 +83,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     MacroExpander *expander = globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,
-        tr("Name of the version control system in use by the current project."),
+        Tr::tr("Name of the version control system in use by the current project."),
         []() -> QString {
             IVersionControl *vc = nullptr;
             if (Project *project = ProjectTree::currentProject())
@@ -92,7 +92,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPIC,
-        tr("The current version control topic (branch or tag) identification of the current project."),
+        Tr::tr("The current version control topic (branch or tag) identification of the current project."),
         []() -> QString {
             IVersionControl *vc = nullptr;
             FilePath topLevel;
@@ -102,7 +102,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
-        tr("The top level path to the repository the current project is in."),
+        Tr::tr("The top level path to the repository the current project is in."),
         []() -> QString {
             if (Project *project = ProjectTree::currentProject())
                 return VcsManager::findTopLevelForDirectory(project->projectDirectory()).toString();
@@ -111,8 +111,6 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     // Just touch VCS Output Pane before initialization
     VcsOutputWindow::instance();
-
-    return true;
 }
 
 VcsPlugin *VcsPlugin::instance()
@@ -123,6 +121,12 @@ VcsPlugin *VcsPlugin::instance()
 CommonVcsSettings &VcsPlugin::settings() const
 {
     return d->m_settingsPage.settings();
+}
+
+FutureSynchronizer *VcsPlugin::futureSynchronizer()
+{
+    QTC_ASSERT(m_instance, return nullptr);
+    return &m_instance->d->m_futureSynchronizer;
 }
 
 /* Delayed creation/update of the nick name model. */

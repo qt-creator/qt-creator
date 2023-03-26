@@ -1,15 +1,18 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakenodetreebuilder.h"
 
 #include "qmakeproject.h"
 #include "qmakeprojectmanagertr.h"
 
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+
 #include <resourceeditor/resourcenode.h>
 
 #include <utils/algorithm.h>
@@ -38,19 +41,19 @@ public:
 };
 
 const FileTypeDataStorage fileTypeDataStorage[] = {
-    { FileType::Header, QT_TRANSLATE_NOOP("QmakeProjectManager", "Headers"),
+    { FileType::Header, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Headers"),
       ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
-    { FileType::Source, QT_TRANSLATE_NOOP("QmakeProjectManager", "Sources"),
+    { FileType::Source, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Sources"),
       ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FileType::Form, QT_TRANSLATE_NOOP("QmakeProjectManager", "Forms"),
+    { FileType::Form, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Forms"),
       ProjectExplorer::Constants::FILEOVERLAY_UI, "*.ui;" },
-    { FileType::StateChart, QT_TRANSLATE_NOOP("QmakeProjectManager", "State charts"),
+    { FileType::StateChart, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "State charts"),
       ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
-    { FileType::Resource, QT_TRANSLATE_NOOP("QmakeProjectManager", "Resources"),
+    { FileType::Resource, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Resources"),
       ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
-    { FileType::QML, QT_TRANSLATE_NOOP("QmakeProjectManager", "QML"),
+    { FileType::QML, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "QML"),
       ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
-    { FileType::Unknown, QT_TRANSLATE_NOOP("QmakeProjectManager", "Other files"),
+    { FileType::Unknown, QT_TRANSLATE_NOOP("QtC::QmakeProjectManager", "Other files"),
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 
@@ -161,17 +164,17 @@ static void createTree(QmakeBuildSystem *buildSystem,
                                            || type == FileType::Form);
 
             if (type == FileType::Resource) {
-                for (const auto &file : newFilePaths) {
+                for (const SourceFile &file : newFilePaths) {
                     auto vfs = buildSystem->qmakeVfs();
                     QString contents;
                     QString errorMessage;
                     // Prefer the cumulative file if it's non-empty, based on the assumption
                     // that it contains more "stuff".
-                    int cid = vfs->idForFileName(file.first.toString(), QMakeVfs::VfsCumulative);
+                    int cid = vfs->idForFileName(file.first.toFSPathString(), QMakeVfs::VfsCumulative);
                     vfs->readFile(cid, &contents, &errorMessage);
                     // If the cumulative evaluation botched the file too much, try the exact one.
                     if (contents.isEmpty()) {
-                        int eid = vfs->idForFileName(file.first.toString(), QMakeVfs::VfsExact);
+                        int eid = vfs->idForFileName(file.first.toFSPathString(), QMakeVfs::VfsExact);
                         vfs->readFile(eid, &contents, &errorMessage);
                     }
                     auto topLevel = std::make_unique<ResourceEditor::ResourceTopLevelNode>

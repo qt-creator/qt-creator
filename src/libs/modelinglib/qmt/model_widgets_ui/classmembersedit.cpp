@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classmembersedit.h"
 
@@ -242,7 +242,7 @@ QString ClassMembersEdit::Cursor::preparse(const QString &text)
         bool inCComment = false;
         bool inCppComment = false;
         int braces = 0;
-        foreach (QChar c, text) {
+        for (QChar c : text) {
             if (!inCComment && !inCppComment && lastChar == QLatin1Char('/') && c == QLatin1Char('/')) {
                 inCppComment = true;
                 lastChar = QLatin1Char(' ');
@@ -345,7 +345,7 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
     QString currentGroup;
 
     QString text;
-    foreach (const MClassMember &member, members) {
+    for (const MClassMember &member : members) {
         bool addNewline = false;
         bool addSpace = false;
         if (member.visibility() != currentVisibility) {

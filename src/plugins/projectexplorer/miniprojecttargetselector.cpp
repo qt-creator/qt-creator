@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "miniprojecttargetselector.h"
 
@@ -12,6 +12,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
+#include "projectexplorertr.h"
 #include "runconfiguration.h"
 #include "session.h"
 #include "target.h"
@@ -121,7 +122,7 @@ private:
     QVariant data(int column, int role) const override
     {
         if (column == 1 && role == Qt::ToolTipRole)
-            return QCoreApplication::translate("RunConfigSelector", "Run Without Deployment");
+            return Tr::tr("Run Without Deployment");
         if (column != 0)
             return {};
         switch (role) {
@@ -572,7 +573,7 @@ public:
 
         delete layout();
 
-        LayoutBuilder builder(LayoutBuilder::GridLayout);
+        Layouting::LayoutBuilder builder(Layouting::LayoutBuilder::GridLayout);
         for (KitAspect *aspect : KitManager::kitAspects()) {
             if (k && k->isMutable(aspect->id())) {
                 KitAspectWidget *widget = aspect->createConfigWidget(k);
@@ -676,14 +677,14 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_titleWidgets.resize(LAST);
     m_listWidgets[PROJECT] = nullptr; //project is not a generic list widget
 
-    m_titleWidgets[PROJECT] = createTitleLabel(tr("Project"));
+    m_titleWidgets[PROJECT] = createTitleLabel(Tr::tr("Project"));
     m_projectListWidget = new ProjectListView(this);
     connect(m_projectListWidget, &QAbstractItemView::doubleClicked,
             this, &MiniProjectTargetSelector::hide);
 
     QStringList titles;
-    titles << tr("Kit") << tr("Build")
-           << tr("Deploy") << tr("Run");
+    titles << Tr::tr("Kit") << Tr::tr("Build")
+           << Tr::tr("Deploy") << Tr::tr("Run");
 
     for (int i = TARGET; i < LAST; ++i) {
         m_titleWidgets[i] = createTitleLabel(titles.at(i -1));
@@ -895,9 +896,11 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     // Height to be aligned with side bar button
     int alignedWithActionHeight = 210;
     if (actionBar->isVisible())
-        alignedWithActionHeight = actionBar->height() - statusBar->height();
+        alignedWithActionHeight = qMax(0, actionBar->height() - statusBar->height());
     int bottomMargin = 9;
     int heightWithoutKitArea = 0;
+
+    QRect newGeometry;
 
     if (!onlySummary) {
         // list widget height
@@ -959,7 +962,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         m_listWidgets[RUN]->setColumnWidth(1, runColumnWidth);
         m_summaryLabel->resize(x - 1, summaryLabelHeight);
         m_kitAreaWidget->resize(x - 1, kitAreaHeight);
-        setFixedSize(x, heightWithoutKitArea + kitAreaHeight);
+        newGeometry.setSize({x, heightWithoutKitArea + kitAreaHeight});
     } else {
         if (keepSize)
             heightWithoutKitArea = height() - oldSummaryLabelY + 1;
@@ -967,12 +970,13 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
             heightWithoutKitArea = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
         m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), heightWithoutKitArea - bottomMargin);
         m_kitAreaWidget->resize(m_kitAreaWidget->sizeHint());
-        setFixedSize(m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight); //1 extra pixel for the border
+        newGeometry.setSize({m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight});
     }
 
-    QPoint moveTo = statusBar->mapToGlobal(QPoint(0, 0));
-    moveTo -= QPoint(0, height());
-    move(moveTo);
+    newGeometry.translate(statusBar->mapToGlobal(QPoint{0, 0}));
+    newGeometry.translate(QPoint{0, -newGeometry.height()});
+    repaint();
+    setGeometry(newGeometry);
 }
 
 void MiniProjectTargetSelector::projectAdded(Project *project)
@@ -1484,24 +1488,24 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     }
     m_projectAction->setProperty("heading", projectName);
     if (project && project->needsConfiguration())
-        m_projectAction->setProperty("subtitle", tr("Unconfigured"));
+        m_projectAction->setProperty("subtitle", Tr::tr("Unconfigured"));
     else
         m_projectAction->setProperty("subtitle", buildConfig);
     m_projectAction->setIcon(targetIcon);
     QStringList lines;
-    lines << tr("<b>Project:</b> %1").arg(projectName);
+    lines << Tr::tr("<b>Project:</b> %1").arg(projectName);
     if (!fileName.isEmpty())
-        lines << tr("<b>Path:</b> %1").arg(fileName);
+        lines << Tr::tr("<b>Path:</b> %1").arg(fileName);
     if (!targetName.isEmpty())
-        lines << tr("<b>Kit:</b> %1").arg(targetName);
+        lines << Tr::tr("<b>Kit:</b> %1").arg(targetName);
     if (!buildConfig.isEmpty())
-        lines << tr("<b>Build:</b> %1").arg(buildConfig);
+        lines << Tr::tr("<b>Build:</b> %1").arg(buildConfig);
     if (!deployConfig.isEmpty())
-        lines << tr("<b>Deploy:</b> %1").arg(deployConfig);
+        lines << Tr::tr("<b>Deploy:</b> %1").arg(deployConfig);
     if (!runConfig.isEmpty())
-        lines << tr("<b>Run:</b> %1").arg(runConfig);
+        lines << Tr::tr("<b>Run:</b> %1").arg(runConfig);
     if (!targetToolTipText.isEmpty())
-        lines << tr("%1").arg(targetToolTipText);
+        lines << Tr::tr("%1").arg(targetToolTipText);
     QString toolTip = QString("<html><nobr>%1</html>")
             .arg(lines.join(QLatin1String("<br/>")));
     m_projectAction->setToolTip(toolTip);
@@ -1513,21 +1517,21 @@ void MiniProjectTargetSelector::updateSummary()
     QString summary;
     if (Project *startupProject = SessionManager::startupProject()) {
         if (!m_projectListWidget->isVisibleTo(this))
-            summary.append(tr("Project: <b>%1</b><br/>").arg(startupProject->displayName()));
+            summary.append(Tr::tr("Project: <b>%1</b><br/>").arg(startupProject->displayName()));
         if (Target *activeTarget = startupProject->activeTarget()) {
             if (!m_listWidgets[TARGET]->isVisibleTo(this))
-                summary.append(tr("Kit: <b>%1</b><br/>").arg( activeTarget->displayName()));
+                summary.append(Tr::tr("Kit: <b>%1</b><br/>").arg( activeTarget->displayName()));
             if (!m_listWidgets[BUILD]->isVisibleTo(this) && activeTarget->activeBuildConfiguration())
-                summary.append(tr("Build: <b>%1</b><br/>").arg(
+                summary.append(Tr::tr("Build: <b>%1</b><br/>").arg(
                                    activeTarget->activeBuildConfiguration()->displayName()));
             if (!m_listWidgets[DEPLOY]->isVisibleTo(this) && activeTarget->activeDeployConfiguration())
-                summary.append(tr("Deploy: <b>%1</b><br/>").arg(
+                summary.append(Tr::tr("Deploy: <b>%1</b><br/>").arg(
                                    activeTarget->activeDeployConfiguration()->displayName()));
             if (!m_listWidgets[RUN]->isVisibleTo(this) && activeTarget->activeRunConfiguration())
-                summary.append(tr("Run: <b>%1</b><br/>").arg(
+                summary.append(Tr::tr("Run: <b>%1</b><br/>").arg(
                                    activeTarget->activeRunConfiguration()->expandedDisplayName()));
         } else if (startupProject->needsConfiguration()) {
-            summary = tr("<style type=text/css>"
+            summary = Tr::tr("<style type=text/css>"
                          "a:link {color: rgb(128, 128, 255);}</style>"
                          "The project <b>%1</b> is not yet configured<br/><br/>"
                          "You can configure it in the <a href=\"projectmode\">Projects mode</a><br/>")
@@ -1543,7 +1547,10 @@ void MiniProjectTargetSelector::updateSummary()
                 summary.append(QLatin1String("<br/>"));
         }
     }
-    m_summaryLabel->setText(summary);
+    if (summary != m_summaryLabel->text()) {
+        m_summaryLabel->setText(summary);
+        doLayout(false);
+    }
 }
 
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)

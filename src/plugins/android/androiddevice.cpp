@@ -1,6 +1,6 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
@@ -236,8 +236,7 @@ AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev
     info.avdName = dev->extraData(Constants::AndroidAvdName).toString();
     info.serialNumber = dev->extraData(Constants::AndroidSerialNumber).toString();
     info.cpuAbi = dev->extraData(Constants::AndroidCpuAbi).toStringList();
-    const QString avdPath = dev->extraData(Constants::AndroidAvdPath).toString();
-    info.avdPath = FilePath::fromUserInput(avdPath);
+    info.avdPath = FilePath::fromSettings(dev->extraData(Constants::AndroidAvdPath));
     info.sdk = dev->extraData(Constants::AndroidSdk).toInt();
     info.type = dev->machineType();
 
@@ -334,12 +333,12 @@ int AndroidDevice::sdkLevel() const
 
 FilePath AndroidDevice::avdPath() const
 {
-    return FilePath::fromUserInput(extraData(Constants::AndroidAvdPath).toString());
+    return FilePath::fromSettings(extraData(Constants::AndroidAvdPath));
 }
 
 void AndroidDevice::setAvdPath(const FilePath &path)
 {
-    setExtraData(Constants::AndroidAvdPath, path.toUserOutput());
+    setExtraData(Constants::AndroidAvdPath, path.toSettings());
     initAvdSettings();
 }
 
@@ -455,7 +454,7 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
     const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.data());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
-    runAsync([this, name, device]() {
+    runAsync([this, name, device] {
         const QString serialNumber = m_avdManager.startAvd(name);
         // Mark the AVD as ReadyToUse once we know it's started
         if (!serialNumber.isEmpty()) {
@@ -480,7 +479,7 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
         return;
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
-    m_removeAvdFutureWatcher.setFuture(runAsync([this, name, device]() {
+    m_removeAvdFutureWatcher.setFuture(runAsync([this, name, device] {
         QPair<IDevice::ConstPtr, bool> pair;
         pair.first = device;
         pair.second = false;
@@ -512,7 +511,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         return;
     }
 
-    QTimer::singleShot(2000, parent, [adbSelector, parent]() {
+    QTimer::singleShot(2000, parent, [adbSelector, parent] {
         // Get device IP address
         QStringList args = adbSelector;
         args.append({"shell", "ip", "route"});
@@ -646,6 +645,7 @@ void AndroidDeviceManager::setupDevicesWatcher()
 
     const CommandLine command = CommandLine(m_androidConfig.adbToolPath(), {"track-devices"});
     m_adbDeviceWatcherProcess->setCommand(command);
+    m_adbDeviceWatcherProcess->setWorkingDirectory(command.executable().parentDir());
     m_adbDeviceWatcherProcess->setEnvironment(AndroidConfigurations::toolsEnvironment(m_androidConfig));
     m_adbDeviceWatcherProcess->start();
 

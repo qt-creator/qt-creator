@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "cppeditor_global.h"
+
+#include <utils/filepath.h>
 
 #include <QIcon>
 #include <QSharedPointer>
@@ -57,7 +59,7 @@ public:
     QString symbolName() const { return m_symbolName; }
     QString symbolType() const { return m_symbolType; }
     QString symbolScope() const { return m_symbolScope; }
-    QString fileName() const { return m_fileName; }
+    const Utils::FilePath &filePath() const { return m_filePath; }
     QIcon icon() const { return m_icon; }
     ItemType type() const { return m_type; }
     int line() const { return m_line; }
@@ -99,7 +101,7 @@ private:
     QString m_symbolName; // as found in the code, therefore might be qualified
     QString m_symbolType;
     QString m_symbolScope;
-    QString m_fileName;
+    Utils::FilePath m_filePath;
     QIcon m_icon;
     ItemType m_type = All;
     int m_line = 0;

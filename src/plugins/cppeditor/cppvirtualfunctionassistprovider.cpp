@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppvirtualfunctionassistprovider.h"
 
 #include "cppvirtualfunctionproposalitem.h"
 
+#include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 #include "functionutils.h"
 #include "symbolfinder.h"
@@ -15,9 +16,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposalwidget.h>
-#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/texteditorconstants.h>
@@ -41,6 +43,7 @@ public:
             : TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR;
         if (Core::Command *command = Core::ActionManager::command(id))
             m_sequence = command->keySequence();
+        setFragile(true);
     }
 
 protected:
@@ -79,20 +82,19 @@ private:
 
 
 
-class VirtualFunctionAssistProcessor : public IAssistProcessor
+class VirtualFunctionAssistProcessor : public AsyncProcessor
 {
 public:
     VirtualFunctionAssistProcessor(const VirtualFunctionAssistProvider::Parameters &params)
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const AssistInterface *) override
+    IAssistProposal *immediateProposal() override
     {
         QTC_ASSERT(m_params.function, return nullptr);
 
         auto *hintItem = new VirtualFunctionProposalItem(Utils::Link());
-        hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
-                                                      "collecting overrides ..."));
+        hintItem->setText(Tr::tr("collecting overrides ..."));
         hintItem->setOrder(-1000);
 
         QList<AssistProposalItemInterface *> items;
@@ -101,10 +103,8 @@ public:
         return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const AssistInterface *assistInterface) override
+    IAssistProposal *performAsync() override
     {
-        delete assistInterface;
-
         QTC_ASSERT(m_params.function, return nullptr);
         QTC_ASSERT(m_params.staticClass, return nullptr);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return nullptr);
@@ -162,11 +162,6 @@ bool VirtualFunctionAssistProvider::configure(const Parameters &parameters)
     return true;
 }
 
-IAssistProvider::RunType VirtualFunctionAssistProvider::runType() const
-{
-    return AsynchronousWithThread;
-}
-
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor(const AssistInterface *) const
 {
     return new VirtualFunctionAssistProcessor(m_params);
@@ -175,9 +170,7 @@ IAssistProcessor *VirtualFunctionAssistProvider::createProcessor(const AssistInt
 VirtualFunctionProposal::VirtualFunctionProposal(
         int cursorPos, const QList<AssistProposalItemInterface *> &items, bool openInSplit)
     : GenericProposal(cursorPos, items), m_openInSplit(openInSplit)
-{
-    setFragile(true);
-}
+{ }
 
 IAssistProposalWidget *VirtualFunctionProposal::createWidget() const
 {

@@ -233,6 +233,12 @@
                 \li \l{Debugging and Profiling}
                     \list
                         \li \l{Debugging Qt Quick Projects}
+                            \list
+                                \li \l{Viewing Call Stack Trace}
+                                \li \l{Setting Breakpoints}
+                                \li \l{Local Variables and Function Parameters}
+                                \li \l{Evaluating Expressions}
+                            \endlist
                         \li \l{Debugging a Qt Quick Example Application}
                         \li \l{Profiling QML Applications}
                     \endlist

@@ -1,25 +1,28 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientmanager.h"
 
-#include "languageclienthoverhandler.h"
 #include "languageclientplugin.h"
 #include "languageclientsymbolsupport.h"
-#include "languageclientutils.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
+
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/progresssupport.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
+
 #include <utils/algorithm.h>
 #include <utils/executeondestruction.h>
 #include <utils/theme/theme.h>
@@ -108,11 +111,23 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
     emit managerInstance->clientAdded(client);
 }
 
+void LanguageClientManager::restartClient(Client *client)
+{
+    QTC_ASSERT(managerInstance, return);
+    if (!client)
+        return;
+    managerInstance->m_restartingClients.insert(client);
+    if (client->reachable())
+        client->shutdown();
+}
+
 void LanguageClientManager::clientStarted(Client *client)
 {
     qCDebug(Log) << "client started: " << client->name() << client;
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
+    if (client->state() != Client::Uninitialized) // do not proceed if we already received an error
+        return;
     if (g_shuttingDown) {
         clientFinished(client);
         return;
@@ -127,6 +142,13 @@ void LanguageClientManager::clientStarted(Client *client)
 void LanguageClientManager::clientFinished(Client *client)
 {
     QTC_ASSERT(managerInstance, return);
+
+    if (managerInstance->m_restartingClients.remove(client)) {
+        client->reset();
+        client->start();
+        return;
+    }
+
     constexpr int restartTimeoutS = 5;
     const bool unexpectedFinish = client->state() != Client::Shutdown
                                   && client->state() != Client::ShutdownRequested;
@@ -138,7 +160,7 @@ void LanguageClientManager::clientFinished(Client *client)
             if (client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
-                    tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
+                    Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
                 for (TextEditor::TextDocument *document : clientDocs) {
                     client->deactivateDocument(document);
@@ -148,7 +170,7 @@ void LanguageClientManager::clientFinished(Client *client)
                 return;
             }
             qCDebug(Log) << "client finished unexpectedly: " << client->name() << client;
-            client->log(tr("Unexpectedly finished."));
+            client->log(Tr::tr("Unexpectedly finished."));
             for (TextEditor::TextDocument *document : clientDocs)
                 managerInstance->m_clientForDocument.remove(document);
         }
@@ -176,22 +198,6 @@ const QList<Client *> LanguageClientManager::clients()
 {
     QTC_ASSERT(managerInstance, return {});
     return managerInstance->m_clients;
-}
-
-void LanguageClientManager::addExclusiveRequest(const MessageId &id, Client *client)
-{
-    QTC_ASSERT(managerInstance, return);
-    managerInstance->m_exclusiveRequests[id] << client;
-}
-
-void LanguageClientManager::reportFinished(const MessageId &id, Client *byClient)
-{
-    QTC_ASSERT(managerInstance, return);
-    for (Client *client : std::as_const(managerInstance->m_exclusiveRequests[id])) {
-        if (client != byClient)
-            client->cancelRequest(id);
-    }
-    managerInstance->m_exclusiveRequests.remove(id);
 }
 
 void LanguageClientManager::shutdownClient(Client *client)
@@ -387,11 +393,6 @@ Client *LanguageClientManager::clientForDocument(TextEditor::TextDocument *docum
 Client *LanguageClientManager::clientForFilePath(const Utils::FilePath &filePath)
 {
     return clientForDocument(TextEditor::TextDocument::textDocumentForFilePath(filePath));
-}
-
-Client *LanguageClientManager::clientForUri(const DocumentUri &uri)
-{
-    return clientForFilePath(uri.toFilePath());
 }
 
 const QList<Client *> LanguageClientManager::clientsForProject(

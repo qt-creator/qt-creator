@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,7 +16,7 @@
 namespace QtSupport {
 namespace Internal {
 
-class ExamplesListModel;
+class ExamplesViewController;
 
 class ExampleSetModel : public QStandardItemModel
 {
@@ -100,47 +100,21 @@ public:
     QStringList platforms;
 };
 
-class ExamplesListModel : public Core::ListModel
+class ExamplesViewController : public QObject
 {
     Q_OBJECT
 public:
-    explicit ExamplesListModel(QObject *parent);
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
+    explicit ExamplesViewController(ExampleSetModel *exampleSetModel,
+                                    Core::SectionedGridView *view,
+                                    bool isExamples,
+                                    QObject *parent);
 
     void updateExamples();
 
-    QStringList exampleSets() const;
-    ExampleSetModel *exampleSetModel() { return &m_exampleSetModel; }
-
-    QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const override;
-
-signals:
-    void selectedExampleSetChanged(int);
-
 private:
-    void updateSelectedQtVersion();
-
-    void parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
-                                     const QString &examplesInstallPath);
-    void parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
-                                  const QString &demosInstallPath);
-    void parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
-
-    ExampleSetModel m_exampleSetModel;
-};
-
-class ExamplesListModelFilter : public Core::ListModelFilter
-{
-public:
-    ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent);
-
-protected:
-    bool leaveFilterAcceptsRowBeforeFiltering(const Core::ListItem *item,
-                                              bool *earlyExitResult) const override;
-private:
-    const bool m_showTutorialsOnly;
-    ExamplesListModel *m_examplesListModel = nullptr;
+    ExampleSetModel *m_exampleSetModel;
+    Core::SectionedGridView *m_view;
+    bool m_isExamples;
 };
 
 } // namespace Internal

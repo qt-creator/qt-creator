@@ -1,19 +1,15 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "qdbconstants.h"
 #include <projectexplorer/kit.h>
 #include <remotelinux/linuxdevice.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbDevice final : public RemoteLinux::LinuxDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbDevice)
-
 public:
     typedef QSharedPointer<QdbDevice> Ptr;
     typedef QSharedPointer<const QdbDevice> ConstPtr;
@@ -45,5 +41,4 @@ public:
     QdbLinuxDeviceFactory();
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

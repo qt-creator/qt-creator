@@ -35,6 +35,7 @@ QtcPlugin {
         "cppchecktextmarkmanager.h",
         "cppchecktool.cpp",
         "cppchecktool.h",
+        "cppchecktr.h",
         "cppchecktrigger.cpp",
         "cppchecktrigger.h"
     ]

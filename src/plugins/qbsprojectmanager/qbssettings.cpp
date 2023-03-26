@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbssettings.h"
 
@@ -37,7 +37,7 @@ static QString getQbsVersion(const FilePath &qbsExe)
     qbsProc.start();
     if (!qbsProc.waitForFinished(5000) || qbsProc.exitCode() != 0)
         return {};
-    return QString::fromLocal8Bit(qbsProc.readAllStandardOutput()).trimmed();
+    return QString::fromLocal8Bit(qbsProc.readAllRawStandardOutput()).trimmed();
 }
 
 static bool operator==(const QbsSettingsData &s1, const QbsSettingsData &s2)

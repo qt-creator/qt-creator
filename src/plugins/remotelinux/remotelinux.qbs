@@ -13,8 +13,6 @@ Project {
         Depends { name: "ProjectExplorer" }
 
         files: [
-            "abstractremotelinuxdeployservice.cpp",
-            "abstractremotelinuxdeployservice.h",
             "abstractremotelinuxdeploystep.cpp",
             "abstractremotelinuxdeploystep.h",
             "deploymenttimeinfo.cpp",
@@ -53,18 +51,13 @@ Project {
             "remotelinuxdeployconfiguration.h",
             "remotelinuxenvironmentaspect.cpp",
             "remotelinuxenvironmentaspect.h",
-            "remotelinuxenvironmentaspectwidget.cpp",
-            "remotelinuxenvironmentaspectwidget.h",
-            "remotelinuxenvironmentreader.cpp",
-            "remotelinuxenvironmentreader.h",
             "remotelinuxplugin.cpp",
             "remotelinuxplugin.h",
-            "remotelinuxqmltoolingsupport.cpp",
-            "remotelinuxqmltoolingsupport.h",
             "remotelinuxrunconfiguration.cpp",
             "remotelinuxrunconfiguration.h",
             "remotelinuxsignaloperation.cpp",
             "remotelinuxsignaloperation.h",
+            "remotelinuxtr.h",
             "rsyncdeploystep.cpp",
             "rsyncdeploystep.h",
             "sshkeycreationdialog.cpp",
@@ -74,8 +67,6 @@ Project {
             "tarpackagecreationstep.h",
             "tarpackagedeploystep.cpp",
             "tarpackagedeploystep.h",
-            "x11forwardingaspect.cpp",
-            "x11forwardingaspect.h",
             "images/embeddedtarget.png",
         ]
 

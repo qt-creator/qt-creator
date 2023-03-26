@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtool.h"
 
@@ -13,6 +13,7 @@
 #include "clangtoolslogfilereader.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "filterdialog.h"
 
@@ -51,10 +52,8 @@
 #include <QAction>
 #include <QCheckBox>
 #include <QDesktopServices>
-#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QSortFilterProxyModel>
 #include <QToolButton>
 
 using namespace Core;
@@ -65,8 +64,6 @@ using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
-
-static ClangTool *s_instance;
 
 static QString makeLink(const QString &text)
 {
@@ -323,9 +320,7 @@ static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr>
                 && (CppEditor::ProjectFile::isSource(file.kind)
                     || CppEditor::ProjectFile::isHeader(file.kind))) {
                 ProjectFile::Kind sourceKind = CppEditor::ProjectFile::sourceKind(file.kind);
-                fileInfos.emplace_back(Utils::FilePath::fromString(file.path),
-                                       sourceKind,
-                                       projectPart);
+                fileInfos.emplace_back(file.path, sourceKind, projectPart);
             }
         }
     }
@@ -355,23 +350,17 @@ static RunSettings runSettings()
     return ClangToolsSettings::instance()->runSettings();
 }
 
-ClangTool *ClangTool::instance()
+ClangTool::ClangTool(const QString &name, Utils::Id id)
+    : m_name(name), m_perspective{id.toString(), name}
 {
-    return s_instance;
-}
-
-ClangTool::ClangTool()
-    : m_name("Clang-Tidy and Clazy")
-{
-    setObjectName("ClangTidyClazyTool");
-    s_instance = this;
+    setObjectName(name);
     m_diagnosticModel = new ClangToolsDiagnosticModel(this);
 
-    auto action = new QAction(tr("Analyze Project..."), this);
+    auto action = new QAction(Tr::tr("Analyze Project with %1...").arg(name), this);
     action->setIcon(Utils::Icons::RUN_SELECTED_TOOLBAR.icon());
     m_startAction = action;
 
-    action = new QAction(tr("Analyze Current File"), this);
+    action = new QAction(Tr::tr("Analyze Current File with %1").arg(name), this);
     action->setIcon(Utils::Icons::RUN_FILE.icon());
     m_startOnCurrentFileAction = action;
 
@@ -416,7 +405,7 @@ ClangTool::ClangTool()
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
-    action->setToolTip(tr("Go to previous diagnostic."));
+    action->setToolTip(Tr::tr("Go to previous diagnostic."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
     m_goBack = action;
 
@@ -424,14 +413,14 @@ ClangTool::ClangTool()
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
-    action->setToolTip(tr("Go to next diagnostic."));
+    action->setToolTip(Tr::tr("Go to next diagnostic."));
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
 
     // Load diagnostics from file
     action = new QAction(this);
     action->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
-    action->setToolTip(tr("Load diagnostics from YAML files exported with \"-export-fixes\"."));
+    action->setToolTip(Tr::tr("Load diagnostics from YAML files exported with \"-export-fixes\"."));
     connect(action, &QAction::triggered, this, &ClangTool::loadDiagnosticsFromFiles);
     m_loadExported = action;
 
@@ -439,7 +428,7 @@ ClangTool::ClangTool()
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
-    action->setToolTip(tr("Clear"));
+    action->setToolTip(Tr::tr("Clear"));
     connect(action, &QAction::triggered, this, [this] {
         reset();
         update();
@@ -451,13 +440,13 @@ ClangTool::ClangTool()
     action->setDisabled(true);
     action->setCheckable(true);
     action->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
-    action->setToolTip(tr("Expand All"));
-    connect(action, &QAction::toggled, [this](bool checked){
+    action->setToolTip(Tr::tr("Expand All"));
+    connect(action, &QAction::toggled, this, [this](bool checked){
         if (checked) {
-            m_expandCollapse->setToolTip(tr("Collapse All"));
+            m_expandCollapse->setToolTip(Tr::tr("Collapse All"));
             m_diagnosticView->expandAll();
         } else {
-            m_expandCollapse->setToolTip(tr("Expand All"));
+            m_expandCollapse->setToolTip(Tr::tr("Expand All"));
             m_diagnosticView->collapseAll();
         }
     });
@@ -467,7 +456,7 @@ ClangTool::ClangTool()
     action = m_showFilter = new QAction(this);
     action->setIcon(
         Utils::Icon({{":/utils/images/filtericon.png", Utils::Theme::IconsBaseColor}}).icon());
-    action->setToolTip(tr("Filter Diagnostics"));
+    action->setToolTip(Tr::tr("Filter Diagnostics"));
     action->setCheckable(true);
     connect(action, &QAction::triggered, this, &ClangTool::filter);
 
@@ -482,7 +471,7 @@ ClangTool::ClangTool()
 
     // Apply fixits button
     m_applyFixitsButton = new QToolButton;
-    m_applyFixitsButton->setText(tr("Apply Fixits"));
+    m_applyFixitsButton->setText(Tr::tr("Apply Fixits"));
     m_applyFixitsButton->setEnabled(false);
 
     connect(m_diagnosticModel, &ClangToolsDiagnosticModel::fixitStatusChanged,
@@ -502,7 +491,7 @@ ClangTool::ClangTool()
 
                 updateForCurrentState();
             });
-    connect(m_applyFixitsButton, &QToolButton::clicked, [this] {
+    connect(m_applyFixitsButton, &QToolButton::clicked, this, [this] {
         QVector<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
             diagnosticItems += item;
@@ -514,15 +503,15 @@ ClangTool::ClangTool()
     // Open Project Settings
     action = new QAction(this);
     action->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
-    //action->setToolTip(tr("Open Project Settings")); // TODO: Uncomment in master.
-    connect(action, &QAction::triggered, []() {
+    //action->setToolTip(Tr::tr("Open Project Settings")); // TODO: Uncomment in master.
+    connect(action, &QAction::triggered, [] {
         ProjectExplorerPlugin::activateProjectPanel(Constants::PROJECT_PANEL_ID);
     });
     m_openProjectSettings = action;
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
-    const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
-                               "Clang project to search for diagnostics.");
+    const QString toolTip = Tr::tr("Clang-Tidy and Clazy use a customized Clang executable from the "
+                                   "Clang project to search for diagnostics.");
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -531,14 +520,14 @@ ClangTool::ClangTool()
     mainLayout->addWidget(m_diagnosticView);
     auto mainWidget = new QWidget;
     mainWidget->setObjectName("ClangTidyClazyIssuesView");
-    mainWidget->setWindowTitle(tr("Clang-Tidy and Clazy"));
+    mainWidget->setWindowTitle(Tr::tr("Clang-Tidy and Clazy"));
     mainWidget->setLayout(mainLayout);
 
     m_perspective.addWindow(mainWidget, Perspective::SplitVertical, nullptr);
 
-    action = new QAction(tr("Clang-Tidy and Clazy..."), this);
+    action = new QAction(name, this);
     action->setToolTip(toolTip);
-    menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
+    menu->addAction(ActionManager::registerAction(action, id),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this] {
         startTool(FileSelectionType::AskUser);
@@ -594,15 +583,15 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection)
 
 static bool continueDespiteReleaseBuild(const QString &toolName)
 {
-    const QString wrongMode = ClangTool::tr("Release");
-    const QString title = ClangTool::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
+    const QString wrongMode = Tr::tr("Release");
+    const QString title = Tr::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
     const QString problem
-        = ClangTool::tr(
+        = Tr::tr(
               "You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
               "designed to be used in Debug mode since enabled assertions can reduce the number of "
               "false positives.")
               .arg(toolName, wrongMode);
-    const QString question = ClangTool::tr(
+    const QString question = Tr::tr(
                                  "Do you want to continue and run the tool in %1 mode?")
                                  .arg(wrongMode);
     const QString message = QString("<html><head/><body>"
@@ -645,12 +634,12 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
 
     // Run control
     m_runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
-    m_runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
+    m_runControl->setDisplayName(m_name);
     m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     m_runControl->setTarget(project->activeTarget());
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
-        emit m_runControl->appendMessage(tr("Clang-Tidy and Clazy tool stopped by user."),
+        emit m_runControl->appendMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),
                                          NormalMessageFormat);
         m_runControl->initiateStop();
         setState(State::StoppedByUser);
@@ -662,7 +651,8 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                               || std::get<FileSelectionType>(fileSelection)
                                      == FileSelectionType::CurrentFile;
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
-    m_runWorker = new ClangToolRunWorker(m_runControl,
+    m_runWorker = new ClangToolRunWorker(this,
+                                         m_runControl,
                                          runSettings,
                                          diagnosticConfig,
                                          fileInfos,
@@ -688,22 +678,14 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     ProjectExplorerPlugin::startRunControl(m_runControl);
 }
 
-Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
-                            const QString &logFilePath,
+Diagnostics ClangTool::read(const FilePath &logFilePath,
                             const QSet<FilePath> &projectFiles,
                             QString *errorMessage) const
 {
-    const auto acceptFromFilePath = [projectFiles](const Utils::FilePath &filePath) {
+    const auto acceptFromFilePath = [projectFiles](const FilePath &filePath) {
         return projectFiles.contains(filePath);
     };
-
-    if (outputFileFormat == OutputFileFormat::Yaml) {
-        return readExportedDiagnostics(Utils::FilePath::fromString(logFilePath),
-                                       acceptFromFilePath,
-                                       errorMessage);
-    }
-
-    return {};
+    return readExportedDiagnostics(logFilePath, acceptFromFilePath, errorMessage);
 }
 
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)
@@ -712,7 +694,7 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
     // early bailout
     if (selectionType && *selectionType == FileSelectionType::CurrentFile
         && !EditorManager::currentDocument()) {
-        TaskHub::addTask(Task::Error, tr("Cannot analyze current file: No files open."),
+        TaskHub::addTask(Task::Error, Tr::tr("Cannot analyze current file: No files open."),
                                          taskCategory());
         TaskHub::requestPopup();
         return {};
@@ -747,7 +729,7 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         if (!fileInfo.file.isEmpty())
             return {fileInfo};
         TaskHub::addTask(Task::Error,
-                         tr("Cannot analyze current file: \"%1\" is not a known source file.")
+                         Tr::tr("Cannot analyze current file: \"%1\" is not a known source file.")
                          .arg(filePath.toUserOutput()),
                          taskCategory());
         TaskHub::requestPopup();
@@ -774,9 +756,9 @@ void ClangTool::loadDiagnosticsFromFiles()
     // Ask user for files
     const FilePaths filePaths
         = FileUtils::getOpenFilePaths(nullptr,
-                                      tr("Select YAML Files with Diagnostics"),
+                                      Tr::tr("Select YAML Files with Diagnostics"),
                                       FileUtils::homePath(),
-                                      tr("YAML Files (*.yml *.yaml);;All Files (*)"));
+                                      Tr::tr("YAML Files (*.yml *.yaml);;All Files (*)"));
     if (filePaths.isEmpty())
         return;
 
@@ -796,7 +778,7 @@ void ClangTool::loadDiagnosticsFromFiles()
 
     // Show errors
     if (!errors.isEmpty()) {
-        AsynchronousMessageBox::critical(tr("Error Loading Diagnostics"), errors);
+        AsynchronousMessageBox::critical(Tr::tr("Error Loading Diagnostics"), errors);
         return;
     }
 
@@ -876,25 +858,27 @@ static CheckResult canAnalyze()
 {
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings().diagnosticConfigId());
 
-    if (config.isClangTidyEnabled() && !clangTidyExecutable().isExecutableFile()) {
+    if (config.isEnabled(ClangToolType::Tidy)
+        && !toolExecutable(ClangToolType::Tidy).isExecutableFile()) {
         return {CheckResult::InvalidTidyExecutable,
-                ClangTool::tr("Set a valid Clang-Tidy executable.")};
+                Tr::tr("Set a valid Clang-Tidy executable.")};
     }
 
-    if (config.isClazyEnabled() && !clazyStandaloneExecutable().isExecutableFile()) {
+    if (config.isEnabled(ClangToolType::Clazy)
+        && !toolExecutable(ClangToolType::Clazy).isExecutableFile()) {
         return {CheckResult::InvalidClazyExecutable,
-                ClangTool::tr("Set a valid Clazy-Standalone executable.")};
+                Tr::tr("Set a valid Clazy-Standalone executable.")};
     }
 
     if (Project *project = SessionManager::startupProject()) {
         if (!canAnalyzeProject(project)) {
             return {CheckResult::ProjectNotSuitable,
-                    ClangTool::tr("Project \"%1\" is not a C/C++ project.")
+                    Tr::tr("Project \"%1\" is not a C/C++ project.")
                         .arg(project->displayName())};
         }
     } else {
         return {CheckResult::ProjectNotOpen,
-                ClangTool::tr("Open a C/C++ project to start analyzing.")};
+                Tr::tr("Open a C/C++ project to start analyzing.")};
     }
 
     return {CheckResult::ReadyToAnalyze, {}};
@@ -911,9 +895,8 @@ void ClangTool::updateForInitialState()
     switch (result.kind)
     case CheckResult::InvalidTidyExecutable: {
     case CheckResult::InvalidClazyExecutable:
-        m_infoBarWidget->setError(InfoBarWidget::Warning,
-                                  makeLink(result.errorText),
-                                  [](){ ICore::showOptionsDialog(Constants::SETTINGS_PAGE_ID); });
+        m_infoBarWidget->setError(InfoBarWidget::Warning, makeLink(result.errorText),
+                                  [] { ICore::showOptionsDialog(Constants::SETTINGS_PAGE_ID); });
         break;
     case CheckResult::ProjectNotSuitable:
     case CheckResult::ProjectNotOpen:
@@ -995,14 +978,14 @@ void ClangTool::filterOutCurrentKind()
 
 void ClangTool::onBuildFailed()
 {
-    m_infoBarWidget->setError(InfoBarWidget::Error, tr("Failed to build the project."),
+    m_infoBarWidget->setError(InfoBarWidget::Error, Tr::tr("Failed to build the project."),
                               [this] { showOutputPane(); });
     setState(State::PreparationFailed);
 }
 
 void ClangTool::onStartFailed()
 {
-    m_infoBarWidget->setError(InfoBarWidget::Error, makeLink(tr("Failed to start the analyzer.")),
+    m_infoBarWidget->setError(InfoBarWidget::Error, makeLink(Tr::tr("Failed to start the analyzer.")),
                               [this] { showOutputPane(); });
     setState(State::PreparationFailed);
 }
@@ -1033,7 +1016,7 @@ static FileInfos fileInfosMatchingDocuments(const FileInfos &fileInfos,
     QSet<Utils::FilePath> documentPaths;
     for (const Core::DocumentModel::Entry *e : Core::DocumentModel::entries()) {
         if (predicate(e->document))
-            documentPaths.insert(e->fileName());
+            documentPaths.insert(e->filePath());
     }
 
     return Utils::filtered(fileInfos, [documentPaths](const FileInfo &fileInfo) {
@@ -1064,7 +1047,7 @@ FileInfoProviders ClangTool::fileInfoProviders(ProjectExplorer::Project *project
     static FileInfoSelection editeddFilesSelection;
 
     return {
-        {ClangTool::tr("All Files"),
+        {Tr::tr("All Files"),
          allFileInfos,
          FileInfoSelection{s->selectedDirs(), s->selectedFiles()},
          FileInfoProvider::Limited,
@@ -1073,13 +1056,13 @@ FileInfoProviders ClangTool::fileInfoProviders(ProjectExplorer::Project *project
              s->setSelectedFiles(selection.files);
          }},
 
-        {ClangTool::tr("Opened Files"),
+        {Tr::tr("Opened Files"),
          fileInfosMatchingOpenedDocuments(allFileInfos),
          openedFilesSelection,
          FileInfoProvider::All,
          [](const FileInfoSelection &selection) { openedFilesSelection = selection; }},
 
-        {ClangTool::tr("Edited Files"),
+        {Tr::tr("Edited Files"),
          fileInfosMatchingEditedDocuments(allFileInfos),
          editeddFilesSelection,
          FileInfoProvider::All,
@@ -1144,7 +1127,7 @@ void ClangTool::updateForCurrentState()
     // Info bar: errors
     if (m_filesFailed > 0) {
         const QString currentErrorText = m_infoBarWidget->errorText();
-        const QString newErrorText = makeLink(tr("Failed to analyze %n file(s).", nullptr,
+        const QString newErrorText = makeLink(Tr::tr("Failed to analyze %n file(s).", nullptr,
                                                  m_filesFailed));
         if (newErrorText != currentErrorText)
             m_infoBarWidget->setError(InfoBarWidget::Warning, newErrorText,
@@ -1161,9 +1144,9 @@ void ClangTool::updateForCurrentState()
     case State::AnalyzerRunning:
         showProgressIcon = true;
         if (m_filesCount == 0) {
-            infoText = tr("Analyzing..."); // Not yet fully started/initialized
+            infoText = Tr::tr("Analyzing..."); // Not yet fully started/initialized
         } else {
-            infoText = tr("Analyzing... %1 of %n file(s) processed.", nullptr, m_filesCount)
+            infoText = Tr::tr("Analyzing... %1 of %n file(s) processed.", nullptr, m_filesCount)
                            .arg(m_filesSucceeded + m_filesFailed);
         }
         break;
@@ -1174,13 +1157,13 @@ void ClangTool::updateForCurrentState()
     case State::PreparationFailed:
         break; // OK, we just show an error.
     case State::StoppedByUser:
-        infoText = tr("Analysis stopped by user.");
+        infoText = Tr::tr("Analysis stopped by user.");
         break;
     case State::AnalyzerFinished:
-        infoText = tr("Finished processing %n file(s).", nullptr, m_filesCount);
+        infoText = Tr::tr("Finished processing %n file(s).", nullptr, m_filesCount);
         break;
     case State::ImportFinished:
-        infoText = tr("Diagnostics imported.");
+        infoText = Tr::tr("Diagnostics imported.");
         break;
     }
     m_infoBarWidget->setInfoText(infoText);
@@ -1190,7 +1173,7 @@ void ClangTool::updateForCurrentState()
     // Info bar: diagnostic stats
     QString diagText;
     if (issuesFound) {
-        diagText = tr("%1 diagnostics. %2 fixits, %3 selected.")
+        diagText = Tr::tr("%1 diagnostics. %2 fixits, %3 selected.")
                    .arg(issuesVisible)
                    .arg(m_diagnosticFilterModel->fixitsScheduable())
                    .arg(m_diagnosticFilterModel->fixitsScheduled());
@@ -1198,9 +1181,18 @@ void ClangTool::updateForCurrentState()
                && m_state != State::Initial
                && m_state != State::PreparationStarted
                && m_state != State::PreparationFailed) {
-        diagText = tr("No diagnostics.");
+        diagText = Tr::tr("No diagnostics.");
     }
     m_infoBarWidget->setDiagText(diagText);
+}
+
+ClangTidyTool::ClangTidyTool() : ClangTool(Tr::tr("Clang-Tidy"), "ClangTidy.Perspective")
+{
+    m_instance = this;
+}
+ClazyTool::ClazyTool() : ClangTool(Tr::tr("Clazy"), "Clazy.Perspective")
+{
+    m_instance = this;
 }
 
 } // namespace Internal

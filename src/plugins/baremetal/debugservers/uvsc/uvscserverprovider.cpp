@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uvscserverprovider.h"
 
@@ -149,7 +149,7 @@ FilePath UvscServerProvider::buildOptionsFilePath(DebuggerRunTool *runTool) cons
 QVariantMap UvscServerProvider::toMap() const
 {
     QVariantMap data = IDebugServerProvider::toMap();
-    data.insert(toolsIniKeyC, m_toolsIniFile.toVariant());
+    data.insert(toolsIniKeyC, m_toolsIniFile.toSettings());
     data.insert(deviceSelectionKeyC, m_deviceSelection.toMap());
     data.insert(driverSelectionKeyC, m_driverSelection.toMap());
     return data;
@@ -223,7 +223,7 @@ bool UvscServerProvider::fromMap(const QVariantMap &data)
 {
     if (!IDebugServerProvider::fromMap(data))
         return false;
-    m_toolsIniFile = FilePath::fromVariant(data.value(toolsIniKeyC));
+    m_toolsIniFile = FilePath::fromSettings(data.value(toolsIniKeyC));
     m_deviceSelection.fromMap(data.value(deviceSelectionKeyC).toMap());
     m_driverSelection.fromMap(data.value(driverSelectionKeyC).toMap());
     return true;

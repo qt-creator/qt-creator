@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythoneditor.h"
 
@@ -14,13 +14,24 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/coreplugintr.h>
+#include <coreplugin/icore.h>
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QAction>
+#include <QActionGroup>
+#include <QComboBox>
 #include <QMenu>
 
+using namespace ProjectExplorer;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace Python::Internal {
@@ -60,30 +71,11 @@ static void registerReplAction(QObject *parent)
                                         Constants::PYTHON_OPEN_REPL_IMPORT_TOPLEVEL);
 }
 
-static QWidget *createEditorWidget()
+class PythonDocument : public TextDocument
 {
-    auto widget = new TextEditor::TextEditorWidget;
-    auto replButton = new QToolButton(widget);
-    replButton->setProperty("noArrow", true);
-    replButton->setText(Tr::tr("REPL"));
-    replButton->setPopupMode(QToolButton::InstantPopup);
-    replButton->setToolTip(Tr::tr("Open interactive Python. Either importing nothing, "
-          "importing the current file, or importing everything (*) from the current file."));
-    auto menu = new QMenu(replButton);
-    replButton->setMenu(menu);
-    menu->addAction(Core::ActionManager::command(Constants::PYTHON_OPEN_REPL)->action());
-    menu->addSeparator();
-    menu->addAction(Core::ActionManager::command(Constants::PYTHON_OPEN_REPL_IMPORT)->action());
-    menu->addAction(
-        Core::ActionManager::command(Constants::PYTHON_OPEN_REPL_IMPORT_TOPLEVEL)->action());
-    widget->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Left, replButton);
-    return widget;
-}
-
-class PythonDocument : public TextEditor::TextDocument
-{
+    Q_OBJECT
 public:
-    PythonDocument() : TextEditor::TextDocument(Constants::C_PYTHONEDITOR_ID)
+    PythonDocument() : TextDocument(Constants::C_PYTHONEDITOR_ID)
     {
         connect(PythonSettings::instance(),
                 &PythonSettings::pylsEnabledChanged,
@@ -110,22 +102,164 @@ public:
     }
 };
 
+class PythonEditorWidget : public TextEditorWidget
+{
+public:
+    PythonEditorWidget(QWidget *parent = nullptr);
+
+protected:
+    void finalizeInitialization() override;
+    void setUserDefinedPython(const Interpreter &interpreter);
+    void updateInterpretersSelector();
+
+private:
+    QToolButton *m_interpreters = nullptr;
+    QList<QMetaObject::Connection> m_projectConnections;
+};
+
+PythonEditorWidget::PythonEditorWidget(QWidget *parent) : TextEditorWidget(parent)
+{
+    auto replButton = new QToolButton(this);
+    replButton->setProperty("noArrow", true);
+    replButton->setText(Tr::tr("REPL"));
+    replButton->setPopupMode(QToolButton::InstantPopup);
+    replButton->setToolTip(Tr::tr("Open interactive Python. Either importing nothing, "
+                                  "importing the current file, "
+                                  "or importing everything (*) from the current file."));
+    auto menu = new QMenu(replButton);
+    replButton->setMenu(menu);
+    menu->addAction(Core::ActionManager::command(Constants::PYTHON_OPEN_REPL)->action());
+    menu->addSeparator();
+    menu->addAction(Core::ActionManager::command(Constants::PYTHON_OPEN_REPL_IMPORT)->action());
+    menu->addAction(
+        Core::ActionManager::command(Constants::PYTHON_OPEN_REPL_IMPORT_TOPLEVEL)->action());
+    insertExtraToolBarWidget(TextEditorWidget::Left, replButton);
+}
+
+void PythonEditorWidget::finalizeInitialization()
+{
+    connect(textDocument(), &TextDocument::filePathChanged,
+            this, &PythonEditorWidget::updateInterpretersSelector);
+    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
+            this, &PythonEditorWidget::updateInterpretersSelector);
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
+            this, &PythonEditorWidget::updateInterpretersSelector);
+}
+
+void PythonEditorWidget::setUserDefinedPython(const Interpreter &interpreter)
+{
+    const auto pythonDocument = qobject_cast<PythonDocument *>(textDocument());
+    QTC_ASSERT(pythonDocument, return);
+    FilePath documentPath = pythonDocument->filePath();
+    QTC_ASSERT(!documentPath.isEmpty(), return);
+    if (Project *project = SessionManager::projectForFile(documentPath)) {
+        if (Target *target = project->activeTarget()) {
+            if (RunConfiguration *rc = target->activeRunConfiguration()) {
+                if (auto interpretersAspect= rc->aspect<InterpreterAspect>()) {
+                    interpretersAspect->setCurrentInterpreter(interpreter);
+                    return;
+                }
+            }
+        }
+    }
+    definePythonForDocument(textDocument()->filePath(), interpreter.command);
+    pythonDocument->checkForPyls();
+}
+
+void PythonEditorWidget::updateInterpretersSelector()
+{
+    if (!m_interpreters) {
+        m_interpreters = new QToolButton(this);
+        insertExtraToolBarWidget(TextEditorWidget::Left, m_interpreters);
+        m_interpreters->setMenu(new QMenu(m_interpreters));
+        m_interpreters->setPopupMode(QToolButton::InstantPopup);
+        m_interpreters->setToolButtonStyle(Qt::ToolButtonTextOnly);
+        m_interpreters->setProperty("noArrow", true);
+    }
+
+    QMenu *menu = m_interpreters->menu();
+    QTC_ASSERT(menu, return);
+    menu->clear();
+    for (const QMetaObject::Connection &connection : m_projectConnections)
+        disconnect(connection);
+    m_projectConnections.clear();
+    const FilePath documentPath = textDocument()->filePath();
+    if (Project *project = SessionManager::projectForFile(documentPath)) {
+        m_projectConnections << connect(project,
+                                        &Project::activeTargetChanged,
+                                        this,
+                                        &PythonEditorWidget::updateInterpretersSelector);
+        if (Target *target = project->activeTarget()) {
+            m_projectConnections << connect(target,
+                                            &Target::activeRunConfigurationChanged,
+                                            this,
+                                            &PythonEditorWidget::updateInterpretersSelector);
+            if (RunConfiguration *rc = target->activeRunConfiguration()) {
+                if (auto interpreterAspect = rc->aspect<InterpreterAspect>()) {
+                    m_projectConnections << connect(interpreterAspect,
+                                                    &InterpreterAspect::changed,
+                                                    this,
+                                                    &PythonEditorWidget::updateInterpretersSelector);
+                }
+            }
+        }
+    }
+
+    auto setButtonText = [this](QString text) {
+        constexpr int maxTextLength = 25;
+        if (text.size() > maxTextLength)
+            text = text.left(maxTextLength - 3) + "...";
+        m_interpreters->setText(text);
+    };
+
+    const FilePath currentInterpreter = detectPython(textDocument()->filePath());
+    const QList<Interpreter> configuredInterpreters = PythonSettings::interpreters();
+    bool foundCurrentInterpreter = false;
+    auto interpretersGroup = new QActionGroup(menu);
+    interpretersGroup->setExclusive(true);
+    for (const Interpreter &interpreter : configuredInterpreters) {
+        QAction *action = interpretersGroup->addAction(interpreter.name);
+        connect(action, &QAction::triggered, this, [this, interpreter]() {
+            setUserDefinedPython(interpreter);
+        });
+        action->setCheckable(true);
+        if (!foundCurrentInterpreter && interpreter.command == currentInterpreter) {
+            foundCurrentInterpreter = true;
+            action->setChecked(true);
+            setButtonText(interpreter.name);
+            m_interpreters->setToolTip(interpreter.command.toUserOutput());
+        }
+    }
+    menu->addActions(interpretersGroup->actions());
+    if (!foundCurrentInterpreter) {
+        if (currentInterpreter.exists())
+            setButtonText(currentInterpreter.toUserOutput());
+        else
+            setButtonText(Tr::tr("No Python Selected"));
+    }
+    if (!interpretersGroup->actions().isEmpty())
+       menu->addSeparator();
+    auto settingsAction = menu->addAction(Tr::tr("Manage Python Interpreters"));
+    connect(settingsAction, &QAction::triggered, this, []() {
+        Core::ICore::showOptionsDialog(Constants::C_PYTHONOPTIONS_PAGE_ID);
+    });
+}
+
 PythonEditorFactory::PythonEditorFactory()
 {
     registerReplAction(this);
 
     setId(Constants::C_PYTHONEDITOR_ID);
-    setDisplayName(
-        QCoreApplication::translate("OpenWith::Editors", Constants::C_EDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr(Constants::C_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::C_PY_MIMETYPE);
 
-    setEditorActionHandlers(TextEditor::TextEditorActionHandler::Format
-                            | TextEditor::TextEditorActionHandler::UnCommentSelection
-                            | TextEditor::TextEditorActionHandler::UnCollapseAll
-                            | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
+    setEditorActionHandlers(TextEditorActionHandler::Format
+                            | TextEditorActionHandler::UnCommentSelection
+                            | TextEditorActionHandler::UnCollapseAll
+                            | TextEditorActionHandler::FollowSymbolUnderCursor);
 
     setDocumentCreator([]() { return new PythonDocument; });
-    setEditorWidgetCreator(createEditorWidget);
+    setEditorWidgetCreator([]() { return new PythonEditorWidget; });
     setIndenterCreator([](QTextDocument *doc) { return new PythonIndenter(doc); });
     setSyntaxHighlighterCreator([] { return new PythonHighlighter; });
     setCommentDefinition(CommentDefinition::HashStyle);
@@ -134,3 +268,5 @@ PythonEditorFactory::PythonEditorFactory()
 }
 
 } // Python::Internal
+
+#include "pythoneditor.moc"

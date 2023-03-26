@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "processtestapp/processtestapp.h"
 
@@ -134,6 +134,7 @@ private slots:
     void recursiveBlockingProcess();
     void quitBlockingProcess_data();
     void quitBlockingProcess();
+    void tarPipe();
 
     void cleanupTestCase();
 
@@ -234,13 +235,13 @@ void tst_QtcProcess::multiRead()
     process.writeRaw("echo hi\n");
 
     QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllStandardOutput();
+    buffer = process.readAllRawStandardOutput();
     QCOMPARE(buffer, QByteArray("hi\n"));
 
     process.writeRaw("echo you\n");
 
     QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllStandardOutput();
+    buffer = process.readAllRawStandardOutput();
     QCOMPARE(buffer, QByteArray("you\n"));
 }
 
@@ -1164,8 +1165,8 @@ void tst_QtcProcess::channelForwarding()
     process.start();
     QVERIFY(process.waitForFinished());
 
-    const QByteArray output = process.readAllStandardOutput();
-    const QByteArray error = process.readAllStandardError();
+    const QByteArray output = process.readAllRawStandardOutput();
+    const QByteArray error = process.readAllRawStandardError();
 
     QCOMPARE(output.contains(QByteArray(s_outputData)), outputForwarded);
     QCOMPARE(error.contains(QByteArray(s_errorData)), errorForwarded);
@@ -1208,8 +1209,8 @@ void tst_QtcProcess::mergedChannels()
     process.start();
     QVERIFY(process.waitForFinished());
 
-    const QByteArray output = process.readAllStandardOutput();
-    const QByteArray error = process.readAllStandardError();
+    const QByteArray output = process.readAllRawStandardOutput();
+    const QByteArray error = process.readAllRawStandardError();
 
     QCOMPARE(output.contains(QByteArray(s_outputData)), outputOnOutput);
     QCOMPARE(error.contains(QByteArray(s_outputData)), outputOnError);
@@ -1256,7 +1257,7 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
     QByteArray reply;
     while (process.state() == QProcess::Running) {
         process.waitForReadyRead(500);
-        reply += process.readAllStandardOutput();
+        reply += process.readAllRawStandardOutput();
         if (timer.hasExpired())
             break;
     }
@@ -1344,12 +1345,12 @@ void tst_QtcProcess::recursiveBlockingProcess()
         process.start();
         QVERIFY(process.waitForStarted(1000));
         QVERIFY(process.waitForReadyRead(1000));
-        QCOMPARE(process.readAllStandardOutput(), s_leafProcessStarted);
+        QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
         QCOMPARE(runningTestProcessCount(), recursionDepth);
         QVERIFY(!process.waitForFinished(1000));
         process.terminate();
         QVERIFY(process.waitForReadyRead());
-        QCOMPARE(process.readAllStandardOutput(), s_leafProcessTerminated);
+        QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
         QVERIFY(process.waitForFinished());
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.exitCode(), s_crashCode);
@@ -1404,7 +1405,7 @@ void tst_QtcProcess::quitBlockingProcess()
     QVERIFY(process.isRunning());
 
     QVERIFY(process.waitForReadyRead(1000));
-    QCOMPARE(process.readAllStandardOutput(), s_leafProcessStarted);
+    QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
 
     switch (quitType) {
     case QuitType::Terminate: process.terminate(); break;
@@ -1426,17 +1427,71 @@ void tst_QtcProcess::quitBlockingProcess()
         if (gracefulQuit) {
             if (HostOsInfo::isWindowsHost())
                 QSKIP(s_skipTerminateOnWindows);
-            QCOMPARE(process.readAllStandardOutput(), s_leafProcessTerminated);
+            QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
             QCOMPARE(process.exitStatus(), QProcess::NormalExit);
             QCOMPARE(process.exitCode(), s_crashCode);
         } else {
-            QCOMPARE(process.readAllStandardOutput(), QByteArray());
+            QCOMPARE(process.readAllRawStandardOutput(), QByteArray());
             QCOMPARE(process.exitStatus(), QProcess::CrashExit);
             QVERIFY(process.exitCode() != s_crashCode);
         }
     } else {
         QVERIFY(!process.isRunning());
     }
+}
+
+void tst_QtcProcess::tarPipe()
+{
+    if (!FilePath::fromString("tar").searchInPath().isExecutableFile())
+        QSKIP("This test uses \"tar\" command.");
+
+    QtcProcess sourceProcess;
+    QtcProcess targetProcess;
+
+    targetProcess.setProcessMode(ProcessMode::Writer);
+
+    QObject::connect(&sourceProcess, &QtcProcess::readyReadStandardOutput,
+                     &targetProcess, [&sourceProcess, &targetProcess]() {
+        targetProcess.writeRaw(sourceProcess.readAllRawStandardOutput());
+    });
+
+    QTemporaryDir sourceDir;
+    QVERIFY(sourceDir.isValid());
+    QTemporaryDir destinationDir;
+    QVERIFY(destinationDir.isValid());
+
+    const FilePath sourcePath = FilePath::fromString(sourceDir.path());
+    const FilePath sourceArchive = sourcePath / "archive";
+    QVERIFY(sourceArchive.createDir());
+    const FilePath sourceFile = sourceArchive / "file1.txt";
+    QVERIFY(sourceFile.writeFileContents("bla bla"));
+
+    const FilePath destinationPath = FilePath::fromString(destinationDir.path());
+    const FilePath destinationArchive = destinationPath / "archive";
+    const FilePath destinationFile = destinationArchive / "file1.txt";
+
+    QVERIFY(!destinationArchive.exists());
+    QVERIFY(!destinationFile.exists());
+
+    sourceProcess.setCommand({"tar", {"cvf", "-", "-C", sourcePath.nativePath(), "."}});
+    targetProcess.setCommand({"tar", {"xvf", "-", "-C", destinationPath.nativePath()}});
+
+    targetProcess.start();
+    QVERIFY(targetProcess.waitForStarted());
+
+    sourceProcess.start();
+    QVERIFY(sourceProcess.waitForFinished());
+
+    if (targetProcess.isRunning()) {
+        targetProcess.closeWriteChannel();
+        QVERIFY(targetProcess.waitForFinished(2000));
+    }
+
+    QCOMPARE(targetProcess.exitCode(), 0);
+    QCOMPARE(targetProcess.result(), ProcessResult::FinishedWithSuccess);
+    QVERIFY(destinationArchive.exists());
+    QVERIFY(destinationFile.exists());
+    QCOMPARE(sourceFile.fileSize(), destinationFile.fileSize());
 }
 
 QTEST_GUILESS_MAIN(tst_QtcProcess)

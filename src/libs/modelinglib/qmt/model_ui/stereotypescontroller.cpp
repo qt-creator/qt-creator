@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "stereotypescontroller.h"
 
@@ -14,8 +14,8 @@ StereotypesController::StereotypesController(QObject *parent) :
 
 bool StereotypesController::isParsable(const QString &stereotypes)
 {
-    QStringList list = stereotypes.split(QLatin1Char(','));
-    foreach (const QString &part, list) {
+    const QStringList list = stereotypes.split(QLatin1Char(','));
+    for (const QString &part : list) {
         QString stereotype = part.trimmed();
         if (stereotype.length() == 0)
             return false;
@@ -27,7 +27,7 @@ QString StereotypesController::toString(const QList<QString> &stereotypes)
 {
     QString s;
     bool first = true;
-    foreach (const QString &stereotype, stereotypes) {
+    for (const QString &stereotype : stereotypes) {
         if (!first)
             s += ", ";
         s += stereotype;
@@ -39,8 +39,8 @@ QString StereotypesController::toString(const QList<QString> &stereotypes)
 QList<QString> StereotypesController::fromString(const QString &stereotypes)
 {
     QList<QString> result;
-    QStringList list = stereotypes.split(QLatin1Char(','));
-    foreach (const QString &part, list) {
+    const QStringList list = stereotypes.split(QLatin1Char(','));
+    for (const QString &part : list) {
         QString stereotype = part.trimmed();
         if (stereotype.length() > 0)
             result.append(stereotype);

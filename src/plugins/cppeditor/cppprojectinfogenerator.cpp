@@ -1,8 +1,9 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppprojectinfogenerator.h"
 
+#include "cppeditortr.h"
 #include "cppprojectfilecategorizer.h"
 
 #include <projectexplorer/headerpath.h>
@@ -47,12 +48,12 @@ ProjectInfo::ConstPtr ProjectInfoGenerator::generate()
         });
     };
     if (m_cToolchainMissing) {
-        showWarning(QCoreApplication::translate("CppEditor",
+        showWarning(Tr::tr(
                 "The project contains C source files, but the currently active kit "
                 "has no C compiler. The code model will not be fully functional."));
     }
     if (m_cxxToolchainMissing) {
-        showWarning(QCoreApplication::translate("CppEditor",
+        showWarning(Tr::tr(
                 "The project contains C++ source files, but the currently active kit "
                 "has no C++ compiler. The code model will not be fully functional."));
     }

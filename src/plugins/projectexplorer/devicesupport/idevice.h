@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,8 +7,10 @@
 #include "idevicefwd.h"
 
 #include <utils/id.h>
+#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/tasktree.h>
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
@@ -73,21 +75,6 @@ protected:
 
     Utils::FilePath m_debuggerCommand;
     QString m_errorMessage;
-};
-
-class PROJECTEXPLORER_EXPORT DeviceEnvironmentFetcher : public QObject
-{
-    Q_OBJECT
-public:
-    using Ptr = QSharedPointer<DeviceEnvironmentFetcher>;
-
-    virtual void start() = 0;
-
-signals:
-    void finished(const Utils::Environment &env, bool success);
-
-protected:
-    explicit DeviceEnvironmentFetcher();
 };
 
 class PROJECTEXPLORER_EXPORT PortsGatheringMethod final
@@ -161,8 +148,7 @@ public:
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
 
-    virtual DeviceProcessSignalOperation::Ptr signalOperation() const = 0;
-    virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
+    virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
@@ -188,7 +174,7 @@ public:
     void setMachineType(MachineType machineType);
 
     virtual Utils::FilePath rootPath() const;
-    Utils::FilePath filePath(const QString &pathOnDevice) const;
+    virtual Utils::FilePath filePath(const QString &pathOnDevice) const;
 
     Utils::FilePath debugServerPath() const;
     void setDebugServerPath(const Utils::FilePath &path);
@@ -218,8 +204,6 @@ public:
     Utils::DeviceFileAccess *fileAccess() const;
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
 
-    virtual Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const;
-
     virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;
     virtual Utils::FilePath searchExecutable(const QString &fileName,
                                              const Utils::FilePaths &dirs) const;
@@ -232,8 +216,10 @@ public:
     virtual void aboutToBeRemoved() const {}
 
     virtual bool ensureReachable(const Utils::FilePath &other) const;
+    virtual Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const;
 
     virtual bool prepareForBuild(const Target *target);
+    virtual std::optional<Utils::FilePath> clangdExecutable() const;
 
 protected:
     IDevice();
@@ -257,7 +243,6 @@ private:
     friend class DeviceManager;
 };
 
-
 class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
 {
     Q_OBJECT
@@ -277,4 +262,31 @@ protected:
     explicit DeviceTester(QObject *parent = nullptr);
 };
 
+class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
+{
+    Q_OBJECT
+
+public:
+    void setProcessPath(const Utils::FilePath &path) { m_processPath = path; }
+    void start();
+    QString errorString() const { return m_errorString; }
+
+signals:
+    void done(bool success);
+
+private:
+    Utils::FilePath m_processPath;
+    DeviceProcessSignalOperation::Ptr m_signalOperation;
+    QString m_errorString;
+};
+
+class PROJECTEXPLORER_EXPORT KillerAdapter : public Utils::Tasking::TaskAdapter<DeviceProcessKiller>
+{
+public:
+    KillerAdapter();
+    void start() final;
+};
+
 } // namespace ProjectExplorer
+
+QTC_DECLARE_CUSTOM_TASK(Killer, ProjectExplorer::KillerAdapter);

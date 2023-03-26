@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gitsettings.h"
 
@@ -88,6 +88,13 @@ GitSettings::GitSettings()
     repositoryBrowserCmd.setDisplayName(Tr::tr("Git Repository Browser Command"));
     repositoryBrowserCmd.setLabelText(Tr::tr("Command:"));
 
+    registerAspect(&instantBlame);
+    instantBlame.setSettingsKey("Git Instant");
+    instantBlame.setDefaultValue(true);
+    instantBlame.setLabelText(Tr::tr("Add instant blame annotations to editor"));
+    instantBlame.setToolTip(Tr::tr("Directly annotate each line in the editor "
+                                   "when scrolling through the document."));
+
     registerAspect(&graphLog);
     graphLog.setSettingsKey("GraphLog");
 
@@ -109,6 +116,9 @@ GitSettings::GitSettings()
     refLogShowDate.setSettingsKey("RefLogShowDate");
 
     timeout.setDefaultValue(Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
+
+    connect(&binaryPath, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
+    connect(&path, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
 }
 
 FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
@@ -119,18 +129,21 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
     if (errorMessage)
         errorMessage->clear();
 
-    FilePath binPath = binaryPath.filePath();
-    if (!binPath.isAbsolutePath())
-        binPath = binPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
+    if (tryResolve) {
+        resolvedBinPath = binaryPath.filePath();
+        if (!resolvedBinPath.isAbsolutePath())
+            resolvedBinPath = resolvedBinPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
+        tryResolve = false;
+    }
 
-    if (binPath.isEmpty()) {
+    if (resolvedBinPath.isEmpty()) {
         if (ok)
             *ok = false;
         if (errorMessage)
             *errorMessage = Tr::tr("The binary \"%1\" could not be located in the path \"%2\"")
                 .arg(binaryPath.value(), path.value());
     }
-    return binPath;
+    return resolvedBinPath;
 }
 
 // GitSettingsPage
@@ -171,6 +184,11 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
             Group {
                 title(Tr::tr("Repository Browser")),
                 Row { s.repositoryBrowserCmd }
+            },
+
+            Group {
+                title(Tr::tr("Instant Blame")),
+                Row { s.instantBlame }
             },
 
             st

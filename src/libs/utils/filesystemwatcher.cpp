@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filesystemwatcher.h"
+
+#include "algorithm.h"
 #include "globalfilechangeblocker.h"
 #include "filepath.h"
 
@@ -328,9 +330,9 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
 void FileSystemWatcher::clear()
 {
     if (!d->m_files.isEmpty())
-        removeFiles(files());
+        removeFiles(filePaths());
     if (!d->m_directories.isEmpty())
-        removeDirectories(directories());
+        removeDirectories(directoryPaths());
 }
 
 QStringList FileSystemWatcher::files() const
@@ -380,9 +382,9 @@ void FileSystemWatcher::addDirectories(const QStringList &directories, WatchMode
         d->m_staticData->m_watcher->addPaths(toAdd);
 }
 
-void FileSystemWatcher::removeDirectory(const QString &directory)
+void FileSystemWatcher::removeDirectory(const FilePath &file)
 {
-    removeDirectories(QStringList(directory));
+    removeDirectories({file.toFSPathString()});
 }
 
 void FileSystemWatcher::removeDirectories(const QStringList &directories)
@@ -455,4 +457,59 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
     }
 }
 
-} // namespace Utils
+void FileSystemWatcher::addFile(const FilePath &file, WatchMode wm)
+{
+    addFile(file.toFSPathString(), wm);
+}
+
+void FileSystemWatcher::addFiles(const FilePaths &files, WatchMode wm)
+{
+    addFiles(transform(files, &FilePath::toFSPathString), wm);
+}
+
+void FileSystemWatcher::removeFile(const FilePath &file)
+{
+    removeFile(file.toFSPathString());
+}
+
+void FileSystemWatcher::removeFiles(const FilePaths &files)
+{
+    removeFiles(transform(files, &FilePath::toFSPathString));
+}
+
+bool FileSystemWatcher::watchesFile(const FilePath &file) const
+{
+    return watchesFile(file.toFSPathString());
+}
+
+FilePaths FileSystemWatcher::filePaths() const
+{
+    return transform(files(), &FilePath::fromString);
+}
+
+void FileSystemWatcher::addDirectory(const FilePath &file, WatchMode wm)
+{
+    addDirectory(file.toFSPathString(), wm);
+}
+
+void FileSystemWatcher::addDirectories(const FilePaths &files, WatchMode wm)
+{
+    addDirectories(transform(files, &FilePath::toFSPathString), wm);
+}
+
+void FileSystemWatcher::removeDirectories(const FilePaths &files)
+{
+    removeDirectories(transform(files, &FilePath::toFSPathString));
+}
+
+bool FileSystemWatcher::watchesDirectory(const FilePath &file) const
+{
+    return watchesDirectory(file.toFSPathString());
+}
+
+FilePaths FileSystemWatcher::directoryPaths() const
+{
+    return transform(directories(), &FilePath::fromString);
+}
+
+} //Utils

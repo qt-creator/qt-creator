@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientquickfix.h"
 
@@ -45,13 +45,11 @@ void CommandQuickFixOperation::perform()
         m_client->executeCommand(m_command);
 }
 
-IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *LanguageClientQuickFixAssistProcessor::perform()
 {
-    m_assistInterface = QSharedPointer<const AssistInterface>(interface);
-
     CodeActionParams params;
     params.setContext({});
-    QTextCursor cursor = interface->cursor();
+    QTextCursor cursor = interface()->cursor();
     if (!cursor.hasSelection()) {
         if (cursor.atBlockEnd() || cursor.atBlockStart())
             cursor.select(QTextCursor::LineUnderCursor);
@@ -62,10 +60,11 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
         cursor.select(QTextCursor::LineUnderCursor);
     Range range(cursor);
     params.setRange(range);
-    auto uri = DocumentUri::fromFilePath(interface->filePath());
+    const Utils::FilePath filePath = interface()->filePath();
+    const DocumentUri &uri = m_client->hostPathToServerUri(filePath);
     params.setTextDocument(TextDocumentIdentifier(uri));
     CodeActionParams::CodeActionContext context;
-    context.setDiagnostics(m_client->diagnosticsAt(uri, cursor));
+    context.setDiagnostics(m_client->diagnosticsAt(filePath, cursor));
     params.setContext(context);
 
     CodeActionRequest request(params);
@@ -110,7 +109,7 @@ GenericProposal *LanguageClientQuickFixAssistProcessor::handleCodeActionResult(c
             else if (auto command = std::get_if<Command>(&item))
                 ops << new CommandQuickFixOperation(*command, m_client);
         }
-        return GenericProposal::createProposal(m_assistInterface.data(), ops);
+        return GenericProposal::createProposal(interface(), ops);
     }
     return nullptr;
 }
@@ -120,11 +119,6 @@ LanguageClientQuickFixProvider::LanguageClientQuickFixProvider(Client *client)
     , m_client(client)
 {
     QTC_CHECK(client);
-}
-
-IAssistProvider::RunType LanguageClientQuickFixProvider::runType() const
-{
-    return Asynchronous;
 }
 
 IAssistProcessor *LanguageClientQuickFixProvider::createProcessor(const AssistInterface *) const

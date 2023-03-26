@@ -1,10 +1,11 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "utils_global.h"
 
+#include "expected.h"
 #include "filepathinfo.h"
 #include "osspecificaspects.h"
 
@@ -50,25 +51,28 @@ public:
 
 using FilePaths = QList<class FilePath>;
 
+enum class IterationPolicy { Stop, Continue };
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
     FilePath();
 
-    template <size_t N> FilePath(const char (&literal)[N]) { setFromString(literal); }
+    template <size_t N> FilePath(const char (&literal)[N]) { setFromString(QString::fromUtf8(literal)); }
 
     [[nodiscard]] static FilePath fromString(const QString &filepath);
     [[nodiscard]] static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
     [[nodiscard]] static FilePath fromUserInput(const QString &filepath);
     [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
+    [[nodiscard]] static FilePath fromSettings(const QVariant &variant);
     [[nodiscard]] static FilePath fromVariant(const QVariant &variant);
-    [[nodiscard]] static FilePath fromUrl(const QUrl &url);
     [[nodiscard]] static FilePath fromParts(const QStringView scheme, const QStringView host, const QStringView path);
+    [[nodiscard]] static FilePath fromPathPart(const QStringView path);
 
     [[nodiscard]] static FilePath currentWorkingPath();
 
     QString toUserOutput() const;
-    QString toString() const;
+    QVariant toSettings() const;
     QVariant toVariant() const;
     QUrl toUrl() const;
 
@@ -80,17 +84,20 @@ public:
     void setParts(const QStringView scheme, const QStringView host, const QStringView path);
 
     QString fileName() const;
+    QStringView fileNameView() const;
     QString fileNameWithPathComponents(int pathComponents) const;
 
     QString baseName() const;
     QString completeBaseName() const;
     QString suffix() const;
+    QStringView suffixView() const;
     QString completeSuffix() const;
 
     [[nodiscard]] FilePath pathAppended(const QString &str) const;
     [[nodiscard]] FilePath stringAppended(const QString &str) const;
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
+    bool contains(const QString &s) const;
 
     bool exists() const;
 
@@ -117,32 +124,28 @@ public:
     OsType osType() const;
     bool removeFile() const;
     bool removeRecursively(QString *error = nullptr) const;
-    bool copyFile(const FilePath &target) const;
+    expected_str<void> copyRecursively(const FilePath &target) const;
+    expected_str<void> copyFile(const FilePath &target) const;
     bool renameFile(const FilePath &target) const;
     qint64 fileSize() const;
     qint64 bytesAvailable() const;
     bool createDir() const;
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
     FilePaths dirEntries(QDir::Filters filters) const;
-    std::optional<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
-    bool writeFileContents(const QByteArray &data, qint64 offset = 0) const;
+    expected_str<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
+    expected_str<qint64> writeFileContents(const QByteArray &data, qint64 offset = 0) const;
     FilePathInfo filePathInfo() const;
 
-    bool operator==(const FilePath &other) const;
-    bool operator!=(const FilePath &other) const;
-    bool operator<(const FilePath &other) const;
-    bool operator<=(const FilePath &other) const;
-    bool operator>(const FilePath &other) const;
-    bool operator>=(const FilePath &other) const;
-    [[nodiscard]] FilePath operator+(const QString &s) const;
     [[nodiscard]] FilePath operator/(const QString &str) const;
 
     Qt::CaseSensitivity caseSensitivity() const;
+    QChar pathComponentSeparator() const;
+    QChar pathListSeparator() const;
 
     void clear();
     bool isEmpty() const;
 
-    size_t hash(uint seed) const;
+    using PathFilter = std::function<bool(const FilePath &)>;
 
     [[nodiscard]] FilePath absoluteFilePath() const;
     [[nodiscard]] FilePath absolutePath() const;
@@ -155,15 +158,16 @@ public:
     [[nodiscard]] FilePath withExecutableSuffix() const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
-    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs) const;
+    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
+                                               const PathFilter &filter = {}) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
 
     using IterateDirCallback
         = std::variant<
-            std::function<bool(const FilePath &item)>,
-            std::function<bool(const FilePath &item, const FilePathInfo &info)>
+            std::function<IterationPolicy(const FilePath &item)>,
+            std::function<IterationPolicy(const FilePath &item, const FilePathInfo &info)>
           >;
 
     void iterateDirectory(
@@ -177,7 +181,15 @@ public:
 
     enum PathAmending { AppendToPath, PrependToPath };
     [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
-                                        PathAmending = AppendToPath) const;
+                                        PathAmending = AppendToPath,
+                                        const PathFilter &filter = {}) const;
+
+    enum MatchScope { ExactMatchOnly, WithExeSuffix, WithBatSuffix,
+                      WithExeOrBatSuffix, WithAnySuffix };
+    std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
+
+    [[nodiscard]] expected_str<FilePath> tmpDir() const;
+    [[nodiscard]] expected_str<FilePath> createTempFile() const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
@@ -186,6 +198,8 @@ public:
     QString displayName(const QString &args = {}) const;
     QString nativePath() const;
     QString shortNativePath() const;
+    QString withTildeHomePath() const;
+
     bool startsWithDriveLetter() const;
 
     static QString formatFilePaths(const FilePaths &files, const QString &separator);
@@ -193,11 +207,12 @@ public:
     static void sort(FilePaths &files);
 
     // Asynchronous interface
-    void asyncCopyFile(const Continuation<bool> &cont, const FilePath &target) const;
-    void asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
+    void asyncCopyFile(const Continuation<const expected_str<void> &> &cont,
+                       const FilePath &target) const;
+    void asyncFileContents(const Continuation<const expected_str<QByteArray> &> &cont,
                            qint64 maxSize = -1,
                            qint64 offset = 0) const;
-    void asyncWriteFileContents(const Continuation<bool> &cont,
+    void asyncWriteFileContents(const Continuation<const expected_str<qint64> &> &cont,
                                 const QByteArray &data,
                                 qint64 offset = 0) const;
 
@@ -207,23 +222,20 @@ public:
     // There are usually other means available. E.g. distinguishing based
     // on FilePath::osType().
     bool needsDevice() const;
+    bool hasFileAccess() const;
 
     bool isSameDevice(const FilePath &other) const;
     bool isSameFile(const FilePath &other) const;
+    bool isSameExecutable(const FilePath &other) const; // with potentially different suffixes
 
     [[nodiscard]] QFileInfo toFileInfo() const;
     [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info);
 
     // Support for FSEngine. Do not use unless needed.
-    enum class SpecialPathComponent {
-        RootName,
-        RootPath,
-        DeviceRootName,
-        DeviceRootPath,
-    };
-
-    [[nodiscard]] static QString specialPath(SpecialPathComponent component);
-    [[nodiscard]] static FilePath specialFilePath(SpecialPathComponent component);
+    [[nodiscard]] static const QString &specialRootName();
+    [[nodiscard]] static const QString &specialRootPath();
+    [[nodiscard]] static const QString &specialDeviceRootName();
+    [[nodiscard]] static const QString &specialDeviceRootPath();
 
     [[nodiscard]] bool ensureReachable(const FilePath &other) const;
 
@@ -232,14 +244,33 @@ public:
     [[nodiscard]] static int rootLength(const QStringView path); // Assumes no scheme and host
     [[nodiscard]] static int schemeAndHostLength(const QStringView path);
 
-private:
-    friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
+    //! Returns a filepath the represents the same file on a local drive
+    expected_str<FilePath> localSource() const;
+
+    // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
+    QString toString() const;
+
+private:
+    // These are needed.
+    QTCREATOR_UTILS_EXPORT friend bool operator==(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator!=(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator<(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator<=(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator>(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator>=(const FilePath &first, const FilePath &second);
+
+    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a, uint seed);
+    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a);
+
+    QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const FilePath &c);
+
+    // Implementation details. May change.
+    friend class ::tst_fileutils;
     void setPath(QStringView path);
-    void setFromString(const QString &filepath);
+    void setFromString(QStringView filepath);
     DeviceFileAccess *fileAccess() const;
 
-    [[nodiscard]] QString mapToDevicePath() const;
     [[nodiscard]] QString encodedHost() const;
 
     QString m_data; // Concatenated m_path, m_scheme, m_host
@@ -248,38 +279,29 @@ private:
     unsigned short m_hostLen = 0;
 };
 
-inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
-{
-    return a.hash(seed);
-}
-
 class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 {
 public:
     static DeviceFileHooks &instance();
 
-    std::function<DeviceFileAccess *(const FilePath &)> fileAccess;
+    std::function<expected_str<DeviceFileAccess *>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
     std::function<Environment(const FilePath &)> environment;
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
+    std::function<expected_str<FilePath>(const FilePath &)> localSource;
+    std::function<void(const FilePath &, const Environment &)> openTerminal;
 };
 
-} // namespace Utils
-
-QT_BEGIN_NAMESPACE
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FilePath &c);
-QT_END_NAMESPACE
+} // Utils
 
 Q_DECLARE_METATYPE(Utils::FilePath)
 
 namespace std {
-template<>
-struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
+
+template<> struct hash<Utils::FilePath>
 {
-    using argument_type = Utils::FilePath;
-    using result_type = size_t;
-    result_type operator()(const argument_type &fn) const;
+    size_t operator()(const Utils::FilePath &fn) const { return qHash(fn); }
 };
 
-} // namespace std
+} // std

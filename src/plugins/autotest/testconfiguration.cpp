@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testconfiguration.h"
 
@@ -61,7 +61,7 @@ FilePath ITestConfiguration::executableFilePath() const
     if (!hasExecutable())
         return {};
 
-    const Environment env = m_runnable.environment.isValid()
+    const Environment env = m_runnable.environment.hasChanges()
             ? m_runnable.environment : Environment::systemEnvironment();
     return env.searchInPath(m_runnable.command.executable().path());
 }

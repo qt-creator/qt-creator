@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "stackframe.h"
 
@@ -74,7 +74,8 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     frame.function = frameMi["function"].data();
     frame.module = frameMi["module"].data();
     const FilePath debugger = rp.debugger.command.executable();
-    frame.file = FilePath::fromString(frameMi["file"].data()).onDevice(debugger);
+    const FilePath onDevicePath = FilePath::fromUserInput(frameMi["file"].data()).onDevice(debugger);
+    frame.file = onDevicePath.localSource().value_or(onDevicePath);
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["address"].toAddress();
     frame.context = frameMi["context"].data();

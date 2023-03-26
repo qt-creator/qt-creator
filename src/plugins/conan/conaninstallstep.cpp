@@ -1,10 +1,12 @@
 // Copyright (C) 2018 Jochen Seemann
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "conaninstallstep.h"
 
 #include "conanconstants.h"
-#include "conaninstallstep.h"
 #include "conanplugin.h"
 #include "conansettings.h"
+#include "conantr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -21,15 +23,12 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace ConanPackageManager {
-namespace Internal {
+namespace Conan::Internal {
 
 // ConanInstallStep
 
 class ConanInstallStep final : public AbstractProcessStep
 {
-    Q_DECLARE_TR_FUNCTIONS(ConanPackageManager::Internal::ConanInstallStep)
-
 public:
     ConanInstallStep(BuildStepList *bsl, Id id);
 
@@ -42,20 +41,20 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
     setUseEnglishOutput();
-    setDisplayName(ConanInstallStep::tr("Conan install"));
+    setDisplayName(Tr::tr("Conan install"));
 
     auto conanFile = addAspect<StringAspect>();
     conanFile->setSettingsKey("ConanPackageManager.InstallStep.ConanFile");
     conanFile->setFilePath(ConanPlugin::conanFilePath(project(),
                            project()->projectDirectory() / "conanfile.txt"));
-    conanFile->setLabelText(tr("Conan file:"));
-    conanFile->setToolTip(tr("Enter location of conanfile.txt or conanfile.py."));
+    conanFile->setLabelText(Tr::tr("Conan file:"));
+    conanFile->setToolTip(Tr::tr("Enter location of conanfile.txt or conanfile.py."));
     conanFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     conanFile->setExpectedKind(PathChooser::File);
 
     auto additionalArguments = addAspect<StringAspect>();
     additionalArguments->setSettingsKey("ConanPackageManager.InstallStep.AdditionalArguments");
-    additionalArguments->setLabelText(tr("Additional arguments:"));
+    additionalArguments->setLabelText(Tr::tr("Additional arguments:"));
     additionalArguments->setDisplayStyle(StringAspect::LineEditDisplay);
 
     auto buildMissing = addAspect<BoolAspect>();
@@ -116,8 +115,7 @@ void ConanInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 ConanInstallStepFactory::ConanInstallStepFactory()
 {
     registerStep<ConanInstallStep>(Constants::INSTALL_STEP);
-    setDisplayName(ConanInstallStep::tr("Run conan install"));
+    setDisplayName(Tr::tr("Run conan install"));
 }
 
-} // Internal
-} // ConanPackageManager
+} // Conan::Internal

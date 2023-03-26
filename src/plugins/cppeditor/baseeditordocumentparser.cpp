@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "baseeditordocumentparser.h"
 #include "baseeditordocumentprocessor.h"
@@ -7,6 +7,8 @@
 #include "cppmodelmanager.h"
 #include "cppprojectpartchooser.h"
 #include "editordocumenthandle.h"
+
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -29,7 +31,7 @@ namespace CppEditor {
     \endlist
 */
 
-BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
+BaseEditorDocumentParser::BaseEditorDocumentParser(const FilePath &filePath)
     : m_filePath(filePath)
 {
     static int meta = qRegisterMetaType<ProjectPartInfo>("ProjectPartInfo");
@@ -38,7 +40,7 @@ BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
 
 BaseEditorDocumentParser::~BaseEditorDocumentParser() = default;
 
-QString BaseEditorDocumentParser::filePath() const
+const FilePath &BaseEditorDocumentParser::filePath() const
 {
     return m_filePath;
 }
@@ -85,7 +87,7 @@ ProjectPartInfo BaseEditorDocumentParser::projectPartInfo() const
     return state().projectPartInfo;
 }
 
-BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &filePath)
+BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const FilePath &filePath)
 {
     CppModelManager *cmmi = CppModelManager::instance();
     if (CppEditorDocumentHandle *cppEditorDocument = cmmi->cppEditorDocument(filePath)) {

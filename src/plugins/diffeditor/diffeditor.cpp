@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditoricons.h"
+#include "diffeditortr.h"
 #include "diffview.h"
 
 #include <coreplugin/coreconstants.h>
@@ -27,7 +28,6 @@
 #include <QAction>
 #include <QComboBox>
 #include <QDir>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QSpinBox>
 #include <QStackedWidget>
@@ -189,7 +189,7 @@ DiffEditor::DiffEditor()
     m_toolBar->addWidget(m_entriesComboBox);
 
     QLabel *contextLabel = new QLabel(m_toolBar);
-    contextLabel->setText(tr("Context lines:"));
+    contextLabel->setText(Tr::tr("Context lines:"));
     contextLabel->setContentsMargins(6, 0, 6, 0);
     m_contextLabelAction = m_toolBar->addWidget(contextLabel);
 
@@ -199,14 +199,14 @@ DiffEditor::DiffEditor()
     m_contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
     m_contextSpinBoxAction = m_toolBar->addWidget(m_contextSpinBox);
 
-    m_whitespaceButtonAction = m_toolBar->addAction(tr("Ignore Whitespace"));
+    m_whitespaceButtonAction = m_toolBar->addAction(Tr::tr("Ignore Whitespace"));
     m_whitespaceButtonAction->setCheckable(true);
 
     m_toggleDescriptionAction = m_toolBar->addAction(Icons::TOP_BAR.icon(), {});
     m_toggleDescriptionAction->setCheckable(true);
 
-    m_reloadAction = m_toolBar->addAction(Utils::Icons::RELOAD_TOOLBAR.icon(), tr("Reload Diff"));
-    m_reloadAction->setToolTip(tr("Reload Diff"));
+    m_reloadAction = m_toolBar->addAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload Diff"));
+    m_reloadAction->setToolTip(Tr::tr("Reload Diff"));
 
     m_toggleSyncAction = m_toolBar->addAction(Utils::Icons::LINK_TOOLBAR.icon(), {});
     m_toggleSyncAction->setCheckable(true);
@@ -332,7 +332,7 @@ void DiffEditor::documentHasChanged()
             if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
                 itemToolTip = leftEntry.fileName;
             } else {
-                itemToolTip = tr("[%1] vs. [%2] %3")
+                itemToolTip = Tr::tr("[%1] vs. [%2] %3")
                         .arg(leftEntry.typeInfo,
                              rightEntry.typeInfo,
                              leftEntry.fileName);
@@ -341,17 +341,17 @@ void DiffEditor::documentHasChanged()
             if (leftShortFileName == rightShortFileName) {
                 itemText = leftShortFileName;
             } else {
-                itemText = tr("%1 vs. %2")
+                itemText = Tr::tr("%1 vs. %2")
                         .arg(leftShortFileName,
                              rightShortFileName);
             }
 
             if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
-                itemToolTip = tr("%1 vs. %2")
+                itemToolTip = Tr::tr("%1 vs. %2")
                         .arg(leftEntry.fileName,
                              rightEntry.fileName);
             } else {
-                itemToolTip = tr("[%1] %2 vs. [%3] %4")
+                itemToolTip = Tr::tr("[%1] %2 vs. [%3] %4")
                         .arg(leftEntry.typeInfo,
                              leftEntry.fileName,
                              rightEntry.typeInfo,
@@ -382,16 +382,16 @@ void DiffEditor::updateDescription()
 {
     QTC_ASSERT(m_toolBar, return);
 
-    QString description = m_document->description();
+    const QString description = m_document->description();
     m_descriptionWidget->setPlainText(description);
     m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());
 
+    const QString actionText = m_showDescription ? Tr::tr("Hide Change Description")
+                                                 : Tr::tr("Show Change Description");
     GuardLocker guard(m_ignoreChanges);
     m_toggleDescriptionAction->setChecked(m_showDescription);
-    m_toggleDescriptionAction->setToolTip(m_showDescription ? tr("Hide Change Description")
-                                                      : tr("Show Change Description"));
-    m_toggleDescriptionAction->setText(m_showDescription ? tr("Hide Change Description")
-                                                   : tr("Show Change Description"));
+    m_toggleDescriptionAction->setToolTip(actionText);
+    m_toggleDescriptionAction->setText(actionText);
     m_toggleDescriptionAction->setVisible(!description.isEmpty());
 }
 

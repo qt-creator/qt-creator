@@ -1,21 +1,15 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classviewmanager.h"
-#include "classviewsymbollocation.h"
-#include "classviewnavigationwidgetfactory.h"
+
 #include "classviewparser.h"
 #include "classviewutils.h"
 
-#include <utils/qtcassert.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
+#include <projectexplorer/session.h>
 #include <texteditor/texteditor.h>
 
 #include <QThread>
@@ -25,8 +19,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 ///////////////////////////////// ManagerPrivate //////////////////////////////////
 
@@ -281,7 +274,7 @@ void Manager::initialize()
         if (doc.data() == nullptr)
             return;
 
-        d->m_awaitingDocuments.insert(FilePath::fromString(doc->fileName()));
+        d->m_awaitingDocuments.insert(doc->filePath());
         d->m_timer.start(400); // Accumulate multiple requests into one, restarts the timer
     });
 
@@ -353,9 +346,9 @@ void Manager::onWidgetVisibilityIsChanged(bool visibility)
     \a column (0-based).
 */
 
-void Manager::gotoLocation(const QString &fileName, int line, int column)
+void Manager::gotoLocation(const FilePath &filePath, int line, int column)
 {
-    EditorManager::openEditorAt({FilePath::fromString(fileName), line, column});
+    EditorManager::openEditorAt({filePath, line, column});
 }
 
 /*!
@@ -378,11 +371,11 @@ void Manager::gotoLocations(const QList<QVariant> &list)
         auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
         if (textEditor) {
             // check if current cursor position is a known location of the symbol
-            const QString fileName = textEditor->document()->filePath().toString();
+            const FilePath filePath = textEditor->document()->filePath();
             int line;
             int column;
             textEditor->convertPosition(textEditor->position(), &line, &column);
-            const SymbolLocation current(fileName, line, column);
+            const SymbolLocation current(filePath, line, column);
             if (auto it = locations.constFind(current), end = locations.constEnd(); it != end) {
                 // we already are at the symbol, cycle to next location
                 ++it;
@@ -394,7 +387,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
     }
     const SymbolLocation &location = *locationIt;
     // line is 1-based, column is 0-based
-    gotoLocation(location.fileName(), location.line(), location.column() - 1);
+    gotoLocation(location.filePath(), location.line(), location.column() - 1);
 }
 
 /*!
@@ -408,5 +401,4 @@ void Manager::setFlatMode(bool flat)
     }, Qt::QueuedConnection);
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // ClassView::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeprojectimporter.h"
 
@@ -143,8 +143,8 @@ FilePaths CMakeProjectImporter::importCandidates()
             CMakePresets::Macros::expand(configPreset, env, projectDirectory(), binaryDir);
 
             const FilePath binaryFilePath = FilePath::fromString(binaryDir);
-            candidates.removeIf(
-                [&binaryFilePath] (const FilePath &path) { return path == binaryFilePath; });
+            candidates.removeIf([&binaryFilePath](const FilePath &path)
+                                { return path == binaryFilePath; });
         }
     }
 
@@ -154,7 +154,9 @@ FilePaths CMakeProjectImporter::importCandidates()
 }
 
 static CMakeConfig configurationFromPresetProbe(
-    const FilePath &importPath, const PresetsDetails::ConfigurePreset &configurePreset)
+    const FilePath &importPath,
+    const FilePath &sourceDirectory,
+    const PresetsDetails::ConfigurePreset &configurePreset)
 {
     const FilePath cmakeListTxt = importPath / "CMakeLists.txt";
     cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
@@ -169,7 +171,7 @@ static CMakeConfig configurationFromPresetProbe(
     const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
 
     Environment env = cmakeExecutable.deviceEnvironment();
-    CMakePresets::Macros::expand(configurePreset, env, importPath);
+    CMakePresets::Macros::expand(configurePreset, env, sourceDirectory);
 
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
@@ -186,12 +188,20 @@ static CMakeConfig configurationFromPresetProbe(
         args.emplace_back(configurePreset.generator.value());
     }
     if (configurePreset.architecture && configurePreset.architecture.value().value) {
-        args.emplace_back("-A");
-        args.emplace_back(configurePreset.architecture.value().value.value());
+        if (!configurePreset.architecture->strategy
+            || configurePreset.architecture->strategy
+                   != PresetsDetails::ValueStrategyPair::Strategy::external) {
+            args.emplace_back("-A");
+            args.emplace_back(configurePreset.architecture.value().value.value());
+        }
     }
     if (configurePreset.toolset && configurePreset.toolset.value().value) {
-        args.emplace_back("-T");
-        args.emplace_back(configurePreset.toolset.value().value.value());
+        if (!configurePreset.toolset->strategy
+            || configurePreset.toolset->strategy
+                   != PresetsDetails::ValueStrategyPair::Strategy::external) {
+            args.emplace_back("-T");
+            args.emplace_back(configurePreset.toolset.value().value.value());
+        }
     }
 
     if (configurePreset.cacheVariables) {
@@ -200,9 +210,14 @@ static CMakeConfig configurationFromPresetProbe(
                                       : CMakeConfig();
 
         auto expandCacheValue =
-            [configurePreset, env, importPath, cache](const QString &key) -> QString {
+            [configurePreset, env, sourceDirectory, cache](const QString &key) -> QString {
             QString result = cache.stringValueOf(key.toUtf8());
-            CMakePresets::Macros::expand(configurePreset, env, importPath, result);
+            CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, result);
+
+            // all usages involve file paths, so make sure they are cleaned up
+            const FilePaths paths = transform(result.split(";"), &FilePath::fromUserInput);
+            result = transform(paths, &FilePath::path).join(";");
+
             return result;
         };
 
@@ -464,6 +479,118 @@ void updateCompilerPaths(CMakeConfig &config, const Environment &env)
     updateRelativePath("CMAKE_CXX_COMPILER");
 }
 
+void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<DirectoryData> &data)
+{
+    auto updateCompilerValue = [&config, &data](const QByteArray &key, const Utils::Id &language) {
+        auto it = std::find_if(config.begin(), config.end(), [&key](const CMakeConfigItem &ci) {
+            return ci.key == key;
+        });
+
+        auto tcd = Utils::findOrDefault(data->toolChains,
+                                        [&language](const ToolChainDescription &t) {
+                                            return t.language == language;
+                                        });
+
+        if (it != config.end() && it->value.isEmpty())
+            it->value = tcd.compilerPath.toString().toUtf8();
+        else
+            config << CMakeConfigItem(key,
+                                      CMakeConfigItem::FILEPATH,
+                                      tcd.compilerPath.toString().toUtf8());
+    };
+
+    updateCompilerValue("CMAKE_C_COMPILER", ProjectExplorer::Constants::C_LANGUAGE_ID);
+    updateCompilerValue("CMAKE_CXX_COMPILER", ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    if (data->qt.qt)
+        config << CMakeConfigItem("QT_QMAKE_EXECUTABLE",
+                                  CMakeConfigItem::FILEPATH,
+                                  data->qt.qt->qmakeFilePath().toString().toUtf8());
+}
+
+ToolChain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
+{
+    // A compiler path example. Note that the compiler version is not the same version from MsvcToolChain
+    // ... \MSVC\14.29.30133\bin\Hostx64\x64\cl.exe
+    //
+    // And the CMakePresets.json
+    //
+    // "toolset": {
+    //      "value": "v142,host=x64,version=14.29.30133",
+    //      "strategy": "external"
+    //  },
+    //  "architecture": {
+    //      "value": "x64",
+    //      "strategy": "external"
+    //  }
+
+    auto msvcToolchains = ToolChainManager::toolchains([](const ToolChain *tc) {
+        return  tc->typeId() ==  ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    });
+
+    const QSet<Abi::OSFlavor> msvcFlavors = Utils::toSet(Utils::transform(msvcToolchains, [](const ToolChain *tc) {
+        return tc->targetAbi().osFlavor();
+    }));
+
+    return ToolChainManager::toolChain(
+        [presetArchitecture, presetToolset, msvcFlavors](const ToolChain *tc) -> bool {
+            if (tc->typeId() != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+                return false;
+
+            const FilePath compilerPath = tc->compilerCommand();
+            const QString architecture = compilerPath.parentDir().fileName().toLower();
+            const QString host
+                = compilerPath.parentDir().parentDir().fileName().toLower().replace("host", "host=");
+            const QString version
+                = QString("version=%1")
+                      .arg(compilerPath.parentDir().parentDir().parentDir().parentDir().fileName());
+
+            static std::pair<QString, Abi::OSFlavor> abiTable[] = {
+                {QStringLiteral("v143"), Abi::WindowsMsvc2022Flavor},
+                {QStringLiteral("v142"), Abi::WindowsMsvc2019Flavor},
+                {QStringLiteral("v141"), Abi::WindowsMsvc2017Flavor},
+            };
+
+            Abi::OSFlavor toolsetAbi = Abi::UnknownFlavor;
+            for (const auto &abiPair : abiTable) {
+                if (presetToolset.contains(abiPair.first)) {
+                    toolsetAbi = abiPair.second;
+                    break;
+                }
+            }
+
+            // User didn't specify any flavor, so pick the highest toolchain available
+            if (toolsetAbi == Abi::UnknownFlavor) {
+                for (const auto &abiPair : abiTable) {
+                    if (msvcFlavors.contains(abiPair.second)) {
+                        toolsetAbi = abiPair.second;
+                        break;
+                    }
+                }
+            }
+
+            if (toolsetAbi != tc->targetAbi().osFlavor())
+                return false;
+
+            if (presetToolset.contains("host=") && !presetToolset.contains(host))
+                return false;
+
+            // Make sure we match also version=14.29
+            auto versionIndex = presetToolset.indexOf("version=");
+            if (versionIndex != -1 && !version.startsWith(presetToolset.mid(versionIndex)))
+                return false;
+
+            if (presetArchitecture != architecture)
+                return false;
+
+            qCDebug(cmInputLog) << "For external architecture" << presetArchitecture
+                                << "and toolset" << presetToolset
+                                << "the following toolchain was selected:\n"
+                                << compilerPath.toString();
+            return true;
+        });
+}
+
 QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                      QString *warningMessage) const
 {
@@ -499,16 +626,35 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (configurePreset.generator)
             data->generator = configurePreset.generator.value();
 
-        if (configurePreset.architecture && configurePreset.architecture.value().value)
-            data->platform = configurePreset.architecture.value().value.value();
-
-        if (configurePreset.toolset && configurePreset.toolset.value().value)
-            data->toolset = configurePreset.toolset.value().value.value();
-
         if (configurePreset.binaryDir) {
             QString binaryDir = configurePreset.binaryDir.value();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), binaryDir);
             data->buildDirectory = Utils::FilePath::fromString(binaryDir);
+        }
+
+        const bool architectureExternalStrategy
+            = configurePreset.architecture && configurePreset.architecture->strategy
+              && configurePreset.architecture->strategy
+                     == PresetsDetails::ValueStrategyPair::Strategy::external;
+
+        const bool toolsetExternalStrategy
+            = configurePreset.toolset && configurePreset.toolset->strategy
+              && configurePreset.toolset->strategy
+                     == PresetsDetails::ValueStrategyPair::Strategy::external;
+
+        if (!architectureExternalStrategy && configurePreset.architecture
+            && configurePreset.architecture.value().value)
+            data->platform = configurePreset.architecture.value().value.value();
+
+        if (!toolsetExternalStrategy && configurePreset.toolset && configurePreset.toolset.value().value)
+            data->toolset = configurePreset.toolset.value().value.value();
+
+        if (architectureExternalStrategy && toolsetExternalStrategy) {
+            const ToolChain *tc
+                = findExternalToolchain(configurePreset.architecture->value.value_or(QString()),
+                                        configurePreset.toolset->value.value_or(QString()));
+            if (tc)
+                tc->addToEnvironment(env);
         }
 
         CMakePresets::Macros::updateToolchainFile(configurePreset,
@@ -526,7 +672,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (cache.valueOf("CMAKE_C_COMPILER").isEmpty()
             && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty()) {
             QApplication::setOverrideCursor(Qt::WaitCursor);
-            config = configurationFromPresetProbe(importPath, configurePreset);
+            config = configurationFromPresetProbe(importPath, projectDirectory(), configurePreset);
             QApplication::restoreOverrideCursor();
 
             if (!configurePreset.generator) {
@@ -550,8 +696,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                           CMakeConfigItem::STRING,
                                           configurePreset.generator.value().toUtf8());
         }
-        data->cmakePresetDefaultConfigHash = CMakeConfigurationKitAspect::computeDefaultConfigHash(
-            config);
 
         const FilePath qmake = qmakeFromCMakeCache(config);
         if (!qmake.isEmpty())
@@ -560,7 +704,16 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         // ToolChains:
         data->toolChains = extractToolChainsFromCache(config);
 
-        QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
+        // Update QT_QMAKE_EXECUTABLE and CMAKE_C|XX_COMPILER config values
+        updateConfigWithDirectoryData(config, data);
+
+        data->cmakePresetDefaultConfigHash
+            = CMakeConfigurationKitAspect::computeDefaultConfigHash(config, data->cmakeBinary);
+
+        QString cmakeBuildType = QString::fromUtf8(cache.valueOf("CMAKE_BUILD_TYPE"));
+        CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeBuildType);
+
+        QByteArrayList buildConfigurationTypes = {cmakeBuildType.toUtf8()};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
             QByteArray buildConfigurationTypesString = cache.valueOf("CMAKE_CONFIGURATION_TYPES");
@@ -778,7 +931,7 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
     info.buildDirectory = data->buildDirectory;
 
     QVariantMap config = info.extraInfo.toMap(); // new empty, or existing one from createBuildInfo
-    config.insert(Constants::CMAKE_HOME_DIR, data->cmakeHomeDirectory.toString());
+    config.insert(Constants::CMAKE_HOME_DIR, data->cmakeHomeDirectory.toVariant());
     // Potentially overwrite the default QML Debugging settings for the build type as set by
     // createBuildInfo, in case we are importing a "Debug" CMake configuration without QML Debugging
     config.insert(Constants::QML_DEBUG_SETTING,

@@ -1,12 +1,13 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fileutils.h"
 #include "savefile.h"
 
 #include "algorithm.h"
-#include "qtcassert.h"
 #include "hostosinfo.h"
+#include "qtcassert.h"
+#include "utilstr.h"
 
 #include "fsengine/fileiconprovider.h"
 #include "fsengine/fsengine.h"
@@ -55,28 +56,12 @@ bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode)
 {
     QTC_ASSERT(!(mode & ~(QIODevice::ReadOnly | QIODevice::Text)), return false);
 
-    if (filePath.needsDevice()) {
-        const std::optional<QByteArray> contents = filePath.fileContents();
-        if (!contents) {
-            m_errorString = tr("Cannot read %1").arg(filePath.toUserOutput());
-            return false;
-        }
-        m_data = *contents;
-        return true;
-    }
-
-    QFile file(filePath.toString());
-    if (!file.open(QIODevice::ReadOnly | mode)) {
-        m_errorString = tr("Cannot open %1 for reading: %2").arg(
-                filePath.toUserOutput(), file.errorString());
+    const expected_str<QByteArray> contents = filePath.fileContents();
+    if (!contents) {
+        m_errorString = contents.error();
         return false;
     }
-    m_data = file.readAll();
-    if (file.error() != QFile::NoError) {
-        m_errorString = tr("Cannot read %1: %2").arg(
-                filePath.toUserOutput(), file.errorString());
-        return false;
-    }
+    m_data = *contents;
     return true;
 }
 
@@ -95,7 +80,7 @@ bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode, QWidg
     if (fetch(filePath, mode))
         return true;
     if (parent)
-        QMessageBox::critical(parent, tr("File Error"), m_errorString);
+        QMessageBox::critical(parent, Tr::tr("File Error"), m_errorString);
     return false;
 }
 #endif // QT_GUI_LIB
@@ -128,7 +113,7 @@ bool FileSaverBase::finalize(QWidget *parent)
 {
     if (finalize())
         return true;
-    QMessageBox::critical(parent, tr("File Error"), errorString());
+    QMessageBox::critical(parent, Tr::tr("File Error"), errorString());
     return false;
 }
 #endif // QT_GUI_LIB
@@ -151,10 +136,11 @@ bool FileSaverBase::setResult(bool ok)
 {
     if (!ok && !m_hasError) {
         if (!m_file->errorString().isEmpty()) {
-            m_errorString = tr("Cannot write file %1: %2")
+            m_errorString = Tr::tr("Cannot write file %1: %2")
                                 .arg(m_filePath.toUserOutput(), m_file->errorString());
         } else {
-            m_errorString = tr("Cannot write file %1. Disk full?").arg(m_filePath.toUserOutput());
+            m_errorString = Tr::tr("Cannot write file %1. Disk full?")
+                                .arg(m_filePath.toUserOutput());
         }
         m_hasError = true;
     }
@@ -191,7 +177,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
         const QString fn = filePath.baseName().toUpper();
         if (reservedNames.contains(fn)) {
-            m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.")
+            m_errorString = Tr::tr("%1: Is a reserved filename on Windows. Cannot save.")
                                 .arg(filePath.toUserOutput());
             m_hasError = true;
             return;
@@ -208,12 +194,12 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
         m_file.reset(new QFile{filePath.path()});
         m_isSafe = false;
     } else {
-        m_file.reset(new SaveFile{filePath.path()});
+        m_file.reset(new SaveFile(filePath));
         m_isSafe = true;
     }
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
         QString err = filePath.exists() ?
-                tr("Cannot overwrite file %1: %2") : tr("Cannot create file %1: %2");
+                Tr::tr("Cannot overwrite file %1: %2") : Tr::tr("Cannot create file %1: %2");
         m_errorString = err.arg(filePath.toUserOutput(), m_file->errorString());
         m_hasError = true;
     }
@@ -225,10 +211,10 @@ bool FileSaver::finalize()
         m_file->close();
         m_file->open(QIODevice::ReadOnly);
         const QByteArray data = m_file->readAll();
-        const bool res = m_filePath.writeFileContents(data);
+        const expected_str<qint64> res = m_filePath.writeFileContents(data);
         m_file->remove();
         m_file.reset();
-        return res;
+        return res.has_value();
     }
 
     if (!m_isSafe)
@@ -253,7 +239,7 @@ TempFileSaver::TempFileSaver(const QString &templ)
         tempFile->setFileTemplate(templ);
     tempFile->setAutoRemove(false);
     if (!tempFile->open()) {
-        m_errorString = tr("Cannot create temporary file in %1: %2").arg(
+        m_errorString = Tr::tr("Cannot create temporary file in %1: %2").arg(
                 QDir::toNativeSeparators(QFileInfo(tempFile->fileTemplate()).absolutePath()),
                 tempFile->errorString());
         m_hasError = true;
@@ -292,9 +278,8 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const FilePath &src,
         else if (!m_overwriteAll) {
             const int res = QMessageBox::question(
                 m_parent,
-                QCoreApplication::translate("Utils::FileUtils", "Overwrite File?"),
-                QCoreApplication::translate("Utils::FileUtils", "Overwrite existing file \"%1\"?")
-                    .arg(dest.toUserOutput()),
+                Tr::tr("Overwrite File?"),
+                Tr::tr("Overwrite existing file \"%1\"?").arg(dest.toUserOutput()),
                 QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No | QMessageBox::NoToAll
                     | QMessageBox::Cancel);
             if (res == QMessageBox::Cancel) {
@@ -315,8 +300,7 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const FilePath &src,
         dest.parentDir().ensureWritableDir();
         if (!src.copyFile(dest)) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Could not copy file \"%1\" to \"%2\".")
+                *error = Tr::tr("Could not copy file \"%1\" to \"%2\".")
                              .arg(src.toUserOutput(), dest.toUserOutput());
             }
             return false;
@@ -405,36 +389,39 @@ static QWidget *dialogParent(QWidget *parent)
     return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
-
-FilePath qUrlToFilePath(const QUrl &url)
+static FilePath qUrlToFilePath(const QUrl &url)
 {
     if (url.isLocalFile())
         return FilePath::fromString(url.toLocalFile());
-    return FilePath::fromUrl(url);
+    return FilePath::fromParts(url.scheme(), url.host(), url.path());
 }
 
-QUrl filePathToQUrl(const FilePath &filePath)
+static QUrl filePathToQUrl(const FilePath &filePath)
 {
-   return QUrl::fromLocalFile(filePath.toFSPathString());
+    return QUrl::fromLocalFile(filePath.toFSPathString());
 }
 
 void prepareNonNativeDialog(QFileDialog &dialog)
 {
+    const auto isValidSideBarPath = [](const FilePath &fp) {
+        return !fp.needsDevice() || fp.hasFileAccess();
+    };
+
     // Checking QFileDialog::itemDelegate() seems to be the only way to determine
     // whether the dialog is native or not.
     if (dialog.itemDelegate()) {
         FilePaths sideBarPaths;
 
-        // Check existing urls, remove paths that need a device and no longer exist.
+        // Check existing urls, remove paths that need a device and are no longer valid.
         for (const QUrl &url : dialog.sidebarUrls()) {
             FilePath path = qUrlToFilePath(url);
-            if (!path.needsDevice() || path.exists())
+            if (isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
 
-        // Add all device roots that are not already in the sidebar and exist.
+        // Add all device roots that are not already in the sidebar and valid.
         for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
-            if (!sideBarPaths.contains(path) && path.exists())
+            if (!sideBarPaths.contains(path) && isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
 
@@ -482,15 +469,29 @@ FilePath firstOrEmpty(const FilePaths &filePaths)
     return filePaths.isEmpty() ? FilePath() : filePaths.first();
 }
 
+bool FileUtils::hasNativeFileDialog()
+{
+    static std::optional<bool> hasNative;
+    if (!hasNative.has_value()) {
+        // Checking QFileDialog::itemDelegate() seems to be the only way to determine
+        // whether the dialog is native or not.
+        QFileDialog dialog;
+        hasNative = dialog.itemDelegate() == nullptr;
+    }
+
+    return *hasNative;
+}
+
 FilePath FileUtils::getOpenFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir,
                                     const QString &filter,
                                     QString *selectedFilter,
                                     QFileDialog::Options options,
-                                    bool fromDeviceIfShiftIsPressed)
+                                    bool fromDeviceIfShiftIsPressed,
+                                    bool forceNonNativeDialog)
 {
-    bool forceNonNativeDialog = dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
         forceNonNativeDialog = true;
@@ -515,9 +516,10 @@ FilePath FileUtils::getSaveFilePath(QWidget *parent,
                                     const FilePath &dir,
                                     const QString &filter,
                                     QString *selectedFilter,
-                                    QFileDialog::Options options)
+                                    QFileDialog::Options options,
+                                    bool forceNonNativeDialog)
 {
-    bool forceNonNativeDialog = dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
     return firstOrEmpty(getFilePaths(dialogParent(parent),
@@ -536,9 +538,10 @@ FilePath FileUtils::getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir,
                                          QFileDialog::Options options,
-                                         bool fromDeviceIfShiftIsPressed)
+                                         bool fromDeviceIfShiftIsPressed,
+                                         bool forceNonNativeDialog)
 {
-    bool forceNonNativeDialog = dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
 
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
@@ -583,8 +586,36 @@ FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
 
 #endif // QT_WIDGETS_LIB
 
+// Converts a hex string of the st_mode field of a stat structure to FileFlags.
 FilePathInfo::FileFlags fileInfoFlagsfromStatRawModeHex(const QString &hexString)
 {
+    // Copied from stat.h
+    enum st_mode {
+        IFMT = 00170000,
+        IFSOCK = 0140000,
+        IFLNK = 0120000,
+        IFREG = 0100000,
+        IFBLK = 0060000,
+        IFDIR = 0040000,
+        IFCHR = 0020000,
+        IFIFO = 0010000,
+        ISUID = 0004000,
+        ISGID = 0002000,
+        ISVTX = 0001000,
+        IRWXU = 00700,
+        IRUSR = 00400,
+        IWUSR = 00200,
+        IXUSR = 00100,
+        IRWXG = 00070,
+        IRGRP = 00040,
+        IWGRP = 00020,
+        IXGRP = 00010,
+        IRWXO = 00007,
+        IROTH = 00004,
+        IWOTH = 00002,
+        IXOTH = 00001,
+    };
+
     bool ok = false;
     uint mode = hexString.toUInt(&ok, 16);
 
@@ -592,31 +623,32 @@ FilePathInfo::FileFlags fileInfoFlagsfromStatRawModeHex(const QString &hexString
 
     FilePathInfo::FileFlags result;
 
-    if (mode & 0x100) // S_IRUSR
+    if (mode & IRUSR)
         result |= FilePathInfo::ReadOwnerPerm;
-    if (mode & 0x80) // S_IWUSR
+    if (mode & IWUSR)
         result |= FilePathInfo::WriteOwnerPerm;
-    if (mode & 0x40) // S_IXUSR
+    if (mode & IXUSR)
         result |= FilePathInfo::ExeOwnerPerm;
-    if (mode & 0x20) // S_IRGRP
+    if (mode & IRGRP)
         result |= FilePathInfo::ReadGroupPerm;
-    if (mode & 0x10) // S_IWGRP
+    if (mode & IWGRP)
         result |= FilePathInfo::WriteGroupPerm;
-    if (mode & 0x8) // S_IXGRP
+    if (mode & IXGRP)
         result |= FilePathInfo::ExeGroupPerm;
-    if (mode & 0x4) // S_IROTH
+    if (mode & IROTH)
         result |= FilePathInfo::ReadOtherPerm;
-    if (mode & 0x2) // S_IWOTH
+    if (mode & IWOTH)
         result |= FilePathInfo::WriteOtherPerm;
-    if (mode & 0x1) // S_IXOTH
+    if (mode & IXOTH)
         result |= FilePathInfo::ExeOtherPerm;
-    if (mode & 0xa000) // S_IFLNK
+
+    if ((mode & IFMT) == IFLNK)
         result |= FilePathInfo::LinkType;
-    if (mode & 0x8000) // S_IFREG
+    if ((mode & IFMT) == IFREG)
         result |= FilePathInfo::FileType;
-    if (mode & 0x4000) // S_IFDIR
+    if ((mode & IFMT) == IFDIR)
         result |= FilePathInfo::DirectoryType;
-    if (mode & 0x6000) // S_IFBLK
+    if ((mode & IFMT) == IFBLK)
         result |= FilePathInfo::LocalDiskFlag;
 
     if (result != 0) // There is no Exist flag, but if anything was set before, it must exist.
@@ -638,38 +670,34 @@ FilePathInfo FileUtils::filePathInfoFromTriple(const QString &infos)
     return {size, flags, dt};
 }
 
-/*!
-  Copies the directory specified by \a srcFilePath recursively to \a tgtFilePath. \a tgtFilePath will contain
-  the target directory, which will be created. Example usage:
-
-  \code
-    QString error;
-    bool ok = Utils::FileUtils::copyRecursively("/foo/bar", "/foo/baz", &error);
-    if (!ok)
-      qDebug() << error;
-  \endcode
-
-  This will copy the contents of /foo/bar into to the baz directory under /foo, which will be created in the process.
-
-  \note The \a error parameter is optional.
-
-  Returns whether the operation succeeded.
-*/
-
-bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgtFilePath, QString *error)
+bool FileUtils::copyRecursively(
+    const FilePath &srcFilePath,
+    const FilePath &tgtFilePath,
+    QString *error,
+    std::function<bool(const FilePath &, const FilePath &, QString *)> copyHelper)
 {
-    return copyRecursively(
-        srcFilePath, tgtFilePath, error, [](const FilePath &src, const FilePath &dest, QString *error) {
-            if (!src.copyFile(dest)) {
-                if (error) {
-                    *error = QCoreApplication::translate("Utils::FileUtils",
-                                                         "Could not copy file \"%1\" to \"%2\".")
-                                 .arg(src.toUserOutput(), dest.toUserOutput());
-                }
-                return false;
+    if (srcFilePath.isDir()) {
+        if (!tgtFilePath.ensureWritableDir()) {
+            if (error) {
+                *error = Tr::tr("Failed to create directory \"%1\".")
+                             .arg(tgtFilePath.toUserOutput());
             }
-            return true;
-        });
+            return false;
+        }
+        const QDir sourceDir(srcFilePath.toString());
+        const QStringList fileNames = sourceDir.entryList(
+            QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+        for (const QString &fileName : fileNames) {
+            const FilePath newSrcFilePath = srcFilePath / fileName;
+            const FilePath newTgtFilePath = tgtFilePath / fileName;
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
+                return false;
+        }
+    } else {
+        if (!copyHelper(srcFilePath, tgtFilePath, error))
+            return false;
+    }
+    return true;
 }
 
 /*!
@@ -689,15 +717,20 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
         const QDateTime srcModified = srcFilePath.lastModified();
         const QDateTime tgtModified = tgtFilePath.lastModified();
         if (srcModified == tgtModified) {
-            const std::optional<QByteArray> srcContents = srcFilePath.fileContents();
-            const std::optional<QByteArray> tgtContents = srcFilePath.fileContents();
-            if (srcContents == tgtContents)
+            // TODO: Create FilePath::hashFromContents() and compare hashes.
+            const expected_str<QByteArray> srcContents = srcFilePath.fileContents();
+            const expected_str<QByteArray> tgtContents = srcFilePath.fileContents();
+            if (srcContents && srcContents == tgtContents)
                 return true;
         }
         tgtFilePath.removeFile();
     }
 
-    return srcFilePath.copyFile(tgtFilePath);
+    const expected_str<void> copyResult = srcFilePath.copyFile(tgtFilePath);
+
+    // TODO forward error to caller instead of assert, since IO errors can always be expected
+    QTC_ASSERT_EXPECTED(copyResult, return false);
+    return true;
 }
 
 QString FileUtils::fileSystemFriendlyName(const QString &name)
@@ -757,27 +790,6 @@ QString FileUtils::normalizedPathName(const QString &name)
 #else // do not try to handle case-insensitive file systems on Linux
     return name;
 #endif
-}
-
-bool isRelativePathHelper(const QString &path, OsType osType)
-{
-    if (path.startsWith('/'))
-        return false;
-    if (osType == OsType::OsTypeWindows) {
-        if (path.startsWith('\\'))
-            return false;
-        // Unlike QFileInfo, this won't accept a relative path with a drive letter.
-        // Such paths result in a royal mess anyway ...
-        if (path.length() >= 3 && path.at(1) == ':' && path.at(0).isLetter()
-                && (path.at(2) == '/' || path.at(2) == '\\'))
-            return false;
-    }
-    return true;
-}
-
-bool FileUtils::isRelativePath(const QString &path)
-{
-    return isRelativePathHelper(path, HostOsInfo::hostOs());
 }
 
 FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)

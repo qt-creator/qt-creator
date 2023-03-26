@@ -29,7 +29,7 @@
 
     To open task list files in \uicontrol Issues, choose \uicontrol File  >
     \uicontrol Open. Right-click a task list entry to open a context menu that
-    contains commands for managing the entry. You can copy or remove task list
+    has commands for managing the entry. You can copy or remove task list
     entries or navigate to the corresponding source code.
 
     \QC monitors the loaded files and displays the changes in \uicontrol Issues.

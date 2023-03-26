@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -38,11 +38,11 @@ public:
                       Core::PatchAction patchAction, bool addPrefix = false,
                       const QString &overriddenFileName = {}) const;
 
-    void setDiffFiles(const QList<FileData> &data, const Utils::FilePath &directory,
-                      const QString &startupFile = {});
+    void setDiffFiles(const QList<FileData> &data);
     QList<FileData> diffFiles() const;
-    Utils::FilePath baseDirectory() const;
-    void setBaseDirectory(const Utils::FilePath &directory);
+    Utils::FilePath workingDirectory() const;
+    void setWorkingDirectory(const Utils::FilePath &directory);
+    void setStartupFile(const QString &startupFile);
     QString startupFile() const;
 
     void setDescription(const QString &description);
@@ -82,7 +82,7 @@ private:
 
     DiffEditorController *m_controller = nullptr;
     QList<FileData> m_diffFiles;
-    Utils::FilePath m_baseDirectory;
+    Utils::FilePath m_workingDirectory;
     QString m_startupFile;
     QString m_description;
     int m_contextLineCount = 3;

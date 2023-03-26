@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,22 +8,20 @@
 namespace Utils {
 class FilePath;
 using FilePaths = QList<FilePath>;
-} // namespace Utils
+} // Utils
 
 namespace ProjectExplorer {
 class Project;
 class SelectableFilesFromDirModel;
-} // namespace ProjectExplorer
+} // ProjectExplorer
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class OptionsWidget;
 class CppcheckOptions;
 
 class ManualRunDialog : public QDialog
 {
-    Q_OBJECT
 public:
     ManualRunDialog(const CppcheckOptions &options,
                     const ProjectExplorer::Project *project);
@@ -37,5 +35,4 @@ private:
     ProjectExplorer::SelectableFilesFromDirModel *m_model;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

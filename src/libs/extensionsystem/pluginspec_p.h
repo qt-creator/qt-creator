@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,7 +19,6 @@
 namespace ExtensionSystem {
 
 class IPlugin;
-class PluginManager;
 
 namespace Internal {
 
@@ -60,6 +59,7 @@ public:
     QString copyright;
     QString license;
     QString description;
+    QString longDescription;
     QString url;
     QString category;
     QRegularExpression platformSpecification;
@@ -77,6 +77,8 @@ public:
     QHash<PluginDependency, PluginSpec *> dependencySpecs;
     PluginSpec::PluginArgumentDescriptions argumentDescriptions;
     IPlugin *plugin = nullptr;
+
+    QList<TestCreator> registeredPluginTests;
 
     PluginSpec::State state = PluginSpec::Invalid;
     bool hasError = false;

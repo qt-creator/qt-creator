@@ -1,9 +1,10 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "toolchainsettingsaccessor.h"
 
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
@@ -169,7 +170,7 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
 
 ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
     UpgradingSettingsAccessor("QtCreatorToolChains",
-                              QCoreApplication::translate("ProjectExplorer::ToolChainManager", "Tool Chains"),
+                              Tr::tr("Tool Chains"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::userResourcePath(TOOLCHAIN_FILENAME));

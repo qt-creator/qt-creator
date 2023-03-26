@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilerconstants.h"
 #include "qmlprofilerdetailsrewriter.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilernotesmodel.h"
@@ -10,7 +9,6 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <tracing/tracestashfile.h>
-#include <utils/runextensions.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -24,19 +22,19 @@
 namespace QmlProfiler {
 
 static const char *ProfileFeatureNames[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "JavaScript"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Memory Usage"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Pixmap Cache"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Scene Graph"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Animations"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Painting"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Compiling"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Creating"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Binding"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Handling Signal"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Input Events"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Debug Messages"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Quick3D")
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "JavaScript"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Memory Usage"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Pixmap Cache"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Scene Graph"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Animations"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Painting"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Compiling"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Creating"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Binding"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Handling Signal"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Input Events"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Debug Messages"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Quick3D")
 };
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
@@ -56,7 +54,6 @@ private:
 
 class QmlProfilerEventStorage : public Timeline::TraceEventStorage
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlProfilerEventStorage)
 public:
     using ErrorHandler = std::function<void(const QString &)>;
 

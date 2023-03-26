@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qt5rendernodeinstanceserver.h"
 
@@ -57,7 +57,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         if (quickWindow() && nodeInstanceClient()->bytesToWrite() < 10000) {
             bool windowDirty = false;
             bool hasView3D = false;
-            foreach (QQuickItem *item, allItems()) {
+            for (QQuickItem *item : allItems()) {
                 if (item) {
                     if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
                         if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::AllMask)) {

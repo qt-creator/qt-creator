@@ -1,11 +1,12 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR LGPL-3.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "filesystemmodel.h"
 
 #include "environment.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QDateTime>
 #include <QCollator>
@@ -746,8 +747,8 @@ public:
         // Vista == "Computer",
         // OS X == "Computer" (sometime user generated) "Benjamin's PowerBook G4"
         if (HostOsInfo::isWindowsHost())
-            return FileSystemModel::tr("My Computer");
-        return FileSystemModel::tr("Computer");
+            return Tr::tr("My Computer");
+        return Tr::tr("Computer");
     }
 
     inline void delayedSort() {
@@ -862,7 +863,7 @@ bool FileSystemModel::remove(const QModelIndex &aindex)
     if (useFileSystemWatcher() && HostOsInfo::isWindowsHost())  {
         // QTBUG-65683: Remove file system watchers prior to deletion to prevent
         // failure due to locked files on Windows.
-        const QStringList watchedPaths = d->unwatchPathsAt(aindex);
+        d->unwatchPathsAt(aindex);
     }
     const bool success = (fileInfo.isFile() || fileInfo.isSymLink())
             ? QFile::remove(path) : QDir(path).removeRecursively();
@@ -1505,19 +1506,19 @@ QVariant FileSystemModel::headerData(int section, Qt::Orientation orientation, i
 
     QString returnValue;
     switch (section) {
-    case 0: returnValue = tr("Name");
+    case 0: returnValue = Tr::tr("Name");
             break;
-    case 1: returnValue = tr("Size");
+    case 1: returnValue = Tr::tr("Size");
             break;
     case 2: returnValue = HostOsInfo::isMacHost()
-                    ? tr("Kind", "Match OS X Finder")
-                    :tr("Type", "All other platforms");
+                    ? Tr::tr("Kind", "Match OS X Finder")
+                    : Tr::tr("Type", "All other platforms");
            break;
     // Windows   - Type
     // OS X      - Kind
     // Konqueror - File Type
     // Nautilus  - Type
-    case 3: returnValue = tr("Date Modified");
+    case 3: returnValue = Tr::tr("Date Modified");
             break;
     default: return QVariant();
     }
@@ -2192,6 +2193,7 @@ void FileSystemModel::setNameFilters(const QStringList &filters)
         // update the bypass filter to only bypass the stuff that must be kept around
         d->bypassFilters.clear();
         // We guarantee that rootPath will stick around
+        // TODO: root looks unused - does it really guarantee anything?
         QPersistentModelIndex root(index(rootPath()));
         const QModelIndexList persistentList = persistentIndexList();
         for (const auto &persistentIndex : persistentList) {

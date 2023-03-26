@@ -1,7 +1,7 @@
 # Copyright (C) 2022 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
-FINAL_OUT=$(mktemp -u)
-mkfifo "$FINAL_OUT"
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+FINAL_OUT=$(mktemp -u) || exit 2
+mkfifo "$FINAL_OUT" || exit 3
 
 finalOutput() {
     local fileInputBuffer

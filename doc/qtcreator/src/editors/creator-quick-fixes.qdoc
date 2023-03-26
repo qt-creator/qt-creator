@@ -25,7 +25,7 @@
     In the context menu, select \uicontrol {Refactoring} and then select a
     refactoring action.
 
-    You can also press \key {Alt+Enter} to open a context menu that contains
+    You can also press \key {Alt+Enter} to open a context menu that has
     refactoring actions available in the current cursor position.
 
     \if defined(qtcreator)
@@ -187,7 +187,7 @@
             \li Activation
         \row
             \li Add Curly Braces
-            \li Adds curly braces to an if statement that does not contain a
+            \li Adds curly braces to an if statement that does not have a
                 compound statement. For example, rewrites
 
     \code
@@ -608,7 +608,7 @@
                 selection are rewritten.
 
             \li Declarations with pointers or references and selections
-                containing such declarations
+                that have such declarations
         \row
             \li Create Getter and Setter Member Functions
             \li Creates either both getter and setter member functions for

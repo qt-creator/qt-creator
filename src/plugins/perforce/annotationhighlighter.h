@@ -1,12 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 // Annotation highlighter for p4 triggering on 'changenumber:'
 class PerforceAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
@@ -20,5 +19,4 @@ private:
     QString changeNumber(const QString &block) const override;
 };
 
-} // namespace Perforce
-} // namespace Internal
+} // Perforce::Internal

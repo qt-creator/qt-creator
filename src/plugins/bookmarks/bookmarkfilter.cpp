@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bookmarkfilter.h"
 
@@ -57,7 +57,7 @@ void BookmarkFilter::prepareSearch(const QString &entry)
 
     for (const QModelIndex &idx : matches) {
         const Bookmark *bookmark = m_manager->bookmarkForIndex(idx);
-        const QString filename = bookmark->fileName().fileName();
+        const QString filename = bookmark->filePath().fileName();
         LocatorFilterEntry filterEntry(this,
                                        QString("%1:%2").arg(filename).arg(bookmark->lineNumber()),
                                        QVariant::fromValue(idx));
@@ -66,7 +66,7 @@ void BookmarkFilter::prepareSearch(const QString &entry)
         else if (!bookmark->lineText().isEmpty())
             filterEntry.extraInfo = bookmark->lineText();
         else
-            filterEntry.extraInfo = bookmark->fileName().toString();
+            filterEntry.extraInfo = bookmark->filePath().toString();
         int highlightIndex = filterEntry.displayName.indexOf(entry, 0, Qt::CaseInsensitive);
         if (highlightIndex >= 0) {
             filterEntry.highlightInfo = {highlightIndex, int(entry.length())};

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscodestylepreferences.h"
 #include "qmljscodestylepreferencesfactory.h"
@@ -40,7 +40,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     // global code style settings
     m_globalCodeStyle = new QmlJSCodeStylePreferences(this);
     m_globalCodeStyle->setDelegatingPool(pool);
-    m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
+    m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
     m_globalCodeStyle->setId(idKey);
     pool->addCodeStyle(m_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, m_globalCodeStyle);

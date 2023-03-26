@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "delegates.h"
 
@@ -119,7 +119,7 @@ QWidget *PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
     editor->setAutoFillBackground(true); // To hide the text beneath the editor widget
     editor->lineEdit()->setMinimumWidth(0);
 
-    connect(editor, &PathChooser::browsingFinished, this, [this, editor]() {
+    connect(editor, &PathChooser::browsingFinished, this, [this, editor] {
         emit const_cast<PathChooserDelegate*>(this)->commitData(editor);
     });
 
@@ -128,7 +128,7 @@ QWidget *PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
 
 void PathChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    if (auto *pathChooser = qobject_cast<PathChooser *>(editor)) {
+    if (auto pathChooser = qobject_cast<PathChooser *>(editor)) {
         pathChooser->setExpectedKind(m_kind);
         pathChooser->setPromptDialogFilter(m_filter);
         pathChooser->setFilePath(FilePath::fromVariant(index.model()->data(index, Qt::EditRole)));

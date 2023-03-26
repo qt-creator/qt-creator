@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -24,7 +24,7 @@ QString cppExpressionAt(TextEditor::TextEditorWidget *editorWidget, int pos,
                         int *line, int *column, QString *function = nullptr,
                         int *scopeFromLine = nullptr, int *scopeToLine = nullptr);
 QString fixCppExpression(const QString &exp);
-QString cppFunctionAt(const QString &fileName, int line, int column = 0);
+QString cppFunctionAt(const Utils::FilePath &filePath, int line, int column = 0);
 
 // Get variables that are not initialized at a certain line
 // of a function from the code model. Shadowed variables will

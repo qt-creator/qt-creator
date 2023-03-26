@@ -1,9 +1,10 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdbmessagetracker.h"
 #include "qdbwatcher.h"
 
+#include "../qdbtr.h"
 #include "../qdbutils.h"
 #include "hostmessages.h"
 
@@ -11,8 +12,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 QdbMessageTracker::QdbMessageTracker(QObject *parent)
     : QObject(parent)
@@ -39,7 +39,7 @@ void QdbMessageTracker::handleWatchMessage(const QJsonDocument &document)
     if (type != ResponseType::Messages) {
         stop();
         const QString message =
-                tr("Shutting down message reception due to unexpected response: %1");
+                Tr::tr("Shutting down message reception due to unexpected response: %1");
         emit trackerError(message.arg(QString::fromUtf8(document.toJson())));
         return;
     }
@@ -58,9 +58,8 @@ void QdbMessageTracker::handleWatchMessage(const QJsonDocument &document)
         }
 
         m_messageCache.append(message);
-        showMessage(tr("QDB message: %1").arg(message), true);
+        showMessage(Tr::tr("QDB message: %1").arg(message), true);
     }
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

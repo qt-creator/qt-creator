@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Orgad Shaneh <orgads@gmail.com>.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gitgrep.h"
 
@@ -281,13 +281,14 @@ QFuture<FileSearchResultList> GitGrep::executeSearch(const TextEditor::FileFindP
 IEditor *GitGrep::openEditor(const SearchResultItem &item,
                              const TextEditor::FileFindParameters &parameters)
 {
-    GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
-    if (params.ref.isEmpty() || item.path().isEmpty())
+    const GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
+    const QStringList &itemPath = item.path();
+    if (params.ref.isEmpty() || itemPath.isEmpty())
         return nullptr;
-    const QString path = QDir::fromNativeSeparators(item.path().first());
+    const FilePath path = FilePath::fromUserInput(itemPath.first());
     const FilePath topLevel = FilePath::fromString(parameters.additionalParameters.toString());
-    IEditor *editor = m_client->openShowEditor(
-                topLevel, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
+    IEditor *editor = m_client->openShowEditor(topLevel, params.ref, path,
+                                               GitClient::ShowEditor::OnlyIfDifferent);
     if (editor)
         editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
     return editor;

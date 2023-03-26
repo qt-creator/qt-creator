@@ -1,12 +1,12 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "compilationdbparser.h"
 
 #include "compilationdatabaseconstants.h"
+#include "compilationdatabaseprojectmanagertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <projectexplorer/task.h>
 #include <projectexplorer/treescanner.h>
 #include <utils/mimeutils.h>
 #include <utils/runextensions.h>
@@ -87,7 +87,7 @@ void CompilationDbParser::start()
         });
         m_treeScanner->asyncScanForFiles(m_rootPath);
         Core::ProgressManager::addTask(m_treeScanner->future(),
-                                       tr("Scan \"%1\" project tree").arg(m_projectName),
+                                       Tr::tr("Scan \"%1\" project tree").arg(m_projectName),
                                        "CompilationDatabase.Scan.Tree");
         ++m_runningParserJobs;
         connect(m_treeScanner, &TreeScanner::finished,
@@ -97,7 +97,7 @@ void CompilationDbParser::start()
     // Thread 2: Parse the project file.
     const QFuture<DbContents> future = runAsync(&CompilationDbParser::parseProject, this);
     Core::ProgressManager::addTask(future,
-                                   tr("Parse \"%1\" project").arg(m_projectName),
+                                   Tr::tr("Parse \"%1\" project").arg(m_projectName),
                                    "CompilationDatabase.Parse");
     ++m_runningParserJobs;
     m_parserWatcher.setFuture(future);
@@ -157,11 +157,8 @@ static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &fla
 
 static FilePath jsonObjectFilePath(const QJsonObject &object)
 {
-    const QString workingDir = QDir::cleanPath(object["directory"].toString());
-    FilePath fileName = FilePath::fromString(QDir::cleanPath(object["file"].toString()));
-    if (fileName.toFileInfo().isRelative())
-        fileName = FilePath::fromString(QDir::cleanPath(workingDir + "/" + fileName.toString()));
-    return fileName;
+    const FilePath workingDir = FilePath::fromUserInput(object["directory"].toString());
+    return workingDir.resolvePath(object["file"].toString());
 }
 
 std::vector<DbEntry> CompilationDbParser::readJsonObjects() const

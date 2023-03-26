@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,6 +8,7 @@
 #include <QString>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QVarLengthArray>
 #include <QVector>
 
 #include <utils/filepath.h>
@@ -41,7 +42,6 @@ public:
     void arg(const char *name, const QList<int> &list);
     void arg(const char *name, const QStringList &list); // Note: Hex-encodes.
     void arg(const char *name, const QJsonValue &value);
-    void arg(const char *name, const Utils::FilePath &filePath);
 
     QString argsToPython() const;
     QString argsToString() const;
@@ -106,6 +106,8 @@ class DebuggerOutputParser
 public:
     explicit DebuggerOutputParser(const QString &output);
 
+    using Buffer = QVarLengthArray<char, 30>;
+
     QChar current() const { return *from; }
     bool isCurrent(QChar c) const { return *from == c; }
     bool isAtEnd() const { return from >= to; }
@@ -117,9 +119,11 @@ public:
     int readInt();
     QChar readChar();
     QString readCString();
-    QString readString(const std::function<bool(char)> &isValidChar);
+    void readCStringData(Buffer &buffer);
 
-    QString buffer() const { return QString(from, to - from); }
+    QStringView readString(const std::function<bool(char)> &isValidChar);
+
+    QStringView buffer() const { return QStringView(from, to - from); }
     int remainingChars() const { return int(to - from); }
 
     void skipCommas();

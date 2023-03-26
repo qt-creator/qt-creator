@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "javaeditor.h"
 #include "javaindenter.h"
 #include "androidconstants.h"
 
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
@@ -42,7 +43,7 @@ JavaEditorFactory::JavaEditorFactory()
         "transient", "try", "void", "volatile", "while"
     };
     setId(Constants::JAVA_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Java Editor"));
+    setDisplayName(::Core::Tr::tr("Java Editor"));
     addMimeType(Constants::JAVA_MIMETYPE);
 
     setDocumentCreator(createJavaDocument);

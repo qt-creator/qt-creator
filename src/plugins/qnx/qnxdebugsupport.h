@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,18 +7,12 @@
 
 namespace Qnx::Internal {
 
-class QnxDebugSupport : public Debugger::DebuggerRunTool
+void showAttachToProcessDialog();
+
+class QnxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    explicit QnxDebugSupport(ProjectExplorer::RunControl *runControl);
-};
-
-class QnxAttachDebugSupport : public Debugger::DebuggerRunTool
-{
-public:
-    explicit QnxAttachDebugSupport(ProjectExplorer::RunControl *runControl);
-
-    static void showProcessesDialog();
+    QnxDebugWorkerFactory();
 };
 
 } // Qnx::Internal

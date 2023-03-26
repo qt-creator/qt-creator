@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -15,11 +15,10 @@ namespace LanguageClient {
 class Client;
 
 using HelpItemProvider = std::function<void(const LanguageServerProtocol::HoverRequest::Response &,
-                                            const LanguageServerProtocol::DocumentUri &uri)>;
+                                            const Utils::FilePath &path)>;
 
 class LANGUAGECLIENT_EXPORT HoverHandler final : public TextEditor::BaseHoverHandler
 {
-    Q_DECLARE_TR_FUNCTIONS(HoverHandler)
 public:
     explicit HoverHandler(Client *client);
     ~HoverHandler() override;
@@ -49,7 +48,7 @@ private:
 
     QPointer<Client> m_client;
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
-    LanguageServerProtocol::DocumentUri m_uri;
+    Utils::FilePath m_filePath;
     LanguageServerProtocol::HoverRequest::Response m_response;
     TextEditor::BaseHoverHandler::ReportPriority m_report;
     HelpItemProvider m_helpItemProvider;

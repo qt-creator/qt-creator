@@ -1,6 +1,6 @@
 // Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -25,8 +25,6 @@ public:
     static QString defaultDisplayName();
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
-
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const final;
 
     QString debugServerProviderId() const;
     void setDebugServerProviderId(const QString &id);

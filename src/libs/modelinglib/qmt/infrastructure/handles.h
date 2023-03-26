@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -55,7 +55,7 @@ public:
 
     bool contains(const Uid &uid) const
     {
-        foreach (const Handle<T> &handle, m_handleList) {
+        for (const Handle<T> &handle : std::as_const(m_handleList)) {
             if (handle.uid() == uid)
                 return true;
         }
@@ -70,7 +70,7 @@ public:
 
     T *find(const Uid &uid) const
     {
-        foreach (const Handle<T> &handle, m_handleList) {
+        for (const Handle<T> &handle : std::as_const(m_handleList)) {
             if (handle.uid() == uid)
                 return handle.target();
         }
@@ -92,7 +92,7 @@ public:
     int indexOf(const Uid &uid) const
     {
         int index = 0;
-        foreach (const Handle<T> &handle, m_handleList) {
+        for (const Handle<T> &handle : std::as_const(m_handleList)) {
             if (handle.uid() == uid)
                 return index;
             ++index;
@@ -123,7 +123,7 @@ public:
     void reset()
     {
         if (m_takesOwnership) {
-            foreach (const Handle<T> &handle, m_handleList)
+            for (const Handle<T> &handle : std::as_const(m_handleList))
                 delete handle.target();
         }
         m_handleList.clear();

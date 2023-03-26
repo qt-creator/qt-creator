@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "scxmleditorplugin.h"
 
@@ -23,14 +23,9 @@ ScxmlEditorPlugin::~ScxmlEditorPlugin()
     delete d;
 }
 
-bool ScxmlEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ScxmlEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new ScxmlEditorPluginPrivate;
-
-    return true;
 }
 
 void ScxmlEditorPlugin::extensionsInitialized()

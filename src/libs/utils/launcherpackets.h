@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -21,7 +21,7 @@ enum class LauncherPacketType {
     Shutdown,
     StartProcess,
     WriteIntoProcess,
-    StopProcess,
+    ControlProcess,
     // launcher -> client packets:
     ProcessStarted,
     ReadyReadStandardOutput,
@@ -116,15 +116,16 @@ private:
     void doDeserialize(QDataStream &stream) override;
 };
 
-class StopProcessPacket : public LauncherPacket
+class ControlProcessPacket : public LauncherPacket
 {
 public:
-    StopProcessPacket(quintptr token);
+    ControlProcessPacket(quintptr token);
 
     enum class SignalType {
         Kill, // Calls QProcess::kill
         Terminate, // Calls QProcess::terminate
-        Close // Puts the process into the reaper, no confirmation signal is being sent.
+        Close, // Puts the process into the reaper, no confirmation signal is being sent.
+        CloseWriteChannel
     };
 
     SignalType signalType = SignalType::Kill;

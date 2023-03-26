@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtprojectimporter.h"
 
@@ -613,7 +613,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
 
     qDeleteAll(testData);
 
-    foreach (Kit *k, toUnregisterLater)
+    for (Kit *k : std::as_const(toUnregisterLater))
         KitManager::deregisterKit(k);
 
     // Delete kit templates:

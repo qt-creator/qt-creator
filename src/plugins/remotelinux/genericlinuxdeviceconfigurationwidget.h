@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -37,6 +37,7 @@ private:
     void userNameEditingFinished();
     void keyFileEditingFinished();
     void gdbServerEditingFinished();
+    void qmlRuntimeEditingFinished();
     void handleFreePortsChanged();
     void setPrivateKey(const Utils::FilePath &path);
     void createNewKey();
@@ -58,7 +59,8 @@ private:
     QSpinBox *m_timeoutSpinBox;
     Utils::PathChooser *m_keyFileLineEdit;
     QLabel *m_machineTypeValueLabel;
-    QLineEdit *m_gdbServerLineEdit;
+    Utils::PathChooser *m_gdbServerLineEdit;
+    Utils::PathChooser *m_qmlRuntimeLineEdit;
 };
 
 } // RemoteLinux::Internal

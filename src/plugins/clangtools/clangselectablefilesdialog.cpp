@@ -1,7 +1,9 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangselectablefilesdialog.h"
+
+#include "clangtoolstr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/find/itemviewfind.h>
@@ -100,8 +102,7 @@ public:
             linkDirNode(m_root, projectDirTree);
 
             // Add files outside of the base directory to a separate node
-            Tree *externalFilesNode = createDirNode(SelectableFilesDialog::tr(
-                                                        "Files outside of the base directory"),
+            Tree *externalFilesNode = createDirNode(Tr::tr("Files outside of the base directory"),
                                                     "/");
             linkDirNode(m_root, externalFilesNode);
             for (const FileInfo &fileInfo : outOfBaseDirFiles)
@@ -250,7 +251,7 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
     , m_fileInfoProviders(fileInfoProviders)
     , m_project(project)
 {
-    setWindowTitle(tr("Files to Analyze"));
+    setWindowTitle(Tr::tr("Files to Analyze"));
     resize(700, 600);
 
     m_fileFilterComboBox = new QComboBox(this);
@@ -286,7 +287,7 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
     connect(m_fileFilterComboBox, &QComboBox::currentIndexChanged,
             this, &SelectableFilesDialog::onFileFilterChanged);
 
-    auto analyzeButton = new QPushButton(tr("Analyze"), this);
+    auto analyzeButton = new QPushButton(Tr::tr("Analyze"), this);
     analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
 
     // Buttons
@@ -294,7 +295,7 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
     buttons->setStandardButtons(QDialogButtonBox::Cancel);
     buttons->addButton(analyzeButton, QDialogButtonBox::AcceptRole);
 
-    connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this, analyzeButton] {
+    connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, this, [this, analyzeButton] {
         analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     });
 

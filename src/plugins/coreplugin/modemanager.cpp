@@ -1,17 +1,16 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modemanager.h"
 
-#include "fancytabwidget.h"
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
+#include "coreplugintr.h"
 #include "fancyactionbar.h"
+#include "fancytabwidget.h"
 #include "icore.h"
+#include "imode.h"
 #include "mainwindow.h"
-
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/imode.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -214,7 +213,7 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 
     // Register mode shortcut
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
-    QAction *action = new QAction(ModeManager::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
+    QAction *action = new QAction(Tr::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
     Command *cmd = ActionManager::registerAction(action, actionId);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString("Meta+%1").arg(index + 1)
                                                             : QString("Ctrl+%1").arg(index + 1)));
@@ -226,12 +225,13 @@ void ModeManagerPrivate::appendMode(IMode *mode)
     });
 
     Id id = mode->id();
-    QObject::connect(action, &QAction::triggered, [this, id] {
+    QObject::connect(action, &QAction::triggered, m_instance, [this, id] {
         ModeManager::activateMode(id);
         ICore::raiseWindow(m_modeStack);
     });
 
-    QObject::connect(mode, &IMode::enabledStateChanged, [this, mode] { enabledStateChanged(mode); });
+    QObject::connect(mode, &IMode::enabledStateChanged,
+                     m_instance, [this, mode] { enabledStateChanged(mode); });
 }
 
 void ModeManager::removeMode(IMode *mode)

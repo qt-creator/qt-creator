@@ -1,6 +1,6 @@
 add_qtc_plugin(SerialTerminal
-  CONDITION TARGET Qt5::SerialPort
-  DEPENDS Qt5::SerialPort
+  CONDITION TARGET Qt::SerialPort
+  DEPENDS Qt::SerialPort
   PLUGIN_DEPENDS Core TextEditor
   SOURCES
     consolelineedit.cpp consolelineedit.h

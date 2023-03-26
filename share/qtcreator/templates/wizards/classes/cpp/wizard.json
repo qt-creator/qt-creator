@@ -147,6 +147,17 @@
                     }
                 },
                 {
+                    "name": "AddQmlElementMacro",
+                    "trDisplayName": "Add QML_ELEMENT",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "AddQmlElementMacro",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: ['QQuickItem'].indexOf(value('Base')) >= 0 }"
+                    }
+                },
+                {
                     "name": "Sp2",
                     "type": "Spacer"
                 },

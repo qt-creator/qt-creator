@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "kitinformation.h"
 
@@ -9,6 +9,7 @@
 #include "devicesupport/idevicefactory.h"
 #include "devicesupport/sshparameters.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "kit.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
@@ -33,6 +34,7 @@
 #include <QVBoxLayout>
 
 using namespace Utils;
+using namespace Utils::Layouting;
 
 namespace ProjectExplorer {
 
@@ -47,8 +49,6 @@ const char KITINFORMATION_ID_V3[] = "PE.Profile.ToolChainsV3";
 namespace Internal {
 class SysRootKitAspectWidget : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::SysRootKitAspect)
-
 public:
     SysRootKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
     {
@@ -92,8 +92,8 @@ SysRootKitAspect::SysRootKitAspect()
 {
     setObjectName(QLatin1String("SysRootInformation"));
     setId(SysRootKitAspect::id());
-    setDisplayName(tr("Sysroot"));
-    setDescription(tr("The root directory of the system image to use.<br>"
+    setDisplayName(Tr::tr("Sysroot"));
+    setDescription(Tr::tr("The root directory of the system image to use.<br>"
                       "Leave empty when building for the desktop."));
     setPriority(31000);
 }
@@ -110,13 +110,13 @@ Tasks SysRootKitAspect::validate(const Kit *k) const
 
     if (!dir.exists()) {
         result << BuildSystemTask(Task::Warning,
-                    tr("Sys Root \"%1\" does not exist in the file system.").arg(dir.toUserOutput()));
+                    Tr::tr("Sys Root \"%1\" does not exist in the file system.").arg(dir.toUserOutput()));
     } else if (!dir.isDir()) {
         result << BuildSystemTask(Task::Warning,
-                    tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()));
+                    Tr::tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()));
     } else if (dir.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
         result << BuildSystemTask(Task::Warning,
-                    tr("Sys Root \"%1\" is empty.").arg(dir.toUserOutput()));
+                    Tr::tr("Sys Root \"%1\" is empty.").arg(dir.toUserOutput()));
     }
     return result;
 }
@@ -130,14 +130,14 @@ KitAspectWidget *SysRootKitAspect::createConfigWidget(Kit *k) const
 
 KitAspect::ItemList SysRootKitAspect::toUserOutput(const Kit *k) const
 {
-    return {{tr("Sys Root"), sysRoot(k).toUserOutput()}};
+    return {{Tr::tr("Sys Root"), sysRoot(k).toUserOutput()}};
 }
 
 void SysRootKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
 
-    expander->registerFileVariables("SysRoot", tr("Sys Root"), [kit] {
+    expander->registerFileVariables("SysRoot", Tr::tr("Sys Root"), [kit] {
         return SysRootKitAspect::sysRoot(kit);
     });
 }
@@ -188,8 +188,6 @@ void SysRootKitAspect::setSysRoot(Kit *k, const FilePath &v)
 namespace Internal {
 class ToolChainKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ToolChainKitAspect)
-
 public:
     ToolChainKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
     {
@@ -249,7 +247,7 @@ private:
 
             QComboBox *cb = m_languageComboboxMap.value(l);
             cb->clear();
-            cb->addItem(tr("<No compiler>"), QByteArray());
+            cb->addItem(Tr::tr("<No compiler>"), QByteArray());
 
             for (ToolChain *tc : ltcList)
                 cb->addItem(tc->displayName(), tc->id());
@@ -305,8 +303,8 @@ ToolChainKitAspect::ToolChainKitAspect()
 {
     setObjectName(QLatin1String("ToolChainInformation"));
     setId(ToolChainKitAspect::id());
-    setDisplayName(tr("Compiler"));
-    setDescription(tr("The compiler to use for building.<br>"
+    setDisplayName(Tr::tr("Compiler"));
+    setDescription(Tr::tr("The compiler to use for building.<br>"
                       "Make sure the compiler will produce binaries compatible "
                       "with the target device, Qt version and other libraries used."));
     setPriority(30000);
@@ -355,7 +353,7 @@ Tasks ToolChainKitAspect::validate(const Kit *k) const
         }
         if (targetAbis.count() != 1) {
             result << BuildSystemTask(Task::Error,
-                        tr("Compilers produce code for different ABIs: %1")
+                        Tr::tr("Compilers produce code for different ABIs: %1")
                            .arg(Utils::transform<QList>(targetAbis, &Abi::toString).join(", ")));
         }
     }
@@ -507,7 +505,7 @@ QString ToolChainKitAspect::displayNamePostfix(const Kit *k) const
 KitAspect::ItemList ToolChainKitAspect::toUserOutput(const Kit *k) const
 {
     ToolChain *tc = cxxToolChain(k);
-    return {{tr("Compiler"), tc ? tc->displayName() : tr("None")}};
+    return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None")}};
 }
 
 void ToolChainKitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
@@ -522,25 +520,25 @@ void ToolChainKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) c
     QTC_ASSERT(kit, return);
 
     // Compatibility with Qt Creator < 4.2:
-    expander->registerVariable("Compiler:Name", tr("Compiler"),
+    expander->registerVariable("Compiler:Name", Tr::tr("Compiler"),
                                [kit] {
                                    const ToolChain *tc = cxxToolChain(kit);
-                                   return tc ? tc->displayName() : tr("None");
+                                   return tc ? tc->displayName() : Tr::tr("None");
                                });
 
-    expander->registerVariable("Compiler:Executable", tr("Path to the compiler executable"),
+    expander->registerVariable("Compiler:Executable", Tr::tr("Path to the compiler executable"),
                                [kit] {
                                    const ToolChain *tc = cxxToolChain(kit);
                                    return tc ? tc->compilerCommand().path() : QString();
                                });
 
     // After 4.2
-    expander->registerPrefix("Compiler:Name", tr("Compiler for different languages"),
+    expander->registerPrefix("Compiler:Name", Tr::tr("Compiler for different languages"),
                              [kit](const QString &ls) {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
-                                 return tc ? tc->displayName() : tr("None");
+                                 return tc ? tc->displayName() : Tr::tr("None");
                              });
-    expander->registerPrefix("Compiler:Executable", tr("Compiler executable for different languages"),
+    expander->registerPrefix("Compiler:Executable", Tr::tr("Compiler executable for different languages"),
                              [kit](const QString &ls) {
                                  const ToolChain *tc = toolChain(kit, findLanguage(ls));
                                  return tc ? tc->compilerCommand().path() : QString();
@@ -710,7 +708,7 @@ Abi ToolChainKitAspect::targetAbi(const Kit *k)
 
 QString ToolChainKitAspect::msgNoToolChainInTarget()
 {
-    return tr("No compiler set in kit.");
+    return Tr::tr("No compiler set in kit.");
 }
 
 void ToolChainKitAspect::kitsWereLoaded()
@@ -747,8 +745,6 @@ void ToolChainKitAspect::toolChainRemoved(ToolChain *tc)
 namespace Internal {
 class DeviceTypeKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::DeviceTypeKitAspect)
-
 public:
     DeviceTypeKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki), m_comboBox(createSubWidget<QComboBox>())
@@ -799,8 +795,8 @@ DeviceTypeKitAspect::DeviceTypeKitAspect()
 {
     setObjectName(QLatin1String("DeviceTypeInformation"));
     setId(DeviceTypeKitAspect::id());
-    setDisplayName(tr("Device type"));
-    setDescription(tr("The type of device to run applications on."));
+    setDisplayName(Tr::tr("Device type"));
+    setDescription(Tr::tr("The type of device to run applications on."));
     setPriority(33000);
     makeEssential();
 }
@@ -827,12 +823,12 @@ KitAspect::ItemList DeviceTypeKitAspect::toUserOutput(const Kit *k) const
 {
     QTC_ASSERT(k, return {});
     Id type = deviceTypeId(k);
-    QString typeDisplayName = tr("Unknown device type");
+    QString typeDisplayName = Tr::tr("Unknown device type");
     if (type.isValid()) {
         if (IDeviceFactory *factory = IDeviceFactory::find(type))
             typeDisplayName = factory->displayName();
     }
-    return {{tr("Device type"), typeDisplayName}};
+    return {{Tr::tr("Device type"), typeDisplayName}};
 }
 
 const Id DeviceTypeKitAspect::id()
@@ -870,8 +866,6 @@ QSet<Id> DeviceTypeKitAspect::availableFeatures(const Kit *k) const
 namespace Internal {
 class DeviceKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::DeviceKitAspect)
-
 public:
     DeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki),
@@ -948,8 +942,8 @@ DeviceKitAspect::DeviceKitAspect()
 {
     setObjectName(QLatin1String("DeviceInformation"));
     setId(DeviceKitAspect::id());
-    setDisplayName(tr("Device"));
-    setDescription(tr("The device to run the applications on."));
+    setDisplayName(Tr::tr("Device"));
+    setDescription(Tr::tr("The device to run the applications on."));
     setPriority(32000);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
@@ -978,9 +972,9 @@ Tasks DeviceKitAspect::validate(const Kit *k) const
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     Tasks result;
     if (dev.isNull())
-        result.append(BuildSystemTask(Task::Warning, tr("No device set.")));
+        result.append(BuildSystemTask(Task::Warning, Tr::tr("No device set.")));
     else if (!dev->isCompatibleWith(k))
-        result.append(BuildSystemTask(Task::Error, tr("Device is incompatible with this kit.")));
+        result.append(BuildSystemTask(Task::Error, Tr::tr("Device is incompatible with this kit.")));
 
     if (dev)
         result.append(dev->validate());
@@ -1023,33 +1017,33 @@ QString DeviceKitAspect::displayNamePostfix(const Kit *k) const
 KitAspect::ItemList DeviceKitAspect::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
-    return {{tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName()}};
+    return {{Tr::tr("Device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
 }
 
 void DeviceKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
-    expander->registerVariable("Device:HostAddress", tr("Host address"),
+    expander->registerVariable("Device:HostAddress", Tr::tr("Host address"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? device->sshParameters().host() : QString();
     });
-    expander->registerVariable("Device:SshPort", tr("SSH port"),
+    expander->registerVariable("Device:SshPort", Tr::tr("SSH port"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? QString::number(device->sshParameters().port()) : QString();
     });
-    expander->registerVariable("Device:UserName", tr("User name"),
+    expander->registerVariable("Device:UserName", Tr::tr("User name"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? device->sshParameters().userName() : QString();
     });
-    expander->registerVariable("Device:KeyFile", tr("Private key file"),
+    expander->registerVariable("Device:KeyFile", Tr::tr("Private key file"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? device->sshParameters().privateKeyFile.toString() : QString();
     });
-    expander->registerVariable("Device:Name", tr("Device name"),
+    expander->registerVariable("Device:Name", Tr::tr("Device name"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
             return device ? device->displayName() : QString();
@@ -1135,8 +1129,6 @@ void DeviceKitAspect::devicesChanged()
 namespace Internal {
 class BuildDeviceKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::BuildDeviceKitAspect)
-
 public:
     BuildDeviceKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki),
@@ -1219,8 +1211,8 @@ BuildDeviceKitAspect::BuildDeviceKitAspect()
 {
     setObjectName("BuildDeviceInformation");
     setId(BuildDeviceKitAspect::id());
-    setDisplayName(tr("Build device"));
-    setDescription(tr("The device used to build applications on."));
+    setDisplayName(Tr::tr("Build device"));
+    setDescription(Tr::tr("The device used to build applications on."));
     setPriority(31900);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
@@ -1248,7 +1240,7 @@ Tasks BuildDeviceKitAspect::validate(const Kit *k) const
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
     Tasks result;
     if (dev.isNull())
-        result.append(BuildSystemTask(Task::Warning, tr("No build device set.")));
+        result.append(BuildSystemTask(Task::Warning, Tr::tr("No build device set.")));
 
     return result;
 }
@@ -1268,33 +1260,33 @@ QString BuildDeviceKitAspect::displayNamePostfix(const Kit *k) const
 KitAspect::ItemList BuildDeviceKitAspect::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
-    return {{tr("Build device"), dev.isNull() ? tr("Unconfigured") : dev->displayName()}};
+    return {{Tr::tr("Build device"), dev.isNull() ? Tr::tr("Unconfigured") : dev->displayName()}};
 }
 
 void BuildDeviceKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
-    expander->registerVariable("BuildDevice:HostAddress", tr("Build host address"),
+    expander->registerVariable("BuildDevice:HostAddress", Tr::tr("Build host address"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
             return device ? device->sshParameters().host() : QString();
     });
-    expander->registerVariable("BuildDevice:SshPort", tr("Build SSH port"),
+    expander->registerVariable("BuildDevice:SshPort", Tr::tr("Build SSH port"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
             return device ? QString::number(device->sshParameters().port()) : QString();
     });
-    expander->registerVariable("BuildDevice:UserName", tr("Build user name"),
+    expander->registerVariable("BuildDevice:UserName", Tr::tr("Build user name"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
             return device ? device->sshParameters().userName() : QString();
     });
-    expander->registerVariable("BuildDevice:KeyFile", tr("Build private key file"),
+    expander->registerVariable("BuildDevice:KeyFile", Tr::tr("Build private key file"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
             return device ? device->sshParameters().privateKeyFile.toString() : QString();
     });
-    expander->registerVariable("BuildDevice:Name", tr("Build device name"),
+    expander->registerVariable("BuildDevice:Name", Tr::tr("Build device name"),
         [kit]() -> QString {
             const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
             return device ? device->displayName() : QString();
@@ -1376,8 +1368,6 @@ void BuildDeviceKitAspect::devicesChanged()
 namespace Internal {
 class EnvironmentKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::EnvironmentKitAspect)
-
 public:
     EnvironmentKitAspectWidget(Kit *workingCopy, const KitAspect *ki)
         : KitAspectWidget(workingCopy, ki),
@@ -1392,7 +1382,7 @@ public:
             initMSVCOutputSwitch(layout);
         m_mainWidget->setLayout(layout);
         refresh();
-        m_manageButton->setText(tr("Change..."));
+        m_manageButton->setText(Tr::tr("Change..."));
         connect(m_manageButton, &QAbstractButton::clicked,
                 this, &EnvironmentKitAspectWidget::editEnvironmentChanges);
     }
@@ -1411,7 +1401,7 @@ private:
     {
         const EnvironmentItems changes = currentEnvironment();
         const QString shortSummary = EnvironmentItem::toStringList(changes).join("; ");
-        m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
+        m_summaryLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.") : shortSummary);
     }
 
     void editEnvironmentChanges()
@@ -1454,9 +1444,9 @@ private:
 
     void initMSVCOutputSwitch(QVBoxLayout *layout)
     {
-        m_vslangCheckbox = new QCheckBox(tr("Force UTF-8 MSVC compiler output"));
+        m_vslangCheckbox = new QCheckBox(Tr::tr("Force UTF-8 MSVC compiler output"));
         layout->addWidget(m_vslangCheckbox);
-        m_vslangCheckbox->setToolTip(tr("Either switches MSVC to English or keeps the language and "
+        m_vslangCheckbox->setToolTip(Tr::tr("Either switches MSVC to English or keeps the language and "
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
         connect(m_vslangCheckbox, &QCheckBox::toggled, this, [this](bool checked) {
@@ -1481,8 +1471,8 @@ EnvironmentKitAspect::EnvironmentKitAspect()
 {
     setObjectName(QLatin1String("EnvironmentKitAspect"));
     setId(EnvironmentKitAspect::id());
-    setDisplayName(tr("Environment"));
-    setDescription(tr("Additional build environment settings when using this kit."));
+    setDisplayName(Tr::tr("Environment"));
+    setDescription(Tr::tr("Additional build environment settings when using this kit."));
     setPriority(29000);
 }
 
@@ -1493,7 +1483,7 @@ Tasks EnvironmentKitAspect::validate(const Kit *k) const
 
     const QVariant variant = k->value(EnvironmentKitAspect::id());
     if (!variant.isNull() && !variant.canConvert(QVariant::List))
-        result << BuildSystemTask(Task::Error, tr("The environment setting value is invalid."));
+        result << BuildSystemTask(Task::Error, Tr::tr("The environment setting value is invalid."));
 
     return result;
 }
@@ -1530,7 +1520,7 @@ KitAspectWidget *EnvironmentKitAspect::createConfigWidget(Kit *k) const
 
 KitAspect::ItemList EnvironmentKitAspect::toUserOutput(const Kit *k) const
 {
-    return {{tr("Environment"), EnvironmentItem::toStringList(environmentChanges(k)).join("<br>")}};
+    return {{Tr::tr("Environment"), EnvironmentItem::toStringList(environmentChanges(k)).join("<br>")}};
 }
 
 Id EnvironmentKitAspect::id()

@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pluginspec.h"
 
-#include "pluginspec_p.h"
+#include "extensionsystemtr.h"
 #include "iplugin.h"
-#include "iplugin_p.h"
 #include "pluginmanager.h"
+#include "pluginspec_p.h"
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -246,6 +246,15 @@ QString PluginSpec::license() const
 QString PluginSpec::description() const
 {
     return d->description;
+}
+
+/*!
+    Returns the plugin's long description. This is valid after the PluginSpec::Read
+    state is reached.
+*/
+QString PluginSpec::longDescription() const
+{
+    return d->longDescription;
 }
 
 /*!
@@ -560,6 +569,7 @@ namespace {
     const char COPYRIGHT[] = "Copyright";
     const char LICENSE[] = "License";
     const char DESCRIPTION[] = "Description";
+    const char LONGDESCRIPTION[] = "LongDescription";
     const char URL[] = "Url";
     const char CATEGORY[] = "Category";
     const char PLATFORM[] = "Platform";
@@ -591,6 +601,7 @@ void PluginSpecPrivate::reset()
     copyright.clear();
     license.clear();
     description.clear();
+    longDescription.clear();
     url.clear();
     category.clear();
     location.clear();
@@ -679,36 +690,36 @@ bool PluginSpecPrivate::reportError(const QString &err)
 
 static inline QString msgValueMissing(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "\"%1\" is missing").arg(QLatin1String(key));
+    return Tr::tr("\"%1\" is missing").arg(QLatin1String(key));
 }
 
 static inline QString msgValueIsNotAString(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not a string")
+    return Tr::tr("Value for key \"%1\" is not a string")
             .arg(QLatin1String(key));
 }
 
 static inline QString msgValueIsNotABool(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not a bool")
+    return Tr::tr("Value for key \"%1\" is not a bool")
             .arg(QLatin1String(key));
 }
 
 static inline QString msgValueIsNotAObjectArray(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not an array of objects")
+    return Tr::tr("Value for key \"%1\" is not an array of objects")
             .arg(QLatin1String(key));
 }
 
 static inline QString msgValueIsNotAMultilineString(const char *key)
 {
-    return QCoreApplication::translate("PluginSpec", "Value for key \"%1\" is not a string and not an array of strings")
+    return Tr::tr("Value for key \"%1\" is not a string and not an array of strings")
             .arg(QLatin1String(key));
 }
 
 static inline QString msgInvalidFormat(const char *key, const QString &content)
 {
-    return QCoreApplication::translate("PluginSpec", "Value \"%2\" for key \"%1\" has invalid format")
+    return Tr::tr("Value \"%2\" for key \"%1\" has invalid format")
             .arg(QLatin1String(key), content);
 }
 
@@ -731,8 +742,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
 
     value = pluginMetaData.value(QLatin1String(PLUGIN_METADATA));
     if (!value.isObject()) {
-        return reportError(
-            ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Plugin meta data not found"));
+        return reportError(::ExtensionSystem::Tr::tr("Plugin meta data not found"));
     }
     metaData = value.toObject();
 
@@ -795,6 +805,10 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     if (!value.isUndefined() && !Utils::readMultiLineString(value, &description))
         return reportError(msgValueIsNotAString(DESCRIPTION));
 
+    value = metaData.value(QLatin1String(LONGDESCRIPTION));
+    if (!value.isUndefined() && !Utils::readMultiLineString(value, &longDescription))
+        return reportError(msgValueIsNotAString(LONGDESCRIPTION));
+
     value = metaData.value(QLatin1String(URL));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(URL));
@@ -816,8 +830,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     if (!platformSpec.isEmpty()) {
         platformSpecification.setPattern(platformSpec);
         if (!platformSpecification.isValid()) {
-            return reportError(::ExtensionSystem::Internal::PluginSpecPrivate::tr(
-                                   "Invalid platform specification \"%1\": %2")
+            return reportError(::ExtensionSystem::Tr::tr("Invalid platform specification \"%1\": %2")
                                    .arg(platformSpec, platformSpecification.errorString()));
         }
     }
@@ -835,32 +848,32 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
             value = dependencyObject.value(QLatin1String(DEPENDENCY_NAME));
             if (value.isUndefined()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                    ::ExtensionSystem::Tr::tr("Dependency: %1")
                         .arg(msgValueMissing(DEPENDENCY_NAME)));
             }
             if (!value.isString()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                    ::ExtensionSystem::Tr::tr("Dependency: %1")
                         .arg(msgValueIsNotAString(DEPENDENCY_NAME)));
             }
             dep.name = value.toString();
             value = dependencyObject.value(QLatin1String(DEPENDENCY_VERSION));
             if (!value.isUndefined() && !value.isString()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                    ::ExtensionSystem::Tr::tr("Dependency: %1")
                         .arg(msgValueIsNotAString(DEPENDENCY_VERSION)));
             }
             dep.version = value.toString();
             if (!isValidVersion(dep.version)) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                    ::ExtensionSystem::Tr::tr("Dependency: %1")
                         .arg(msgInvalidFormat(DEPENDENCY_VERSION, dep.version)));
             }
             dep.type = PluginDependency::Required;
             value = dependencyObject.value(QLatin1String(DEPENDENCY_TYPE));
             if (!value.isUndefined() && !value.isString()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Dependency: %1")
+                    ::ExtensionSystem::Tr::tr("Dependency: %1")
                         .arg(msgValueIsNotAString(DEPENDENCY_TYPE)));
             }
             if (!value.isUndefined()) {
@@ -873,7 +886,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
                     dep.type = PluginDependency::Test;
                 } else {
                     return reportError(
-                        ::ExtensionSystem::Internal::PluginSpecPrivate::tr(
+                        ::ExtensionSystem::Tr::tr(
                             "Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\").")
                             .arg(QLatin1String(DEPENDENCY_TYPE),
                                  QLatin1String(DEPENDENCY_TYPE_HARD),
@@ -898,31 +911,31 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
             value = argumentObject.value(QLatin1String(ARGUMENT_NAME));
             if (value.isUndefined()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                    ::ExtensionSystem::Tr::tr("Argument: %1")
                         .arg(msgValueMissing(ARGUMENT_NAME)));
             }
             if (!value.isString()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                    ::ExtensionSystem::Tr::tr("Argument: %1")
                         .arg(msgValueIsNotAString(ARGUMENT_NAME)));
             }
             arg.name = value.toString();
             if (arg.name.isEmpty()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: \"%1\" is empty")
+                    ::ExtensionSystem::Tr::tr("Argument: \"%1\" is empty")
                         .arg(QLatin1String(ARGUMENT_NAME)));
             }
             value = argumentObject.value(QLatin1String(ARGUMENT_DESCRIPTION));
             if (!value.isUndefined() && !value.isString()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                    ::ExtensionSystem::Tr::tr("Argument: %1")
                         .arg(msgValueIsNotAString(ARGUMENT_DESCRIPTION)));
             }
             arg.description = value.toString();
             value = argumentObject.value(QLatin1String(ARGUMENT_PARAMETER));
             if (!value.isUndefined() && !value.isString()) {
                 return reportError(
-                    ::ExtensionSystem::Internal::PluginSpecPrivate::tr("Argument: %1")
+                    ::ExtensionSystem::Tr::tr("Argument: %1")
                         .arg(msgValueIsNotAString(ARGUMENT_PARAMETER)));
             }
             arg.parameter = value.toString();
@@ -993,7 +1006,7 @@ bool PluginSpecPrivate::resolveDependencies(const QVector<PluginSpec *> &specs)
     if (state == PluginSpec::Resolved)
         state = PluginSpec::Read; // Go back, so we just re-resolve the dependencies.
     if (state != PluginSpec::Read) {
-        errorString = QCoreApplication::translate("PluginSpec", "Resolving dependencies failed because state != Read");
+        errorString = ::ExtensionSystem::Tr::tr("Resolving dependencies failed because state != Read");
         hasError = true;
         return false;
     }
@@ -1007,8 +1020,8 @@ bool PluginSpecPrivate::resolveDependencies(const QVector<PluginSpec *> &specs)
                 hasError = true;
                 if (!errorString.isEmpty())
                     errorString.append(QLatin1Char('\n'));
-                errorString.append(QCoreApplication::translate("PluginSpec", "Could not resolve dependency '%1(%2)'")
-                    .arg(dependency.name).arg(dependency.version));
+                errorString.append(::ExtensionSystem::Tr::tr("Could not resolve dependency '%1(%2)'")
+                    .arg(dependency.name, dependency.version));
             }
             continue;
         }
@@ -1053,7 +1066,8 @@ bool PluginSpecPrivate::loadLibrary()
     if (state != PluginSpec::Resolved) {
         if (state == PluginSpec::Loaded)
             return true;
-        errorString = QCoreApplication::translate("PluginSpec", "Loading the library failed because state != Resolved");
+        errorString =
+            ::ExtensionSystem::Tr::tr("Loading the library failed because state != Resolved");
         hasError = true;
         return false;
     }
@@ -1067,14 +1081,14 @@ bool PluginSpecPrivate::loadLibrary()
                                 : qobject_cast<IPlugin *>(staticPlugin->instance());
     if (!pluginObject) {
         hasError = true;
-        errorString = QCoreApplication::translate("PluginSpec", "Plugin is not valid (does not derive from IPlugin)");
+        errorString =
+            ::ExtensionSystem::Tr::tr("Plugin is not valid (does not derive from IPlugin)");
         if (loader)
             loader->unload();
         return false;
     }
     state = PluginSpec::Loaded;
     plugin = pluginObject;
-    plugin->d->pluginSpec = q;
     return true;
 }
 
@@ -1088,18 +1102,20 @@ bool PluginSpecPrivate::initializePlugin()
     if (state != PluginSpec::Loaded) {
         if (state == PluginSpec::Initialized)
             return true;
-        errorString = QCoreApplication::translate("PluginSpec", "Initializing the plugin failed because state != Loaded");
+        errorString = ::ExtensionSystem::Tr::tr(
+            "Initializing the plugin failed because state != Loaded");
         hasError = true;
         return false;
     }
     if (!plugin) {
-        errorString = QCoreApplication::translate("PluginSpec", "Internal error: have no plugin instance to initialize");
+        errorString = ::ExtensionSystem::Tr::tr(
+            "Internal error: have no plugin instance to initialize");
         hasError = true;
         return false;
     }
     QString err;
     if (!plugin->initialize(arguments, &err)) {
-        errorString = QCoreApplication::translate("PluginSpec", "Plugin initialization failed: %1").arg(err);
+        errorString = ::ExtensionSystem::Tr::tr("Plugin initialization failed: %1").arg(err);
         hasError = true;
         return false;
     }
@@ -1117,12 +1133,14 @@ bool PluginSpecPrivate::initializeExtensions()
     if (state != PluginSpec::Initialized) {
         if (state == PluginSpec::Running)
             return true;
-        errorString = QCoreApplication::translate("PluginSpec", "Cannot perform extensionsInitialized because state != Initialized");
+        errorString = ::ExtensionSystem::Tr::tr(
+            "Cannot perform extensionsInitialized because state != Initialized");
         hasError = true;
         return false;
     }
     if (!plugin) {
-        errorString = QCoreApplication::translate("PluginSpec", "Internal error: have no plugin instance to perform extensionsInitialized");
+        errorString = ::ExtensionSystem::Tr::tr(
+            "Internal error: have no plugin instance to perform extensionsInitialized");
         hasError = true;
         return false;
     }
@@ -1141,7 +1159,8 @@ bool PluginSpecPrivate::delayedInitialize()
     if (state != PluginSpec::Running)
         return false;
     if (!plugin) {
-        errorString = QCoreApplication::translate("PluginSpec", "Internal error: have no plugin instance to perform delayedInitialize");
+        errorString = ::ExtensionSystem::Tr::tr(
+            "Internal error: have no plugin instance to perform delayedInitialize");
         hasError = true;
         return false;
     }

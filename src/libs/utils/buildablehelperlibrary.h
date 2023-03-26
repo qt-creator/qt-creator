@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -15,8 +15,6 @@ class Environment;
 
 class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::DebuggingHelperLibrary)
-
 public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake

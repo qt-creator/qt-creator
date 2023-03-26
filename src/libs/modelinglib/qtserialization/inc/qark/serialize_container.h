@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -18,7 +18,7 @@ template<class Archive, class T>
 inline void save(Archive &archive, const QList<T> &list, const Parameters &)
 {
     archive << tag("qlist");
-    foreach (const T &t, list)
+    for (const T &t : list)
         archive << attr("item", t);
     archive << end;
 }
@@ -28,10 +28,10 @@ inline void save(Archive &archive, const QList<T *> &list, const Parameters &par
 {
     archive << tag("qlist");
     if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
-        foreach (const T *t, list)
+        for (const T *t : list)
             archive << ref("item", t);
     } else {
-        foreach (const T *t, list)
+        for (const T *t : list)
             archive << attr("item", t);
     }
     archive << end;
@@ -68,7 +68,7 @@ template<class Archive, class T>
 inline void save(Archive &archive, const QSet<T> &set, const Parameters &)
 {
     archive << tag("qset");
-    foreach (const T &t, set)
+    for (const T &t : set)
         archive << attr("item", t);
     archive << end;
 }
@@ -78,10 +78,10 @@ inline void save(Archive &archive, const QSet<T *> &set, const Parameters &param
 {
     archive << tag("qset");
     if (parameters.hasFlag(ENFORCE_REFERENCED_ITEMS)) {
-        foreach (const T *t, set)
+        for (const T *t : set)
             archive << ref("item", t);
     } else {
-        foreach (const T *t, set)
+        for (const T *t : set)
             archive << attr("item", t);
     }
     archive << end;

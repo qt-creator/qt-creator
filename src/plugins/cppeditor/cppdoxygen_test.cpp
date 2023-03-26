@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppdoxygen_test.h"
 
@@ -20,6 +20,8 @@ namespace { typedef QByteArray _; }
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
 using CppEditor::Internal::Tests::VerifyCleanCppModelManager;
+
+using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
@@ -425,7 +427,7 @@ void DoxygenTest::runTest(const QByteArray &original,
     }
 
     // Update Code Model
-    QVERIFY(TestCase::parseFiles(testDocument.filePath()));
+    QVERIFY(TestCase::parseFiles(testDocument.filePath().toString()));
 
     // Open Editor
     QVERIFY(TestCase::openCppEditor(testDocument.filePath(), &testDocument.m_editor,

@@ -1,11 +1,11 @@
 add_qtc_test(tst_qml_testcore
   EXCLUDE_FROM_PRECHECK
-  CONDITION TARGET QmlProjectManager AND Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
+  CONDITION TARGET QmlProjectManager
   DEPENDS
     Sqlite
     QmlDesignerCore
-    Qt5::Widgets
-    Qt5::Qml
+    Qt::Widgets
+    Qt::Qml
   DEFINES
     QT_CREATOR
     IDE_PLUGIN_PATH="${PROJECT_BINARY_DIR}/${IDE_PLUGIN_PATH}"

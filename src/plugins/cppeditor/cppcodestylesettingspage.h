@@ -1,10 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "cppcodestylesettings.h"
-#include "cppcodeformatter.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <texteditor/icodestylepreferencesfactory.h>
@@ -42,7 +41,7 @@ signals:
 
 namespace Internal {
 
-namespace Ui { class CppCodeStyleSettingsPage; }
+class CppCodeStylePreferencesWidgetPrivate;
 
 class CppCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
@@ -70,11 +69,11 @@ private:
     CppCodeStyleSettings cppCodeStyleSettings() const;
 
     CppCodeStylePreferences *m_preferences = nullptr;
-    Ui::CppCodeStyleSettingsPage *m_ui;
-    QList<TextEditor::SnippetEditorWidget *> m_previews;
+    CppCodeStylePreferencesWidgetPrivate *d = nullptr;
     CppCodeStyleSettings m_originalCppCodeStyleSettings;
     TextEditor::TabSettings m_originalTabSettings;
     bool m_blockUpdates = false;
+    friend class CppCodeStylePreferencesWidgetPrivate;
 signals:
     void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);

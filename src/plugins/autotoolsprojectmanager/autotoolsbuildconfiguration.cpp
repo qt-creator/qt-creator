@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Openismus GmbH.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "autotoolsbuildconfiguration.h"
 
@@ -10,6 +10,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
@@ -56,12 +57,12 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
 
     setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
         BuildInfo info;
-        info.typeName = BuildConfiguration::tr("Build");
+        info.typeName = ::ProjectExplorer::Tr::tr("Build");
         info.buildDirectory = forSetup
                 ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
         if (forSetup) {
             //: The name of the build configuration created by default for a autotools project.
-            info.displayName = BuildConfiguration::tr("Default");
+            info.displayName = ::ProjectExplorer::Tr::tr("Default");
         }
         return QList<BuildInfo>{info};
     });

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Benjamin Balga
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,7 +8,7 @@
 namespace SerialTerminal {
 namespace Constants {
 
-const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("SerialTerminal::Internal::SerialTerminalOutputPane", "Serial Terminal");
+const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("QtC::SerialTerminal", "Serial Terminal");
 
 const char LOGGING_CATEGORY[] = "qtc.serialterminal.outputpane";
 

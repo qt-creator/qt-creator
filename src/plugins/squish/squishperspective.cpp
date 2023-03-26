@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishperspective.h"
 
@@ -238,16 +238,20 @@ void SquishPerspective::initPerspective()
     addWindow(mainWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
 
     connect(m_pausePlayAction, &QAction::triggered, this, &SquishPerspective::onPausePlayTriggered);
-    connect(m_stepInAction, &QAction::triggered, this, [this] { emit runRequested(StepIn); });
-    connect(m_stepOverAction, &QAction::triggered, this, [this] { emit runRequested(StepOver); });
-    connect(m_stepOutAction, &QAction::triggered, this, [this] { emit runRequested(StepOut); });
+    connect(m_stepInAction, &QAction::triggered, this, [this] {
+        emit runRequested(StepMode::StepIn);
+    });
+    connect(m_stepOverAction, &QAction::triggered, this, [this] {
+        emit runRequested(StepMode::StepOver);
+    });
+    connect(m_stepOutAction, &QAction::triggered, this, [this] {
+        emit runRequested(StepMode::StepOut);
+    });
     connect(m_stopAction, &QAction::triggered, this, &SquishPerspective::onStopTriggered);
     connect(m_stopRecordAction, &QAction::triggered,
             this, &SquishPerspective::onStopRecordTriggered);
 
     connect(SquishTools::instance(), &SquishTools::localsUpdated,
-            this, &SquishPerspective::onLocalsUpdated);
-    connect(SquishTools::instance(), &SquishTools::symbolUpdated,
             this, &SquishPerspective::onLocalsUpdated);
     connect(localsView, &QTreeView::expanded, this, [this](const QModelIndex &idx) {
         LocalsItem *item = m_localsModel.itemForIndex(idx);
@@ -279,7 +283,7 @@ void SquishPerspective::onStopRecordTriggered()
 void SquishPerspective::onPausePlayTriggered()
 {
     if (m_mode == Interrupted)
-        emit runRequested(Continue);
+        emit runRequested(StepMode::Continue);
     else if (m_mode == Running)
         emit interruptRequested();
     else
@@ -392,6 +396,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOutAction->setEnabled(true);
         m_stopAction->setEnabled(true);
         break;
+    case Configuring:
     case Querying:
     case NoMode:
         m_pausePlayAction->setIcon(iconForType(IconType::Pause));

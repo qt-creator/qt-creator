@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fsengine.h"
 
@@ -52,7 +52,7 @@ FilePaths &FSEngine::deviceRoots()
 
 QStringList &FSEngine::deviceSchemes()
 {
-    static QStringList g_deviceSchemes {"device"};
+    static QStringList g_deviceSchemes{"device"};
     return g_deviceSchemes;
 }
 

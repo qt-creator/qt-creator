@@ -8,7 +8,7 @@ function(add_qtc_cpp_tool name)
     DEFINES
       PATH_PREPROCESSOR_CONFIG=\"${CMAKE_CURRENT_SOURCE_DIR}/cplusplus-shared/pp-configuration.inc\"
       ${ARGN}
-    DEPENDS CPlusPlus Utils Qt5::Widgets
+    DEPENDS CPlusPlus Utils Qt::Widgets
     INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/cplusplus-shared"
       "${CMAKE_CURRENT_SOURCE_DIR}/${name}"
     SOURCES

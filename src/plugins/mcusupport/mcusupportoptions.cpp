@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcusupportoptions.h"
 
@@ -8,6 +8,7 @@
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
 #include "mcusupportsdk.h"
+#include "mcusupporttr.h"
 #include "mcutarget.h"
 #include "settingshandler.h"
 
@@ -112,8 +113,7 @@ void McuSdkRepository::expandVariablesAndWildcards()
             }
             // drop empty_split_entry(linux)|root(windows)
             QString root = pathComponents.takeFirst();
-            if (root.isEmpty()) // Linux
-                root = "/";
+            root.append('/'); // ensure we have a path (UNIX just a '/', Windows 'C:/' or similar)
 
             package->setPath(
                 expandWildcards(FilePath::fromString(root),
@@ -184,8 +184,8 @@ void McuSupportOptions::registerExamples() const
     if (docsDir.isEmpty())
         return;
 
-    auto examples = {std::make_pair(QStringLiteral("demos"), tr("Qt for MCUs Demos")),
-                     std::make_pair(QStringLiteral("examples"), tr("Qt for MCUs Examples"))};
+    auto examples = {std::make_pair(QStringLiteral("demos"), Tr::tr("Qt for MCUs Demos")),
+                     std::make_pair(QStringLiteral("examples"), Tr::tr("Qt for MCUs Examples"))};
     for (const auto &dir : examples) {
         const FilePath examplesDir = qulDirFromSettings() / dir.first;
         if (!examplesDir.exists())
@@ -235,11 +235,11 @@ McuKitManager::UpgradeOption McuSupportOptions::askForKitUpgrades()
 {
     QMessageBox upgradePopup(Core::ICore::dialogParent());
     upgradePopup.setStandardButtons(QMessageBox::Cancel);
-    QPushButton *replaceButton = upgradePopup.addButton(tr("Replace Existing Kits"),
+    QPushButton *replaceButton = upgradePopup.addButton(Tr::tr("Replace Existing Kits"),
                                                         QMessageBox::NoRole);
-    QPushButton *keepButton = upgradePopup.addButton(tr("Create New Kits"), QMessageBox::NoRole);
-    upgradePopup.setWindowTitle(tr("Qt for MCUs"));
-    upgradePopup.setText(tr("New version of Qt for MCUs detected. Upgrade existing kits?"));
+    QPushButton *keepButton = upgradePopup.addButton(Tr::tr("Create New Kits"), QMessageBox::NoRole);
+    upgradePopup.setWindowTitle(Tr::tr("Qt for MCUs"));
+    upgradePopup.setText(Tr::tr("New version of Qt for MCUs detected. Upgrade existing kits?"));
 
     upgradePopup.exec();
 

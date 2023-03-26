@@ -1,5 +1,5 @@
 // Copyright (C) 2017 Orgad Shaneh <orgads@gmail.com>.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,8 +19,6 @@ class GerritServer;
 
 class AuthenticationDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Gerrit::Internal::AuthenticationDialog)
-
 public:
     AuthenticationDialog(GerritServer *server);
     ~AuthenticationDialog() override;

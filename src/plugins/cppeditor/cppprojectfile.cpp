@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppprojectfile.h"
 
@@ -13,7 +13,7 @@
 
 namespace CppEditor {
 
-ProjectFile::ProjectFile(const QString &filePath, Kind kind, bool active)
+ProjectFile::ProjectFile(const Utils::FilePath &filePath, Kind kind, bool active)
     : path(filePath)
     , kind(kind)
     , active(active)
@@ -68,7 +68,11 @@ bool ProjectFile::isAmbiguousHeader(const QString &filePath)
 
 bool ProjectFile::isObjC(const QString &filePath)
 {
-    const Kind kind = classify(filePath);
+    return isObjC(classify(filePath));
+}
+
+bool ProjectFile::isObjC(Kind kind)
+{
     switch (kind) {
     case CppEditor::ProjectFile::ObjCHeader:
     case CppEditor::ProjectFile::ObjCXXHeader:

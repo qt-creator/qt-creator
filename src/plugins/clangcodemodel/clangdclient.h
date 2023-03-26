@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -14,6 +14,7 @@
 
 #include <optional>
 
+namespace Core { class SearchResult; }
 namespace CppEditor { class CppEditorWidget; }
 namespace LanguageServerProtocol { class Range; }
 namespace ProjectExplorer {
@@ -40,7 +41,9 @@ class ClangdClient : public LanguageClient::Client
 {
     Q_OBJECT
 public:
-    ClangdClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
+    ClangdClient(ProjectExplorer::Project *project,
+                 const Utils::FilePath &jsonDbDir,
+                 const Utils::Id &id = {});
     ~ClangdClient() override;
 
     bool isFullyIndexed() const;
@@ -51,7 +54,10 @@ public:
     void closeExtraFile(const Utils::FilePath &filePath);
 
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                    const std::optional<QString> &replacement);
+                    const std::optional<QString> &replacement,
+                    const std::function<void()> &renameCallback);
+    void checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                     const Utils::LinkHandler &callback);
     void followSymbol(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
             CppEditor::CppEditorWidget *editorWidget,
@@ -71,10 +77,9 @@ public:
 
     void gatherHelpItemForTooltip(
             const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
-            const LanguageServerProtocol::DocumentUri &uri);
-    bool gatherMemberFunctionOverrideHelpItemForTooltip(
-        const LanguageServerProtocol::MessageId &token,
-        const LanguageServerProtocol::DocumentUri &uri,
+            const Utils::FilePath &filePath);
+    bool gatherMemberFunctionOverrideHelpItemForTooltip(const LanguageServerProtocol::MessageId &token,
+        const Utils::FilePath &uri,
         const QList<ClangdAstNode> &path);
 
     void setVirtualRanges(const Utils::FilePath &filePath,

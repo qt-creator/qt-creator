@@ -1,18 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "qmakeprojectmanager/qmakebuildconfiguration.h"
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <cmakeprojectmanager/cmakebuildconfiguration.h>
-#include <utils/aspects.h>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
 {
-    Q_OBJECT
-
 public:
     IosQmakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
@@ -34,8 +30,6 @@ public:
 
 class IosCMakeBuildConfiguration : public CMakeProjectManager::CMakeBuildConfiguration
 {
-    Q_OBJECT
-
 public:
     IosCMakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
@@ -55,5 +49,4 @@ public:
     IosCMakeBuildConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -12,8 +12,6 @@ namespace qmt {
 
 class QMT_EXPORT Exception
 {
-    Q_DECLARE_TR_FUNCTIONS(qmt::Exception)
-
 public:
     explicit Exception(const QString &errorMessage);
     virtual ~Exception() = default;

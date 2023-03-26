@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -83,12 +83,12 @@ public:
     DObject *findTopmostObject(const QPointF &scenePos) const;
     ObjectItem *findTopmostObjectItem(const QPointF &scenePos) const;
 
-    QList<QGraphicsItem *> graphicsItems() const { return m_graphicsItems; }
+    const QList<QGraphicsItem *> graphicsItems() const { return m_graphicsItems; }
     QGraphicsItem *graphicsItem(DElement *element) const;
     QGraphicsItem *graphicsItem(const Uid &uid) const;
     QGraphicsItem *focusItem() const { return m_focusItem; }
     bool isSelectedItem(QGraphicsItem *item) const;
-    QSet<QGraphicsItem *> selectedItems() const { return m_selectedItems; }
+    const QSet<QGraphicsItem *> selectedItems() const { return m_selectedItems; }
     DElement *element(QGraphicsItem *item) const;
     bool isElementEditable(const DElement *element) const;
     bool isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem);

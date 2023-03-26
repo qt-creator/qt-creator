@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addtoolchainoperation.h"
 
@@ -283,7 +283,7 @@ QVariantMap AddToolChainData::addToolChain(const QVariantMap &map) const
     data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
     data << KeyValuePair({tc, DISPLAYNAME}, QVariant(m_displayName));
     data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
-    data << KeyValuePair({tc, PATH}, Utils::FilePath::fromUserInput(m_path).toVariant());
+    data << KeyValuePair({tc, PATH}, Utils::FilePath::fromUserInput(m_path).toSettings());
     data << KeyValuePair({tc, TARGET_ABI}, QVariant(m_targetAbi));
     QVariantList abis;
     const QStringList abiStrings = m_supportedAbis.split(',');

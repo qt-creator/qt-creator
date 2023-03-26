@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,10 +17,9 @@ const char JS_MIMETYPE[] = "application/javascript";
 const char JSON_MIMETYPE[] = "application/json";
 
 const char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
-const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Code Style");
+const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QtC::QmlJSTools", "Code Style");
 
 const char QML_JS_SETTINGS_ID[] = "QmlJS";
-const char QML_JS_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Qt Quick");
 
 const char M_TOOLS_QMLJS[] = "QmlJSTools.Tools.Menu";
 const char RESET_CODEMODEL[] = "QmlJSTools.ResetCodeModel";

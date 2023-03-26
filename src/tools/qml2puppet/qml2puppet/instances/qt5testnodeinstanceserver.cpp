@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qt5testnodeinstanceserver.h"
 
@@ -67,7 +67,7 @@ void Qt5TestNodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &comman
 void Qt5TestNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyValueContainer &container, command.valueChanges()) {
+    for (const PropertyValueContainer &container : command.valueChanges()) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyVariant(container);
     }
@@ -140,7 +140,7 @@ void Qt5TestNodeInstanceServer::removeInstances(const RemoveInstancesCommand &co
     if (activeStateInstance().isValid())
         activeStateInstance().deactivateState();
 
-    foreach (qint32 instanceId, command.instanceIds()) {
+    for (qint32 instanceId : command.instanceIds()) {
         removeInstanceRelationsip(instanceId);
     }
 
@@ -155,7 +155,7 @@ void Qt5TestNodeInstanceServer::removeInstances(const RemoveInstancesCommand &co
 void Qt5TestNodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyAbstractContainer &container, command.properties()) {
+    for (const PropertyAbstractContainer &container : command.properties()) {
         hasDynamicProperties |= container.isDynamic();
         resetInstanceProperty(container);
     }
@@ -168,7 +168,7 @@ void Qt5TestNodeInstanceServer::removeProperties(const RemovePropertiesCommand &
 
 void Qt5TestNodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
 {
-    foreach (const ReparentContainer &container, command.reparentInstances()) {
+    for (const ReparentContainer &container : command.reparentInstances()) {
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -201,7 +201,7 @@ void Qt5TestNodeInstanceServer::completeComponent(const CompleteComponentCommand
 {
     QList<ServerNodeInstance> instanceList;
 
-    foreach (qint32 instanceId, command.instances()) {
+    for (qint32 instanceId : command.instances()) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
             instance.doComponentComplete();
@@ -242,7 +242,7 @@ void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeComm
     QSet<ServerNodeInstance> parentChangedSet;
 
     if (quickWindow()) {
-        foreach (QQuickItem *item, allItems()) {
+        for (QQuickItem *item : allItems()) {
             if (item && hasInstanceForObject(item)) {
                 ServerNodeInstance instance = instanceForObject(item);
 
@@ -257,7 +257,7 @@ void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeComm
             }
         }
 
-        foreach (const InstancePropertyPair& property, changedPropertyList()) {
+        for (const InstancePropertyPair& property : changedPropertyList()) {
             const ServerNodeInstance instance = property.first;
             if (instance.isValid()) {
                 if (property.second.contains("anchors"))
@@ -292,7 +292,7 @@ void Qt5TestNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNod
     QSet<ServerNodeInstance> parentSet;
     QList<ServerNodeInstance> noParentList;
 
-    foreach (const ServerNodeInstance &child, childList) {
+    for (const ServerNodeInstance &child : childList) {
         if (!child.hasParent()) {
             noParentList.append(child);
         } else {
@@ -305,7 +305,7 @@ void Qt5TestNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNod
         }
     }
 
-    foreach (const ServerNodeInstance &parent, parentSet) {
+    for (const ServerNodeInstance &parent : std::as_const(parentSet)) {
         ChildrenChangedCommand command = createChildrenChangedCommand(parent, parent.childItems());
         command.sort();
         nodeInstanceClient()->childrenChanged(command);
@@ -329,7 +329,8 @@ bool Qt5TestNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuickItem *
     if (QQuickDesignerSupport::isDirty(item, informationsDirty))
         return true;
 
-    foreach (QQuickItem *childItem, item->childItems()) {
+    const QList<QQuickItem *> childItems = item->childItems();
+    for (QQuickItem *childItem : childItems) {
         if (!hasInstanceForObject(childItem)) {
             if (QQuickDesignerSupport::isDirty(childItem, informationsDirty))
                 return true;

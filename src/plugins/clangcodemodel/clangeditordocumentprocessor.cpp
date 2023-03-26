@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangeditordocumentprocessor.h"
 
@@ -25,10 +25,8 @@
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QTextBlock>
-#include <QVBoxLayout>
 #include <QWidget>
 
 namespace ClangCodeModel {
@@ -42,7 +40,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocum
     connect(static_cast<CppEditor::BuiltinEditorDocumentParser *>(parser().data()),
             &CppEditor::BuiltinEditorDocumentParser::finished,
             this, [this] {
-        emit parserConfigChanged(Utils::FilePath::fromString(filePath()), parserConfig());
+        emit parserConfigChanged(filePath(), parserConfig());
     });
     setSemanticHighlightingChecker([this] {
         return !ClangModelManagerSupport::clientForFile(m_document.filePath());
@@ -85,7 +83,7 @@ void ClangEditorDocumentProcessor::setParserConfig(
         const CppEditor::BaseEditorDocumentParser::Configuration &config)
 {
     CppEditor::BuiltinEditorDocumentProcessor::setParserConfig(config);
-    emit parserConfigChanged(Utils::FilePath::fromString(filePath()), config);
+    emit parserConfigChanged(filePath(), config);
 }
 
 CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor::parserConfig()
@@ -93,7 +91,7 @@ CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor:
     return parser()->configuration();
 }
 
-ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
+ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const Utils::FilePath &filePath)
 {
     return qobject_cast<ClangEditorDocumentProcessor*>(
                 CppEditor::CppModelManager::cppEditorDocumentProcessor(filePath));

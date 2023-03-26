@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -140,9 +140,9 @@ void tst_PluginManager::circularPlugins()
 {
     PluginManager::setPluginPaths(QStringList() << pluginFolder(QLatin1String("circularplugins")));
     PluginManager::loadPlugins();
-    QVector<PluginSpec *> plugins = PluginManager::plugins();
+    const QVector<PluginSpec *> plugins = PluginManager::plugins();
     QCOMPARE(plugins.count(), 3);
-    foreach (PluginSpec *spec, plugins) {
+    for (PluginSpec *spec : plugins) {
         if (spec->name() == "plugin1") {
             QVERIFY(spec->hasError());
             QCOMPARE(spec->state(), PluginSpec::Resolved);
@@ -164,7 +164,8 @@ void tst_PluginManager::correctPlugins1()
     PluginManager::loadPlugins();
     bool specError = false;
     bool runError = false;
-    foreach (PluginSpec *spec, PluginManager::plugins()) {
+    const QVector<PluginSpec *> plugins = PluginManager::plugins();
+    for (PluginSpec *spec : plugins) {
         if (spec->hasError()) {
             qDebug() << spec->filePath();
             qDebug() << spec->errorString();
@@ -177,7 +178,8 @@ void tst_PluginManager::correctPlugins1()
     bool plugin1running = false;
     bool plugin2running = false;
     bool plugin3running = false;
-    foreach (QObject *obj, PluginManager::allObjects()) {
+    const QVector<QObject *> objs = PluginManager::allObjects();
+    for (QObject *obj : objs) {
         if (obj->objectName() == "MyPlugin1_running")
             plugin1running = true;
         else if (obj->objectName() == "MyPlugin2_running")

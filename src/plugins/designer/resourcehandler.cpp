@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "resourcehandler.h"
 #include "designerconstants.h"
@@ -74,7 +74,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         m_form->setDirty(true);
 
     // Does the file belong to a project?
-    if (project) {
+    if (project && project->rootProjectNode()) {
         // Collect project resource files.
 
         // Find the (sub-)project the file belongs to. We don't want to find resources

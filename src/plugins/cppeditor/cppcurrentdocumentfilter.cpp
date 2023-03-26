@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcurrentdocumentfilter.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -20,7 +21,7 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
     : m_modelManager(manager)
 {
     setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(".");
     setPriority(High);
     setDefaultIncludedByDefault(false);
@@ -112,14 +113,13 @@ void CppCurrentDocumentFilter::accept(const Core::LocatorFilterEntry &selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    Core::EditorManager::openEditorAt(
-        {Utils::FilePath::fromString(info->fileName()), info->line(), info->column()});
+    Core::EditorManager::openEditorAt({info->filePath(), info->line(), info->column()});
 }
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
 {
     QMutexLocker locker(&m_mutex);
-    if (m_currentFileName == doc->fileName())
+    if (m_currentFileName == doc->filePath())
         m_itemsOfCurrentDoc.clear();
 }
 
@@ -127,7 +127,7 @@ void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *currentEdit
 {
     QMutexLocker locker(&m_mutex);
     if (currentEditor)
-        m_currentFileName = currentEditor->document()->filePath().toString();
+        m_currentFileName = currentEditor->document()->filePath();
     else
         m_currentFileName.clear();
     m_itemsOfCurrentDoc.clear();
@@ -139,7 +139,7 @@ void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor *editorAboutTo
         return;
 
     QMutexLocker locker(&m_mutex);
-    if (m_currentFileName == editorAboutToClose->document()->filePath().toString()) {
+    if (m_currentFileName == editorAboutToClose->document()->filePath()) {
         m_currentFileName.clear();
         m_itemsOfCurrentDoc.clear();
     }

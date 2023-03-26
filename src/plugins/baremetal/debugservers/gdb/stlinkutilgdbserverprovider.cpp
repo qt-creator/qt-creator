@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "stlinkutilgdbserverprovider.h"
 
@@ -27,6 +27,7 @@ const char verboseLevelKeyC[] = "VerboseLevel";
 const char extendedModeKeyC[] = "ExtendedMode";
 const char resetBoardKeyC[] = "ResetBoard";
 const char transportLayerKeyC[] = "TransportLayer";
+const char connectUnderResetKeyC[] = "ConnectUnderReset";
 
 // StLinkUtilGdbServerProvider
 
@@ -76,6 +77,10 @@ CommandLine StLinkUtilGdbServerProvider::command() const
 
     if (m_transport != UnspecifiedTransport)
         cmd.addArg("--stlink_version=" + QString::number(m_transport));
+
+    if (m_connectUnderReset)
+        cmd.addArg("--connect-under-reset");
+
     cmd.addArg("--listen_port=" + QString::number(channel().port()));
     cmd.addArg("--verbose=" + QString::number(m_verboseLevel));
 
@@ -111,11 +116,12 @@ bool StLinkUtilGdbServerProvider::isValid() const
 QVariantMap StLinkUtilGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(executableFileKeyC, m_executableFile.toVariant());
+    data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(verboseLevelKeyC, m_verboseLevel);
     data.insert(extendedModeKeyC, m_extendedMode);
     data.insert(resetBoardKeyC, m_resetBoard);
     data.insert(transportLayerKeyC, m_transport);
+    data.insert(connectUnderResetKeyC, m_connectUnderReset);
     return data;
 }
 
@@ -124,12 +130,13 @@ bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
+    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_verboseLevel = data.value(verboseLevelKeyC).toInt();
     m_extendedMode = data.value(extendedModeKeyC).toBool();
     m_resetBoard = data.value(resetBoardKeyC).toBool();
     m_transport = static_cast<TransportLayer>(
                 data.value(transportLayerKeyC).toInt());
+    m_connectUnderReset = data.value(connectUnderResetKeyC).toBool();
     return true;
 }
 
@@ -143,7 +150,8 @@ bool StLinkUtilGdbServerProvider::operator==(const IDebugServerProvider &other) 
             && m_verboseLevel == p->m_verboseLevel
             && m_extendedMode == p->m_extendedMode
             && m_resetBoard == p->m_resetBoard
-            && m_transport == p->m_transport;
+            && m_transport == p->m_transport
+            && m_connectUnderReset == p->m_connectUnderReset;
 }
 
 // StLinkUtilGdbServerProviderFactory
@@ -184,6 +192,11 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     m_resetBoardCheckBox->setToolTip(Tr::tr("Reset board on connection."));
     m_mainLayout->addRow(Tr::tr("Reset on connection:"), m_resetBoardCheckBox);
 
+    m_resetOnConnectCheckBox = new QCheckBox;
+    m_resetOnConnectCheckBox->setToolTip(Tr::tr("Connects to the board before "
+                                            "executing any instructions."));
+    m_mainLayout->addRow(Tr::tr("Connect under reset:"), m_resetOnConnectCheckBox);
+
     m_transportLayerComboBox = new QComboBox;
     m_transportLayerComboBox->setToolTip(Tr::tr("Transport layer type."));
     m_mainLayout->addRow(Tr::tr("Version:"), m_transportLayerComboBox);
@@ -221,6 +234,8 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
+    connect(m_resetOnConnectCheckBox, &QAbstractButton::clicked,
+            this, &GdbServerProviderConfigWidget::dirty);
 }
 
 void StLinkUtilGdbServerProviderConfigWidget::apply()
@@ -236,6 +251,7 @@ void StLinkUtilGdbServerProviderConfigWidget::apply()
     p->m_transport = transportLayer();
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
+    p->m_connectUnderReset = m_resetOnConnectCheckBox->isChecked();
     GdbServerProviderConfigWidget::apply();
 }
 
@@ -297,6 +313,7 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     setTransportLayer(p->m_transport);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
+    m_resetOnConnectCheckBox->setChecked(p->m_connectUnderReset);
 }
 
 } // ProjectExplorer::Internal

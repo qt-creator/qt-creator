@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -22,8 +22,6 @@ class IosDeviceManager;
 
 class IosDevice final : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosDevice)
-
 public:
     using Dict = QMap<QString, QString>;
     using ConstPtr = QSharedPointer<const IosDevice>;
@@ -31,7 +29,6 @@ public:
 
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
     QString deviceName() const;
     QString uniqueDeviceID() const;
@@ -70,7 +67,6 @@ public:
 
 class IosDeviceManager : public QObject
 {
-    Q_OBJECT
 public:
     using TranslationMap = QHash<QString, QString>;
 
@@ -86,6 +82,7 @@ public:
                     const Ios::IosToolHandler::Dict &info);
     void infoGathererFinished(Ios::IosToolHandler *gatherer);
     void monitorAvailableDevices();
+
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);

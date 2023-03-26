@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -25,7 +25,7 @@ class CMakeFileInfo
 {
 public:
     bool operator==(const CMakeFileInfo& other) const { return path == other.path; }
-    friend auto qHash(const CMakeFileInfo &info, uint seed = 0) { return info.path.hash(seed); }
+    friend size_t qHash(const CMakeFileInfo &info, uint seed = 0) { return qHash(info.path, seed); }
 
     Utils::FilePath path;
     bool isCMake = false;

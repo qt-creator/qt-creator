@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -51,8 +51,8 @@ public:
     };
 
     explicit ITestTreeItem(ITestBase *testBase,
-                           const QString &name = QString(),
-                           const Utils::FilePath &filePath = Utils::FilePath(),
+                           const QString &name = {},
+                           const Utils::FilePath &filePath = {},
                            Type type = Root);
 
     virtual QVariant data(int column, int role) const override;
@@ -97,8 +97,8 @@ class TestTreeItem : public ITestTreeItem
 {
 public:
     explicit TestTreeItem(ITestFramework *testFramework,
-                          const QString &name = QString(),
-                          const Utils::FilePath &filePath = Utils::FilePath(),
+                          const QString &name = {},
+                          const Utils::FilePath &filePath = {},
                           Type type = Root);
 
     virtual TestTreeItem *copyWithoutChildren() = 0;
@@ -126,6 +126,15 @@ public:
     TestTreeItem *findChildByFile(const Utils::FilePath &filePath);
     TestTreeItem *findChildByFileAndType(const Utils::FilePath &filePath, Type type);
     TestTreeItem *findChildByNameAndFile(const QString &name, const Utils::FilePath &filePath);
+
+    // search children for a test (function, ...) that matches the given testName
+    // e.g. testName = { "Foo", "tst_bar" } will return a (grand)child item where name() matches
+    // "tst_bar" and its parent matches "Foo"
+    // filePath is used to distinguish this even more - if any of the items (item and parent) has
+    // its file path set to filePath the found result is considered valid
+    // function is expected to be called on a root node of a test framework
+    TestTreeItem *findTestByNameAndFile(const QStringList &testName,
+                                        const Utils::FilePath &filePath); // make virtual for other frameworks?
 
     virtual ITestConfiguration *debugConfiguration() const { return nullptr; }
     virtual bool canProvideDebugConfiguration() const { return false; }

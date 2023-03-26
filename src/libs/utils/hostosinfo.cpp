@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "hostosinfo.h"
 
-#include <QCoreApplication>
+#include "utilstr.h"
 
 #if !defined(QT_NO_OPENGL) && defined(QT_GUI_LIB)
 #include <QOpenGLContext>
@@ -88,8 +88,7 @@ bool HostOsInfo::canCreateOpenGLContext(QString *errorMessage)
 #else
     static const bool canCreate = QOpenGLContext().create();
     if (!canCreate)
-        *errorMessage = QCoreApplication::translate("Utils::HostOsInfo",
-                                                    "Cannot create OpenGL context.");
+        *errorMessage = Tr::tr("Cannot create OpenGL context.");
     return canCreate;
 #endif
 }

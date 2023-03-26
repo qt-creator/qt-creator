@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "quickitemnodeinstance.h"
 #include "qt5nodeinstanceserver.h"
@@ -95,7 +95,8 @@ QList<ServerNodeInstance> QuickItemNodeInstance::childItems() const
 {
     QList<ServerNodeInstance> instanceList;
 
-    foreach (QQuickItem *childItem, quickItem()->childItems())
+    const QList<QQuickItem *> childItems = quickItem()->childItems();
+    for (QQuickItem *childItem : childItems)
     {
         if (childItem && nodeInstanceServer()->hasInstanceForObject(childItem)) {
             instanceList.append(nodeInstanceServer()->instanceForObject(childItem));
@@ -216,7 +217,8 @@ static QList<QQuickItem *> allChildItemsRecursive(QQuickItem *parentItem)
 
      itemList.append(parentItem->childItems());
 
-     foreach (QQuickItem *childItem, parentItem->childItems())
+     const QList<QQuickItem *> childItems = parentItem->childItems();
+     for (QQuickItem *childItem : childItems)
          itemList.append(allChildItemsRecursive(childItem));
 
      return itemList;
@@ -556,8 +558,8 @@ bool QuickItemNodeInstance::isRenderable() const
 QList<ServerNodeInstance> QuickItemNodeInstance::stateInstances() const
 {
     QList<ServerNodeInstance> instanceList;
-    QList<QObject*> stateList = QQuickDesignerSupport::statesForItem(quickItem());
-    foreach (QObject *state, stateList)
+    const QList<QObject*> stateList = QQuickDesignerSupport::statesForItem(quickItem());
+    for (QObject *state : stateList)
     {
         if (state && nodeInstanceServer()->hasInstanceForObject(state))
             instanceList.append(nodeInstanceServer()->instanceForObject(state));
@@ -596,7 +598,8 @@ Qt5NodeInstanceServer *QuickItemNodeInstance::qt5NodeInstanceServer() const
 
 void QuickItemNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) const
 {
-    foreach (QQuickItem *childItem, parentItem->childItems()) {
+    const QList<QQuickItem *> childItems = parentItem->childItems();
+    for (QQuickItem *childItem : childItems) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem))
             updateDirtyNodesRecursive(childItem);
     }
@@ -704,7 +707,8 @@ QList<ServerNodeInstance> QuickItemNodeInstance::childItemsForChild(QQuickItem *
     QList<ServerNodeInstance> instanceList;
 
     if (item) {
-        foreach (QQuickItem *childItem, item->childItems())
+        const QList<QQuickItem *> childItems = item->childItems();
+        for (QQuickItem *childItem : childItems)
         {
             if (childItem && nodeInstanceServer()->hasInstanceForObject(childItem)) {
                 instanceList.append(nodeInstanceServer()->instanceForObject(childItem));
@@ -738,7 +742,8 @@ bool QuickItemNodeInstance::anyItemHasContent(QQuickItem *quickItem)
     if (quickItem->flags().testFlag(QQuickItem::ItemHasContents))
         return true;
 
-    foreach (QQuickItem *childItem, quickItem->childItems()) {
+    const QList<QQuickItem *> childItems = quickItem->childItems();
+    for (QQuickItem *childItem : childItems) {
         if (anyItemHasContent(childItem))
             return true;
     }
@@ -748,7 +753,8 @@ bool QuickItemNodeInstance::anyItemHasContent(QQuickItem *quickItem)
 
 bool QuickItemNodeInstance::childItemsHaveContent(QQuickItem *quickItem)
 {
-    foreach (QQuickItem *childItem, quickItem->childItems()) {
+    const QList<QQuickItem *> childItems = quickItem->childItems();
+    for (QQuickItem *childItem : childItems) {
         if (anyItemHasContent(childItem))
             return true;
     }
@@ -1003,7 +1009,8 @@ QPair<PropertyName, ServerNodeInstance> QuickItemNodeInstance::anchor(const Prop
 bool QuickItemNodeInstance::isAnchoredBySibling() const
 {
     if (quickItem()->parentItem()) {
-        foreach (QQuickItem *siblingItem, quickItem()->parentItem()->childItems()) { // search in siblings for a anchor to this item
+        const QList<QQuickItem *> childItems = quickItem()->parentItem()->childItems();
+        for (QQuickItem *siblingItem : childItems) { // search in siblings for a anchor to this item
             if (siblingItem) {
                 if (QQuickDesignerSupport::isAnchoredTo(siblingItem, quickItem()))
                     return true;

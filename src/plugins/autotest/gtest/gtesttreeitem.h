@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -24,10 +24,8 @@ public:
     Q_FLAGS(TestState)
     Q_DECLARE_FLAGS(TestStates, TestState)
 
-    explicit GTestTreeItem(ITestFramework *testFramework,
-                           const QString &name = QString(),
-                           const Utils::FilePath &filePath = Utils::FilePath(),
-                           Type type = Root)
+    explicit GTestTreeItem(ITestFramework *testFramework, const QString &name = {},
+                           const Utils::FilePath &filePath = {}, Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type), m_state(Enabled)
     {}
 

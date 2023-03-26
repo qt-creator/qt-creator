@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -71,9 +71,8 @@ public:
     // the editor manager and the project managers (defaults to system codec).
     // The codec should be set on editors displaying diff or annotation
     // output.
-    static QTextCodec *getCodec(const QString &source);
+    static QTextCodec *getCodec(const Utils::FilePath &source);
     static QTextCodec *getCodec(const Utils::FilePath &workingDirectory, const QStringList &files);
-    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files); // FIXME: Remove
 
     // Utility to return the widget from the IEditor returned by the editor
     // manager which is a BaseTextEditor.
@@ -83,7 +82,7 @@ public:
     // pass in the file name to match it. To be used when jumping to current
     // line number in a 'annnotate current file' slot, which checks if the
     // current file originates from the current editor or the project selection.
-    static int lineNumberOfCurrentEditor(const QString &currentFile = QString());
+    static int lineNumberOfCurrentEditor(const Utils::FilePath &currentFile = {});
 
     //Helper to go to line of editor if it is a text editor
     static bool gotoLineOfEditor(Core::IEditor *e, int lineNumber);
@@ -91,8 +90,8 @@ public:
     // Convenience functions to determine the source to pass on to a diff
     // editor if one has a call consisting of working directory and file arguments.
     // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
-    static QString getSource(const Utils::FilePath &workingDirectory, const QString &fileName);
-    static QString getSource(const Utils::FilePath &workingDirectory, const QStringList &fileNames);
+    static Utils::FilePath getSource(const Utils::FilePath &workingDirectory, const QString &fileName);
+    static Utils::FilePath getSource(const Utils::FilePath &workingDirectory, const QStringList &fileNames);
     // Convenience functions to determine an title/id to identify the editor
     // from the arguments (','-joined arguments or directory) + revision.
     static QString getTitleId(const Utils::FilePath &workingDirectory,
@@ -126,7 +125,7 @@ protected:
     // Pattern for annotation separator. Lookup will stop on match.
     void setAnnotationSeparatorPattern(const QString &pattern);
     virtual bool supportChangeLinks() const;
-    virtual QString fileNameForLine(int line) const;
+    virtual Utils::FilePath fileNameForLine(int line) const;
 
     QString lineNumber(int blockNumber) const override;
     int lineNumberDigits() const override;
@@ -150,8 +149,8 @@ public:
      * files. */
     void setForceReadOnly(bool b);
 
-    QString source() const;
-    void setSource(const  QString &source);
+    Utils::FilePath source() const;
+    void setSource(const  Utils::FilePath &source);
 
     // Format for "Annotate" revision menu entries. Should contain '%1" placeholder
     QString annotateRevisionTextFormat() const;

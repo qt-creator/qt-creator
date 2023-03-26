@@ -14,12 +14,16 @@ add_qtc_plugin(Squish
     scripthelper.cpp scripthelper.h
     squish.qrc
     squishfilehandler.cpp squishfilehandler.h
+    squishmessages.cpp squishmessages.h
     squishnavigationwidget.cpp squishnavigationwidget.h
     squishoutputpane.cpp squishoutputpane.h
     squishperspective.cpp squishperspective.h
     squishplugin.cpp squishplugin.h
+    squishprocessbase.cpp squishprocessbase.h
     squishresultmodel.cpp squishresultmodel.h
+    squishrunnerprocess.cpp squishrunnerprocess.h
     squishsettings.cpp squishsettings.h
+    squishserverprocess.cpp squishserverprocess.h
     squishtesttreemodel.cpp squishtesttreemodel.h
     squishtesttreeview.cpp squishtesttreeview.h
     squishtools.cpp squishtools.h

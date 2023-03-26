@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "shapepaintvisitor.h"
 
@@ -96,7 +96,8 @@ void ShapePaintVisitor::visitArc(const ArcShape *shapeArc)
 void ShapePaintVisitor::visitPath(const PathShape *shapePath)
 {
     QPainterPath path;
-    foreach (const PathShape::Element &element, shapePath->elements()) {
+    const QList<PathShape::Element> elements = shapePath->elements();
+    for (const PathShape::Element &element : elements) {
         switch (element.m_elementType) {
         case PathShape::TypeNone:
             // nothing to do
@@ -206,7 +207,8 @@ void ShapeSizeVisitor::visitArc(const ArcShape *shapeArc)
 void ShapeSizeVisitor::visitPath(const PathShape *shapePath)
 {
     QPainterPath path;
-    foreach (const PathShape::Element &element, shapePath->elements()) {
+    const QList<PathShape::Element> elements = shapePath->elements();
+    for (const PathShape::Element &element : elements) {
         switch (element.m_elementType) {
         case PathShape::TypeNone:
             // nothing to do

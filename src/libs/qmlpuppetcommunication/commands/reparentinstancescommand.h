@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,7 +19,7 @@ public:
     ReparentInstancesCommand();
     explicit ReparentInstancesCommand(const QVector<ReparentContainer> &container);
 
-    QVector<ReparentContainer> reparentInstances() const;
+    const QVector<ReparentContainer> reparentInstances() const;
 
 private:
     QVector<ReparentContainer> m_reparentInstanceVector;

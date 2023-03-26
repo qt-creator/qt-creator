@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "simpleprojectwizard.h"
 
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <app/app_version.h>
 
@@ -102,7 +103,7 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(SimpleProjectWizardDialog *si
     connect(m_filesWidget, &SelectableFilesWidget::selectedFilesChanged,
             this, &FilesSelectionWizardPage::completeChanged);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Files"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Files"));
 }
 
 class SimpleProjectWizardDialog : public BaseFileWizard
@@ -113,16 +114,16 @@ public:
     SimpleProjectWizardDialog(const BaseFileWizardFactory *factory, QWidget *parent)
         : BaseFileWizard(factory, QVariantMap(), parent)
     {
-        setWindowTitle(tr("Import Existing Project"));
+        setWindowTitle(Tr::tr("Import Existing Project"));
 
         m_firstPage = new FileWizardPage;
-        m_firstPage->setTitle(tr("Project Name and Location"));
-        m_firstPage->setFileNameLabel(tr("Project name:"));
-        m_firstPage->setPathLabel(tr("Location:"));
+        m_firstPage->setTitle(Tr::tr("Project Name and Location"));
+        m_firstPage->setFileNameLabel(Tr::tr("Project name:"));
+        m_firstPage->setPathLabel(Tr::tr("Location:"));
         addPage(m_firstPage);
 
         m_secondPage = new FilesSelectionWizardPage(this);
-        m_secondPage->setTitle(tr("File Selection"));
+        m_secondPage->setTitle(Tr::tr("File Selection"));
         addPage(m_secondPage);
     }
 
@@ -148,15 +149,15 @@ SimpleProjectWizard::SimpleProjectWizard()
     setSupportedProjectTypes({QmakeProjectManager::Constants::QMAKEPROJECT_ID,
                               CMakeProjectManager::Constants::CMAKE_PROJECT_ID});
     setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
-    setDisplayName(tr("Import as qmake or CMake Project (Limited Functionality)"));
+    setDisplayName(Tr::tr("Import as qmake or CMake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
-    setDescription(tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.<p>"
+    setDescription(Tr::tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.<p>"
                       "This creates a project file that allows you to use %1 as a code editor "
                       "and as a launcher for debugging and analyzing tools. "
                       "If you want to build the project, you might need to edit the generated project file.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY);
-    setDisplayCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY);
+    setDisplayCategory(Tr::tr(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
     setFlags(IWizardFactory::PlatformIndependent);
 }
 
@@ -320,7 +321,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
         return generateCmakeFiles(wizard, errorMessage);
 
     if (errorMessage)
-        *errorMessage = tr("Unknown build system \"%1\"").arg(wizard->buildSystem());
+        *errorMessage = Tr::tr("Unknown build system \"%1\"").arg(wizard->buildSystem());
     return {};
 }
 

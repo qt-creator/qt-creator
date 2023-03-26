@@ -1,7 +1,9 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filterdialog.h"
+
+#include "clangtoolstr.h"
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -54,7 +56,7 @@ public:
             return lhs.displayName < rhs.displayName;
         });
 
-        setHeader({tr("Check"), "#"});
+        setHeader({Tr::tr("Check"), "#"});
         setRootItem(new Utils::StaticTreeItem(QString()));
         for (const Check &check : sortedChecks)
             m_root->appendChild(new CheckItem(check));
@@ -65,11 +67,11 @@ FilterDialog::FilterDialog(const Checks &checks, QWidget *parent)
     : QDialog(parent)
 {
     resize(400, 400);
-    setWindowTitle(tr("Filter Diagnostics"));
+    setWindowTitle(Tr::tr("Filter Diagnostics"));
 
-    auto selectAll = new QPushButton(tr("Select All"));
-    auto selectWithFixits = new QPushButton(tr("Select All with Fixits"));
-    auto selectNone = new QPushButton(tr("Clear Selection"));
+    auto selectAll = new QPushButton(Tr::tr("Select All"));
+    auto selectWithFixits = new QPushButton(Tr::tr("Select All with Fixits"));
+    auto selectNone = new QPushButton(Tr::tr("Clear Selection"));
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
@@ -87,7 +89,7 @@ FilterDialog::FilterDialog(const Checks &checks, QWidget *parent)
     using namespace Utils::Layouting;
 
     Column {
-        tr("Select the diagnostics to display."),
+        Tr::tr("Select the diagnostics to display."),
         Row { selectAll, selectWithFixits, selectNone, st },
         m_view,
         buttonBox,

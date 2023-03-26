@@ -77,7 +77,7 @@ find_package(Qt6 COMPONENTS ShaderTools QUIET)
 
 add_qtc_plugin(QmlProfiler
   CONDITION TARGET Tracing AND TARGET Qt6::ShaderTools
-  DEPENDS QmlDebug QmlJS Tracing Qt5::QuickWidgets
+  DEPENDS QmlDebug QmlJS Tracing Qt::QuickWidgets
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport TextEditor
   SOURCES
     ${TEST_SOURCES}

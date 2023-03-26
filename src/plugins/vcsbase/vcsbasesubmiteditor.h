@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -47,14 +47,8 @@ public:
 
     ~VcsBaseSubmitEditor() override;
 
-    // A utility routine to be called when closing a submit editor.
-    // Runs checks on the message and prompts according to configuration.
-    // Force prompt should be true if it is invoked by closing an editor
-    // as opposed to invoking the "Submit" button.
-    // 'promptSetting' points to a bool variable containing the plugin's
-    // prompt setting. The user can uncheck it from the message box.
-    enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
-    PromptSubmitResult promptSubmit(VcsBasePluginPrivate *plugin);
+    void accept(VcsBasePluginPrivate *plugin);
+    bool promptSubmit(VcsBasePluginPrivate *plugin);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
@@ -69,12 +63,12 @@ public:
     int lineWrapWidth() const;
     void setLineWrapWidth(int);
 
-    QString checkScriptWorkingDirectory() const;
+    Utils::FilePath checkScriptWorkingDirectory() const;
     void setCheckScriptWorkingDirectory(const Utils::FilePath &);
 
     Core::IDocument *document() const override;
 
-    QWidget *toolBar() override;
+    QWidget *toolBar() override { return nullptr; }
 
     QStringList checkedFiles() const;
 
@@ -89,7 +83,8 @@ public:
 
     // Reduce a list of untracked files reported by a VCS down to the files
     // that are actually part of the current project(s).
-    static void filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles);
+    static void filterUntrackedFilesOfProject(const Utils::FilePath &repositoryDirectory,
+                                              QStringList *untrackedFiles);
 
 signals:
     void diffSelectedFiles(const QStringList &files);
@@ -123,6 +118,7 @@ private:
     bool checkSubmitMessage(QString *errorMessage) const;
     bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
     QString promptForNickName();
+    void close();
 
     VcsBaseSubmitEditorPrivate *d = nullptr;
 

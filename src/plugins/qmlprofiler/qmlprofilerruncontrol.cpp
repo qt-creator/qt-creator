@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerruncontrol.h"
 
@@ -29,10 +29,9 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-static QString QmlServerUrl = "QmlServerUrl";
+const QString QmlServerUrl = "QmlServerUrl";
 
 //
 // QmlProfilerRunControlPrivate
@@ -237,5 +236,21 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     });
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+// Factories
+
+// The bits plugged in in remote setups.
+QmlProfilerRunWorkerFactory::QmlProfilerRunWorkerFactory()
+{
+    setProduct<QmlProfilerRunner>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+}
+
+// The full local profiler.
+LocalQmlProfilerRunWorkerFactory::LocalQmlProfilerRunWorkerFactory()
+{
+    setProduct<LocalQmlProfilerSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+}
+
+} // QmlProfiler::Internal

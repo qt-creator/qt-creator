@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,7 +7,7 @@
 
 #include <QDateTime>
 
-namespace Utils { class QtcProcess; }
+namespace Utils { class TaskTree; }
 
 namespace Qnx::Internal {
 
@@ -22,16 +22,8 @@ public:
     bool commandFound() const;
 
 private:
-    void handleTestProcessCompleted();
-    void launchSlog2Info();
-
-    void readLogStandardOutput();
-    void readLogStandardError();
-    void handleLogDone();
-
-    void printMissingWarning();
-    void readLaunchTime();
-    void processLog(bool force);
+    void processRemainingLogData();
+    void processLogInput(const QString &input);
     void processLogLine(const QString &line);
 
     QString m_applicationId;
@@ -41,9 +33,7 @@ private:
     bool m_currentLogs = false;
     QString m_remainingData;
 
-    Utils::QtcProcess *m_launchDateTimeProcess = nullptr;
-    Utils::QtcProcess *m_testProcess = nullptr;
-    Utils::QtcProcess *m_logProcess = nullptr;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
 };
 
 } // Qnx::Internal

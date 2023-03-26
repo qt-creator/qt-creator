@@ -1,13 +1,13 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangformatoptionspage.h"
 
-#include "clangformatconstants.h"
 #include "clangformatsettings.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertr.h"
 #include "../configurationpanel.h"
 
 #include <utils/layoutbuilder.h>
@@ -25,8 +25,6 @@ namespace Beautifier::Internal {
 
 class ClangFormatOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Beautifier::Internal::ClangFormat)
-
 public:
     explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings);
 
@@ -45,19 +43,19 @@ private:
 ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *settings)
     : m_settings(settings)
 {
-    auto options = new QGroupBox(tr("Options"));
+    auto options = new QGroupBox(Tr::tr("Options"));
     options->setEnabled(false);
 
     auto styleButtonGroup = new QButtonGroup(this);
 
-    auto useCustomizedStyle = new QRadioButton(tr("Use customized style:"));
+    auto useCustomizedStyle = new QRadioButton(Tr::tr("Use customized style:"));
     styleButtonGroup->addButton(useCustomizedStyle);
 
     m_configurations = new ConfigurationPanel;
     m_configurations->setSettings(m_settings);
     m_configurations->setCurrentConfiguration(m_settings->customStyle());
 
-    m_usePredefinedStyle = new QRadioButton(tr("Use predefined style:"));
+    m_usePredefinedStyle = new QRadioButton(Tr::tr("Use predefined style:"));
 
     m_usePredefinedStyle->setChecked(true);
     styleButtonGroup->addButton(m_usePredefinedStyle);
@@ -92,16 +90,16 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
 
     Form {
         m_usePredefinedStyle, m_predefinedStyle, br,
-        empty, Row { tr("Fallback style:"), m_fallbackStyle }, br,
+        empty, Row { Tr::tr("Fallback style:"), m_fallbackStyle }, br,
         useCustomizedStyle, m_configurations, br,
     }.attachTo(options);
 
     Column {
         Group {
-            title(tr("Configuration")),
+            title(Tr::tr("Configuration")),
             Form {
-                tr("Clang Format command:"), m_command, br,
-                tr("Restrict to MIME types:"), m_mime
+                Tr::tr("Clang Format command:"), m_command, br,
+                Tr::tr("Restrict to MIME types:"), m_mime
             }
         },
         options,
@@ -123,7 +121,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
 
 void ClangFormatOptionsPageWidget::apply()
 {
-    m_settings->setCommand(m_command->filePath().toString());
+    m_settings->setCommand(m_command->filePath());
     m_settings->setSupportedMimeTypes(m_mime->text());
     m_settings->setUsePredefinedStyle(m_usePredefinedStyle->isChecked());
     m_settings->setPredefinedStyle(m_predefinedStyle->currentText());
@@ -138,7 +136,7 @@ void ClangFormatOptionsPageWidget::apply()
 ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings)
 {
     setId("ClangFormat");
-    setDisplayName(ClangFormatOptionsPageWidget::tr("Clang Format"));
+    setDisplayName(Tr::tr("Clang Format"));
     setCategory(Constants::OPTION_CATEGORY);
     setWidgetCreator([settings] { return new ClangFormatOptionsPageWidget(settings); });
 }

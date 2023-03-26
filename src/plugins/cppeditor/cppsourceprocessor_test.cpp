@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppsourceprocessor_test.h"
 
@@ -21,7 +21,8 @@
 #include <QtTest>
 
 using namespace CPlusPlus;
-using ProjectExplorer::HeaderPathType;
+using namespace ProjectExplorer;
+using namespace Utils;
 
 using Include = Document::Include;
 using CppEditor::Tests::TestCase;
@@ -38,7 +39,7 @@ public:
         cleanUp();
     }
 
-    Document::Ptr run(const QString &filePath) const
+    Document::Ptr run(const FilePath &filePath) const
     {
         QScopedPointer<CppSourceProcessor> sourceProcessor(
                     CppModelManager::createSourceProcessor());
@@ -69,7 +70,7 @@ private:
 /// Check: Resolved and unresolved includes are properly tracked.
 void SourceProcessorTest::testIncludesResolvedUnresolved()
 {
-    const QString testFilePath
+    const FilePath testFilePath
             = TestIncludePaths::testFilePath(QLatin1String("test_main_resolvedUnresolved.cpp"));
 
     SourcePreprocessor processor;
@@ -80,7 +81,7 @@ void SourceProcessorTest::testIncludesResolvedUnresolved()
     QCOMPARE(resolvedIncludes.size(), 1);
     QCOMPARE(resolvedIncludes.at(0).type(), Client::IncludeLocal);
     QCOMPARE(resolvedIncludes.at(0).unresolvedFileName(), QLatin1String("header.h"));
-    const QString expectedResolvedFileName
+    const FilePath expectedResolvedFileName
             = TestIncludePaths::testFilePath(QLatin1String("header.h"));
     QCOMPARE(resolvedIncludes.at(0).resolvedFileName(), expectedResolvedFileName);
 
@@ -94,9 +95,9 @@ void SourceProcessorTest::testIncludesResolvedUnresolved()
 /// Check: Avoid self-include entries due to cyclic includes.
 void SourceProcessorTest::testIncludesCyclic()
 {
-    const QString fileName1 = TestIncludePaths::testFilePath(QLatin1String("cyclic1.h"));
-    const QString fileName2 = TestIncludePaths::testFilePath(QLatin1String("cyclic2.h"));
-    const QSet<QString> sourceFiles = {fileName1, fileName2};
+    const FilePath filePath1 = TestIncludePaths::testFilePath(QLatin1String("cyclic1.h"));
+    const FilePath filePath2 = TestIncludePaths::testFilePath(QLatin1String("cyclic2.h"));
+    const QSet<FilePath> sourceFiles = {filePath1, filePath2};
 
     // Create global snapshot (needed in BuiltinEditorDocumentParser)
     TestCase testCase;
@@ -104,36 +105,36 @@ void SourceProcessorTest::testIncludesCyclic()
 
     // Open editor
     TextEditor::BaseTextEditor *editor;
-    QVERIFY(testCase.openCppEditor(fileName1, &editor));
+    QVERIFY(testCase.openCppEditor(filePath1, &editor));
     testCase.closeEditorAtEndOfTestCase(editor);
 
     // Check editor snapshot
-    const QString filePath = editor->document()->filePath().toString();
-    auto *processor = CppModelManager::cppEditorDocumentProcessor(filePath);
+    const FilePath filePath = editor->document()->filePath();
+    auto processor = CppModelManager::cppEditorDocumentProcessor(filePath);
     QVERIFY(processor);
     QVERIFY(TestCase::waitForProcessedEditorDocument(filePath));
     Snapshot snapshot = processor->snapshot();
     QCOMPARE(snapshot.size(), 3); // Configuration file included
 
     // Check includes
-    Document::Ptr doc1 = snapshot.document(fileName1);
+    Document::Ptr doc1 = snapshot.document(filePath1);
     QVERIFY(doc1);
-    Document::Ptr doc2 = snapshot.document(fileName2);
+    Document::Ptr doc2 = snapshot.document(filePath2);
     QVERIFY(doc2);
 
     QCOMPARE(doc1->unresolvedIncludes().size(), 0);
     QCOMPARE(doc1->resolvedIncludes().size(), 1);
-    QCOMPARE(doc1->resolvedIncludes().first().resolvedFileName(), fileName2);
+    QCOMPARE(doc1->resolvedIncludes().first().resolvedFileName(), filePath2);
 
     QCOMPARE(doc2->unresolvedIncludes().size(), 0);
     QCOMPARE(doc2->resolvedIncludes().size(), 1);
-    QCOMPARE(doc2->resolvedIncludes().first().resolvedFileName(), fileName1);
+    QCOMPARE(doc2->resolvedIncludes().first().resolvedFileName(), filePath1);
 }
 
 /// Check: All include errors are reported as diagnostic messages.
 void SourceProcessorTest::testIncludesAllDiagnostics()
 {
-    const QString testFilePath
+    const FilePath testFilePath
             = TestIncludePaths::testFilePath(QLatin1String("test_main_allDiagnostics.cpp"));
 
     SourcePreprocessor processor;
@@ -147,7 +148,7 @@ void SourceProcessorTest::testIncludesAllDiagnostics()
 
 void SourceProcessorTest::testMacroUses()
 {
-    const QString testFilePath
+    const FilePath testFilePath
             = TestIncludePaths::testFilePath(QLatin1String("test_main_macroUses.cpp"));
 
     SourcePreprocessor processor;
@@ -165,7 +166,7 @@ void SourceProcessorTest::testMacroUses()
 
 static bool isMacroDefinedInDocument(const QByteArray &macroName, const Document::Ptr &document)
 {
-    for (const Macro &macro : document->definedMacros()) {
+    for (const CPlusPlus::Macro &macro : document->definedMacros()) {
         if (macro.name() == macroName)
             return true;
     }
@@ -179,7 +180,7 @@ void SourceProcessorTest::testIncludeNext()
 {
     const Core::Tests::TestDataDir data(
         _(SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data/"));
-    const QString mainFilePath = data.file(QLatin1String("main.cpp"));
+    const FilePath mainFilePath = data.filePath(QLatin1String("main.cpp"));
     const QString customHeaderPath = data.directory(QLatin1String("customIncludePath"));
     const QString systemHeaderPath = data.directory(QLatin1String("systemIncludePath"));
 

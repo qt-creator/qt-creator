@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "profilereader.h"
+
+#include "qtsupporttr.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>
@@ -26,7 +28,7 @@ ProMessageHandler::ProMessageHandler(bool verbose, bool exact)
     : m_verbose(verbose)
     , m_exact(exact)
     //: Prefix used for output from the cumulative evaluation of project files.
-    , m_prefix(QCoreApplication::translate("ProMessageHandler", "[Inexact] "))
+    , m_prefix(Tr::tr("[Inexact] "))
 {
 }
 
@@ -86,7 +88,7 @@ ProFileReader::ProFileReader(QMakeGlobals *option, QMakeVfs *vfs)
 
 ProFileReader::~ProFileReader()
 {
-    foreach (ProFile *pf, m_proFiles)
+    for (ProFile *pf : std::as_const(m_proFiles))
         pf->deref();
 }
 
@@ -170,14 +172,14 @@ void ProFileCacheManager::clear()
     m_cache = nullptr;
 }
 
-void ProFileCacheManager::discardFiles(const QString &prefix, QMakeVfs *vfs)
+void ProFileCacheManager::discardFiles(const QString &device, const QString &prefix, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFiles(prefix, vfs);
+        m_cache->discardFiles(device, prefix, vfs);
 }
 
-void ProFileCacheManager::discardFile(const QString &fileName, QMakeVfs *vfs)
+void ProFileCacheManager::discardFile(const QString &device, const QString &fileName, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFile(fileName, vfs);
+        m_cache->discardFile(device, fileName, vfs);
 }

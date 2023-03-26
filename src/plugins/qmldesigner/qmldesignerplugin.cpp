@@ -1,7 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmldesignerplugin.h"
+#include "qmldesignertr.h"
 
 #include "coreplugin/iwizardfactory.h"
 #include "designmodecontext.h"
@@ -43,6 +44,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/featureprovider.h>
@@ -67,7 +69,6 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QProcessEnvironment>
 #include <QQuickItem>
@@ -117,7 +118,7 @@ public:
 QtQuickDesignerFactory::QtQuickDesignerFactory()
     : QmlJSEditorFactory(QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)
 {
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Qt Quick Designer"));
+    setDisplayName(::Core::Tr::tr("Qt Quick Designer"));
 
     addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);
     setDocumentCreator([this]() {
@@ -267,8 +268,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
                                           .toBool());
 
     Exception::setShowExceptionCallback([&](QStringView title, QStringView description) {
-        QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error")
-                                                : title.toString();
+        const QString composedTitle = title.isEmpty() ? Tr::tr("Error") : title.toString();
         Core::AsynchronousMessageBox::warning(composedTitle, description.toString());
     });
 

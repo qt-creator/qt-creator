@@ -1,13 +1,16 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "progressview.h"
 
+#include "../coreplugintr.h"
+
+#include <QApplication>
 #include <QEvent>
+#include <QMouseEvent>
 #include <QVBoxLayout>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 ProgressView::ProgressView(QWidget *parent)
     : QWidget(parent)
@@ -17,13 +20,15 @@ ProgressView::ProgressView(QWidget *parent)
     m_layout->setContentsMargins(0, 0, 0, 1);
     m_layout->setSpacing(0);
     m_layout->setSizeConstraint(QLayout::SetFixedSize);
-    setWindowTitle(tr("Processes"));
+    setWindowTitle(Tr::tr("Processes"));
 }
 
 ProgressView::~ProgressView() = default;
 
 void ProgressView::addProgressWidget(QWidget *widget)
 {
+    if (m_layout->count() == 0)
+        m_anchorBottomRight = {}; // reset temporarily user-moved progress details
     m_layout->insertWidget(0, widget);
 }
 
@@ -44,6 +49,7 @@ void ProgressView::setReferenceWidget(QWidget *widget)
     m_referenceWidget = widget;
     if (m_referenceWidget)
         installEventFilter(this);
+    m_anchorBottomRight = {};
     reposition();
 }
 
@@ -61,6 +67,9 @@ bool ProgressView::event(QEvent *event)
     } else if (event->type() == QEvent::Leave) {
         m_hovered = false;
         emit hoveredChanged(m_hovered);
+    } else if (event->type() == QEvent::Show) {
+        m_anchorBottomRight = {}; // reset temporarily user-moved progress details
+        reposition();
     }
     return QWidget::event(event);
 }
@@ -72,11 +81,67 @@ bool ProgressView::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
+void ProgressView::mousePressEvent(QMouseEvent *ev)
+{
+    if ((ev->buttons() & Qt::LeftButton) && parentWidget() && m_referenceWidget) {
+        m_clickPosition = ev->globalPosition();
+        m_clickPositionInWidget = ev->position();
+    } else {
+        m_clickPosition.reset();
+    }
+    QWidget::mousePressEvent(ev);
+}
+
+static QPoint boundedInParent(QWidget *widget, const QPoint &pos, QWidget *parent)
+{
+    QPoint bounded = pos;
+    bounded.setX(qBound(widget->rect().width(), bounded.x(), parent->width()));
+    bounded.setY(qBound(widget->rect().height(), bounded.y(), parent->height()));
+    return bounded;
+}
+
+void ProgressView::mouseMoveEvent(QMouseEvent *ev)
+{
+    if (m_clickPosition) {
+        const QPointF current = ev->globalPosition();
+        if (m_isDragging
+            || (current - *m_clickPosition).manhattanLength() > QApplication::startDragDistance()) {
+            m_isDragging = true;
+            const QPointF newGlobal = current - m_clickPositionInWidget;
+            const QPoint bottomRightInParent = parentWidget()->mapFromGlobal(newGlobal).toPoint()
+                                               + rect().bottomRight();
+            m_anchorBottomRight = boundedInParent(this, bottomRightInParent, parentWidget())
+                                  - topRightReferenceInParent();
+            if (m_anchorBottomRight.manhattanLength() <= QApplication::startDragDistance())
+                m_anchorBottomRight = {};
+            QMetaObject::invokeMethod(this, [this] { reposition(); });
+        }
+    }
+    QWidget::mouseMoveEvent(ev);
+}
+
+void ProgressView::mouseReleaseEvent(QMouseEvent *ev)
+{
+    if ((ev->buttons() & Qt::LeftButton)) {
+        m_clickPosition.reset();
+        m_isDragging = false;
+    }
+    QWidget::mouseReleaseEvent(ev);
+}
+
 void ProgressView::reposition()
 {
     if (!parentWidget() || !m_referenceWidget)
         return;
-    QPoint topRightReferenceInParent =
-            m_referenceWidget->mapTo(parentWidget(), m_referenceWidget->rect().topRight());
-    move(topRightReferenceInParent - rect().bottomRight());
+    move(boundedInParent(this, topRightReferenceInParent() + m_anchorBottomRight, parentWidget())
+         - rect().bottomRight());
 }
+
+QPoint ProgressView::topRightReferenceInParent() const
+{
+    if (!parentWidget() || !m_referenceWidget)
+        return {};
+    return m_referenceWidget->mapTo(parentWidget(), m_referenceWidget->rect().topRight());
+}
+
+} // Core::Internal

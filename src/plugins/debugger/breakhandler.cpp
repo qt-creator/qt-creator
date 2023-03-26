@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "breakhandler.h"
 
@@ -68,7 +68,10 @@ class BreakpointMarker : public TextEditor::TextMark
 {
 public:
     BreakpointMarker(const Breakpoint &bp, const FilePath &fileName, int lineNumber)
-        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
+        : TextMark(fileName,
+                   lineNumber,
+                   {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
+        , m_bp(bp)
     {
         setColor(Theme::Debugger_Breakpoint_TextMarkColor);
         setDefaultToolTip(Tr::tr("Breakpoint"));
@@ -86,9 +89,9 @@ public:
             gbp->m_params.lineNumber = lineNumber;
     }
 
-    void updateFileName(const FilePath &fileName) final
+    void updateFilePath(const FilePath &fileName) final
     {
-        TextMark::updateFileName(fileName);
+        TextMark::updateFilePath(fileName);
         QTC_ASSERT(m_bp, return);
         m_bp->setFileName(fileName);
         if (GlobalBreakpoint gbp = m_bp->globalBreakpoint())
@@ -126,7 +129,10 @@ class GlobalBreakpointMarker : public TextEditor::TextMark
 {
 public:
     GlobalBreakpointMarker(GlobalBreakpoint gbp, const FilePath &fileName, int lineNumber)
-        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_gbp(gbp)
+        : TextMark(fileName,
+                   lineNumber,
+                   {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
+        , m_gbp(gbp)
     {
         setDefaultToolTip(Tr::tr("Breakpoint"));
         setPriority(TextEditor::TextMark::NormalPriority);
@@ -152,9 +158,9 @@ public:
         m_gbp->updateLineNumber(lineNumber);
     }
 
-    void updateFileName(const FilePath &fileName) final
+    void updateFilePath(const FilePath &fileName) final
     {
-        TextMark::updateFileName(fileName);
+        TextMark::updateFilePath(fileName);
         QTC_ASSERT(m_gbp, return);
         m_gbp->updateFileName(fileName);
     }
@@ -1114,7 +1120,7 @@ void BreakpointItem::addToCommand(DebuggerCommand *cmd) const
     cmd->arg("function", requested.functionName);
     cmd->arg("oneshot", requested.oneShot);
     cmd->arg("enabled", requested.enabled);
-    cmd->arg("file", requested.fileName);
+    cmd->arg("file", requested.fileName.path());
     cmd->arg("line", requested.lineNumber);
     cmd->arg("address", requested.address);
     cmd->arg("expression", requested.expression);
@@ -1877,7 +1883,7 @@ void BreakpointItem::updateMarker()
 {
     const FilePath &file = markerFileName();
     int line = markerLineNumber();
-    if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
+    if (m_marker && (file != m_marker->filePath() || line != m_marker->lineNumber()))
         destroyMarker();
 
     if (!m_marker && !file.isEmpty() && line > 0)
@@ -2302,8 +2308,8 @@ void GlobalBreakpointItem::updateMarker()
 
     const int line = m_params.lineNumber;
     if (m_marker) {
-        if (m_params.fileName != m_marker->fileName())
-            m_marker->updateFileName(m_params.fileName);
+        if (m_params.fileName != m_marker->filePath())
+            m_marker->updateFilePath(m_params.fileName);
         if (line != m_marker->lineNumber())
             m_marker->move(line);
     } else if (!m_params.fileName.isEmpty() && line > 0) {
@@ -2762,7 +2768,7 @@ void BreakpointManager::saveSessionData()
         if (params.type != BreakpointByFileAndLine)
             map.insert("type", params.type);
         if (!params.fileName.isEmpty())
-            map.insert("filename", params.fileName.toVariant());
+            map.insert("filename", params.fileName.toSettings());
         if (params.lineNumber)
             map.insert("linenumber", params.lineNumber);
         if (!params.functionName.isEmpty())
@@ -2807,7 +2813,7 @@ void BreakpointManager::loadSessionData()
         BreakpointParameters params(BreakpointByFileAndLine);
         QVariant v = map.value("filename");
         if (v.isValid())
-            params.fileName = FilePath::fromVariant(v);
+            params.fileName = FilePath::fromSettings(v);
         v = map.value("linenumber");
         if (v.isValid())
             params.lineNumber = v.toString().toInt();

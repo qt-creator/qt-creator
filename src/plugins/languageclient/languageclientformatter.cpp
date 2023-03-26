@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientformatter.h"
 
@@ -73,7 +73,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
             return nullptr;
     }
     DocumentRangeFormattingParams params;
-    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
+    const DocumentUri uri = m_client->hostPathToServerUri(filePath);
     params.setTextDocument(TextDocumentIdentifier(uri));
     params.setOptions(formattingOptions(tabSettings));
     if (!cursor.hasSelection()) {

@@ -1,15 +1,14 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classviewnavigationwidgetfactory.h"
+
 #include "classviewnavigationwidget.h"
-#include "classviewconstants.h"
+#include "classviewtr.h"
 
-#include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
-#include <QKeySequence>
 #include <QSettings>
 
 namespace ClassView {
@@ -28,7 +27,7 @@ namespace Internal {
 
 NavigationWidgetFactory::NavigationWidgetFactory()
 {
-    setDisplayName(tr("Class View"));
+    setDisplayName(Tr::tr("Class View"));
     setPriority(500);
     setId("Class View");
 }

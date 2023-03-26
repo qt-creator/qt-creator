@@ -16,14 +16,18 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(DESTINATION DESTINATION .)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+
+  find_package(QT NAMES Qt6 Qt5
+    COMPONENTS Core
+    REQUIRED
+  )
+  find_package(Qt${QT_VERSION_MAJOR}
+    COMPONENTS Core
+    REQUIRED
+  )
 endif()
 
 configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
-
-find_package(Qt5
-  COMPONENTS Core
-  REQUIRED
-)
 
 if (APPLE)
   find_library(FWFoundation Foundation)
@@ -36,7 +40,7 @@ file(RELATIVE_PATH DATA_PATH "/${IDE_LIBEXEC_PATH}" "/${IDE_DATA_PATH}")
 add_qtc_library(sdktoolLib
   STATIC
   DEFINES DATA_PATH=\"${DATA_PATH}\"
-  PUBLIC_DEPENDS Qt5::Core
+  PUBLIC_DEPENDS Qt::Core
   PUBLIC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} "${UtilsSourcesDir}/../"
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR}

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "typehierarchybuilder_test.h"
 
@@ -16,6 +16,8 @@
 #include <QtTest>
 
 using namespace CPlusPlus;
+using namespace Utils;
+
 using CppEditor::Internal::Tests::CppTestDocument;
 
 Q_DECLARE_METATYPE(QList<CppTestDocument>)
@@ -82,7 +84,7 @@ public:
         QList<CppTestDocument> documents_ = documents;
 
         // Write files
-        QSet<QString> filePaths;
+        QSet<FilePath> filePaths;
         for (auto &document : documents_) {
             document.setBaseDirectory(temporaryDir.path());
             QVERIFY(document.writeToDisk());

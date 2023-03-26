@@ -5,7 +5,7 @@ set(TSTFLAMEGRAPHVIEW_CPP_SOURCES
 
 add_qtc_test(tst_tracing_flamegraphview
   EXCLUDE_FROM_PRECHECK
-  DEPENDS Tracing Qt5::QuickWidgets Qt5::Quick Utils
+  DEPENDS Tracing Qt::QuickWidgets Qt::Quick Utils
 )
 
 if (NOT TARGET tst_tracing_flamegraphview) # qt_add_qml_module has no DEPENDS check

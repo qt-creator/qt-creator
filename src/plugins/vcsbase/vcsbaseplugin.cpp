@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsbaseplugin.h"
 
 #include "commonvcssettings.h"
 #include "vcsbasesubmiteditor.h"
+#include "vcsbasetr.h"
 #include "vcsplugin.h"
 
 #include <coreplugin/documentmanager.h>
@@ -242,7 +243,7 @@ void StateListener::slotStateChanged()
     if (currentDocument) {
         state.currentFile = currentDocument->filePath();
         if (state.currentFile.isEmpty() || currentDocument->isTemporary())
-            state.currentFile = FilePath::fromString(VcsBase::source(currentDocument));
+            state.currentFile = VcsBase::source(currentDocument);
     }
 
     // Get the file and its control. Do not use the file unless we find one
@@ -349,9 +350,9 @@ VcsBasePluginState &VcsBasePluginState::operator=(const VcsBasePluginState &rhs)
     return *this;
 }
 
-QString VcsBasePluginState::currentFile() const
+FilePath VcsBasePluginState::currentFile() const
 {
-    return data->m_state.currentFile.toString();
+    return data->m_state.currentFile;
 }
 
 QString VcsBasePluginState::currentFileName() const
@@ -503,7 +504,13 @@ VcsBasePluginPrivate::VcsBasePluginPrivate(const Context &context)
 {
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
     connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,
-            this, &VcsBasePluginPrivate::slotSubmitEditorAboutToClose);
+            this, [this](VcsBaseSubmitEditor *submitEditor, bool *result) {
+        if (submitEditor == m_submitEditor) {
+            *result = submitEditor->promptSubmit(this);
+            if (*result)
+                discardCommit();
+        }
+    });
     // First time: create new listener
     if (!m_listener)
         m_listener = new Internal::StateListener(plugin);
@@ -520,31 +527,6 @@ void VcsBasePluginPrivate::extensionsInitialized()
 {
     // Initialize enable menus.
     m_listener->slotStateChanged();
-}
-
-void VcsBasePluginPrivate::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result)
-{
-    qCDebug(baseLog) << this << "plugin's submit editor" << m_submitEditor
-                     << (m_submitEditor ? m_submitEditor->document()->id().name() : QByteArray())
-                     << "closing submit editor" << submitEditor
-                     << (submitEditor ? submitEditor->document()->id().name() : QByteArray());
-    if (submitEditor == m_submitEditor) {
-        const VcsBaseSubmitEditor::PromptSubmitResult response = submitEditor->promptSubmit(this);
-        m_submitActionTriggered = false;
-
-        switch (response) {
-        case VcsBaseSubmitEditor::SubmitCanceled:
-            *result = false;
-            break;
-        case VcsBaseSubmitEditor::SubmitDiscarded:
-            discardCommit();
-            *result = true;
-            break;
-        default:
-            *result = submitEditorAboutToClose();
-            break;
-        }
-    }
 }
 
 void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalState, Core::IVersionControl *vc)
@@ -609,20 +591,18 @@ bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction)
 
 QString VcsBasePluginPrivate::commitDisplayName() const
 {
-    return tr("Commit", "name of \"commit\" action of the VCS.");
+    return Tr::tr("Commit", "name of \"commit\" action of the VCS.");
 }
 
 void VcsBasePluginPrivate::commitFromEditor()
 {
-    // Close the submit editor
-    m_submitActionTriggered = true;
     QTC_ASSERT(m_submitEditor, return);
-    EditorManager::closeDocuments({m_submitEditor->document()});
+    m_submitEditor->accept(this);
 }
 
 bool VcsBasePluginPrivate::promptBeforeCommit()
 {
-    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?")
+    return DocumentManager::saveAllModifiedDocuments(Tr::tr("Save before %1?")
                                                      .arg(commitDisplayName().toLower()));
 }
 
@@ -632,9 +612,9 @@ void VcsBasePluginPrivate::promptToDeleteCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
     const bool rc = VcsManager::promptToDelete(this, state.currentFile());
     if (!rc)
-        QMessageBox::warning(ICore::dialogParent(), tr("Version Control"),
-                             tr("The file \"%1\" could not be deleted.").
-                             arg(QDir::toNativeSeparators(state.currentFile())),
+        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Version Control"),
+                             Tr::tr("The file \"%1\" could not be deleted.").
+                             arg(state.currentFile().toUserOutput()),
                              QMessageBox::Ok);
 }
 
@@ -655,29 +635,29 @@ void VcsBasePluginPrivate::createRepository()
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::dialogParent();
     do {
-        directory = FileUtils::getExistingDirectory(nullptr, tr("Choose Repository Directory"), directory);
+        directory = FileUtils::getExistingDirectory(nullptr, Tr::tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
         const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == nullptr)
             break;
-        const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
-                                    " Would you like to specify another directory?")
-                                    .arg(directory.toUserOutput(), managingControl->displayName());
+        const QString question = Tr::tr("The directory \"%1\" is already managed by a version control system (%2)."
+                                        " Would you like to specify another directory?")
+                                     .arg(directory.toUserOutput(), managingControl->displayName());
 
-        if (!ask(mw, tr("Repository already under version control"), question))
+        if (!ask(mw, Tr::tr("Repository already under version control"), question))
             return;
     } while (true);
     // Create
     const bool rc = vcsCreateRepository(directory);
     const QString nativeDir = directory.toUserOutput();
     if (rc) {
-        QMessageBox::information(mw, tr("Repository Created"),
-                                 tr("A version control repository has been created in %1.").
+        QMessageBox::information(mw, Tr::tr("Repository Created"),
+                                 Tr::tr("A version control repository has been created in %1.").
                                  arg(nativeDir));
     } else {
-        QMessageBox::warning(mw, tr("Repository Creation Failed"),
-                                 tr("A version control repository could not be created in %1.").
+        QMessageBox::warning(mw, Tr::tr("Repository Creation Failed"),
+                                 Tr::tr("A version control repository could not be created in %1.").
                                  arg(nativeDir));
     }
 }
@@ -737,15 +717,15 @@ FilePath findRepositoryForFile(const FilePath &fileOrDir, const QString &checkFi
 
 static const char SOURCE_PROPERTY[] = "qtcreator_source";
 
-void setSource(IDocument *document, const QString &source)
+void setSource(IDocument *document, const FilePath &source)
 {
-    document->setProperty(SOURCE_PROPERTY, source);
+    document->setProperty(SOURCE_PROPERTY, source.toVariant());
     m_listener->slotStateChanged();
 }
 
-QString source(IDocument *document)
+FilePath source(IDocument *document)
 {
-    return document->property(SOURCE_PROPERTY).toString();
+    return FilePath::fromVariant(document->property(SOURCE_PROPERTY));
 }
 
 void setProcessEnvironment(Environment *e)

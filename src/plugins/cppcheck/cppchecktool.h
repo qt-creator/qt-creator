@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -14,18 +14,13 @@
 namespace Utils {
 class FilePath;
 using FilePaths = QList<FilePath>;
-}
+} // Utils
 
-namespace CppEditor {
-class ProjectPart;
-}
+namespace CppEditor { class ProjectPart; }
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckRunner;
 class CppcheckDiagnosticManager;
@@ -68,5 +63,4 @@ private:
     Utils::Id m_progressId;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

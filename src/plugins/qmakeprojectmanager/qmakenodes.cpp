@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakenodes.h"
 
@@ -15,8 +15,8 @@
 
 #include <resourceeditor/resourcenode.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <android/androidconstants.h>
 #include <ios/iosconstants.h>
@@ -114,11 +114,11 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                 // A virtual folder, we do what the projectexplorer does
                 const FolderNode *folder = node->asFolderNode();
                 if (folder) {
-                    QStringList list;
+                    FilePaths list;
                     const auto folderNodes = folder->folderNodes();
                     for (FolderNode *f : folderNodes)
-                        list << f->filePath().toString() + QLatin1Char('/');
-                    if (n->deploysFolder(Utils::commonPath(list)))
+                        list << f->filePath();
+                    if (n->deploysFolder(FileUtils::commonPath(list).toString()))
                         addExistingFiles = false;
                 }
             }

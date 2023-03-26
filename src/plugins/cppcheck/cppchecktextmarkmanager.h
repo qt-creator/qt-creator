@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,8 +9,7 @@
 
 #include <unordered_map>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class Diagnostic;
 class CppcheckTextMark;
@@ -29,5 +28,4 @@ private:
     std::unordered_map<Utils::FilePath, std::vector<MarkPtr>> m_marks;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

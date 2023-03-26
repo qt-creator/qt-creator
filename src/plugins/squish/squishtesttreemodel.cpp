@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishtesttreemodel.h"
 
@@ -174,21 +174,16 @@ SquishTestTreeModel::SquishTestTreeModel(QObject *parent)
     rootItem()->appendChild(m_squishSharedFolders);
     rootItem()->appendChild(m_squishSuitesRoot);
 
-    connect(m_squishFileHandler,
-            &SquishFileHandler::testTreeItemCreated,
-            this,
-            &SquishTestTreeModel::addTreeItem);
-    connect(m_squishFileHandler,
-            &SquishFileHandler::suiteTreeItemModified,
-            this,
-            &SquishTestTreeModel::onSuiteTreeItemModified);
-    connect(m_squishFileHandler,
-            &SquishFileHandler::suiteTreeItemRemoved,
-            this,
-            &SquishTestTreeModel::onSuiteTreeItemRemoved);
-    connect(m_squishFileHandler,
-            &SquishFileHandler::clearedSharedFolders,
-            this, [this]() { m_squishSharedFolders->removeChildren(); });
+    connect(m_squishFileHandler, &SquishFileHandler::testTreeItemCreated,
+            this, &SquishTestTreeModel::addTreeItem);
+    connect(m_squishFileHandler, &SquishFileHandler::suiteTreeItemModified,
+            this, &SquishTestTreeModel::onSuiteTreeItemModified);
+    connect(m_squishFileHandler, &SquishFileHandler::suiteTreeItemRemoved,
+            this, &SquishTestTreeModel::onSuiteTreeItemRemoved);
+    connect(m_squishFileHandler, &SquishFileHandler::testCaseRemoved,
+            this, &SquishTestTreeModel::onTestCaseRemoved);
+    connect(m_squishFileHandler, &SquishFileHandler::clearedSharedFolders,
+            this, [this] { m_squishSharedFolders->removeChildren(); });
 
     m_instance = this;
 }
@@ -455,6 +450,18 @@ void SquishTestTreeModel::onSuiteTreeItemModified(SquishTestTreeItem *item, cons
     }
     // avoid leaking item even when it cannot be found
     delete item;
+}
+
+void SquishTestTreeModel::onTestCaseRemoved(const QString &suiteName, const QString &testCase)
+{
+    if (SquishTestTreeItem *suite = findSuite(suiteName)) {
+        auto item = suite->findChildAtLevel(1, [this, testCase](const Utils::TreeItem *it) {
+            return data(it->index(), Qt::DisplayRole).toString() == testCase;
+        });
+        QTC_ASSERT(item, return);
+        const QModelIndex idx = item->index();
+        removeTreeItem(idx.row(), idx.parent());
+    }
 }
 
 /************************************** SquishTestTreeSortModel **********************************/

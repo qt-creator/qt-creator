@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "itestframework.h"
 
@@ -8,6 +8,8 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
+using namespace Utils;
+
 namespace Autotest {
 
 ITestBase::ITestBase(bool activeByDefault, const ITestBase::TestBaseType type)
@@ -15,15 +17,15 @@ ITestBase::ITestBase(bool activeByDefault, const ITestBase::TestBaseType type)
     , m_type(type)
 {}
 
-Utils::Id ITestBase::settingsId() const
+Id ITestBase::settingsId() const
 {
-    return Utils::Id(Constants::SETTINGSPAGE_PREFIX)
+    return Id(Constants::SETTINGSPAGE_PREFIX)
             .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
 }
 
-Utils::Id ITestBase::id() const
+Id ITestBase::id() const
 {
-    return Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
+    return Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
 }
 
 void ITestBase::resetRootNode()
@@ -59,6 +61,11 @@ ITestParser *ITestFramework::testParser()
     if (!m_testParser)
         m_testParser = createTestParser();
     return m_testParser;
+}
+
+QStringList ITestFramework::testNameForSymbolName(const QString &) const
+{
+    return {};
 }
 
 ITestTool::ITestTool(bool activeByDefault)

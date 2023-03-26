@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtbuildaspects.h"
 
@@ -16,7 +16,6 @@
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>
-#include <QLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -31,7 +30,7 @@ QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().qmlDebugging.value());
 }
 
-void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
+void QmlDebuggingAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
@@ -68,7 +67,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().qtQuickCompiler.value());
 }
 
-void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
+void QtQuickCompilerAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);

@@ -1,13 +1,12 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 class EmrunRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
@@ -15,7 +14,10 @@ public:
     EmrunRunConfigurationFactory();
 };
 
-ProjectExplorer::RunWorkerFactory::WorkerCreator makeEmrunWorker();
+class EmrunRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    EmrunRunWorkerFactory();
+};
 
-} // namespace Internal
-} // namespace Webassembly
+} // Webassembly::Internal

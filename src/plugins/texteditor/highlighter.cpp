@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "highlighter.h"
 
@@ -7,11 +7,13 @@
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditortr.h"
 #include "texteditorsettings.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -120,13 +122,16 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
     if (definitions.isEmpty()) {
         const MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
         if (mimeType.isValid()) {
-            // highlight definitions might not use the canonical name but an alias
-            const QStringList names = QStringList(mimeType.name()) + mimeType.aliases();
-            for (const QString &name : names) {
-                definitions = definitionsForMimeType(name);
-                if (!definitions.isEmpty())
-                    break;
-            }
+            Utils::visitMimeParents(mimeType, [&](const MimeType &mt) -> bool {
+                // highlight definitions might not use the canonical name but an alias
+                const QStringList names = QStringList(mt.name()) + mt.aliases();
+                for (const QString &name : names) {
+                    definitions = definitionsForMimeType(name);
+                    if (!definitions.isEmpty())
+                        return false; // stop
+                }
+                return true; // continue
+            });
         }
     }
 
@@ -226,7 +231,7 @@ void Highlighter::downloadDefinitions(std::function<void()> callback) {
     auto downloader =
         new KSyntaxHighlighting::DefinitionDownloader(highlightRepository());
     connect(downloader, &KSyntaxHighlighting::DefinitionDownloader::done, [downloader, callback]() {
-        Core::MessageManager::writeFlashing(tr("Highlighter updates: done"));
+        Core::MessageManager::writeFlashing(Tr::tr("Highlighter updates: done"));
         downloader->deleteLater();
         reload();
         if (callback)
@@ -235,9 +240,9 @@ void Highlighter::downloadDefinitions(std::function<void()> callback) {
     connect(downloader,
             &KSyntaxHighlighting::DefinitionDownloader::informationMessage,
             [](const QString &message) {
-                Core::MessageManager::writeSilently(tr("Highlighter updates:") + ' ' + message);
+                Core::MessageManager::writeSilently(Tr::tr("Highlighter updates:") + ' ' + message);
             });
-    Core::MessageManager::writeDisrupting(tr("Highlighter updates: starting"));
+    Core::MessageManager::writeDisrupting(Tr::tr("Highlighter updates: starting"));
     downloader->start();
 }
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -22,13 +22,13 @@ public:
                              const QStringList &extraOptions = {});
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = {}) override;
-    VcsBase::VcsBaseEditorWidget *annotate(
-            const Utils::FilePath &workingDir, const QString &file, const QString &revision = {},
-            int lineNumber = -1, const QStringList &extraOptions ={}) override;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) override;
     bool isVcsDirectory(const Utils::FilePath &filePath) const;
     Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
-    void view(const QString &source, const QString &id,
+    void view(const Utils::FilePath &source, const QString &id,
               const QStringList &extraOptions = {}) override;
 
     Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;

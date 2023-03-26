@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdiagnosticconfigswidget.h"
 
 #include "clangdiagnosticconfigsmodel.h"
+#include "cppeditortr.h"
 #include "wrappablelineedit.h"
 
 #include <utils/environment.h>
@@ -65,13 +66,11 @@ public:
 
 class ConfigsModel : public TreeModel<TreeItem, GroupNode, ConfigNode>
 {
-    Q_OBJECT
-
 public:
     ConfigsModel(const ClangDiagnosticConfigs &configs)
     {
-        m_builtinRoot = new GroupNode(tr("Built-in"));
-        m_customRoot = new GroupNode(tr("Custom"));
+        m_builtinRoot = new GroupNode(Tr::tr("Built-in"));
+        m_customRoot = new GroupNode(Tr::tr("Custom"));
         rootItem()->appendChild(m_builtinRoot);
         rootItem()->appendChild(m_customRoot);
 
@@ -118,17 +117,15 @@ private:
 
 class ClangBaseChecksWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor::ClangBaseChecks)
-
 public:
     ClangBaseChecksWidget()
     {
-        auto label = new QLabel(tr("For appropriate options, consult the GCC or Clang manual "
-            "pages or the <a href=\"https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html\">"
-            "GCC online documentation</a>."));
+        auto label = new QLabel(Tr::tr("For appropriate options, consult the GCC or Clang manual "
+            "pages or the %1 GCC online documentation</a>.")
+                .arg("<a href=\"https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html\">"));
         label->setOpenExternalLinks(true);
 
-        useFlagsFromBuildSystemCheckBox = new QCheckBox(tr("Use diagnostic flags from build system"));
+        useFlagsFromBuildSystemCheckBox = new QCheckBox(Tr::tr("Use diagnostic flags from build system"));
 
         diagnosticOptionsTextEdit = new WrappableLineEdit;
 
@@ -151,9 +148,9 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const ClangDiagnostic
     : QWidget(parent)
     , m_configsModel(new ConfigsModel(configs))
 {
-    auto copyButton = new QPushButton(tr("Copy..."));
-    m_renameButton = new QPushButton(tr("Rename..."));
-    m_removeButton = new QPushButton(tr("Remove"));
+    auto copyButton = new QPushButton(Tr::tr("Copy..."));
+    m_renameButton = new QPushButton(Tr::tr("Rename..."));
+    m_removeButton = new QPushButton(Tr::tr("Remove"));
 
     m_infoLabel = new InfoLabel;
 
@@ -169,7 +166,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const ClangDiagnostic
     m_clangBaseChecks = new ClangBaseChecksWidget;
 
     m_tabWidget = new QTabWidget;
-    m_tabWidget->addTab(m_clangBaseChecks, tr("Clang Warnings"));
+    m_tabWidget->addTab(m_clangBaseChecks, Tr::tr("Clang Warnings"));
 
     using namespace Layouting;
 
@@ -206,10 +203,10 @@ void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
     const ClangDiagnosticConfig &config = currentConfig();
     bool dialogAccepted = false;
     const QString newName = QInputDialog::getText(this,
-                                                  tr("Copy Diagnostic Configuration"),
-                                                  tr("Diagnostic configuration name:"),
+                                                  Tr::tr("Copy Diagnostic Configuration"),
+                                                  Tr::tr("Diagnostic configuration name:"),
                                                   QLineEdit::Normal,
-                                                  tr("%1 (Copy)").arg(config.displayName()),
+                                                  Tr::tr("%1 (Copy)").arg(config.displayName()),
                                                   &dialogAccepted);
     if (dialogAccepted) {
         const ClangDiagnosticConfig customConfig
@@ -229,8 +226,8 @@ void ClangDiagnosticConfigsWidget::onRenameButtonClicked()
 
     bool dialogAccepted = false;
     const QString newName = QInputDialog::getText(this,
-                                                  tr("Rename Diagnostic Configuration"),
-                                                  tr("New name:"),
+                                                  Tr::tr("Rename Diagnostic Configuration"),
+                                                  Tr::tr("New name:"),
                                                   QLineEdit::Normal,
                                                   config.displayName(),
                                                   &dialogAccepted);
@@ -280,7 +277,7 @@ static QString validateDiagnosticOptions(const QStringList &options)
 
     for (const QString &option : options) {
         if (!isValidOption(option))
-            return ClangDiagnosticConfigsWidget::tr("Option \"%1\" is invalid.").arg(option);
+            return Tr::tr("Option \"%1\" is invalid.").arg(option);
     }
 
     return QString();
@@ -343,7 +340,7 @@ void ClangDiagnosticConfigsWidget::sync()
 
     if (config.isReadOnly()) {
         m_infoLabel->setType(InfoLabel::Information);
-        m_infoLabel->setText(tr("Copy this configuration to customize it."));
+        m_infoLabel->setText(Tr::tr("Copy this configuration to customize it."));
         m_infoLabel->setFilled(false);
     }
 
@@ -369,11 +366,11 @@ void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMes
 {
     if (errorMessage.isEmpty()) {
         m_infoLabel->setType(InfoLabel::Information);
-        m_infoLabel->setText(tr("Configuration passes sanity checks."));
+        m_infoLabel->setText(Tr::tr("Configuration passes sanity checks."));
         m_infoLabel->setFilled(false);
     } else {
         m_infoLabel->setType(InfoLabel::Error);
-        m_infoLabel->setText(tr("%1").arg(errorMessage));
+        m_infoLabel->setText(errorMessage);
         m_infoLabel->setFilled(true);
     }
 }
@@ -411,6 +408,4 @@ QTabWidget *ClangDiagnosticConfigsWidget::tabWidget() const
     return m_tabWidget;
 }
 
-} // CppEditor namespace
-
-#include "clangdiagnosticconfigswidget.moc"
+} // CppEditor

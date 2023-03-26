@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "targetsetupwidget.h"
 
 #include "buildconfiguration.h"
 #include "buildinfo.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 
@@ -340,10 +341,9 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
     if (m_projectPath.isEmpty() || !info.factory)
         return {Task::Unknown, {}};
 
-    QString buildDir = info.buildDirectory.toString();
     Tasks issues;
     if (info.factory)
-        issues = info.factory->reportIssues(m_kit, m_projectPath.toString(), buildDir);
+        issues = info.factory->reportIssues(m_kit, m_projectPath, info.buildDirectory);
 
     QString text;
     Task::TaskType highestType = Task::Unknown;
@@ -354,11 +354,11 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
         QString severity;
         if (t.type == Task::Error) {
             highestType = Task::Error;
-            severity = tr("<b>Error:</b> ", "Severity is Task::Error");
+            severity = Tr::tr("<b>Error:</b> ", "Severity is Task::Error");
         } else if (t.type == Task::Warning) {
             if (highestType == Task::Unknown)
                 highestType = Task::Warning;
-            severity = tr("<b>Warning:</b> ", "Severity is Task::Warning");
+            severity = Tr::tr("<b>Warning:</b> ", "Severity is Task::Warning");
         }
         text.append(severity + t.description());
     }

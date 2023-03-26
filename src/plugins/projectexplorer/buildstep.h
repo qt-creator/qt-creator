@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,7 +10,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QFuture>
 #include <QWidget>
 
 #include <atomic>
@@ -118,9 +117,6 @@ signals:
 protected:
     virtual QWidget *createConfigWidget();
 
-    QFuture<bool> runInThread(const std::function<bool()> &syncImpl);
-
-    std::function<bool()> cancelChecker() const;
     bool isCanceled() const;
 
 private:
@@ -133,7 +129,6 @@ private:
     bool m_enabled = true;
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
-    bool m_runInGuiThread = true;
     bool m_addMacroExpander = false;
     std::optional<bool> m_wasExpanded;
     std::function<QString()> m_summaryUpdater;

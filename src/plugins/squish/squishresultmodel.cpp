@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishresultmodel.h"
 
@@ -160,8 +160,7 @@ TestResult SquishResultFilterModel::testResult(const QModelIndex &idx) const
 {
     if (auto item = static_cast<SquishResultItem *>(m_sourceModel->itemForIndex(mapToSource(idx))))
         return item->result();
-
-    return TestResult();
+    return {};
 }
 
 bool SquishResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

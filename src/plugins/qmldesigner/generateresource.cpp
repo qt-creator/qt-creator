@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <generateresource.h>
 
@@ -174,6 +174,48 @@ QList<GenerateResource::ResourceFile> getFilesFromQrc(QFile *file, bool inProjec
     return fileList;
 }
 
+static bool runRcc(const CommandLine &command, const FilePath &workingDir,
+                   const QString &resourceFile)
+{
+    Utils::QtcProcess rccProcess;
+    rccProcess.setWorkingDirectory(workingDir);
+    rccProcess.setCommand(command);
+    rccProcess.start();
+    if (!rccProcess.waitForStarted()) {
+        Core::MessageManager::writeDisrupting(QCoreApplication::translate(
+              "QmlDesigner::GenerateResource", "Unable to generate resource file: %1")
+              .arg(resourceFile));
+        return false;
+    }
+    QByteArray stdOut;
+    QByteArray stdErr;
+    if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
+        Core::MessageManager::writeDisrupting(QCoreApplication::translate(
+              "QmlDesigner::GenerateResource", "A timeout occurred running \"%1\"")
+              .arg(rccProcess.commandLine().toUserOutput()));
+        return false;
+    }
+    if (!stdOut.trimmed().isEmpty())
+        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
+
+    if (!stdErr.trimmed().isEmpty())
+        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
+
+    if (rccProcess.exitStatus() != QProcess::NormalExit) {
+        Core::MessageManager::writeDisrupting(QCoreApplication::translate(
+              "QmlDesigner::GenerateResource", "\"%1\" crashed.")
+              .arg(rccProcess.commandLine().toUserOutput()));
+        return false;
+    }
+    if (rccProcess.exitCode() != 0) {
+        Core::MessageManager::writeDisrupting(QCoreApplication::translate(
+              "QmlDesigner::GenerateResource", "\"%1\" failed (exit code %2).")
+              .arg(rccProcess.commandLine().toUserOutput()).arg(rccProcess.exitCode()));
+        return false;
+    }
+    return true;
+}
+
 void GenerateResource::generateMenuEntry(QObject *parent)
 {
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
@@ -212,53 +254,11 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
         QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
-        FilePath rccBinary = qtVersion->rccFilePath();
+        const FilePath rccBinary = qtVersion->rccFilePath();
 
-        Utils::QtcProcess rccProcess;
-        rccProcess.setWorkingDirectory(projectPath);
-
-        const QStringList arguments1 = {"--project", "--output", temp.fileName()};
-
-        for (const auto &arguments : {arguments1}) {
-            rccProcess.setCommand({rccBinary, arguments});
-            rccProcess.start();
-            if (!rccProcess.waitForStarted()) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "Unable to generate resource file: %1")
-                        .arg(temp.fileName()));
-                return;
-            }
-            QByteArray stdOut;
-            QByteArray stdErr;
-            if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "A timeout occurred running \"%1\"")
-                        .arg(rccProcess.commandLine().toUserOutput()));
-                return;
-
-            }
-            if (!stdOut.trimmed().isEmpty())
-                Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
-
-            if (!stdErr.trimmed().isEmpty())
-                Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
-
-            if (rccProcess.exitStatus() != QProcess::NormalExit) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
-                        .arg(rccProcess.commandLine().toUserOutput()));
-                return;
-            }
-            if (rccProcess.exitCode() != 0) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "\"%1\" failed (exit code %2).")
-                        .arg(rccProcess.commandLine().toUserOutput())
-                        .arg(rccProcess.exitCode()));
-                return;
-            }
+        if (!runRcc({rccBinary, {"--project", "--output", temp.fileName()}},
+               projectPath, temp.fileName())) {
+            return;
         }
 
         if (!temp.open())
@@ -364,10 +364,7 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
         QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
             currentProject->activeTarget()->kit());
-        FilePath rccBinary = qtVersion->rccFilePath();
-
-        QtcProcess rccProcess;
-        rccProcess.setWorkingDirectory(projectPath);
+        const FilePath rccBinary = qtVersion->rccFilePath();
 
         QXmlStreamReader reader;
         QByteArray firstLine;
@@ -377,55 +374,14 @@ void GenerateResource::generateMenuEntry(QObject *parent)
                 return;
             temp.close();
 
-            const QStringList arguments1 = {"--project", "--output", temp.fileName()};
-
-            for (const auto &arguments : {arguments1}) {
-                rccProcess.setCommand({rccBinary, arguments});
-                rccProcess.start();
-                if (!rccProcess.waitForStarted()) {
-                    Core::MessageManager::writeDisrupting(
-                        QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "Unable to generate resource file: %1")
-                        .arg(resourceFileName.toUserOutput()));
-                    return;
-                }
-                QByteArray stdOut;
-                QByteArray stdErr;
-                if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
-                    Core::MessageManager::writeDisrupting(
-                        QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "A timeout occurred running \"%1\"")
-                        .arg(rccProcess.commandLine().toUserOutput()));
-                    return;
-                }
-                if (!stdOut.trimmed().isEmpty())
-                    Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
-
-                if (!stdErr.trimmed().isEmpty())
-                    Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
-
-                if (rccProcess.exitStatus() != QProcess::NormalExit) {
-                    Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
-                        .arg(rccProcess.commandLine().toUserOutput()));
-                    return;
-                }
-                if (rccProcess.exitCode() != 0) {
-                    Core::MessageManager::writeDisrupting(
-                        QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "\"%1\" failed (exit code %2).")
-                        .arg(rccProcess.commandLine().toUserOutput())
-                        .arg(rccProcess.exitCode()));
-                    return;
-                }
+            if (!runRcc({rccBinary, {"--project", "--output", temp.fileName()}},
+                   projectPath, resourceFileName.toUserOutput())) {
+                return;
             }
-
             reader.setDevice(&temp);
-
             if (!temp.open())
                 return;
             firstLine = temp.readLine();
-
         } else {
             reader.setDevice(&persistentFile);
             if (!persistentFile.open(QIODevice::ReadWrite))
@@ -505,49 +461,9 @@ void GenerateResource::generateMenuEntry(QObject *parent)
         tempFile.write("\n</RCC>\n");
         tempFile.close();
 
-        const QStringList arguments2 = {"--binary", "--output", resourceFileName.path(),
-                                        tempFile.fileName()};
-
-        for (const auto &arguments : {arguments2}) {
-            rccProcess.setCommand({rccBinary, arguments});
-            rccProcess.start();
-            if (!rccProcess.waitForStarted()) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "Unable to generate resource file: %1")
-                        .arg(resourceFileName.toUserOutput()));
-                return;
-            }
-            QByteArray stdOut;
-            QByteArray stdErr;
-            if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "A timeout occurred running \"%1\"")
-                        .arg(rccProcess.commandLine().toUserOutput()));
-                return;
-
-            }
-            if (!stdOut.trimmed().isEmpty())
-                Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
-
-            if (!stdErr.trimmed().isEmpty())
-                Core::MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
-
-            if (rccProcess.exitStatus() != QProcess::NormalExit) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource", "\"%1\" crashed.")
-                        .arg(rccProcess.commandLine().toUserOutput()));
-                return;
-            }
-            if (rccProcess.exitCode() != 0) {
-                Core::MessageManager::writeDisrupting(
-                    QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                "\"%1\" failed (exit code %2).")
-                        .arg(rccProcess.commandLine().toUserOutput())
-                        .arg(rccProcess.exitCode()));
-                return;
-            }
+        if (!runRcc({rccBinary, {"--binary", "--output", resourceFileName.path(), tempFile.fileName()}},
+               projectPath, resourceFileName.path())) {
+            return;
         }
 
         Core::AsynchronousMessageBox::information(

@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppoutline.h"
 
-#include "cppeditoroutline.h"
 #include "cppeditordocument.h"
+#include "cppeditoroutline.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cppoutlinemodel.h"
 
@@ -37,9 +38,9 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu contextMenu;
 
-    QAction *action = contextMenu.addAction(tr("Expand All"));
+    QAction *action = contextMenu.addAction(Tr::tr("Expand All"));
     connect(action, &QAction::triggered, this, &QTreeView::expandAll);
-    action = contextMenu.addAction(tr("Collapse All"));
+    action = contextMenu.addAction(Tr::tr("Collapse All"));
     connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
 
     contextMenu.exec(event->globalPos());

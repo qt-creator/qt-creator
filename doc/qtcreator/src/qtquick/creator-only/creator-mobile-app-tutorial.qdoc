@@ -163,7 +163,7 @@
     update the CMake configuration with the following Qt module information:
     \c Sensors, \c Svg, \c Xml.
 
-    The \e CMakeLists.txt file should contain the following entries that tell
+    The \e CMakeLists.txt file should have the following entries that tell
     CMake to look up the Qt installation and import the Qt Sensors, Qt SVG,
     and Qt XML modules needed by the application:
 

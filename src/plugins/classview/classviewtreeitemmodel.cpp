@@ -1,7 +1,8 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classviewtreeitemmodel.h"
+
 #include "classviewconstants.h"
 #include "classviewmanager.h"
 #include "classviewutils.h"
@@ -161,7 +162,7 @@ QMimeData *TreeItemModel::mimeData(const QModelIndexList &indexes) const
         if (locations.isEmpty())
             continue;
         const SymbolLocation loc = *locations.constBegin();
-        mimeData->addFile(Utils::FilePath::fromString(loc.fileName()), loc.line(), loc.column());
+        mimeData->addFile(loc.filePath(), loc.line(), loc.column());
     }
     if (mimeData->files().isEmpty()) {
         delete mimeData;

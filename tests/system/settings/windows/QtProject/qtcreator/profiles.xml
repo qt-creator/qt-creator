@@ -68,7 +68,9 @@
     <value type="QString" key="Debugger.Information">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
-    <valuelist type="QVariantList" key="PE.Profile.Environment"/>
+    <valuelist type="QVariantList" key="PE.Profile.Environment">
+     <value type="QString">SQUISH_ENV_MODIFICATION</value>
+    </valuelist>
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <valuemap type="QVariantMap" key="PE.Profile.ToolChainsV3">
      <value type="QByteArray" key="C">{c96cfaf3-fb8a-472b-b3c7-e94e8c490f17}</value>
@@ -86,8 +88,32 @@
   </valuemap>
  </data>
  <data>
+  <data>
+  <variable>Profile.3</variable>
+  <valuemap type="QVariantMap">
+   <value type="bool" key="PE.Profile.AutoDetected">false</value>
+   <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
+   <valuemap type="QVariantMap" key="PE.Profile.Data">
+    <value type="QString" key="Debugger.Information">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
+    <value type="QString" key="PE.Profile.Device">Desktop Device</value>
+    <value type="QString" key="PE.Profile.DeviceType">Desktop</value>
+    <valuemap type="QVariantMap" key="PE.Profile.ToolChainsV3">
+     <value type="QByteArray" key="C">{4580fc7c-8102-4144-a808-749b1a29f739}</value>
+     <value type="QByteArray" key="Cxx">{c6590889-1d34-4d12-af47-51ec76305e88}</value>
+    </valuemap>
+    <value type="int" key="QtSupport.QtInformation">27</value>
+   </valuemap>
+   <value type="QString" key="PE.Profile.DeviceTypeForIcon"></value>
+   <value type="QString" key="PE.Profile.Icon"></value>
+   <value type="QString" key="PE.Profile.Id">{cec120c5-6455-497b-8059-8e079cbdd5fd}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
+   <value type="QString" key="PE.Profile.Name">Desktop 6.2.4</value>
+   <value type="bool" key="PE.Profile.SDK">false</value>
+   <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
+  </valuemap>
+ </data>
   <variable>Profile.Count</variable>
-  <value type="int">3</value>
+  <value type="int">4</value>
  </data>
  <data>
   <variable>Profile.Default</variable>

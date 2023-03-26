@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../cplusplus_global.h"
 
@@ -8,6 +8,8 @@
 #include <cplusplus/Token.h>
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/pp-engine.h>
+
+#include <utils/filepath.h>
 
 #include <QtTest>
 #include <QDebug>

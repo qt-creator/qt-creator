@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectnodes.h"
 
@@ -18,7 +18,6 @@
 #include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 #include <utils/threadutils.h>
 #include <utils/utilsicons.h>
 
@@ -52,9 +51,15 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             isRelative = true;
             directoryWithoutPrefix = directory.relativeChildPath(path);
         } else {
-            isRelative = false;
-            path.clear();
-            directoryWithoutPrefix = directory;
+            const FilePath relativePath = directory.relativePathFrom(path);
+            if (relativePath.path().count("../") < 5) {
+                isRelative = true;
+                directoryWithoutPrefix = relativePath;
+            } else {
+                isRelative = false;
+                path.clear();
+                directoryWithoutPrefix = directory;
+            }
         }
     }
     QStringList parts = directoryWithoutPrefix.path().split('/', Qt::SkipEmptyParts);
@@ -63,7 +68,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
 
     ProjectExplorer::FolderNode *parent = folder;
     for (const QString &part : std::as_const(parts)) {
-        path = path.pathAppended(part);
+        path = path.pathAppended(part).cleanPath();
         // Find folder in subFolders
         FolderNode *next = parent->folderNode(path);
         if (!next) {
@@ -316,41 +321,51 @@ FileType Node::fileTypeForFileName(const Utils::FilePath &file)
 
 FilePath Node::pathOrDirectory(bool dir) const
 {
-    FilePath location;
     const FolderNode *folder = asFolderNode();
     if (isVirtualFolderType() && folder) {
+        FilePath location;
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
         if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
             location = m_filePath;
         } else {
             // Otherwise we figure out a commonPath from the subfolders
-            QStringList list;
+            FilePaths list;
             const QList<FolderNode *> folders = folder->folderNodes();
             for (FolderNode *f : folders)
-                list << f->filePath().toString() + QLatin1Char('/');
-            location = FilePath::fromString(Utils::commonPath(list));
+                list << f->filePath();
+            location = FileUtils::commonPath(list);
         }
 
         QTC_CHECK(!location.needsDevice());
         QFileInfo fi = location.toFileInfo();
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
             fi.setFile(fi.absolutePath());
-        location = FilePath::fromString(fi.absoluteFilePath());
-    } else if (!m_filePath.isEmpty()) {
-        QTC_CHECK(!m_filePath.needsDevice());
-        QFileInfo fi = m_filePath.toFileInfo();
-        // remove any /suffixes, which e.g. ResourceNode uses
-        // Note this could be removed again by making path() a true path again
-        // That requires changes in both the VirtualFolderNode and ResourceNode
-        while (!fi.exists() && !fi.isRoot())
-            fi.setFile(fi.absolutePath());
-
-        if (dir)
-            location = FilePath::fromString(fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
-        else
-            location = FilePath::fromString(fi.absoluteFilePath());
+        return FilePath::fromString(fi.absoluteFilePath());
     }
+
+    if (m_filePath.isEmpty())
+        return {};
+
+    if (m_filePath.needsDevice()) {
+        if (dir)
+            return m_filePath.isDir() ? m_filePath.absoluteFilePath() : m_filePath.absolutePath();
+        return m_filePath;
+    }
+
+    FilePath location;
+    QFileInfo fi = m_filePath.toFileInfo();
+    // remove any /suffixes, which e.g. ResourceNode uses
+    // Note this could be removed again by making path() a true path again
+    // That requires changes in both the VirtualFolderNode and ResourceNode
+    while (!fi.exists() && !fi.isRoot())
+        fi.setFile(fi.absolutePath());
+
+    if (dir)
+        location = FilePath::fromString(fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
+    else
+        location = FilePath::fromString(fi.absoluteFilePath());
+
     return location;
 }
 

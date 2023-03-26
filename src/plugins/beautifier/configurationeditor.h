@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,15 +16,12 @@ class QStringListModel;
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class AbstractSettings;
 
 class ConfigurationSyntaxHighlighter : public QSyntaxHighlighter
 {
-    Q_OBJECT
-
 public:
     explicit ConfigurationSyntaxHighlighter(QTextDocument *parent);
     void setKeywords(const QStringList &keywords);
@@ -68,5 +65,4 @@ private:
     QString m_lastDocumentation;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

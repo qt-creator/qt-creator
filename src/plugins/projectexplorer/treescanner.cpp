@@ -1,16 +1,13 @@
 // Copyright (C) 2016 Alexander Drozdov.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "treescanner.h"
 
-#include "projectexplorerconstants.h"
 #include "projectnodeshelper.h"
 #include "projecttree.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-
-#include <cppeditor/cppeditorconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>

@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "builtincursorinfo.h"
 
@@ -254,7 +254,7 @@ bool isMacroUseOf(const Document::MacroUse &marcoUse, const Macro &macro)
     return candidate.line() == macro.line()
         && candidate.utf16CharOffset() == macro.utf16CharOffset()
         && candidate.length() == macro.length()
-        && candidate.fileName() == macro.fileName();
+        && candidate.filePath() == macro.filePath();
 }
 
 bool handleMacroCase(const Document::Ptr document,
@@ -270,7 +270,7 @@ bool handleMacroCase(const Document::Ptr document,
     const int length = macro->nameToQString().size();
 
     // Macro definition
-    if (macro->fileName() == document->fileName())
+    if (macro->filePath() == document->filePath())
         ranges->append(toRange(textCursor, macro->utf16CharOffset(), length));
 
     // Other macro uses

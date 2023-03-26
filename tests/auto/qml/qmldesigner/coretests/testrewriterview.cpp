@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testrewriterview.h"
 #include <QObject>
@@ -12,7 +12,8 @@ using namespace QmlDesigner::Internal;
 
 bool TestModelToTextMerger::isNodeScheduledForRemoval(const ModelNode &node) const
 {
-    foreach (RewriteAction *action, scheduledRewriteActions()) {
+    const QList<RewriteAction *> actions = scheduledRewriteActions();
+    for (RewriteAction *action : actions) {
         if (RemoveNodeRewriteAction *removeAction = action->asRemoveNodeRewriteAction()) {
             if (removeAction->node() == node)
                 return true;
@@ -24,7 +25,8 @@ bool TestModelToTextMerger::isNodeScheduledForRemoval(const ModelNode &node) con
 
 bool TestModelToTextMerger::isNodeScheduledForAddition(const ModelNode &node) const
 {
-    foreach (RewriteAction *action, scheduledRewriteActions()) {
+    const QList<RewriteAction *> actions = scheduledRewriteActions();
+    for (RewriteAction *action : actions) {
         if (AddPropertyRewriteAction *addPropertyAction = action->asAddPropertyRewriteAction()) {
             const AbstractProperty property = addPropertyAction->property();
             if (property.isNodeProperty() && property.toNodeProperty().modelNode() == node)
@@ -46,7 +48,8 @@ bool TestModelToTextMerger::isNodeScheduledForAddition(const ModelNode &node) co
 
 VariantProperty TestModelToTextMerger::findAddedVariantProperty(const VariantProperty &property) const
 {
-    foreach (RewriteAction *action, scheduledRewriteActions()) {
+    const QList<RewriteAction *> actions = scheduledRewriteActions();
+    for (RewriteAction *action : actions) {
         if (AddPropertyRewriteAction *addPropertyAction = action->asAddPropertyRewriteAction()) {
             const AbstractProperty candidate = addPropertyAction->property();
 

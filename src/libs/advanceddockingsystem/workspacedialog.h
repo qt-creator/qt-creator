@@ -3,12 +3,10 @@
 
 #pragma once
 
-#include "ui_workspacedialog.h"
-
 #include <QDialog>
-#include <QString>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QLineEdit;
 class QPushButton;
 QT_END_NAMESPACE
@@ -16,6 +14,7 @@ QT_END_NAMESPACE
 namespace ADS {
 
 class DockManager;
+class WorkspaceView;
 
 class WorkspaceDialog : public QDialog
 {
@@ -32,9 +31,18 @@ public:
 private:
     void updateActions(const QStringList &workspaces);
 
-    Ui::WorkspaceDialog m_ui;
-
     DockManager *m_manager = nullptr;
+
+    WorkspaceView *m_workspaceView = nullptr;
+    QPushButton *m_btCreateNew = nullptr;
+    QPushButton *m_btRename = nullptr;
+    QPushButton *m_btClone = nullptr;
+    QPushButton *m_btDelete = nullptr;
+    QPushButton *m_btReset = nullptr;
+    QPushButton *m_btSwitch = nullptr;
+    QPushButton *m_btImport = nullptr;
+    QPushButton *m_btExport = nullptr;
+    QCheckBox *m_autoLoadCheckBox = nullptr;
 };
 
 class WorkspaceNameInputDialog : public QDialog

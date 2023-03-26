@@ -1,9 +1,10 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filesinallprojectsfind.h"
 
 #include "project.h"
+#include "projectexplorertr.h"
 #include "session.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -24,7 +25,7 @@ QString FilesInAllProjectsFind::id() const
 
 QString FilesInAllProjectsFind::displayName() const
 {
-    return tr("Files in All Project Directories");
+    return Tr::tr("Files in All Project Directories");
 }
 
 const char kSettingsKey[] = "FilesInAllProjectDirectories";
@@ -62,7 +63,7 @@ Utils::FileIterator *FilesInAllProjectsFind::files(const QStringList &nameFilter
 
 QString FilesInAllProjectsFind::label() const
 {
-    return tr("Files in All Project Directories:");
+    return Tr::tr("Files in All Project Directories:");
 }
 
 } // namespace Internal

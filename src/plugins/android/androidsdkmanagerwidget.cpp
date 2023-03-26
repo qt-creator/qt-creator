@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidconfigurations.h"
 #include "androidsdkmanager.h"
@@ -15,7 +15,9 @@
 #include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 
+#include <QAbstractButton>
 #include <QDialogButtonBox>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
@@ -64,9 +66,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
     auto updateInstalledButton = new QPushButton(Tr::tr("Update Installed"));
 
-    auto applySelectionButton = new QPushButton(Tr::tr("Apply"));
-    applySelectionButton->setEnabled(false);
-
     auto channelCheckbox = new QComboBox;
     channelCheckbox->addItem(Tr::tr("Default"));
     channelCheckbox->addItem(Tr::tr("Stable"));
@@ -89,8 +88,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     auto expandCheck = new QCheckBox(Tr::tr("Expand All"));
 
     m_outputStack = new QWidget;
-    auto cancelButton = new QPushButton(Tr::tr("Cancel"));
-
     m_operationProgress = new QProgressBar(m_outputStack);
 
     m_outputEdit = new QPlainTextEdit(m_outputStack);
@@ -106,7 +103,8 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     m_sdkLicenseButtonBox->hide();
 
     m_buttonBox = new QDialogButtonBox(this);
-    m_buttonBox->setStandardButtons(QDialogButtonBox::Ok);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel);
+    m_buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 
     m_viewStack = new QStackedWidget(this);
     m_viewStack->addWidget(m_packagesStack);
@@ -130,7 +128,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
         Span(2, packagesView),
         Column {
             updateInstalledButton,
-            applySelectionButton,
             st,
             Group {
                 title(Tr::tr("Show Packages")),
@@ -145,29 +142,28 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
             },
             optionsButton
         }
-    }.attachTo(m_packagesStack);
+    }.attachTo(m_packagesStack, WithoutMargins);
 
     Column {
         m_outputEdit,
         Row { m_sdkLicenseLabel, m_sdkLicenseButtonBox },
         m_operationProgress,
-        st,
-        Row { st, cancelButton }
-    }.attachTo(m_outputStack);
+    }.attachTo(m_outputStack, WithoutMargins);
 
     Column {
         m_viewStack,
         m_buttonBox
     }.attachTo(this);
 
-    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this, applySelectionButton] {
+    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this] {
         if (m_viewStack->currentWidget() == m_packagesStack)
-            applySelectionButton->setEnabled(!m_sdkModel->userSelection().isEmpty());
+            m_buttonBox->button(QDialogButtonBox::Apply)
+                ->setEnabled(!m_sdkModel->userSelection().isEmpty());
     });
 
     connect(m_sdkModel, &AndroidSdkModel::modelAboutToBeReset, this,
-            [this, applySelectionButton, expandCheck] {
-        applySelectionButton->setEnabled(false);
+            [this, expandCheck] {
+        m_buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
         expandCheck->setChecked(false);
         cancelPendingOperations();
         switchView(PackageListing);
@@ -209,10 +205,11 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
         expandCheck->setChecked(!text.isEmpty());
     });
 
-    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &AndroidSdkManagerWidget::close);
-    connect(applySelectionButton, &QPushButton::clicked, this, [this] { onApplyButton(); });
-    connect(cancelButton, &QPushButton::clicked, this,
-            &AndroidSdkManagerWidget::onCancel);
+    connect(m_buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
+        onApplyButton();
+    });
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerWidget::onCancel);
+
     connect(optionsButton, &QPushButton::clicked,
             this, &AndroidSdkManagerWidget::onSdkManagerOptions);
     connect(m_sdkLicenseButtonBox, &QDialogButtonBox::accepted, this, [this] {
@@ -369,6 +366,7 @@ void AndroidSdkManagerWidget::onUpdatePackages()
 void AndroidSdkManagerWidget::onCancel()
 {
     cancelPendingOperations();
+    close();
 }
 
 void AndroidSdkManagerWidget::onOperationResult(int index)
@@ -542,10 +540,10 @@ void AndroidSdkManagerWidget::switchView(AndroidSdkManagerWidget::View view)
     if (m_currentView == PackageListing) {
         // We need the buttonBox only in the main listing view, as the license and update
         // views already have a cancel button.
-        m_buttonBox->button(QDialogButtonBox::Ok)->setVisible(true);
+        m_buttonBox->button(QDialogButtonBox::Apply)->setVisible(true);
         emit updatingSdkFinished();
     } else {
-        m_buttonBox->button(QDialogButtonBox::Ok)->setVisible(false);
+        m_buttonBox->button(QDialogButtonBox::Apply)->setVisible(false);
         emit updatingSdk();
     }
 

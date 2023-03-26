@@ -30,6 +30,7 @@ QtcPlugin {
         "classviewsymbolinformation.h",
         "classviewsymbollocation.cpp",
         "classviewsymbollocation.h",
+        "classviewtr.h",
         "classviewtreeitemmodel.cpp",
         "classviewtreeitemmodel.h",
         "classviewutils.cpp",

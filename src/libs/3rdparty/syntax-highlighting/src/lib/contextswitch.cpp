@@ -28,7 +28,7 @@ void ContextSwitch::resolve(DefinitionData &def, QStringView contextInstr)
     }
 
     if (defName.isEmpty()) {
-        m_context = def.contextByName(contextName.toString());
+        m_context = def.contextByName(contextName);
     } else {
         auto d = def.repo->definitionForName(defName.toString());
         if (d.isValid()) {
@@ -38,7 +38,7 @@ void ContextSwitch::resolve(DefinitionData &def, QStringView contextInstr)
             if (contextName.isEmpty()) {
                 m_context = data->initialContext();
             } else {
-                m_context = data->contextByName(contextName.toString());
+                m_context = data->contextByName(contextName);
             }
         }
     }

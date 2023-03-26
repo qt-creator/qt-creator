@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="hr">
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>Opis:</translation>
@@ -51,9 +51,6 @@
         <source>License:</source>
         <translation>Licenca:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>Plugin Loader Messages</source>
         <translation>Poruke učitača dodataka</translation>
@@ -66,9 +63,6 @@
         <source>Details:</source>
         <translation>Detalji:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Stanje:</translation>
@@ -79,7 +73,7 @@
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -92,9 +86,6 @@
         <source>...</source>
         <translation>…</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
         <translation>Rastegni uspravno. Rasteže sliku, kako bi popunila područje.</translation>
@@ -119,9 +110,6 @@
         <source>10 x 10</source>
         <translation>10 × 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
     <message>
         <source>The image is scaled to fit.</source>
         <translation>Slika se skalira kako bi popunila područje.</translation>
@@ -147,13 +135,6 @@
         <translation>Slika se skalira proporcionalno kako bi popunila područje i reže se po potrebi.</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 × 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
         <source>Gradient</source>
         <translation>Gradijent</translation>
     </message>
@@ -162,16 +143,9 @@
         <translation>Boja</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>…</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Rub</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -388,7 +362,7 @@
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Prijeđi na prethodni događaj.</translation>
@@ -455,7 +429,7 @@
     </message>
 </context>
 <context>
-    <name>Utils::WizardPage</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Choose the Location</source>
         <translation>Odaberi mjesto</translation>
@@ -468,9 +442,6 @@
         <source>Path:</source>
         <translation>Staza:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>Naziv &amp;klase:</translation>
@@ -543,16 +514,9 @@
         <source>Invalid form file name: &quot;%1&quot;</source>
         <translation>Nevaljani naziv datoteke obrasca: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and Project Location</source>
         <translation>Uvod i mjesto projekta</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
     </message>
     <message>
         <source>Create in:</source>
@@ -598,9 +562,6 @@
         <source>Invalid character &quot;%1&quot; found.</source>
         <translation>Nađen je nevaljani slovni znak &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProxyCredentialsDialog</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>Korisnički podaci za poslužitelja</translation>
@@ -625,9 +586,6 @@
         <source>Password</source>
         <translation>Lozinka</translation>
     </message>
-</context>
-<context>
-    <name>Utils::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Ukloni datoteku</translation>
@@ -646,7 +604,7 @@
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Widget</source>
         <translation>Programčić</translation>
@@ -1093,7 +1051,7 @@ Odustajanje od izvršavanja neriješenih operacija …
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
         <translation>Pretvara neuspjehe u točke prekida pri uklanjanju grešaka.</translation>
@@ -1172,9 +1130,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Postavi GTest filtar koji će se koristiti za grupiranje.
 Dodatne dokumente o GTest filtrima potraži u Google Test dokumentaciji.</translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Omogućuje prekid testova kod potvrda.</translation>
@@ -1251,9 +1206,6 @@ Upozorenje: Običan tekst propušta neke informacije, kao što je trajanje.</tra
         <source>Perf</source>
         <translation>Perf</translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -1370,7 +1322,7 @@ Upozorenje: ovo je eksperimentalna funkcija i može dovesti do neuspjeha izvrša
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Opće informacije</translation>
@@ -1407,7 +1359,7 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -1458,7 +1410,7 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -1581,7 +1533,7 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
+    <name>QtC::Beautifier</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -1616,21 +1568,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <translation>Koristi prilagođeni stil:</translation>
     </message>
     <message>
-        <source>Artistic Style</source>
-        <translation>Artistic Style</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>Koristi prilagođeni stil:</translation>
-    </message>
-    <message>
         <source>Use predefined style:</source>
         <translation>Koristi predefinirani stil:</translation>
     </message>
@@ -1639,24 +1576,13 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <translation>Rezervni stil:</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Konfiguracija</translation>
-    </message>
-    <message>
         <source>Clang Format command:</source>
         <translation>Naredba za Clang format:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Ograniči na MIME vrste:</translation>
     </message>
     <message>
         <source>Clang Format</source>
         <translation>Clang format</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -1673,9 +1599,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <source>Documentation for &quot;%1&quot;</source>
         <translation>Dokumentacija za &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
     <message>
         <source>Edit</source>
         <translation>Uredi</translation>
@@ -1696,9 +1619,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <source>Edit Configuration</source>
         <translation>Uredi konfiguraciju</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::GeneralOptionsPage</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>Automatsko formatiranje prilikom spremanja datoteke</translation>
@@ -1712,10 +1632,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <translation>Alat:</translation>
     </message>
     <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Ograniči na MIME vrste:</translation>
-    </message>
-    <message>
         <source>Restrict to files contained in the current project</source>
         <translation>Ograniči na datoteke koje su sadržane u ovom projektu</translation>
     </message>
@@ -1723,24 +1639,9 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Configuration</source>
-        <translation>Konfiguracija</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation>Naredba za uncrustify:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Ograniči na MIME vrste:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -1756,10 +1657,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <translation>Koristi datoteku uncrustify.cfg u tvom osnovnom direktoriju</translation>
     </message>
     <message>
-        <source>Use customized style:</source>
-        <translation>Koristi prilagođeni stil:</translation>
-    </message>
-    <message>
         <source>For action Format Selected Text</source>
         <translation>Za radnju Formatiraj odabrani tekst</translation>
     </message>
@@ -1773,7 +1670,7 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Global</source>
         <translation>Globalno</translation>
@@ -1798,7 +1695,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>QtC::ClangFormat</name>
     <message>
         <source>Format instead of indenting</source>
         <translation>Formatiraj umjesto uvlačenja</translation>
@@ -1829,7 +1726,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::SelectableFilesDialog</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>Analyzer Configuration</source>
         <translation>Konfiguracija analizatora</translation>
@@ -1858,27 +1755,14 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Analyze</source>
         <translation>Analiziraj</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsBasicSettings</name>
     <message>
         <source>Build the project before analysis</source>
         <translation>Izgradi projekt prije analize</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsConfigWidget</name>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
     </message>
     <message>
         <source>Simultaneous processes:</source>
         <translation>Istovremeni procesi:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ProjectSettingsWidget</name>
     <message>
         <source>Suppressed diagnostics:</source>
         <translation>Izostavljene dijagnoze:</translation>
@@ -1900,7 +1784,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Odjava</translation>
@@ -2050,7 +1934,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Određuje, da li se staze datoteke kopiraju u međuspremnik za lijepljenje u datoteku CMakeLists.txt, kad dodaješ nove datoteke CMake projektima.</translation>
@@ -2073,7 +1957,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
+    <name>QtC::Core</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -2086,9 +1970,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Add the files to version control (%1)</source>
         <translation>Dodaj datoteke u kontrolu verzija (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add tool.</source>
         <translation>Dodaj alat.</translation>
@@ -2116,10 +1997,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     <message>
         <source>Description:</source>
         <translation>Opis:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Izvršna datoteka:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -2222,9 +2099,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>PATH=/opt/bin:${PATH}</source>
         <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
-</context>
-<context>
-    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>File Properties</source>
         <translation>Svojstva datoteke</translation>
@@ -2289,9 +2163,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>%1 Bytes</source>
         <translation>%1 bajta</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Novi projekt</translation>
@@ -2303,10 +2174,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     <message>
         <source>Choose...</source>
         <translation>Odaberi …</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projekti</translation>
     </message>
     <message>
         <source>Files and Classes</source>
@@ -2328,9 +2195,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Supported Platforms</source>
         <translation>Podržane platforme</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>Otvori datoteku pomoću …</translation>
@@ -2343,9 +2207,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Open file &quot;%1&quot; with:</source>
         <translation>Otvori datoteku &quot;%1&quot; pomoću:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Datoteke bez dozvole za pisanjem</translation>
@@ -2359,10 +2220,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <translation>Omogući pisanje</translation>
     </message>
     <message>
-        <source>Open with VCS</source>
-        <translation>Otvori s VCS</translation>
-    </message>
-    <message>
         <source>Save As</source>
         <translation>Spremi kao</translation>
     </message>
@@ -2374,9 +2231,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Select all, if possible: </source>
         <translation>Ako je moguće, odaberi sve: </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Save Changes</source>
         <translation>Spremi promjene</translation>
@@ -2433,9 +2287,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Save Selected</source>
         <translation>Spremi odabrano</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindDialog</name>
     <message>
         <source>&amp;Search</source>
         <translation>&amp;Traži</translation>
@@ -2464,9 +2315,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Sco&amp;pe:</source>
         <translation>&amp;Područje:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Nađi</translation>
@@ -2495,9 +2343,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Advanced...</source>
         <translation>Napredno …</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>User Interface</source>
         <translation>Korisničko sučelje</translation>
@@ -2518,10 +2363,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Reset to default.</source>
         <comment>Color</comment>
         <translation>Resetiraj na standardne vrijednosti.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
     </message>
     <message>
         <source>Re-enable warnings that were suppressed by selecting &quot;Do Not Show Again&quot; (for example, missing highlighter).</source>
@@ -2549,23 +2390,12 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <translation>&lt;Jezik sustava&gt;</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Potrebno je ponovno pokretanje</translation>
-    </message>
-    <message>
         <source>The high DPI settings will take effect after restart.</source>
         <translation>Postavke s visokom DPI rezolucijom će djelovati nakon ponovnog pokretanja.</translation>
     </message>
     <message>
         <source>The language change will take effect after restart.</source>
         <translation>Promjena jezika će djelovati nakon ponovnog pokretanja.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
     </message>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
@@ -2582,16 +2412,9 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <translation>Uredi …</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Directories:</source>
         <translation>Mape:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation>Uključi skrivene datoteke</translation>
@@ -2600,24 +2423,9 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Filter:</source>
         <translation>Filtar:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfiguriraj filtre</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Dodaj …</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Uredi …</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -2630,13 +2438,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
     <message>
         <source> min</source>
         <translation> min</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dijalog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -2722,9 +2523,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Internal error: Type is invalid</source>
         <translation>Unutarnja greška: neispravna vrsta</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
     <message>
         <source>Registered MIME Types</source>
         <translation>Registrirane MIME vrste</translation>
@@ -2765,21 +2563,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Priority</source>
         <translation>Prioritet</translation>
     </message>
-    <message>
-        <source>Add...</source>
-        <translation>Dodaj …</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Uredi …</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>System</source>
         <translation>Sustav</translation>
@@ -2847,10 +2630,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <translation>Vrati na zadane vrijednosti.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
-    </message>
-    <message>
         <source>Warn before opening text files greater than</source>
         <translation>Upozori prije otvaranja tekstualnih datoteka, većih od</translation>
     </message>
@@ -2896,10 +2675,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <translation>Razlikovanje slova (zadano)</translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation>Razlikovanje slova</translation>
-    </message>
-    <message>
         <source>Case Insensitive (Default)</source>
         <translation>Nerazlikovanje slova (zadano)</translation>
     </message>
@@ -2913,7 +2688,7 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Protokol lijepljenja temeljen na programu za zajedničko korištenje datoteka, omogućuje dijeljenje isječaka kȏda pomoću jednostavnih datoteka na zajedničkom mrežnom pogonu. Datoteke se nikad ne brišu.</translation>
@@ -3020,14 +2795,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppCodeModelInspectorDialog</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Compiler Flags</source>
         <translation>Oznake kompajlera</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Dodatne C++ predprocesorske direktive</translation>
@@ -3036,9 +2808,6 @@ p, li { white-space: pre-wrap; }
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Dodatne C++ predprocesorske direktive za %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangBaseChecks</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
         <translation>Odgovarajuće opcije potraži na stranicama GCC ili Clang priručnika ili na &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online dokumentaciji&lt;/a&gt;.</translation>
@@ -3047,9 +2816,6 @@ p, li { white-space: pre-wrap; }
         <source>Use diagnostic flags from build system</source>
         <translation>Koristi oznake dijagnoze sustava izgradnje</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsWidget</name>
     <message>
         <source>Copy...</source>
         <translation>Kopiraj …</translation>
@@ -3138,9 +2904,6 @@ p, li { white-space: pre-wrap; }
         <source>Clazy</source>
         <translation>Clazy</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClazyChecks</name>
     <message>
         <source>See &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;Clazy&apos;s homepage&lt;/a&gt; for more information.</source>
         <translation>Više informacijea potraži na &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;početnoj stranici Clazyja&lt;/a&gt;.</translation>
@@ -3154,10 +2917,6 @@ p, li { white-space: pre-wrap; }
         <translation>Resetiraj na sve</translation>
     </message>
     <message>
-        <source>Checks</source>
-        <translation>Provjere</translation>
-    </message>
-    <message>
         <source>When enabling a level explicitly, also enable lower levels (Clazy semantic).</source>
         <translation>Kad eksplicitno aktiviraš razinu, također aktiviraj i niže razine (Clazy semantika).</translation>
     </message>
@@ -3165,9 +2924,6 @@ p, li { white-space: pre-wrap; }
         <source>Enable lower levels automatically</source>
         <translation>Aktiviraj niže razine automatski</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -3207,13 +2963,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>The selected configuration has potentially expensive Clang-Tidy or Clazy checks enabled.&lt;br/&gt;Consider to run these in a separate &lt;a href=&quot;target&quot;&gt;Clang-Tidy and Clazy analyzer&lt;/a&gt; run.</source>
         <translation>Odabrana konfiguracija ima potencionalno skupe Clang-Tidy ili Clazy provjere. &lt;br/&gt;Razmotri mogućnost njihovog pokretanja u zasebnom &lt;a href=&quot;target&quot;&gt;Clang-Tidy i Clazy analizatoru&lt;/a&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
     </message>
     <message>
         <source>Content</source>
@@ -3443,9 +3192,6 @@ bi se poravnali sa sljedećim retkom</translation>
         <source>Prefer getter names without &quot;get&quot;</source>
         <translation>Daj prednost getter-imenima bez &quot;get&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
     <message>
         <source>Headers</source>
         <translation>Zaglavlja</translation>
@@ -3538,9 +3284,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>License &amp;template:</source>
         <translation>Predložak &amp;licence:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::TidyChecks</name>
     <message>
         <source>Disable</source>
         <translation>Deaktiviraj</translation>
@@ -3553,13 +3296,9 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Use .clang-tidy config file</source>
         <translation>Koristi .clang-tidy kofiguracijsku datoteku</translation>
     </message>
-    <message>
-        <source>Edit Checks as String...</source>
-        <translation>Uredi provjere kao znakovne nizove …</translation>
-    </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -3606,7 +3345,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -3658,7 +3397,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Choose a Class Name</source>
         <translation>Odaberi naziv klase</translation>
@@ -3673,7 +3412,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Koristi FakeVim</translation>
@@ -3804,7 +3543,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>Naziv grane:</translation>
@@ -4349,7 +4088,7 @@ Možeš birati između skladištenja promjena ili njihovih odbacivanja.</transla
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Dodaj i ukloni komprimirane datoteke pomoći, .qch.</translation>
@@ -4578,7 +4317,7 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>Prikazivač slika</translation>
@@ -4617,7 +4356,7 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     </message>
 </context>
 <context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
+    <name>QtC::Ios</name>
     <message>
         <source>Create Simulator</source>
         <translation>Stvori simulatora</translation>
@@ -4638,9 +4377,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>None</source>
         <translation>Bez</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildSettingsWidget</name>
     <message>
         <source>Reset</source>
         <translation>Resetiraj</translation>
@@ -4664,10 +4400,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     <message>
         <source>Default</source>
         <translation>Standardno</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Bez</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
@@ -4709,9 +4441,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildStep</name>
     <message>
         <source>Base arguments:</source>
         <translation>Osnovni argumenti:</translation>
@@ -4728,9 +4457,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>xcodebuild</source>
         <translation>xcodebuild</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosPresetBuildStep</name>
     <message>
         <source>Reset to Default</source>
         <translation>Vrati na zadane vrijednosti</translation>
@@ -4743,9 +4469,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Konfiguracija za iOS</translation>
@@ -4781,10 +4504,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     <message>
         <source>Reset contents and settings of simulator devices.</source>
         <translation>Resetiraj sadržaj i postavke simulatora uređaja.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
     </message>
     <message>
         <source>Screenshot directory:</source>
@@ -4922,9 +4641,6 @@ UDID: %2</translation>
         <source>simulator screenshot</source>
         <translation>snimka ekrana simulatora</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Simulator Operation Status</source>
         <translation>Stanje operacije simulatora</translation>
@@ -4955,7 +4671,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Preferences</source>
         <translation>Postavke</translation>
@@ -4984,9 +4700,6 @@ Greška: %5</translation>
         <source>Description:</source>
         <translation>Opis:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Spremi makro</translation>
@@ -4995,13 +4708,9 @@ Greška: %5</translation>
         <source>Name:</source>
         <translation>Naziv:</translation>
     </message>
-    <message>
-        <source>Description:</source>
-        <translation>Opis:</translation>
-    </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -5128,7 +4837,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>QtC::Nim</name>
     <message>
         <source>Target:</source>
         <translation>Odredište:</translation>
@@ -5167,7 +4876,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Promijeni broj</translation>
@@ -5176,9 +4885,6 @@ Greška: %5</translation>
         <source>Change Number:</source>
         <translation>Promijeni broj:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 neobavljene promjene</translation>
@@ -5195,9 +4901,6 @@ Greška: %5</translation>
         <source>Change %1: %2</source>
         <translation>Promijeni %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce prompt</translation>
@@ -5206,9 +4909,6 @@ Greška: %5</translation>
         <source>OK</source>
         <translation>U redu</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -5265,13 +4965,6 @@ Greška: %5</translation>
         <source>Perforce</source>
         <translation>Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Pošalji</translation>
-    </message>
     <message>
         <source>Change:</source>
         <translation>Promijeni:</translation>
@@ -5286,7 +4979,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>QtC::PerfProfiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translation type="unfinished"></translation>
@@ -5477,14 +5170,11 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Language:</source>
         <translation>Jezik:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
     <message>
         <source>Custom Parser</source>
         <translation>Prilagođeno raščlanjivanje</translation>
@@ -5524,10 +5214,6 @@ Greška: %5</translation>
     <message>
         <source>Standard error</source>
         <translation>Standardna greška</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Test</translation>
     </message>
     <message>
         <source>E&amp;rror message:</source>
@@ -5577,23 +5263,13 @@ Greška: %5</translation>
         <source>Pattern does not match the message.</source>
         <translation>Struktura se ne poklapa s porukom.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeploymentDataView</name>
     <message>
         <source>Files to deploy:</source>
         <translation>Datoteke za implemeniranje:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
     <message>
         <source>Machine type:</source>
         <translation>Vrsta stroja:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>Tekstualna oznaka</translation>
     </message>
     <message>
         <source>Free ports:</source>
@@ -5607,9 +5283,6 @@ Greška: %5</translation>
         <source>You will need at least one port for QML debugging.</source>
         <translation>Trebat ćeš barem jedan prikljjučak za QML uklanjanje grešaka.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Odabir čarobnjaka za konfiguraciju uređaja</translation>
@@ -5622,9 +5295,6 @@ Greška: %5</translation>
         <source>Start Wizard</source>
         <translation>Pokreni čarobnjaka</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation>Konfiguracije Linux uređaja</translation>
@@ -5685,9 +5355,6 @@ Greška: %5</translation>
         <source>Show Running Processes...</source>
         <translation>Prikaži pokrenute procese …</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Testiranje uređaja</translation>
@@ -5704,9 +5371,6 @@ Greška: %5</translation>
         <source>Device test failed.</source>
         <translation>Neuspješno testiranje uređaja.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>Postavke uređivača</translation>
@@ -5731,13 +5395,6 @@ Greška: %5</translation>
         <source>Display right &amp;margin at column:</source>
         <translation>Prikaži desnu &amp;marginu pri stupcu:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Zanemari %1:</translation>
-    </message>
     <message>
         <source>Make arguments:</source>
         <translation>Izradi argumente:</translation>
@@ -5754,9 +5411,6 @@ Greška: %5</translation>
         <source>Override MAKEFLAGS</source>
         <translation>Zanemari MAKEFLAGS</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>Naredba:</translation>
@@ -5765,13 +5419,6 @@ Greška: %5</translation>
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
     </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Radni direktorij:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
     <message>
         <source>Projects Directory</source>
         <translation>Direktorij projekta</translation>
@@ -5865,10 +5512,6 @@ Greška: %5</translation>
         <translation>Zaustavi aplikacije pije gradnje:</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Nijednu</translation>
-    </message>
-    <message>
         <source>Same Project</source>
         <translation>Isti projekt</translation>
     </message>
@@ -5896,16 +5539,9 @@ Greška: %5</translation>
         <source>Reset</source>
         <translation>Resetiraj</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project Management</source>
         <translation>Upravljanje projektima</translation>
-    </message>
-    <message>
-        <source>Add to &amp;project:</source>
-        <translation>Dodaj &amp;projektu:</translation>
     </message>
     <message>
         <source>Add to &amp;version control:</source>
@@ -5923,9 +5559,6 @@ Greška: %5</translation>
 
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Upravljač za sesije</translation>
@@ -5960,7 +5593,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>Prilagođena svojstva</translation>
@@ -6127,7 +5760,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>The header file</source>
         <translation>Datoteka zaglavlja</translation>
@@ -7411,7 +7044,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Premjesti komponentu u odvojenu datoteku</translation>
@@ -7482,7 +7115,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Total Time</source>
         <translation>Cjelokupno vrijeme</translation>
@@ -7582,7 +7215,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Deploy Qt to QNX Device</source>
         <translation>Implementiraj Qt na QNX uređaju</translation>
@@ -7633,7 +7266,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>QtC::Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Generiraj komplete</translation>
@@ -7690,7 +7323,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Ugrađivanje klasa korisničkog sučelja</translation>
@@ -7723,9 +7356,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Add Qt version #ifdef for module names</source>
         <translation>Dodaj Qt verziju #ifdef za nazive modula</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Naziv verzije:</translation>
@@ -7738,9 +7368,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Dodaj …</translation>
@@ -7753,16 +7380,13 @@ Sigurno želiš nastaviti?</translation>
         <source>Clean Up</source>
         <translation>Izbriši</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Zapis gradnje pomoćnika za uklanjanje grešaka</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Vrsta autentifikacije</translation>
@@ -7843,9 +7467,6 @@ Sigurno želiš nastaviti?</translation>
         <source>You will need at least one port.</source>
         <translation>Trebat ćeš barem jedan prikljjučak.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>Stranica čarobnjaka</translation>
@@ -7875,7 +7496,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -7906,7 +7527,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>QtC::ScxmlEditor</name>
     <message>
         <source>Frame</source>
         <translation>Okvir</translation>
@@ -8005,7 +7626,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -8056,7 +7677,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Typing</source>
         <translation>Tipkanje</translation>
@@ -8249,9 +7870,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <source>On Shift+Mouseover</source>
         <translation>Shift+Miš iznad objekta</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
     <message>
         <source>Current settings:</source>
         <translation>Trenutačne postavke:</translation>
@@ -8276,9 +7894,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <source>Import...</source>
         <translation>Uvezi …</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Builtin color schemes need to be &lt;a href=&quot;copy&quot;&gt;copied&lt;/a&gt;&lt;br/&gt; before they can be changed&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Ugrađene sustave boja moraš &lt;a href=&quot;copy&quot;&gt;kopirati&lt;/a&gt;&lt;br/&gt; prije nego što ih možeš promijeniti&lt;/b&gt;&lt;/p&gt;</translation>
@@ -8367,9 +7982,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <source>Dash-Dot-Dot Underline</source>
         <translation>Crtica-točka-točka podcrtavanje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
     <message>
         <source>Behavior</source>
         <translation>Način ponašanja</translation>
@@ -8387,10 +7999,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <translation>Potpuno</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Bez</translation>
-    </message>
-    <message>
         <source>First Letter</source>
         <translation>Prvo slovo</translation>
     </message>
@@ -8401,10 +8009,6 @@ Specificira način uvlačenja s povratnom tipkom.
     <message>
         <source>When Triggered</source>
         <translation>Prilikom okidanja</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Uvijek</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -8520,9 +8124,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Completion</source>
         <translation>Dovršavanje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>Prelamanje teksta</translation>
@@ -8619,13 +8220,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Between lines</source>
         <translation>Između redaka</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Font</source>
-        <translation>Font</translation>
-    </message>
     <message>
         <source>Size:</source>
         <translation>Veličina:</translation>
@@ -8651,16 +8245,9 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Shema boja</translation>
     </message>
     <message>
-        <source>Copy...</source>
-        <translation>Kopiraj …</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation>Ukloni</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;https://api.kde.org/frameworks/syntax-highlighting/html/index.html&quot;&gt;KSyntaxHighlighting&lt;/a&gt; engine.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Definicije za isticanje omogućuje &lt;a href=&quot;https://api.kde.org/frameworks/syntax-highlighting/html/index.html&quot;&gt;KSyntaxHighlighting&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -8689,16 +8276,9 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Ignored file patterns:</source>
         <translation>Zanemareni uzorci za datoteke:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -8716,9 +8296,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Group: </source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Tabulatori i uvlake</translation>
@@ -8825,7 +8402,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keyword</source>
         <translation>Ključna riječ</translation>
@@ -8852,7 +8429,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Keywords</source>
         <translation>Ključne riječi</translation>
@@ -8891,7 +8468,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Excluded Files</source>
         <translation>Isključene datoteke</translation>
@@ -8906,7 +8483,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfiguriraj filtre</translation>
@@ -8941,7 +8518,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Opće postavke</translation>
@@ -9104,18 +8681,11 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CleanDialog</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Clean Repository</source>
         <translation>Počisti spremište</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation>Odaberi sve</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Prelomi poruku pri:</translation>
@@ -9167,16 +8737,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Reset VCS Cache</source>
         <translation>Resetiraj VCS privremenu memoriju</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Nicknames</source>
         <translation>Nadimci</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Ime</translation>
     </message>
     <message>
         <source>Email</source>
@@ -9190,9 +8753,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Alias email</source>
         <translation>E-pošta aliasa</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Slanje podverzije</translation>
@@ -9245,7 +8805,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj knjižnu oznaku</translation>
@@ -9291,7 +8851,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>QtC::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Odaberi temu</translation>
@@ -10818,7 +10378,7 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>QtC::ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation type="unfinished"></translation>
@@ -10843,9 +10403,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>Failed Plugins</source>
         <translation type="unfinished">Neuspjeli dodaci</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginDetailsView</name>
     <message>
         <source>None</source>
         <translation>Bez</translation>
@@ -10858,16 +10415,10 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
     <message>
         <source>Continue</source>
         <translation>Nastavi</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation type="unfinished"></translation>
@@ -10932,9 +10483,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>Plugin ended its life cycle and was deleted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:</source>
         <translation type="unfinished"></translation>
@@ -10957,9 +10505,6 @@ Reason: %3</source>
 Reason: %3</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&quot;%1&quot; is missing</source>
         <translation type="unfinished"></translation>
@@ -11024,9 +10569,6 @@ Reason: %3</source>
         <source>Internal error: have no plugin instance to perform delayedInitialize</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation type="unfinished"></translation>
@@ -11051,9 +10593,6 @@ Reason: %3</source>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>%1 (experimental)</source>
         <translation type="unfinished"></translation>
@@ -11144,7 +10683,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>BaseMessage</name>
+    <name>QtC::LanguageServerProtocol</name>
     <message>
         <source>Unexpected header line &quot;%1&quot;.</source>
         <translation>Neočekivani redak u zaglavlju &quot;%1&quot;.</translation>
@@ -11161,16 +10700,10 @@ will also disable the following plugins:
         <source>Unexpected header field &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation>Neočekivano polje u zaglavlju &quot;%1&quot; u &quot;%2&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::JsonObject</name>
     <message>
         <source>Expected type %1 but value contained %2</source>
         <translation>Očekivana vrsta %1, ali vrijednost je sadržavala %2</translation>
     </message>
-</context>
-<context>
-    <name>JsonRpcMessageHandler</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation>Nije moguće obraditi JSON poruku &quot;%1&quot;.</translation>
@@ -11179,30 +10712,24 @@ will also disable the following plugins:
         <source>Expected a JSON object, but got a JSON &quot;%1&quot;.</source>
         <translation>Očekivan JSON objekt, ali je dobiven JSON &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::Notification</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>Nema parametara u &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClient::ResponseError</name>
+    <name>QtC::LanguageClient</name>
     <message>
         <source>Error %1</source>
         <translation>Greška %1</translation>
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol::Request</name>
+    <name>QtC::LanguageServerProtocol</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation>nema postavljene ID-oznake u &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::MarkedString</name>
     <message>
         <source>MarkedString should be either MarkedLanguageString, MarkupContent, or QList&lt;MarkedLanguageString&gt;.</source>
         <translation type="unfinished"></translation>
@@ -11211,16 +10738,13 @@ will also disable the following plugins:
         <source>DocumentFormattingProperty should be either bool, double, or QString.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocoll::MarkupOrString</name>
     <message>
         <source>Expected a string or MarkupContent in MarkupOrString.</source>
         <translation>Dupli klik za prikaz.</translation>
     </message>
 </context>
 <context>
-    <name>qmt::DiagramController</name>
+    <name>QtC::qmt</name>
     <message>
         <source>Change</source>
         <translation>Promijeni</translation>
@@ -11245,9 +10769,6 @@ will also disable the following plugins:
         <source>Delete</source>
         <translation>Ukloni</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ClassItem</name>
     <message>
         <source>Show Definition</source>
         <translation type="unfinished"></translation>
@@ -11260,9 +10781,6 @@ will also disable the following plugins:
         <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
     <message>
         <source>Dependency</source>
         <translation type="unfinished"></translation>
@@ -11277,10 +10795,6 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>Delete</source>
         <translation>Ukloni</translation>
     </message>
     <message>
@@ -11347,9 +10861,6 @@ will also disable the following plugins:
         <source>Add Related Elements</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation type="unfinished"></translation>
@@ -11366,9 +10877,6 @@ will also disable the following plugins:
         <source>New Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::Exception</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation type="unfinished"></translation>
@@ -11397,9 +10905,6 @@ will also disable the following plugins:
         <source>Unable to handle file version %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation type="unfinished"></translation>
@@ -11417,10 +10922,6 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11433,42 +10934,9 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Izreži</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Zalijepi</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
-    <message>
         <source>[unnamed]</source>
         <translation>[neimenovano]</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
-    <message>
-        <source>Show Definition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation type="unfinished"></translation>
@@ -11586,20 +11054,12 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dependency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Dependencies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Direction:</source>
         <translation>Smjer:</translation>
-    </message>
-    <message>
-        <source>Inheritance</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Inheritances</source>
@@ -11611,10 +11071,6 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Base class: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11793,9 +11249,6 @@ will also disable the following plugins:
         <source>Multi-Selection</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation type="unfinished"></translation>
@@ -11804,13 +11257,6 @@ will also disable the following plugins:
         <source>Project is modified.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation type="unfinished"></translation>
@@ -11845,7 +11291,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QtC::QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation type="unfinished"></translation>
@@ -11854,9 +11300,6 @@ will also disable the following plugins:
         <source>Error: %1</source>
         <translation>Greška: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlDebugConnectionManager</name>
     <message>
         <source>Debug connection opened.</source>
         <translation type="unfinished"></translation>
@@ -11869,9 +11312,6 @@ will also disable the following plugins:
         <source>Debug connection failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlOutputParser</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -11884,7 +11324,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>QtC::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation type="unfinished"></translation>
@@ -11905,16 +11345,10 @@ will also disable the following plugins:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Otvori datoteku</translation>
@@ -12024,7 +11458,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation type="unfinished"></translation>
@@ -12033,16 +11467,13 @@ will also disable the following plugins:
         <source>package import requires a version number</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; ili &apos;real&apos;</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation type="unfinished"></translation>
@@ -12059,7 +11490,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
+    <name>QtC::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -12214,9 +11645,6 @@ the QML editor know about a likely URI.</source>
         <source>Enum should not contain getter and setters, but only &apos;string: number&apos; elements.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation type="unfinished"></translation>
@@ -12238,9 +11666,6 @@ For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
         <source>QML module contains C++ plugins, currently reading type information...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::ModelManagerInterface</name>
     <message>
         <source>Parsing QML Files</source>
         <translation type="unfinished"></translation>
@@ -12249,9 +11674,6 @@ For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
         <source>Scanning QML Imports</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -12316,46 +11738,18 @@ Error: %2</source>
 Please build the qmldump application on the Qt version options page.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::QrcParser</name>
-    <message>
-        <source>XML error on line %1, col %2: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &lt;RCC&gt; root element is missing.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
     <message>
         <source>Cannot find file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -12767,7 +12161,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>QtC::Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation type="unfinished"></translation>
@@ -12783,7 +12177,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation type="unfinished"></translation>
@@ -12801,9 +12195,6 @@ The trace data is lost.</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation type="unfinished"></translation>
@@ -12840,14 +12231,9 @@ The trace data is lost.</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>Ne pitaj ponovo</translation>
@@ -12860,9 +12246,6 @@ The trace data is lost.</source>
         <source>Do not &amp;show again</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation type="unfinished"></translation>
@@ -12875,9 +12258,6 @@ The trace data is lost.</source>
         <source>The class name contains invalid characters.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation type="unfinished"></translation>
@@ -12946,16 +12326,10 @@ The trace data is lost.</source>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Detalji</translation>
     </message>
-</context>
-<context>
-    <name>Diff</name>
     <message>
         <source>Delete</source>
         <translation>Ukloni</translation>
@@ -12968,9 +12342,6 @@ The trace data is lost.</source>
         <source>Equal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&quot;%1&quot; is an invalid ELF object (%2)</source>
         <translation type="unfinished"></translation>
@@ -13015,9 +12386,6 @@ The trace data is lost.</source>
         <source>section name %1 of %2 behind end of file</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentDialog</name>
     <message>
         <source>Enter one environment variable per line.
 To set or change a variable, use VARIABLE=VALUE.
@@ -13029,9 +12397,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Edit Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="unfinished"></translation>
@@ -13054,9 +12419,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filtar</translation>
@@ -13086,7 +12448,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Central Widget</source>
         <translation type="unfinished"></translation>
@@ -13098,13 +12460,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     <message>
         <source>Automatically Hide View Title Bars</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
-    <message>
-        <source>Name is empty.</source>
-        <translation>Naziv je prazan.</translation>
     </message>
     <message>
         <source>Name contains white space.</source>
@@ -13130,9 +12485,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>File extensions %1 are required:</source>
         <translation>Datotečni nastavci %1 su obavezni:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -13161,9 +12513,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation type="unfinished"></translation>
@@ -13197,10 +12546,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot write file %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13224,23 +12569,10 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Cannot create temporary file in %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardPage</name>
-    <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::HostOsInfo</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>Nije moguće stvoriti kontekst za OpenGL.</translation>
     </message>
-</context>
-<context>
-    <name>JsonTreeModelItem</name>
     <message>
         <source>Null</source>
         <translation>Nula</translation>
@@ -13277,9 +12609,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
             <numerusform>%n stavaka</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::MacroExpander</name>
     <message>
         <source>Infinite recursion error</source>
         <translation type="unfinished"></translation>
@@ -13318,7 +12647,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>Core</name>
+    <name>QtC::Core</name>
     <message>
         <source>All Files (*.*)</source>
         <comment>On Windows</comment>
@@ -13374,7 +12703,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>Utils::PathChooser</name>
+    <name>QtC::Utils</name>
     <message>
         <source>Choose...</source>
         <translation type="unfinished">Odaberi …</translation>
@@ -13432,13 +12761,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Staza:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13450,23 +12772,14 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Clear</source>
         <translation>Ukloni</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSaverBase</name>
     <message>
         <source>File Error</source>
         <translation>Greška datoteke</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Greška u naredbenom retku.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Datoteka je promijenjena</translation>
@@ -13487,9 +12800,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>No to All &amp;&amp; &amp;Diff</source>
         <translation>Ne za sve i &amp;razlika</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File Has Been Removed</source>
         <translation>Datoteka je uklonjena</translation>
@@ -13497,10 +12807,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     <message>
         <source>The file %1 has been removed from disk. Do you want to save it under a different name, or close the editor?</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Zatvori</translation>
     </message>
     <message>
         <source>C&amp;lose All</source>
@@ -13514,9 +12820,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>&amp;Save</source>
         <translation>&amp;Spremi</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsAccessor</name>
     <message>
         <source>Failed to Read File</source>
         <translation type="unfinished"></translation>
@@ -13561,9 +12864,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>&quot;%1&quot; is not supported by %2. Do you want to try loading it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentIdAccessor</name>
     <message>
         <source>Settings File for &quot;%1&quot; from a Different Environment?</source>
         <translation type="unfinished"></translation>
@@ -13572,9 +12872,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>&lt;p&gt;No settings file created by this instance of %1 was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &quot;%2&quot;?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -13599,9 +12896,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Rename...</source>
         <translation>Preimenuj …</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommand</name>
     <message>
         <source>UNKNOWN</source>
         <translation>NEPOZNATO</translation>
@@ -13610,9 +12904,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Unknown</source>
         <translation>Nepoznato</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommandPage</name>
     <message>
         <source>Command started...</source>
         <translation>Naredba je pokrenuta …</translation>
@@ -13633,9 +12924,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Failed.</source>
         <translation>Neuspjelo.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
         <translation type="unfinished"></translation>
@@ -13672,9 +12960,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Would you like to terminate it?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
@@ -13683,23 +12968,17 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>An encoding error was encountered.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>…</translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation type="unfinished"></translation>
@@ -14640,14 +13919,11 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>QtC::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Testiranje</translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation type="unfinished"></translation>
@@ -14724,9 +14000,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Selected test was not found (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GTestFramework</name>
     <message>
         <source>Google Test</source>
         <translation>Google test</translation>
@@ -14736,9 +14009,6 @@ The files in the Android package source directory are copied to the build direct
 See also Google Test settings.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -14765,9 +14035,6 @@ Executable: %2</source>
         <source>Repeating test case %1 (iteration %2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation type="unfinished"></translation>
@@ -14788,16 +14055,10 @@ Executable: %2</source>
         <source>typed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt test</translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation type="unfinished"></translation>
@@ -14846,23 +14107,14 @@ Executable: %2</source>
         <source>Test finished.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>inherited</source>
         <translation>naslijeđeno</translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation type="unfinished"></translation>
@@ -14871,9 +14123,6 @@ Executable: %2</source>
         <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation type="unfinished"></translation>
@@ -14882,9 +14131,6 @@ Executable: %2</source>
         <source>Scanning for Tests</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>Select All</source>
         <translation>Odaberi sve</translation>
@@ -14991,16 +14237,10 @@ Executable: %2</source>
 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation type="unfinished"></translation>
@@ -15105,9 +14345,6 @@ Check the test environment.</source>
         <source>Build failed. Canceling test run.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation type="unfinished"></translation>
@@ -15136,9 +14373,6 @@ Check the test environment.</source>
         <source>Working Directory:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation type="unfinished"></translation>
@@ -15171,16 +14405,13 @@ Check the test environment.</source>
         <source>Specify a filter expression that will replace &quot;%1&quot;.&lt;br/&gt;Wildcards are not supported.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TestTreeItem</name>
     <message>
         <source>%1 (none)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>QtC::Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -15263,7 +14494,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>QtC::BareMetal</name>
     <message>
         <source>Unknown</source>
         <translation>Nepoznato</translation>
@@ -15490,7 +14721,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Zanemari razmake</translation>
@@ -15501,7 +14732,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Verbalno</translation>
@@ -15552,7 +14783,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>Bazaar Commit Log Editor</source>
         <translation type="unfinished"></translation>
@@ -15675,7 +14906,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -15830,21 +15061,21 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>QtC::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar naredba</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::AbstractSettings</name>
+    <name>QtC::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Nemoguće spremiti stil. %1 ne postoji.</translation>
@@ -15873,9 +15104,6 @@ Check the test environment.</source>
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
     <message>
         <source>&amp;Artistic Style</source>
         <translation type="unfinished"></translation>
@@ -15884,16 +15112,10 @@ Check the test environment.</source>
         <source>Artistic Style</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPageWidget</name>
     <message>
         <source>AStyle (*.astylerc)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier</name>
     <message>
         <source>Bea&amp;utifier</source>
         <translation>Bea&amp;utifier</translation>
@@ -15902,9 +15124,6 @@ Check the test environment.</source>
         <source>Beautifier</source>
         <translation>Beautifier</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Error in Beautifier: %1</source>
         <translation>Beautifier greška: %1</translation>
@@ -15938,9 +15157,6 @@ Check the test environment.</source>
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>%1 naredba</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
     <message>
         <source>&amp;ClangFormat</source>
         <translation>&amp;ClangFormat</translation>
@@ -15949,34 +15165,21 @@ Check the test environment.</source>
         <source>ClangFormat</source>
         <translation>ClangFormat</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
     <message>
         <source>No description available.</source>
         <translation>Opis nije dostupan.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
         <translation>&amp;Uncrustify</translation>
     </message>
-    <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPageWidget</name>
     <message>
         <source>Uncrustify file (*.cfg)</source>
         <translation>Uncrustify datoteka (*.cfg)</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Memorija pri 0x%1</translation>
@@ -16079,7 +15282,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>OpenWith::Editors</name>
+    <name>QtC::Core</name>
     <message>
         <source>Binary Editor</source>
         <translation>Binarni uređivač</translation>
@@ -16138,7 +15341,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binarni uređivač ne može otvoriti prazne datoteke.</translation>
@@ -16173,14 +15376,14 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>QtC::BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zumiranje: %1%</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Bookmark</source>
         <translation>Knjižna oznaka</translation>
@@ -16291,14 +15494,11 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::ClangAssistProposalItem</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Requires changing &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>Zahtijeva mijenjanje &quot;%1&quot; u &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::BackendCommunicator</name>
     <message>
         <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; does not exist.</source>
         <translation type="unfinished"></translation>
@@ -16311,13 +15511,6 @@ Check the test environment.</source>
         <source>Clang Code Model: Error: The clangbackend process has finished unexpectedly and was restarted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCodeModelPlugin</name>
-    <message>
-        <source>Clang Code Model</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Generate Compilation Database</source>
         <translation type="unfinished"></translation>
@@ -16326,17 +15519,11 @@ Check the test environment.</source>
         <source>Generate Compilation Database for &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Mjesto: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
     <message>
         <source>Inspect available fixits</source>
         <translation type="unfinished"></translation>
@@ -16350,15 +15537,12 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
+    <name>QtC::ClangCodeModel</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel</name>
     <message>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;Bez simbola&gt;</translation>
@@ -16367,9 +15551,6 @@ Check the test environment.</source>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Odaberi simbol&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Projekt: %1 (osnovan na %2)</translation>
@@ -16378,9 +15559,6 @@ Check the test environment.</source>
         <source>Changes applied in Projects Mode &gt; Clang Code Model</source>
         <translation type="unfinished">Primijenjene promjene u Projects Mode &gt; Clang Code Model</translation>
     </message>
-</context>
-<context>
-    <name>Clang Code Model Marks</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Code Model upozorenje</translation>
@@ -16389,9 +15567,6 @@ Check the test environment.</source>
         <source>Code Model Error</source>
         <translation>Code Model greška</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticWidget</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clazy problem</translation>
@@ -16402,7 +15577,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatPlugin</name>
+    <name>QtC::ClangFormat</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>Otvori korištenu konfiguracijsku datoteku .clang-formata</translation>
@@ -16446,14 +15621,11 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangTidyClazyRunner</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>Clang-Tidy and Clazy</source>
         <translation>Clang-Tidy i Clazy</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTidyClazyTool</name>
     <message>
         <source>Clang-Tidy and Clazy Diagnostics</source>
         <translation>Dijagnoze za Clang-Tidy i Clazy</translation>
@@ -16495,10 +15667,6 @@ Check the test environment.</source>
         <translation>Clang-Tidy i Clazy …</translation>
     </message>
     <message>
-        <source>Clang-Tidy and Clazy</source>
-        <translation>Clang-Tidy i Clazy</translation>
-    </message>
-    <message>
         <source>Clang-Tidy and Clazy tool stopped by user.</source>
         <translation>Clang-Tidy i Clazy alat je zaustavljen od korisnika.</translation>
     </message>
@@ -16538,9 +15706,6 @@ Check the test environment.</source>
         <source>Finished - No diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunControl</name>
     <message>
         <source>Release</source>
         <translation>Objavi</translation>
@@ -16593,9 +15758,6 @@ Check the test environment.</source>
         <source>%1: Not all files could be analyzed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunner</name>
     <message>
         <source>An error occurred with the %1 process.</source>
         <translation>Dogodila se greška s procesom %1.</translation>
@@ -16618,9 +15780,6 @@ Greška procesa: %2
 Izlaz:
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsDiagnosticModel</name>
     <message>
         <source>Diagnostic</source>
         <translation>Dijagnoza</translation>
@@ -16649,9 +15808,6 @@ Izlaz:
         <source>Applied</source>
         <translation>Primijenjeno</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Diagnostic</name>
     <message>
         <source>Category:</source>
         <translation>Kategorija:</translation>
@@ -16676,9 +15832,6 @@ Izlaz:
         <source>Fixit status:</source>
         <translation>Stanje ispravljanja:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
         <translation>Poruka:</translation>
@@ -16688,47 +15841,27 @@ Izlaz:
         <translation>Proširena poruka:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation>Mjesto:</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticView</name>
-    <message>
         <source>Suppress This Diagnostic</source>
         <translation>Izostavi ovu dijagnozu</translation>
     </message>
-</context>
-<context>
-    <name>LogFileReader</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation>Datoteka &quot;%1&quot; ne postoji ili nije čitljiva.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsOptionsPage</name>
     <message>
         <source>Clang Tools</source>
         <translation>Clang alati</translation>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangToolsPlugin</name>
-    <message>
-        <source>Clang Tools</source>
-        <translation>Clang alati</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SuppressedDiagnosticsModel</name>
+    <name>QtC::ClangTools</name>
     <message>
         <source>File</source>
         <translation>Datoteka</translation>
@@ -16738,30 +15871,23 @@ Izlaz:
         <translation>Sadržaj</translation>
     </message>
     <message>
-        <source>Diagnostic</source>
-        <translation>Dijagnoza</translation>
-    </message>
-    <message>
         <source>Function &quot;%1&quot;</source>
         <translation>Funkcija &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>QtC::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>Prikaži podprojekte</translation>
     </message>
-</context>
-<context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
     <message>
         <source>Class View</source>
         <translation>Prikaz klasa</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>QtC::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Odaberi &amp;aktivnost:</translation>
@@ -17080,7 +16206,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Failed to create build directory &quot;%1&quot;.</source>
         <translation>Neupjelo stvaranje direktorija za gradnju &quot;%1&quot;.</translation>
@@ -17282,7 +16408,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Task</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
         <translation type="unfinished"></translation>
@@ -17297,7 +16423,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <comment>CMakeProjectManager::CMakeBuildStepConfigWidget display name.</comment>
@@ -17522,16 +16648,13 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeFilesProjectNode</name>
+    <name>QtC::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>CMake moduli</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
-        <source>Target type: </source>
+        <source>Target type:</source>
         <translation>Vrsta odredišta:</translation>
     </message>
     <message>
@@ -17542,9 +16665,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Build artifacts:</source>
         <translation>Artefakti gradnje:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
@@ -17824,7 +16944,7 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>QtC::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Mapiranje naredbi</translation>
@@ -17846,10 +16966,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <translation>Resetiraj sve</translation>
     </message>
     <message>
-        <source>Reset all to default.</source>
-        <translation>Resetiraj sve na zadane vrijednosti</translation>
-    </message>
-    <message>
         <source>Import...</source>
         <translation>Uvezi …</translation>
     </message>
@@ -17857,9 +16973,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Export...</source>
         <translation>Izvoz …</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizard</name>
     <message>
         <source>Existing files</source>
         <translation>Postojeće datoteke</translation>
@@ -17868,9 +16981,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>File Generation Failure</source>
         <translation>Neuspjelo generiranje datoteke</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizardFactory</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation>Neuspjelo otvaranje uređivača za &quot;%1&quot;.</translation>
@@ -17893,9 +17003,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <translation>Direktorij projekta %1 sadrži datoteke koje se ne mogu prepisati:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CorePlugin</name>
     <message>
         <source>No themes found in installation.</source>
         <translation>U instalaciji nema teme.</translation>
@@ -17980,16 +17087,10 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Create Folder</source>
         <translation>Stvori mapu</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Dizajn</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>Uncategorized</source>
         <translation>Nekategorizirano</translation>
@@ -18015,9 +17116,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <extracomment>Sample external tool text</extracomment>
         <translation>Korisni tekst</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>System Environment</source>
         <translation>Okruženje sustava</translation>
@@ -18086,9 +17184,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Edit with vi</source>
         <translation>Uredi pomoću vi</translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Prepiši preko postojećih datoteka</translation>
@@ -18101,24 +17196,13 @@ Would you like to overwrite them?</source>
 %1.
 Želiš li ih prepisati?</translation>
     </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
     <message>
         <source>Mixed</source>
         <translation>Pomiješano</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Omogući pisanje</translation>
-    </message>
-    <message>
         <source>Open with VCS</source>
         <translation>Otviru s VCS-om</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation>Spremi kao</translation>
     </message>
     <message>
         <source>Failed to %1 File</source>
@@ -18175,9 +17259,6 @@ Nema sustava za kontrolu verzija.</translation>
 Do you want to check them out now?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Postavke</translation>
@@ -18186,9 +17267,6 @@ Do you want to check them out now?</source>
         <source>Options</source>
         <translation>Opcije</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutButton</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation>Klikni i utipkaj novu sekvencu tipaka.</translation>
@@ -18201,9 +17279,6 @@ Do you want to check them out now?</source>
         <source>Record</source>
         <translation>Snimi</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettingsWidget</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Tipkovni prečaci</translation>
@@ -18229,10 +17304,6 @@ Do you want to check them out now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation>Resetiraj na zadano.</translation>
     </message>
@@ -18256,24 +17327,14 @@ Do you want to check them out now?</source>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Izvezi shemu mapiranja tipkovnice</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Tipkovnica</translation>
     </message>
-</context>
-<context>
-    <name>Core::DocumentManager</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Nije bilo moguće spremiti datoteku.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Datotečna greška</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -18299,16 +17360,10 @@ Do you want to check them out now?</source>
         <source>Cannot reload %1</source>
         <translation>Nije moguće ponovo učitati %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;nema dokumenta&gt;</translation>
@@ -18316,13 +17371,6 @@ Do you want to check them out now?</source>
     <message>
         <source>No document is selected.</source>
         <translation>Niti jedan dokument nije odabran.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
-    <message>
-        <source>Revert to Saved</source>
-        <translation>Vrati na spremljeno stanje</translation>
     </message>
     <message>
         <source>Close</source>
@@ -18369,10 +17417,6 @@ Do you want to check them out now?</source>
         <translation>Kopiraj naziv datoteke</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Spremi</translation>
-    </message>
-    <message>
         <source>Save &amp;As...</source>
         <translation>Spremi &amp;kao …</translation>
     </message>
@@ -18387,10 +17431,6 @@ Continue?</source>
         <translation>Tekstovna datoteka &quot;%1&quot; ima %2MB i možda će zahtijevati više memorije nego što je dostupno.
 
 Nastaviti?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Datotečna greška</translation>
     </message>
     <message>
         <source>Close &quot;%1&quot;</source>
@@ -18417,10 +17457,6 @@ Nastaviti?</translation>
         <translation>Otvaranje datoteke</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
-    </message>
-    <message>
         <source>Split Side by Side</source>
         <translation>Podijeli jedno pored drugog</translation>
     </message>
@@ -18432,9 +17468,6 @@ Nastaviti?</translation>
         <source>Close Document</source>
         <translation>Zatvori dokument</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
     <message>
         <source>Properties...</source>
         <translation>Svojstva …</translation>
@@ -18492,10 +17525,6 @@ Nastaviti?</translation>
         <translation>Alt+Desno</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
-    </message>
-    <message>
         <source>Meta+E,2</source>
         <translation>Meta+E,2</translation>
     </message>
@@ -18504,20 +17533,12 @@ Nastaviti?</translation>
         <translation>Ctrl+E,2</translation>
     </message>
     <message>
-        <source>Split Side by Side</source>
-        <translation>Podijeli jedno pored drugog</translation>
-    </message>
-    <message>
         <source>Meta+E,3</source>
         <translation>Meta+E,3</translation>
     </message>
     <message>
         <source>Ctrl+E,3</source>
         <translation>Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Otvori u novom prozoru</translation>
     </message>
     <message>
         <source>Meta+E,4</source>
@@ -18616,10 +17637,6 @@ Nastaviti?</translation>
         <translation>&lt;b&gt;Upozorenje:&lt;/b&gt; Mijenjaš datoteku koja je samo za čitanje.</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Omogući pisanje</translation>
-    </message>
-    <message>
         <source>&amp;Save %1</source>
         <translation>&amp;Spremi %1</translation>
     </message>
@@ -18642,10 +17659,6 @@ Nastaviti?</translation>
     <message>
         <source>Close All Except %1</source>
         <translation>Zatvori sve osim %1</translation>
-    </message>
-    <message>
-        <source>Close Others</source>
-        <translation>Zatvori ostale</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
@@ -18679,16 +17692,10 @@ Nastaviti?</translation>
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation>Odustani i &amp;Razlika</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Otvori dokumente</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -18697,16 +17704,10 @@ Nastaviti?</translation>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>Uređivač sustava</translation>
@@ -18715,32 +17716,18 @@ Nastaviti?</translation>
         <source>Could not open URL %1.</source>
         <translation>Nije bilo moguće otvoriti URL %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
     <message>
         <source>Drag to drag documents between splits</source>
         <translation>Povuci za povlačenje dokumenata između podjela</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
     </message>
     <message>
         <source>Remove Split</source>
         <translation>Ukloni podjelu</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Omogući pisanje</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>Datoteka dopušta pisanje</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation>Nije bilo moguće naći izvršnu stavku za „%1” (prošireno „%2”)</translation>
@@ -18753,9 +17740,6 @@ Nastaviti?</translation>
         <source>&quot;%1&quot; finished</source>
         <translation>„%1” gotov</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>&amp;Vanjski</translation>
@@ -18764,9 +17748,6 @@ Nastaviti?</translation>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Greška: Vanjsk alat u %1 ima dupli id</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Neuspjelo pokretanje datotečnog preglednika</translation>
@@ -18831,9 +17812,6 @@ Nastaviti?</translation>
         <source>Could not delete file %1.</source>
         <translation>Nije bilo moguće izbrisati datoteku %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation>
@@ -18842,9 +17820,6 @@ Nastaviti?</translation>
             <numerusform></numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Nađi/Zamijeni</translation>
@@ -18858,16 +17833,9 @@ Nastaviti?</translation>
         <translation>Otvori naprednu pretragu …</translation>
     </message>
     <message>
-        <source>Advanced...</source>
-        <translation>Napredno …</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Shift+Enter</translation>
@@ -18913,24 +17881,12 @@ Nastaviti?</translation>
         <translation>Ctrl+Shift+F3</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Zamijeni</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Zamijeni i nađi</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
         <translation>Zamijeni i nađi prethodni</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Zamijeni sve</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
@@ -18956,16 +17912,10 @@ Nastaviti?</translation>
         <source>Replace with...</source>
         <translation>Zamijeni sa …</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolWindow</name>
     <message>
         <source>Empty search term.</source>
         <translation>Pojam za pretragu je prazan.</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>Razlikovanje velikih/malih slova</translation>
@@ -18994,16 +17944,9 @@ Nastaviti?</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Pretraga je prekinuta.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Odustani</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters.</source>
@@ -19057,9 +18000,6 @@ Nastaviti?</translation>
             <numerusform>%n podudaranja.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>Expand All</source>
         <translation>Rastvori sve</translation>
@@ -19084,16 +18024,10 @@ Nastaviti?</translation>
         <source>Search Results</source>
         <translation>Rezultati pretrage</translation>
     </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Neuspjelo stvaranje direktorija %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::ICore</name>
     <message>
         <source>Settings...</source>
         <translation>Postavke …</translation>
@@ -19110,16 +18044,10 @@ Nastaviti?</translation>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Na osnovi Qt %1 (%2, %3 bit)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>Datoteka je vraćena iz automatski spremljene kopije. Odaberi „Spremi” za potvrdu ili „Vrati na spremljeno” za odbacivanje promjena.</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>&amp;Show Details</source>
         <translation>&amp;Prikaži detalje</translation>
@@ -19129,19 +18057,9 @@ Nastaviti?</translation>
         <translation>Ne prikazuj ponovo</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
-    <message>
         <source>Open with VCS (%1)</source>
         <translation>Otvori s VCS-om (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation>Veš postoji tvornica s id=„%1”. Briše se.</translation>
@@ -19154,9 +18072,6 @@ Nastaviti?</translation>
         <source>Inspect Wizard State</source>
         <translation>Provjeri stanje čarobnjaka</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation>Greška u &quot;%1&quot;: %2</translation>
@@ -19169,9 +18084,6 @@ Nastaviti?</translation>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</source>
         <translation>Odredi jednostavne JavaScript izjave. &lt;br&gt; Izjave ne smiju sadržavati znakove &apos;{&apos; nor &apos;}&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Generički filtar za direktorije</translation>
@@ -19196,9 +18108,6 @@ Nastaviti?</translation>
         <source>%1 filter update: canceled</source>
         <translation>Aktualiziranje filtra %1: prekinuto</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation>Izvrši prilagođene naredbe</translation>
@@ -19233,16 +18142,10 @@ Do you want to kill it?</source>
         <source>Could not start process: %1.</source>
         <translation>Nije bilo moguće pokrenuti proces: %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation>Pokreni vanjski alat</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation>Datoteke u datotečnom sustavu</translation>
@@ -19251,9 +18154,6 @@ Do you want to kill it?</source>
         <source>Create and Open &quot;%1&quot;</source>
         <translation>Stvori i otvori &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Konfiguracija filtra</translation>
@@ -19274,9 +18174,6 @@ Do you want to kill it?</source>
         <source>Include the filter when not using a prefix for searches.</source>
         <translation>Uključi filtar kad ne koristiš predznak za pretrage.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::JavaScriptFilter</name>
     <message>
         <source>Evaluate JavaScript</source>
         <translation>Odredi JavaScript</translation>
@@ -19293,9 +18190,6 @@ Do you want to kill it?</source>
         <source>Copy to clipboard: %1</source>
         <translation>Kopiraj u međuspremnik: %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Locate...</source>
         <translation>Odredi mjesto …</translation>
@@ -19320,30 +18214,18 @@ Do you want to kill it?</source>
         <source>Updating Locator Caches</source>
         <translation>Aktualiziranje međuspremnike određivača mjesta</translation>
     </message>
-</context>
-<context>
-    <name>Locator</name>
     <message>
         <source>Locator</source>
         <translation>Određivač mjesta</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Dostupni filtri</translation>
     </message>
-</context>
-<context>
-    <name>Core::LocatorManager</name>
     <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;utipkaj ovdje&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -19364,16 +18246,9 @@ Do you want to kill it?</source>
         <source>Custom</source>
         <translation>Prilagođeno</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Aktualiziraj</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
     </message>
     <message>
         <source>Type to locate</source>
@@ -19383,23 +18258,10 @@ Do you want to kill it?</source>
         <source>Type to locate (%1)</source>
         <translation>Tipkaj za određivanje mjesta (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Otvori dokumente</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Spotlight File Name Index</source>
         <translation>Indeks imena datoteke za Spotlight</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Datoteka</translation>
@@ -19444,10 +18306,6 @@ Do you want to kill it?</source>
     <message>
         <source>Recent &amp;Files</source>
         <translation>Ne&amp;davne datoteke</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Spremi</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -19625,23 +18483,14 @@ Do you want to kill it?</source>
         <source>Hidden</source>
         <translation>Skriveno</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MenuBarFilter</name>
     <message>
         <source>Actions from the Menu</source>
         <translation>Radnje iz izbornika</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>Opće poruke</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME vrsta</translation>
@@ -19650,59 +18499,22 @@ Do you want to kill it?</source>
         <source>Handler</source>
         <translation>Rukovatelj</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Reset MIME Types</source>
-        <translation>Resetiraj MIME vrste</translation>
-    </message>
     <message>
         <source>Changes will take effect after restart.</source>
         <translation>Promjena će djelovati nakon ponovnog pokretanja.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>MIME vrste</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Prebaci na način rada &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
     <message>
         <source>Activate %1 View</source>
         <translation>Aktiviraj prikaz %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Minimize Output Pane</source>
         <translation>Minimiraj ploču izlanih rezultata</translation>
@@ -19747,16 +18559,10 @@ Do you want to kill it?</source>
         <source>Alt+Shift+9</source>
         <translation>Alt+Shift+9</translation>
     </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted. You can increase the limit in the &quot;Build &amp; Run&quot; settings.</source>
         <translation>Dodatni izlazni rezultat je izostavljen. Ograničenje možeš povećati u postavkama za „Izgradi i pokreni”.</translation>
     </message>
-</context>
-<context>
-    <name>Core::PatchTool</name>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
         <translation>U općim postavkama za „Okruženje” nema konfigurirane zakrpne naredbe.</translation>
@@ -19785,9 +18591,6 @@ Do you want to kill it?</source>
         <source>&quot;%1&quot; failed (exit code %2).</source>
         <translation>„%1” nije uspjela (kȏd izlaska %2).</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Show all</source>
         <translation>Prikaži sve</translation>
@@ -19797,16 +18600,8 @@ Do you want to kill it?</source>
         <translation>Prikaži sve instalirane dodatke, uključujući osnovne dodatke i dodatke koji nisu dostupni na ovoj platformi.</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Detalji</translation>
-    </message>
-    <message>
         <source>Error Details</source>
         <translation>Detalji greške</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -19824,30 +18619,17 @@ Do you want to kill it?</source>
         <source>Plugin Errors of %1</source>
         <translation>Greške dodatka od %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Uključi/Isključi detalje tijeka procesa</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Procesi</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
     <message>
         <source>Split</source>
         <translation>Podijeli</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
     </message>
 </context>
 <context>
@@ -19858,7 +18640,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ThemeChooser</name>
+    <name>QtC::Core</name>
     <message>
         <source>Current theme: %1</source>
         <translation>Trenutačna tema: %1</translation>
@@ -19871,16 +18653,10 @@ Do you want to kill it?</source>
         <source>The theme change will take effect after restart.</source>
         <translation>Promjena teme će djelovati nakon ponovnog pokretanja.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Vanjski alati</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
         <translation>Umetni varijablu</translation>
@@ -19905,13 +18681,6 @@ Do you want to kill it?</source>
         <source>Select a variable to insert.</source>
         <translation>Odaberi varijablu za umetanje.</translation>
     </message>
-    <message>
-        <source>Variables</source>
-        <translation>Varijable</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>%1 spremište je pronađeno, ali %1 nije konfigurirano.</translation>
@@ -19966,9 +18735,6 @@ u kontrolu verzija (%2)
         <translation>Nije bilo moguće dodati sljedeće datoteke u kontrolu verzija (%1)
 %2</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About %1</source>
         <translation>O programu %1</translation>
@@ -19986,9 +18752,6 @@ u kontrolu verzija (%2)
         <source>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Autorsko pravo 2008. – %6. %7. Sva prava pridržana.&lt;br/&gt;&lt;br/&gt;Program se pruža BEZ JAMSTVA BILO KOJE VRSTE, UKLJUČUJUĆI GARANCIJU DIZAJNA, PRODAJU I PRIKLADNOSTI ZA ODREĐENU SVRHU.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WindowSupport</name>
     <message>
         <source>Exit Full Screen</source>
         <translation>Izađi iz prikaza preko cijelog zaslona</translation>
@@ -19999,7 +18762,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>QtC::CodePaster</name>
     <message>
         <source>Password:</source>
         <translation>Lozinka:</translation>
@@ -20134,7 +18897,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppcheckOptionsPage</name>
+    <name>QtC::Cppcheck</name>
     <message>
         <source>Warnings</source>
         <translation>Upozorenja</translation>
@@ -20215,23 +18978,14 @@ u kontrolu verzija (%2)
         <source>Ignored file patterns:</source>
         <translation>Zanemari mustre datoteke:</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckOptionsPage</name>
     <message>
         <source>Cppcheck</source>
         <translation>Cppcheck</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckRunner</name>
     <message>
         <source>Cppcheck failed to start: &quot;%1&quot;.</source>
         <translation>Cppcheck se nije uspio pokrenuti: &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckTool</name>
     <message>
         <source>Cppcheck started: &quot;%1&quot;.</source>
         <translation>Cppcheck je pokrenut: &quot;%1&quot;.</translation>
@@ -20242,14 +18996,11 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorDocument</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
     <message>
         <source>C++</source>
         <comment>SnippetProvider</comment>
@@ -20342,16 +19093,10 @@ u kontrolu verzija (%2)
         <source>Ctrl+Shift+F12</source>
         <translation>Ctrl+Shift+F12</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorWidget</name>
     <message>
         <source>&amp;Refactor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation type="unfinished"></translation>
@@ -20368,9 +19113,6 @@ u kontrolu verzija (%2)
         <source>Apply Function Signature Changes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>(none)</source>
         <translation>(bez)</translation>
@@ -20387,9 +19129,6 @@ u kontrolu verzija (%2)
         <source>Included by</source>
         <translation>Uključeno od</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
     <message>
         <source>No include hierarchy available</source>
         <translation type="unfinished"></translation>
@@ -20398,16 +19137,10 @@ u kontrolu verzija (%2)
         <source>Synchronize with Editor</source>
         <translation>Sinkroniziraj s uređivačem</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Uključi hijerarhiju</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Umetni virtualnu funkciju osnovnih klasa</translation>
@@ -20432,9 +19165,6 @@ u kontrolu verzija (%2)
         <source>Move Definition to Class</source>
         <translation>Premjesti definiciju u klasu</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Umetni virtualnu funkciju</translation>
@@ -20483,9 +19213,6 @@ u kontrolu verzija (%2)
         <source>Clear Added &quot;override&quot; Equivalents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::MinimizableInfoBars</name>
     <message>
         <source>File is not part of any project.</source>
         <translation>Datoteka nije dio bilo kojeg projekta.</translation>
@@ -20506,9 +19233,6 @@ u kontrolu verzija (%2)
         <source>&lt;b&gt;Warning&lt;/b&gt;: The code model could not parse an included file, which might lead to incorrect code completion and highlighting, for example.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Rasklopi sve</translation>
@@ -20517,23 +19241,14 @@ u kontrolu verzija (%2)
         <source>Collapse All</source>
         <translation>Sklopi sve</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextWidget</name>
     <message>
         <source>Clear Preferred Parse Context</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation type="unfinished"></translation>
@@ -20658,16 +19373,10 @@ u kontrolu verzija (%2)
         <source>Convert connect() to Qt 5 Style</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation type="unfinished"></translation>
@@ -20684,9 +19393,6 @@ u kontrolu verzija (%2)
         <source>Add Definition Outside Class</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppQuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation type="unfinished"></translation>
@@ -20711,9 +19417,6 @@ u kontrolu verzija (%2)
         <source>Generate Missing Q_PROPERTY Members</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QuickFix::ExtractFunction</name>
     <message>
         <source>Extract Function</source>
         <translation type="unfinished"></translation>
@@ -20730,9 +19433,6 @@ u kontrolu verzija (%2)
         <source>Access</source>
         <translation>Pristup</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation type="unfinished"></translation>
@@ -20745,16 +19445,10 @@ u kontrolu verzija (%2)
         <source>Derived</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::AbstractEditorSupport</name>
     <message>
         <source>The file name.</source>
         <translation type="unfinished"></translation>
@@ -20763,16 +19457,10 @@ u kontrolu verzija (%2)
         <source>The class name.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfigsModel</name>
     <message>
         <source>Clang-only checks for questionable constructs</source>
         <translation type="unfinished"></translation>
@@ -20809,9 +19497,6 @@ u kontrolu verzija (%2)
         <source>%1 [built-in]</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsSelectionWidget</name>
     <message>
         <source>Diagnostic Configuration:</source>
         <translation type="unfinished"></translation>
@@ -20820,16 +19505,10 @@ u kontrolu verzija (%2)
         <source>Manage...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::BaseChecksTreeModel</name>
     <message>
         <source>Web Page</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClazyChecksTreeModel</name>
     <message>
         <source>Manual Level: Very few false positives</source>
         <translation type="unfinished"></translation>
@@ -20863,14 +19542,11 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CPlusplus::CheckSymbols</name>
+    <name>QtC::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CPlusPlus::CheckSymbols</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation type="unfinished"></translation>
@@ -20883,16 +19559,10 @@ u kontrolu verzija (%2)
         <source>Too many arguments</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>C++</source>
         <translation type="unfinished"></translation>
@@ -20907,10 +19577,6 @@ u kontrolu verzija (%2)
     </message>
     <message>
         <source>Code Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diagnostic Configurations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -20937,16 +19603,10 @@ u kontrolu verzija (%2)
         <source>C++ Symbols</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppEditorOutline</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** %1 license header template
@@ -20965,9 +19625,6 @@ u kontrolu verzija (%2)
         <source>Choose Location for New License Template File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>C++ upotrebe:</translation>
@@ -20994,9 +19651,6 @@ u kontrolu verzija (%2)
         <source>C++ Macro Usages:</source>
         <translation>C++ makro upotrebe:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="unfinished"></translation>
@@ -21005,9 +19659,6 @@ u kontrolu verzija (%2)
         <source>&lt;No Symbols&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppSourceProcessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation type="unfinished"></translation>
@@ -21016,9 +19667,6 @@ u kontrolu verzija (%2)
         <source>%1: Could not get file contents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation type="unfinished"></translation>
@@ -21051,16 +19699,10 @@ u kontrolu verzija (%2)
         <source>Insert &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards into header file</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppIndexer</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -21078,16 +19720,10 @@ u kontrolu verzija (%2)
         <source>Old Creator</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VirtualFunctionsAssistProcessor</name>
     <message>
         <source>...searching overrides</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>Searching for Symbol</source>
         <translation>Traženje simbola</translation>
@@ -21128,28 +19764,9 @@ Oznake: %3</translation>
         <source>Projects</source>
         <translation>Projekti</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Vrste:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Klase</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funkcije</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Enumeracije</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Deklaracije</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -21161,7 +19778,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>QtC::CVS</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation type="unfinished"></translation>
@@ -21444,7 +20061,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Kopiraj</translation>
@@ -21537,9 +20154,6 @@ Oznake: %3</translation>
         <source>Property</source>
         <translation type="unfinished">Svojstvo</translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Output:</source>
         <translation>Izrada:</translation>
@@ -21690,9 +20304,6 @@ Oznake: %3</translation>
         <source>Extracted from Kit %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>Location</source>
         <translation>Mjesto</translation>
@@ -21737,16 +20348,13 @@ Oznake: %3</translation>
         <source>Debuggers</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>Program za uklanjanje grešaka korišten za ovaj komplet.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerMainWindow</name>
+    <name>QtC::Utils</name>
     <message>
         <source>&amp;Views</source>
         <translation>Prika&amp;zi</translation>
@@ -21773,7 +20381,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Ispravi greške</translation>
@@ -21887,7 +20495,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation type="unfinished"></translation>
@@ -21918,14 +20526,11 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Error</source>
         <translation>Greška</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>ptrace: Operation not permitted.
 
@@ -21949,7 +20554,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
         <translation>Boja pri %1,%2: crvena: %3 zelena: %4 plava: %5 alfa: %6</translation>
@@ -21972,7 +20577,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>QtC::Debugger</name>
     <message>
         <source>Command:</source>
         <translation>Naredba:</translation>
@@ -22191,7 +20796,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>The generated header of the form &quot;%1&quot; could not be found.
 Rebuilding the project might help.</source>
@@ -22336,7 +20941,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonWizard</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
         <translation type="unfinished"></translation>
@@ -22484,112 +21089,8 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GUI Application</source>
-        <translation>GUI aplikacija</translation>
-    </message>
-    <message>
-        <source>Test case name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Requires QApplication</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Generate initialization and cleanup code</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Test set name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable C++11</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Googletest repository:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>qmake</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qbs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build system:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project and Test Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Details</source>
         <translation type="unfinished">Detalji</translation>
-    </message>
-    <message>
-        <source>Kit Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project Management</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto Test Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Class name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;Custom&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Base class:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%{BaseCB}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Include QObject</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Include QWidget</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Include QMainWindow</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Include QDeclarativeItem - Qt Quick 1</source>
@@ -22842,10 +21343,6 @@ Rebuilding the project might help.</source>
     <message>
         <source>Creates a scratch buffer using a temporary file.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
     </message>
     <message>
         <source>Scratch Buffer</source>
@@ -23292,56 +21789,12 @@ Use this only if you are prototyping. You cannot create a full application with 
         <translation>Vjeruj certifikatu poslužitelja</translation>
     </message>
     <message>
-        <source>Running Subversion checkout...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Subversion Checkout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a fragment shader in the Desktop OpenGL Shading Language (GLSL). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>GLSL</source>
         <translation>GLSL</translation>
     </message>
-    <message>
-        <source>Fragment Shader (Desktop OpenGL)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Vertex Shader (Desktop OpenGL)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a fragment shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fragment Shader (OpenGL/ES 2.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a vertex shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Vertex Shader (OpenGL/ES 2.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>QtC::Designer</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>Odaberi predložak za obrasce</translation>
@@ -23376,7 +21829,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffEditor</name>
+    <name>QtC::DiffEditor</name>
     <message>
         <source>Context lines:</source>
         <translation>Retci konteksta:</translation>
@@ -23409,30 +21862,18 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Show Change Description</source>
         <translation>Prikaži opis promjena</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Uređivač za razlike</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffFilesController</name>
     <message>
         <source>Calculating diff</source>
         <translation>Izračunavanje razlika</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffCurrentFileController</name>
     <message>
         <source>Saved</source>
         <translation>Spremljeno</translation>
@@ -23441,31 +21882,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Modified</source>
         <translation>Promijenjeno</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffOpenFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Spremljeno</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Promijenjeno</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Spremljeno</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Promijenjeno</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorServiceImpl</name>
     <message>
         <source>Diff Files</source>
         <translation>Datoteke razlika</translation>
@@ -23474,9 +21890,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Diff Modified Files</source>
         <translation>Datoteke razlika promjena</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>&amp;Diff</source>
         <translation>&amp;Razlike</translation>
@@ -23525,9 +21938,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Diff &quot;%1&quot;, &quot;%2&quot;</source>
         <translation>Razlike &quot;%1&quot;, &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
     <message>
         <source>Revert Chunk</source>
         <translation>Vrati komad</translation>
@@ -23556,16 +21966,10 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Revert Chunk...</source>
         <translation>Vrati komad …</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation>Prebaci na uređivač za ujedinjene razlike</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Čekanje na podatke …</translation>
@@ -23574,31 +21978,14 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Retrieving data failed.</source>
         <translation>Neuspjelo dohvaćanje podataka.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
     <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation>Prebaci uređivača na usporedni prikaz razlika</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>Sinkroniziraj vodoravne klizne trake</translation>
     </message>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>Čekanje na podatke …</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation>Neuspjelo dohvaćanje podataka.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -23619,27 +22006,17 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>No difference.</source>
         <translation>Nema razlike.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>Nema dokumenta</translation>
     </message>
-    <message>
-        <source>No difference.</source>
-        <translation>Nema razlike.</translation>
-    </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>QtC::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Ukloni znak</translation>
@@ -23726,7 +22103,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim</name>
+    <name>QtC::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>Koristi uređivanje Vim stilom</translation>
@@ -23989,14 +22366,11 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>QtC::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation>Datoteke</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a generic project.</extracomment>
@@ -24006,9 +22380,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Build</source>
         <translation>Gradnja</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Direktorij gradnje:</translation>
@@ -24017,16 +22388,10 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Generic Manager</source>
         <translation>Osnovni upravljač</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>Uredi datoteke …</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Uvezi postojeći projekt</translation>
@@ -24047,20 +22412,13 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>File Selection</source>
         <translation>Odabir datoteka</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Uvezi postojeći projekt</translation>
-    </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use %1 as a code editor.</source>
         <translation>Uvezi postojeće projekte koji ne koriste qmake, CMake ili Autotools. Na taj način je moguće koristiti %1 kao uređivač koda.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>QtC::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokalne grane</translation>
@@ -24690,8 +23048,7 @@ Commit now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>Cannot commit %n files: %1
-</source>
+        <source>Cannot commit %n files: %1</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -25570,14 +23927,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>QtC::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -25585,7 +23935,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>Help</source>
         <translation>Pomoć</translation>
@@ -25844,7 +24194,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>QtC::ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -25864,9 +24214,6 @@ Would you like to overwrite it?</source>
         <translation>%1: već postoji.
 Želiš li je prepisati?</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer</name>
     <message>
         <source>Exported &quot;%1&quot;, %2x%3, %4 bytes</source>
         <translation>Izvezeno &quot;%1&quot;, %2x%3, %4 bajta</translation>
@@ -25891,9 +24238,6 @@ Would you like to overwrite it?</source>
         <source>Play Animation</source>
         <translation>Pokreni animaciju</translation>
     </message>
-</context>
-<context>
-    <name>ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Slikovni format nije podržan.</translation>
@@ -25988,22 +24332,16 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>QtC::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>iOS gradnja</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 Simulator</source>
         <translation>%1 simulator</translation>
     </message>
-</context>
-<context>
-    <name>DevelopmentTeam</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation type="unfinished"></translation>
@@ -26029,7 +24367,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosDeployStep</name>
+    <name>QtC::Ios</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Primijeni na %1</translation>
@@ -26066,20 +24404,10 @@ Rok upotrebe: %3</translation>
         <source>Deploy to iOS device or emulator</source>
         <translation>Primijeni na iOS ili emulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
     <message>
         <source>iOS Device</source>
         <translation>iOS uređaj</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Naziv uređaja</translation>
@@ -26117,16 +24445,10 @@ Rok upotrebe: %3</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Želiš li vidjeti kako se postavlja za razvoj?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Primijeni na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Neuspjelo prepoznavanje ABI-a, korištenog od Qt verzije.</translation>
@@ -26136,9 +24458,6 @@ Rok upotrebe: %3</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Pokreni na %1</translation>
@@ -26180,13 +24499,6 @@ Rok upotrebe: %3</translation>
         <translation>%1 nije povezan.</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Vrsta uređaja:</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
-    <message>
         <source>Could not find %1.</source>
         <translation>Nije bilo moguće naći %1.</translation>
     </message>
@@ -26214,23 +24526,14 @@ Rok upotrebe: %3</translation>
         <source>Run ended with error.</source>
         <translation>Pokretanje prekinuto s greškom.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunSupport</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Započinjanje daljinskog procesa.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmlProfilerSupport</name>
     <message>
         <source>Could not get necessary ports for the profiler connection.</source>
         <translation>Nije bilo moguće dobiti potrebne priključke za vezu s programom za profiliranje.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation>Program nije pokrenut.</translation>
@@ -26243,30 +24546,10 @@ Rok upotrebe: %3</translation>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>iOS simulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>iOS simulator</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>iOS tool error %1</source>
         <translation>Greška iOS alata %1</translation>
@@ -26303,9 +24586,6 @@ Rok upotrebe: %3</translation>
         <source>Invalid simulator response. Device Id mismatch. Device Id = %1 Response Id = %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorInfoModel</name>
     <message>
         <source>UDID: %1</source>
         <translation>UDID: %1</translation>
@@ -26324,7 +24604,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClient::Client</name>
+    <name>QtC::LanguageClient</name>
     <message>
         <source>Cannot handle content of type: %1</source>
         <translation>Nije moguće rukovati sadržajem vrste: %1</translation>
@@ -26349,16 +24629,10 @@ Rok upotrebe: %3</translation>
         <source>Initialize result is not valid: </source>
         <translation>Rezultat za inicijaliziranje nije ispravan: </translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient</name>
     <message>
         <source>Language Client</source>
         <translation>Klijent za jezike</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOClientInterface</name>
     <message>
         <source>Cannot send data to unstarted server %1</source>
         <translation type="unfinished"></translation>
@@ -26367,9 +24641,6 @@ Rok upotrebe: %3</translation>
         <source>Crashed with exit code %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientManager</name>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
         <translation type="unfinished"></translation>
@@ -26382,9 +24653,6 @@ Rok upotrebe: %3</translation>
         <source>Find References with %1 for:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClientSettingsPage</name>
     <message>
         <source>&amp;Add</source>
         <translation>Dod&amp;aj</translation>
@@ -26397,9 +24665,6 @@ Rok upotrebe: %3</translation>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettingsWidget</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -26436,9 +24701,6 @@ Rok upotrebe: %3</translation>
         <source>Capabilities:</source>
         <translation>Sposobnosti:</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeDialog</name>
     <message>
         <source>Select MIME Types</source>
         <translation>Odaberi MIME vrste</translation>
@@ -26447,9 +24709,6 @@ Rok upotrebe: %3</translation>
         <source>Filter</source>
         <translation>Filtar</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOSettingsWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Izvršna datoteka:</translation>
@@ -26460,14 +24719,11 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>QtC::Macros</name>
     <message>
         <source>Text Editing Macros</source>
         <translation>Uređivač teksta makro naredbi</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Pokretanje makro naredbe</translation>
@@ -26481,19 +24737,9 @@ Rok upotrebe: %3</translation>
         <translation>Rad pomoću makro naredbi. Utipkaj &quot;%1&quot; za zaustavljanje snimanja i &quot;%2&quot; za pokretanje makro naredbe.</translation>
     </message>
     <message>
-        <source>Stop Recording Macro</source>
-        <translation>Zaustavi snimanje makro naredbe</translation>
-    </message>
-</context>
-<context>
-    <name>Macros</name>
-    <message>
         <source>Macros</source>
         <translation>Makro naredbe</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>Text Editing &amp;Macros</source>
         <translation>Uređivač teksta &amp;makro naredbi</translation>
@@ -26540,7 +24786,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>QtC::Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
@@ -26755,7 +25001,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ActionHandler</name>
+    <name>QtC::ModelEditor</name>
     <message>
         <source>&amp;Remove</source>
         <translation>&amp;Ukloni</translation>
@@ -26816,16 +25062,10 @@ Rok upotrebe: %3</translation>
         <source>Return</source>
         <translation>Return</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ElementTasks</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation>Aktualiziraj dodavanje ovisnosti</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>Odaberi mapu prilagođene konfiguracije</translation>
@@ -26838,9 +25078,6 @@ Rok upotrebe: %3</translation>
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
         <translation>&lt;font color=red&gt;Datoteka modela se mora ponovo učitati.&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>Nijedan model nije učitan. Spremanje nije moguće.</translation>
@@ -26849,9 +25086,6 @@ Rok upotrebe: %3</translation>
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>Nije bilo moguće otvoriti &quot;%1&quot; za čitanje: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Otvori dijagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Dvoklik na dijagram u stablastom modelu&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Odabei &quot;Otvori dijagram&quot; iz kontekstnog izbornika u stablastom modelu&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -26948,30 +25182,18 @@ Rok upotrebe: %3</translation>
         <source>Swimlane</source>
         <translation>Dijagram toka</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zumiraj: %1%</translation>
     </message>
-</context>
-<context>
-    <name>Modeling</name>
     <message>
         <source>Modeling</source>
         <translation>Modeliranje</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>Otvori dijagram</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>Dodaj komponentu %1</translation>
@@ -27002,7 +25224,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>QtC::Nim</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -27103,7 +25325,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>QtC::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Izvršna datoteka nije specificirana</translation>
@@ -27137,16 +25359,10 @@ Rok upotrebe: %3</translation>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Spremište &quot;%1&quot; ne postoji.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Pribilježi popis promjena &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -27432,10 +25648,6 @@ Rok upotrebe: %3</translation>
         </translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Pošalji</translation>
-    </message>
-    <message>
         <source>p4 diff %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -27473,23 +25685,14 @@ Rok upotrebe: %3</translation>
         <source>Perforce: Unable to determine the repository: %1</source>
         <translation>Perforce: Nije moguće odrediti spremište: %1</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Zanemari bjeline</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce slanje</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Uredi</translation>
@@ -27498,9 +25701,6 @@ Rok upotrebe: %3</translation>
         <source>&amp;Hijack</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Perforce naredba</translation>
@@ -27515,7 +25715,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>QtC::PerfProfiler</name>
     <message>
         <source>Event Type</source>
         <translation>Vrsta događaja</translation>
@@ -27778,7 +25978,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Failed to reset temporary trace file.</source>
         <translation>Neuspjelo resetiranje privremene trace datoteke.</translation>
@@ -27809,7 +26009,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>QtC::PerfProfiler</name>
     <message>
         <source>Thread started</source>
         <translation type="unfinished"></translation>
@@ -27920,14 +26120,11 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;prilagođeno&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Konfiguracija je meispravna. Za detalje provjeri prikaz Problemi.</translation>
@@ -27956,19 +26153,9 @@ Rok upotrebe: %3</translation>
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>Nije bilo moguće pokrenuti proces &quot;%1&quot; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>Datoteke u bilo kojem projektu</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
-    <message>
-        <source>All Projects</source>
-        <translation>Svi projekti</translation>
     </message>
     <message>
         <source>All Projects:</source>
@@ -27982,9 +26169,6 @@ Excluding: %2
 Isključivo: %2
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>User requested stop. Shutting down...</source>
         <translation type="unfinished"></translation>
@@ -28029,9 +26213,6 @@ Isključivo: %2
         <source>Application finished with exit code 0.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Priloži program za uklanjanje grešaka ovom precesu</translation>
@@ -28080,9 +26261,6 @@ Isključivo: %2
         <source>Application Output Window</source>
         <translation>Prozor izlaznog rezultata aplikacije</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -28119,17 +26297,6 @@ Isključivo: %2
         <source>No executable specified.</source>
         <translation>Izvršna datoteka nije specificirana.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
-    <message>
-        <source>untitled</source>
-        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>bezimeno</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
     <message>
         <source>Build Settings</source>
         <translation>Postavke gradnje</translation>
@@ -28147,27 +26314,9 @@ Isključivo: %2
         <translation>Varijable u okruženju trenutačne gradnje</translation>
     </message>
     <message>
-        <source>System Environment</source>
-        <translation>Okruženje sustava</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Čisto okruženje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
-    <message>
         <source>Clear system environment</source>
         <translation>Izbriši okruženje sustava</translation>
     </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>Okruženje gradnje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -28223,9 +26372,6 @@ Isključivo: %2
         <source>Skipping disabled step %1.</source>
         <translation>Preskakanje onemogućenog koraka %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>No build settings available</source>
         <translation>Nema dostupnih postavki gradnje</translation>
@@ -28247,10 +26393,6 @@ Isključivo: %2
         <translation>Preimenuj …</translation>
     </message>
     <message>
-        <source>Clone...</source>
-        <translation>Kloniraj …</translation>
-    </message>
-    <message>
         <source>New Configuration</source>
         <translation>Nova konfiguracija</translation>
     </message>
@@ -28263,17 +26405,8 @@ Isključivo: %2
         <translation>Novi naziv za konfiguraciju gradnje &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>Kloniraj konfiguraciju</translation>
-    </message>
-    <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
         <translation>Prekini gradnju i ukloni konfiguraciju gradnje</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Nemoj ukloniti</translation>
     </message>
     <message>
         <source>Remove Build Configuration %1?</source>
@@ -28295,29 +26428,10 @@ Isključivo: %2
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Zaista želiš ukloniti konfiguraciju gradnje &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildStep</name>
     <message>
         <source>Build Step</source>
         <translation>Korak gradnje</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildStepList</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Gradnja</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Čišćenje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>Move Up</source>
         <translation>Premjesti prema gore</translation>
@@ -28363,9 +26477,6 @@ Isključivo: %2
         <source>Cannot remove build step while building</source>
         <translation>Nije moguće ukloniti korak gradnje za vrijeme izgradnje</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>Build Steps</source>
         <translation>Koraci gradnje</translation>
@@ -28374,24 +26485,10 @@ Isključivo: %2
         <source>Clean Steps</source>
         <translation>Koraci čišćenja</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
-        <source>Increase Font Size</source>
-        <translation>Povećaj veličinu fonta</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation>Smanji veličinu fonta</translation>
-    </message>
     <message>
         <source>Compile Output</source>
         <translation>Kompiliraj izlazni rezultat</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error:</source>
         <extracomment>Task is of type: error</extracomment>
@@ -28402,16 +26499,10 @@ Isključivo: %2
         <extracomment>Task is of type: warning</extracomment>
         <translation>upozorenje:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>Datoteke u trenutačnom projektu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Project &quot;%1&quot;</source>
         <translation>Projekt &quot;%1&quot;</translation>
@@ -28437,25 +26528,11 @@ Isključivo: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Custom Executable</source>
         <translation>Prilagođena izvršna datoteka:</translation>
     </message>
-    <message>
-        <source>Run %1</source>
-        <translation>Pokreni %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
-    <message>
-        <source>Custom</source>
-        <translation>Prilagođeno</translation>
-    </message>
-</context>
-<context>
-    <name>CustomToolChain</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
@@ -28472,13 +26549,6 @@ Isključivo: %2
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-    <message>
-        <source>Custom</source>
-        <translation>Prilagođeno</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -28491,9 +26561,6 @@ Isključivo: %2
         <source>Empty</source>
         <translation>Prazno</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation type="unfinished"></translation>
@@ -28550,23 +26617,10 @@ Isključivo: %2
         <source>&amp;Error parser:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
-    <message>
-        <source>Path:</source>
-        <translation>Staza:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;U ovoj sesiji nema drugih projekata&gt;</translation>
     </message>
-</context>
-<context>
-    <name>DependenciesModel</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation type="unfinished"></translation>
@@ -28575,9 +26629,6 @@ Isključivo: %2
         <source>This would create a circular dependency.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>Synchronize configuration</source>
         <translation>Sinkroniziraj konfiguraciju</translation>
@@ -28586,17 +26637,9 @@ Isključivo: %2
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy Settings</source>
         <translation>Postavke implementacije</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Implementiraj</translation>
     </message>
     <message>
         <source>Deploy locally</source>
@@ -28608,9 +26651,6 @@ Isključivo: %2
         <extracomment>Display name of the default deploy configuration</extracomment>
         <translation>Implementiraj konfiguraciju</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeploymentDataModel</name>
     <message>
         <source>Local File Path</source>
         <translation>Staza lokalne datoteke</translation>
@@ -28619,191 +26659,10 @@ Isključivo: %2
         <source>Remote Directory</source>
         <translation>Udaljeni direktorij</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDevice</name>
     <message>
         <source>Local PC</source>
         <translation>Lokalno računalo</translation>
     </message>
-    <message>
-        <source>Desktop</source>
-        <translation>Radna površina</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Radna površina</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
-    <message>
-        <source>Cannot kill process with pid %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot interrupt process with pid %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot open process.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid process id.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot open process: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DebugBreakProcess failed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 does not exist. If you built %2 yourself, check out https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>could not break the process.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
-    <message>
-        <source>No device configured.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set Up Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There is no device set up for this kit. Do you want to add a device?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Check for a configured device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
-    <message>
-        <source>%1 (default for %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
-    <message>
-        <source>Process ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer</name>
-    <message>
-        <source>Devices</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSH</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Aplikacija</translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Main file of current project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of current project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of current build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type of current build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The currently active run configuration&apos;s name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote process failed; exit code was %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote error output was: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::PortsGatherer</name>
     <message numerus="yes">
         <source>Found %n free ports.</source>
         <translation>
@@ -28816,126 +26675,6 @@ Isključivo: %2
         <source>Checking available ports...</source>
         <translation>Provjeravanje slobodnih priključaka …</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
-    <message>
-        <source>Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
-    <message>
-        <source>Failed to kill remote process: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timeout waiting for remote process to finish.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Terminated by request.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Process listing command failed with exit code %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error: Kill process failed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote stderr was: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SshSettingsPage</name>
-    <message>
-        <source>SSH</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SshSettingsWidget</name>
-    <message>
-        <source>Enable connection sharing:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection sharing timeout:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to ssh executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to sftp executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to ssh-askpass executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to ssh-keygen executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> minutes</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
-    <message>
-        <source>Project %1</source>
-        <comment>Settings, %1 is a language (C++ or QML)</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project</source>
-        <comment>Settings</comment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
-    <message>
-        <source>Run Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentValidator</name>
-    <message>
-        <source>Variable already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
-    <message>
-        <source>Ed&amp;it</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>&amp;Add</source>
         <translation>Dod&amp;aj</translation>
@@ -28945,57 +26684,12 @@ Isključivo: %2
         <translation>&amp;Resetiraj</translation>
     </message>
     <message>
-        <source>&amp;Unset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Batch Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open &amp;Terminal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open a terminal with this environment set up.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unset &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use &lt;b&gt;%1&lt;/b&gt;</source>
-        <extracomment>%1 is &quot;System Environment&quot; or some such.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use &lt;b&gt;%1&lt;/b&gt; and</source>
-        <extracomment>Yup, word puzzle. The Set/Unset phrases above are appended to this. %1 is &quot;System Environment&quot; or some such.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainManager</name>
-    <message>
-        <source>ABI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Bez</translation>
     </message>
-    <message>
-        <source>Tool Chains</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
+    <name>QtC::Core</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation type="unfinished"></translation>
@@ -29054,7 +26748,7 @@ Isključivo: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Project Editing Failed</source>
         <translation type="unfinished"></translation>
@@ -29071,10 +26765,6 @@ Isključivo: %2
     <message>
         <source>C</source>
         <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open...</source>
@@ -29126,10 +26816,6 @@ Isključivo: %2
     </message>
     <message>
         <source>Build Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29379,10 +27065,6 @@ Isključivo: %2
     </message>
     <message>
         <source>The currently active build configuration&apos;s name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The currently active run configuration&apos;s name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29657,7 +27339,7 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>QtC::Core</name>
     <message>
         <source>File System</source>
         <translation type="unfinished"></translation>
@@ -29669,10 +27351,6 @@ Rename %2 to %3 anyway?</source>
     <message>
         <source>Alt+Y</source>
         <translation>Alt+Y</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -29688,23 +27366,9 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::GccToolChain</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>%1 (%2, %3 %4 in %5)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
-    <message>
-        <source>GCC</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29716,40 +27380,17 @@ Rename %2 to %3 anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;ABI:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainConfigWidget</name>
-    <message>
         <source>Parent toolchain:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation type="unfinished"></translation>
@@ -29758,9 +27399,6 @@ Rename %2 to %3 anyway?</source>
         <source>Import</source>
         <translation>Uvezi</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonFieldPage</name>
     <message>
         <source>Line Edit Validator Expander</source>
         <translation type="unfinished"></translation>
@@ -29869,9 +27507,6 @@ Rename %2 to %3 anyway?</source>
         <source>Source and target are both empty.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonKitsPage</name>
     <message>
         <source>Feature list is set and not of type list.</source>
         <translation type="unfinished"></translation>
@@ -29884,17 +27519,11 @@ Rename %2 to %3 anyway?</source>
         <source>Feature list element is not a string or object.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonProjectPage</name>
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonSummaryPage</name>
     <message>
         <source>Failed to Commit to Version Control</source>
         <translation type="unfinished"></translation>
@@ -29917,16 +27546,10 @@ to project &quot;%2&quot;.</source>
 &quot;%1&quot; (%2).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizardFileGenerator</name>
     <message>
         <source>No &apos;key&apos; in options object.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
         <translation type="unfinished"></translation>
@@ -30059,9 +27682,6 @@ to project &quot;%2&quot;.</source>
         <source>When parsing &quot;pages&quot;: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardGenerator</name>
     <message>
         <source>%1 [folder]</source>
         <translation type="unfinished"></translation>
@@ -30079,9 +27699,6 @@ to project &quot;%2&quot;.</source>
 %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizard</name>
     <message>
         <source>Key is not an object.</source>
         <translation type="unfinished"></translation>
@@ -30094,9 +27711,6 @@ to project &quot;%2&quot;.</source>
         <source>ScannerGenerator: Binary pattern &quot;%1&quot; not valid.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
@@ -30111,10 +27725,6 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Kit filesystem-friendly name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The name of the currently active kit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -30137,23 +27747,14 @@ to project &quot;%2&quot;.</source>
         <source>Warning:</source>
         <translation type="unfinished">Upozorenje:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
     <message>
         <source>Kit of Active Project: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitConfigWidget</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
         <translation type="unfinished"></translation>
@@ -30170,9 +27771,6 @@ to project &quot;%2&quot;.</source>
         <source>Sys Root</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compilers produce code for different ABIs: %1</source>
         <translation type="unfinished"></translation>
@@ -30180,10 +27778,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Compiler</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Bez</translation>
     </message>
     <message>
         <source>Path to the compiler executable</source>
@@ -30201,9 +27795,6 @@ to project &quot;%2&quot;.</source>
         <source>No compiler set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation type="unfinished"></translation>
@@ -30212,19 +27803,12 @@ to project &quot;%2&quot;.</source>
         <source>Device type</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>No device set.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Device is incompatible with this kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Device</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -30248,116 +27832,8 @@ to project &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Device name</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitInformation</name>
-    <message>
-        <source>The environment setting value is invalid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
-    <message>
-        <source>Sysroot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
-    <message>
-        <source>Compiler</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;No compiler&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
-    <message>
-        <source>Device type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The type of device to run applications on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
-    <message>
-        <source>Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The device to run the applications on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitEnvironmentConfigWidget</name>
-    <message>
         <source>Change...</source>
         <translation>Promijeni …</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Additional build environment settings when using this kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No changes to apply.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force UTF-8 MSVC compiler output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Either switches MSVC to English or keeps the language and just forces UTF-8 output (may vary depending on the used MSVC compiler).</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation type="unfinished">Radna površina</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of the kit suitable for generating directory names. This value is used for the variable &lt;i&gt;%1&lt;/i&gt;, which for example determines the name of the shadow build directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File system name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit name and icon.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name:</source>
@@ -30387,9 +27863,6 @@ to project &quot;%2&quot;.</source>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>%1 (default)</source>
         <extracomment>Mark up a kit as the default one.</extracomment>
@@ -30408,50 +27881,13 @@ to project &quot;%2&quot;.</source>
         <translation>Ručno</translation>
     </message>
     <message>
-        <source>Clone of %1</source>
-        <translation>Klon od %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Kloniraj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Make Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>System Environment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::MakeStep</name>
     <message>
         <source>Make</source>
         <translation type="unfinished"></translation>
@@ -30460,495 +27896,10 @@ to project &quot;%2&quot;.</source>
         <source>Make command missing. Specify Make command in step configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::MakeStepConfigWidget</name>
-    <message>
-        <source>&lt;code&gt;MAKEFLAGS&lt;/code&gt; specifies parallel jobs. Check &quot;%1&quot; to override.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Make:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Override %1:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; No build configuration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
-    <message>
-        <source>Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Project:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Path:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Kit:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Build:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Deploy:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Run:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
-    <message>
-        <source>MSVC</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainFactory</name>
-    <message>
-        <source>clang-cl</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChain</name>
-    <message>
-        <source>Failed to retrieve MSVC Environment from &quot;%1&quot;:
-%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
-    <message>
-        <source>The process cannot access the file because it is being used by another process.
-Please close all running instances of your application before starting a build.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>item in combobox</comment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
-    <message>
-        <source>Custom Process Step</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Project</name>
-    <message>
-        <source>Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit is not valid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Incompatible Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit %1 is incompatible with kit %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build configurations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy configurations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run configurations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Partially Incompatible Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Some configurations could not be copied.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
-    <message>
-        <source>Editor</source>
-        <translation>Uređivač</translation>
-    </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
-    <message>
-        <source>Code Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DependenciesPanelFactory</name>
-    <message>
-        <source>Dependencies</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
-    <message>
-        <source>Open project anyway?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version Control Failure</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to add subproject &quot;%1&quot;
-to project &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
-    <message>
-        <source>No Build Found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 - temporary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Imported Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FlatModel</name>
-    <message>
-        <source>No kits are enabled for this project. Enable kits in the &quot;Projects&quot; mode.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectTree</name>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
-    <message>
-        <source>Simplify Tree</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Generated Files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Focus Document in Project Tree</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+Shift+L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alt+Shift+L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Empty Directories</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronize with Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alt+X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Tree</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
-    <message>
-        <source>Open Session #%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Meta+%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Recent Project #%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open %1 &quot;%2&quot; (%3)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <comment>Appears in &quot;Open session &lt;name&gt;&quot;</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Kloniraj</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>Preimenuj</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>project</source>
-        <comment>Appears in &quot;Open project &lt;name&gt;&quot;</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
-    <message>
-        <source>Project Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import Existing Build...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage Kits...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project Selector</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Active Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import Directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectWizard</name>
     <message>
         <source>The files are implicitly added to the projects:</source>
         <translation>Datoteke se implicitno dodaju projektima:</translation>
@@ -30961,44 +27912,6 @@ to project &quot;%2&quot;.</source>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Implicitno dodavanje&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
-    <message>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add as a subproject to project:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add to &amp;project:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A version control system repository could not be created in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to add &quot;%1&quot; to the version control system.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Files to be added:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Files to be added in</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -31008,9 +27921,6 @@ to project &quot;%2&quot;.</source>
         <source>Remove task from the task list.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Run Settings</source>
         <translation type="unfinished"></translation>
@@ -31041,20 +27951,6 @@ to project &quot;%2&quot;.</source>
         <extracomment>Shown in Run configuration, Add menu: &quot;name of runnable (on device name)&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TaskHub</name>
-    <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Upozorenje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SimpleTargetRunner</name>
     <message>
         <source>%1 crashed.</source>
         <translation type="unfinished"></translation>
@@ -31063,9 +27959,6 @@ to project &quot;%2&quot;.</source>
         <source>%2 exited with code %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunWorker</name>
     <message>
         <source>Worker start timed out.</source>
         <translation type="unfinished"></translation>
@@ -31098,9 +27991,6 @@ to project &quot;%2&quot;.</source>
         <source>An error occurred when attempting to read from the process. For example, the process may not be running.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TerminalAspect</name>
     <message>
         <source>Terminal</source>
         <translation type="unfinished">Terminal</translation>
@@ -31109,9 +27999,6 @@ to project &quot;%2&quot;.</source>
         <source>Run in terminal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::WorkingDirectoryAspect</name>
     <message>
         <source>Working Directory</source>
         <translation type="unfinished"></translation>
@@ -31128,9 +28015,6 @@ to project &quot;%2&quot;.</source>
         <source>Working directory:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ArgumentsAspect</name>
     <message>
         <source>Arguments</source>
         <translation type="unfinished"></translation>
@@ -31139,9 +28023,6 @@ to project &quot;%2&quot;.</source>
         <source>Command line arguments:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ExecutableAspect</name>
     <message>
         <source>Executable</source>
         <translation type="unfinished"></translation>
@@ -31162,9 +28043,6 @@ to project &quot;%2&quot;.</source>
         <source>Use this command instead</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseLibraryPathsAspect</name>
     <message>
         <source>Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</source>
         <translation type="unfinished"></translation>
@@ -31177,108 +28055,14 @@ to project &quot;%2&quot;.</source>
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseDyldSuffixAspect</name>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Preimenuj …</translation>
-    </message>
-    <message>
-        <source>Clone...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deployment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Method:</source>
         <translation>Metoda:</translation>
     </message>
-    <message>
-        <source>Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run configuration:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned RunConfiguration window, text of the window</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Run Configuration?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Deploy Configuration %1?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Deploy Configuration?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesWidget</name>
     <message>
         <source>Source directory:</source>
         <translation type="unfinished"></translation>
@@ -31314,23 +28098,14 @@ These files are preserved.</source>
             <numerusform></numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
     <message>
         <source>Edit Files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while saving session</source>
         <translation type="unfinished"></translation>
@@ -31379,16 +28154,10 @@ These files are preserved.</source>
         <source>Loading Session</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
     <message>
         <source>Session</source>
         <translation type="unfinished"></translation>
@@ -31422,16 +28191,9 @@ These files are preserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Preimenuj</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>Show in Editor</source>
         <translation type="unfinished"></translation>
@@ -31440,9 +28202,6 @@ These files are preserved.</source>
         <source>Show task location in an editor.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation type="unfinished"></translation>
@@ -31455,9 +28214,6 @@ These files are preserved.</source>
         <source>O</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Target Settings</source>
         <translation type="unfinished"></translation>
@@ -31466,9 +28222,6 @@ These files are preserved.</source>
         <source>Source directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelWidget</name>
     <message>
         <source>Configure Project</source>
         <translation type="unfinished"></translation>
@@ -31526,26 +28279,11 @@ These files are preserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enable Kit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelItem</name>
     <message>
         <source>No kit defined in this project.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Configure Project</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -31557,7 +28295,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::TargetSetupPage</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
@@ -31579,21 +28317,10 @@ These files are preserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Kit Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The following kits can be used for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -31604,9 +28331,6 @@ These files are preserved.</source>
         <comment>Severity is Task::Warning</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Show Warnings</source>
         <translation type="unfinished"></translation>
@@ -31619,30 +28343,10 @@ These files are preserved.</source>
         <source>Issues</source>
         <translation>Problemi</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon od %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
         <translation>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</translation>
@@ -31652,32 +28356,8 @@ These files are preserved.</source>
         <translation>nije aktualno</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Naziv</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>Vrsta</translation>
-    </message>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Pronađi automatski</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Ručno</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Kloniraj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Duplicate Compilers Detected</source>
@@ -31695,9 +28375,6 @@ These files are preserved.</source>
         <source>Compilers</source>
         <translation>Kompajleri</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Pribilježi</translation>
@@ -31706,9 +28383,6 @@ These files are preserved.</source>
         <source>Annotate using version control system.</source>
         <translation>Pribilježi pomoću susatava za kontrolu verzija.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WaitForStopDialog</name>
     <message>
         <source>Waiting for Applications to Stop</source>
         <translation>Čekanje na zaustavljanje aplikacije</translation>
@@ -31721,9 +28395,6 @@ These files are preserved.</source>
         <source>Waiting for applications to stop.</source>
         <translation>Čekanje na zaustavljanje aplikacije.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::XcodebuildParser</name>
     <message>
         <source>Replacing signature</source>
         <translation>Zamjena potpisa</translation>
@@ -31734,7 +28405,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunConfiguration</name>
+    <name>QtC::Python</name>
     <message>
         <source>Interpreter:</source>
         <translation>Interpreter:</translation>
@@ -31747,9 +28418,6 @@ These files are preserved.</source>
         <source>Run %1</source>
         <translation>Pokreni %1</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::PythonProject</name>
     <message>
         <source>Unable to open &quot;%1&quot; for reading: %2</source>
         <translation type="unfinished"></translation>
@@ -31764,7 +28432,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>QtC::QbsProjectManager</name>
     <message>
         <source>C and C++ compiler paths differ. C compiler may not work.</source>
         <translation type="unfinished"></translation>
@@ -31943,7 +28611,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation type="unfinished"></translation>
@@ -32133,7 +28801,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -32146,7 +28814,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -32242,10 +28910,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Could not write project file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32503,7 +29167,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>QtC::QmakeProjectManager</name>
     <message>
         <source>Class Information</source>
         <translation type="unfinished"></translation>
@@ -33368,7 +30032,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner</name>
+    <name>QtC::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation>Greška</translation>
@@ -34149,7 +30813,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>QtC::QmlJSEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation type="unfinished"></translation>
@@ -34227,9 +30891,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Searching for Usages</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation type="unfinished"></translation>
@@ -34242,9 +30903,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Read typeinfo files successfully.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor</name>
     <message>
         <source>Show All Bindings</source>
         <translation type="unfinished"></translation>
@@ -34261,16 +30919,10 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Split Initializer</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AddAnalysisMessageSuppressionComment</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Dodaj komentar kako se ova poruka ne bi prikazivala</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation type="unfinished"></translation>
@@ -34303,7 +30955,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>QtC::QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation type="unfinished"></translation>
@@ -34339,7 +30991,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlPreview::Internal::QmlPreviewPlugin</name>
+    <name>QtC::QmlPreview</name>
     <message>
         <source>QML Preview</source>
         <translation type="unfinished"></translation>
@@ -34350,7 +31002,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>QtC::QmlProfiler</name>
     <message>
         <source>Debug Message</source>
         <translation type="unfinished"></translation>
@@ -35005,14 +31657,11 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>QtC::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation type="unfinished"></translation>
@@ -35041,9 +31690,6 @@ Saving failed.</source>
         <source>Non-desktop Qt is used with a desktop device.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
     <message>
         <source>System Environment</source>
         <translation type="unfinished"></translation>
@@ -35052,16 +31698,10 @@ Saving failed.</source>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Trenutačna datoteka&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>Main QML file:</source>
         <translation type="unfinished"></translation>
@@ -35093,7 +31733,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>QtC::QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;nepoznato&gt;</translation>
@@ -35172,9 +31812,6 @@ Saving failed.</source>
         <comment>Qt Version is used for embedded Linux development</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BaseQtVersion</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Vrsta uređaja nije podržana Qt verzijom.</translation>
@@ -35239,9 +31876,6 @@ Saving failed.</source>
         <source>This Qt Version does not contain Qt Quick Compiler.</source>
         <translation>Ova Qt verzija ne sadrži Qt Quick Compiler.</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport</name>
     <message>
         <source>unknown</source>
         <translation>nepoznato</translation>
@@ -35272,7 +31906,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>QtC::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation type="unfinished"></translation>
@@ -35293,9 +31927,6 @@ Saving failed.</source>
         <source>Close</source>
         <translation>Zatvori</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation>Udaljeni proces neuspjeo: %1</translation>
@@ -35326,7 +31957,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>QtC::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation type="unfinished">Dodaj datoteke</translation>
@@ -35371,9 +32002,6 @@ Saving failed.</source>
         <source>Could not copy the file to %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished"></translation>
@@ -35386,9 +32014,6 @@ Saving failed.</source>
         <source>The &lt;RCC&gt; root element is missing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otvori datoteku</translation>
@@ -35397,20 +32022,6 @@ Saving failed.</source>
         <source>All files (*)</source>
         <translation>Sve datoteke (*)</translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Prefiks:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Jezik:</translation>
-    </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -35433,10 +32044,6 @@ Saving failed.</source>
     </message>
     <message>
         <source>Remove Prefix...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -35491,9 +32098,6 @@ Saving failed.</source>
         <source>Rename Prefix</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation type="unfinished"></translation>
@@ -35506,16 +32110,13 @@ Saving failed.</source>
         <source>Copy Resource Path to Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>QtC::ScxmlEditor</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>Promijeni teme boja …</translation>
@@ -36118,7 +32719,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>SerialTerminal::Internal::SerialControl</name>
+    <name>QtC::SerialTerminal</name>
     <message>
         <source>Unable to open port %1: %2.</source>
         <translation>Neuspjelo otvaranje priključka %1: %2.</translation>
@@ -36147,9 +32748,6 @@ Row: %4, Column: %5
         <source>Serial port error: %1 (%2)</source>
         <translation>Greška u serijskom priključku: %1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialOutputPane</name>
     <message>
         <source>Close Tab</source>
         <translation>Zatvori karticu</translation>
@@ -36186,9 +32784,6 @@ Row: %4, Column: %5
         <source>Add New Terminal</source>
         <translation>Dodaj novi terminal</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialTerminalOutputPane</name>
     <message>
         <source>Serial Terminal</source>
         <translation>Serijski terminal</translation>
@@ -36206,14 +32801,11 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
+    <name>QtC::Subversion</name>
     <message>
         <source>Subversion Command</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
     <message>
         <source>Verbose</source>
         <translation type="unfinished"></translation>
@@ -36222,16 +32814,10 @@ Row: %4, Column: %5
         <source>Show files changed in each revision</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -36420,16 +33006,13 @@ Row: %4, Column: %5
         <source>No subversion executable specified.</source>
         <translation>Nijedan izvršni subversion nije specificiran.</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion Pošalji</translation>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>Prekini praćenje</translation>
@@ -36438,9 +33021,6 @@ Row: %4, Column: %5
         <source>Stop monitoring task files.</source>
         <translation>Prekini praćenje datoteka zadataka.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Nije moguće otvoriti datoteku zadataka %1: %2</translation>
@@ -36456,14 +33036,11 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>TextEditor::SearchEngine</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Internal</source>
         <translation>Unutarnje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>Searching</source>
         <translation>Pretraživanje</translation>
@@ -36488,17 +33065,11 @@ Row: %4, Column: %5
             <numerusform>%n nađenih.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalno</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Displays context-sensitive help or type information on mouseover.</source>
         <translation>Prikazuje kontekstnu pomoć ili upiši podatke prilikom korištenja &quot;Miš iznad objekta&quot;.</translation>
@@ -36507,16 +33078,10 @@ Row: %4, Column: %5
         <source>Displays context-sensitive help or type information on Shift+Mouseover.</source>
         <translation>Prikazuje kontekstnu pomoć ili upiši podatke prilikom korištenja &quot;Shift+Miš iznad objekta&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 od %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Vrsta kodiranja teksta</translation>
@@ -36537,16 +33102,10 @@ Row: %4, Column: %5
         <source>Save with Encoding</source>
         <translation>Spremi s kodiranjem</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Uredi sadržaj pregleda za prikaz primjene trenutačnih postavaka na prilagođene isječke koda. Promjene u pregledu ne utječu na trenutačne postavke.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation type="unfinished"></translation>
@@ -36567,19 +33126,8 @@ Row: %4, Column: %5
         <source>%1 (Copy)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 (Copy)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36591,10 +33139,6 @@ Row: %4, Column: %5
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Import Code Style</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36603,7 +33147,7 @@ Row: %4, Column: %5
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cannot import code style from %1</source>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36618,16 +33162,10 @@ Row: %4, Column: %5
         <source>%1 [built-in]</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation type="unfinished"></translation>
@@ -36641,9 +33179,6 @@ Row: %4, Column: %5
 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files in File System</source>
         <translation type="unfinished">Datoteke u datotečnom sustavu</translation>
@@ -36672,9 +33207,6 @@ Excluding: %3
         <source>Directory to Search</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation type="unfinished">Otvori dokumente</translation>
@@ -36688,16 +33220,10 @@ Excluding: %3
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
     <message>
         <source>Unused variable</source>
         <translation>Neupotrijebljena varijabla</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>Font &amp;i boje</translation>
@@ -36727,10 +33253,6 @@ Excluding: %3
         <translation>Zaista želiš zauvijek ukloniti ovaj sustav boja?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>Sustav boja se je promijenio</translation>
     </message>
@@ -36742,9 +33264,6 @@ Excluding: %3
         <source>Discard</source>
         <translation>Odbaci</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>Nije moguće stvoriti privremenu datoteku &quot;%1&quot;: %2.</translation>
@@ -36785,9 +33304,6 @@ Excluding: %3
         <source>Text Editor</source>
         <translation>Uređivač teksta</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Highlighter</name>
     <message>
         <source>Highlighter updates: done</source>
         <translation>Aktualiziranja alata za isticanje: gotovo</translation>
@@ -36796,9 +33312,6 @@ Excluding: %3
         <source>Highlighter updates:</source>
         <translation>Aktualiziranja alata za isticanje:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Generični alat za isticanje</translation>
@@ -36807,9 +33320,6 @@ Excluding: %3
         <source>Update finished</source>
         <translation>Aktualiziranje je dovršeno</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in Current Document</source>
         <translation>Redak u trenutačnom dokumentu</translation>
@@ -36826,9 +33336,6 @@ Excluding: %3
         <source>Column %1</source>
         <translation>%1. stupac</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Nema obrisa</translation>
@@ -36841,23 +33348,14 @@ Excluding: %3
         <source>Filter tree</source>
         <translation>Filtriraj stablo</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Obris</translation>
     </message>
-</context>
-<context>
-    <name>RefactoringFile::apply</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Nije moguće primijeniti refactoring.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Snippets</name>
     <message>
         <source></source>
         <comment>Snippets are text fragments that can be inserted into an editor via the usual completion mechanics using a trigger text. The translated text (trigger variant) is used to disambiguate between snippets with the same trigger.</comment>
@@ -36938,16 +33436,10 @@ Excluding: %3
         <comment>group:&apos;Text&apos; trigger:&apos;global&apos;</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Nije moguće stvoriti direktorij %1 za korisničke isječke</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>Greška</translation>
@@ -36968,9 +33460,6 @@ Excluding: %3
         <source>Error reverting snippet.</source>
         <translation>Greška prilikom vraćanja isječka.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Isječci</translation>
@@ -36980,16 +33469,9 @@ Excluding: %3
         <translation>Greška prilikom spremanja kolekcije isječaka</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-    <message>
         <source>No snippet selected.</source>
         <translation>Nijedan isječak nije odabran.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextDocument</name>
     <message>
         <source>Diff Against Current File</source>
         <translation>Razlike prema odabranoj datoteci</translation>
@@ -36998,9 +33480,6 @@ Excluding: %3
         <source>Opening File</source>
         <translation>Otvaranje datoteke</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Line: 9999, Col: 999</source>
         <translation>9999. redak, 999. stupac</translation>
@@ -37045,16 +33524,9 @@ Excluding: %3
         <source>Add UTF-8 BOM on Save</source>
         <translation>Dodaj UTF-8 BOM prilikom spremanja</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to update highlight definition files?</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Update Definitions</source>
-        <translation>Aktualiziraj definicije</translation>
     </message>
     <message>
         <source>More than one highlight definition was found for this file. Which one should be used to highlight this file?</source>
@@ -37064,9 +33536,6 @@ Excluding: %3
         <source>Remember My Choice</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -37551,16 +34020,10 @@ Excluding: %3
         <source>Go to Next Word Camel Case with Selection</source>
         <translation>Prijeđi na sljedeću „dvogrbu” riječ s odabirom</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&lt;line&gt;:&lt;column&gt;</source>
         <translation>&lt;redak&gt;:&lt;stupac&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Trigger Completion</source>
         <translation>Okini kompletiranje</translation>
@@ -37614,9 +34077,6 @@ Excluding: %3
         <source>Current document&apos;s font size in points.</source>
         <translation>Font veličina trenutačnog dokumenta, u točkama.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -38098,10 +34558,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <translation>Primijenjuje se retke koji opisuju promjene u VCS log-zapisu.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-    <message>
         <source>Underline color of error diagnostics.</source>
         <translation>Boja podcrtavanja dijagnoza za greške.</translation>
     </message>
@@ -38137,17 +34593,9 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Writable arguments of a function call.</source>
         <translation>Pisani argumenti poziva funkcije.</translation>
     </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Način ponašanja</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Prikaz</translation>
-    </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -38162,7 +34610,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>Unosi zadatka</translation>
@@ -38197,21 +34645,18 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>QtC::Todo</name>
     <message>
         <source>To-Do</source>
         <translation>Zadatak</translation>
     </message>
 </context>
 <context>
-    <name>Update</name>
+    <name>QtC::UpdateInfo</name>
     <message>
         <source>Update</source>
         <translation>Aktualiziraj</translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::SettingsPage</name>
     <message>
         <source>Daily</source>
         <translation>Dnevno</translation>
@@ -38237,13 +34682,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <translation>Provjeravanje nadogradnji …</translation>
     </message>
     <message>
-        <source>Not checked yet</source>
-        <translation>Još nije provjereno</translation>
-    </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
-    <message>
         <source>Qt Updater</source>
         <translation>Qt Updater</translation>
     </message>
@@ -38265,7 +34703,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>QtC::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Koga se zove</translation>
@@ -38282,9 +34720,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Calls</source>
         <translation>Pozivi</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Prethodna naredba još nije gotova.</translation>
@@ -38317,9 +34752,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Callgrind unpaused.</source>
         <translation>Callgrind je ponovo pokrenut.</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -38380,9 +34812,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Incl. Cost: %1</source>
         <translation>Uklj. trošak: %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 u %2</translation>
@@ -38391,9 +34820,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>%1:%2 in %3</source>
         <translation>%1:%2 u %3</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Zadnja-razina</translation>
@@ -38450,9 +34876,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Position:</source>
         <translation>Položaj:</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiliranje</translation>
@@ -38461,9 +34884,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Profiling %1</source>
         <translation>Profiliranje %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Callgrind</source>
         <translation>Callgrind</translation>
@@ -38632,30 +35052,18 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Parsing Profile Data...</source>
         <translation>Obrada podataka profila …</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Sve funkcije s uključenim omjerom troškova većim od %1 (%2 su skrivene)</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Potisni grešku</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiziranje memorije</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Memcheck</source>
         <translation type="unfinished"></translation>
@@ -38813,9 +35221,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
             <numerusform>Datoteka dnevnika je obrađena. Nađeno je %1 problema.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>HeobDialog</name>
     <message>
         <source>XML output file:</source>
         <translation>Izlazna XML datoteka:</translation>
@@ -38925,13 +35330,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <translation>U redu</translation>
     </message>
     <message>
-        <source>Heob</source>
-        <translation>Heob</translation>
-    </message>
-</context>
-<context>
-    <name>HeobData</name>
-    <message>
         <source>Process %1</source>
         <translation>Proces %1</translation>
     </message>
@@ -38991,9 +35389,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Heob: Failure in process attach handshake (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>Spremi potiskivanje</translation>
@@ -39010,9 +35405,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Select Suppression File</source>
         <translation>Odaberi datoteku potiskivanja</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind opcije: %1</translation>
@@ -39047,23 +35439,14 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <translation>Proces je izašao s povratnom vrijednošću %1
 </translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind postavke</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlPoslužitelj na %1:</translation>
@@ -39072,9 +35455,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>LogServer on %1:</source>
         <translation>LogPoslužitelj na %1:</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Problem</translation>
@@ -39087,9 +35467,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>%1 in function %2</source>
         <translation>%1 u funkciji %2</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -39098,9 +35475,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>in %1</source>
         <translation>u %1</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcija:</translation>
@@ -39117,9 +35491,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Object:</source>
         <translation>Objekt:</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation type="unfinished"></translation>
@@ -39172,9 +35543,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Unexpected exception caught during parsing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -39201,7 +35569,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsSubmitEditorFactory</name>
+    <name>QtC::VcsBase</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -39214,9 +35582,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Diff &amp;Selected Files</source>
         <translation>Razlike između &amp;odabranih datoteka</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Nije bilo moguće ukloniti direktorij %1.</translation>
@@ -39265,9 +35630,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Cleaning &quot;%1&quot;</source>
         <translation>Čišćenje &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stanje</translation>
@@ -39276,34 +35638,18 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>File</source>
         <translation>Datoteka</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClientImpl</name>
     <message>
         <source>Working...</source>
         <translation>Obrađuje se …</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
     </message>
     <message>
-        <source>Version Control</source>
-        <translation>Kontrola verzija</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseDiffEditorController</name>
-    <message>
         <source>Processing diff</source>
         <translation>Obrađivanje razlika</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>&amp;Describe Change %1</source>
         <translation>&amp;Opiši promjenu %1</translation>
@@ -39348,9 +35694,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Would you like to apply the chunk?</source>
         <translation>Želiš li primijeniti komad?</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>Otvori URL u pregledniku …</translation>
@@ -39359,9 +35702,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Copy URL Location</source>
         <translation>Kopiraj URL lokaciju</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>Pošalji e-poštu …</translation>
@@ -39370,9 +35710,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Copy Email Address</source>
         <translation>Kopiraj e-adresu</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>Commit</source>
         <comment>name of &quot;commit&quot; action of the VCS.</comment>
@@ -39380,10 +35717,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
     <message>
         <source>Save before %1?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version Control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -39418,9 +35751,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>A version control repository could not be created in %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation type="unfinished"></translation>
@@ -39483,9 +35813,6 @@ What do you want to do?</source>
         <source>The check script returned exit code %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Otvori &quot;%1&quot;</translation>
@@ -39506,9 +35833,6 @@ What do you want to do?</source>
         <source>Running in %1: %2 %3</source>
         <translation>Radi u %1: %2 %3</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsPlugin</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Naziv korištenog sustava kontrole verzija u ovom projektu.</translation>
@@ -39521,9 +35845,6 @@ What do you want to do?</source>
         <source>The top level path to the repository the current project is in.</source>
         <translation>Staza najviše razine do spremišta u kojem se nalazi trenutačni projekt.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation type="unfinished"></translation>
@@ -39556,9 +35877,6 @@ What do you want to do?</source>
         <source>Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>&quot;%1&quot; (%2) nije nađena.</translation>
@@ -39579,9 +35897,6 @@ What do you want to do?</source>
         <source>&quot;%1&quot; (%2) does not exist.</source>
         <translation>&quot;%1&quot; (%2) ne postoji.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -39606,7 +35921,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>QtC::Welcome</name>
     <message>
         <source>Take a UI Tour</source>
         <translation>Pregledaj vodič kroz grafičko sučelje</translation>
@@ -39938,7 +36253,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>QtC::Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Prikaži knjižnu oznaku</translation>
@@ -39957,18 +36272,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otvori poveznicu</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otvori poveznicu kao novu stranicu</translation>
-    </message>
-</context>
-<context>
-    <name>Help</name>
+    <name>QtC::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Traži:</translation>
@@ -39982,7 +36286,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>QtC::ProjectExplorer</name>
     <message>
         <source>Creates a new project including auto test skeleton.</source>
         <translation>Izrađuje novi projekt zajedno s okvirom za automatsko testiranje.</translation>
@@ -40042,10 +36346,6 @@ What do you want to do?</source>
     <message>
         <source>Code:</source>
         <translation>Kȏd:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Vrsta:</translation>
     </message>
     <message>
         <source>Console application</source>

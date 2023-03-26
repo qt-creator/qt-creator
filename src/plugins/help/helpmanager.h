@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,6 +8,7 @@
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
 #include <QFutureInterface>
+#include <QHelpEngineCore>
 #include <QVariant>
 
 namespace Help {
@@ -34,6 +35,9 @@ public:
 
     QMultiMap<QString, QUrl> linksForIdentifier(const QString &id) override;
     QMultiMap<QString, QUrl> linksForKeyword(const QString &key) override;
+    static QMultiMap<QString, QUrl> linksForKeyword(QHelpEngineCore *engine,
+                                                    const QString &key,
+                                                    std::optional<QString> filterName);
 
     static QUrl findFile(const QUrl &url);
     QByteArray fileData(const QUrl &url) override;

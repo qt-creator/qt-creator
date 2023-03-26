@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -21,7 +21,7 @@ public:
 
 private:
     // implementation of ExtensionSystem::IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void initialize() override;
     ShutdownFlag aboutToShutdown() override;
     void extensionsInitialized() override;
 

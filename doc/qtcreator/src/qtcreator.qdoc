@@ -13,7 +13,7 @@
 
     \title Qt Creator Manual
 
-    \QC provides a cross-platform, complete integrated development environment
+    \QC is a cross-platform, complete integrated development environment
     (IDE) for application developers to create applications for multiple
     \l{Desktop Platforms}{desktop}, \l {Embedded Platforms}{embedded}, and
     \l{Mobile Platforms}{mobile device} platforms, such as \l Android and

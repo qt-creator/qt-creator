@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ctesttool.h"
 #include "ctesttreeitem.h"
@@ -36,9 +36,7 @@ QString CTestTool::displayName() const
 
 ITestTreeItem *CTestTool::createRootNode()
 {
-    return new CTestTreeItem(this,
-                             displayName(),
-                             Utils::FilePath(), ITestTreeItem::Root);
+    return new CTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 } // namespace Internal

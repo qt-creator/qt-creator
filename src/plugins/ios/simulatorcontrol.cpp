@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "simulatorcontrol.h"
 #include "iosconfigurations.h"
@@ -28,8 +28,7 @@ namespace {
 static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
 }
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 const int simulatorStartTimeout = 60000;
 
@@ -72,7 +71,11 @@ static bool runCommand(const CommandLine &command, QString *stdOutput, QString *
 static bool runSimCtlCommand(QStringList args, QString *output, QString *allOutput = nullptr)
 {
     args.prepend("simctl");
-    return runCommand({"xcrun", args}, output, allOutput);
+
+    // Cache xcrun's path, as this function will be called often.
+    static FilePath xcrun = FilePath::fromString("xcrun").searchInPath();
+    QTC_ASSERT(!xcrun.isEmpty() && xcrun.isExecutableFile(), xcrun.clear(); return false);
+    return runCommand({xcrun, args}, output, allOutput);
 }
 
 static bool launchSimulator(const QString &simUdid) {
@@ -580,5 +583,4 @@ bool SimulatorInfo::operator==(const SimulatorInfo &other) const
             && runtimeName == other.runtimeName;
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

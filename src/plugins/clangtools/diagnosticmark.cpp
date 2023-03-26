@@ -1,9 +1,10 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "diagnosticmark.h"
 
 #include "clangtoolsconstants.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticconfigswidget.h"
 
@@ -18,7 +19,7 @@ namespace Internal {
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
     : TextEditor::TextMark(diagnostic.location.filePath,
                            diagnostic.location.line,
-                           Utils::Id(Constants::DIAGNOSTIC_MARK_ID))
+                           {Tr::tr("Clang Tools"), Utils::Id(Constants::DIAGNOSTIC_MARK_ID)})
     , m_diagnostic(diagnostic)
 {
     setSettingsPage(Constants::SETTINGS_PAGE_ID);
@@ -37,8 +38,8 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
         QList<QAction *> actions;
         QAction *action = new QAction();
         action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
-        action->setToolTip(tr("Copy to Clipboard"));
-        QObject::connect(action, &QAction::triggered, [diagnostic]() {
+        action->setToolTip(Tr::tr("Copy to Clipboard"));
+        QObject::connect(action, &QAction::triggered, [diagnostic] {
             const QString text = createFullLocationString(diagnostic.location)
                                  + ": "
                                  + diagnostic.description;
@@ -49,7 +50,7 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
         // Disable diagnostic action
         action = new QAction();
         action->setIcon(Utils::Icons::BROKEN.icon());
-        action->setToolTip(tr("Disable Diagnostic"));
+        action->setToolTip(Tr::tr("Disable Diagnostic"));
         QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
         actions << action;
         return actions;

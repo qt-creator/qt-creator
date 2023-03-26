@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cvsplugin.h"
 
@@ -90,7 +90,7 @@ const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
 const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
-const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");
+const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Commit Editor");
 
 const VcsBaseSubmitEditorParameters submitParameters {
     CVS_SUBMIT_MIMETYPE,
@@ -102,28 +102,28 @@ const VcsBaseSubmitEditorParameters submitParameters {
 const VcsBaseEditorParameters commandLogEditorParameters {
     OtherContent,
     "CVS Command Log Editor", // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
+    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Command Log Editor"), // display name
     "text/vnd.qtcreator.cvs.commandlog"
 };
 
 const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     "CVS File Log Editor",   // id
-    QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
+    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS File Log Editor"),   // display name
     "text/vnd.qtcreator.cvs.log"
 };
 
 const VcsBaseEditorParameters annotateEditorParameters {
     AnnotateOutput,
     "CVS Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
+    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Annotation Editor"),  // display name
     "text/vnd.qtcreator.cvs.annotation"
 };
 
 const VcsBaseEditorParameters diffEditorParameters {
     DiffOutput,
     "CVS Diff Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
+    QT_TRANSLATE_NOOP("QtC::VcsBase", "CVS Diff Editor"),  // display name
     "text/x-patch"
 };
 
@@ -149,9 +149,8 @@ public:
 
     QStringList arguments() const override
     {
-        QStringList args = m_settings.diffOptions.value().split(' ', Qt::SkipEmptyParts);
-        args += VcsBaseEditorConfig::arguments();
-        return args;
+        return m_settings.diffOptions.value().split(' ', Qt::SkipEmptyParts)
+               + VcsBaseEditorConfig::arguments();
     }
 
 private:
@@ -238,7 +237,7 @@ public:
 
 protected:
     void updateActions(ActionState) final;
-    bool submitEditorAboutToClose() final;
+    bool activateCommit() final;
     void discardCommit() override { cleanCommitMessageFile(); }
 
 private:
@@ -268,7 +267,7 @@ private:
 
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      Utils::Id id, const QString &source, QTextCodec *codec);
+                                      Id id, const FilePath &source, QTextCodec *codec);
 
     CommandResult runCvs(const FilePath &workingDirectory, const QStringList &arguments,
                          RunFlags flags = RunFlags::None, QTextCodec *outputCodec = nullptr,
@@ -481,12 +480,9 @@ CvsPlugin::~CvsPlugin()
     dd = nullptr;
 }
 
-bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void CvsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
     dd = new CvsPluginPrivate;
-    return true;
 }
 
 void CvsPlugin::extensionsInitialized()
@@ -706,7 +702,7 @@ void CvsPluginPrivate::vcsDescribe(const FilePath &source, const QString &change
         VcsOutputWindow::appendError(errorMessage);
 };
 
-bool CvsPluginPrivate::submitEditorAboutToClose()
+bool CvsPluginPrivate::activateCommit()
 {
     if (!isCommitEditorOpen())
         return true;
@@ -845,13 +841,13 @@ void CvsPluginPrivate::revertCurrentFile()
                             Tr::tr("The file has been changed. Do you want to revert it?")))
         return;
 
-    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
+    FileChangeBlocker fcb(state.currentFile());
 
     // revert
     const auto revertRes = runCvs(state.currentFileTopLevel(),
                            {"update", "-C", state.relativeCurrentFile()}, RunFlags::ShowStdOut);
     if (revertRes.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile()));
+        emit filesChanged(QStringList(state.currentFile().toString()));
 }
 
 void CvsPluginPrivate::diffProject()
@@ -986,7 +982,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
     // no need for temp file
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file));
-    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     const auto response = runCvs(workingDir, {"log", file}, RunFlags::None, codec);
     if (response.result() != ProcessResult::FinishedWithSuccess)
         return;
@@ -1118,7 +1114,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     const QStringList files(file);
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, files);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
-    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QStringList args{"annotate"};
     if (!revision.isEmpty())
         args << "-r" << revision;
@@ -1130,7 +1126,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     if (lineNumber < 1)
-        lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(file);
+        lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(FilePath::fromString(file));
 
     const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, {file}, revision);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
@@ -1155,7 +1151,7 @@ bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, con
     const bool ok = response.result() == ProcessResult::FinishedWithSuccess;
     if (ok) {
         showOutputInEditor(title, response.cleanedStdOut(), commandLogEditorParameters.id,
-                           topLevel.toString(), nullptr);
+                           topLevel, nullptr);
     }
     return ok;
 }
@@ -1320,7 +1316,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
         IEditor *newEditor = showOutputInEditor(title, output, diffEditorParameters.id,
-                                                entries.front().file, codec);
+                                                FilePath::fromString(entries.front().file), codec);
         VcsBaseEditor::tagEditor(newEditor, commitId);
         setDiffBaseDirectory(newEditor, repositoryPath);
     }
@@ -1344,7 +1340,7 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
 }
 
 IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QString &output,
-                                              Utils::Id id, const QString &source,
+                                              Utils::Id id, const FilePath &source,
                                               QTextCodec *codec)
 {
     QString s = title;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -14,7 +14,6 @@
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
-class QTabWidget;
 class QToolButton;
 class QAction;
 class QPoint;
@@ -123,7 +122,6 @@ private:
     void loadSettings();
     void storeSettings() const;
 
-    QWidget *m_mainWidget;
     TabWidget *m_tabWidget;
     QVector<RunControlTab> m_runControlTabs;
     int m_runControlCount = 0;

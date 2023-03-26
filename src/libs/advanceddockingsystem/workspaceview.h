@@ -19,7 +19,7 @@ class WorkspaceView : public Utils::TreeView
     Q_OBJECT
 
 public:
-    explicit WorkspaceView(QWidget *parent = nullptr);
+    explicit WorkspaceView(DockManager *manager, QWidget *parent = nullptr);
 
     void createNewWorkspace();
     void deleteSelectedWorkspaces();
@@ -48,8 +48,6 @@ private:
     void keyPressEvent(QKeyEvent *event) override;
 
     void deleteWorkspaces(const QStringList &workspaces);
-
-    static WorkspaceDialog *castToWorkspaceDialog(QWidget *widget);
 
     DockManager *m_manager;
     WorkspaceModel m_workspaceModel;

@@ -50,17 +50,20 @@
     \endif
 
     \if defined(qtcreator)
-    Use the \l{Selecting Modes}{mode selector} (1) to change to another \QC mode.
+    Do you want to perform a particular task, such as designing the UI,
+    writing code, or debugging the application? Select the appropriate mode in
+    the \l{Selecting Modes}{mode selector} (1).
 
-    Use the kit selector (2) to select the \l{glossary-buildandrun-kit}{kit} for
-    running (3), debugging (4), or building (5) the application. The task bar (7)
+    Are you ready to build the application for particular hardware or (5)
+    run (3) or debug (4) it on a device? Use the kit selector (2) to select
+    the appropriate \l{glossary-buildandrun-kit}{kit}. The task bar (7)
     displays output from these actions.
 
-    Use the \l{Searching with the Locator}{locator} (6) to browse through
-    projects, files, classes, functions, documentation, and file systems.
+    Are you looking for a particular project, file, class, or function?
+    Start typing its name in the \l{Searching with the Locator}{locator} (6).
 
-    For a quick tour of the user interface that takes you to the locations of
-    these controls, select \uicontrol Help > \uicontrol {UI Tour}.
+    To see where the above controls are in the user interface, select
+    \uicontrol Help > \uicontrol {UI Tour}.
 
     The following sections describe some \QC controls in more detail:
 
@@ -116,7 +119,7 @@
     \section1 Customizing the Menu
 
     By default, top-level menu items \uicontrol Build, \uicontrol Debug, and
-    \uicontrol Analyze are not visible. These menu items contain options for
+    \uicontrol Analyze are not visible. These menu items have options for
     advanced functionality.
 
     To toggle the visibility of these menu items:
@@ -463,7 +466,7 @@
 
     \section1 Issues
 
-    \uicontrol{Issues} provides lists of following types of issues:
+    \uicontrol{Issues} lists the following types of issues:
 
     \list
 
@@ -588,7 +591,7 @@
 
     \section1 Compile Output
 
-    \uicontrol{Compile Output} provides all output from the compiler.
+    \uicontrol{Compile Output} shows all output from the compiler.
     The \uicontrol{Compile Output} is a more detailed version of information
     displayed in \l Issues.
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -20,9 +20,9 @@ namespace Internal {
 class TestResultItem : public Utils::TypedTreeItem<TestResultItem, TestResultItem>
 {
 public:
-    explicit TestResultItem(const TestResultPtr &testResult);
+    explicit TestResultItem(const TestResult &testResult);
     QVariant data(int column, int role) const override;
-    const TestResult *testResult() const { return m_testResult.data(); }
+    TestResult testResult() const { return m_testResult; }
     void updateDescription(const QString &description);
 
     struct SummaryEvaluation
@@ -44,8 +44,12 @@ public:
     QString resultString() const;
     std::optional<SummaryEvaluation> summaryResult() const { return m_summaryResult; }
 
+    bool updateDescendantTypes(ResultType t);
+    bool descendantTypesContainsAnyOf(const QSet<ResultType> &types) const;
+
 private:
-    TestResultPtr m_testResult;
+    TestResult m_testResult;
+    QSet<ResultType> m_descendantsTypes;
     std::optional<SummaryEvaluation> m_summaryResult;
 };
 
@@ -54,11 +58,11 @@ class TestResultModel : public Utils::TreeModel<TestResultItem>
 public:
     explicit TestResultModel(QObject *parent = nullptr);
 
-    void addTestResult(const TestResultPtr &testResult, bool autoExpand = false);
+    void addTestResult(const TestResult &testResult, bool autoExpand = false);
     void removeCurrentTestMessage();
     void clearTestResults();
 
-    const TestResult *testResult(const QModelIndex &idx);
+    TestResult testResult(const QModelIndex &idx);
 
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
@@ -92,14 +96,13 @@ public:
     void toggleTestResultType(ResultType type);
     void clearTestResults();
     bool hasResults();
-    const TestResult *testResult(const QModelIndex &index) const;
+    TestResult testResult(const QModelIndex &index) const;
     TestResultItem *itemForIndex(const QModelIndex &index) const;
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
 private:
-    bool acceptTestCaseResult(const QModelIndex &srcIndex) const;
     TestResultModel *m_sourceModel;
     QSet<ResultType> m_enabled;
 };

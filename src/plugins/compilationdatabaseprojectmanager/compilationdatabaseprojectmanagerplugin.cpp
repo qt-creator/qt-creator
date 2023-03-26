@@ -1,10 +1,11 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "compilationdatabaseprojectmanagerplugin.h"
 
 #include "compilationdatabaseconstants.h"
 #include "compilationdatabaseproject.h"
+#include "compilationdatabaseprojectmanagertr.h"
 #include "compilationdatabasetests.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -23,8 +24,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 const char CHANGEROOTDIR[] = "CompilationDatabaseProjectManager.ChangeRootDirectory";
 const char COMPILE_COMMANDS_JSON[] = "compile_commands.json";
@@ -34,7 +34,7 @@ class CompilationDatabaseProjectManagerPluginPrivate
 public:
     CompilationDatabaseEditorFactory editorFactory;
     CompilationDatabaseBuildConfigurationFactory buildConfigFactory;
-    QAction changeRootAction{CompilationDatabaseProjectManagerPlugin::tr("Change Root Directory")};
+    QAction changeRootAction{Tr::tr("Change Root Directory")};
 };
 
 CompilationDatabaseProjectManagerPlugin::~CompilationDatabaseProjectManagerPlugin()
@@ -42,11 +42,8 @@ CompilationDatabaseProjectManagerPlugin::~CompilationDatabaseProjectManagerPlugi
     delete d;
 }
 
-bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void CompilationDatabaseProjectManagerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new CompilationDatabaseProjectManagerPluginPrivate;
 
     Utils::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
@@ -81,17 +78,9 @@ bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &argu
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, onProjectChanged);
 
-    return true;
-}
-
-QVector<QObject *> CompilationDatabaseProjectManagerPlugin::createTestObjects() const
-{
-    return {
 #ifdef WITH_TESTS
-        new CompilationDatabaseTests
+    addTest<CompilationDatabaseTests>();
 #endif
-    };
 }
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Internal

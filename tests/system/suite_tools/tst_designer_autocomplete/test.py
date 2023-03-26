@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -8,7 +8,8 @@ def main():
     if not startedWithoutPluginError():
         return
     projectName = "DesignerTestApp"
-    createProject_Qt_GUI(tempDir(), projectName)
+    createProject_Qt_GUI(tempDir(), projectName,
+                         buildSystem="qmake" if JIRA.isBugStillOpen(28787) else "CMake")
     invokeMenuItem('Build', 'Build Project "%s"' % projectName)
     selectFromLocator("mainwindow.ui")
     dragAndDrop(waitForObject("{container=':qdesigner_internal::WidgetBoxCategoryListView'"

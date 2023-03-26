@@ -1,12 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "genericprojectfileseditor.h"
 #include "genericprojectconstants.h"
 
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditoractionhandler.h>
 
 #include <QCoreApplication>
 
@@ -22,7 +23,7 @@ namespace Internal {
 ProjectFilesFactory::ProjectFilesFactory()
 {
     setId(Constants::FILES_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));
+    setDisplayName(::Core::Tr::tr(".files Editor"));
     addMimeType("application/vnd.qtcreator.generic.files");
     addMimeType("application/vnd.qtcreator.generic.includes");
     addMimeType("application/vnd.qtcreator.generic.config");

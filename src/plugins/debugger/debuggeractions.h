@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -30,7 +30,7 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
@@ -163,7 +163,6 @@ public:
     Utils::AspectContainer all; // All
     Utils::AspectContainer page1; // General
     Utils::AspectContainer page2; // GDB
-    Utils::AspectContainer page3; // GDB Extended
     Utils::AspectContainer page4; // Locals & Expressions
     Utils::AspectContainer page5; // CDB
     Utils::AspectContainer page6; // CDB Paths

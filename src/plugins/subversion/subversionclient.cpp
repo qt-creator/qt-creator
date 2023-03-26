@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "subversionclient.h"
 #include "subversionconstants.h"
 #include "subversionsettings.h"
+#include "subversiontr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -12,6 +13,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbasediffeditorcontroller.h>
@@ -33,6 +35,8 @@ using namespace VcsBase;
 namespace Subversion {
 namespace Internal {
 
+static SubversionSettings *s_settings = nullptr;
+
 class SubversionLogConfig : public VcsBaseEditorConfig
 {
     Q_OBJECT
@@ -40,14 +44,15 @@ public:
     SubversionLogConfig(SubversionSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
-        mapSetting(addToggleButton("--verbose", tr("Verbose"),
-                                   tr("Show files changed in each revision")),
+        mapSetting(addToggleButton("--verbose", Tr::tr("Verbose"),
+                                   Tr::tr("Show files changed in each revision")),
                    &settings.logVerbose);
     }
 };
 
 SubversionClient::SubversionClient(SubversionSettings *settings) : VcsBaseClient(settings)
 {
+    s_settings = settings;
     setLogConfigCreator([settings](QToolBar *toolBar) {
         return new SubversionLogConfig(*settings, toolBar);
     });
@@ -58,10 +63,10 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
                                 const QString &commitMessageFile,
                                 const QStringList &extraOptions) const
 {
-    QStringList args;
+    CommandLine args{vcsBinary()};
     args << vcsCommandString(CommitCommand)
          << extraOptions
-         << SubversionClient::addAuthenticationOptions(static_cast<SubversionSettings &>(settings()))
+         << AddAuthOptions()
          << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
          << QLatin1String("--encoding")
          << QLatin1String("UTF-8")
@@ -95,25 +100,23 @@ Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 }
 
 // Add authorization options to the command line arguments.
-QStringList SubversionClient::addAuthenticationOptions(const SubversionSettings &settings)
+CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOptions)
 {
-    if (!settings.hasAuthentication())
-        return QStringList();
+    if (!s_settings->hasAuthentication())
+        return command;
 
-    const QString userName = settings.userName.value();
-    const QString password = settings.password.value();
+    const QString userName = s_settings->userName.value();
+    const QString password = s_settings->password.value();
 
     if (userName.isEmpty())
-        return QStringList();
+        return command;
 
-    QStringList rc;
-    rc.push_back(QLatin1String("--username"));
-    rc.push_back(userName);
+    command << "--username" << userName;
     if (!password.isEmpty()) {
-        rc.push_back(QLatin1String("--password"));
-        rc.push_back(password);
+        command << "--password";
+        command.addMaskedArg(password);
     }
-    return rc;
+    return command;
 }
 
 QString SubversionClient::synchronousTopic(const FilePath &repository) const
@@ -148,30 +151,75 @@ class SubversionDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
 public:
-    SubversionDiffEditorController(IDocument *document, const QStringList &authOptions)
-        : VcsBaseDiffEditorController(document), m_authenticationOptions(authOptions)
-    {
-        forceContextLineCount(3); // SVN cannot change that when using internal diff
-        setReloader([this] { m_changeNumber ? requestDescription() : requestDiff(); });
-    }
+    SubversionDiffEditorController(IDocument *document);
 
     void setFilesList(const QStringList &filesList);
     void setChangeNumber(int changeNumber);
 
-protected:
-    void processCommandOutput(const QString &output) override;
-
 private:
-    void requestDescription();
-    void requestDiff();
-
-    enum State { Idle, GettingDescription, GettingDiff };
-    State m_state = Idle;
     QStringList m_filesList;
     int m_changeNumber = 0;
-    QStringList m_authenticationOptions;
 };
 
+SubversionDiffEditorController::SubversionDiffEditorController(IDocument *document)
+    : VcsBaseDiffEditorController(document)
+{
+    setDisplayName("Svn Diff");
+    forceContextLineCount(3); // SVN cannot change that when using internal diff
+
+    using namespace Tasking;
+
+    const TreeStorage<QString> diffInputStorage = inputStorage();
+
+    const auto setupDescription = [this](QtcProcess &process) {
+        if (m_changeNumber == 0)
+            return TaskAction::StopWithDone;
+        setupCommand(process, {"log", "-r", QString::number(m_changeNumber)});
+        CommandLine command = process.commandLine();
+        command << SubversionClient::AddAuthOptions();
+        process.setCommand(command);
+        setDescription(Tr::tr("Waiting for data..."));
+        return TaskAction::Continue;
+    };
+    const auto onDescriptionDone = [this](const QtcProcess &process) {
+        setDescription(process.cleanedStdOut());
+    };
+    const auto onDescriptionError = [this](const QtcProcess &) {
+        setDescription({});
+    };
+
+    const auto setupDiff = [this](QtcProcess &process) {
+        QStringList args = QStringList{"diff"} << "--internal-diff";
+        if (ignoreWhitespace())
+            args << "-x" << "-uw";
+        if (m_changeNumber)
+            args << "-r" << QString::number(m_changeNumber - 1) + ":" + QString::number(m_changeNumber);
+        else
+            args << m_filesList;
+
+        setupCommand(process, args);
+        CommandLine command = process.commandLine();
+        command << SubversionClient::AddAuthOptions();
+        process.setCommand(command);
+    };
+    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+    };
+
+    const Group root {
+        Storage(diffInputStorage),
+        parallel,
+        Group {
+            optional,
+            Process(setupDescription, onDescriptionDone, onDescriptionError)
+        },
+        Group {
+            Process(setupDiff, onDiffDone),
+            postProcessTask()
+        }
+    };
+    setReloadRecipe(root);
+}
 
 void SubversionDiffEditorController::setFilesList(const QStringList &filesList)
 {
@@ -189,62 +237,16 @@ void SubversionDiffEditorController::setChangeNumber(int changeNumber)
     m_changeNumber = qMax(changeNumber, 0);
 }
 
-void SubversionDiffEditorController::requestDescription()
-{
-    m_state = GettingDescription;
-
-    QStringList args(QLatin1String("log"));
-    args << m_authenticationOptions;
-    args << QLatin1String("-r");
-    args << QString::number(m_changeNumber);
-    runCommand(QList<QStringList>() << args, RunFlags::None);
-}
-
-void SubversionDiffEditorController::requestDiff()
-{
-    m_state = GettingDiff;
-
-    QStringList args;
-    args << QLatin1String("diff");
-    args << m_authenticationOptions;
-    args << QLatin1String("--internal-diff");
-    if (ignoreWhitespace())
-        args << QLatin1String("-x") << QLatin1String("-uw");
-    if (m_changeNumber) {
-        args << QLatin1String("-r") << QString::number(m_changeNumber - 1)
-             + QLatin1String(":") + QString::number(m_changeNumber);
-    } else {
-        args << m_filesList;
-    }
-    runCommand(QList<QStringList>() << args, RunFlags::None);
-}
-
-void SubversionDiffEditorController::processCommandOutput(const QString &output)
-{
-    QTC_ASSERT(m_state != Idle, return);
-    if (m_state == GettingDescription) {
-        setDescription(output);
-
-        requestDiff();
-    } else if (m_state == GettingDiff) {
-        m_state = Idle;
-        VcsBaseDiffEditorController::processCommandOutput(output);
-    }
-}
-
 SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const QString &documentId,
-                                                         const QString &source,
-                                                         const QString &title,
-                                                         const FilePath &workingDirectory)
+    const FilePath &source, const QString &title, const FilePath &workingDirectory)
 {
     auto &settings = static_cast<SubversionSettings &>(this->settings());
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     auto controller = qobject_cast<SubversionDiffEditorController *>(
                 DiffEditorController::controller(document));
     if (!controller) {
-        controller = new SubversionDiffEditorController(document, addAuthenticationOptions(settings));
+        controller = new SubversionDiffEditorController(document);
         controller->setVcsBinary(settings.binaryPath.filePath());
-        controller->setVcsTimeoutS(settings.timeout.value());
         controller->setProcessEnvironment(processEnvironment());
         controller->setWorkingDirectory(workingDirectory);
     }
@@ -264,24 +266,30 @@ void SubversionClient::diff(const FilePath &workingDirectory, const QStringList 
     const QString title = vcsEditorTitle(vcsCmdString, documentId);
 
     SubversionDiffEditorController *controller =
-            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory);
+            findOrCreateDiffEditor(documentId, workingDirectory, title, workingDirectory);
     controller->setFilesList(files);
     controller->requestReload();
 }
 
-void SubversionClient::log(const FilePath &workingDir, const QStringList &files,
-                           const QStringList &extraOptions, bool enableAnnotationContextMenu)
+void SubversionClient::log(const FilePath &workingDir,
+                           const QStringList &files,
+                           const QStringList &extraOptions,
+                           bool enableAnnotationContextMenu,
+                           const std::function<void(Utils::CommandLine &)> &addAuthOptions)
 {
     auto &settings = static_cast<SubversionSettings &>(this->settings());
     const int logCount = settings.logCount.value();
     QStringList svnExtraOptions = extraOptions;
-    svnExtraOptions.append(SubversionClient::addAuthenticationOptions(settings));
     if (logCount > 0)
         svnExtraOptions << QLatin1String("-l") << QString::number(logCount);
 
     // subversion stores log in UTF-8 and returns it back in user system locale.
     // So we do not need to encode it.
-    VcsBaseClient::log(workingDir, escapeFiles(files), svnExtraOptions, enableAnnotationContextMenu);
+    VcsBaseClient::log(workingDir,
+                       escapeFiles(files),
+                       svnExtraOptions,
+                       enableAnnotationContextMenu,
+                       addAuthOptions);
 }
 
 void SubversionClient::describe(const FilePath &workingDirectory, int changeNumber,
@@ -292,7 +300,7 @@ void SubversionClient::describe(const FilePath &workingDirectory, int changeNumb
                                         workingDirectory, {}, QString::number(changeNumber));
 
     SubversionDiffEditorController *controller = findOrCreateDiffEditor(documentId,
-                                    workingDirectory.toString(), title, workingDirectory);
+                                    workingDirectory, title, workingDirectory);
     controller->setChangeNumber(changeNumber);
     controller->requestReload();
 }

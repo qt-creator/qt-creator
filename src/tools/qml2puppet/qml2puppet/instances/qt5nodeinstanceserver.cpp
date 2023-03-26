@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qt5nodeinstanceserver.h"
 
@@ -147,7 +147,7 @@ void Qt5NodeInstanceServer::resizeCanvasToRootItem()
 
 void Qt5NodeInstanceServer::resetAllItems()
 {
-    foreach (QQuickItem *item, allItems())
+    for (QQuickItem *item : allItems())
         QQuickDesignerSupport::resetDirty(item);
 }
 
@@ -167,13 +167,14 @@ QList<QQuickItem*> subItems(QQuickItem *parentItem)
     QList<QQuickItem*> itemList;
     itemList.append(parentItem->childItems());
 
-    foreach (QQuickItem *childItem, parentItem->childItems())
+    const QList<QQuickItem *> childItems = parentItem->childItems();
+    for (QQuickItem *childItem : childItems)
         itemList.append(subItems(childItem));
 
     return itemList;
 }
 
-QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
+const QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
 {
     if (rootNodeInstance().isValid())
         return rootNodeInstance().allItemsRecursive();

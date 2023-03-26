@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "unifieddiffeditorwidget.h"
 
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorplugin.h"
-#include "diffutils.h"
+#include "diffeditortr.h"
 
 #include <QMenu>
 #include <QPainter>
@@ -21,8 +21,9 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/asynctask.h>
+#include <utils/mathutils.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -42,7 +43,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
             this, &UnifiedDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
 
-    clear(tr("No document"));
+    clear(Tr::tr("No document"));
 
     connect(this, &QPlainTextEdit::cursorPositionChanged,
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
@@ -53,13 +54,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     Core::ICore::addContextObject(context);
 }
 
-UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
-{
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::addFuture(m_watcher->future());
-    }
-}
+UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget() = default;
 
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
@@ -202,10 +197,8 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
 {
     m_data = {};
     setSelections({});
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::addFuture(m_watcher->future());
-        m_watcher.reset();
+    if (m_asyncTask) {
+        m_asyncTask.reset();
         m_controller.setBusyShowing(false);
     }
 
@@ -270,7 +263,7 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
 void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    clear(tr("Waiting for data..."));
+    clear(Tr::tr("Waiting for data..."));
     m_controller.m_contextFileData = diffFileList;
     showDiff();
 }
@@ -444,7 +437,7 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                     output.diffData.m_chunkInfo.setChunkIndex(oldBlock, blockNumber - oldBlock, j);
             }
         }
-        fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
+        fi.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
         if (fi.isCanceled())
             return {};
     }
@@ -457,17 +450,18 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
 void UnifiedDiffEditorWidget::showDiff()
 {
     if (m_controller.m_contextFileData.isEmpty()) {
-        setPlainText(tr("No difference."));
+        setPlainText(Tr::tr("No difference."));
         return;
     }
 
-    m_watcher.reset(new QFutureWatcher<ShowResult>());
+    m_asyncTask.reset(new AsyncTask<ShowResult>());
+    m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
     m_controller.setBusyShowing(true);
-    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
-        if (m_watcher->isCanceled()) {
-            setPlainText(tr("Retrieving data failed."));
+    connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
+        if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {
+            setPlainText(Tr::tr("Retrieving data failed."));
         } else {
-            const ShowResult result = m_watcher->result();
+            const ShowResult result = m_asyncTask->result();
             m_data = result.diffData;
             TextDocumentPtr doc(result.textDocument);
             {
@@ -481,7 +475,7 @@ void UnifiedDiffEditorWidget::showDiff()
             setSelections(result.selections);
             setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
-        m_watcher.release()->deleteLater();
+        m_asyncTask.release()->deleteLater();
         m_controller.setBusyShowing(false);
     });
 
@@ -518,7 +512,7 @@ void UnifiedDiffEditorWidget::showDiff()
             const QString package = output.diffText.mid(currentPos, packageSize);
             cursor.insertText(package);
             currentPos += package.size();
-            fi.setProgressValue(DiffUtils::interpolate(currentPos, 0, diffSize, firstPartMax, progressMax));
+            fi.setProgressValue(MathUtils::interpolateLinear(currentPos, 0, diffSize, firstPartMax, progressMax));
             if (futureInterface.isCanceled())
                 return;
         }
@@ -534,8 +528,9 @@ void UnifiedDiffEditorWidget::showDiff()
         futureInterface.reportResult(result);
     };
 
-    m_watcher->setFuture(runAsync(getDocument));
-    ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
+    m_asyncTask->setAsyncCallData(getDocument);
+    m_asyncTask->start();
+    ProgressManager::addTask(m_asyncTask->future(), Tr::tr("Rendering diff"), "DiffEditor");
 }
 
 void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)

@@ -1,5 +1,5 @@
 # Copyright (C) 2022 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -48,7 +48,7 @@ def main():
     if not startedWithoutPluginError():
         return
     docFiles = ["qtdoc.qch", "qtsql.qch"]
-    docFiles = [os.path.join(Qt5Path.docsPath(Targets.DESKTOP_5_14_1_DEFAULT), file) for file in docFiles]
+    docFiles = [os.path.join(QtPath.docsPath(Targets.DESKTOP_5_14_1_DEFAULT), file) for file in docFiles]
     addHelpDocumentation(docFiles)
     # switch to help mode
     switchViewTo(ViewConstants.HELP)

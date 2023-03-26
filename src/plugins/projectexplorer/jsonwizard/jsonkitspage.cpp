@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jsonkitspage.h"
 #include "jsonwizard.h"
 
 #include "../kit.h"
 #include "../project.h"
-#include "../projectexplorer.h"
+#include "../projectexplorertr.h"
 #include "../projectmanager.h"
 
 #include <coreplugin/featureprovider.h>
@@ -43,12 +43,12 @@ void JsonKitsPage::initializePage()
 
     setTasksGenerator([required, preferred, platform](const Kit *k) -> Tasks {
         if (!k->hasFeatures(required))
-            return {CompileTask(Task::Error, tr("At least one required feature is not present."))};
+            return {CompileTask(Task::Error, Tr::tr("At least one required feature is not present."))};
         if (!k->supportedPlatforms().contains(platform))
-            return {CompileTask(Task::Unknown, tr("Platform is not supported."))};
+            return {CompileTask(Task::Unknown, Tr::tr("Platform is not supported."))};
         if (!k->hasFeatures(preferred))
             return {
-                CompileTask(Task::Unknown, tr("At least one preferred feature is not present."))};
+                CompileTask(Task::Unknown, Tr::tr("At least one preferred feature is not present."))};
         return {};
     });
     setProjectPath(wiz->expander()->expand(Utils::FilePath::fromString(unexpandedProjectPath())));
@@ -126,7 +126,7 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
         return result;
     if (data.type() != QVariant::List) {
         if (errorMessage)
-            *errorMessage = tr("Feature list is set and not of type list.");
+            *errorMessage = Tr::tr("Feature list is set and not of type list.");
         return result;
     }
 
@@ -139,7 +139,7 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
             const QString feature = obj.value(QLatin1String(KEY_FEATURE)).toString();
             if (feature.isEmpty()) {
                 if (errorMessage) {
-                    *errorMessage = tr("No \"%1\" key found in feature list object.")
+                    *errorMessage = Tr::tr("No \"%1\" key found in feature list object.")
                         .arg(QLatin1String(KEY_FEATURE));
                 }
                 return QVector<ConditionalFeature>();
@@ -148,7 +148,7 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
             result.append({ feature, obj.value(QLatin1String(KEY_CONDITION), true) });
         } else {
             if (errorMessage)
-                *errorMessage = tr("Feature list element is not a string or object.");
+                *errorMessage = Tr::tr("Feature list element is not a string or object.");
             return QVector<ConditionalFeature>();
         }
     }

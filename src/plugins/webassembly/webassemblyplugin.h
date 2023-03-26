@@ -1,14 +1,11 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "webassembly_global.h"
-
 #include <extensionsystem/iplugin.h>
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 class WebAssemblyPlugin : public ExtensionSystem::IPlugin
 {
@@ -19,18 +16,9 @@ public:
     WebAssemblyPlugin();
     ~WebAssemblyPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     void extensionsInitialized() override;
     static void askUserAboutEmSdkSetup();
-
-#ifdef WITH_TESTS
-private slots:
-    void testEmSdkEnvParsing();
-    void testEmSdkEnvParsing_data();
-    void testEmrunBrowserListParsing();
-    void testEmrunBrowserListParsing_data();
-#endif // WITH_TESTS
 };
 
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal

@@ -1,15 +1,16 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jsonwizard.h"
 
 #include "jsonwizardfactory.h"
 #include "jsonwizardgeneratorfactory.h"
-
 #include "../project.h"
 #include "../projectexplorer.h"
 #include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
 #include "../projecttree.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
@@ -35,11 +36,12 @@
 #include "jsonwizard_test.cpp"
 #endif
 
-namespace ProjectExplorer {
+using namespace Utils;
 
+namespace ProjectExplorer {
 namespace Internal {
 
-class ProjectFileTreeItem : public Utils::TreeItem
+class ProjectFileTreeItem : public TreeItem
 {
 public:
     ProjectFileTreeItem(JsonWizard::GeneratorFile *candidate) : m_candidate(candidate)
@@ -64,13 +66,13 @@ private:
     JsonWizard::GeneratorFile * const m_candidate;
 };
 
-class ProjectFilesModel : public Utils::TreeModel<Utils::TreeItem, ProjectFileTreeItem>
+class ProjectFilesModel : public TreeModel<TreeItem, ProjectFileTreeItem>
 {
 public:
     ProjectFilesModel(const QList<JsonWizard::GeneratorFile *> &candidates, QObject *parent)
         : TreeModel(parent)
     {
-        setHeader({QCoreApplication::translate("ProjectExplorer::JsonWizard", "Project File")});
+        setHeader({Tr::tr("Project File")});
         for (JsonWizard::GeneratorFile * const candidate : candidates)
             rootItem()->appendChild(new ProjectFileTreeItem(candidate));
     }
@@ -80,13 +82,12 @@ class ProjectFileChooser : public QDialog
 {
 public:
     ProjectFileChooser(const QList<JsonWizard::GeneratorFile *> &candidates, QWidget *parent)
-        : QDialog(parent), m_view(new Utils::TreeView(this))
+        : QDialog(parent), m_view(new TreeView(this))
     {
-        setWindowTitle(QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                   "Choose Project File"));
+        setWindowTitle(Tr::tr("Choose Project File"));
         const auto model = new ProjectFilesModel(candidates, this);
-        m_view->setSelectionMode(Utils::TreeView::ExtendedSelection);
-        m_view->setSelectionBehavior(Utils::TreeView::SelectRows);
+        m_view->setSelectionMode(TreeView::ExtendedSelection);
+        m_view->setSelectionBehavior(TreeView::SelectRows);
         m_view->setModel(model);
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
         const auto updateOkButton = [buttonBox, this] {
@@ -98,7 +99,7 @@ public:
         updateOkButton();
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         const auto layout = new QVBoxLayout(this);
-        layout->addWidget(new QLabel(QCoreApplication::translate("ProjectExplorer::JsonWizard",
+        layout->addWidget(new QLabel(Tr::tr(
             "The project contains more than one project file. "
             "Select the one you would like to use.")));
         layout->addWidget(m_view);
@@ -118,20 +119,20 @@ private:
         QDialog::accept();
     }
 
-    Utils::TreeView * const m_view;
+    TreeView * const m_view;
 };
 
 } // namespace Internal
 
 JsonWizard::JsonWizard(QWidget *parent)
-    : Utils::Wizard(parent)
+    : Wizard(parent)
 {
     setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
         *ret = stringValue(name);
         return !ret->isNull();
     });
-    m_expander.registerPrefix("Exists", tr("Check whether a variable exists.<br>"
+    m_expander.registerPrefix("Exists", Tr::tr("Check whether a variable exists.<br>"
                                            "Returns \"true\" if it does and an empty string if not."),
                    [this](const QString &value) -> QString
     {
@@ -157,7 +158,7 @@ void JsonWizard::addGenerator(JsonWizardGenerator *gen)
     m_generators.append(gen);
 }
 
-Utils::MacroExpander *JsonWizard::expander()
+MacroExpander *JsonWizard::expander()
 {
     return &m_expander;
 }
@@ -167,16 +168,16 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
     QString errorMessage;
     GeneratorFiles list;
 
-    const Utils::FilePath targetPath =
-            Utils::FilePath::fromString(stringValue(QLatin1String("TargetPath")));
+    const FilePath targetPath =
+            FilePath::fromString(stringValue(QLatin1String("TargetPath")));
     if (targetPath.isEmpty())
-        errorMessage = tr("Could not determine target path. \"TargetPath\" was not set on any page.");
+        errorMessage = Tr::tr("Could not determine target path. \"TargetPath\" was not set on any page.");
 
     if (m_files.isEmpty() && errorMessage.isEmpty()) {
         emit preGenerateFiles();
         for (JsonWizardGenerator *gen : std::as_const(m_generators)) {
-            const Utils::FilePath wizardDir =
-                    Utils::FilePath::fromString(stringValue(QLatin1String("WizardDir")));
+            const FilePath wizardDir =
+                    FilePath::fromString(stringValue(QLatin1String("WizardDir")));
             const Core::GeneratedFiles tmp =
                     gen->fileList(&m_expander, wizardDir, targetPath, &errorMessage);
             if (!errorMessage.isEmpty())
@@ -187,8 +188,8 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
     }
 
     if (!errorMessage.isEmpty()) {
-        QMessageBox::critical(this, tr("File Generation Failed"),
-                              tr("The wizard failed to generate files.<br>"
+        QMessageBox::critical(this, Tr::tr("File Generation Failed"),
+                              Tr::tr("The wizard failed to generate files.<br>"
                                  "The error message was: \"%1\".").arg(errorMessage));
         reject();
         return GeneratorFiles();
@@ -251,8 +252,7 @@ QList<JsonWizard::OptionDefinition> JsonWizard::parseOptions(const QVariant &v, 
             odef.m_evaluate = optionObject.value(QLatin1String("evaluate"), false);
 
             if (odef.m_key.isEmpty()) {
-                *errorMessage = QCoreApplication::translate("ProjectExplorer::Internal::JsonWizardFileGenerator",
-                                                            "No 'key' in options object.");
+                *errorMessage = Tr::tr("No 'key' in options object.");
                 result.clear();
                 break;
             }
@@ -274,7 +274,7 @@ QVariant JsonWizard::value(const QString &n) const
     return QVariant();
 }
 
-bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expander)
+bool JsonWizard::boolFromVariant(const QVariant &v, MacroExpander *expander)
 {
     if (v.type() == QVariant::String) {
         const QString tmp = expander->expand(v.toString());
@@ -283,7 +283,7 @@ bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expand
     return v.toBool();
 }
 
-QString JsonWizard::stringListToArrayString(const QStringList &list, const Utils::MacroExpander *expander)
+QString JsonWizard::stringListToArrayString(const QStringList &list, const MacroExpander *expander)
 {
     // Todo: Handle ' embedded in the strings better.
     if (list.isEmpty())
@@ -322,11 +322,11 @@ QHash<QString, QVariant> JsonWizard::variables() const
 
 void JsonWizard::accept()
 {
-    auto page = qobject_cast<Utils::WizardPage *>(currentPage());
+    auto page = qobject_cast<WizardPage *>(currentPage());
     if (page && page->handleAccept())
         return;
 
-    Utils::Wizard::accept();
+    Wizard::accept();
 
     QString errorMessage;
     if (m_files.isEmpty()) {
@@ -340,40 +340,40 @@ void JsonWizard::accept()
             JsonWizardGenerator::promptForOverwrite(&m_files, &errorMessage);
     if (overwrite != JsonWizardGenerator::OverwriteOk) {
         if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, tr("Failed to Overwrite Files"), errorMessage);
+            QMessageBox::warning(this, Tr::tr("Failed to Overwrite Files"), errorMessage);
         return;
     }
 
     emit preFormatFiles(m_files);
     if (!JsonWizardGenerator::formatFiles(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, tr("Failed to Format Files"), errorMessage);
+            QMessageBox::warning(this, Tr::tr("Failed to Format Files"), errorMessage);
         return;
     }
 
     emit preWriteFiles(m_files);
     if (!JsonWizardGenerator::writeFiles(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, tr("Failed to Write Files"), errorMessage);
+            QMessageBox::warning(this, Tr::tr("Failed to Write Files"), errorMessage);
         return;
     }
 
     emit postProcessFiles(m_files);
     if (!JsonWizardGenerator::postWrite(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, tr("Failed to Post-Process Files"), errorMessage);
+            QMessageBox::warning(this, Tr::tr("Failed to Post-Process Files"), errorMessage);
         return;
     }
     emit filesReady(m_files);
     if (!JsonWizardGenerator::polish(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, tr("Failed to Polish Files"), errorMessage);
+            QMessageBox::warning(this, Tr::tr("Failed to Polish Files"), errorMessage);
         return;
     }
     emit filesPolished(m_files);
     if (!JsonWizardGenerator::allDone(this, &m_files, &errorMessage)) {
         if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, tr("Failed to Open Files"), errorMessage);
+            QMessageBox::warning(this, Tr::tr("Failed to Open Files"), errorMessage);
         return;
     }
     emit allDone(m_files);
@@ -387,20 +387,20 @@ void JsonWizard::accept()
 
 void JsonWizard::reject()
 {
-    auto page = qobject_cast<Utils::WizardPage *>(currentPage());
+    auto page = qobject_cast<WizardPage *>(currentPage());
     if (page && page->handleReject())
         return;
 
-    Utils::Wizard::reject();
+    Wizard::reject();
 }
 
 void JsonWizard::handleNewPages(int pageId)
 {
-    auto wp = qobject_cast<Utils::WizardPage *>(page(pageId));
+    auto wp = qobject_cast<WizardPage *>(page(pageId));
     if (!wp)
         return;
 
-    connect(wp, &Utils::WizardPage::reportError, this, &JsonWizard::handleError);
+    connect(wp, &WizardPage::reportError, this, &JsonWizard::handleError);
 }
 
 void JsonWizard::handleError(const QString &message)
@@ -427,8 +427,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
     for (const JsonWizard::GeneratorFile &f : files) {
         const Core::GeneratedFile &file = f.file;
         if (!file.filePath().exists()) {
-            errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                       "\"%1\" does not exist in the file system.")
+            errorMessage = Tr::tr("\"%1\" does not exist in the file system.")
                     .arg(file.filePath().toUserOutput());
             break;
         }
@@ -438,8 +437,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             if (!result) {
                 errorMessage = result.errorMessage();
                 if (errorMessage.isEmpty()) {
-                    errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                               "Failed to open \"%1\" as a project.")
+                    errorMessage = Tr::tr("Failed to open \"%1\" as a project.")
                             .arg(file.filePath().toUserOutput());
                 }
                 break;
@@ -451,8 +449,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             Core::IEditor *editor = Core::EditorManager::openEditor(file.filePath(),
                                                                     file.editorId());
             if (!editor) {
-                errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                           "Failed to open an editor for \"%1\".")
+                errorMessage = Tr::tr("Failed to open an editor for \"%1\".")
                         .arg(file.filePath().toUserOutput());
                 break;
             } else if (file.attributes() & Core::GeneratedFile::TemporaryFile) {
@@ -467,15 +464,13 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
 
     // Now try to find the project file and open
     if (!openedSomething) {
-        errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                   "No file to open found in \"%1\".")
-                .arg(path);
+        errorMessage = Tr::tr("No file to open found in \"%1\".").arg(path);
     }
 
     if (!errorMessage.isEmpty()) {
-        const QString text = path.isEmpty() ? tr("Failed to open project.")
-                                            : tr("Failed to open project in \"%1\".").arg(path);
-        QMessageBox msgBox(QMessageBox::Warning, tr("Cannot Open Project"), text);
+        const QString text = path.isEmpty() ? Tr::tr("Failed to open project.")
+                                            : Tr::tr("Failed to open project in \"%1\".").arg(path);
+        QMessageBox msgBox(QMessageBox::Warning, Tr::tr("Cannot Open Project"), text);
         msgBox.setDetailedText(errorMessage);
         msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
@@ -484,8 +479,6 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
 
 void JsonWizard::openProjectForNode(Node *node)
 {
-    using namespace Utils;
-
     const ProjectNode *projNode = node->asProjectNode();
     if (!projNode) {
         if (ContainerNode * const cn = node->asContainerNode())
@@ -498,21 +491,20 @@ void JsonWizard::openProjectForNode(Node *node)
     std::optional<FilePath> projFilePath = projNode->visibleAfterAddFileAction();
 
     if (projFilePath && !Core::EditorManager::openEditor(projFilePath.value())) {
-            auto errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                       "Failed to open an editor for \"%1\".")
+            auto errorMessage = Tr::tr("Failed to open an editor for \"%1\".")
                     .arg(QDir::toNativeSeparators(projFilePath.value().toString()));
-            QMessageBox::warning(nullptr, tr("Cannot Open Project"), errorMessage);
+            QMessageBox::warning(nullptr, Tr::tr("Cannot Open Project"), errorMessage);
     }
 }
 
-QString JsonWizard::OptionDefinition::value(Utils::MacroExpander &expander) const
+QString JsonWizard::OptionDefinition::value(MacroExpander &expander) const
 {
     if (JsonWizard::boolFromVariant(m_evaluate, &expander))
         return expander.expand(m_value);
     return m_value;
 }
 
-bool JsonWizard::OptionDefinition::condition(Utils::MacroExpander &expander) const
+bool JsonWizard::OptionDefinition::condition(MacroExpander &expander) const
 {
     return JsonWizard::boolFromVariant(m_condition, &expander);
 }

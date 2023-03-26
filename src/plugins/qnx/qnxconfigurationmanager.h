@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,6 +19,8 @@ public:
     QnxConfigurationManager();
     ~QnxConfigurationManager() override;
 
+    void restoreConfigurations();
+
     static QnxConfigurationManager *instance();
     QList<QnxConfiguration*> configurations() const;
     void removeConfiguration(QnxConfiguration *config);
@@ -34,7 +36,6 @@ signals:
 private:
     QList<QnxConfiguration*> m_configurations;
     Utils::PersistentSettingsWriter *m_writer;
-    void restoreConfigurations();
 };
 
 } // Qnx::Internal

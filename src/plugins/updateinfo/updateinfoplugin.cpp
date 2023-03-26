@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "updateinfoplugin.h"
 #include "updateinfotr.h"
@@ -11,28 +11,19 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/settingsdatabase.h>
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QDate>
-#include <QDomDocument>
-#include <QFile>
-#include <QFileInfo>
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMetaEnum>
-#include <QPointer>
-#include <QProcessEnvironment>
-#include <QScrollArea>
 #include <QTimer>
 #include <QVersionNumber>
+#include <QScrollArea>
 
 #include <memory>
 
@@ -61,8 +52,8 @@ class UpdateInfoPluginPrivate
 {
 public:
     FilePath m_maintenanceTool;
-    std::unique_ptr<QtcProcess> m_maintenanceToolProcess;
-    QPointer<FutureProgress> m_progress;
+    std::unique_ptr<TaskTree> m_taskTree;
+    QPointer<TaskProgress> m_progress;
     QString m_updateOutput;
     QString m_packagesOutput;
     QTimer *m_checkUpdatesTimer = nullptr;
@@ -110,7 +101,7 @@ void UpdateInfoPlugin::stopAutoCheckForUpdates()
 
 void UpdateInfoPlugin::doAutoCheckForUpdates()
 {
-    if (d->m_maintenanceToolProcess)
+    if (d->m_taskTree)
         return; // update task is still running (might have been run manually just before)
 
     if (nextCheckDate().isValid() && nextCheckDate() > QDate::currentDate())
@@ -121,139 +112,128 @@ void UpdateInfoPlugin::doAutoCheckForUpdates()
 
 void UpdateInfoPlugin::startCheckForUpdates()
 {
-    if (d->m_maintenanceToolProcess)
+    if (d->m_taskTree)
         return; // do not trigger while update task is already running
 
-    QFutureInterface<void> futureIf;
-    d->m_progress = ProgressManager::addTimedTask(futureIf,
-                                                  tr("Checking for Updates"),
-                                                  Id("UpdateInfo.CheckingForUpdates"),
-                                                  60);
+    emit checkForUpdatesRunningChanged(true);
+
+    using namespace Tasking;
+
+    const auto doSetup = [this](QtcProcess &process, const QStringList &args) {
+        process.setCommand({d->m_maintenanceTool, args});
+    };
+    const auto doCleanup = [this] {
+        d->m_taskTree.release()->deleteLater();
+        checkForUpdatesStopped();
+    };
+
+    const auto setupUpdate = [doSetup](QtcProcess &process) {
+        doSetup(process, {"ch", "-g", "*=false,ifw.package.*=true"});
+    };
+    const auto updateDone = [this](const QtcProcess &process) {
+        d->m_updateOutput = process.cleanedStdOut();
+    };
+
+    QList<TaskItem> tasks { Process(setupUpdate, updateDone) };
+    if (d->m_settings.checkForQtVersions) {
+        const auto setupPackages = [doSetup](QtcProcess &process) {
+            doSetup(process, {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
+        };
+        const auto packagesDone = [this](const QtcProcess &process) {
+            d->m_packagesOutput = process.cleanedStdOut();
+        };
+        tasks << Process(setupPackages, packagesDone);
+    }
+
+    d->m_taskTree.reset(new TaskTree(Group{tasks}));
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this, doCleanup] {
+        checkForUpdatesFinished();
+        doCleanup();
+    });
+    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, doCleanup);
+    d->m_progress = new TaskProgress(d->m_taskTree.get());
+    d->m_progress->setHalfLifeTimePerTask(30000); // 30 seconds
+    d->m_progress->setDisplayName(Tr::tr("Checking for Updates"));
     d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
     d->m_progress->setSubtitleVisibleInStatusBar(true);
-    connect(d->m_progress, &FutureProgress::canceled, this, [this, futureIf]() mutable {
-        futureIf.reportCanceled();
-        futureIf.reportFinished();
-        stopCheckForUpdates();
-    });
-
-    d->m_maintenanceToolProcess.reset(new QtcProcess);
-    d->m_maintenanceToolProcess->setCommand({d->m_maintenanceTool,
-                                             {"ch", "-g", "*=false,ifw.package.*=true"}});
-    d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
-    // TODO handle error
-    connect(
-        d->m_maintenanceToolProcess.get(),
-        &QtcProcess::done,
-        this,
-        [this, futureIf]() mutable {
-            if (d->m_maintenanceToolProcess->result() == ProcessResult::FinishedWithSuccess) {
-                d->m_updateOutput = d->m_maintenanceToolProcess->cleanedStdOut();
-                if (d->m_settings.checkForQtVersions) {
-                    d->m_maintenanceToolProcess.reset(new QtcProcess);
-                    d->m_maintenanceToolProcess->setCommand({d->m_maintenanceTool,
-                         {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"}});
-                    d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
-                    connect(
-                        d->m_maintenanceToolProcess.get(),
-                        &QtcProcess::done,
-                        this,
-                        [this, futureIf]() mutable {
-                            if (d->m_maintenanceToolProcess->result()
-                                == ProcessResult::FinishedWithSuccess) {
-                                d->m_packagesOutput = d->m_maintenanceToolProcess->cleanedStdOut();
-                                d->m_maintenanceToolProcess.reset();
-                                futureIf.reportFinished();
-                                checkForUpdatesFinished();
-                            } else {
-                                futureIf.reportCanceled(); // is used to indicate error
-                                futureIf.reportFinished();
-                            }
-                        },
-                        Qt::QueuedConnection);
-                    d->m_maintenanceToolProcess->start();
-                } else {
-                    d->m_maintenanceToolProcess.reset();
-                    futureIf.reportFinished();
-                    checkForUpdatesFinished();
-                }
-            } else {
-                futureIf.reportCanceled(); // is used to indicate error
-                futureIf.reportFinished();
-            }
-        },
-        Qt::QueuedConnection);
-
-    d->m_maintenanceToolProcess->start();
-    futureIf.reportStarted();
-
-    emit checkForUpdatesRunningChanged(true);
+    d->m_taskTree->start();
 }
 
 void UpdateInfoPlugin::stopCheckForUpdates()
 {
-    if (!d->m_maintenanceToolProcess)
+    if (!d->m_taskTree)
         return;
 
-    d->m_maintenanceToolProcess->disconnect();
-    d->m_maintenanceToolProcess.reset();
+    d->m_taskTree.reset();
+    checkForUpdatesStopped();
+}
+
+void UpdateInfoPlugin::checkForUpdatesStopped()
+{
     d->m_updateOutput.clear();
     d->m_packagesOutput.clear();
     emit checkForUpdatesRunningChanged(false);
 }
 
-static void showUpdateInfo(const QList<Update> &updates, const std::function<void()> &startUpdater)
+static QString infoTitle(const QList<Update> &updates, const std::optional<QtPackage> &newQt)
 {
-    InfoBarEntry info(InstallUpdates,
-                      UpdateInfoPlugin::tr("New updates are available. Start the update?"));
-    info.addCustomButton(UpdateInfoPlugin::tr("Start Update"), [startUpdater] {
-        ICore::infoBar()->removeInfo(InstallUpdates);
-        startUpdater();
-    });
-    info.setDetailsWidgetCreator([updates]() -> QWidget * {
-        const QString updateText = Utils::transform(updates, [](const Update &u) {
-                                       return u.version.isEmpty()
-                                                  ? u.name
-                                                  : UpdateInfoPlugin::tr("%1 (%2)",
-                                                                         "Package name and version")
-                                                        .arg(u.name, u.version);
-                                   }).join("</li><li>");
-        auto label = new QLabel;
-        label->setText("<qt><p>" + UpdateInfoPlugin::tr("Available updates:") + "<ul><li>"
-                       + updateText + "</li></ul></p></qt>");
-        label->setContentsMargins(2, 2, 2, 2);
-
-        auto scrollArea = new QScrollArea;
-        scrollArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-        scrollArea->setWidget(label);
-        scrollArea->setFrameShape(QFrame::NoFrame);
-        scrollArea->viewport()->setAutoFillBackground(false);
-
-        label->setAutoFillBackground(false);
-
-        return scrollArea;
-    });
-    ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
-    ICore::infoBar()->unsuppressInfo(InstallUpdates);
-    ICore::infoBar()->addInfo(info);
+    static QString blogUrl("href=\"https://www.qt.io/blog/tag/releases\"");
+    if (!updates.isEmpty() && newQt) {
+        return Tr::tr(
+                   "%1 and other updates are available. Check the <a %2>Qt blog</a> for details.")
+            .arg(newQt->displayName, blogUrl);
+    } else if (newQt) {
+        return Tr::tr("%1 is available. Check the <a %2>Qt blog</a> for details.")
+            .arg(newQt->displayName, blogUrl);
+    }
+    return Tr::tr("New updates are available. Start the update?");
 }
 
-static void showQtUpdateInfo(const QtPackage &package,
-                             const std::function<void()> &startPackageManager)
+static void showUpdateInfo(const QList<Update> &updates,
+                           const std::optional<QtPackage> &newQt,
+                           const std::function<void()> &startUpdater,
+                           const std::function<void()> &startPackageManager)
 {
-    InfoBarEntry info(InstallQtUpdates, UpdateInfoPlugin::tr(
-        "%1 is available. Check the <a %2>Qt blog</a> for details.")
-        .arg(package.displayName, QString("href=\"https://www.qt.io/blog/tag/releases\"")));
-    info.addCustomButton(UpdateInfoPlugin::tr("Start Package Manager"), [startPackageManager] {
-        ICore::infoBar()->removeInfo(InstallQtUpdates);
-        startPackageManager();
-    });
-    info.addCustomButton(UpdateInfoPlugin::tr("Open Settings"), [] {
+    InfoBarEntry info(InstallUpdates, infoTitle(updates, newQt));
+    info.addCustomButton(Tr::tr("Open Settings"), [] {
         ICore::infoBar()->removeInfo(InstallQtUpdates);
         ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID);
     });
-    ICore::infoBar()->removeInfo(InstallQtUpdates); // remove any existing notifications
-    ICore::infoBar()->unsuppressInfo(InstallQtUpdates);
+    if (newQt) {
+        info.addCustomButton(Tr::tr("Start Package Manager"), [startPackageManager] {
+            ICore::infoBar()->removeInfo(InstallQtUpdates);
+            startPackageManager();
+        });
+    } else {
+        info.addCustomButton(Tr::tr("Start Update"), [startUpdater] {
+            ICore::infoBar()->removeInfo(InstallUpdates);
+            startUpdater();
+        });
+    }
+    if (!updates.isEmpty()) {
+        info.setDetailsWidgetCreator([updates, newQt] {
+            const QString qtText = newQt ? (newQt->displayName + "</li><li>") : QString();
+            const QStringList packageNames = Utils::transform(updates, [](const Update &u) {
+                if (u.version.isEmpty())
+                    return u.name;
+                return Tr::tr("%1 (%2)", "Package name and version").arg(u.name, u.version);
+            });
+            const QString updateText = packageNames.join("</li><li>");
+            auto label = new QLabel;
+            label->setText("<qt><p>" + Tr::tr("Available updates:") + "<ul><li>"
+                           + qtText + updateText + "</li></ul></p></qt>");
+            label->setContentsMargins(2, 2, 2, 2);
+            auto scrollArea = new QScrollArea;
+            scrollArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+            scrollArea->setWidget(label);
+            scrollArea->setFrameShape(QFrame::NoFrame);
+            scrollArea->viewport()->setAutoFillBackground(false);
+            label->setAutoFillBackground(false);
+            return scrollArea;
+        });
+    }
+    ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
+    ICore::infoBar()->unsuppressInfo(InstallUpdates);
     ICore::infoBar()->addInfo(info);
 }
 
@@ -265,8 +245,6 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
     qCDebug(updateLog) << qPrintable(d->m_updateOutput);
     qCDebug(updateLog) << "--- MaintenanceTool output (packages):";
     qCDebug(updateLog) << qPrintable(d->m_packagesOutput);
-
-    stopCheckForUpdates();
 
     const QList<Update> updates = availableUpdates(d->m_updateOutput);
     const QList<QtPackage> qtPackages = availableQtPackages(d->m_packagesOutput);
@@ -289,20 +267,18 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
         if (d->m_progress)
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
-        if (!updates.isEmpty())
-            showUpdateInfo(updates, [this] { startUpdater(); });
-        if (qtToNag)
-            showQtUpdateInfo(*qtToNag, [this] { startPackageManager(); });
+        showUpdateInfo(
+            updates, qtToNag, [this] { startUpdater(); }, [this] { startPackageManager(); });
     } else {
-        emit newUpdatesAvailable(false);
         if (d->m_progress)
-            d->m_progress->setSubtitle(tr("No updates found."));
+            d->m_progress->setSubtitle(Tr::tr("No updates found."));
+        emit newUpdatesAvailable(false);
     }
 }
 
 bool UpdateInfoPlugin::isCheckForUpdatesRunning() const
 {
-    return d->m_maintenanceToolProcess.get() != nullptr;
+    return d->m_taskTree.get() != nullptr;
 }
 
 void UpdateInfoPlugin::extensionsInitialized()
@@ -316,13 +292,13 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     loadSettings();
 
     if (d->m_maintenanceTool.isEmpty()) {
-        *errorMessage = tr("Could not determine location of maintenance tool. Please check "
+        *errorMessage = Tr::tr("Could not determine location of maintenance tool. Please check "
             "your installation if you did not enable this plugin manually.");
         return false;
     }
 
     if (!d->m_maintenanceTool.isExecutableFile()) {
-        *errorMessage = tr("The maintenance tool at \"%1\" is not an executable. Check your installation.")
+        *errorMessage = Tr::tr("The maintenance tool at \"%1\" is not an executable. Check your installation.")
             .arg(d->m_maintenanceTool.toUserOutput());
         d->m_maintenanceTool.clear();
         return false;
@@ -339,7 +315,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     mmaintenanceTool->menu()->setTitle(Tr::tr("Qt Maintenance Tool"));
     mtools->addMenu(mmaintenanceTool);
 
-    QAction *checkForUpdatesAction = new QAction(tr("Check for Updates"), this);
+    QAction *checkForUpdatesAction = new QAction(Tr::tr("Check for Updates"), this);
     checkForUpdatesAction->setMenuRole(QAction::ApplicationSpecificRole);
     Command *checkForUpdatesCommand = ActionManager::registerAction(checkForUpdatesAction,
                                       "Updates.CheckForUpdates");
@@ -364,7 +340,7 @@ void UpdateInfoPlugin::loadSettings() const
     UpdateInfoPluginPrivate::Settings def;
     QSettings *settings = ICore::settings();
     const QString updaterKey = QLatin1String(UpdaterGroup) + '/';
-    d->m_maintenanceTool = FilePath::fromVariant(settings->value(updaterKey + MaintenanceToolKey));
+    d->m_maintenanceTool = FilePath::fromSettings(settings->value(updaterKey + MaintenanceToolKey));
     d->m_lastCheckDate = settings->value(updaterKey + LastCheckDateKey, QDate()).toDate();
     d->m_settings.automaticCheck
         = settings->value(updaterKey + AutomaticCheckKey, def.automaticCheck).toBool();

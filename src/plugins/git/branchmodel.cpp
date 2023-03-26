@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "branchmodel.h"
 
@@ -218,6 +218,7 @@ public:
     bool hasTags() const { return rootNode->children.count() > Tags; }
     void parseOutputLine(const QString &line, bool force = false);
     void flushOldEntries();
+    void updateAllUpstreamStatus(BranchNode *node);
 
     BranchModel *q;
     GitClient *client;
@@ -408,8 +409,12 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
     }
 
     d->currentSha = d->client->synchronousTopRevision(workingDirectory, &d->currentDateTime);
-    const QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
-                              "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)"};
+    QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
+                        "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)",
+                        "refs/heads/**",
+                        "refs/remotes/**"};
+    if (d->client->settings().showTags.value())
+        args << "refs/tags/**";
     QString output;
     if (!d->client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage)) {
         endResetModel();
@@ -422,6 +427,7 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
         d->parseOutputLine(l);
     d->flushOldEntries();
 
+    d->updateAllUpstreamStatus(d->rootNode->children.at(LocalBranches));
     if (d->currentBranch) {
         if (d->currentBranch->isLocal())
             d->currentBranch = nullptr;
@@ -441,7 +447,7 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
 
 void BranchModel::setCurrentBranch()
 {
-    QString currentBranch = d->client->synchronousCurrentLocalBranch(d->workingDirectory);
+    const QString currentBranch = d->client->synchronousCurrentLocalBranch(d->workingDirectory);
     if (currentBranch.isEmpty())
         return;
 
@@ -563,7 +569,7 @@ bool BranchModel::isTag(const QModelIndex &idx) const
 
 void BranchModel::removeBranch(const QModelIndex &idx)
 {
-    QString branch = fullName(idx);
+    const QString branch = fullName(idx);
     if (branch.isEmpty())
         return;
 
@@ -579,7 +585,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
 
 void BranchModel::removeTag(const QModelIndex &idx)
 {
-    QString tag = fullName(idx);
+    const QString tag = fullName(idx);
     if (tag.isEmpty())
         return;
 
@@ -593,20 +599,22 @@ void BranchModel::removeTag(const QModelIndex &idx)
     removeNode(idx);
 }
 
-VcsCommand *BranchModel::checkoutBranch(const QModelIndex &idx)
+void BranchModel::checkoutBranch(const QModelIndex &idx, const QObject *context,
+                                 const CommandHandler &handler)
 {
-    QString branch = fullName(idx, !isLocal(idx));
+    const QString branch = fullName(idx, !isLocal(idx));
     if (branch.isEmpty())
-        return nullptr;
+        return;
 
     // No StashGuard since this function for now is only used with clean working dir.
     // If it is ever used from another place, please add StashGuard here
-    return d->client->checkout(d->workingDirectory, branch, GitClient::StashMode::NoStash);
+    d->client->checkout(d->workingDirectory, branch, GitClient::StashMode::NoStash,
+                        context, handler);
 }
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)
 {
-    QString branch = fullName(idx);
+    const QString branch = fullName(idx);
     if (branch.isEmpty())
         return false;
 
@@ -620,9 +628,9 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
 
     const QStringList lines = output.split('\n', Qt::SkipEmptyParts);
     for (const QString &l : lines) {
-        QString currentBranch = l.mid(2); // remove first letters (those are either
-                                          // "  " or "* " depending on whether it is
-                                          // the currently checked out branch or not)
+        const QString currentBranch = l.mid(2); // remove first letters (those are either
+                                                // "  " or "* " depending on whether it is
+                                                // the currently checked out branch or not)
         if (currentBranch != branch)
             return true;
     }
@@ -743,7 +751,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
         return;
 
     // objectname, refname, upstream:short, *objectname, committerdate:raw, *committerdate:raw
-    QStringList lineParts = line.split('\t');
+    const QStringList lineParts = line.split('\t');
     const QString shaDeref = lineParts.at(3);
     const QString sha = shaDeref.isEmpty() ? lineParts.at(0) : shaDeref;
     const QString fullName = lineParts.at(1);
@@ -825,7 +833,6 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     root->insert(nameParts, newNode);
     if (current)
         currentBranch = newNode;
-    q->updateUpstreamStatus(newNode);
 }
 
 void BranchModel::Private::flushOldEntries()
@@ -900,14 +907,24 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
     process->start();
 }
 
+void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
+{
+    if (!node)
+        return;
+    if (node->isLeaf()) {
+        q->updateUpstreamStatus(node);
+        return;
+    }
+    for (BranchNode *child : node->children)
+        updateAllUpstreamStatus(child);
+}
+
 QString BranchModel::toolTip(const QString &sha) const
 {
     // Show the sha description excluding diff as toolTip
     QString output;
     QString errorMessage;
-    QStringList arguments("-n1");
-    arguments << sha;
-    if (!d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
+    if (!d->client->synchronousLog(d->workingDirectory, {"-n1", sha}, &output, &errorMessage,
                                    RunFlags::SuppressCommandLogging)) {
         return errorMessage;
     }

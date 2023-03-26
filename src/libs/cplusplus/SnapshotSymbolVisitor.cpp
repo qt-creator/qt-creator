@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "SnapshotSymbolVisitor.h"
 
@@ -20,8 +20,8 @@ void SnapshotSymbolVisitor::accept(Document::Ptr doc)
 
 void SnapshotSymbolVisitor::accept(Document::Ptr doc, QSet<QString> *processed)
 {
-    if (doc && doc->globalNamespace() && ! processed->contains(doc->fileName())) {
-        processed->insert(doc->fileName());
+    if (doc && doc->globalNamespace() && ! processed->contains(doc->filePath().path())) {
+        processed->insert(doc->filePath().path());
 
         const QList<Document::Include> includes = doc->resolvedIncludes();
         for (const Document::Include &i : includes) {

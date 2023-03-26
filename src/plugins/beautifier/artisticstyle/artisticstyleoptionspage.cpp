@@ -1,14 +1,14 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "artisticstyleoptionspage.h"
 
 #include "artisticstyleconstants.h"
 #include "artisticstylesettings.h"
-#include "artisticstyle.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertr.h"
 #include "../configurationpanel.h"
 
 #include <utils/layoutbuilder.h>
@@ -24,8 +24,6 @@ namespace Beautifier::Internal {
 
 class ArtisticStyleOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Beautifier::Internal::ArtisticStyle)
-
 public:
     explicit ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings);
 
@@ -53,29 +51,29 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
 
     m_mime = new QLineEdit(m_settings->supportedMimeTypesAsString());
 
-    auto options = new QGroupBox(tr("Options"));
+    auto options = new QGroupBox(Tr::tr("Options"));
 
-    m_useOtherFiles = new QCheckBox(tr("Use file *.astylerc defined in project files"));
+    m_useOtherFiles = new QCheckBox(Tr::tr("Use file *.astylerc defined in project files"));
     m_useOtherFiles->setChecked(m_settings->useOtherFiles());
 
-    m_useSpecificConfigFile = new QCheckBox(tr("Use specific config file:"));
+    m_useSpecificConfigFile = new QCheckBox(Tr::tr("Use specific config file:"));
     m_useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());
 
     m_specificConfigFile = new Utils::PathChooser;
     m_specificConfigFile->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_specificConfigFile->setExpectedKind(Utils::PathChooser::File);
-    m_specificConfigFile->setPromptDialogFilter(tr("AStyle (*.astylerc)"));
+    m_specificConfigFile->setPromptDialogFilter(Tr::tr("AStyle (*.astylerc)"));
     m_specificConfigFile->setFilePath(m_settings->specificConfigFile());
 
     m_useHomeFile = new QCheckBox(
-        tr("Use file .astylerc or astylerc in HOME").
-            replace("HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
+        Tr::tr("Use file .astylerc or astylerc in HOME").
+               replace("HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
     m_useHomeFile->setChecked(m_settings->useHomeFile());
 
-    m_useCustomStyle = new QCheckBox(tr("Use customized style:"));
+    m_useCustomStyle = new QCheckBox(Tr::tr("Use customized style:"));
     m_useCustomStyle->setChecked(m_settings->useCustomStyle());
 
-    m_configurations = new Beautifier::Internal::ConfigurationPanel(options);
+    m_configurations = new ConfigurationPanel(options);
     m_configurations->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_configurations->setSettings(m_settings);
     m_configurations->setCurrentConfiguration(m_settings->customStyle());
@@ -83,7 +81,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
     m_command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_command->setCommandVersionArguments({"--version"});
     m_command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          ArtisticStyle::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
+                                          Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
     m_command->setFilePath(m_settings->command());
 
     using namespace Utils::Layouting;
@@ -97,10 +95,10 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
 
     Column {
         Group {
-            title(tr("Configuration")),
+            title(Tr::tr("Configuration")),
             Form {
-                tr("Artistic Style command:"), m_command, br,
-                tr("Restrict to MIME types:"), m_mime
+                Tr::tr("Artistic Style command:"), m_command, br,
+                Tr::tr("Restrict to MIME types:"), m_mime
             }
         },
         options,
@@ -112,7 +110,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
 
 void ArtisticStyleOptionsPageWidget::apply()
 {
-    m_settings->setCommand(m_command->filePath().toString());
+    m_settings->setCommand(m_command->filePath());
     m_settings->setSupportedMimeTypes(m_mime->text());
     m_settings->setUseOtherFiles(m_useOtherFiles->isChecked());
     m_settings->setUseSpecificConfigFile(m_useSpecificConfigFile->isChecked());
@@ -129,7 +127,7 @@ void ArtisticStyleOptionsPageWidget::apply()
 ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings)
 {
     setId("ArtisticStyle");
-    setDisplayName(ArtisticStyleOptionsPageWidget::tr("Artistic Style"));
+    setDisplayName(Tr::tr("Artistic Style"));
     setCategory(Constants::OPTION_CATEGORY);
     setWidgetCreator([settings] { return new ArtisticStyleOptionsPageWidget(settings); });
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uicgenerator.h"
 #include "baseqtversion.h"
@@ -59,7 +59,7 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(Utils::QtcProcess *pr
         return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
-    QByteArray content = QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8();
+    QByteArray content = QString::fromLocal8Bit(process->readAllRawStandardOutput()).toUtf8();
     content.prepend("#pragma once\n");
     result[targetList.first()] = content;
     return result;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "loadcoredialog.h"
 
@@ -7,16 +7,17 @@
 #include "debuggertr.h"
 #include "gdb/gdbengine.h"
 
-#include <projectexplorer/devicesupport/devicefilesystemmodel.h>
-#include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/asynctask.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/processinterface.h>
+#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
+#include <utils/tasktree.h>
 #include <utils/temporaryfile.h>
 
 #include <QCheckBox>
@@ -25,6 +26,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QTextBrowser>
@@ -38,112 +40,6 @@ namespace Debugger::Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// SelectRemoteFileDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-class SelectRemoteFileDialog : public QDialog
-{
-public:
-    explicit SelectRemoteFileDialog(QWidget *parent);
-
-    void attachToDevice(Kit *k);
-    FilePath localFile() const { return m_localFile; }
-    FilePath remoteFile() const { return m_remoteFile; }
-
-private:
-    void selectFile();
-
-    QSortFilterProxyModel m_model;
-    DeviceFileSystemModel m_fileSystemModel;
-    QTreeView *m_fileSystemView;
-    QTextBrowser *m_textBrowser;
-    QDialogButtonBox *m_buttonBox;
-    FilePath m_localFile;
-    FilePath m_remoteFile;
-    FileTransfer m_fileTransfer;
-};
-
-SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
-    : QDialog(parent)
-{
-    m_model.setSourceModel(&m_fileSystemModel);
-
-    m_fileSystemView = new QTreeView(this);
-    m_fileSystemView->setModel(&m_model);
-    m_fileSystemView->setSortingEnabled(true);
-    m_fileSystemView->sortByColumn(1, Qt::AscendingOrder);
-    m_fileSystemView->setUniformRowHeights(true);
-    m_fileSystemView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_fileSystemView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_fileSystemView->header()->setDefaultSectionSize(100);
-    m_fileSystemView->header()->setStretchLastSection(true);
-
-    m_textBrowser = new QTextBrowser(this);
-    m_textBrowser->setReadOnly(true);
-
-    m_buttonBox = new QDialogButtonBox(this);
-    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-    m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-
-    auto layout = new QVBoxLayout(this);
-    layout->addWidget(m_fileSystemView);
-    layout->addWidget(m_textBrowser);
-    layout->addWidget(m_buttonBox);
-
-    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &SelectRemoteFileDialog::selectFile);
-
-    connect(&m_fileTransfer, &FileTransfer::done, this, [this](const ProcessResultData &result) {
-        const bool success = result.m_error == QProcess::UnknownError
-                          && result.m_exitStatus == QProcess::NormalExit
-                          && result.m_exitCode == 0;
-        if (success) {
-            m_textBrowser->append(Tr::tr("Download of remote file succeeded."));
-            accept();
-        } else {
-            m_textBrowser->append(Tr::tr("Download of remote file failed: %1")
-                                  .arg(result.m_errorString));
-            m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-            m_fileSystemView->setEnabled(true);
-        }
-    });
-}
-
-void SelectRemoteFileDialog::attachToDevice(Kit *k)
-{
-    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-    QTC_ASSERT(k, return);
-    IDevice::ConstPtr device = DeviceKitAspect::device(k);
-    QTC_ASSERT(device, return);
-    m_fileSystemModel.setDevice(device);
-}
-
-void SelectRemoteFileDialog::selectFile()
-{
-    QModelIndex idx = m_model.mapToSource(m_fileSystemView->currentIndex());
-    if (!idx.isValid())
-        return;
-
-    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-    m_fileSystemView->setEnabled(false);
-
-    {
-        TemporaryFile localFile("remotecore-XXXXXX");
-        localFile.open();
-        m_localFile = FilePath::fromString(localFile.fileName());
-    }
-
-    idx = idx.sibling(idx.row(), 1);
-    m_remoteFile = FilePath::fromVariant(m_fileSystemModel.data(idx, DeviceFileSystemModel::PathRole));
-
-    m_fileTransfer.setFilesToTransfer({{m_remoteFile, m_localFile}});
-    m_fileTransfer.start();
-}
-
-///////////////////////////////////////////////////////////////////////
-//
 // AttachCoreDialog
 //
 ///////////////////////////////////////////////////////////////////////
@@ -153,17 +49,20 @@ class AttachCoreDialogPrivate
 public:
     KitChooser *kitChooser;
 
-    QCheckBox *forceLocalCheckBox;
-    QLabel *forceLocalLabel;
     PathChooser *symbolFileName;
-    PathChooser *localCoreFileName;
-    PathChooser *remoteCoreFileName;
-    QPushButton *selectRemoteCoreButton;
-
+    PathChooser *coreFileName;
     PathChooser *overrideStartScriptFileName;
     PathChooser *sysRootDirectory;
 
+    FilePath debuggerPath;
+
     QDialogButtonBox *buttonBox;
+    ProgressIndicator *progressIndicator;
+    QLabel *progressLabel;
+
+    TaskTree taskTree;
+    expected_str<FilePath> coreFileResult;
+    expected_str<FilePath> symbolFileResult;
 
     struct State
     {
@@ -175,23 +74,14 @@ public:
         bool validKit;
         bool validSymbolFilename;
         bool validCoreFilename;
-        bool localCoreFile;
-        bool localKit;
     };
 
-    State getDialogState(const AttachCoreDialog &p) const
+    State getDialogState() const
     {
         State st;
-        st.localCoreFile = p.useLocalCoreFile();
         st.validKit = (kitChooser->currentKit() != nullptr);
         st.validSymbolFilename = symbolFileName->isValid();
-
-        if (st.localCoreFile)
-            st.validCoreFilename = localCoreFileName->isValid();
-        else
-            st.validCoreFilename = !p.remoteCoreFile().isEmpty();
-
-        st.localKit = p.isLocalKit();
+        st.validCoreFilename = coreFileName->isValid();
         return st;
     }
 };
@@ -210,23 +100,17 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->kitChooser->setShowIcons(true);
     d->kitChooser->populate();
 
-    d->forceLocalCheckBox = new QCheckBox(this);
-    d->forceLocalLabel = new QLabel(this);
-    d->forceLocalLabel->setText(Tr::tr("Use local core file:"));
-    d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
-
-    d->remoteCoreFileName = new PathChooser(this);
-    d->selectRemoteCoreButton = new QPushButton(PathChooser::browseButtonLabel(), this);
-
-    d->localCoreFileName = new PathChooser(this);
-    d->localCoreFileName->setHistoryCompleter("Debugger.CoreFile.History");
-    d->localCoreFileName->setExpectedKind(PathChooser::File);
-    d->localCoreFileName->setPromptDialogTitle(Tr::tr("Select Core File"));
+    d->coreFileName = new PathChooser(this);
+    d->coreFileName->setHistoryCompleter("Debugger.CoreFile.History");
+    d->coreFileName->setExpectedKind(PathChooser::File);
+    d->coreFileName->setPromptDialogTitle(Tr::tr("Select Core File"));
+    d->coreFileName->setAllowPathFromDevice(true);
 
     d->symbolFileName = new PathChooser(this);
-    d->symbolFileName->setHistoryCompleter("LocalExecutable");
+    d->symbolFileName->setHistoryCompleter("Executable");
     d->symbolFileName->setExpectedKind(PathChooser::File);
     d->symbolFileName->setPromptDialogTitle(Tr::tr("Select Executable or Symbol File"));
+    d->symbolFileName->setAllowPathFromDevice(true);
     d->symbolFileName->setToolTip(
         Tr::tr("Select a file containing debug information corresponding to the core file. "
            "Typically, this is the executable or a *.debug file if the debug "
@@ -244,28 +128,30 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->sysRootDirectory->setToolTip(Tr::tr(
         "This option can be used to override the kit's SysRoot setting"));
 
-    auto coreLayout = new QHBoxLayout;
-    coreLayout->addWidget(d->localCoreFileName);
-    coreLayout->addWidget(d->remoteCoreFileName);
-    coreLayout->addWidget(d->selectRemoteCoreButton);
+    d->progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Small, this);
+    d->progressIndicator->setVisible(false);
 
-    auto formLayout = new QFormLayout;
-    formLayout->setContentsMargins(0, 0, 0, 0);
-    formLayout->setHorizontalSpacing(6);
-    formLayout->setVerticalSpacing(6);
-    formLayout->addRow(Tr::tr("Kit:"), d->kitChooser);
-    formLayout->addRow(d->forceLocalLabel, d->forceLocalCheckBox);
-    formLayout->addRow(Tr::tr("Core file:"), coreLayout);
-    formLayout->addRow(Tr::tr("&Executable or symbol file:"), d->symbolFileName);
-    formLayout->addRow(Tr::tr("Override &start script:"), d->overrideStartScriptFileName);
-    formLayout->addRow(Tr::tr("Override S&ysRoot:"), d->sysRootDirectory);
-    formLayout->addRow(d->buttonBox);
+    d->progressLabel = new QLabel();
+    d->progressLabel->setVisible(false);
 
-    auto vboxLayout = new QVBoxLayout(this);
-    vboxLayout->addLayout(formLayout);
-    vboxLayout->addStretch();
-    vboxLayout->addWidget(Layouting::createHr());
-    vboxLayout->addWidget(d->buttonBox);
+    // clang-format off
+    using namespace Layouting;
+
+    Column {
+        Form {
+            Tr::tr("Kit:"), d->kitChooser, br,
+            Tr::tr("Core file:"), d->coreFileName, br,
+            Tr::tr("&Executable or symbol file:"), d->symbolFileName, br,
+            Tr::tr("Override &start script:"), d->overrideStartScriptFileName, br,
+            Tr::tr("Override S&ysRoot:"), d->sysRootDirectory, br,
+        },
+        st,
+        hr,
+        Row {
+            d->progressIndicator, d->progressLabel, d->buttonBox
+        }
+    }.attachTo(this);
+    // clang-format on
 }
 
 AttachCoreDialog::~AttachCoreDialog()
@@ -275,28 +161,50 @@ AttachCoreDialog::~AttachCoreDialog()
 
 int AttachCoreDialog::exec()
 {
-    connect(d->selectRemoteCoreButton, &QAbstractButton::clicked, this, &AttachCoreDialog::selectRemoteCoreFile);
-    connect(d->remoteCoreFileName, &PathChooser::textChanged, this, [this] {
-        coreFileChanged(d->remoteCoreFileName->rawFilePath());
-    });
     connect(d->symbolFileName, &PathChooser::textChanged, this, &AttachCoreDialog::changed);
-    connect(d->localCoreFileName, &PathChooser::textChanged, this, [this] {
-        coreFileChanged(d->localCoreFileName->rawFilePath());
+    connect(d->coreFileName, &PathChooser::textChanged, this, [this] {
+        coreFileChanged(d->coreFileName->rawFilePath());
     });
-    connect(d->forceLocalCheckBox, &QCheckBox::stateChanged, this, &AttachCoreDialog::changed);
     connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &AttachCoreDialog::accepted);
     changed();
 
-    AttachCoreDialogPrivate::State st = d->getDialogState(*this);
+    connect(&d->taskTree, &TaskTree::done, this, [&]() {
+        setEnabled(true);
+        d->progressIndicator->setVisible(false);
+        d->progressLabel->setVisible(false);
+
+        if (!d->coreFileResult) {
+            QMessageBox::critical(this,
+                                  Tr::tr("Error"),
+                                  Tr::tr("Failed to copy core file to device: %1")
+                                      .arg(d->coreFileResult.error()));
+            return;
+        }
+
+        if (!d->symbolFileResult) {
+            QMessageBox::critical(this,
+                                  Tr::tr("Error"),
+                                  Tr::tr("Failed to copy symbol file to device: %1")
+                                      .arg(d->coreFileResult.error()));
+            return;
+        }
+
+        accept();
+    });
+    connect(&d->taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
+        const QString text = Tr::tr("Copying files to device... %1/%2")
+                                 .arg(value)
+                                 .arg(d->taskTree.progressMaximum());
+        d->progressLabel->setText(text);
+    });
+
+    AttachCoreDialogPrivate::State st = d->getDialogState();
     if (!st.validKit) {
         d->kitChooser->setFocus();
     } else if (!st.validCoreFilename) {
-        if (st.localCoreFile)
-            d->localCoreFileName->setFocus();
-        else
-            d->remoteCoreFileName->setFocus();
+        d->coreFileName->setFocus();
     } else if (!st.validSymbolFilename) {
         d->symbolFileName->setFocus();
     }
@@ -304,18 +212,61 @@ int AttachCoreDialog::exec()
     return QDialog::exec();
 }
 
-bool AttachCoreDialog::isLocalKit() const
+void AttachCoreDialog::accepted()
 {
-    Kit *k = d->kitChooser->currentKit();
-    QTC_ASSERT(k, return false);
-    IDevice::ConstPtr device = DeviceKitAspect::device(k);
-    QTC_ASSERT(device, return false);
-    return device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-}
+    const DebuggerItem *debuggerItem = Debugger::DebuggerKitAspect::debugger(kit());
+    const FilePath debuggerCommand = debuggerItem->command();
 
-bool AttachCoreDialog::useLocalCoreFile() const
-{
-    return isLocalKit() || d->forceLocalCheckBox->isChecked();
+    using namespace Tasking;
+
+    const auto copyFile = [debuggerCommand](const FilePath &srcPath) -> expected_str<FilePath> {
+        if (!srcPath.isSameDevice(debuggerCommand)) {
+            const expected_str<FilePath> tmpPath = debuggerCommand.tmpDir();
+            if (!tmpPath)
+                return make_unexpected(tmpPath.error());
+
+            const FilePath pattern = (tmpPath.value()
+                                      / (srcPath.fileName() + ".XXXXXXXXXXX"));
+
+            const expected_str<FilePath> resultPath = pattern.createTempFile();
+            if (!resultPath)
+                return make_unexpected(resultPath.error());
+            const expected_str<void> result = srcPath.copyFile(resultPath.value());
+            if (!result)
+                return make_unexpected(result.error());
+
+            return resultPath;
+        }
+
+        return srcPath;
+    };
+
+    using ResultType = expected_str<FilePath>;
+
+    const auto copyFileAsync = [=](QFutureInterface<ResultType> &fi, const FilePath &srcPath) {
+        fi.reportResult(copyFile(srcPath));
+    };
+
+    const Group root = {
+        parallel,
+        Async<ResultType>{[=](auto &task) {
+                              task.setAsyncCallData(copyFileAsync, this->coreFile());
+                          },
+                          [=](const auto &task) { d->coreFileResult = task.result(); }},
+        Async<ResultType>{[=](auto &task) {
+                              task.setAsyncCallData(copyFileAsync, this->symbolFile());
+                          },
+                          [=](const auto &task) { d->symbolFileResult = task.result(); }},
+    };
+
+    d->taskTree.setupRoot(root);
+    d->taskTree.start();
+
+    d->progressLabel->setText(Tr::tr("Copying files to device..."));
+
+    setEnabled(false);
+    d->progressIndicator->setVisible(true);
+    d->progressLabel->setVisible(true);
 }
 
 void AttachCoreDialog::coreFileChanged(const FilePath &coreFile)
@@ -335,40 +286,13 @@ void AttachCoreDialog::coreFileChanged(const FilePath &coreFile)
 
 void AttachCoreDialog::changed()
 {
-    AttachCoreDialogPrivate::State st = d->getDialogState(*this);
-
-    d->forceLocalLabel->setVisible(!st.localKit);
-    d->forceLocalCheckBox->setVisible(!st.localKit);
-    if (st.localCoreFile) {
-        d->localCoreFileName->setVisible(true);
-        d->remoteCoreFileName->setVisible(false);
-        d->selectRemoteCoreButton->setVisible(false);
-    } else {
-        d->localCoreFileName->setVisible(false);
-        d->remoteCoreFileName->setVisible(true);
-        d->selectRemoteCoreButton->setVisible(true);
-    }
-
+    AttachCoreDialogPrivate::State st = d->getDialogState();
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(st.isValid());
 }
 
-void AttachCoreDialog::selectRemoteCoreFile()
+FilePath AttachCoreDialog::coreFile() const
 {
-    changed();
-    QTC_ASSERT(!isLocalKit(), return);
-    SelectRemoteFileDialog dlg(this);
-    dlg.setWindowTitle(Tr::tr("Select Remote Core File"));
-    dlg.attachToDevice(d->kitChooser->currentKit());
-    if (dlg.exec() == QDialog::Rejected)
-        return;
-    d->localCoreFileName->setFilePath(dlg.localFile());
-    d->remoteCoreFileName->setFilePath(dlg.remoteFile());
-    changed();
-}
-
-FilePath AttachCoreDialog::localCoreFile() const
-{
-    return d->localCoreFileName->filePath();
+    return d->coreFileName->filePath();
 }
 
 FilePath AttachCoreDialog::symbolFile() const
@@ -376,39 +300,29 @@ FilePath AttachCoreDialog::symbolFile() const
     return d->symbolFileName->filePath();
 }
 
+FilePath AttachCoreDialog::coreFileCopy() const
+{
+    return d->coreFileResult.value_or(d->symbolFileName->filePath());
+}
+
+FilePath AttachCoreDialog::symbolFileCopy() const
+{
+    return d->symbolFileResult.value_or(d->symbolFileName->filePath());
+}
+
 void AttachCoreDialog::setSymbolFile(const FilePath &symbolFilePath)
 {
     d->symbolFileName->setFilePath(symbolFilePath);
 }
 
-void AttachCoreDialog::setLocalCoreFile(const FilePath &coreFilePath)
+void AttachCoreDialog::setCoreFile(const FilePath &coreFilePath)
 {
-    d->localCoreFileName->setFilePath(coreFilePath);
-}
-
-void AttachCoreDialog::setRemoteCoreFile(const FilePath &coreFilePath)
-{
-    d->remoteCoreFileName->setFilePath(coreFilePath);
-}
-
-FilePath AttachCoreDialog::remoteCoreFile() const
-{
-    return d->remoteCoreFileName->filePath();
+    d->coreFileName->setFilePath(coreFilePath);
 }
 
 void AttachCoreDialog::setKitId(Id id)
 {
     d->kitChooser->setCurrentKitId(id);
-}
-
-void AttachCoreDialog::setForceLocalCoreFile(bool on)
-{
-    d->forceLocalCheckBox->setChecked(on);
-}
-
-bool AttachCoreDialog::forcesLocalCoreFile() const
-{
-    return d->forceLocalCheckBox->isChecked();
 }
 
 Kit *AttachCoreDialog::kit() const

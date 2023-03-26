@@ -1,16 +1,18 @@
 add_qtc_library(Utils
-  DEPENDS Qt5::Qml Qt5::Xml
+  DEPENDS Qt::Qml Qt::Xml
   PUBLIC_DEPENDS
-    Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets
+    Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
     Qt6Core5Compat
   SOURCES
     ../3rdparty/span/span.hpp
+    ../3rdparty/tl_expected/include/tl/expected.hpp
     QtConcurrentTools
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appmainwindow.cpp appmainwindow.h
     archive.cpp archive.h
     aspects.cpp aspects.h
+    asynctask.cpp asynctask.h
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
     buildablehelperlibrary.cpp buildablehelperlibrary.h
@@ -19,6 +21,7 @@ add_qtc_library(Utils
     changeset.cpp changeset.h
     checkablemessagebox.cpp checkablemessagebox.h
     classnamevalidatinglineedit.cpp classnamevalidatinglineedit.h
+    clangutils.cpp clangutils.h
     codegeneration.cpp codegeneration.h
     commandline.cpp commandline.h
     completinglineedit.cpp completinglineedit.h
@@ -41,6 +44,7 @@ add_qtc_library(Utils
     environmentmodel.cpp environmentmodel.h
     execmenu.cpp execmenu.h
     executeondestruction.h
+    expected.h
     fadingindicator.cpp fadingindicator.h
     faketooltip.cpp faketooltip.h
     fancylineedit.cpp fancylineedit.h
@@ -88,6 +92,7 @@ add_qtc_library(Utils
     listutils.h
     macroexpander.cpp macroexpander.h
     mapreduce.h
+    mathutils.cpp mathutils.h
     mimeutils.h
     minimizableinfobars.cpp
     minimizableinfobars.h
@@ -104,6 +109,8 @@ add_qtc_library(Utils
     namevaluevalidator.cpp namevaluevalidator.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h
+    optionpushbutton.h
+    optionpushbutton.cpp
     osspecificaspects.h
     outputformat.h
     outputformatter.cpp outputformatter.h
@@ -126,7 +133,6 @@ add_qtc_library(Utils
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h
-    proxycredentialsdialog.cpp proxycredentialsdialog.h proxycredentialsdialog.ui
     qrcparser.cpp qrcparser.h
     qtcassert.cpp qtcassert.h
     qtcolorbutton.cpp qtcolorbutton.h
@@ -156,9 +162,11 @@ add_qtc_library(Utils
     sortfiltermodel.h
     span.h
     statuslabel.cpp statuslabel.h
+    stringtable.cpp stringtable.h
     stringutils.cpp stringutils.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
+    tasktree.cpp tasktree.h
     templateengine.cpp templateengine.h
     temporarydirectory.cpp temporarydirectory.h
     temporaryfile.cpp temporaryfile.h
@@ -189,17 +197,9 @@ add_qtc_library(Utils
     wizardpage.cpp wizardpage.h
 )
 
-option(QTC_USE_NEW_MIMEDATABASE "Use updated MIME database implementation" YES)
-
-if(QTC_USE_NEW_MIMEDATABASE)
-  set(mime_prefix "mimetypes2")
-else()
-  set(mime_prefix "mimetypes")
-endif()
-
 extend_qtc_library(Utils
-  SOURCES_PREFIX ${mime_prefix}
-  PUBLIC_INCLUDES ${mime_prefix}
+  SOURCES_PREFIX mimetypes2
+  PUBLIC_INCLUDES mimetypes2
   SOURCES
     mimedatabase.cpp
     mimedatabase.h
@@ -256,8 +256,8 @@ extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
 )
 
 extend_qtc_library(Utils
-  CONDITION TARGET Qt5::CorePrivate
-  DEPENDS Qt5::CorePrivate
+  CONDITION TARGET Qt::CorePrivate
+  DEPENDS Qt::CorePrivate
   DEFINES QTC_UTILS_WITH_FSENGINE
   SOURCES fsengine/fsengine_impl.cpp
           fsengine/fsengine_impl.h

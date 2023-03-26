@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "boosttestsettings.h"
 
@@ -81,7 +81,7 @@ BoostTestSettings::BoostTestSettings()
     memLeaks.setToolTip(Tr::tr("Enable memory leak detection."));
 }
 
-BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId)
+BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
@@ -120,7 +120,7 @@ QString BoostTestSettings::logLevelToOption(const LogLevel logLevel)
     case LogLevel::Nothing: return QString("nothing");
     case LogLevel::Warning: return QString("warning");
     }
-    return QString();
+    return {};
 }
 
 QString BoostTestSettings::reportLevelToOption(const ReportLevel reportLevel)
@@ -131,7 +131,7 @@ QString BoostTestSettings::reportLevelToOption(const ReportLevel reportLevel)
     case ReportLevel::Detailed: return QString("detailed");
     case ReportLevel::No: return QString("no");
     }
-    return QString();
+    return {};
 }
 
 } // namespace Internal

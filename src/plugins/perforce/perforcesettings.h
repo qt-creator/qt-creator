@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,8 +11,7 @@ QT_BEGIN_NAMESPACE
 class QDir;
 QT_END_NAMESPACE
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 /* PerforceSettings: Aggregates settings items and toplevel directory
  * which is determined externally by background checks and provides a convenience
@@ -30,8 +29,6 @@ namespace Internal {
 
 class PerforceSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Perforce::Internal::SettingsPage)
-
 public:
     PerforceSettings();
     ~PerforceSettings();
@@ -92,5 +89,4 @@ public:
     explicit PerforceSettingsPage(PerforceSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Perforce
+} // Perforce::Internal

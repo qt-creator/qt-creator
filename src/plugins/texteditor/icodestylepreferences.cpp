@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "icodestylepreferences.h"
 #include "codestylepool.h"
@@ -201,12 +201,9 @@ void ICodeStylePreferences::fromSettings(const QString &category, QSettings *s)
 
 QVariantMap ICodeStylePreferences::toMap() const
 {
-    QVariantMap map;
     if (!currentDelegate())
         return d->m_tabSettings.toMap();
-    return {
-        {currentPreferencesKey, currentDelegateId()}
-    };
+    return {{currentPreferencesKey, currentDelegateId()}};
 }
 
 void ICodeStylePreferences::fromMap(const QVariantMap &map)

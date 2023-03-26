@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "localsandexpressionswindow.h"
 
@@ -38,7 +38,7 @@ LocalsAndInspectorWindow::LocalsAndInspectorWindow(QWidget *locals,
     // when debugger engine changes states.
     m_timer.setSingleShot(true);
     m_timer.setInterval(500); // TODO: remove the magic number!
-    connect(&m_timer, &QTimer::timeout, [this, localsAndInspector] {
+    connect(&m_timer, &QTimer::timeout, this, [this, localsAndInspector] {
         localsAndInspector->setCurrentIndex(m_showLocals ? LocalsIndex : InspectorIndex);
     });
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <app/app_version.h>
 
@@ -353,7 +353,7 @@ private slots:
         QFETCH(CommandLine, cmdLine);
 
         TestShell shell(cmdLine, true);
-        QCOMPARE(shell.state(), DeviceShell::State::NoScript);
+        QCOMPARE(shell.state(), DeviceShell::State::Failed);
 
         const RunResult result = shell.runInShell({"echo", {"Hello"}});
         QCOMPARE(result.exitCode, 0);

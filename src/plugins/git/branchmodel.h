@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,7 +9,9 @@
 
 #include <optional>
 
-namespace VcsBase { class VcsCommand; }
+namespace VcsBase {
+class CommandResult;
+}
 
 namespace Git::Internal {
 
@@ -51,7 +53,8 @@ public:
 
     void removeBranch(const QModelIndex &idx);
     void removeTag(const QModelIndex &idx);
-    VcsBase::VcsCommand *checkoutBranch(const QModelIndex &idx);
+    void checkoutBranch(const QModelIndex &idx, const QObject *context = nullptr,
+                        const std::function<void(const VcsBase::CommandResult &)> &handler = {});
     bool branchIsMerged(const QModelIndex &idx);
     QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
     void setRemoteTracking(const QModelIndex &trackingIndex);

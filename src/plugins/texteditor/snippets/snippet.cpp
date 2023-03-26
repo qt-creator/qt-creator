@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snippet.h"
+
+#include "../texteditortr.h"
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
@@ -10,7 +12,7 @@
 
 #include <QTextDocument>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 const char UCMANGLER_ID[] = "TextEditor::UppercaseMangler";
 const char LCMANGLER_ID[] = "TextEditor::LowercaseMangler";
@@ -221,7 +223,7 @@ SnippetParseResult Snippet::parse(const QString &snippet)
         }
 
         if (mangler) {
-            return SnippetParseResult{SnippetParseError{tr("Expected delimiter after mangler ID."),
+            return SnippetParseResult{SnippetParseError{Tr::tr("Expected delimiter after mangler ID."),
                                                         preprocessedSnippet,
                                                         i}};
         }
@@ -236,7 +238,7 @@ SnippetParseResult Snippet::parse(const QString &snippet)
                 mangler = &tcMangler;
             } else {
                 return SnippetParseResult{
-                    SnippetParseError{tr("Expected mangler ID \"l\" (lowercase), \"u\" (uppercase), "
+                    SnippetParseError{Tr::tr("Expected mangler ID \"l\" (lowercase), \"u\" (uppercase), "
                                          "or \"c\" (titlecase) after colon."),
                                       preprocessedSnippet,
                                       i}};
@@ -259,7 +261,7 @@ SnippetParseResult Snippet::parse(const QString &snippet)
 
     if (inVar) {
         return SnippetParseResult{
-            SnippetParseError{tr("Missing closing variable delimiter for:"), currentPart.text, 0}};
+            SnippetParseError{Tr::tr("Missing closing variable delimiter for:"), currentPart.text, 0}};
     }
 
     if (!currentPart.text.isEmpty())
@@ -267,6 +269,10 @@ SnippetParseResult Snippet::parse(const QString &snippet)
 
     return SnippetParseResult(result);
 }
+
+} // Texteditor
+
+using namespace TextEditor;
 
 #ifdef WITH_TESTS
 #   include <QTest>

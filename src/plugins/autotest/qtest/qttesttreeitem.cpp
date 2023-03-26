@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qttesttreeitem.h"
 
@@ -12,18 +12,13 @@
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
-static QString functionWithDataTagAsArg(const QString &func, const QString &dataTag)
-{
-    if (dataTag.contains(' '))
-        return '"' + func + ':' + dataTag + '"';
-    return func + ':' + dataTag;
-}
-
 QtTestTreeItem::QtTestTreeItem(ITestFramework *testFramework, const QString &name,
-                               const Utils::FilePath &filePath, TestTreeItem::Type type)
+                               const FilePath &filePath, TestTreeItem::Type type)
     : TestTreeItem(testFramework, name, filePath, type)
 {
     if (type == TestDataTag)
@@ -147,8 +142,9 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
         const TestTreeItem *parent = function ? function->parentItem() : nullptr;
         if (!parent)
             return nullptr;
+        const QString functionWithTag = function->name() + ':' + name();
         config = new QtTestConfiguration(framework());
-        config->setTestCases(QStringList(functionWithDataTagAsArg(function->name(), name())));
+        config->setTestCases(QStringList(functionWithTag));
         config->setProjectFile(parent->proFile());
         config->setProject(project);
         break;
@@ -191,7 +187,7 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
                 const QString funcName = grandChild->name();
                 grandChild->forFirstLevelChildren([&testCases, &funcName](ITestTreeItem *dataTag) {
                     if (dataTag->checked() == Qt::Checked)
-                        testCases << functionWithDataTagAsArg(funcName, dataTag->name());
+                        testCases << funcName + ':' + dataTag->name();
                 });
             }
         });
@@ -223,7 +219,7 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
         } else {
             func->forFirstLevelChildren([&testCases, func](ITestTreeItem *dataTag) {
                 if (dataTag->data(0, FailedRole).toBool())
-                    testCases << functionWithDataTagAsArg(func->name(), dataTag->name());
+                    testCases << func->name() + ':' + dataTag->name();
             });
         }
     });
@@ -292,7 +288,7 @@ QList<ITestConfiguration *> QtTestTreeItem::getFailedTestConfigurations() const
     return result;
 }
 
-QList<ITestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
+QList<ITestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const FilePath &fileName) const
 {
     QList<ITestConfiguration *> result;
 
@@ -327,7 +323,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
     switch (type()) {
     case Root:
         if (result->framework->grouping()) {
-            const Utils::FilePath path = result->fileName.absolutePath();
+            const FilePath path = result->fileName.absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childItem(row);
                 if (group->filePath() != path)
@@ -400,7 +396,7 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *QtTestTreeItem::createParentGroupNode() const
 {
-    const Utils::FilePath &absPath = filePath().absolutePath();
+    const FilePath &absPath = filePath().absolutePath();
     return new QtTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
@@ -409,7 +405,7 @@ bool QtTestTreeItem::isGroupable() const
     return type() == TestCase;
 }
 
-TestTreeItem *QtTestTreeItem::findChildByFileNameAndType(const Utils::FilePath &file,
+TestTreeItem *QtTestTreeItem::findChildByFileNameAndType(const FilePath &file,
                                                          const QString &name, Type type) const
 {
     return findFirstLevelChildItem([file, name, type](const TestTreeItem *other) {

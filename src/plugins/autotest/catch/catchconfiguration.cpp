@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Jochen Seemann
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "catchconfiguration.h"
 #include "catchoutputreader.h"
@@ -11,11 +11,13 @@
 
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *CatchConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                   Utils::QtcProcess *app) const
+TestOutputReader *CatchConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
+                                                         QtcProcess *app) const
 {
     return new CatchOutputReader(fi, app, buildDirectory(), projectFile());
 }
@@ -115,7 +117,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
     return arguments;
 }
 
-Utils::Environment CatchConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment CatchConfiguration::filteredEnvironment(const Environment &original) const
 {
     return original;
 }

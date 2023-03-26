@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "stereotypecontroller.h"
 
@@ -104,7 +104,7 @@ QList<Toolbar> StereotypeController::findToolbars(const QString &elementType) co
 QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element stereotypeElement) const
 {
     QSet<QString> stereotypes;
-    foreach (const StereotypeIcon &icon, d->m_iconIdToStereotypeIconsMap) {
+    for (const StereotypeIcon &icon : d->m_iconIdToStereotypeIconsMap) {
         if (icon.elements().isEmpty() || icon.elements().contains(stereotypeElement))
             stereotypes += icon.stereotypes();
     }
@@ -116,7 +116,7 @@ QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element st
 QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element element,
                                                    const QList<QString> &stereotypes) const
 {
-    foreach (const QString &stereotype, stereotypes) {
+    for (const QString &stereotype : stereotypes) {
         auto it = d->m_stereotypeToIconIdMap.constFind({element, stereotype});
         if (it != d->m_stereotypeToIconIdMap.constEnd())
             return it.value();
@@ -133,7 +133,8 @@ QList<QString> StereotypeController::filterStereotypesByIconId(const QString &st
     if (!d->m_iconIdToStereotypeIconsMap.contains(stereotypeIconId))
         return stereotypes;
     QList<QString> filteredStereotypes = stereotypes;
-    foreach (const QString &stereotype, d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId).stereotypes())
+    const QSet<QString> stereotypeList = d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId).stereotypes();
+    for (const QString &stereotype : stereotypeList)
         filteredStereotypes.removeAll(stereotype);
     return filteredStereotypes;
 }
@@ -233,11 +234,14 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
 void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIcon)
 {
     if (stereotypeIcon.elements().isEmpty()) {
-        foreach (const QString &stereotype, stereotypeIcon.stereotypes())
+        const QSet<QString> stereotypes = stereotypeIcon.stereotypes();
+        for (const QString &stereotype : stereotypes)
             d->m_stereotypeToIconIdMap.insert({StereotypeIcon::ElementAny, stereotype}, stereotypeIcon.id());
     } else {
-        foreach (StereotypeIcon::Element element, stereotypeIcon.elements()) {
-            foreach (const QString &stereotype, stereotypeIcon.stereotypes())
+        const QSet<StereotypeIcon::Element> elements = stereotypeIcon.elements();
+        for (StereotypeIcon::Element element : elements) {
+            const QSet<QString> stereotypes = stereotypeIcon.stereotypes();
+            for (const QString &stereotype : stereotypes)
                 d->m_stereotypeToIconIdMap.insert({element, stereotype}, stereotypeIcon.id());
         }
     }

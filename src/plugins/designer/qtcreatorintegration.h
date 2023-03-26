@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,6 +17,7 @@ class QtCreatorIntegration : public QDesignerIntegration
 
 public:
     explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent = nullptr);
+    ~QtCreatorIntegration();
 
     QWidget *containerWindow(QWidget *widget) const override;
 
@@ -36,6 +37,13 @@ private:
                         const QString &signalSignature,
                         const QStringList &parameterNames,
                         QString *errorMessage);
+    void handleSymbolRenameStage1(QDesignerFormWindowInterface *formWindow, QObject *object,
+                            const QString &newName, const QString &oldName);
+    void handleSymbolRenameStage2(QDesignerFormWindowInterface *formWindow,
+                            const QString &newName, const QString &oldName);
+
+    class Private;
+    Private * const d;
 };
 
 } // namespace Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qbsprofilemanager.h"
 
@@ -232,9 +232,9 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     } else if (qbsConfig.exitCode() != 0) {
         Core::MessageManager::writeFlashing(
             Tr::tr("Failed to run qbs config: %1")
-                .arg(QString::fromLocal8Bit(qbsConfig.readAllStandardError())));
+                .arg(QString::fromLocal8Bit(qbsConfig.readAllRawStandardError())));
     }
-    return QString::fromLocal8Bit(qbsConfig.readAllStandardOutput()).trimmed();
+    return QString::fromLocal8Bit(qbsConfig.readAllRawStandardOutput()).trimmed();
 }
 
 QVariant fromJSLiteral(const QString &str)

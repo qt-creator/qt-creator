@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "launcherpackets.h"
 
@@ -90,17 +90,17 @@ void ProcessStartedPacket::doDeserialize(QDataStream &stream)
 }
 
 
-StopProcessPacket::StopProcessPacket(quintptr token)
-    : LauncherPacket(LauncherPacketType::StopProcess, token)
+ControlProcessPacket::ControlProcessPacket(quintptr token)
+    : LauncherPacket(LauncherPacketType::ControlProcess, token)
 {
 }
 
-void StopProcessPacket::doSerialize(QDataStream &stream) const
+void ControlProcessPacket::doSerialize(QDataStream &stream) const
 {
     stream << int(signalType);
 }
 
-void StopProcessPacket::doDeserialize(QDataStream &stream)
+void ControlProcessPacket::doDeserialize(QDataStream &stream)
 {
     int signalTypeInt;
     stream >> signalTypeInt;

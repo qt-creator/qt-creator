@@ -1,8 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprojectgenerator.h"
 #include "../cmakegen/generatecmakelists.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -73,8 +74,8 @@ bool QmlProjectFileGenerator::execute()
     file.close();
 
     QMessageBox::information(Core::ICore::dialogParent(),
-                             QObject::tr("Project File Generated"),
-                             QObject::tr("File created:\n\n%1").arg(m_targetFile.toString()),
+                             Tr::tr("Project File Generated"),
+                             Tr::tr("File created:\n\n%1").arg(m_targetFile.toString()),
                              QMessageBox::Ok);
 
     return true;
@@ -151,9 +152,9 @@ const FilePath QmlProjectFileGenerator::selectTargetFile(const FilePath &uiFileP
     bool selectionCompleted = false;
     do {
         targetFile = Core::DocumentManager::getSaveFileNameWithExtension(
-                                    QObject::tr("Select File Location"),
+                                    Tr::tr("Select File Location"),
                                     suggestedDir,
-                                    QObject::tr("Qt Design Studio Project Files (*.qmlproject)"));
+                                    Tr::tr("Qt Design Studio Project Files (*.qmlproject)"));
         selectionCompleted = isDirAcceptable(targetFile.parentDir(), uiFilePath);
     } while (!selectionCompleted);
 
@@ -166,8 +167,8 @@ bool QmlProjectFileGenerator::isDirAcceptable(const FilePath &dir, const FilePat
 
     if (dir.isChildOf(uiFileParentDir)) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             QObject::tr("Invalid Directory"),
-                             QObject::tr("Project file must be placed in a parent directory of the QML files."),
+                             Tr::tr("Invalid Directory"),
+                             Tr::tr("Project file must be placed in a parent directory of the QML files."),
                              QMessageBox::Ok);
         return false;
     }
@@ -177,8 +178,8 @@ bool QmlProjectFileGenerator::isDirAcceptable(const FilePath &dir, const FilePat
         QStringList components = relativePath.toString().split("/");
         if (components.size() > 2) {
             QMessageBox::StandardButton sel = QMessageBox::question(Core::ICore::dialogParent(),
-                                                  QObject::tr("Problem"),
-                                                  QObject::tr("Selected directory is far away from the QML file. This can cause unexpected results.\n\nAre you sure?"),
+                                                  Tr::tr("Problem"),
+                                                  Tr::tr("Selected directory is far away from the QML file. This can cause unexpected results.\n\nAre you sure?"),
                                                   QMessageBox::Yes | QMessageBox::No);
             if (sel == QMessageBox::No)
                 return false;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -29,13 +29,17 @@ public:
     explicit Environment(const NameValueDictionary &dict) : m_dict(dict) {}
 
     QString value(const QString &key) const { return m_dict.value(key); }
+    QString value_or(const QString &key, const QString &defaultValue) const
+    {
+        return m_dict.hasKey(key) ? m_dict.value(key) : defaultValue;
+    }
     bool hasKey(const QString &key) const { return m_dict.hasKey(key); }
 
     void set(const QString &key, const QString &value, bool enabled = true) { m_dict.set(key, value, enabled); }
     void unset(const QString &key) { m_dict.unset(key); }
     void modify(const NameValueItems &items) { m_dict.modify(items); }
 
-    int isValid() const;
+    bool hasChanges() const;
     void clear() { return m_dict.clear(); }
 
     QStringList toStringList() const { return m_dict.toStringList(); }
@@ -57,16 +61,14 @@ public:
                           const FilePaths &additionalDirs = FilePaths(),
                           const PathFilter &func = PathFilter()) const;
     FilePath searchInDirectories(const QString &executable,
-                                 const FilePaths &dirs) const;
+                                 const FilePaths &dirs,
+                                 const PathFilter &func = {}) const;
     FilePaths findAllInPath(const QString &executable,
-                               const FilePaths &additionalDirs = FilePaths(),
-                               const PathFilter &func = PathFilter()) const;
+                            const FilePaths &additionalDirs = {},
+                            const PathFilter &func = {}) const;
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;
-    QStringList appendExeExtensions(const QString &executable) const;
-
-    bool isSameExecutable(const QString &exe1, const QString &exe2) const;
 
     QString expandedValueForKey(const QString &key) const;
     QString expandVariables(const QString &input) const;
@@ -83,6 +85,9 @@ public:
     QString key(const_iterator it) const { return m_dict.key(it); } // FIXME: avoid
     QString value(const_iterator it) const { return m_dict.value(it); } // FIXME: avoid
     bool isEnabled(const_iterator it) const { return m_dict.isEnabled(it); } // FIXME: avoid
+
+    void setCombineWithDeviceEnvironment(bool combine) { m_combineWithDeviceEnvironment = combine; }
+    bool combineWithDeviceEnvironment() const { return m_combineWithDeviceEnvironment; }
 
     const_iterator constBegin() const { return m_dict.constBegin(); } // FIXME: avoid
     const_iterator constEnd() const { return m_dict.constEnd(); } // FIXME: avoid
@@ -105,6 +110,7 @@ public:
 
 private:
     NameValueDictionary m_dict;
+    bool m_combineWithDeviceEnvironment = true;
 };
 
 class QTCREATOR_UTILS_EXPORT EnvironmentChange final
@@ -112,23 +118,25 @@ class QTCREATOR_UTILS_EXPORT EnvironmentChange final
 public:
     EnvironmentChange() = default;
 
-    class Item final
-    {
-    public:
-        enum Type {
-            SetSystemEnvironment,
-            SetFixedEnvironment,
-            SetValue,
-            UnsetValue,
-            PrependToPath,
-            AppendToPath,
-        };
-
-        Type type;
-        QVariant data;
+    enum Type {
+        SetSystemEnvironment,
+        SetFixedDictionary,
+        SetValue,
+        UnsetValue,
+        PrependToPath,
+        AppendToPath,
     };
 
-    static EnvironmentChange fromFixedEnvironment(const Environment &fixedEnv);
+    using Item = std::variant<
+        std::monostate,          // SetSystemEnvironment dummy
+        NameValueDictionary,     // SetFixedDictionary
+        QPair<QString, QString>, // SetValue
+        QString,                 // UnsetValue
+        FilePath,                // PrependToPath
+        FilePath                 // AppendToPath
+    >;
+
+    static EnvironmentChange fromDictionary(const NameValueDictionary &dict);
 
     void applyToEnvironment(Environment &) const;
 

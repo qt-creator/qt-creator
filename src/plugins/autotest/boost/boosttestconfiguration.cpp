@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "boosttestconfiguration.h"
 
@@ -13,11 +13,13 @@
 #include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *BoostTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                       Utils::QtcProcess *app) const
+TestOutputReader *BoostTestConfiguration::createOutputReader(
+        const QFutureInterface<TestResult> &fi, QtcProcess *app) const
 {
     auto settings = static_cast<BoostTestSettings *>(framework()->testSettings());
     return new BoostTestOutputReader(fi, app, buildDirectory(), projectFile(),
@@ -113,11 +115,11 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     return arguments;
 }
 
-Utils::Environment BoostTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment BoostTestConfiguration::filteredEnvironment(const Environment &original) const
 {
     const QStringList interferingEnv = interfering(InterferingType::EnvironmentVariables);
 
-    Utils::Environment result = original;
+    Environment result = original;
     if (!result.hasKey("BOOST_TEST_COLOR_OUTPUT"))
         result.set("BOOST_TEST_COLOR_OUTPUT", "1");  // use colored output by default
     for (const QString &key : interferingEnv)

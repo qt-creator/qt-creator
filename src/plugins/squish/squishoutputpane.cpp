@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishoutputpane.h"
 
@@ -84,7 +84,7 @@ SquishOutputPane::SquishOutputPane(QObject *parent)
     m_outputPane->addTab(m_outputWidget, Tr::tr("Test Results"));
     m_outputPane->addTab(m_runnerServerLog, Tr::tr("Runner/Server Log"));
 
-    connect(m_outputPane, &QTabWidget::currentChanged, this, [this]() { navigateStateChanged(); });
+    connect(m_outputPane, &QTabWidget::currentChanged, this, [this] { navigateStateChanged(); });
     connect(m_treeView, &Utils::TreeView::activated, this, &SquishOutputPane::onItemActivated);
     connect(header, &QHeaderView::sectionResized, this, &SquishOutputPane::onSectionResized);
     connect(m_model, &SquishResultModel::requestExpansion, this, [this](QModelIndex idx) {

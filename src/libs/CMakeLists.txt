@@ -34,7 +34,7 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/qlitehtml/src/CMakeLists.txt)
       set(QLITEHTML_BIN_PATH ${IDE_BIN_PATH})
       set(QLITEHTML_LIBRARY_PATH ${IDE_LIBRARY_PATH})
     endif()
-    set(QT_VERSION_MAJOR ${Qt5_VERSION_MAJOR})
+    set(QT_VERSION_MAJOR ${Qt6_VERSION_MAJOR})
     option(BUILD_TESTING "Build litehtml tests" OFF) # otherwise litehtml downloads googletest
     add_subdirectory(qlitehtml/src)
   endif()

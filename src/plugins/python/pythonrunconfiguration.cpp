@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythonrunconfiguration.h"
 
@@ -35,9 +35,7 @@
 #include <utils/outputformatter.h>
 #include <utils/theme/theme.h>
 
-#include <QBoxLayout>
 #include <QComboBox>
-#include <QFormLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
 
@@ -119,8 +117,35 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
+class PythonRunConfigurationPrivate
+{
+public:
+    PythonRunConfigurationPrivate(PythonRunConfiguration *rc)
+        : q(rc)
+    {}
+    ~PythonRunConfigurationPrivate()
+    {
+        qDeleteAll(m_extraCompilers);
+    }
+
+    void checkForPySide(const Utils::FilePath &python);
+    void checkForPySide(const Utils::FilePath &python, const QString &pySidePackageName);
+    void handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
+                                 const Utils::FilePath &python,
+                                 const QString &requestedPackageName);
+    void updateExtraCompilers();
+    Utils::FilePath m_pySideUicPath;
+
+    PythonRunConfiguration *q;
+    QList<PySideUicExtraCompiler *> m_extraCompilers;
+    QFutureWatcher<PipPackageInfo> m_watcher;
+    QMetaObject::Connection m_watcherConnection;
+
+};
+
 PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
+    , d(new PythonRunConfigurationPrivate(this))
 {
     auto interpreterAspect = addAspect<InterpreterAspect>();
     interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
@@ -187,7 +212,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    connect(target, &Target::buildSystemUpdated, this, &PythonRunConfiguration::updateExtraCompilers);
+    connect(target, &Target::buildSystemUpdated, this, [this]() { d->updateExtraCompilers(); });
     currentInterpreterChanged();
 
     setRunnableModifier([](Runnable &r) {
@@ -197,25 +222,53 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
             [this](const FilePath &python) {
                 if (python == aspect<InterpreterAspect>()->currentInterpreter().command)
-                    checkForPySide(python);
+                    d->checkForPySide(python);
             });
 }
 
 PythonRunConfiguration::~PythonRunConfiguration()
 {
-    qDeleteAll(m_extraCompilers);
+    delete d;
 }
 
-struct PythonTools
+void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python)
 {
-    FilePath pySideProjectPath;
-    FilePath pySideUicPath;
-};
+    checkForPySide(python, "PySide6-Essentials");
+}
 
-void PythonRunConfiguration::checkForPySide(const FilePath &python)
+void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python,
+                                                   const QString &pySidePackageName)
 {
-    BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
+    const PipPackage package(pySidePackageName);
+    QObject::disconnect(m_watcherConnection);
+    m_watcherConnection = QObject::connect(&m_watcher,
+                                           &QFutureWatcher<PipPackageInfo>::finished,
+                                           q,
+                                           [=]() {
+                                               handlePySidePackageInfo(m_watcher.result(),
+                                                                       python,
+                                                                       pySidePackageName);
+                                           });
+    m_watcher.setFuture(Pip::instance(python)->info(package));
+}
 
+void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
+                                                            const Utils::FilePath &python,
+                                                            const QString &requestedPackageName)
+{
+    struct PythonTools
+    {
+        FilePath pySideProjectPath;
+        FilePath pySideUicPath;
+    };
+
+    BuildStepList *buildSteps = nullptr;
+    if (Target *target = q->target()) {
+        if (auto buildConfiguration = target->activeBuildConfiguration())
+            buildSteps = buildConfiguration->buildSteps();
+    }
+    if (!buildSteps)
+        return;
 
     const auto findPythonTools = [](const FilePaths &files,
                                     const FilePath &location,
@@ -241,13 +294,10 @@ void PythonRunConfiguration::checkForPySide(const FilePath &python)
         return {};
     };
 
-    const PipPackage pySide6EssentialPackage("PySide6-Essentials");
-    PipPackageInfo info = pySide6EssentialPackage.info(python);
-    PythonTools pythonTools = findPythonTools(info.files, info.location, python);
-    if (!pythonTools.pySideProjectPath.isExecutableFile()) {
-        const PipPackage pySide6Package("PySide6");
-        info = pySide6Package.info(python);
-        pythonTools = findPythonTools(info.files, info.location, python);
+    PythonTools pythonTools = findPythonTools(pySideInfo.files, pySideInfo.location, python);
+    if (!pythonTools.pySideProjectPath.isExecutableFile() && requestedPackageName != "PySide6") {
+        checkForPySide(python, "PySide6");
+        return;
     }
 
     m_pySideUicPath = pythonTools.pySideUicPath;
@@ -261,7 +311,7 @@ void PythonRunConfiguration::checkForPySide(const FilePath &python)
 void PythonRunConfiguration::currentInterpreterChanged()
 {
     const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
-    checkForPySide(python);
+    d->checkForPySide(python);
 
     for (FilePath &file : project()->files(Project::AllFiles)) {
         if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
@@ -276,10 +326,10 @@ void PythonRunConfiguration::currentInterpreterChanged()
 
 QList<PySideUicExtraCompiler *> PythonRunConfiguration::extraCompilers() const
 {
-    return m_extraCompilers;
+    return d->m_extraCompilers;
 }
 
-void PythonRunConfiguration::updateExtraCompilers()
+void PythonRunConfigurationPrivate::updateExtraCompilers()
 {
     QList<PySideUicExtraCompiler *> oldCompilers = m_extraCompilers;
     m_extraCompilers.clear();
@@ -290,29 +340,30 @@ void PythonRunConfiguration::updateExtraCompilers()
                 return fileNode->fileType() == ProjectExplorer::FileType::Form;
             return false;
         };
-        const FilePaths uiFiles = project()->files(uiMatcher);
+        const FilePaths uiFiles = q->project()->files(uiMatcher);
         for (const FilePath &uiFile : uiFiles) {
             FilePath generated = uiFile.parentDir();
             generated = generated.pathAppended("/ui_" + uiFile.baseName() + ".py");
             int index = Utils::indexOf(oldCompilers, [&](PySideUicExtraCompiler *oldCompiler) {
                 return oldCompiler->pySideUicPath() == m_pySideUicPath
-                       && oldCompiler->project() == project() && oldCompiler->source() == uiFile
+                       && oldCompiler->project() == q->project() && oldCompiler->source() == uiFile
                        && oldCompiler->targets() == FilePaths{generated};
             });
             if (index < 0) {
                 m_extraCompilers << new PySideUicExtraCompiler(m_pySideUicPath,
-                                                               project(),
+                                                               q->project(),
                                                                uiFile,
                                                                {generated},
-                                                               this);
+                                                               q);
             } else {
                 m_extraCompilers << oldCompilers.takeAt(index);
             }
         }
     }
-    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
-    if (auto client = PyLSClient::clientForPython(python))
-        client->updateExtraCompilers(project(), m_extraCompilers);
+    for (LanguageClient::Client *client : LanguageClient::LanguageClientManager::clients()) {
+        if (auto pylsClient = qobject_cast<PyLSClient *>(client))
+            pylsClient->updateExtraCompilers(q->project(), m_extraCompilers);
+    }
     qDeleteAll(oldCompilers);
 }
 

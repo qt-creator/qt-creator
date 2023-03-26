@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -47,6 +47,7 @@ public:
     virtual bool isValidStatus() const = 0;
 
     virtual bool writeToSettings() const = 0;
+    virtual void readFromSettings() = 0;
 
     virtual QWidget *widget() = 0;
     virtual const McuPackageVersionDetector *getVersionDetector() const = 0;
@@ -54,6 +55,7 @@ public:
 signals:
     void changed();
     void statusChanged();
+    void reset();
 
 }; // class McuAbstractPackage
 } // namespace McuSupport::Internal

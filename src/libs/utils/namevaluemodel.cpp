@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "namevaluemodel.h"
 
@@ -8,6 +8,7 @@
 #include "namevaluedictionary.h"
 #include "namevalueitem.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QFileInfo>
 #include <QFont>
@@ -30,7 +31,7 @@ public:
         // that the user can actually see those removals:
         for (const NameValueItem &item : std::as_const(m_items)) {
             if (item.operation == NameValueItem::Unset)
-                m_resultNameValueDictionary.set(item.name, NameValueModel::tr("<UNSET>"));
+                m_resultNameValueDictionary.set(item.name, Tr::tr("<UNSET>"));
         }
     }
 
@@ -185,7 +186,7 @@ QVariant NameValueModel::headerData(int section, Qt::Orientation orientation, in
 {
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
         return QVariant();
-    return section == 0 ? tr("Variable") : tr("Value");
+    return section == 0 ? Tr::tr("Variable") : Tr::tr("Value");
 }
 
 /// *****************
@@ -264,9 +265,9 @@ bool NameValueModel::setData(const QModelIndex &index, const QVariant &value, in
 QModelIndex NameValueModel::addVariable()
 {
     //: Name when inserting a new variable
-    return addVariable(NameValueItem(tr("<VARIABLE>"),
+    return addVariable(NameValueItem(Tr::tr("<VARIABLE>"),
                                      //: Value when inserting a new variable
-                                     tr("<VALUE>")));
+                                     Tr::tr("<VALUE>")));
 }
 
 QModelIndex NameValueModel::addVariable(const NameValueItem &item)

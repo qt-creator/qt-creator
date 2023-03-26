@@ -1,15 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "errorwidget.h"
 #include "scxmleditorconstants.h"
 #include "scxmleditortr.h"
 #include "tableview.h"
 
-#include <QLayout>
 #include <QFile>
 #include <QFileDialog>
 #include <QHeaderView>
+#include <QLayout>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QTextStream>
@@ -37,34 +37,34 @@ ErrorWidget::ErrorWidget(QWidget *parent)
 
     m_errorsTable->setModel(m_proxyModel);
 
-    connect(m_errorsTable, &TableView::entered, [this](const QModelIndex &ind) {
+    connect(m_errorsTable, &TableView::entered, this, [this](const QModelIndex &ind) {
         if (ind.isValid())
             emit warningEntered(m_warningModel->getWarning(m_proxyModel->mapToSource(ind)));
     });
 
-    connect(m_errorsTable, &TableView::pressed, [this](const QModelIndex &ind) {
+    connect(m_errorsTable, &TableView::pressed, this, [this](const QModelIndex &ind) {
         if (ind.isValid())
             emit warningSelected(m_warningModel->getWarning(m_proxyModel->mapToSource(ind)));
     });
 
-    connect(m_errorsTable, &TableView::doubleClicked, [this](const QModelIndex &ind) {
+    connect(m_errorsTable, &TableView::doubleClicked, this, [this](const QModelIndex &ind) {
         if (ind.isValid())
             emit warningDoubleClicked(m_warningModel->getWarning(m_proxyModel->mapToSource(ind)));
     });
 
-    connect(m_errorsTable, &TableView::mouseExited, this, [this](){
+    connect(m_errorsTable, &TableView::mouseExited, this, [this] {
         emit mouseExited();
     });
 
-    connect(m_showErrors, &QToolButton::toggled, [this](bool show) {
+    connect(m_showErrors, &QToolButton::toggled, this, [this](bool show) {
         m_warningModel->setShowWarnings(Warning::ErrorType, show);
     });
 
-    connect(m_showWarnings, &QToolButton::toggled, [this](bool show) {
+    connect(m_showWarnings, &QToolButton::toggled, this, [this](bool show) {
         m_warningModel->setShowWarnings(Warning::WarningType, show);
     });
 
-    connect(m_showInfos, &QToolButton::toggled, [this](bool show) {
+    connect(m_showInfos, &QToolButton::toggled, this, [this](bool show) {
         m_warningModel->setShowWarnings(Warning::InfoType, show);
     });
 

@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "buildsteplist.h"
 
 #include "buildmanager.h"
 #include "buildstep.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -81,15 +82,15 @@ QString BuildStepList::displayName() const
 {
     if (m_id == Constants::BUILDSTEPS_BUILD) {
         //: Display name of the build build step list. Used as part of the labels in the project window.
-        return tr("Build");
+        return Tr::tr("Build");
     }
     if (m_id == Constants::BUILDSTEPS_CLEAN) {
         //: Display name of the clean build step list. Used as part of the labels in the project window.
-        return tr("Clean");
+        return Tr::tr("Clean");
     }
     if (m_id == Constants::BUILDSTEPS_DEPLOY) {
         //: Display name of the deploy build step list. Used as part of the labels in the project window.
-        return tr("Deploy");
+        return Tr::tr("Deploy");
     }
     QTC_CHECK(false);
     return {};

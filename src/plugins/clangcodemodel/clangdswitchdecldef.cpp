@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdswitchdecldef.h"
 
@@ -31,7 +31,7 @@ class ClangdSwitchDeclDef::Private
 public:
     Private(ClangdSwitchDeclDef * q, ClangdClient *client, TextDocument *doc,
             const QTextCursor &cursor, CppEditorWidget *editorWidget, const LinkHandler &callback)
-        : q(q), client(client), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
+        : q(q), client(client), document(doc), uri(client->hostPathToServerUri(doc->filePath())),
           cursor(cursor), editorWidget(editorWidget), callback(callback)
     {}
 

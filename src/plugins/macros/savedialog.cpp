@@ -1,7 +1,9 @@
 // Copyright (C) 2016 Nicolas Arnaud-Cormos
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "savedialog.h"
+
+#include "macrostr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -18,7 +20,7 @@ SaveDialog::SaveDialog(QWidget *parent) :
     QDialog(parent)
 {
     resize(219, 91);
-    setWindowTitle(tr("Save Macro"));
+    setWindowTitle(Tr::tr("Save Macro"));
 
     m_name = new QLineEdit;
     m_name->setValidator(new QRegularExpressionValidator(QRegularExpression(QLatin1String("\\w*")), this));
@@ -31,8 +33,8 @@ SaveDialog::SaveDialog(QWidget *parent) :
     using namespace Layouting;
 
     Form {
-        tr("Name:"), m_name, br,
-        tr("Description:"), m_description, br,
+        Tr::tr("Name:"), m_name, br,
+        Tr::tr("Description:"), m_description, br,
         buttonBox
     }.attachTo(this);
 

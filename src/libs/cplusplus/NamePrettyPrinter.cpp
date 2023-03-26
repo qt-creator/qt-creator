@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "NamePrettyPrinter.h"
 
@@ -221,6 +221,9 @@ void NamePrettyPrinter::visit(const OperatorNameId *name)
         break;
     case OperatorNameId::ArrayAccessOp:
         _name += QLatin1String("[]");
+        break;
+    case OperatorNameId::SpaceShipOp:
+        _name += QLatin1String("<=>");
         break;
     } // switch
 }

@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/saferenderer">
+        <file>wizards/icon.png</file>
+        <file>wizards/icon@2x.png</file>
+        <file>wizards/qsrapp/file.pro</file>
+        <file>wizards/qsrapp/main.cpp.tpl</file>
+        <file>wizards/qsrapp/main.qml.tpl</file>
+        <file>wizards/qsrapp/qml.qrc.tpl</file>
+        <file>wizards/qsrapp/safeasset.qrc.tpl</file>
+        <file>wizards/qsrapp/wizard.json</file>
+    </qresource>
+</RCC>

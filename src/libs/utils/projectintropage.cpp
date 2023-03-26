@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectintropage.h"
 
@@ -9,13 +9,13 @@
 #include "infolabel.h"
 #include "layoutbuilder.h"
 #include "pathchooser.h"
+#include "utilstr.h"
 #include "wizard.h"
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
-#include <QFormLayout>
 #include <QFrame>
 #include <QLabel>
 #include <QSpacerItem>
@@ -67,7 +67,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d(new ProjectIntroPagePrivate)
 {
     resize(355, 289);
-    setTitle(tr("Introduction and Project Location"));
+    setTitle(Tr::tr("Introduction and Project Location"));
 
     d->m_descriptionLabel = new QLabel(this);
     d->m_descriptionLabel->setWordWrap(true);
@@ -79,9 +79,10 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_nameLineEdit = new Utils::FancyLineEdit(frame);
 
     d->m_pathChooser = new Utils::PathChooser(frame);
+    d->m_pathChooser->setExpectedKind(PathChooser::Directory);
     d->m_pathChooser->setDisabled(d->m_forceSubProject);
 
-    d->m_projectsDirectoryCheckBox = new QCheckBox(tr("Use as default project location"));
+    d->m_projectsDirectoryCheckBox = new QCheckBox(Tr::tr("Use as default project location"));
     d->m_projectsDirectoryCheckBox->setObjectName("projectsDirectoryCheckBox");
     d->m_projectsDirectoryCheckBox->setDisabled(d->m_forceSubProject);
 
@@ -94,7 +95,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_stateLabel->setFilled(true);
     hideStatusLabel();
 
-    d->m_nameLineEdit->setPlaceholderText(tr("Enter project name"));
+    d->m_nameLineEdit->setPlaceholderText(Tr::tr("Enter project name"));
     d->m_nameLineEdit->setObjectName("nameLineEdit");
     d->m_nameLineEdit->setFocus();
     d->m_nameLineEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorString) {
@@ -107,10 +108,10 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     using namespace Layouting;
 
     Form {
-        tr("Name:"), d->m_nameLineEdit, br,
+        Tr::tr("Name:"), d->m_nameLineEdit, br,
         d->m_projectLabel, d->m_projectComboBox, br,
         Column { Space(12) }, br,
-        tr("Create in:"), d->m_pathChooser, br,
+        Tr::tr("Create in:"), d->m_pathChooser, br,
         Span(2, d->m_projectsDirectoryCheckBox)
     }.attachTo(frame);
 
@@ -134,7 +135,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     connect(d->m_projectComboBox, &QComboBox::currentIndexChanged,
             this, &ProjectIntroPage::slotChanged);
 
-    setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
+    setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Location"));
     registerFieldWithName(QLatin1String("Path"), d->m_pathChooser, "path", SIGNAL(textChanged(QString)));
     registerFieldWithName(QLatin1String("ProjectName"), d->m_nameLineEdit);
 }
@@ -207,7 +208,7 @@ bool ProjectIntroPage::validate()
         displayStatusMessage(InfoLabel::Error, d->m_nameLineEdit->errorMessage());
         return false;
     case FancyLineEdit::DisplayingPlaceholderText:
-        displayStatusMessage(InfoLabel::Error, tr("Name is empty."));
+        displayStatusMessage(InfoLabel::Error, Tr::tr("Name is empty."));
         return false;
     case FancyLineEdit::Valid:
         break;
@@ -218,16 +219,21 @@ bool ProjectIntroPage::validate()
         filePath().pathAppended(QDir::fromNativeSeparators(d->m_nameLineEdit->text()));
 
     if (!projectDir.exists()) { // All happy
-        hideStatusLabel();
+        if (!d->m_pathChooser->filePath().exists()) {
+            displayStatusMessage(InfoLabel::Information, Tr::tr("Directory \"%1\" will be created.")
+                                 .arg(d->m_pathChooser->filePath().toUserOutput()));
+        } else {
+            hideStatusLabel();
+        }
         return true;
     }
 
     if (projectDir.isDir()) {
-        displayStatusMessage(InfoLabel::Warning, tr("The project already exists."));
+        displayStatusMessage(InfoLabel::Warning, Tr::tr("The project already exists."));
         return true;
     }
     // Not a directory, but something else, likely causing directory creation to fail
-    displayStatusMessage(InfoLabel::Error, tr("A file with that name already exists."));
+    displayStatusMessage(InfoLabel::Error, Tr::tr("A file with that name already exists."));
     return false;
 }
 
@@ -288,7 +294,7 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
     if (!d->m_projectNameValidator.regularExpression().pattern().isEmpty()) {
         if (name.isEmpty()) {
             if (errorMessage)
-                *errorMessage = tr("Name is empty.");
+                *errorMessage = Tr::tr("Name is empty.");
             return false;
         }
         // pos is set by reference
@@ -300,7 +306,7 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
         if (validatorState != QValidator::Acceptable && (pos == -1 || pos >= name.count())) {
             if (errorMessage) {
                 if (d->m_projectNameValidatorUserMessage.isEmpty())
-                    *errorMessage = tr("Project name is invalid.");
+                    *errorMessage = Tr::tr("Project name is invalid.");
                 else
                     *errorMessage = d->m_projectNameValidatorUserMessage;
             }
@@ -312,14 +318,14 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
             return false;
         if (name.contains(QLatin1Char('.'))) {
             if (errorMessage)
-                *errorMessage = tr("Invalid character \".\".");
+                *errorMessage = Tr::tr("Invalid character \".\".");
             return false;
         }
         pos = FileUtils::indexOfQmakeUnfriendly(name);
     }
     if (pos >= 0) {
         if (errorMessage)
-            *errorMessage = tr("Invalid character \"%1\" found.").arg(name.at(pos));
+            *errorMessage = Tr::tr("Invalid character \"%1\" found.").arg(name.at(pos));
         return false;
     }
     return true;

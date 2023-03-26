@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -44,7 +44,7 @@ public:
     void setUsePortsGatherer(bool useCpp, bool useQml);
     DebugServerPortsGatherer *portsGatherer() const;
 
-    void setSolibSearchPath(const QStringList &list);
+    void setSolibSearchPath(const Utils::FilePaths &list);
     void addSolibSearchDir(const QString &str);
 
     static void setBreakOnMainNextTime();
@@ -155,7 +155,13 @@ private:
     bool m_useMulti = true;
 };
 
+class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    DebuggerRunWorkerFactory();
+};
+
 extern DEBUGGER_EXPORT const char DebugServerRunnerWorkerId[];
 extern DEBUGGER_EXPORT const char GdbServerPortGathererWorkerId[];
 
-} // namespace Debugger
+} // Debugger

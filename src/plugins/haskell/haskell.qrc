@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/haskell">
+        <file>images/category_haskell.png</file>
+    </qresource>
+</RCC>

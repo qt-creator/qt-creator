@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "dockerdevicewidget.h"
 
@@ -8,9 +8,11 @@
 #include "dockertr.h"
 
 #include <utils/algorithm.h>
+#include <utils/clangutils.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -77,6 +79,18 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         dockerDevice->setData(m_data);
     });
 
+    m_enableLldbFlags = new QCheckBox(Tr::tr("Enable flags needed for LLDB"));
+    m_enableLldbFlags->setToolTip(Tr::tr("Adds the following flags to the container: "
+                                         "--cap-add=SYS_PTRACE --security-opt seccomp=unconfined, "
+                                         "this is necessary to allow lldb to run"));
+    m_enableLldbFlags->setChecked(m_data.enableLldbFlags);
+    m_enableLldbFlags->setEnabled(true);
+
+    connect(m_enableLldbFlags, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
+        m_data.enableLldbFlags = on;
+        dockerDevice->setData(m_data);
+    });
+
     m_runAsOutsideUser = new QCheckBox(Tr::tr("Run as outside user"));
     m_runAsOutsideUser->setToolTip(Tr::tr("Uses user ID and group ID of the user running Qt Creator "
                                           "in the docker container."));
@@ -85,6 +99,23 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
         m_data.useLocalUidGid = on;
+        dockerDevice->setData(m_data);
+    });
+
+    auto clangDLabel = new QLabel(Tr::tr("Clangd Executable:"));
+
+    m_clangdExecutable = new PathChooser();
+    m_clangdExecutable->setExpectedKind(PathChooser::ExistingCommand);
+    m_clangdExecutable->setHistoryCompleter("Docker.ClangdExecutable.History");
+    m_clangdExecutable->setAllowPathFromDevice(true);
+    m_clangdExecutable->setFilePath(m_data.clangdExecutable);
+    m_clangdExecutable->setValidationFunction(
+        [chooser = m_clangdExecutable](FancyLineEdit *, QString *error) {
+            return Utils::checkClangdVersion(chooser->filePath(), error);
+        });
+
+    connect(m_clangdExecutable, &PathChooser::rawPathChanged, this, [this, dockerDevice] {
+        m_data.clangdExecutable = m_clangdExecutable->filePath();
         dockerDevice->setData(m_data);
     });
 
@@ -141,7 +172,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 paths.append(FilePath::fromString(path.trimmed()));
         }
         paths = Utils::transform(paths, [dockerDevice](const FilePath &path) {
-            return dockerDevice->mapToGlobalPath(path);
+            return dockerDevice->filePath(path.path());
         });
         return paths;
     };
@@ -150,6 +181,16 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             [this, logView, dockerDevice, searchPaths] {
         logView->clear();
         dockerDevice->updateContainerAccess();
+
+        const FilePath clangdPath = dockerDevice->filePath("clangd")
+                                        .searchInPath({},
+                                                      FilePath::AppendToPath,
+                                                      [](const FilePath &clangd) {
+                                                          return Utils::checkClangdVersion(clangd);
+                                                      });
+
+        if (!clangdPath.isEmpty())
+            m_clangdExecutable->setFilePath(clangdPath);
 
         m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
@@ -172,6 +213,24 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     using namespace Layouting;
 
+    // clang-format off
+    Column detectionControls {
+        Space(20),
+        Row {
+            Tr::tr("Search Locations:"),
+            searchDirsComboBox,
+            searchDirsLineEdit
+        },
+        Row {
+            autoDetectButton,
+            undoAutoDetectButton,
+            listAutoDetectedButton,
+            st,
+        },
+        Tr::tr("Detection log:"),
+        logView
+    };
+
     Form {
         repoLabel, m_repoLineEdit, br,
         tagLabel, m_tagLineEdit, br,
@@ -179,27 +238,15 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         daemonStateLabel, m_daemonReset, m_daemonState, br,
         m_runAsOutsideUser, br,
         m_keepEntryPoint, br,
+        m_enableLldbFlags, br,
+        clangDLabel, m_clangdExecutable, br,
         Column {
             pathListLabel,
             m_pathsListEdit,
         }, br,
-        Column {
-            Space(20),
-            Row {
-                Tr::tr("Search Locations:"),
-                searchDirsComboBox,
-                searchDirsLineEdit
-            },
-            Row {
-                autoDetectButton,
-                undoAutoDetectButton,
-                listAutoDetectedButton,
-                st,
-            },
-            Tr::tr("Detection log:"),
-            logView
-        }
+        (dockerDevice->isAutoDetected() ? Column {} : std::move(detectionControls)),
     }.attachTo(this, WithoutMargins);
+    // clang-format on
 
     searchDirsLineEdit->setVisible(false);
     auto updateDirectoriesLineEdit = [searchDirsLineEdit](int index) {

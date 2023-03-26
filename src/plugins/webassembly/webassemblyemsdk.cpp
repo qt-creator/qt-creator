@@ -1,25 +1,21 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "webassemblyemsdk.h"
 
 #include "webassemblyconstants.h"
-#include "webassemblyemsdk.h"
 
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/hostosinfo.h>
 
+#include <QCache>
 #include <QSettings>
-
-#ifdef WITH_TESTS
-#   include <QTest>
-#   include "webassemblyplugin.h"
-#endif // WITH_TESTS
 
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal::WebAssemblyEmSdk {
 
 using EmSdkEnvCache = QCache<QString, QString>;
 Q_GLOBAL_STATIC_WITH_ARGS(EmSdkEnvCache, emSdkEnvCache, (10))
@@ -47,7 +43,7 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
     return *emSdkEnvCache()->object(cacheKey);
 }
 
-static void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Environment &env)
+void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Environment &env)
 {
     const QStringList lines = output.split('\n');
 
@@ -70,25 +66,25 @@ static void parseEmSdkEnvOutputAndAddToEnv(const QString &output, Environment &e
         env.appendOrSetPath(FilePath::fromUserInput(emsdkPython).parentDir());
 }
 
-bool WebAssemblyEmSdk::isValid(const FilePath &sdkRoot)
+bool isValid(const FilePath &sdkRoot)
 {
     return !version(sdkRoot).isNull();
 }
 
-void WebAssemblyEmSdk::addToEnvironment(const FilePath &sdkRoot, Environment &env)
+void addToEnvironment(const FilePath &sdkRoot, Environment &env)
 {
     if (sdkRoot.exists())
         parseEmSdkEnvOutputAndAddToEnv(emSdkEnvOutput(sdkRoot), env);
 }
 
-QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
+QVersionNumber version(const FilePath &sdkRoot)
 {
     if (!sdkRoot.exists())
         return {};
     const QString cacheKey = sdkRoot.toString();
     if (!emSdkVersionCache()->contains(cacheKey)) {
         Environment env = sdkRoot.deviceEnvironment();
-        WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
+        addToEnvironment(sdkRoot, env);
         QLatin1String scriptFile{sdkRoot.osType() == OsType::OsTypeWindows ? "emcc.bat" : "emcc"};
         FilePath script = sdkRoot.withNewPath(scriptFile).searchInDirectories(env.path());
         const CommandLine command(script, {"-dumpversion"});
@@ -103,88 +99,25 @@ QVersionNumber WebAssemblyEmSdk::version(const FilePath &sdkRoot)
     return *emSdkVersionCache()->object(cacheKey);
 }
 
-void WebAssemblyEmSdk::registerEmSdk(const FilePath &sdkRoot)
+void registerEmSdk(const FilePath &sdkRoot)
 {
     QSettings *s = Core::ICore::settings();
     s->setValue(QLatin1String(Constants::SETTINGS_GROUP) + '/'
                 + QLatin1String(Constants::SETTINGS_KEY_EMSDK), sdkRoot.toString());
 }
 
-FilePath WebAssemblyEmSdk::registeredEmSdk()
+FilePath registeredEmSdk()
 {
     QSettings *s = Core::ICore::settings();
     const QString path = s->value(QLatin1String(Constants::SETTINGS_GROUP) + '/'
-                                  + QLatin1String(Constants::SETTINGS_KEY_EMSDK)).toString();
+                     + QLatin1String(Constants::SETTINGS_KEY_EMSDK)).toString();
     return FilePath::fromUserInput(path);
 }
 
-void WebAssemblyEmSdk::clearCaches()
+void clearCaches()
 {
     emSdkEnvCache()->clear();
     emSdkVersionCache()->clear();
 }
 
-// Unit tests:
-#ifdef WITH_TESTS
-void WebAssemblyPlugin::testEmSdkEnvParsing()
-{
-    QFETCH(QString, emSdkEnvOutput);
-    QFETCH(int, osType);
-    QFETCH(int, pathCount);
-    QFETCH(QString, emsdk);
-    QFETCH(QString, em_config);
-
-    Environment env{OsType(osType)};
-    parseEmSdkEnvOutputAndAddToEnv(emSdkEnvOutput, env);
-
-    QVERIFY(env.path().count() == pathCount);
-    QCOMPARE(env.value("EMSDK"), emsdk);
-    QCOMPARE(env.value("EM_CONFIG"), em_config);
-}
-
-void WebAssemblyPlugin::testEmSdkEnvParsing_data()
-{
-    // Output of "emsdk_env"
-    QTest::addColumn<QString>("emSdkEnvOutput");
-    QTest::addColumn<int>("osType");
-    QTest::addColumn<int>("pathCount");
-    QTest::addColumn<QString>("emsdk");
-    QTest::addColumn<QString>("em_config");
-
-    QTest::newRow("windows") << R"(
-Adding directories to PATH:
-PATH += C:\Users\user\dev\emsdk
-PATH += C:\Users\user\dev\emsdk\upstream\emscripten
-PATH += C:\Users\user\dev\emsdk\node\12.18.1_64bit\bin
-PATH += C:\Users\user\dev\emsdk\python\3.7.4-pywin32_64bit
-PATH += C:\Users\user\dev\emsdk\java\8.152_64bit\bin
-
-Setting environment variables:
-PATH = C:\Users\user\dev\emsdk;C:\Users\user\dev\emsdk\upstream\emscripten;C:\Users\user\dev\emsdk\node\12.18.1_64bit\bin;C:\Users\user\dev\emsdk\python\3.7.4-pywin32_64bit;C:\Users\user\dev\emsdk\java\8.152_64bit\bin;...other_stuff...
-EMSDK = C:/Users/user/dev/emsdk
-EM_CONFIG = C:\Users\user\dev\emsdk\.emscripten
-EM_CACHE = C:/Users/user/dev/emsdk/upstream/emscripten\cache
-EMSDK_NODE = C:\Users\user\dev\emsdk\node\12.18.1_64bit\bin\node.exe
-EMSDK_PYTHON = C:\Users\user\dev\emsdk\python\3.7.4-pywin32_64bit\python.exe
-JAVA_HOME = C:\Users\user\dev\emsdk\java\8.152_64bit
-      )" << int(OsTypeWindows) << 6 << "C:/Users/user/dev/emsdk" << "C:\\Users\\user\\dev\\emsdk\\.emscripten";
-
-    QTest::newRow("linux") << R"(
-Adding directories to PATH:
-PATH += /home/user/dev/emsdk
-PATH += /home/user/dev/emsdk/upstream/emscripten
-PATH += /home/user/dev/emsdk/node/12.18.1_64bit/bin
-
-Setting environment variables:
-PATH = /home/user/dev/emsdk:/home/user/dev/emsdk/upstream/emscripten:/home/user/dev/emsdk/node/12.18.1_64bit/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-EMSDK = /home/user/dev/emsdk
-EM_CONFIG = /home/user/dev/emsdk/.emscripten
-EM_CACHE = /home/user/dev/emsdk/upstream/emscripten/cache
-EMSDK_NODE = /home/user/dev/emsdk/node/12.18.1_64bit/bin/node
-      )" << int(OsTypeLinux) << 3 << "/home/user/dev/emsdk" << "/home/user/dev/emsdk/.emscripten";
-}
-
-#endif // WITH_TESTS
-
-} // namespace Internal
-} // namespace WebAssembly
+} // namespace WebAssembly::Internal::WebAssemblyEmSdk

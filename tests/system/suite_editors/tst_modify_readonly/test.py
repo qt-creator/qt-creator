@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -85,6 +85,13 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
     except:
         test.fatal("Missing dialog regarding missing permission on read only files.")
     exitCanceled = False
+
+    # workaround crashing test
+    # (AUT stopped responding / AUT '' did not respond to network communication)
+    __shutdownDone__ = lambda : not currentApplicationContext().isRunning
+    if test.verify(waitFor(__shutdownDone__, 1000), "Clean exit of Qt Creator."):
+        return
+
     try:
         mBoxStr = "{type='QMessageBox' unnamed='1' visible='1' text?='*Could not save the files.'}"
         msgBox = waitForObject(mBoxStr, 3000)

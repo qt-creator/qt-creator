@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "symbolsfindfilter.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/icore.h>
@@ -53,7 +54,7 @@ QString SymbolsFindFilter::id() const
 
 QString SymbolsFindFilter::displayName() const
 {
-    return QString(Constants::SYMBOLS_FIND_FILTER_DISPLAY_NAME);
+    return Tr::tr(Constants::SYMBOLS_FIND_FILTER_DISPLAY_NAME);
 }
 
 bool SymbolsFindFilter::isEnabled() const
@@ -116,12 +117,12 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] { finish(watcher); });
     connect(watcher, &QFutureWatcherBase::resultsReadyAt, this, [this, watcher]
             (int begin, int end) { addResults(watcher, begin, end); });
-    SymbolSearcher *symbolSearcher = m_manager->indexingSupport()->createSymbolSearcher(parameters, projectFileNames);
+    SymbolSearcher *symbolSearcher = new SymbolSearcher(parameters, projectFileNames);
     connect(watcher, &QFutureWatcherBase::finished,
             symbolSearcher, &QObject::deleteLater);
     watcher->setFuture(Utils::runAsync(m_manager->sharedThreadPool(),
                                        &SymbolSearcher::runSearch, symbolSearcher));
-    FutureProgress *progress = ProgressManager::addTask(watcher->future(), tr("Searching for Symbol"),
+    FutureProgress *progress = ProgressManager::addTask(watcher->future(), Tr::tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
@@ -154,9 +155,7 @@ void SymbolsFindFilter::openEditor(const SearchResultItem &item)
     if (!item.userData().canConvert<IndexItem::Ptr>())
         return;
     IndexItem::Ptr info = item.userData().value<IndexItem::Ptr>();
-    EditorManager::openEditorAt({FilePath::fromString(info->fileName()),
-                                 info->line(),
-                                 info->column()},
+    EditorManager::openEditorAt({info->filePath(), info->line(), info->column()},
                                 {},
                                 Core::EditorManager::AllowExternalEditor);
 }
@@ -205,22 +204,22 @@ void SymbolsFindFilter::onAllTasksFinished(Id type)
 
 QString SymbolsFindFilter::label() const
 {
-    return tr("C++ Symbols:");
+    return Tr::tr("C++ Symbols:");
 }
 
 QString SymbolsFindFilter::toolTip(FindFlags findFlags) const
 {
     QStringList types;
     if (m_symbolsToSearch & SymbolSearcher::Classes)
-        types.append(tr("Classes"));
+        types.append(Tr::tr("Classes"));
     if (m_symbolsToSearch & SymbolSearcher::Functions)
-        types.append(tr("Functions"));
+        types.append(Tr::tr("Functions"));
     if (m_symbolsToSearch & SymbolSearcher::Enums)
-        types.append(tr("Enums"));
+        types.append(Tr::tr("Enums"));
     if (m_symbolsToSearch & SymbolSearcher::Declarations)
-        types.append(tr("Declarations"));
-    return tr("Scope: %1\nTypes: %2\nFlags: %3")
-        .arg(searchScope() == SymbolSearcher::SearchGlobal ? tr("All") : tr("Projects"),
+        types.append(Tr::tr("Declarations"));
+    return Tr::tr("Scope: %1\nTypes: %2\nFlags: %3")
+        .arg(searchScope() == SymbolSearcher::SearchGlobal ? Tr::tr("All") : Tr::tr("Projects"),
              types.join(", "),
              IFindFilter::descriptionForFindFlags(findFlags));
 }
@@ -237,19 +236,19 @@ SymbolsFindFilterConfigWidget::SymbolsFindFilterConfigWidget(SymbolsFindFilter *
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    auto typeLabel = new QLabel(tr("Types:"));
+    auto typeLabel = new QLabel(Tr::tr("Types:"));
     layout->addWidget(typeLabel, 0, 0);
 
-    m_typeClasses = new QCheckBox(tr("Classes"));
+    m_typeClasses = new QCheckBox(Tr::tr("Classes"));
     layout->addWidget(m_typeClasses, 0, 1);
 
-    m_typeMethods = new QCheckBox(tr("Functions"));
+    m_typeMethods = new QCheckBox(Tr::tr("Functions"));
     layout->addWidget(m_typeMethods, 0, 2);
 
-    m_typeEnums = new QCheckBox(tr("Enums"));
+    m_typeEnums = new QCheckBox(Tr::tr("Enums"));
     layout->addWidget(m_typeEnums, 1, 1);
 
-    m_typeDeclarations = new QCheckBox(tr("Declarations"));
+    m_typeDeclarations = new QCheckBox(Tr::tr("Declarations"));
     layout->addWidget(m_typeDeclarations, 1, 2);
 
     // hacks to fix layouting:
@@ -267,10 +266,10 @@ SymbolsFindFilterConfigWidget::SymbolsFindFilterConfigWidget(SymbolsFindFilter *
     connect(m_typeDeclarations, &QAbstractButton::clicked,
             this, &SymbolsFindFilterConfigWidget::setState);
 
-    m_searchProjectsOnly = new QRadioButton(tr("Projects only"));
+    m_searchProjectsOnly = new QRadioButton(Tr::tr("Projects only"));
     layout->addWidget(m_searchProjectsOnly, 2, 1);
 
-    m_searchGlobal = new QRadioButton(tr("All files"));
+    m_searchGlobal = new QRadioButton(Tr::tr("All files"));
     layout->addWidget(m_searchGlobal, 2, 2);
 
     m_searchGroup = new QButtonGroup(this);

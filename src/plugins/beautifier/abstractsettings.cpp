@@ -1,13 +1,15 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "abstractsettings.h"
 
 #include "beautifierconstants.h"
 #include "beautifierplugin.h"
+#include "beautifiertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/genericconstants.h>
@@ -22,20 +24,17 @@
 
 using namespace Utils;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
-namespace {
 const char COMMAND[]        = "command";
 const char SUPPORTED_MIME[] = "supportedMime";
-}
 
 class VersionUpdater
 {
 public:
     VersionUpdater()
     {
-        QObject::connect(&m_process, &QtcProcess::done, [this] {
+        QObject::connect(&m_process, &QtcProcess::done, &m_process, [this] {
             if (m_process.result() != ProcessResult::FinishedWithSuccess)
                 return;
 
@@ -160,10 +159,10 @@ QString AbstractSettings::styleFileName(const QString &key) const
 
 FilePath AbstractSettings::command() const
 {
-    return FilePath::fromString(m_command);
+    return m_command;
 }
 
-void AbstractSettings::setCommand(const QString &cmd)
+void AbstractSettings::setCommand(const FilePath &cmd)
 {
     if (cmd == m_command)
         return;
@@ -248,7 +247,7 @@ void AbstractSettings::save()
         s->setValue(iSettings.key(), iSettings.value());
         ++iSettings;
     }
-    s->setValue(COMMAND, m_command);
+    s->setValue(COMMAND, m_command.toSettings());
     s->setValue(SUPPORTED_MIME, supportedMimeTypesAsString());
     s->endGroup();
     s->endGroup();
@@ -276,20 +275,20 @@ void AbstractSettings::save()
 
         const QFileInfo fi(styleFileName(iStyles.key()));
         if (!(m_styleDir.mkpath(fi.absolutePath()))) {
-            BeautifierPlugin::showError(tr("Cannot save styles. %1 does not exist.")
+            BeautifierPlugin::showError(Tr::tr("Cannot save styles. %1 does not exist.")
                                         .arg(fi.absolutePath()));
             continue;
         }
 
         FileSaver saver(FilePath::fromUserInput(fi.absoluteFilePath()));
         if (saver.hasError()) {
-            BeautifierPlugin::showError(tr("Cannot open file \"%1\": %2.")
+            BeautifierPlugin::showError(Tr::tr("Cannot open file \"%1\": %2.")
                                         .arg(saver.filePath().toUserOutput())
                                         .arg(saver.errorString()));
         } else {
             saver.write(iStyles.value().toLocal8Bit());
             if (!saver.finalize()) {
-                BeautifierPlugin::showError(tr("Cannot save file \"%1\": %2.")
+                BeautifierPlugin::showError(Tr::tr("Cannot save file \"%1\": %2.")
                                             .arg(saver.filePath().toUserOutput())
                                             .arg(saver.errorString()));
             }
@@ -318,7 +317,7 @@ void AbstractSettings::read()
     const QStringList keys = s->allKeys();
     for (const QString &key : keys) {
         if (key == COMMAND)
-            setCommand(s->value(key).toString());
+            setCommand(FilePath::fromSettings(s->value(key)));
         else if (key == SUPPORTED_MIME)
             setSupportedMimeTypes(s->value(key).toString());
         else if (m_settings.contains(key))
@@ -339,7 +338,7 @@ void AbstractSettings::readDocumentation()
 {
     const QString filename = documentationFilePath();
     if (filename.isEmpty()) {
-        BeautifierPlugin::showError(tr("No documentation file specified."));
+        BeautifierPlugin::showError(Tr::tr("No documentation file specified."));
         return;
     }
 
@@ -348,7 +347,7 @@ void AbstractSettings::readDocumentation()
         createDocumentationFile();
 
     if (!file.open(QIODevice::ReadOnly)) {
-        BeautifierPlugin::showError(tr("Cannot open documentation file \"%1\".").arg(filename));
+        BeautifierPlugin::showError(Tr::tr("Cannot open documentation file \"%1\".").arg(filename));
         return;
     }
 
@@ -356,7 +355,7 @@ void AbstractSettings::readDocumentation()
     if (!xml.readNextStartElement())
         return;
     if (xml.name() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
-        BeautifierPlugin::showError(tr("The file \"%1\" is not a valid documentation file.")
+        BeautifierPlugin::showError(Tr::tr("The file \"%1\" is not a valid documentation file.")
                                     .arg(filename));
         return;
     }
@@ -387,7 +386,7 @@ void AbstractSettings::readDocumentation()
     }
 
     if (xml.hasError()) {
-        BeautifierPlugin::showError(tr("Cannot read documentation file \"%1\": %2.")
+        BeautifierPlugin::showError(Tr::tr("Cannot read documentation file \"%1\": %2.")
                                     .arg(filename).arg(xml.errorString()));
     }
 }
@@ -413,5 +412,4 @@ void AbstractSettings::readStyles()
     }
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

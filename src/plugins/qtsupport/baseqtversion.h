@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -99,7 +99,7 @@ public:
     QString qtVersionString() const;
     QVersionNumber qtVersion() const;
 
-    QStringList qtSoPaths() const;
+    Utils::FilePaths qtSoPaths() const;
 
     bool hasExamples() const;
     bool hasDocs() const;
@@ -131,7 +131,7 @@ public:
     /// Check a .pro-file/Qt version combination on possible issues
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
-    ProjectExplorer::Tasks reportIssues(const QString &proFile, const QString &buildDir) const;
+    ProjectExplorer::Tasks reportIssues(const Utils::FilePath &proFile, const Utils::FilePath &buildDir) const;
 
     static bool isQmlDebuggingSupported(const ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQmlDebuggingSupported(QString *reason = nullptr) const;
@@ -198,7 +198,8 @@ protected:
     QtVersion(const QtVersion &other) = delete;
 
     virtual QSet<Utils::Id> availableFeatures() const;
-    virtual ProjectExplorer::Tasks reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
+    virtual ProjectExplorer::Tasks reportIssuesImpl(const Utils::FilePath &proFile,
+                                                    const Utils::FilePath &buildDir) const;
 
     virtual ProjectExplorer::Abis detectQtAbis() const;
 

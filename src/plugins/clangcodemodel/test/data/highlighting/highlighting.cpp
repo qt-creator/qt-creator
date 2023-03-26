@@ -1049,3 +1049,6 @@ void useStrangeStruct(StructWithMisleadingMemberNames *s) {
     s->operatormember = 5;
     s->operatorMethod();
 }
+
+template<typename T> concept NoConstraint = true;
+static void constrainedFunc(NoConstraint auto t) {}

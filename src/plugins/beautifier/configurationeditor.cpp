@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "configurationeditor.h"
 
@@ -14,8 +14,7 @@
 #include <QScrollBar>
 #include <QStringListModel>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 ConfigurationSyntaxHighlighter::ConfigurationSyntaxHighlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent)
@@ -233,5 +232,4 @@ void ConfigurationEditor::updateDocumentation()
     emit documentationChanged(word, doc);
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

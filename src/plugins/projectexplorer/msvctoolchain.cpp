@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "msvctoolchain.h"
 
@@ -8,6 +8,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 #include "taskhub.h"
 
 #include <coreplugin/icore.h>
@@ -783,9 +784,19 @@ void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
     QObject::connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, [&]() {
         const GenerateEnvResult &result = m_envModWatcher.result();
         if (result.error) {
-            const QString &errorMessage = *result.error;
-            if (!errorMessage.isEmpty())
-                TaskHub::addTask(CompileTask(Task::Error, errorMessage));
+            QString errorMessage = *result.error;
+            if (!errorMessage.isEmpty()) {
+                Task::TaskType severity;
+                if (m_environmentModifications.isEmpty()) {
+                    severity = Task::Error;
+                } else {
+                    severity = Task::Warning;
+                    errorMessage.prepend(
+                        Tr::tr("Falling back to use the cached environment for \"%1\" after:")
+                                .arg(displayName()) + '\n');
+                }
+                TaskHub::addTask(CompileTask(severity, errorMessage));
+            }
         } else {
             updateEnvironmentModifications(result.environmentItems);
         }
@@ -848,7 +859,7 @@ MsvcToolChain::MsvcToolChain(Utils::Id typeId)
     : ToolChain(typeId)
 {
     setDisplayName("Microsoft Visual C++ Compiler");
-    setTypeDisplayName(tr("MSVC"));
+    setTypeDisplayName(Tr::tr("MSVC"));
     addToAvailableMsvcToolchains(this);
     setTargetAbiKey(KEY_ROOT "SupportedAbi");
 }
@@ -1143,7 +1154,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
 {
     // We cache the full environment (incoming + modifications by setup script).
-    if (!m_resultEnvironment.isValid() || env != m_lastEnvironment) {
+    if (!m_resultEnvironment.hasChanges() || env != m_lastEnvironment) {
         qCDebug(Log) << "addToEnvironment: " << displayName();
         m_lastEnvironment = env;
         m_resultEnvironment = readEnvironmentSetting(env);
@@ -1263,7 +1274,7 @@ MsvcBasedToolChainConfigWidget::MsvcBasedToolChainConfigWidget(ToolChain *tc)
     m_nameDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_mainLayout->addRow(m_nameDisplayLabel);
     m_varsBatDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    m_mainLayout->addRow(tr("Initialization:"), m_varsBatDisplayLabel);
+    m_mainLayout->addRow(Tr::tr("Initialization:"), m_varsBatDisplayLabel);
 }
 
 static QString msvcVarsToDisplay(const MsvcToolChain &tc)
@@ -1311,7 +1322,7 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     const bool isAmd64
             = Utils::HostOsInfo::hostArchitecture() == Utils::HostOsInfo::HostArchitectureAMD64;
      // TODO: Add missing values to MsvcToolChain::Platform
-    m_varsBatArchCombo->addItem(tr("<empty>"), isAmd64 ? MsvcToolChain::amd64 : MsvcToolChain::x86);
+    m_varsBatArchCombo->addItem(Tr::tr("<empty>"), isAmd64 ? MsvcToolChain::amd64 : MsvcToolChain::x86);
     m_varsBatArchCombo->addItem("x86", MsvcToolChain::x86);
     m_varsBatArchCombo->addItem("amd64", MsvcToolChain::amd64);
     m_varsBatArchCombo->addItem("arm", MsvcToolChain::arm);
@@ -1327,12 +1338,12 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     m_varsBatArchCombo->addItem("arm64_x86", MsvcToolChain::arm64_x86);
     m_varsBatArchCombo->addItem("arm64_amd64", MsvcToolChain::arm64_amd64);
     m_varsBatArgumentsEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    m_varsBatArgumentsEdit->setToolTip(tr("Additional arguments for the vcvarsall.bat call"));
+    m_varsBatArgumentsEdit->setToolTip(Tr::tr("Additional arguments for the vcvarsall.bat call"));
     hLayout->addWidget(m_varsBatPathCombo);
     hLayout->addWidget(m_varsBatArchCombo);
     hLayout->addWidget(m_varsBatArgumentsEdit);
-    m_mainLayout->addRow(tr("Initialization:"), hLayout);
-    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(Tr::tr("Initialization:"), hLayout);
+    m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
     addErrorLabel();
     setFromMsvcToolChain();
 
@@ -1461,7 +1472,7 @@ void MsvcToolChainConfigWidget::handleVcVarsArchChange(const QString &)
 QString MsvcToolChainConfigWidget::vcVarsArguments() const
 {
     QString varsBatArg
-            = m_varsBatArchCombo->currentText() == tr("<empty>")
+            = m_varsBatArchCombo->currentText() == Tr::tr("<empty>")
             ? "" : m_varsBatArchCombo->currentText();
     if (!m_varsBatArgumentsEdit->text().isEmpty())
         varsBatArg += QLatin1Char(' ') + m_varsBatArgumentsEdit->text();
@@ -1480,19 +1491,19 @@ ClangClToolChainConfigWidget::ClangClToolChainConfigWidget(ToolChain *tc) :
 
     m_varsBatDisplayCombo->setObjectName("varsBatCombo");
     m_varsBatDisplayCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_mainLayout->addRow(tr("Initialization:"), m_varsBatDisplayCombo);
+    m_mainLayout->addRow(Tr::tr("Initialization:"), m_varsBatDisplayCombo);
 
     if (tc->isAutoDetected()) {
         m_llvmDirLabel = new QLabel(this);
         m_llvmDirLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        m_mainLayout->addRow(tr("&Compiler path:"), m_llvmDirLabel);
+        m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_llvmDirLabel);
     } else {
         const QStringList gnuVersionArgs = QStringList("--version");
         m_compilerCommand = new Utils::PathChooser(this);
         m_compilerCommand->setExpectedKind(Utils::PathChooser::ExistingCommand);
         m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
         m_compilerCommand->setHistoryCompleter("PE.Clang.Command.History");
-        m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+        m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     }
     addErrorLabel();
     setFromClangClToolChain();
@@ -1605,7 +1616,6 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
         return res;
     }
 
-    Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
     const Abi targetAbi = toolChain->targetAbi();
     const QString name = QString("%1LLVM %2 bit based on %3")
                              .arg(QLatin1String(isDefault ? "Default " : ""))
@@ -1620,8 +1630,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
                     return false;
                 if (tc->language() != language)
                     return false;
-                return systemEnvironment.isSameExecutable(tc->compilerCommand().toString(),
-                                                          clangClPath.toString());
+                return tc->compilerCommand().isSameExecutable(clangClPath);
             }));
         if (tc) {
             res << tc;
@@ -1688,7 +1697,7 @@ ClangClToolChain::ClangClToolChain()
     : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
 {
     setDisplayName("clang-cl");
-    setTypeDisplayName(QCoreApplication::translate("ProjectExplorer::ClangToolChainFactory", "Clang"));
+    setTypeDisplayName(Tr::tr("Clang"));
 }
 
 bool ClangClToolChain::isValid() const
@@ -1811,7 +1820,7 @@ ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeader
 
 MsvcToolChainFactory::MsvcToolChainFactory()
 {
-    setDisplayName(MsvcToolChain::tr("MSVC"));
+    setDisplayName(Tr::tr("MSVC"));
     setSupportedToolChainType(Constants::MSVC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID); });
@@ -2008,7 +2017,7 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
 
 ClangClToolChainFactory::ClangClToolChainFactory()
 {
-    setDisplayName(ClangClToolChain::tr("clang-cl"));
+    setDisplayName(Tr::tr("clang-cl"));
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setSupportedToolChainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
     setToolchainConstructor([] { return new ClangClToolChain; });
@@ -2144,9 +2153,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
         QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())
             command += ' ' + batchArgs;
-        return QCoreApplication::translate("ProjectExplorer::Internal::MsvcToolChain",
-                                           "Failed to retrieve MSVC Environment from \"%1\":\n"
-                                           "%2")
+        return Tr::tr("Failed to retrieve MSVC Environment from \"%1\":\n%2")
             .arg(command, message);
     }
 

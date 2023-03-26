@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljseditingsettingspage.h"
 #include "qmljseditorconstants.h"
@@ -7,11 +7,16 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <qmljstools/qmljstoolsconstants.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
+#include <utils/qtcsettings.h>
+#include <utils/variablechooser.h>
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QSettings>
 #include <QTextStream>
 
@@ -23,6 +28,10 @@ const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
 const char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
 const char USE_LATEST_QMLLS[] = "QmlJSEditor.UseLatestQmlls";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
+const char FORMAT_COMMAND[] = "QmlJSEditor.formatCommand";
+const char FORMAT_COMMAND_OPTIONS[] = "QmlJSEditor.formatCommandOptions";
+const char CUSTOM_COMMAND[] = "QmlJSEditor.useCustomFormatCommand";
+const char DEFAULT_CUSTOM_FORMAT_COMMAND[] = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat";
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -45,6 +54,9 @@ void QmlJsEditingSettings::fromSettings(QSettings *settings)
     m_uiQmlOpenMode = settings->value(UIQML_OPEN_MODE, "").toString();
     m_qmllsSettings.useQmlls = settings->value(USE_QMLLS, QVariant(false)).toBool();
     m_qmllsSettings.useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
+    m_formatCommand = settings->value(FORMAT_COMMAND, {}).toString();
+    m_formatCommandOptions = settings->value(FORMAT_COMMAND_OPTIONS, {}).toString();
+    m_useCustomFormatCommand = settings->value(CUSTOM_COMMAND, QVariant(false)).toBool();
     settings->endGroup();
 }
 
@@ -59,6 +71,15 @@ void QmlJsEditingSettings::toSettings(QSettings *settings) const
     settings->setValue(UIQML_OPEN_MODE, m_uiQmlOpenMode);
     settings->setValue(USE_QMLLS, m_qmllsSettings.useQmlls);
     settings->setValue(USE_LATEST_QMLLS, m_qmllsSettings.useLatestQmlls);
+    Utils::QtcSettings::setValueWithDefault(settings, FORMAT_COMMAND, m_formatCommand, {});
+    Utils::QtcSettings::setValueWithDefault(settings,
+                                            FORMAT_COMMAND_OPTIONS,
+                                            m_formatCommandOptions,
+                                            {});
+    Utils::QtcSettings::setValueWithDefault(settings,
+                                            CUSTOM_COMMAND,
+                                            m_useCustomFormatCommand,
+                                            false);
     settings->endGroup();
     QmllsSettingsManager::instance()->checkForChanges();
 }
@@ -69,9 +90,10 @@ bool QmlJsEditingSettings::equals(const QmlJsEditingSettings &other) const
            && m_pinContextPane == other.m_pinContextPane
            && m_autoFormatOnSave == other.m_autoFormatOnSave
            && m_autoFormatOnlyCurrentProject == other.m_autoFormatOnlyCurrentProject
-           && m_foldAuxData == other.m_foldAuxData
-           && m_qmllsSettings == other.m_qmllsSettings
-           && m_uiQmlOpenMode == other.m_uiQmlOpenMode;
+           && m_foldAuxData == other.m_foldAuxData && m_qmllsSettings == other.m_qmllsSettings
+           && m_uiQmlOpenMode == other.m_uiQmlOpenMode && m_formatCommand == other.m_formatCommand
+           && m_formatCommandOptions == other.m_formatCommandOptions
+           && m_useCustomFormatCommand == other.m_useCustomFormatCommand;
 }
 
 bool QmlJsEditingSettings::enableContextPane() const
@@ -124,6 +146,41 @@ void QmlJsEditingSettings::setFoldAuxData(const bool foldAuxData)
     m_foldAuxData = foldAuxData;
 }
 
+QString QmlJsEditingSettings::defaultFormatCommand() const
+{
+    return DEFAULT_CUSTOM_FORMAT_COMMAND;
+}
+
+QString QmlJsEditingSettings::formatCommand() const
+{
+    return m_formatCommand;
+}
+
+void QmlJsEditingSettings::setFormatCommand(const QString &formatCommand)
+{
+    m_formatCommand = formatCommand;
+}
+
+QString QmlJsEditingSettings::formatCommandOptions() const
+{
+    return m_formatCommandOptions;
+}
+
+void QmlJsEditingSettings::setFormatCommandOptions(const QString &formatCommandOptions)
+{
+    m_formatCommandOptions = formatCommandOptions;
+}
+
+bool QmlJsEditingSettings::useCustomFormatCommand() const
+{
+    return m_useCustomFormatCommand;
+}
+
+void QmlJsEditingSettings::setUseCustomFormatCommand(bool customCommand)
+{
+    m_useCustomFormatCommand = customCommand;
+}
+
 QmllsSettings &QmlJsEditingSettings::qmllsSettigs()
 {
     return m_qmllsSettings;
@@ -156,6 +213,16 @@ public:
                 new QCheckBox(Tr::tr("Restrict to files contained in the current project"));
         autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
         autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
+        useCustomFormatCommand = new QCheckBox(
+            Tr::tr("Use custom command instead of built-in formatter"));
+        useCustomFormatCommand->setChecked(s.useCustomFormatCommand());
+        auto formatCommandLabel = new QLabel(Tr::tr("Command:"));
+        formatCommand = new QLineEdit();
+        formatCommand->setText(s.formatCommand());
+        formatCommand->setPlaceholderText(s.defaultFormatCommand());
+        auto formatCommandOptionsLabel = new QLabel(Tr::tr("Arguments:"));
+        formatCommandOptions = new QLineEdit();
+        formatCommandOptions->setText(s.formatCommandOptions());
         pinContextPane = new QCheckBox(Tr::tr("Pin Qt Quick Toolbar"));
         pinContextPane->setChecked(s.pinContextPane());
         enableContextPane = new QCheckBox(Tr::tr("Always show Qt Quick Toolbar"));
@@ -171,20 +238,32 @@ public:
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
-        useQmlls = new QCheckBox(tr("Use qmlls (EXPERIMENTAL!)"));
+        useQmlls = new QCheckBox(Tr::tr("Use qmlls (EXPERIMENTAL!)"));
         useQmlls->setChecked(s.qmllsSettigs().useQmlls);
-        useLatestQmlls = new QCheckBox(tr("Always use latest qmlls"));
+        useLatestQmlls = new QCheckBox(Tr::tr("Always use latest qmlls"));
         useLatestQmlls->setChecked(s.qmllsSettigs().useLatestQmlls);
         useLatestQmlls->setEnabled(s.qmllsSettigs().useQmlls);
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
             useLatestQmlls->setEnabled(checked != Qt::Unchecked);
         });
         using namespace Utils::Layouting;
-        Column {
+        // clang-format off
+        const auto formattingGroup =
             Group {
                 title(Tr::tr("Automatic Formatting on File Save")),
-                Column { autoFormatOnSave, autoFormatOnlyCurrentProject },
-            },
+                Column {
+                    autoFormatOnSave,
+                    autoFormatOnlyCurrentProject,
+                    useCustomFormatCommand,
+                    Form {
+                        formatCommandLabel, formatCommand, br,
+                        formatCommandOptionsLabel, formatCommandOptions
+                    }
+                },
+            };
+
+        Column {
+            formattingGroup,
             Group {
                 title(Tr::tr("Qt Quick Toolbars")),
                 Column { pinContextPane, enableContextPane },
@@ -197,15 +276,32 @@ public:
                 },
             },
             Group{
-                title(tr("Language Server")),
+                title(Tr::tr("Language Server")),
                 Column{useQmlls, useLatestQmlls},
             },
             st,
-        }
-            .attachTo(this);
+        }.attachTo(this);
+        // clang-format on
 
-        connect(autoFormatOnSave, &QCheckBox::toggled,
-                autoFormatOnlyCurrentProject, &QWidget::setEnabled);
+        Utils::VariableChooser::addSupportForChildWidgets(formattingGroup.widget,
+                                                          Utils::globalMacroExpander());
+
+        const auto updateFormatCommandState = [&, formatCommandLabel, formatCommandOptionsLabel] {
+            const bool enabled = useCustomFormatCommand->isChecked()
+                                 && autoFormatOnSave->isChecked();
+            formatCommandLabel->setEnabled(enabled);
+            formatCommand->setEnabled(enabled);
+            formatCommandOptionsLabel->setEnabled(enabled);
+            formatCommandOptions->setEnabled(enabled);
+        };
+        updateFormatCommandState();
+
+        connect(autoFormatOnSave, &QCheckBox::toggled, this, [&, updateFormatCommandState]() {
+            autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
+            useCustomFormatCommand->setEnabled(autoFormatOnSave->isChecked());
+            updateFormatCommandState();
+        });
+        connect(useCustomFormatCommand, &QCheckBox::toggled, this, updateFormatCommandState);
     }
 
     void apply() final
@@ -215,6 +311,9 @@ public:
         s.setPinContextPane(pinContextPane->isChecked());
         s.setAutoFormatOnSave(autoFormatOnSave->isChecked());
         s.setAutoFormatOnlyCurrentProject(autoFormatOnlyCurrentProject->isChecked());
+        s.setUseCustomFormatCommand(useCustomFormatCommand->isChecked());
+        s.setFormatCommand(formatCommand->text());
+        s.setFormatCommandOptions(formatCommandOptions->text());
         s.setFoldAuxData(foldAuxData->isChecked());
         s.setUiQmlOpenMode(uiQmlOpenComboBox->currentData().toString());
         s.qmllsSettigs().useQmlls = useQmlls->isChecked();
@@ -225,6 +324,9 @@ public:
 private:
     QCheckBox *autoFormatOnSave;
     QCheckBox *autoFormatOnlyCurrentProject;
+    QCheckBox *useCustomFormatCommand;
+    QLineEdit *formatCommand;
+    QLineEdit *formatCommandOptions;
     QCheckBox *pinContextPane;
     QCheckBox *enableContextPane;
     QCheckBox *foldAuxData;

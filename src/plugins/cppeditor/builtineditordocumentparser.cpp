@@ -1,17 +1,18 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "builtineditordocumentparser.h"
 
 #include "cppsourceprocessor.h"
 
-#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacro.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -22,15 +23,18 @@ static QByteArray overwrittenToolchainDefines(const ProjectPart &projectPart)
     // MSVC's predefined macros like __FUNCSIG__ expand to itself.
     // We can't parse this, so redefine to the empty string literal.
     if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        defines += "#define __FUNCSIG__ \"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"\n"
-                   "#define __FUNCDNAME__ \"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"\n"
-                   "#define __FUNCTION__ \"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"\n";
+        defines += "#define __FUNCSIG__ \"void __cdecl "
+                   "someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"\n"
+                   "#define __FUNCDNAME__ "
+                   "\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"\n"
+                   "#define __FUNCTION__ "
+                   "\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"\n";
     }
 
     return defines;
 }
 
-BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath,
+BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const FilePath &filePath,
                                                          int fileSizeLimitInMb)
     : BaseEditorDocumentParser(filePath)
     , m_fileSizeLimitInMb(fileSizeLimitInMb)
@@ -56,17 +60,17 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     CppModelManager *modelManager = CppModelManager::instance();
     QByteArray configFile = modelManager->codeModelConfiguration();
     ProjectExplorer::HeaderPaths headerPaths;
-    QStringList includedFiles;
-    QStringList precompiledHeaders;
+    FilePaths includedFiles;
+    FilePaths precompiledHeaders;
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
-    baseState.projectPartInfo = determineProjectPart(filePath(),
-                                                    baseConfig.preferredProjectPartId,
-                                                    baseState.projectPartInfo,
-                                                    updateParams.activeProject,
-                                                    updateParams.languagePreference,
-                                                    updateParams.projectsUpdated);
+    baseState.projectPartInfo = determineProjectPart(filePath().toString(),
+                                                     baseConfig.preferredProjectPartId,
+                                                     baseState.projectPartInfo,
+                                                     updateParams.activeProject,
+                                                     updateParams.languagePreference,
+                                                     updateParams.projectsUpdated);
     emit projectPartInfoUpdated(baseState.projectPartInfo);
 
     if (state.forceSnapshotInvalidation) {
@@ -82,9 +86,9 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
             configFile += ProjectPart::readProjectConfigFile(part->projectConfigFile);
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
-        includedFiles = part->includedFiles;
+        includedFiles = Utils::transform(part->includedFiles, &FilePath::fromString);
         if (baseConfig.usePrecompiledHeaders)
-            precompiledHeaders = part->precompiledHeaders;
+            precompiledHeaders = Utils::transform(part->precompiledHeaders, &FilePath::fromString);
         features = part->languageFeatures;
     }
 
@@ -130,22 +134,22 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     if (invalidateSnapshot) {
         state.snapshot = Snapshot();
         if (!baseState.editorDefines.isEmpty()) {
-                workingCopy.insert(CppModelManager::editorConfigurationFileName(),
-                                   baseState.editorDefines);
+            workingCopy.insert(CppModelManager::editorConfigurationFileName(),
+                               baseState.editorDefines);
         }
     } else {
         // Remove changed files from the snapshot
         QSet<Utils::FilePath> toRemove;
         for (const Document::Ptr &doc : std::as_const(state.snapshot)) {
-            const Utils::FilePath fileName = Utils::FilePath::fromString(doc->fileName());
-            if (workingCopy.contains(fileName)) {
-                if (workingCopy.get(fileName).second != doc->editorRevision())
-                    addFileAndDependencies(&state.snapshot, &toRemove, fileName);
+            const Utils::FilePath filePath = doc->filePath();
+            if (workingCopy.contains(filePath)) {
+                if (workingCopy.get(filePath).second != doc->editorRevision())
+                    addFileAndDependencies(&state.snapshot, &toRemove, filePath);
                 continue;
             }
-            Document::Ptr otherDoc = globalSnapshot.document(fileName);
+            Document::Ptr otherDoc = globalSnapshot.document(filePath);
             if (!otherDoc.isNull() && otherDoc->revision() != doc->revision())
-                addFileAndDependencies(&state.snapshot, &toRemove, fileName);
+                addFileAndDependencies(&state.snapshot, &toRemove, filePath);
         }
 
         if (!toRemove.isEmpty()) {
@@ -157,7 +161,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     // Update the snapshot
     if (invalidateSnapshot) {
-        const QString configurationFileName = CppModelManager::configurationFileName();
+        const FilePath configurationFileName = CppModelManager::configurationFileName();
         if (invalidateConfig)
             state.snapshot.remove(configurationFileName);
         if (!state.snapshot.contains(configurationFileName))
@@ -165,9 +169,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         state.snapshot.remove(filePath());
 
         Internal::CppSourceProcessor sourceProcessor(state.snapshot, [&](const Document::Ptr &doc) {
-            const QString fileName = doc->fileName();
-            const bool isInEditor = fileName == filePath();
-            Document::Ptr otherDoc = modelManager->document(fileName);
+            const bool isInEditor = doc->filePath() == filePath();
+            Document::Ptr otherDoc = modelManager->document(doc->filePath());
             unsigned newRev = otherDoc.isNull() ? 1U : otherDoc->revision() + 1;
             if (isInEditor)
                 newRev = qMax(rev + 1, newRev);
@@ -177,9 +180,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
                 doc->releaseSourceAndAST();
         });
         sourceProcessor.setFileSizeLimitInMb(m_fileSizeLimitInMb);
-        sourceProcessor.setCancelChecker([future]() {
-           return future.isCanceled();
-        });
+        sourceProcessor.setCancelChecker([future]() { return future.isCanceled(); });
 
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(filePath());
@@ -189,19 +190,21 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         sourceProcessor.setLanguageFeatures(features);
         sourceProcessor.run(configurationFileName);
         if (baseConfig.usePrecompiledHeaders) {
-            for (const QString &precompiledHeader : std::as_const(state.precompiledHeaders))
+            for (const FilePath &precompiledHeader : std::as_const(state.precompiledHeaders))
                 sourceProcessor.run(precompiledHeader);
         }
         if (!baseState.editorDefines.isEmpty())
             sourceProcessor.run(CppModelManager::editorConfigurationFileName());
-        QStringList includedFiles = state.includedFiles;
+        FilePaths includedFiles = state.includedFiles;
         if (baseConfig.usePrecompiledHeaders)
             includedFiles << state.precompiledHeaders;
-        includedFiles.removeDuplicates();
+        FilePath::removeDuplicates(includedFiles);
         sourceProcessor.run(filePath(), includedFiles);
         state.snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = state.snapshot.simplified(state.snapshot.document(filePath()));
-        for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end(); i != ei; ++i) {
+        for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end();
+             i != ei;
+             ++i) {
             if (Client::isInjectedFile(i.key().toString()))
                 newSnapshot.insert(i.value());
         }
@@ -239,7 +242,7 @@ ProjectExplorer::HeaderPaths BuiltinEditorDocumentParser::headerPaths() const
     return extraState().headerPaths;
 }
 
-BuiltinEditorDocumentParser::Ptr BuiltinEditorDocumentParser::get(const QString &filePath)
+BuiltinEditorDocumentParser::Ptr BuiltinEditorDocumentParser::get(const FilePath &filePath)
 {
     if (BaseEditorDocumentParser::Ptr b = BaseEditorDocumentParser::get(filePath))
         return b.objectCast<BuiltinEditorDocumentParser>();
@@ -253,7 +256,7 @@ void BuiltinEditorDocumentParser::addFileAndDependencies(Snapshot *snapshot,
     QTC_ASSERT(snapshot, return);
 
     toRemove->insert(fileName);
-    if (fileName != Utils::FilePath::fromString(filePath())) {
+    if (fileName != filePath()) {
         Utils::FilePaths deps = snapshot->filesDependingOn(fileName);
         toRemove->unite(Utils::toSet(deps));
     }

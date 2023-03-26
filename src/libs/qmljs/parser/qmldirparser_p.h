@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -102,9 +102,11 @@ public:
     struct Import
     {
         enum Flag {
-            Default  = 0x0,
-            Auto     = 0x1, // forward the version of the importing module
-            Optional = 0x2  // is not automatically imported but only a tooling hint
+            Default = 0x0,
+            Auto = 0x1,     // forward the version of the importing module
+            Optional = 0x2, // is not automatically imported but only a tooling hint
+            OptionalDefault
+            = 0x4, // tooling hint only, denotes this entry should be imported by tooling
         };
         Q_DECLARE_FLAGS(Flags, Flag)
 
@@ -117,6 +119,11 @@ public:
         QString module;
         LanguageUtils::ComponentVersion version;     // invalid version is latest version, unless Flag::Auto
         Flags flags;
+
+        friend bool operator==(const Import &a, const Import &b)
+        {
+            return a.module == b.module && a.version == b.version && a.flags == b.flags;
+        }
     };
 
     QMultiHash<QString,Component> components() const { return _components; }
@@ -125,6 +132,8 @@ public:
     QList<Script> scripts() const { return _scripts; }
     QList<Plugin> plugins() const { return _plugins; }
     bool designerSupported() const { return _designerSupported; }
+    bool isStaticModule() const { return _isStaticModule; }
+    bool isSystemModule() const { return _isSystemModule; }
 
     QStringList typeInfos() const { return _typeInfos; }
     QStringList classNames() const { return _classNames; }
@@ -145,6 +154,8 @@ private:
     QList<Script> _scripts;
     QList<Plugin> _plugins;
     bool _designerSupported = false;
+    bool _isStaticModule = false;
+    bool _isSystemModule = false;
     QStringList _typeInfos;
     QStringList _classNames;
     QString _linkTarget;

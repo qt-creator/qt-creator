@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cpppointerdeclarationformatter_test.h"
 
@@ -24,6 +24,7 @@
 #include <QtTest>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 Q_DECLARE_METATYPE(CppEditor::Internal::Overview)
 
@@ -63,11 +64,11 @@ public:
         // Write source to temprorary file
         CppEditor::Tests::TemporaryDir temporaryDir;
         QVERIFY(temporaryDir.isValid());
-        const QString filePath = temporaryDir.createFile("file.h", sourceWithoutCursorMarker);
+        const FilePath filePath = temporaryDir.createFile("file.h", sourceWithoutCursorMarker);
         QVERIFY(!filePath.isEmpty());
 
         // Preprocess source
-        Environment env;
+        CPlusPlus::Environment env;
         Preprocessor preprocess(nullptr, &env);
         const QByteArray preprocessedSource = preprocess.run(filePath, sourceWithoutCursorMarker);
 
@@ -83,9 +84,7 @@ public:
         QScopedPointer<TextEditor::BaseTextEditor> editor(
                     TextEditor::PlainTextEditorFactory::createPlainTextEditor());
         QString error;
-        editor->document()->open(&error,
-                                 Utils::FilePath::fromString(document->fileName()),
-                                 Utils::FilePath::fromString(document->fileName()));
+        editor->document()->open(&error, document->filePath(), document->filePath());
         QVERIFY(error.isEmpty());
 
         // Set cursor position

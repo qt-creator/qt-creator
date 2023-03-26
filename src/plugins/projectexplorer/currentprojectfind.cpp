@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "currentprojectfind.h"
 
 #include "project.h"
+#include "projectexplorertr.h"
 #include "projecttree.h"
 #include "session.h"
 
@@ -38,9 +39,9 @@ QString CurrentProjectFind::displayName() const
 {
     Project *p = ProjectTree::currentProject();
     if (p)
-        return tr("Project \"%1\"").arg(p->displayName());
+        return Tr::tr("Project \"%1\"").arg(p->displayName());
     else
-        return tr("Current Project");
+        return Tr::tr("Current Project");
 }
 
 bool CurrentProjectFind::isEnabled() const
@@ -74,7 +75,7 @@ QString CurrentProjectFind::label() const
 {
     Project *p = ProjectTree::currentProject();
     QTC_ASSERT(p, return QString());
-    return tr("Project \"%1\":").arg(p->displayName());
+    return Tr::tr("Project \"%1\":").arg(p->displayName());
 }
 
 void CurrentProjectFind::handleProjectChanged()

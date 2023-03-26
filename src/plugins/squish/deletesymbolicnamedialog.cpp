@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "deletesymbolicnamedialog.h"
 
@@ -104,11 +104,11 @@ DeleteSymbolicNameDialog::~DeleteSymbolicNameDialog() = default;
 
 void DeleteSymbolicNameDialog::updateDetailsLabel(const QString &nameToDelete)
 {
-    const char *detailsText = QT_TR_NOOP(
+    const QString detailsText = Tr::tr(
         "The Symbolic Name <span style='white-space: nowrap'>\"%1\"</span> you "
         "want to remove is used in Multi Property Names. Select the action to "
         "apply to references in these Multi Property Names.");
-    m_detailsLabel->setText(tr(detailsText).arg(nameToDelete));
+    m_detailsLabel->setText(detailsText.arg(nameToDelete));
 }
 
 void DeleteSymbolicNameDialog::populateSymbolicNamesList(const QStringList &symbolicNames)

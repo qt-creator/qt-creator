@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cleandialog.h"
 
+#include "vcsbasetr.h"
 #include "vcsoutputwindow.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -53,15 +54,15 @@ static void removeFileRecursion(QFutureInterface<void> &futureInterface,
             removeFileRecursion(futureInterface, fi, errorMessage);
         QDir parent = f.absoluteDir();
         if (!parent.rmdir(f.fileName()))
-            errorMessage->append(VcsBase::CleanDialog::tr("The directory %1 could not be deleted.").
-                                 arg(QDir::toNativeSeparators(f.absoluteFilePath())));
+            errorMessage->append(Tr::tr("The directory %1 could not be deleted.")
+                                     .arg(QDir::toNativeSeparators(f.absoluteFilePath())));
         return;
     }
     if (!QFile::remove(f.absoluteFilePath())) {
         if (!errorMessage->isEmpty())
             errorMessage->append(QLatin1Char('\n'));
-        errorMessage->append(VcsBase::CleanDialog::tr("The file %1 could not be deleted.").
-                             arg(QDir::toNativeSeparators(f.absoluteFilePath())));
+        errorMessage->append(Tr::tr("The file %1 could not be deleted.")
+                                 .arg(QDir::toNativeSeparators(f.absoluteFilePath())));
     }
 }
 
@@ -81,8 +82,8 @@ static void runCleanFiles(QFutureInterface<void> &futureInterface,
     }
     if (!errorMessage.isEmpty()) {
         // Format and emit error.
-        const QString msg = CleanDialog::tr("There were errors when cleaning the repository %1:").
-                            arg(repository.toUserOutput());
+        const QString msg = Tr::tr("There were errors when cleaning the repository %1:")
+                                .arg(repository.toUserOutput());
         errorMessage.insert(0, QLatin1Char('\n'));
         errorMessage.insert(0, msg);
         errorHandler(errorMessage);
@@ -91,7 +92,7 @@ static void runCleanFiles(QFutureInterface<void> &futureInterface,
 
 static void handleError(const QString &errorMessage)
 {
-    QTimer::singleShot(0, VcsOutputWindow::instance(), [errorMessage]() {
+    QTimer::singleShot(0, VcsOutputWindow::instance(), [errorMessage] {
         VcsOutputWindow::instance()->appendSilently(errorMessage);
     });
 }
@@ -134,16 +135,16 @@ CleanDialog::CleanDialog(QWidget *parent) :
 {
     setModal(true);
     resize(682, 659);
-    setWindowTitle(tr("Clean Repository"));
+    setWindowTitle(Tr::tr("Clean Repository"));
 
     d->m_groupBox = new QGroupBox(this);
 
-    d->m_selectAllCheckBox = new QCheckBox(tr("Select All"));
+    d->m_selectAllCheckBox = new QCheckBox(Tr::tr("Select All"));
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel);
-    buttonBox->addButton(tr("Delete..."), QDialogButtonBox::AcceptRole);
+    buttonBox->addButton(Tr::tr("Delete..."), QDialogButtonBox::AcceptRole);
 
-    d->m_filesModel->setHorizontalHeaderLabels(QStringList(tr("Name")));
+    d->m_filesModel->setHorizontalHeaderLabels(QStringList(Tr::tr("Name")));
 
     d->m_filesTreeView = new QTreeView;
     d->m_filesTreeView->setModel(d->m_filesModel);
@@ -184,7 +185,7 @@ void CleanDialog::setFileList(const FilePath &workingDirectory, const QStringLis
                               const QStringList &ignoredFiles)
 {
     d->m_workingDirectory = workingDirectory;
-    d->m_groupBox->setTitle(tr("Repository: %1").arg(workingDirectory.toUserOutput()));
+    d->m_groupBox->setTitle(Tr::tr("Repository: %1").arg(workingDirectory.toUserOutput()));
     if (const int oldRowCount = d->m_filesModel->rowCount())
         d->m_filesModel->removeRows(0, oldRowCount);
 
@@ -219,8 +220,8 @@ void CleanDialog::addFile(const FilePath &workingDirectory, const QString &fileN
     if (fullPath.isFile()) {
         const QString lastModified = QLocale::system().toString(fullPath.lastModified(),
                                                                 QLocale::ShortFormat);
-        nameItem->setToolTip(tr("%n bytes, last modified %1.", nullptr,
-                                fullPath.fileSize()).arg(lastModified));
+        nameItem->setToolTip(Tr::tr("%n bytes, last modified %1.", nullptr,
+                                    fullPath.fileSize()).arg(lastModified));
     }
     d->m_filesModel->appendRow(nameItem);
 }
@@ -251,8 +252,8 @@ bool CleanDialog::promptToDelete()
     if (selectedFiles.isEmpty())
         return true;
 
-    if (QMessageBox::question(this, tr("Delete"),
-                              tr("Do you want to delete %n files?", nullptr, selectedFiles.size()),
+    if (QMessageBox::question(this, Tr::tr("Delete"),
+                              Tr::tr("Do you want to delete %n files?", nullptr, selectedFiles.size()),
                               QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
         return false;
 
@@ -260,7 +261,7 @@ bool CleanDialog::promptToDelete()
     QFuture<void> task = runAsync(Internal::runCleanFiles, d->m_workingDirectory,
                                   selectedFiles, Internal::handleError);
 
-    const QString taskName = tr("Cleaning \"%1\"").arg(d->m_workingDirectory.toUserOutput());
+    const QString taskName = Tr::tr("Cleaning \"%1\"").arg(d->m_workingDirectory.toUserOutput());
     Core::ProgressManager::addTask(task, taskName, "VcsBase.cleanRepository");
     return true;
 }

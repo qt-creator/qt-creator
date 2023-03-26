@@ -98,10 +98,11 @@ enum {
     And             = 8,
     Equality        = 9,
     Relational      = 10,
-    Shift           = 11,
-    Additive        = 12,
-    Multiplicative  = 13,
-    PointerToMember = 14
+    ThreeWayComp    = 11,
+    Shift           = 12,
+    Additive        = 13,
+    Multiplicative  = 14,
+    PointerToMember = 15
 };
 } // namespace Precedece
 
@@ -116,29 +117,30 @@ inline int precedence(int tokenKind, bool templateArguments)
         return Prec::Assignment;
 
     switch (tokenKind) {
-    case T_COMMA:           return Prec::Comma;
-    case T_QUESTION:        return Prec::Conditional;
-    case T_PIPE_PIPE:       return Prec::LogicalOr;
-    case T_AMPER_AMPER:     return Prec::LogicalAnd;
-    case T_PIPE:            return Prec::InclusiveOr;
-    case T_CARET:           return Prec::ExclusiveOr;
-    case T_AMPER:           return Prec::And;
+    case T_COMMA:               return Prec::Comma;
+    case T_QUESTION:            return Prec::Conditional;
+    case T_PIPE_PIPE:           return Prec::LogicalOr;
+    case T_AMPER_AMPER:         return Prec::LogicalAnd;
+    case T_PIPE:                return Prec::InclusiveOr;
+    case T_CARET:               return Prec::ExclusiveOr;
+    case T_AMPER:               return Prec::And;
     case T_EQUAL_EQUAL:
-    case T_EXCLAIM_EQUAL:   return Prec::Equality;
+    case T_EXCLAIM_EQUAL:       return Prec::Equality;
     case T_GREATER:
     case T_LESS:
     case T_LESS_EQUAL:
-    case T_GREATER_EQUAL:   return Prec::Relational;
+    case T_GREATER_EQUAL:       return Prec::Relational;
+    case T_LESS_EQUAL_GREATER:  return Prec::ThreeWayComp;
     case T_LESS_LESS:
-    case T_GREATER_GREATER: return Prec::ExclusiveOr;
+    case T_GREATER_GREATER:     return Prec::ExclusiveOr;
     case T_PLUS:
-    case T_MINUS:           return Prec::Additive;
+    case T_MINUS:               return Prec::Additive;
     case T_STAR:
     case T_SLASH:
-    case T_PERCENT:         return Prec::Multiplicative;
+    case T_PERCENT:             return Prec::Multiplicative;
     case T_ARROW_STAR:
-    case T_DOT_STAR:        return Prec::PointerToMember;
-    default:                return Prec::Unknown;
+    case T_DOT_STAR:            return Prec::PointerToMember;
+    default:                    return Prec::Unknown;
     }
 }
 
@@ -1300,6 +1302,7 @@ bool Parser::parseOperator(OperatorAST *&node) // ### FIXME
     case T_GREATER_EQUAL:
     case T_GREATER_GREATER_EQUAL:
     case T_LESS_EQUAL:
+    case T_LESS_EQUAL_GREATER:
     case T_LESS_LESS_EQUAL:
     case T_MINUS_EQUAL:
     case T_PERCENT_EQUAL:

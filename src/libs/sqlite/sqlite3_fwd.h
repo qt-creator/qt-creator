@@ -1,9 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#ifdef SQLITE_STATIC_LIBRARY
+#if defined(SQLITE_STATIC_LIBRARY) || defined(SQLITEC_STATIC_LIBRARY)
 using sqlite3 = struct qtc_sqlite3;
 using sqlite3_stmt = struct qtc_sqlite3_stmt;
 using sqlite3_session = struct qtc_sqlite3_session;

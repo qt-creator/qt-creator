@@ -178,8 +178,7 @@
 
             \image qtcreator-searchresults.png
 
-            A list of files containing the searched text is displayed in
-            \l {Search Results}.
+            \l {Search Results} shows a list of files that have the searched text.
 
             \list
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "indexwindow.h"
 
@@ -175,10 +175,7 @@ void IndexWindow::disableSearchLineEdit()
 void IndexWindow::open(const QModelIndex &index, bool newPage)
 {
     const QString keyword = m_filteredIndexModel->data(index, Qt::DisplayRole).toString();
-    QMultiMap<QString, QUrl> links;
-    const QList<QHelpLink> docs = LocalHelpManager::helpEngine().documentsForKeyword(keyword);
-    for (const auto &doc : docs)
-        links.insert(doc.title, doc.url);
+    const QMultiMap<QString, QUrl> links = LocalHelpManager::linksForKeyword(keyword);
 
     emit linksActivated(links, keyword, newPage);
 }

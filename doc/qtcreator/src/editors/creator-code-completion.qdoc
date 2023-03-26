@@ -9,7 +9,7 @@
     \title Completing Code
 
     As you write code, \QC suggests properties, IDs, and code snippets to
-    complete the code. It provides a list of suggestions to
+    complete the code. It shows a list of suggestions to
     the statement currently under your cursor. Press \key Tab
     or \key Enter to accept the selected suggestion and complete the code.
 
@@ -166,11 +166,11 @@
 
     \image qml-snippet-editor.png
 
-    \QC provides you with built-in snippets in the following categories:
+    \QC has built-in snippets in the following categories:
 
     \list
 
-        \li Text snippets, which can contain any text string. For example, code
+        \li Text snippets, which can have any text string. For example, code
             comments
 
         \if defined(qtcreator)
@@ -204,7 +204,7 @@
     You can use \l{Using Qt Creator Variables}{predefined variables} in
     snippets.
 
-    The snippet editor provides you with:
+    The snippet editor offers:
 
     \list
 
@@ -271,8 +271,8 @@
 
     \section2 Removing Snippets
 
-    Several similar built-in snippets might be provided for different use cases.
-    To make the list of suggestions shorter when you write code, remove the
+    The list of suggestions might show several similar built-in snippets for
+    different use cases. To make it shorter when you write code, remove the
     built-in snippets that you do not need. If you need them later, you can
     restore them.
 

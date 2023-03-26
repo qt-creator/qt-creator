@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "webassemblyconstants.h"
 #include "webassemblyrunconfiguration.h"
@@ -11,14 +11,14 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 static FilePath pythonInterpreter(const Environment &env)
 {
@@ -45,7 +45,7 @@ static CommandLine emrunCommand(const Target *target,
         const FilePath emrun = env.searchInPath("emrun");
         const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
         const FilePath targetPath = bc->buildSystem()->buildTarget(buildKey).targetFilePath;
-        const FilePath html = targetPath.absolutePath() / targetPath.baseName() + ".html";
+        const FilePath html = targetPath.absolutePath() / (targetPath.baseName() + ".html");
 
         QStringList args(emrunPy.path());
         if (!browser.isEmpty()) {
@@ -111,11 +111,6 @@ public:
     }
 };
 
-RunWorkerFactory::WorkerCreator makeEmrunWorker()
-{
-    return RunWorkerFactory::make<EmrunRunWorker>();
-}
-
 // Factories
 
 EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
@@ -124,5 +119,11 @@ EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
     addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);
 }
 
-} // namespace Internal
-} // namespace Webassembly
+EmrunRunWorkerFactory::EmrunRunWorkerFactory()
+{
+    setProduct<EmrunRunWorker>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
+}
+
+} // Webassembly::Internal

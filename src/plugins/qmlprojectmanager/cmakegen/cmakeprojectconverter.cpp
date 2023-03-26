@@ -1,9 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "cmakeprojectconverter.h"
 #include "cmakeprojectconverterdialog.h"
 #include "generatecmakelists.h"
 #include "generatecmakelistsconstants.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -25,16 +26,11 @@ using namespace QmlProjectManager::GenerateCmake::Constants;
 namespace QmlProjectManager {
 namespace GenerateCmake {
 
-const QString MENU_ITEM_CONVERT = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
-                                                              "Export as Latest Project Format...");
-const QString ERROR_TITLE = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
-                                                        "Creating Project");
-const QString SUCCESS_TITLE = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
-                                                          "Creating Project");
-const QString ERROR_TEXT = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
-                                                       "Creating project failed.\n%1");
-const QString SUCCESS_TEXT = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
-                                                         "Creating project succeeded.");
+const QString MENU_ITEM_CONVERT = Tr::tr("Export as Latest Project Format...");
+const QString ERROR_TITLE = Tr::tr("Creating Project");
+const QString SUCCESS_TITLE = Tr::tr("Creating Project");
+const QString ERROR_TEXT = Tr::tr("Creating project failed.\n%1");
+const QString SUCCESS_TEXT = Tr::tr("Creating project succeeded.");
 
 void CmakeProjectConverter::generateMenuEntry(QObject *parent)
 {
@@ -173,8 +169,7 @@ bool CmakeProjectConverter::isDirBlacklisted(const Utils::FilePath &dir) const
     return false;
 }
 
-const QString ERROR_CANNOT_WRITE_DIR = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
-                                                                   "Unable to write to directory\n%1.");
+const QString ERROR_CANNOT_WRITE_DIR = Tr::tr("Unable to write to directory\n%1.");
 
 bool CmakeProjectConverter::performSanityCheck()
 {

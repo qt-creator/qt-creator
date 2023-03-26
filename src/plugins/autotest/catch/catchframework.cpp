@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Jochen Seemann
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "catchframework.h"
 
@@ -32,9 +32,7 @@ ITestParser *CatchFramework::createTestParser()
 
 ITestTreeItem *CatchFramework::createRootNode()
 {
-    return new CatchTreeItem(this,
-                             displayName(),
-                             Utils::FilePath(), ITestTreeItem::Root);
+    return new CatchTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 } // namespace Internal

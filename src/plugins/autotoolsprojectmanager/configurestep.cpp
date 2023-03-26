@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Openismus GmbH.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "configurestep.h"
 
@@ -15,26 +15,11 @@
 #include <utils/aspects.h>
 
 #include <QDateTime>
-#include <QDir>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
-
-// Helper Function
-
-static QString projectDirRelativeToBuildDir(BuildConfiguration *bc)
-{
-    const QDir buildDir(bc->buildDirectory().toString());
-    QString projDirToBuildDir = buildDir.relativeFilePath(
-        bc->project()->projectDirectory().toString());
-    if (projDirToBuildDir.isEmpty())
-        return QString("./");
-    if (!projDirToBuildDir.endsWith('/'))
-        projDirToBuildDir.append('/');
-    return projDirToBuildDir;
-}
 
 // ConfigureStep
 
@@ -77,8 +62,6 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
         m_runConfigure = true;
     });
 
-    setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
-
     setCommandLineProvider([this, arguments] {
         return getCommandLine(arguments->value());
     });
@@ -93,24 +76,17 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
 
 CommandLine ConfigureStep::getCommandLine(const QString &arguments)
 {
-    BuildConfiguration *bc = buildConfiguration();
-
-    return CommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
-                        arguments,
-                        CommandLine::Raw});
+    return {project()->projectDirectory() / "configure", arguments, CommandLine::Raw};
 }
 
 void ConfigureStep::doRun()
 {
-    //Check whether we need to run configure
-    const QString projectDir(project()->projectDirectory().toString());
-    const QFileInfo configureInfo(projectDir + "/configure");
-    const QFileInfo configStatusInfo(buildDirectory().toString() + "/config.status");
+    // Check whether we need to run configure
+    const FilePath configure = project()->projectDirectory() / "configure";
+    const FilePath configStatus = buildDirectory() / "config.status";
 
-    if (!configStatusInfo.exists()
-        || configStatusInfo.lastModified() < configureInfo.lastModified()) {
+    if (!configStatus.exists() || configStatus.lastModified() < configure.lastModified())
         m_runConfigure = true;
-    }
 
     if (!m_runConfigure) {
         emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);

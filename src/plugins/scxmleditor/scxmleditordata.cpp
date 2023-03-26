@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mainwidget.h"
 #include "scxmleditorconstants.h"
@@ -53,15 +53,15 @@ public:
     ScxmlTextEditorFactory()
     {
         setId(ScxmlEditor::Constants::K_SCXML_EDITOR_ID);
-        setEditorCreator([]() { return new ScxmlTextEditor; });
-        setEditorWidgetCreator([]() { return new ScxmlTextEditorWidget; });
+        setEditorCreator([] { return new ScxmlTextEditor; });
+        setEditorWidgetCreator([] { return new ScxmlTextEditorWidget; });
         setUseGenericHighlighter(true);
         setDuplicatedSupported(false);
     }
 
     ScxmlTextEditor *create(ScxmlEditor::Common::MainWidget *designWidget)
     {
-        setDocumentCreator([designWidget]() { return new ScxmlEditorDocument(designWidget); });
+        setDocumentCreator([designWidget] { return new ScxmlEditorDocument(designWidget); });
         return qobject_cast<ScxmlTextEditor*>(createEditor());
     }
 };
@@ -70,7 +70,8 @@ ScxmlEditorData::ScxmlEditorData()
 {
     m_contexts.add(ScxmlEditor::Constants::C_SCXMLEDITOR);
 
-    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged, [this](IEditor *editor) {
+    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+                     this, [this](IEditor *editor) {
         if (editor && editor->document()->id() == Constants::K_SCXML_EDITOR_ID) {
             auto xmlEditor = qobject_cast<ScxmlTextEditor*>(editor);
             QTC_ASSERT(xmlEditor, return );
@@ -142,7 +143,8 @@ IEditor *ScxmlEditorData::createEditor()
     if (xmlEditor) {
         Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
                                  Tr::tr("This file can only be edited in <b>Design</b> mode."));
-        info.addCustomButton(Tr::tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
+        info.addCustomButton(Tr::tr("Switch Mode"),
+                             [] { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         xmlEditor->document()->infoBar()->addInfo(info);
     }
 

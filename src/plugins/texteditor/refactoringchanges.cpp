@@ -1,25 +1,25 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "refactoringchanges.h"
-#include "texteditor.h"
-#include "textdocument.h"
 
-#include <coreplugin/icore.h>
+#include "textdocument.h"
+#include "texteditor.h"
+#include "texteditortr.h"
+
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QFile>
-#include <QFileInfo>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QDebug>
-#include <QApplication>
 
 using namespace Core;
 using namespace Utils;
@@ -297,9 +297,7 @@ bool RefactoringFile::apply()
     // test file permissions
     if (!m_filePath.toFileInfo().isWritable()) {
         ReadOnlyFilesDialog roDialog(m_filePath, ICore::dialogParent());
-        const QString &failDetailText = QApplication::translate("RefactoringFile::apply",
-                                                                "Refactoring cannot be applied.");
-        roDialog.setShowFailWarning(true, failDetailText);
+        roDialog.setShowFailWarning(true, Tr::tr("Refactoring cannot be applied."));
         if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
             return false;
     }

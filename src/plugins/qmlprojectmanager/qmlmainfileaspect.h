@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -38,11 +38,11 @@ public:
 
     struct Data : BaseAspect::Data
     {
-        QString mainScript;
-        QString currentFile;
+        Utils::FilePath mainScript;
+        Utils::FilePath currentFile;
     };
 
-    void addToLayout(Utils::LayoutBuilder &builder) final;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
 
@@ -52,8 +52,8 @@ public:
 
     void setScriptSource(MainScriptSource source, const QString &settingsPath = QString());
 
-    QString mainScript() const;
-    QString currentFile() const;
+    Utils::FilePath mainScript() const;
+    Utils::FilePath currentFile() const;
     void changeCurrentFile(Core::IEditor *editor = nullptr);
     bool isQmlFilePresent();
     QmlBuildSystem *qmlBuildSystem() const;
@@ -64,9 +64,9 @@ public:
     QStandardItemModel m_fileListModel;
     QString m_scriptFile;
     // absolute path to current file (if being used)
-    QString m_currentFileFilename;
+    Utils::FilePath m_currentFileFilename;
     // absolute path to selected main script (if being used)
-    QString m_mainScriptFilename;
+    Utils::FilePath m_mainScriptFilename;
 };
 
-} // namespace QmlProjectManager
+} // QmlProjectManager

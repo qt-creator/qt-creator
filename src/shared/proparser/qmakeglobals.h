@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -81,6 +81,7 @@ public:
 #ifdef PROEVALUATOR_SETENV
     QProcessEnvironment environment;
 #endif
+    QString device_root;
     QString qmake_abslocation;
     QStringList qmake_args, qmake_extra_args;
 
@@ -102,7 +103,8 @@ public:
     void commitCommandLineArguments(QMakeCmdLineParserState &state);
     void setCommandLineArguments(const QString &pwd, const QStringList &args);
     void useEnvironment();
-    void setDirectories(const QString &input_dir, const QString &output_dir);
+    void setDirectories(const QString &input_dir, const QString &output_dir,
+                        const QString &device_root);
 #ifdef QT_BUILD_QMAKE
     void setQMakeProperty(QMakeProperty *prop) { property = prop; }
     void reloadProperties() { property->reload(); }

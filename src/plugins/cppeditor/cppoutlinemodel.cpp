@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppoutlinemodel.h"
 
@@ -31,8 +31,8 @@ public:
             switch (role) {
             case Qt::DisplayRole:
                 if (parent()->childCount() > 1)
-                    return QString(QT_TRANSLATE_NOOP("CppEditor::OverviewModel", "<Select Symbol>"));
-                return QString(QT_TRANSLATE_NOOP("CppEditor::OverviewModel", "<No Symbols>"));
+                    return QString(QT_TRANSLATE_NOOP("QtC::CppEditor", "<Select Symbol>"));
+                return QString(QT_TRANSLATE_NOOP("QtC::CppEditor", "<No Symbols>"));
             default:
                 return QVariant();
             }

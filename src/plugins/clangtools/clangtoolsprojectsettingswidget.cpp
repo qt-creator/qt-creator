@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtoolsprojectsettingswidget.h"
 
@@ -7,7 +7,7 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
-#include "clangtoolsutils.h"
+#include "clangtoolstr.h"
 #include "runsettingswidget.h"
 
 #include <coreplugin/icore.h>
@@ -53,27 +53,29 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
     m_projectSettings(ClangToolsProjectSettings::getSettings(project))
 {
     setGlobalSettingsId(ClangTools::Constants::SETTINGS_PAGE_ID);
-    m_restoreGlobal = new QPushButton(tr("Restore Global Settings"));
+    m_restoreGlobal = new QPushButton(Tr::tr("Restore Global Settings"));
 
-    auto gotoAnalyzerModeLabel =
-            new QLabel("<a href=\"target\">" + tr("Go to Analyzer") + "</a>");
+    const auto gotoClangTidyModeLabel
+            = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clang-Tidy") + "</a>");
+    const auto gotoClazyModeLabel
+            = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clazy") + "</a>");
 
     m_runSettingsWidget = new ClangTools::Internal::RunSettingsWidget(this);
 
     m_diagnosticsView = new QTreeView;
     m_diagnosticsView->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    m_removeSelectedButton = new QPushButton(tr("Remove Selected"), this);
-    m_removeAllButton = new QPushButton(tr("Remove All"));
+    m_removeSelectedButton = new QPushButton(Tr::tr("Remove Selected"), this);
+    m_removeAllButton = new QPushButton(Tr::tr("Remove All"));
 
     using namespace Utils::Layouting;
     Column {
-        Row { m_restoreGlobal, st, gotoAnalyzerModeLabel },
+        Row { m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel },
 
         m_runSettingsWidget,
 
         Group {
-            title(tr("Suppressed diagnostics")),
+            title(Tr::tr("Suppressed diagnostics")),
             Row {
                 m_diagnosticsView,
                 Column {
@@ -86,21 +88,22 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
     }.attachTo(this, WithoutMargins);
 
     setUseGlobalSettings(m_projectSettings->useGlobalSettings());
-    onGlobalCustomChanged();
+    onGlobalCustomChanged(useGlobalSettings());
     connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            this, QOverload<bool>::of(&ClangToolsProjectSettingsWidget::onGlobalCustomChanged));
+            this, &ClangToolsProjectSettingsWidget::onGlobalCustomChanged);
 
     // Global settings
-    connect(ClangToolsSettings::instance(),
-            &ClangToolsSettings::changed,
-            this,
-            QOverload<>::of(&ClangToolsProjectSettingsWidget::onGlobalCustomChanged));
+    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
+            this, [this] { onGlobalCustomChanged(useGlobalSettings()); });
     connect(m_restoreGlobal, &QPushButton::clicked, this, [this] {
         m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
     });
 
-    connect(gotoAnalyzerModeLabel, &QLabel::linkActivated, [](const QString &) {
-        ClangTool::instance()->selectPerspective();
+    connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {
+        ClangTidyTool::instance()->selectPerspective();
+    });
+    connect(gotoClazyModeLabel, &QLabel::linkActivated, [](const QString &) {
+        ClazyTool::instance()->selectPerspective();
     });
 
     // Run options
@@ -133,11 +136,6 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
             this, [this](bool) { removeSelected(); });
     connect(m_removeAllButton, &QAbstractButton::clicked,
             this, [this](bool) { m_projectSettings->removeAllSuppressedDiagnostics();});
-}
-
-void ClangToolsProjectSettingsWidget::onGlobalCustomChanged()
-{
-    onGlobalCustomChanged(useGlobalSettings());
 }
 
 void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
@@ -200,9 +198,9 @@ QVariant SuppressedDiagnosticsModel::headerData(int section, Qt::Orientation ori
 {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         if (section == ColumnFile)
-            return tr("File");
+            return Tr::tr("File");
         if (section == ColumnDescription)
-            return tr("Diagnostic");
+            return Tr::tr("Diagnostic");
     }
     return QVariant();
 }

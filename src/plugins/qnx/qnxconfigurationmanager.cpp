@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxconfigurationmanager.h"
 
@@ -29,7 +29,6 @@ QnxConfigurationManager::QnxConfigurationManager()
 {
     m_instance = this;
     m_writer = new PersistentSettingsWriter(qnxConfigSettingsFileName(), "QnxConfigurations");
-    restoreConfigurations();
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &QnxConfigurationManager::saveConfigs);
 }
@@ -98,7 +97,6 @@ void QnxConfigurationManager::saveConfigs()
         data.insert(QNXConfigDataKey + QString::number(count), tmp);
         ++count;
     }
-
 
     data.insert(QLatin1String(QNXConfigCountKey), count);
     m_writer->save(data, Core::ICore::dialogParent());

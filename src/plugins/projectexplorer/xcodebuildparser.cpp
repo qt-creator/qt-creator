@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "xcodebuildparser.h"
 
-#include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "task.h"
 
 #include <utils/qtcassert.h>
@@ -53,7 +53,7 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
                 const int filePathEndPos = lne.size()
                         - QLatin1String(signatureChangeEndsWithPattern).size();
                 CompileTask task(Task::Warning,
-                                 tr("Replacing signature"),
+                                 Tr::tr("Replacing signature"),
                                  absoluteFilePath(FilePath::fromString(
                                      lne.left(filePathEndPos))));
                 LinkSpecs linkSpecs;
@@ -68,7 +68,7 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
     if (match.hasMatch()) {
         ++m_fatalErrorCount;
         m_xcodeBuildParserState = UnknownXcodebuildState;
-        scheduleTask(CompileTask(Task::Error, tr("Xcodebuild failed.")), 1);
+        scheduleTask(CompileTask(Task::Error, Tr::tr("Xcodebuild failed.")), 1);
     }
     if (m_xcodeBuildParserState == OutsideXcodebuild)
         return Status::NotHandled;
@@ -205,8 +205,7 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << (Tasks()
-                << CompileTask(Task::Error,
-                               XcodebuildParser::tr("Xcodebuild failed.")))
+                << CompileTask(Task::Error, Tr::tr("Xcodebuild failed.")))
             << QString()
             << XcodebuildParser::UnknownXcodebuildState;
 
@@ -218,8 +217,7 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("outErr\n")
             << (Tasks()
-                << CompileTask(Task::Error,
-                               XcodebuildParser::tr("Xcodebuild failed.")))
+                << CompileTask(Task::Error, Tr::tr("Xcodebuild failed.")))
             << QString()
             << XcodebuildParser::UnknownXcodebuildState;
 
@@ -229,8 +227,7 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
             << QString() << QString()
             << (Tasks()
                 << CompileTask(Task::Warning,
-                               XcodebuildParser::tr("Replacing signature"),
-                               "/somepath/somefile.app"))
+                               Tr::tr("Replacing signature"), "/somepath/somefile.app"))
             << QString()
             << XcodebuildParser::InXcodebuild;
 

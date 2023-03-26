@@ -1,22 +1,22 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "targetsetuppage.h"
-#include "buildconfiguration.h"
+
 #include "buildinfo.h"
 #include "importwidget.h"
+#include "ipotentialkit.h"
 #include "kit.h"
 #include "kitmanager.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "session.h"
 #include "target.h"
 #include "targetsetupwidget.h"
 #include "task.h"
 
 #include <coreplugin/icore.h>
-
-#include <projectexplorer/ipotentialkit.h>
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -81,20 +81,20 @@ public:
         noValidKitLabel = new QLabel(setupTargetPage);
         noValidKitLabel->setWordWrap(true);
         noValidKitLabel->setText("<span style=\" font-weight:600;\">"
-                                 + TargetSetupPage::tr("No suitable kits found.") + "</span><br/>"
-                                 + TargetSetupPage::tr("Add a kit in the <a href=\"buildandrun\">"
-                                                       "options</a> or via the maintenance tool of"
-                                                       " the SDK."));
+                                 + Tr::tr("No suitable kits found.") + "</span><br/>"
+                                 + Tr::tr("Add a kit in the <a href=\"buildandrun\">"
+                                          "options</a> or via the maintenance tool of"
+                                          " the SDK."));
         noValidKitLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
         noValidKitLabel->setVisible(false);
 
         allKitsCheckBox = new QCheckBox(setupTargetPage);
         allKitsCheckBox->setTristate(true);
-        allKitsCheckBox->setText(TargetSetupPage::tr("Select all kits"));
+        allKitsCheckBox->setText(Tr::tr("Select all kits"));
 
         kitFilterLineEdit = new FancyLineEdit(setupTargetPage);
         kitFilterLineEdit->setFiltering(true);
-        kitFilterLineEdit->setPlaceholderText(TargetSetupPage::tr("Type to filter kits by name..."));
+        kitFilterLineEdit->setPlaceholderText(Tr::tr("Type to filter kits by name..."));
 
         centralWidget = new QWidget(setupTargetPage);
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -149,9 +149,7 @@ static TasksGenerator defaultTasksGenerator(const TasksGenerator &childGenerator
 {
     return [childGenerator](const Kit *k) -> Tasks {
         if (!k->isValid())
-            return {
-                CompileTask(Task::Error,
-                            QCoreApplication::translate("ProjectExplorer", "Kit is not valid."))};
+            return {CompileTask(Task::Error, Tr::tr("Kit is not valid."))};
         if (childGenerator)
             return childGenerator(k);
         return {};
@@ -170,7 +168,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent)
     m_importWidget->setVisible(false);
 
     setObjectName(QLatin1String("TargetSetupPage"));
-    setWindowTitle(tr("Select Kits for Your Project"));
+    setWindowTitle(Tr::tr("Select Kits for Your Project"));
     m_ui->setupUi(this);
 
     QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -185,7 +183,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent)
     m_ui->centralWidget->setLayout(new QVBoxLayout);
     m_ui->centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
-    setTitle(tr("Kit Selection"));
+    setTitle(Tr::tr("Kit Selection"));
 
     for (IPotentialKit *pk : std::as_const(g_potentialKits))
         if (pk->isEnabled())
@@ -204,7 +202,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent)
     connect(KitManager::instance(), &KitManager::kitsChanged,
             this, &TargetSetupPage::updateVisibility);
 
-    setProperty(SHORT_TITLE_PROPERTY, tr("Kits"));
+    setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Kits"));
 }
 
 void TargetSetupPage::initializePage()
@@ -300,7 +298,7 @@ void TargetSetupPage::setProjectPath(const FilePath &path)
     if (!m_projectPath.isEmpty()) {
         QFileInfo fileInfo(QDir::cleanPath(path.toString()));
         QStringList subDirsList = fileInfo.absolutePath().split('/');
-        m_ui->headerLabel->setText(tr("The following kits can be used for project <b>%1</b>:",
+        m_ui->headerLabel->setText(Tr::tr("The following kits can be used for project <b>%1</b>:",
                                       "%1: Project name").arg(subDirsList.last()));
     }
     m_ui->headerLabel->setVisible(!m_projectPath.isEmpty());

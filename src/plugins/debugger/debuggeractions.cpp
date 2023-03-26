@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggeractions.h"
 
@@ -122,10 +122,12 @@ DebuggerSettings::DebuggerSettings()
     autoDerefPointers.setLabelText(Tr::tr("Dereference Pointers Automatically"));
     autoDerefPointers.setDefaultValue(true);
     autoDerefPointers.setSettingsKey(debugModeGroup, "AutoDerefPointers");
-    autoDerefPointers.setToolTip(Tr::tr("<p>This switches the Locals and Expressions views to "
-        "automatically dereference pointers. This saves a level in the "
-        "tree view, but also loses data for the now-missing intermediate "
-        "level."));
+    autoDerefPointers.setToolTip(
+        "<p>"
+        + Tr::tr("This switches the Locals and Expressions views to "
+                 "automatically dereference pointers. This saves a level in the "
+                 "tree view, but also loses data for the now-missing intermediate "
+                 "level."));
 
     //
     // Cdb Options
@@ -186,22 +188,26 @@ DebuggerSettings::DebuggerSettings()
     showStdNamespace.setDefaultValue(true);
     showStdNamespace.setDisplayName(Tr::tr("Show \"std::\" Namespace in Types"));
     showStdNamespace.setLabelText(Tr::tr("Show \"std::\" namespace in types"));
-    showStdNamespace.setToolTip(Tr::tr("<p>Shows \"std::\" prefix for types from the standard library."));
+    showStdNamespace.setToolTip(
+        "<p>" + Tr::tr("Shows \"std::\" prefix for types from the standard library."));
 
     showQtNamespace.setSettingsKey(debugModeGroup, "ShowQtNamespace");
     showQtNamespace.setDefaultValue(true);
     showQtNamespace.setDisplayName(Tr::tr("Show Qt's Namespace in Types"));
     showQtNamespace.setLabelText(Tr::tr("Show Qt's namespace in types"));
-    showQtNamespace.setToolTip(Tr::tr("<p>Shows Qt namespace prefix for Qt types. This is only "
-                        "relevant if Qt was configured with \"-qtnamespace\"."));
+    showQtNamespace.setToolTip("<p>"
+                               + Tr::tr("Shows Qt namespace prefix for Qt types. This is only "
+                                        "relevant if Qt was configured with \"-qtnamespace\"."));
 
     showQObjectNames.setSettingsKey(debugModeGroup, "ShowQObjectNames2");
     showQObjectNames.setDefaultValue(true);
     showQObjectNames.setDisplayName(Tr::tr("Show QObject names if available"));
     showQObjectNames.setLabelText(Tr::tr("Show QObject names if available"));
-    showQObjectNames.setToolTip(Tr::tr("<p>Displays the objectName property of QObject based items. "
-                        "Note that this can negatively impact debugger performance "
-                        "even if no QObjects are present."));
+    showQObjectNames.setToolTip(
+        "<p>"
+        + Tr::tr("Displays the objectName property of QObject based items. "
+                 "Note that this can negatively impact debugger performance "
+                 "even if no QObjects are present."));
 
     sortStructMembers.setSettingsKey(debugModeGroup, "SortStructMembers");
     sortStructMembers.setDisplayName(Tr::tr("Sort Members of Classes and Structs Alphabetically"));
@@ -218,14 +224,15 @@ DebuggerSettings::DebuggerSettings()
     useCodeModel.setSettingsKey(debugModeGroup, "UseCodeModel");
     useCodeModel.setDefaultValue(true);
     useCodeModel.setLabelText(Tr::tr("Use code model"));
-    useCodeModel.setToolTip(Tr::tr("<p>Selecting this causes the C++ Code Model being asked "
-      "for variable scope information. This might result in slightly faster "
-      "debugger operation but may fail for optimized code."));
+    useCodeModel.setToolTip(
+        "<p>"
+        + Tr::tr("Selecting this causes the C++ Code Model being asked "
+                 "for variable scope information. This might result in slightly faster "
+                 "debugger operation but may fail for optimized code."));
 
     showThreadNames.setSettingsKey(debugModeGroup, "ShowThreadNames");
     showThreadNames.setLabelText(Tr::tr("Display thread names"));
-    showThreadNames.setToolTip(Tr::tr("<p>Displays names of QThread based threads."));
-
+    showThreadNames.setToolTip("<p>" + Tr::tr("Displays names of QThread based threads."));
 
     //
     // Breakpoints
@@ -233,12 +240,14 @@ DebuggerSettings::DebuggerSettings()
     synchronizeBreakpoints.setLabelText(Tr::tr("Synchronize Breakpoints"));
 
     adjustBreakpointLocations.setDisplayName(Tr::tr("Adjust Breakpoint Locations"));
-    adjustBreakpointLocations.setToolTip(Tr::tr("<p>Not all source code lines generate "
-      "executable code. Putting a breakpoint on such a line acts as "
-      "if the breakpoint was set on the next line that generated code. "
-      "Selecting 'Adjust Breakpoint Locations' shifts the red "
-      "breakpoint markers in such cases to the location of the true "
-      "breakpoint."));
+    adjustBreakpointLocations.setToolTip(
+        "<p>"
+        + Tr::tr("<p>Not all source code lines generate "
+                 "executable code. Putting a breakpoint on such a line acts as "
+                 "if the breakpoint was set on the next line that generated code. "
+                 "Selecting 'Adjust Breakpoint Locations' shifts the red "
+                 "breakpoint markers in such cases to the location of the true "
+                 "breakpoint."));
     adjustBreakpointLocations.setDefaultValue(true);
     adjustBreakpointLocations.setSettingsKey(debugModeGroup, "AdjustBreakpointLocations");
     adjustBreakpointLocations.setLabelText(Tr::tr(
@@ -399,8 +408,10 @@ DebuggerSettings::DebuggerSettings()
 
     useAnnotationsInMainEditor.setSettingsKey(debugModeGroup, "UseAnnotations");
     useAnnotationsInMainEditor.setLabelText(Tr::tr("Use annotations in main editor when debugging"));
-    useAnnotationsInMainEditor.setToolTip(Tr::tr("<p>Shows simple variable values "
-        "as annotations in the main editor during debugging."));
+    useAnnotationsInMainEditor.setToolTip(
+        "<p>"
+        + Tr::tr("Shows simple variable values "
+                 "as annotations in the main editor during debugging."));
     useAnnotationsInMainEditor.setDefaultValue(true);
 
     usePseudoTracepoints.setSettingsKey(debugModeGroup, "UsePseudoTracepoints");
@@ -417,26 +428,31 @@ DebuggerSettings::DebuggerSettings()
 
     useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
     useToolTipsInMainEditor.setLabelText(Tr::tr("Use tooltips in main editor when debugging"));
-    useToolTipsInMainEditor.setToolTip(Tr::tr("<p>Enables tooltips for variable "
-        "values during debugging. Since this can slow down debugging and "
-        "does not provide reliable information as it does not use scope "
-        "information, it is switched off by default."));
+    useToolTipsInMainEditor.setToolTip(
+        "<p>"
+        + Tr::tr("Enables tooltips for variable "
+                 "values during debugging. Since this can slow down debugging and "
+                 "does not provide reliable information as it does not use scope "
+                 "information, it is switched off by default."));
     useToolTipsInMainEditor.setDefaultValue(true);
 
     useToolTipsInLocalsView.setSettingsKey(debugModeGroup, "UseToolTipsInLocalsView");
     useToolTipsInLocalsView.setLabelText(Tr::tr("Use Tooltips in Locals View when Debugging"));
-    useToolTipsInLocalsView.setToolTip(Tr::tr("<p>Enables tooltips in the locals "
-        "view during debugging."));
+    useToolTipsInLocalsView.setToolTip("<p>"
+                                       + Tr::tr("Enables tooltips in the locals "
+                                                "view during debugging."));
 
     useToolTipsInBreakpointsView.setSettingsKey(debugModeGroup, "UseToolTipsInBreakpointsView");
     useToolTipsInBreakpointsView.setLabelText(Tr::tr("Use Tooltips in Breakpoints View when Debugging"));
-    useToolTipsInBreakpointsView.setToolTip(Tr::tr("<p>Enables tooltips in the breakpoints "
-        "view during debugging."));
+    useToolTipsInBreakpointsView.setToolTip("<p>"
+                                            + Tr::tr("Enables tooltips in the breakpoints "
+                                                     "view during debugging."));
 
     useToolTipsInStackView.setSettingsKey(debugModeGroup, "UseToolTipsInStackView");
     useToolTipsInStackView.setLabelText(Tr::tr("Use Tooltips in Stack View when Debugging"));
-    useToolTipsInStackView.setToolTip(Tr::tr("<p>Enables tooltips in the stack "
-        "view during debugging."));
+    useToolTipsInStackView.setToolTip("<p>"
+                                      + Tr::tr("Enables tooltips in the stack "
+                                               "view during debugging."));
     useToolTipsInStackView.setDefaultValue(true);
 
     skipKnownFrames.setSettingsKey(debugModeGroup, "SkipKnownFrames");
@@ -498,9 +514,11 @@ DebuggerSettings::DebuggerSettings()
     displayStringLimit.setRange(20, 10000);
     displayStringLimit.setSingleStep(10);
     displayStringLimit.setLabelText(Tr::tr("Display string length:"));
-    displayStringLimit.setToolTip(Tr::tr("<p>The maximum length of string entries in the "
-        "Locals and Expressions views. Longer than that are cut off "
-        "and displayed with an ellipsis attached."));
+    displayStringLimit.setToolTip(
+        "<p>"
+        + Tr::tr("The maximum length of string entries in the "
+                 "Locals and Expressions views. Longer than that are cut off "
+                 "and displayed with an ellipsis attached."));
 
     maximalStringLength.setSettingsKey(debugModeGroup, "MaximalStringLength");
     maximalStringLength.setDefaultValue(10000);
@@ -508,8 +526,10 @@ DebuggerSettings::DebuggerSettings()
     maximalStringLength.setRange(20, 10000000);
     maximalStringLength.setSingleStep(20);
     maximalStringLength.setLabelText(Tr::tr("Maximum string length:"));
-    maximalStringLength.setToolTip(Tr::tr("<p>The maximum length for strings in separated windows. "
-        "Longer strings are cut off and displayed with an ellipsis attached."));
+    maximalStringLength.setToolTip(
+        "<p>"
+        + Tr::tr("The maximum length for strings in separated windows. "
+                 "Longer strings are cut off and displayed with an ellipsis attached."));
 
     expandStack.setLabelText(Tr::tr("Reload Full Stack"));
 
@@ -567,20 +587,17 @@ DebuggerSettings::DebuggerSettings()
     page2.registerAspect(&loadGdbInit);
     page2.registerAspect(&loadGdbDumpers);
     page2.registerAspect(&intelFlavor);
-    page2.registerAspect(&skipKnownFrames);
     page2.registerAspect(&usePseudoTracepoints);
     page2.registerAspect(&useIndexCache);
     page2.registerAspect(&gdbStartupCommands);
     page2.registerAspect(&gdbPostAttachCommands);
-
-    // Page 3
-    page3.registerAspect(&targetAsync);
-    page3.registerAspect(&autoEnrichParameters);
-    page3.registerAspect(&breakOnWarning);
-    page3.registerAspect(&breakOnFatal);
-    page3.registerAspect(&breakOnAbort);
-    page3.registerAspect(&enableReverseDebugging);
-    page3.registerAspect(&multiInferior);
+    page2.registerAspect(&targetAsync);
+    page2.registerAspect(&autoEnrichParameters);
+    page2.registerAspect(&breakOnWarning);
+    page2.registerAspect(&breakOnFatal);
+    page2.registerAspect(&breakOnAbort);
+    page2.registerAspect(&enableReverseDebugging);
+    page2.registerAspect(&multiInferior);
 
     // Page 4
     page4.registerAspect(&useDebuggingHelpers);
@@ -625,7 +642,6 @@ DebuggerSettings::DebuggerSettings()
     // Collect all
     all.registerAspects(page1);
     all.registerAspects(page2);
-    all.registerAspects(page3);
     all.registerAspects(page4);
     all.registerAspects(page5);
     all.registerAspects(page6);

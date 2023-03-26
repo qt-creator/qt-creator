@@ -1,13 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectfilewizardextension.h"
 
 #include "editorconfiguration.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectnodes.h"
-#include "projecttree.h"
 #include "projecttree.h"
 #include "projectwizardpage.h"
 #include "session.h"
@@ -168,8 +168,8 @@ bool ProjectFileWizardExtension::processFiles(
             message.append(QLatin1String("\n\n"));
             errorMessage->clear();
         }
-        message.append(tr("Open project anyway?"));
-        if (QMessageBox::question(ICore::dialogParent(), tr("Version Control Failure"), message,
+        message.append(Tr::tr("Open project anyway?"));
+        if (QMessageBox::question(ICore::dialogParent(), Tr::tr("Version Control Failure"), message,
                                   QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
             return false;
     }
@@ -190,7 +190,7 @@ bool ProjectFileWizardExtension::processProject(
         return true;
     if (m_context->wizard->kind() == IWizardFactory::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProject(generatedProject)) {
-            *errorMessage = tr("Failed to add subproject \"%1\"\nto project \"%2\".")
+            *errorMessage = Tr::tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                             .arg(generatedProject.toUserOutput()).arg(folder->filePath().toUserOutput());
             return false;
         }
@@ -198,7 +198,7 @@ bool ProjectFileWizardExtension::processProject(
     } else {
         FilePaths filePaths = Utils::transform(files, &GeneratedFile::filePath);
         if (!folder->addFiles(filePaths)) {
-            *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).")
+            *errorMessage = Tr::tr("Failed to add one or more files to project\n\"%1\" (%2).")
                     .arg(folder->filePath().toUserOutput())
                     .arg(FilePath::formatFilePaths(filePaths, ","));
             return false;

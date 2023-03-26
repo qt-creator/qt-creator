@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtkitinformation.h"
 
@@ -60,7 +60,7 @@ public:
 private:
     void makeReadOnly() final { m_combo->setEnabled(false); }
 
-    void addToLayout(LayoutBuilder &builder)
+    void addToLayout(Layouting::LayoutBuilder &builder)
     {
         addMutableAction(m_combo);
         builder.addItem(m_combo);
@@ -208,7 +208,8 @@ void QtKitAspect::fix(Kit *k)
         // Prefer exact matches.
         // TODO: We should probably prefer the compiler with the highest version number instead,
         //       but this information is currently not exposed by the ToolChain class.
-        sort(possibleTcs, [version](const ToolChain *tc1, const ToolChain *tc2) {
+        const FilePaths envPathVar = Environment::systemEnvironment().path();
+        sort(possibleTcs, [version, &envPathVar](const ToolChain *tc1, const ToolChain *tc2) {
             const QVector<Abi> &qtAbis = version->qtAbis();
             const bool tc1ExactMatch = qtAbis.contains(tc1->targetAbi());
             const bool tc2ExactMatch = qtAbis.contains(tc2->targetAbi());
@@ -216,24 +217,37 @@ void QtKitAspect::fix(Kit *k)
                 return true;
             if (!tc1ExactMatch && tc2ExactMatch)
                 return false;
-            return tc1->priority() > tc2->priority();
+
+            // For a multi-arch Qt that support the host ABI, prefer toolchains that match
+            // the host ABI.
+            if (qtAbis.size() > 1 && qtAbis.contains(Abi::hostAbi())) {
+                const bool tc1HasHostAbi = tc1->targetAbi() == Abi::hostAbi();
+                const bool tc2HasHostAbi = tc2->targetAbi() == Abi::hostAbi();
+                if (tc1HasHostAbi && !tc2HasHostAbi)
+                    return true;
+                if (!tc1HasHostAbi && tc2HasHostAbi)
+                    return false;
+            }
+
+            if (tc1->priority() > tc2->priority())
+                return true;
+            if (tc1->priority() < tc2->priority())
+                return false;
+
+            // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
+            // This improves the situation a bit if a cross-compilation tool chain has the
+            // same ABI as the host.
+            const bool tc1IsInPath = envPathVar.contains(tc1->compilerCommand().parentDir());
+            const bool tc2IsInPath = envPathVar.contains(tc2->compilerCommand().parentDir());
+            return tc1IsInPath && !tc2IsInPath;
         });
 
+        // TODO: Why is this not done during sorting?
         const Toolchains goodTcs = Utils::filtered(possibleTcs, [&spec](const ToolChain *t) {
             return t->suggestedMkspecList().contains(spec);
         });
-        // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
-        // This improves the situation a bit if a cross-compilation tool chain has the
-        // same ABI as the host.
-        const Environment systemEnvironment = Environment::systemEnvironment();
-        ToolChain *bestTc = Utils::findOrDefault(goodTcs,
-                                                 [&systemEnvironment](const ToolChain *t) {
-            return systemEnvironment.path().contains(t->compilerCommand().parentDir());
-        });
-        if (!bestTc) {
-            bestTc = goodTcs.isEmpty() ? possibleTcs.first() : goodTcs.first();
-        }
-        if (bestTc)
+
+        if (ToolChain * const bestTc = goodTcs.isEmpty() ? possibleTcs.first() : goodTcs.first())
             ToolChainKitAspect::setAllToolChainsToMatch(k, bestTc);
     }
 }

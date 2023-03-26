@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="10" kateversion="5.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
+<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc;.gitattributes*;.gitconfig*;.gitmodules*;.editorconfig*" mimetype="" version="12" kateversion="5.0" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
 
 <highlighting>
 <list name="keywords">
@@ -65,14 +65,14 @@
 
 
 <itemDatas>
- <itemData name="Normal Text" defStyleNum="dsDataType" />
- <itemData name="Section" defStyleNum="dsKeyword" />
- <itemData name="Comment" defStyleNum="dsComment" />
- <itemData name="Assignment" defStyleNum="dsOthers" />
- <itemData name="Value" defStyleNum="dsString" />
- <itemData name="Float" defStyleNum="dsFloat" />
- <itemData name="Int" defStyleNum="dsDecVal" />
- <itemData name="Keyword" defStyleNum="dsKeyword" />
+ <itemData name="Normal Text" defStyleNum="dsDataType" spellChecking="false"/>
+ <itemData name="Section" defStyleNum="dsKeyword" spellChecking="false"/>
+ <itemData name="Comment" defStyleNum="dsComment"/>
+ <itemData name="Assignment" defStyleNum="dsOthers" spellChecking="false"/>
+ <itemData name="Value" defStyleNum="dsString" spellChecking="false"/>
+ <itemData name="Float" defStyleNum="dsFloat" spellChecking="false"/>
+ <itemData name="Int" defStyleNum="dsDecVal" spellChecking="false"/>
+ <itemData name="Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
 </itemDatas>
 </highlighting>
 

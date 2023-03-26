@@ -1,5 +1,5 @@
 // Copyright (C) 2018 Andre Hartmann <aha_1980@gmx.de>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "branchview.h"
 
@@ -230,12 +230,12 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
     const std::optional<QString> remote = m_model->remoteName(index);
     if (remote.has_value()) {
-        contextMenu.addAction(Tr::tr("&Fetch"), this, [this, &remote]() {
+        contextMenu.addAction(Tr::tr("&Fetch"), this, [this, &remote] {
             GitClient::instance()->fetch(m_repository, *remote);
         });
         contextMenu.addSeparator();
         if (!remote->isEmpty()) {
-            contextMenu.addAction(Tr::tr("Remove &Stale Branches"), this, [this, &remote]() {
+            contextMenu.addAction(Tr::tr("Remove &Stale Branches"), this, [this, &remote] {
                 GitClient::instance()->removeStaleRemoteBranches(m_repository, *remote);
             });
             contextMenu.addSeparator();
@@ -416,28 +416,25 @@ bool BranchView::checkout()
                 return false;
         }
 
-        VcsCommand *command = m_model->checkoutBranch(selected);
         const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
         const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
-        if (command && (moveChanges || popStash)) {
-            connect(command, &VcsCommand::done,
-                    this, [this, client, popMessageStart, moveChanges, popStash] {
-                if (moveChanges) {
-                    client->endStashScope(m_repository);
-                } else if (popStash) {
-                    QList<Stash> stashes;
-                    QString stashName;
-                    client->synchronousStashList(m_repository, &stashes);
-                    for (const Stash &stash : std::as_const(stashes)) {
-                        if (stash.message.startsWith(popMessageStart)) {
-                            stashName = stash.name;
-                            break;
-                        }
+        const auto commandHandler = [=](const CommandResult &) {
+            if (moveChanges) {
+                client->endStashScope(m_repository);
+            } else if (popStash) {
+                QList<Stash> stashes;
+                QString stashName;
+                client->synchronousStashList(m_repository, &stashes);
+                for (const Stash &stash : std::as_const(stashes)) {
+                    if (stash.message.startsWith(popMessageStart)) {
+                        stashName = stash.name;
+                        break;
                     }
-                    client->synchronousStashRestore(m_repository, stashName, true);
                 }
-            });
-        }
+                client->synchronousStashRestore(m_repository, stashName, true);
+            }
+        };
+        m_model->checkoutBranch(selected, this, commandHandler);
     }
 
     if (QTC_GUARD(m_branchView))
@@ -451,7 +448,7 @@ bool BranchView::remove()
     const QModelIndex selected = selectedIndex();
     QTC_CHECK(selected != m_model->currentBranch());
 
-    QString branchName = m_model->fullName(selected);
+    const QString branchName = m_model->fullName(selected);
     if (branchName.isEmpty())
         return false;
 
@@ -483,7 +480,7 @@ bool BranchView::rename()
     const bool isTag = m_model->isTag(selected);
     QTC_CHECK(m_model->isLocal(selected) || isTag);
 
-    QString oldName = m_model->fullName(selected);
+    const QString oldName = m_model->fullName(selected);
     QStringList localNames;
     if (!isTag)
         localNames = m_model->localBranchNames();

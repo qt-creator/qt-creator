@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "catchtestsettings.h"
 
@@ -114,7 +114,7 @@ CatchTestSettings::CatchTestSettings()
     });
 }
 
-CatchTestSettingsPage::CatchTestSettingsPage(CatchTestSettings *settings, Utils::Id settingsId)
+CatchTestSettingsPage::CatchTestSettingsPage(CatchTestSettings *settings, Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);

@@ -1,5 +1,5 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nimplugin.h"
 
@@ -23,7 +23,6 @@
 #include "suggest/nimsuggestcache.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -55,21 +54,9 @@ public:
     NimRunConfigurationFactory nimRunConfigFactory;
     NimbleRunConfigurationFactory nimbleRunConfigFactory;
     NimbleTestConfigurationFactory nimbleTestConfigFactory;
-    RunWorkerFactory nimRunWorkerFactory {
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {nimRunConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory nimbleRunWorkerFactory {
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {nimbleRunConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory nimbleTestWorkerFactory {
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {nimbleTestConfigFactory.runConfigurationId()}
-    };
+    SimpleTargetRunnerFactory nimRunWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
+    SimpleTargetRunnerFactory nimbleRunWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
+    SimpleTargetRunnerFactory nimbleTestWorkerFactory{{nimbleTestConfigFactory.runConfigurationId()}};
     NimbleBuildStepFactory nimbleBuildStepFactory;
     NimbleTaskStepFactory nimbleTaskStepFactory;
     NimCompilerBuildStepFactory buildStepFactory;
@@ -78,6 +65,9 @@ public:
     NimToolsSettingsPage toolsSettingsPage{&settings};
     NimCodeStylePreferencesFactory codeStylePreferencesPage;
     NimToolChainFactory toolChainFactory;
+
+    NimProjectFactory nimProjectFactory;
+    NimbleProjectFactory nimbleProjectFactory;
 };
 
 NimPlugin::~NimPlugin()
@@ -85,11 +75,8 @@ NimPlugin::~NimPlugin()
     delete d;
 }
 
-bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void NimPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new NimPluginPrivate;
 
     ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
@@ -97,11 +84,6 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
                                                Tr::tr("Nim", "SnippetProvider"),
                                                &NimEditorFactory::decorateEditor);
-
-    ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
-    ProjectManager::registerProjectType<NimbleProject>(Constants::C_NIMBLE_MIMETYPE);
-
-    return true;
 }
 
 void NimPlugin::extensionsInitialized()

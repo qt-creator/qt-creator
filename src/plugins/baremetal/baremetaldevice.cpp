@@ -1,6 +1,6 @@
 // Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "baremetaldevice.h"
 
@@ -84,11 +84,6 @@ QVariantMap BareMetalDevice::toMap() const
     QVariantMap map = IDevice::toMap();
     map.insert(debugServerProviderIdKeyC, debugServerProviderId());
     return map;
-}
-
-DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr();
 }
 
 IDeviceWidget *BareMetalDevice::createWidget()

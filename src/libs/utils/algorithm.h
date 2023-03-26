@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -1005,7 +1005,8 @@ inline void sort(Container &container, Predicate p)
     std::stable_sort(std::begin(container), std::end(container), p);
 }
 
-template <typename Container>
+// const lvalue
+template<typename Container>
 inline Container sorted(const Container &container)
 {
     Container c = container;
@@ -1013,20 +1014,34 @@ inline Container sorted(const Container &container)
     return c;
 }
 
-template <typename Container>
+// non-const lvalue
+// This is needed because otherwise the "universal" reference below is used, modifying the input
+// container.
+template<typename Container>
+inline Container sorted(Container &container)
+{
+    Container c = container;
+    sort(c);
+    return c;
+}
+
+// non-const rvalue (actually rvalue or lvalue, but lvalue is handled above)
+template<typename Container>
 inline Container sorted(Container &&container)
 {
     sort(container);
-    return container;
+    return std::move(container);
 }
 
-template <typename Container>
+// const rvalue
+template<typename Container>
 inline Container sorted(const Container &&container)
 {
     return sorted(container);
 }
 
-template <typename Container, typename Predicate>
+// const lvalue
+template<typename Container, typename Predicate>
 inline Container sorted(const Container &container, Predicate p)
 {
     Container c = container;
@@ -1034,21 +1049,34 @@ inline Container sorted(const Container &container, Predicate p)
     return c;
 }
 
-template <typename Container, typename Predicate>
+// non-const lvalue
+// This is needed because otherwise the "universal" reference below is used, modifying the input
+// container.
+template<typename Container, typename Predicate>
+inline Container sorted(Container &container, Predicate p)
+{
+    Container c = container;
+    sort(c, p);
+    return c;
+}
+
+// non-const rvalue (actually rvalue or lvalue, but lvalue is handled above)
+template<typename Container, typename Predicate>
 inline Container sorted(Container &&container, Predicate p)
 {
     sort(container, p);
-    return container;
+    return std::move(container);
 }
 
-template <typename Container, typename Predicate>
+// const rvalue
+template<typename Container, typename Predicate>
 inline Container sorted(const Container &&container, Predicate p)
 {
     return sorted(container, p);
 }
 
 // pointer to member
-template <typename Container, typename R, typename S>
+template<typename Container, typename R, typename S>
 inline void sort(Container &container, R S::*member)
 {
     auto f = std::mem_fn(member);
@@ -1059,7 +1087,8 @@ inline void sort(Container &container, R S::*member)
     });
 }
 
-template <typename Container, typename R, typename S>
+// const lvalue
+template<typename Container, typename R, typename S>
 inline Container sorted(const Container &container, R S::*member)
 {
     Container c = container;
@@ -1067,21 +1096,34 @@ inline Container sorted(const Container &container, R S::*member)
     return c;
 }
 
-template <typename Container, typename R, typename S>
+// non-const lvalue
+// This is needed because otherwise the "universal" reference below is used, modifying the input
+// container.
+template<typename Container, typename R, typename S>
+inline Container sorted(Container &container, R S::*member)
+{
+    Container c = container;
+    sort(c, member);
+    return c;
+}
+
+// non-const rvalue (actually rvalue or lvalue, but lvalue is handled above)
+template<typename Container, typename R, typename S>
 inline Container sorted(Container &&container, R S::*member)
 {
     sort(container, member);
-    return container;
+    return std::move(container);
 }
 
-template <typename Container, typename R, typename S>
+// const rvalue
+template<typename Container, typename R, typename S>
 inline Container sorted(const Container &&container, R S::*member)
 {
     return sorted(container, member);
 }
 
 // pointer to member function
-template <typename Container, typename R, typename S>
+template<typename Container, typename R, typename S>
 inline void sort(Container &container, R (S::*function)() const)
 {
     auto f = std::mem_fn(function);
@@ -1092,7 +1134,8 @@ inline void sort(Container &container, R (S::*function)() const)
     });
 }
 
-template <typename Container, typename R, typename S>
+// const lvalue
+template<typename Container, typename R, typename S>
 inline Container sorted(const Container &container, R (S::*function)() const)
 {
     Container c = container;
@@ -1100,14 +1143,27 @@ inline Container sorted(const Container &container, R (S::*function)() const)
     return c;
 }
 
-template <typename Container, typename R, typename S>
+// non-const lvalue
+// This is needed because otherwise the "universal" reference below is used, modifying the input
+// container.
+template<typename Container, typename R, typename S>
+inline Container sorted(Container &container, R (S::*function)() const)
+{
+    Container c = container;
+    sort(c, function);
+    return c;
+}
+
+// non-const rvalue (actually rvalue or lvalue, but lvalue is handled above)
+template<typename Container, typename R, typename S>
 inline Container sorted(Container &&container, R (S::*function)() const)
 {
     sort(container, function);
-    return container;
+    return std::move(container);
 }
 
-template <typename Container, typename R, typename S>
+// const rvalue
+template<typename Container, typename R, typename S>
 inline Container sorted(const Container &&container, R (S::*function)() const)
 {
     return sorted(container, function);

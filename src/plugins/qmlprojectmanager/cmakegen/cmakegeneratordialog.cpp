@@ -1,9 +1,10 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakegeneratordialog.h"
 #include "cmakegeneratordialogtreemodel.h"
 #include "generatecmakelistsconstants.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <utils/utilsicons.h>
 #include <utils/detailswidget.h>
@@ -25,12 +26,9 @@ CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePa
       m_rootDir(rootDir),
       m_files(files)
 {
-    setWindowTitle(QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                               "Select Files to Generate"));
+    setWindowTitle(Tr::tr("Select Files to Generate"));
 
-    QLabel *mainLabel = new QLabel(QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                               "Start CMakeFiles.txt generation"),
-                                   this);
+    QLabel *mainLabel = new QLabel(Tr::tr("Start CMakeFiles.txt generation"), this);
     mainLabel->setMargin(30);
 
     QVBoxLayout *dialogLayout = new QVBoxLayout(this);
@@ -75,8 +73,7 @@ QWidget* CmakeGeneratorDialog::createDetailsWidget()
     DetailsWidget *advancedWidget = new DetailsWidget(this);
     advancedWidget->setMinimumWidth(600);
     advancedWidget->setWidget(advancedInnerWidget);
-    advancedWidget->setSummaryText(QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                               "Advanced Options"));
+    advancedWidget->setSummaryText(Tr::tr("Advanced Options"));
     connect(advancedWidget, &DetailsWidget::expanded, this, &CmakeGeneratorDialog::advancedVisibilityChanged);
 
     return advancedWidget;
@@ -107,10 +104,8 @@ FilePaths CmakeGeneratorDialog::getFilePaths()
     return paths;
 }
 
-const QString FILE_CREATE_NOTIFICATION = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                                    "File %1 will be created.\n");
-const QString FILE_OVERWRITE_NOTIFICATION = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                                       "File %1 will be overwritten.\n");
+const QString FILE_CREATE_NOTIFICATION = Tr::tr("File %1 will be created.\n");
+const QString FILE_OVERWRITE_NOTIFICATION = Tr::tr("File %1 will be overwritten.\n");
 
 void CmakeGeneratorDialog::refreshNotificationText()
 {

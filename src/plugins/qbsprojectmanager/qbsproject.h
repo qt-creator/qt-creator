@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,7 +10,6 @@
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/task.h>
 
 #include <utils/environment.h>
 #include <utils/id.h>
@@ -104,6 +103,9 @@ public:
 
 private:
     friend class QbsProject;
+
+    ProjectExplorer::ExtraCompiler *findExtraCompiler(
+            const ExtraCompilerFilter &filter) const override;
 
     void handleQbsParsingDone(bool success);
     void changeActiveTarget(ProjectExplorer::Target *t);

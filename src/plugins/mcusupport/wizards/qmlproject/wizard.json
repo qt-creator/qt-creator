@@ -1,10 +1,10 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
-    "id": "M.McuSupportQmlprojectApplication",
+    "id": "M.McuSupportApplication",
     "category": "D.ApplicationMCU",
-    "trDescription": "Creates a Qt for MCUs application with an empty UI, based on qmlproject (Technical Preview).",
-    "trDisplayName": "Qt for MCUs QmlProject Application (Technical Preview)",
+    "trDescription": "Suitable for Qt for MCUs versions 2.4 and later. Creates a Qt for MCUs application with a simple UI, based on qmlproject.",
+    "trDisplayName": "Qt for MCUs Application",
     "trDisplayCategory": "QmlProject Application (Qt for MCUs)",
     "icon": "../icon.png",
     "iconKind": "Themed",
@@ -18,7 +18,9 @@
         { "key": "RootItemName", "value": "%{CorrectedProjectName}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "ModuleFile", "value": "CustomModule.qmlproject"},
-        { "key": "QmlComponent", "value": "CustomComponent.qml"}
+        { "key": "QmlComponent", "value": "CustomButton.qml"},
+        { "key": "InterfaceFile", "value": "BackendObject.h"},
+        { "key": "TsFile", "value": "%{CorrectedProjectName}.nb_NO.ts"}
     ],
 
     "pages":
@@ -54,6 +56,21 @@
                     "openAsProject": true
                 },
                 {
+                    "source": "BackendObject.h",
+                    "target": "%{ProjectDirectory}/src/%{InterfaceFile}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "component.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/CustomModule/%{QmlComponent}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "module.qmlproject.tpl",
+                    "target": "%{ProjectDirectory}/imports/CustomModule/%{ModuleFile}",
+                    "openInEditor": true
+                },
+                {
                     "source": "project.qmlproject.tpl",
                     "target": "%{ProjectDirectory}/%{QmlProjectFile}",
                     "openInEditor": true
@@ -64,14 +81,24 @@
                     "openInEditor": true
                 },
                 {
-                    "source": "component.qml.tpl",
-                    "target": "%{ProjectDirectory}/%{QmlComponent}",
-                    "openInEditor": true
+                    "source": "../icon.png",
+                    "target": "%{ProjectDirectory}/images/icon.png",
+                    "isBinary": true
                 },
                 {
-                    "source": "module.qmlproject.tpl",
-                    "target": "%{ProjectDirectory}/%{ModuleFile}",
-                    "openInEditor": true
+                    "source": "DejaVuSansMono.ttf",
+                    "target": "%{ProjectDirectory}/fonts/DejaVuSansMono.ttf",
+                    "isBinary": true
+                },
+                {
+                    "source": "LICENSE",
+                    "target": "%{ProjectDirectory}/fonts/LICENSE",
+                    "isBinary": true
+                },
+                {
+                    "source": "translation.nb_NO.ts",
+                    "target": "%{ProjectDirectory}/translations/%{TsFile}",
+                    "openInEditor": false
                 },
                 {
                     "source": "%{IDE:ResourcePath}/templates/wizards/projects/git.ignore",

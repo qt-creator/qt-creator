@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "textscanner.h"
 
@@ -55,7 +55,7 @@ TextScanner::~TextScanner()
 void TextScanner::setKeywords(const QList<QPair<QString, int>> &keywords)
 {
     d->m_keywordToSubtypeMap.clear();
-    foreach (const DefTuple &tuple, keywords)
+    for (const DefTuple &tuple : keywords)
         d->m_keywordToSubtypeMap.insert(tuple.first.toLower(), tuple.second);
 }
 
@@ -65,13 +65,13 @@ void TextScanner::setOperators(const QList<QPair<QString, int>> &operators)
     d->m_maxOperatorLength = 0;
     d->m_operatorFirstCharsSet.clear();
     d->m_operatorCharsSet.clear();
-    foreach (const DefTuple &tuple, operators) {
-        QString op = tuple.first;
+    for (const DefTuple &tuple : operators) {
+        const QString op = tuple.first;
         d->m_operatorToSubtypeMap.insert(op, tuple.second);
         if (op.length() > d->m_maxOperatorLength)
             d->m_maxOperatorLength = op.length();
         d->m_operatorFirstCharsSet.insert(op.at(0));
-        foreach (const QChar ch, op)
+        for (const QChar ch : op)
             d->m_operatorCharsSet.insert(ch);
     }
 }

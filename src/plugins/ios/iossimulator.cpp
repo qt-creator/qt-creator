@@ -1,25 +1,24 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iossimulator.h"
 #include "iosconstants.h"
-#include "iostoolhandler.h"
+#include "iostr.h"
 
 #include <projectexplorer/kitinformation.h>
+
 #include <utils/port.h>
 #include <utils/qtcprocess.h>
 
-#include <QCoreApplication>
 #include <QMapIterator>
 
 using namespace ProjectExplorer;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
-static const QLatin1String iosDeviceTypeDisplayNameKey = QLatin1String("displayName");
-static const QLatin1String iosDeviceTypeTypeKey = QLatin1String("type");
-static const QLatin1String iosDeviceTypeIdentifierKey = QLatin1String("identifier");
+const QLatin1String iosDeviceTypeDisplayNameKey("displayName");
+const QLatin1String iosDeviceTypeTypeKey("type");
+const QLatin1String iosDeviceTypeIdentifierKey("identifier");
 
 IosSimulator::IosSimulator(Utils::Id id)
     : m_lastPort(Constants::IOS_SIMULATOR_PORT_START)
@@ -28,8 +27,8 @@ IosSimulator::IosSimulator(Utils::Id id)
     setType(Constants::IOS_SIMULATOR_TYPE);
     setMachineType(IDevice::Emulator);
     setOsType(Utils::OsTypeMac);
-    setDefaultDisplayName(tr("iOS Simulator"));
-    setDisplayType(tr("iOS Simulator"));
+    setDefaultDisplayName(Tr::tr("iOS Simulator"));
+    setDisplayType(Tr::tr("iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
 }
 
@@ -45,11 +44,6 @@ IDevice::DeviceInfo IosSimulator::deviceInformation() const
 IDeviceWidget *IosSimulator::createWidget()
 {
     return nullptr;
-}
-
-DeviceProcessSignalOperation::Ptr IosSimulator::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr();
 }
 
 Utils::Port IosSimulator::nextPort() const
@@ -214,13 +208,12 @@ QDebug operator <<(QDebug debug, const IosDeviceType &deviceType)
 // Factory
 
 IosSimulatorFactory::IosSimulatorFactory()
-    : ProjectExplorer::IDeviceFactory(Constants::IOS_SIMULATOR_TYPE)
+    : IDeviceFactory(Constants::IOS_SIMULATOR_TYPE)
 {
-    setDisplayName(IosSimulator::tr("iOS Simulator"));
+    setDisplayName(Tr::tr("iOS Simulator"));
     setCombinedIcon(":/ios/images/iosdevicesmall.png",
                     ":/ios/images/iosdevice.png");
-    setConstructionFunction([] { return ProjectExplorer::IDevice::Ptr(new IosSimulator()); });
+    setConstructionFunction([] { return IDevice::Ptr(new IosSimulator()); });
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

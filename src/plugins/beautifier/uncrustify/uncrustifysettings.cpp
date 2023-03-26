@@ -1,9 +1,7 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uncrustifysettings.h"
-
-#include "uncrustifyconstants.h"
 
 #include "../beautifierconstants.h"
 
@@ -18,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 const char USE_OTHER_FILES[]               = "useOtherFiles";
 const char USE_HOME_FILE[]                 = "useHomeFile";
@@ -120,8 +117,8 @@ void UncrustifySettings::setFormatEntireFileFallback(bool formatEntireFileFallba
 QString UncrustifySettings::documentationFilePath() const
 {
     return (Core::ICore::userResourcePath() / Beautifier::Constants::SETTINGS_DIRNAME
-                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME
-            + ".xml")
+                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME)
+            .stringAppended(".xml")
         .toString();
 }
 
@@ -188,5 +185,4 @@ void UncrustifySettings::createDocumentationFile() const
     }
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

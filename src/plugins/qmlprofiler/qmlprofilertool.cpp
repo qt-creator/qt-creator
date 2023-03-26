@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerattachdialog.h"
 #include "qmlprofilerclientmanager.h"
@@ -41,7 +41,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/taskhub.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -57,7 +56,6 @@
 #include <QDockWidget>
 #include <QElapsedTimer>
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -588,7 +586,7 @@ void QmlProfilerTool::showSaveDialog()
                 Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
     if (!filePath.isEmpty()) {
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
-            filePath = filePath + zFile;
+            filePath = filePath.stringAppended(zFile);
         saveLastTraceFile(filePath);
         Debugger::enableMainWindow(false);
         Core::ProgressManager::addTask(d->m_profilerModelManager->save(filePath.toString()),

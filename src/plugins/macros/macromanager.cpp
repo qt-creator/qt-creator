@@ -1,16 +1,17 @@
 // Copyright (C) 2016 Nicolas Arnaud-Cormos
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "macromanager.h"
 
-#include "macrosconstants.h"
-#include "macroevent.h"
-#include "macro.h"
-#include "imacrohandler.h"
-#include "savedialog.h"
 #include "actionmacrohandler.h"
-#include "texteditormacrohandler.h"
 #include "findmacrohandler.h"
+#include "imacrohandler.h"
+#include "macro.h"
+#include "macroevent.h"
+#include "macrosconstants.h"
+#include "macrostr.h"
+#include "savedialog.h"
+#include "texteditormacrohandler.h"
 
 #include <texteditor/texteditorconstants.h>
 
@@ -190,8 +191,8 @@ bool MacroManagerPrivate::executeMacro(Macro *macro)
     if (error) {
         QMessageBox::warning(
             Core::ICore::dialogParent(),
-            MacroManager::tr("Playing Macro"),
-            MacroManager::tr("An error occurred while replaying the macro, execution stopped."));
+            Tr::tr("Playing Macro"),
+            Tr::tr("An error occurred while replaying the macro, execution stopped."));
     }
 
     // Set the focus back to the editor
@@ -266,10 +267,10 @@ void MacroManager::startMacro()
                                         ->keySequence()
                                         .toString(QKeySequence::NativeText);
     const QString help
-        = tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to play the macro.")
+        = Tr::tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to play the macro.")
               .arg(endShortcut, executeShortcut);
     Core::EditorManager::showEditorStatusBar(Constants::M_STATUS_BUFFER, help,
-                                             tr("Stop Recording Macro"),
+                                             Tr::tr("Stop Recording Macro"),
                                              this, [this] { endMacro(); });
 }
 

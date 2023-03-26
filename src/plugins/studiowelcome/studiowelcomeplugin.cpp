@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "studiowelcomeplugin.h"
 #include "examplecheckout.h"
@@ -310,11 +310,11 @@ public:
         Q_UNUSED(explicitQmlproject)
         Q_UNUSED(tempFile)
         Q_UNUSED(completeBaseName)
-        const Utils::FilePath projectFile = Core::ICore::resourcePath("examples")
-                                            / example / example + ".qmlproject";
+        const FilePath projectFile = Core::ICore::resourcePath("examples")
+                / example / (example + ".qmlproject");
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-        const Utils::FilePath qmlFile = Core::ICore::resourcePath("examples")
-                                            / example / formFile;
+        const FilePath qmlFile = Core::ICore::resourcePath("examples")
+                / example / formFile;
 
         Core::EditorManager::openEditor(qmlFile);
     }
@@ -434,7 +434,7 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case FilePathRole:
         return data.first.toVariant();
     case PrettyFilePathRole:
-        return Utils::withTildeHomePath(data.first.absolutePath().toUserOutput());
+        return data.first.absolutePath().withTildeHomePath();
     case PreviewUrl:
         return QVariant(QStringLiteral("image://project_preview/") +
                         QmlProjectManager::ProjectFileContentTools::appQmlFile(
@@ -508,17 +508,12 @@ StudioWelcomePlugin::~StudioWelcomePlugin()
     delete m_welcomeMode;
 }
 
-bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *errorString)
+void StudioWelcomePlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
     qmlRegisterType<UsageStatisticPluginModel>("usagestatistics", 1, 0, "UsageStatisticModel");
 
     m_welcomeMode = new WelcomeMode;
-
-    return true;
 }
 
 static bool forceDownLoad()
@@ -690,9 +685,10 @@ WelcomeMode::WelcomeMode()
 
     m_dataModelDownloader = new DataModelDownloader(this);
     if (!m_dataModelDownloader->exists()) { //Fallback if data cannot be downloaded
-        Utils::FileUtils::copyRecursively(Utils::FilePath::fromUserInput(welcomePagePath
-                                                                         + "/dataImports"),
-                                          m_dataModelDownloader->targetFolder());
+        // TODO: Check result?
+        Utils::FilePath::fromUserInput(welcomePagePath + "/dataImports")
+            .copyRecursively(m_dataModelDownloader->targetFolder());
+
         m_dataModelDownloader->setForceDownload(true);
     }
     Utils::FilePath readme = Utils::FilePath::fromUserInput(m_dataModelDownloader->targetFolder().toString()

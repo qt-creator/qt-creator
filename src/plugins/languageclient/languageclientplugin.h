@@ -1,11 +1,10 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "languageclientmanager.h"
 #include "languageclientoutline.h"
-#include "languageclientsettings.h"
+#include "callhierarchy.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -23,12 +22,13 @@ public:
 
     // IPlugin interface
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
 
 private:
     LanguageClientOutlineWidgetFactory m_outlineFactory;
+    CallHierarchyFactory m_callHierarchyFactory;
 
 #ifdef WITH_TESTS
 private slots:

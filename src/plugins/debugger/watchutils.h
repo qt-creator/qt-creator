@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,24 +8,22 @@
 
 #include <QString>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
-bool isSkippableFunction(const QString &funcName, const QString &fileName);
-bool isLeavableFunction(const QString &funcName, const QString &fileName);
+bool isSkippableFunction(const QStringView funcName, const QStringView fileName);
+bool isLeavableFunction(const QStringView funcName, const QStringView fileName);
 
-bool hasLetterOrNumber(const QString &exp);
-bool hasSideEffects(const QString &exp);
-bool isKeyWord(const QString &exp);
-bool isPointerType(const QString &type);
-bool isFloatType(const QString &type);
-bool isIntOrFloatType(const QString &type);
-bool isIntType(const QString &type);
+bool hasLetterOrNumber(const QStringView exp);
+bool hasSideEffects(const QStringView exp);
+bool isKeyWord(const QStringView exp);
+bool isPointerType(const QStringView type);
+bool isFloatType(const QStringView type);
+bool isIntOrFloatType(const QStringView type);
+bool isIntType(const QStringView type);
 
 QString formatToolTipAddress(quint64 a);
 QString removeObviousSideEffects(const QString &exp);
 
 QString escapeUnprintable(const QString &str, int unprintableBase = -1);
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

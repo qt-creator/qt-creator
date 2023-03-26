@@ -1,10 +1,11 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "highlightersettingspage.h"
 
 #include "highlightersettings.h"
 #include "highlighter.h"
+#include "texteditortr.h"
 
 #include <coreplugin/icore.h>
 
@@ -20,7 +21,6 @@
 #include <QPointer>
 #include <QPushButton>
 
-using namespace TextEditor::Internal;
 using namespace Utils;
 
 namespace TextEditor {
@@ -28,7 +28,6 @@ namespace Internal {
 
 class HighlighterSettingsPageWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::HighlighterSettingsPage)
 public:
     QLabel *definitionsInfolabel;
     QPushButton *downloadDefinitions;
@@ -48,12 +47,12 @@ public:
         definitionsInfolabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
         definitionsInfolabel->setWordWrap(true);
         definitionsInfolabel->setOpenExternalLinks(true);
-        definitionsInfolabel->setText(tr("<html><head/><body><p>Highlight definitions are provided by the "
-                                         "<a href=\"https://api.kde.org/frameworks/syntax-highlighting/html/index.html\">"
-                                         "KSyntaxHighlighting</a> engine.</p></body></html>"));
+        definitionsInfolabel->setText(Tr::tr("<html><head/><body><p>Highlight definitions are provided by the "
+                                             "<a href=\"https://api.kde.org/frameworks/syntax-highlighting/html/index.html\">"
+                                             "KSyntaxHighlighting</a> engine.</p></body></html>"));
 
-        downloadDefinitions = new QPushButton(tr("Download Definitions"));
-        downloadDefinitions->setToolTip(tr("Download missing and update existing syntax definition files."));
+        downloadDefinitions = new QPushButton(Tr::tr("Download Definitions"));
+        downloadDefinitions->setToolTip(Tr::tr("Download missing and update existing syntax definition files."));
 
         updateStatus = new QLabel;
         updateStatus->setObjectName("updateStatus");
@@ -62,12 +61,12 @@ public:
         definitionFilesPath->setExpectedKind(PathChooser::ExistingDirectory);
         definitionFilesPath->setHistoryCompleter("TextEditor.Highlighter.History");
 
-        reloadDefinitions = new QPushButton(tr("Reload Definitions"));
-        reloadDefinitions->setToolTip(tr("Reload externally modified definition files."));
+        reloadDefinitions = new QPushButton(Tr::tr("Reload Definitions"));
+        reloadDefinitions->setToolTip(Tr::tr("Reload externally modified definition files."));
 
-        resetCache = new QPushButton(tr("Reset Remembered Definitions"));
-        resetCache->setToolTip(tr("Reset definitions remembered for files that can be "
-                                  "associated with more than one highlighter definition."));
+        resetCache = new QPushButton(Tr::tr("Reset Remembered Definitions"));
+        resetCache->setToolTip(Tr::tr("Reset definitions remembered for files that can be "
+                                      "associated with more than one highlighter definition."));
 
         ignoreEdit = new QLineEdit;
 
@@ -76,15 +75,15 @@ public:
             definitionsInfolabel,
             Space(3),
             Group {
-                title(tr("Syntax Highlight Definition Files")),
+                title(Tr::tr("Syntax Highlight Definition Files")),
                 Column {
                     Row { downloadDefinitions, updateStatus, st },
-                    Row { tr("User Highlight Definition Files"),
+                    Row { Tr::tr("User Highlight Definition Files"),
                                 definitionFilesPath, reloadDefinitions },
                     Row { st, resetCache }
                 }
             },
-            Row { tr("Ignored file patterns:"), ignoreEdit },
+            Row { Tr::tr("Ignored file patterns:"), ignoreEdit },
             st
         }.attachTo(this);
 
@@ -92,7 +91,7 @@ public:
                 [label = QPointer<QLabel>(updateStatus)]() {
                     Highlighter::downloadDefinitions([label] {
                         if (label)
-                            label->setText(tr("Download finished"));
+                            label->setText(Tr::tr("Download finished"));
                     });
                 });
 
@@ -107,10 +106,10 @@ public:
 
 } // Internal
 
+using namespace Internal;
+
 class HighlighterSettingsPagePrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::HighlighterSettingsPage)
-
 public:
     HighlighterSettingsPagePrivate() = default;
 
@@ -128,7 +127,6 @@ public:
 
     QPointer<HighlighterSettingsPageWidget> m_widget;
 };
-
 
 void HighlighterSettingsPagePrivate::migrateGenericHighlighterFiles()
 {
@@ -156,9 +154,9 @@ HighlighterSettingsPage::HighlighterSettingsPage()
     : d(new HighlighterSettingsPagePrivate)
 {
     setId(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
-    setDisplayName(HighlighterSettingsPagePrivate::tr("Generic Highlighter"));
+    setDisplayName(Tr::tr("Generic Highlighter"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 

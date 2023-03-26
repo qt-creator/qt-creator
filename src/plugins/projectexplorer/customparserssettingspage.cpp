@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customparserssettingspage.h"
 
@@ -7,6 +7,7 @@
 #include "customparserconfigdialog.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -24,8 +25,6 @@ namespace Internal {
 
 class CustomParsersSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::CustomParsersSettingsPage)
-
 public:
     CustomParsersSettingsWidget()
     {
@@ -35,15 +34,15 @@ public:
         const auto mainLayout = new QVBoxLayout(this);
         const auto widgetLayout = new QHBoxLayout;
         mainLayout->addLayout(widgetLayout);
-        const auto hintLabel = new QLabel(tr(
+        const auto hintLabel = new QLabel(Tr::tr(
             "Custom output parsers defined here can be enabled individually "
             "in the project's build or run settings."));
         mainLayout->addWidget(hintLabel);
         widgetLayout->addWidget(&m_parserListView);
         const auto buttonLayout = new QVBoxLayout;
         widgetLayout->addLayout(buttonLayout);
-        const auto addButton = new QPushButton(tr("Add..."));
-        const auto removeButton = new QPushButton(tr("Remove"));
+        const auto addButton = new QPushButton(Tr::tr("Add..."));
+        const auto removeButton = new QPushButton(Tr::tr("Remove"));
         const auto editButton = new QPushButton("Edit...");
         buttonLayout->addWidget(addButton);
         buttonLayout->addWidget(removeButton);
@@ -57,7 +56,7 @@ public:
                 return;
             CustomParserSettings newParser = dlg.settings();
             newParser.id = Utils::Id::fromString(QUuid::createUuid().toString());
-            newParser.displayName = tr("New Parser");
+            newParser.displayName = Tr::tr("New Parser");
             m_customParsers << newParser;
             resetListView();
         });
@@ -118,7 +117,7 @@ private:
 CustomParsersSettingsPage::CustomParsersSettingsPage()
 {
     setId(Constants::CUSTOM_PARSERS_SETTINGS_PAGE_ID);
-    setDisplayName(CustomParsersSettingsWidget::tr("Custom Output Parsers"));
+    setDisplayName(Tr::tr("Custom Output Parsers"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new CustomParsersSettingsWidget; });
 }

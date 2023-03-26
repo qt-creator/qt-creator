@@ -27,5 +27,6 @@ QtcPlugin {
         "imageviewerfile.h",
         "imageviewerplugin.cpp",
         "imageviewerplugin.h",
+        "imageviewertr.h",
     ]
 }

@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cpptoolssettings.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppcodestylepreferences.h"
 #include "cppcodestylepreferencesfactory.h"
 
@@ -61,7 +62,7 @@ CppToolsSettings::CppToolsSettings()
     // global code style settings
     d->m_globalCodeStyle = new CppCodeStylePreferences(this);
     d->m_globalCodeStyle->setDelegatingPool(pool);
-    d->m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
+    d->m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
     d->m_globalCodeStyle->setId(idKey);
     pool->addCodeStyle(d->m_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(Constants::CPP_SETTINGS_ID, d->m_globalCodeStyle);
@@ -95,7 +96,7 @@ CppToolsSettings::CppToolsSettings()
     // Qt style
     auto qtCodeStyle = new CppCodeStylePreferences;
     qtCodeStyle->setId("qt");
-    qtCodeStyle->setDisplayName(tr("Qt"));
+    qtCodeStyle->setDisplayName(Tr::tr("Qt"));
     qtCodeStyle->setReadOnly(true);
     TabSettings qtTabSettings;
     qtTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
@@ -108,7 +109,7 @@ CppToolsSettings::CppToolsSettings()
     // GNU style
     auto gnuCodeStyle = new CppCodeStylePreferences;
     gnuCodeStyle->setId("gnu");
-    gnuCodeStyle->setDisplayName(tr("GNU"));
+    gnuCodeStyle->setDisplayName(Tr::tr("GNU"));
     gnuCodeStyle->setReadOnly(true);
     TabSettings gnuTabSettings;
     gnuTabSettings.m_tabPolicy = TabSettings::MixedTabPolicy;
@@ -169,7 +170,7 @@ CppToolsSettings::CppToolsSettings()
             QVariant v;
             v.setValue(legacyCodeStyleSettings);
             ICodeStylePreferences *oldCreator = pool->createCodeStyle(
-                     "legacy", legacyTabSettings, v, tr("Old Creator"));
+                     "legacy", legacyTabSettings, v, Tr::tr("Old Creator"));
 
             // change the current delegate and save
             d->m_globalCodeStyle->setCurrentDelegate(oldCreator);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,8 +17,6 @@ namespace Internal { class DesktopDeviceFactory; }
 
 class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::DesktopDevice)
-
 public:
     IDevice::DeviceInfo deviceInformation() const override;
 
@@ -28,15 +26,14 @@ public:
     DeviceProcessList *createProcessListModel(QObject *parent) const override;
     ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     bool usableAsBuildDevice() const override;
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
     Utils::Environment systemEnvironment() const override;
-    Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
 
     Utils::FilePath rootPath() const override;
+    Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
 protected:
     DesktopDevice();

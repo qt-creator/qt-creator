@@ -31,32 +31,6 @@ macro(qtc_auto_setup_conan)
     option(QT_CREATOR_SKIP_CONAN_SETUP "Skip Qt Creator's conan package manager auto-setup" OFF)
     set(QT_CREATOR_CONAN_BUILD_POLICY "missing" CACHE STRING "Qt Creator's conan package manager auto-setup build policy. This is used for the BUILD property of cmake_conan_run")
 
-    # Get conan from Qt SDK
-    set(qt_creator_ini "${CMAKE_CURRENT_LIST_DIR}/../QtProject/QtCreator.ini")
-    if (EXISTS ${qt_creator_ini})
-      file(STRINGS ${qt_creator_ini} install_settings REGEX "^InstallSettings=.*$")
-      if (install_settings)
-        string(REPLACE "InstallSettings=" "" install_settings "${install_settings}")
-        set(qt_creator_ini "${install_settings}/QtProject/QtCreator.ini")
-        file(TO_CMAKE_PATH "${qt_creator_ini}" qt_creator_ini)
-      endif()
-
-      file(STRINGS ${qt_creator_ini} conan_executable REGEX "^ConanFilePath=.*$")
-      if (conan_executable)
-        string(REPLACE "ConanFilePath=" "" conan_executable "${conan_executable}")
-        file(TO_CMAKE_PATH "${conan_executable}" conan_executable)
-        get_filename_component(conan_path "${conan_executable}" DIRECTORY)
-      endif()
-    endif()
-
-    set(path_sepparator ":")
-    if (WIN32)
-      set(path_sepparator ";")
-    endif()
-    if (conan_path)
-      set(ENV{PATH} "${conan_path}${path_sepparator}$ENV{PATH}")
-    endif()
-
     find_program(conan_program conan)
     if (NOT conan_program)
       message(WARNING "Qt Creator: conan executable not found. "
@@ -64,6 +38,15 @@ macro(qtc_auto_setup_conan)
                       "To disable this warning set QT_CREATOR_SKIP_CONAN_SETUP to ON.")
       return()
     endif()
+    execute_process(COMMAND ${conan_program} --version
+      RESULT_VARIABLE result_code
+      OUTPUT_VARIABLE conan_version_output
+      ERROR_VARIABLE conan_version_output)
+    if (NOT result_code EQUAL 0)
+      message(FATAL_ERROR "conan --version failed='${result_code}: ${conan_version_output}")
+    endif()
+
+    string(REGEX REPLACE ".*Conan version ([0-9].[0-9]).*" "\\1" conan_version "${conan_version_output}")
 
     set(conanfile_timestamp_file "${CMAKE_BINARY_DIR}/conan-dependencies/conanfile.timestamp")
     file(TIMESTAMP "${conanfile_txt}" conanfile_timestamp)
@@ -87,6 +70,9 @@ macro(qtc_auto_setup_conan)
     if (do_conan_installation)
       message(STATUS "Qt Creator: conan package manager auto-setup. "
                      "Skip this step by setting QT_CREATOR_SKIP_CONAN_SETUP to ON.")
+
+      file(COPY "${conanfile_txt}" DESTINATION "${CMAKE_BINARY_DIR}/conan-dependencies/")
+
       file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake" "
         set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")
         set(CMAKE_CXX_COMPILER \"${CMAKE_CXX_COMPILER}\")
@@ -96,17 +82,39 @@ macro(qtc_auto_setup_conan)
           "include(\"${CMAKE_TOOLCHAIN_FILE}\")\n")
       endif()
 
-      file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/CMakeLists.txt" "
-        cmake_minimum_required(VERSION 3.15)
-        project(conan-setup)
-        include(\"${CMAKE_CURRENT_LIST_DIR}/conan.cmake\")
-        conan_cmake_run(
-          CONANFILE \"${conanfile_txt}\"
-          INSTALL_FOLDER \"${CMAKE_BINARY_DIR}/conan-dependencies\"
-          GENERATORS cmake_paths json
-          BUILD ${QT_CREATOR_CONAN_BUILD_POLICY}
-          ENV CONAN_CMAKE_TOOLCHAIN_FILE=\"${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake\"
-        )")
+       file(WRITE "${CMAKE_BINARY_DIR}/conan-dependencies/CMakeLists.txt" "
+          cmake_minimum_required(VERSION 3.15)
+
+          unset(CMAKE_PROJECT_INCLUDE_BEFORE CACHE)
+          project(conan-setup)
+
+          if (${conan_version} VERSION_GREATER_EQUAL 2.0)
+            include(\"${CMAKE_CURRENT_LIST_DIR}/conan_support.cmake\")
+            conan_profile_detect_default()
+            detect_host_profile(\"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\")
+
+            conan_install(
+              -pr \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\"
+              --build=${QT_CREATOR_CONAN_BUILD_POLICY}
+              -s build_type=${CMAKE_BUILD_TYPE}
+              -g CMakeDeps)
+            if (CONAN_INSTALL_SUCCESS)
+              file(WRITE \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_paths.cmake\" \"
+                list(PREPEND CMAKE_PREFIX_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
+                list(PREPEND CMAKE_MODULE_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
+              \")
+            endif()
+          else()
+            include(\"${CMAKE_CURRENT_LIST_DIR}/conan.cmake\")
+            conan_cmake_run(
+              CONANFILE \"${conanfile_txt}\"
+              INSTALL_FOLDER \"${CMAKE_BINARY_DIR}/conan-dependencies\"
+              GENERATORS cmake_paths cmake_find_package json
+              BUILD ${QT_CREATOR_CONAN_BUILD_POLICY}
+              ENV CONAN_CMAKE_TOOLCHAIN_FILE=\"${CMAKE_BINARY_DIR}/conan-dependencies/toolchain.cmake\"
+            )
+          endif()
+        ")
 
       execute_process(COMMAND ${CMAKE_COMMAND}
         -S "${CMAKE_BINARY_DIR}/conan-dependencies/"
@@ -147,7 +155,17 @@ macro(qtc_auto_setup_vcpkg)
                       "To disable this warning set QT_CREATOR_SKIP_VCPKG_SETUP to ON.")
       return()
     endif()
-    get_filename_component(vpkg_root ${vcpkg_program} DIRECTORY)
+    execute_process(COMMAND ${vcpkg_program} version
+      RESULT_VARIABLE result_code
+      OUTPUT_VARIABLE vcpkg_version_output
+      ERROR_VARIABLE vcpkg_version_output)
+    if (NOT result_code EQUAL 0)
+      message(FATAL_ERROR "vcpkg version failed='${result_code}: ${vcpkg_version_output}")
+    endif()
+
+    # Resolve any symlinks
+    get_filename_component(vpkg_program_real_path ${vcpkg_program} REALPATH)
+    get_filename_component(vpkg_root ${vpkg_program_real_path} DIRECTORY)
 
     if (NOT EXISTS "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake")
       message(STATUS "Qt Creator: vcpkg package manager auto-setup. "
@@ -168,8 +186,8 @@ macro(qtc_auto_setup_vcpkg)
       else()
         if (WIN32)
           set(vcpkg_triplet x64-mingw-static)
-          if (CMAKE_CXX_COMPILER MATCHES "cl.exe")
-            set(vcpkg_triplet x64-windows)
+          if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
+            set(vcpkg_triplet ${CMAKE_MATCH_1}-windows)
           endif()
         elseif(APPLE)
           set(vcpkg_triplet x64-osx)

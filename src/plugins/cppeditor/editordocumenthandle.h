@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "cppeditor_global.h"
 #include "senddocumenttracker.h"
 
-#include <QString>
+namespace Utils { class FilePath; }
 
 namespace CppEditor {
+
 class BaseEditorDocumentProcessor;
 
 class CPPEDITOR_EXPORT CppEditorDocumentHandle
@@ -25,7 +26,7 @@ public:
     void setRefreshReason(const RefreshReason &refreshReason);
 
     // For the Working Copy
-    virtual QString filePath() const = 0;
+    virtual Utils::FilePath filePath() const = 0;
     virtual QByteArray contents() const = 0;
     virtual unsigned revision() const = 0;
 
@@ -41,4 +42,4 @@ private:
     RefreshReason m_refreshReason = None;
 };
 
-} // namespace CppEditor
+} // CppEditor

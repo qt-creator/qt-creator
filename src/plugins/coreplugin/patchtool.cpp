@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "coreplugintr.h"
 #include "icore.h"
@@ -24,8 +24,17 @@ FilePath PatchTool::patchCommand()
     QSettings *s = ICore::settings();
 
     s->beginGroup(settingsGroupC);
-    const FilePath command = FilePath::fromVariant(s->value(patchCommandKeyC, patchCommandDefaultC));
+    FilePath command = FilePath::fromSettings(s->value(patchCommandKeyC, patchCommandDefaultC));
     s->endGroup();
+
+    if (HostOsInfo::isWindowsHost() && command.path() == patchCommandDefaultC) {
+        const QSettings settings(R"(HKEY_LOCAL_MACHINE\SOFTWARE\GitForWindows)",
+                                 QSettings::NativeFormat);
+        const FilePath gitInstall = FilePath::fromUserInput(settings.value("InstallPath").toString());
+        if (gitInstall.exists())
+            command = command.searchInPath({gitInstall.pathAppended("usr/bin")},
+                                           Utils::FilePath::PrependToPath);
+    }
 
     return command;
 }
@@ -34,7 +43,7 @@ void PatchTool::setPatchCommand(const FilePath &newCommand)
 {
     Utils::QtcSettings *s = ICore::settings();
     s->beginGroup(settingsGroupC);
-    s->setValueWithDefault(patchCommandKeyC, newCommand.toVariant(), QVariant(QString(patchCommandDefaultC)));
+    s->setValueWithDefault(patchCommandKeyC, newCommand.toSettings(), QVariant(QString(patchCommandDefaultC)));
     s->endGroup();
 }
 
@@ -83,8 +92,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
         args << ("-p" + QString::number(strip));
     if (patchAction == PatchAction::Revert)
         args << "-R";
-    if (withCrlf)
-        args << "--binary";
+    args << "--binary";
     MessageManager::writeDisrupting(Tr::tr("Running in %1: %2 %3")
             .arg(workingDirectory.toUserOutput(), patch.toUserOutput(), args.join(' ')));
     patchProcess.setCommand({patch, args});

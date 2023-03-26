@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -276,7 +276,7 @@ public:
 
     Document::Ptr expressionDocument() const;
     Document::Ptr thisDocument() const;
-    Document::Ptr document(const QString &fileName) const;
+    Document::Ptr document(const Utils::FilePath &filePath) const;
     Snapshot snapshot() const;
 
     ClassOrNamespace *globalNamespace() const;
@@ -330,5 +330,4 @@ private:
 bool CPLUSPLUS_EXPORT compareFullyQualifiedName(const QList<const Name *> &path,
                                                 const QList<const Name *> &other);
 
-
-} // namespace CPlusPlus
+} // CPlusPlus

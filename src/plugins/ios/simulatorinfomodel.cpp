@@ -1,15 +1,16 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "simulatorinfomodel.h"
+
+#include "iostr.h"
 
 #include <utils/algorithm.h>
 #include <utils/runextensions.h>
 
 #include <QTimer>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 using namespace std::placeholders;
 
@@ -17,7 +18,7 @@ const int colCount = 3;
 const int nameCol = 0;
 const int runtimeCol = 1;
 const int stateCol = 2;
-static const int deviceUpdateInterval = 1000; // Update simulator state every 1 sec.
+const int deviceUpdateInterval = 1000; // Update simulator state every 1 sec.
 
 SimulatorInfoModel::SimulatorInfoModel(QObject *parent) :
     QAbstractItemModel(parent)
@@ -50,7 +51,7 @@ QVariant SimulatorInfoModel::data(const QModelIndex &index, int role) const
             return "";
         }
     } else if (role == Qt::ToolTipRole) {
-        return tr("UDID: %1").arg(simInfo.identifier);
+        return Tr::tr("UDID: %1").arg(simInfo.identifier);
     } else if (role == Qt::UserRole) {
         return QVariant::fromValue<SimulatorInfo>(simInfo);
     }
@@ -79,13 +80,13 @@ QVariant SimulatorInfoModel::headerData(int section, Qt::Orientation orientation
     if (role == Qt::DisplayRole) {
         switch (section) {
         case nameCol:
-            return tr("Simulator Name");
+            return Tr::tr("Simulator Name");
         case runtimeCol:
-            return tr("Runtime");
+            return Tr::tr("Runtime");
         case stateCol:
-            return tr("Current State");
+            return Tr::tr("Current State");
         default:
-            return "";
+            return {};
         }
     }
 
@@ -140,5 +141,4 @@ void SimulatorInfoModel::populateSimulators(const SimulatorInfoList &simulatorLi
     }
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

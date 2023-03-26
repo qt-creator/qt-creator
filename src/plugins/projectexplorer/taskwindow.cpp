@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "taskwindow.h"
 
 #include "itaskhandler.h"
 #include "projectexplorericons.h"
+#include "projectexplorertr.h"
 #include "session.h"
 #include "task.h"
 #include "taskhub.h"
@@ -24,6 +25,8 @@
 #include <utils/itemviews.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QDir>
@@ -357,11 +360,11 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     d->m_filterWarningsButton = createFilterButton(
                 Utils::Icons::WARNING_TOOLBAR.icon(),
-                tr("Show Warnings"), this, [this](bool show) { setShowWarnings(show); });
+                Tr::tr("Show Warnings"), this, [this](bool show) { setShowWarnings(show); });
 
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(Utils::Icons::FILTER.icon());
-    d->m_categoriesButton->setToolTip(tr("Filter by categories"));
+    d->m_categoriesButton->setToolTip(Tr::tr("Filter by categories"));
     d->m_categoriesButton->setProperty("noArrow", true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
 
@@ -449,6 +452,11 @@ void TaskWindow::delayedInitialization()
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
     return {d->m_filterWarningsButton, d->m_categoriesButton, filterWidget()};
+}
+
+QString TaskWindow::displayName() const
+{
+    return Tr::tr("Issues");
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)
@@ -934,20 +942,16 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
             }
         }
 
-        QColor mix;
-        mix.setRgb( static_cast<int>(0.7 * textColor.red()   + 0.3 * backgroundColor.red()),
-                static_cast<int>(0.7 * textColor.green() + 0.3 * backgroundColor.green()),
-                static_cast<int>(0.7 * textColor.blue()  + 0.3 * backgroundColor.blue()));
-        painter->setPen(mix);
-
+        const QColor mix = StyleHelper::mergedColors(textColor, backgroundColor, 70);
         const QString directory = QDir::toNativeSeparators(index.data(TaskModel::File).toString());
         int secondBaseLine = positions.top() + fm.ascent() + height + leading;
-        if (index.data(TaskModel::FileNotFound).toBool()
-                && !directory.isEmpty()) {
-            QString fileNotFound = tr("File not found: %1").arg(directory);
-            painter->setPen(Qt::red);
+        if (index.data(TaskModel::FileNotFound).toBool() && !directory.isEmpty()) {
+            const QString fileNotFound = Tr::tr("File not found: %1").arg(directory);
+            const QColor errorColor = selected ? mix : creatorTheme()->color(Theme::TextColorError);
+            painter->setPen(errorColor);
             painter->drawText(positions.textAreaLeft(), secondBaseLine, fileNotFound);
         } else {
+            painter->setPen(mix);
             painter->drawText(positions.textAreaLeft(), secondBaseLine, directory);
         }
     }

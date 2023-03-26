@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -61,14 +61,12 @@ public:
     };
 #endif // QT_GUI_LIB
 
-    static bool copyRecursively(const FilePath &srcFilePath,
-                                const FilePath &tgtFilePath,
-                                QString *error = nullptr);
-    template<typename T>
-    static bool copyRecursively(const FilePath &srcFilePath,
-                                const FilePath &tgtFilePath,
-                                QString *error,
-                                T &&copyHelper);
+    static bool copyRecursively(
+        const FilePath &srcFilePath,
+        const FilePath &tgtFilePath,
+        QString *error,
+        std::function<bool(const FilePath &, const FilePath &, QString *)> helper);
+
     static bool copyIfDifferent(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath);
     static QString fileSystemFriendlyName(const QString &name);
@@ -77,8 +75,6 @@ public:
     static bool makeWritable(const FilePath &path);
     static QString normalizedPathName(const QString &name);
 
-    static bool isRelativePath(const QString &fileName);
-    static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static FilePath commonPath(const FilePaths &paths);
     static FilePath homePath();
@@ -92,26 +88,31 @@ public:
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);
 
+    static bool hasNativeFileDialog();
+
     static FilePath getOpenFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir = {},
                                     const QString &filter = {},
                                     QString *selectedFilter = nullptr,
                                     QFileDialog::Options options = {},
-                                    bool fromDeviceIfShiftIsPressed = false);
+                                    bool fromDeviceIfShiftIsPressed = false,
+                                    bool forceNonNativeDialog = false);
 
     static FilePath getSaveFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir = {},
                                     const QString &filter = {},
                                     QString *selectedFilter = nullptr,
-                                    QFileDialog::Options options = {});
+                                    QFileDialog::Options options = {},
+                                    bool forceNonNativeDialog = false);
 
     static FilePath getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir = {},
                                          QFileDialog::Options options = QFileDialog::ShowDirsOnly,
-                                         bool fromDeviceIfShiftIsPressed = false);
+                                         bool fromDeviceIfShiftIsPressed = false,
+                                         bool forceNonNativeDialog = false);
 
     static FilePaths getOpenFilePaths(QWidget *parent,
                                       const QString &caption,
@@ -122,39 +123,6 @@ public:
 #endif
 
 };
-
-template<typename T>
-bool FileUtils::copyRecursively(const FilePath &srcFilePath,
-                                const FilePath &tgtFilePath,
-                                QString *error,
-                                T &&copyHelper)
-{
-    if (srcFilePath.isDir()) {
-        if (!tgtFilePath.exists()) {
-            if (!tgtFilePath.ensureWritableDir()) {
-                if (error) {
-                    *error = QCoreApplication::translate("Utils::FileUtils",
-                                                         "Failed to create directory \"%1\".")
-                                 .arg(tgtFilePath.toUserOutput());
-                }
-                return false;
-            }
-        }
-        const QDir sourceDir(srcFilePath.toString());
-        const QStringList fileNames = sourceDir.entryList(
-            QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-        for (const QString &fileName : fileNames) {
-            const FilePath newSrcFilePath = srcFilePath / fileName;
-            const FilePath newTgtFilePath = tgtFilePath / fileName;
-            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
-                return false;
-        }
-    } else {
-        if (!copyHelper(srcFilePath, tgtFilePath, error))
-            return false;
-    }
-    return true;
-}
 
 // for actually finding out if e.g. directories are writable on Windows
 #ifdef Q_OS_WIN
@@ -183,7 +151,6 @@ T withNtfsPermissions(const std::function<T()> &task)
 
 class QTCREATOR_UTILS_EXPORT FileReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     static QByteArray fetchQrc(const QString &fileName); // Only for internal resources
     bool fetch(const FilePath &filePath, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::ReadOnly is implicit
@@ -204,7 +171,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT FileSaverBase
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     FileSaverBase();
     virtual ~FileSaverBase();
@@ -239,7 +205,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT FileSaver : public FileSaverBase
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     // QIODevice::WriteOnly is implicit
     explicit FileSaver(const FilePath &filePath, QIODevice::OpenMode mode = QIODevice::NotOpen);
@@ -253,7 +218,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     explicit TempFileSaver(const QString &templ = QString());
     ~TempFileSaver() override;

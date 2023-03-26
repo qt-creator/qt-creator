@@ -15,9 +15,10 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "nimplugin.cpp", "nimplugin.h",
-            "nimconstants.h",
             "nim.qrc",
+            "nimconstants.h",
+            "nimplugin.cpp", "nimplugin.h",
+            "nimtr.h",
         ]
     }
 

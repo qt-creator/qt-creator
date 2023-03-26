@@ -1,15 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "glsleditor.h"
 
+#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
-
 
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -67,19 +67,18 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
 };
 
-class GlslCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class GlslCompletionAssistProcessor : public TextEditor::AsyncProcessor
 {
 public:
     ~GlslCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync() override;
 
 private:
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
     bool acceptsIdleEditor() const;
 
     int m_startPosition = 0;
-    QScopedPointer<const GlslCompletionAssistInterface> m_interface;
 };
 
 class GlslCompletionAssistInterface : public TextEditor::AssistInterface

@@ -1,19 +1,21 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "findincurrentfile.h"
-#include "textdocument.h"
 
-#include <utils/filesearch.h>
-#include <utils/fileutils.h>
+#include "textdocument.h"
+#include "texteditortr.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/filesearch.h>
+#include <utils/fileutils.h>
+
 #include <QSettings>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+namespace TextEditor::Internal {
 
 FindInCurrentFile::FindInCurrentFile()
 {
@@ -29,7 +31,7 @@ QString FindInCurrentFile::id() const
 
 QString FindInCurrentFile::displayName() const
 {
-    return tr("Current File");
+    return Tr::tr("Current File");
 }
 
 Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
@@ -54,13 +56,13 @@ QVariant FindInCurrentFile::additionalParameters() const
 
 QString FindInCurrentFile::label() const
 {
-    return tr("File \"%1\":").arg(m_currentDocument->filePath().fileName());
+    return Tr::tr("File \"%1\":").arg(m_currentDocument->filePath().fileName());
 }
 
 QString FindInCurrentFile::toolTip() const
 {
     // %2 is filled by BaseFileFind::runNewSearch
-    return tr("File path: %1\n%2").arg(m_currentDocument->filePath().toUserOutput());
+    return Tr::tr("File path: %1\n%2").arg(m_currentDocument->filePath().toUserOutput());
 }
 
 bool FindInCurrentFile::isEnabled() const
@@ -96,3 +98,5 @@ void FindInCurrentFile::readSettings(QSettings *settings)
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }
+
+} // TextEditor::Internal

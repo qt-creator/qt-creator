@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -21,6 +21,8 @@
 #include <QtCore/qstack.h>
 
 QT_QML_BEGIN_NAMESPACE
+
+class QDebug;
 
 namespace QmlJS {
 
@@ -92,8 +94,12 @@ public:
         NoQmlImport
     };
 
+    enum class LexMode { WholeCode, LineByLine };
+
+    enum class CodeContinuation { Reset, Continue };
+
 public:
-    Lexer(Engine *engine);
+    Lexer(Engine *engine, LexMode lexMode = LexMode::WholeCode);
 
     int parseModeFlags() const {
         int flags = 0;
@@ -107,22 +113,25 @@ public:
     }
 
     bool qmlMode() const;
-    bool yieldIsKeyWord() const { return _generatorLevel != 0; }
+    bool yieldIsKeyWord() const { return _state.generatorLevel != 0; }
     void setStaticIsKeyword(bool b) { _staticIsKeyword = b; }
 
     QString code() const;
-    void setCode(const QString &code, int lineno, bool qmlMode = true);
+    void setCode(const QString &code,
+                 int lineno,
+                 bool qmlMode = true,
+                 CodeContinuation codeContinuation = CodeContinuation::Reset);
 
     int lex();
 
     bool scanRegExp(RegExpBodyPrefix prefix = NoPrefix);
     bool scanDirectives(Directives *directives, DiagnosticMessage *error);
 
-    int regExpFlags() const { return _patternFlags; }
+    int regExpFlags() const { return _state.patternFlags; }
     QString regExpPattern() const { return _tokenText; }
 
-    int tokenKind() const { return _tokenKind; }
-    int tokenOffset() const { return _tokenStartPtr - _code.unicode(); }
+    int tokenKind() const { return _state.tokenKind; }
+    int tokenOffset() const { return _currentOffset + _tokenStartPtr - _code.unicode(); }
     int tokenLength() const { return _tokenLength; }
 
     int tokenStartLine() const { return _tokenLine; }
@@ -130,7 +139,7 @@ public:
 
     inline QStringView tokenSpell() const { return _tokenSpell; }
     inline QStringView rawString() const { return _rawString; }
-    double tokenValue() const { return _tokenValue; }
+    double tokenValue() const { return _state.tokenValue; }
     QString tokenText() const;
 
     Error errorCode() const;
@@ -146,8 +155,92 @@ public:
         BalancedParentheses
     };
 
-    void enterGeneratorBody() { ++_generatorLevel; }
-    void leaveGeneratorBody() { --_generatorLevel; }
+    enum class CommentState { NoComment, HadComment, InMultilineComment };
+
+    void enterGeneratorBody() { ++_state.generatorLevel; }
+    void leaveGeneratorBody() { --_state.generatorLevel; }
+
+    struct State
+    {
+        Error errorCode = NoError;
+
+        QChar currentChar = u'\n';
+        double tokenValue = 0;
+
+        // parentheses state
+        ParenthesesState parenthesesState = IgnoreParentheses;
+        int parenthesesCount = 0;
+
+        // template string stack
+        QStack<int> outerTemplateBraceCount;
+        int bracesCount = -1;
+
+        int stackToken = -1;
+
+        int patternFlags = 0;
+        int tokenKind = 0;
+        ImportState importState = ImportState::NoQmlImport;
+
+        bool validTokenText = false;
+        bool prohibitAutomaticSemicolon = false;
+        bool restrictedKeyword = false;
+        bool terminator = false;
+        bool followsClosingBrace = false;
+        bool delimited = true;
+        bool handlingDirectives = false;
+        CommentState comments = CommentState::NoComment;
+        int generatorLevel = 0;
+
+        friend bool operator==(State const &s1, State const &s2)
+        {
+            if (s1.errorCode != s2.errorCode)
+                return false;
+            if (s1.currentChar != s2.currentChar)
+                return false;
+            if (s1.tokenValue != s2.tokenValue)
+                return false;
+            if (s1.parenthesesState != s2.parenthesesState)
+                return false;
+            if (s1.parenthesesCount != s2.parenthesesCount)
+                return false;
+            if (s1.outerTemplateBraceCount != s2.outerTemplateBraceCount)
+                return false;
+            if (s1.bracesCount != s2.bracesCount)
+                return false;
+            if (s1.stackToken != s2.stackToken)
+                return false;
+            if (s1.patternFlags != s2.patternFlags)
+                return false;
+            if (s1.tokenKind != s2.tokenKind)
+                return false;
+            if (s1.importState != s2.importState)
+                return false;
+            if (s1.validTokenText != s2.validTokenText)
+                return false;
+            if (s1.prohibitAutomaticSemicolon != s2.prohibitAutomaticSemicolon)
+                return false;
+            if (s1.restrictedKeyword != s2.restrictedKeyword)
+                return false;
+            if (s1.terminator != s2.terminator)
+                return false;
+            if (s1.followsClosingBrace != s2.followsClosingBrace)
+                return false;
+            if (s1.delimited != s2.delimited)
+                return false;
+            if (s1.handlingDirectives != s2.handlingDirectives)
+                return false;
+            if (s1.generatorLevel != s2.generatorLevel)
+                return false;
+            return true;
+        }
+
+        friend bool operator!=(State const &s1, State const &s2) { return !(s1 == s2); }
+
+        friend QML_PARSER_EXPORT QDebug operator<<(QDebug dbg, State const &s);
+    };
+
+    const State &state() const;
+    void setState(const State &state);
 
 protected:
     static int classify(const QChar *s, int n, int parseModeFlags);
@@ -177,54 +270,36 @@ private:
     uint decodeUnicodeEscapeCharacter(bool *ok);
     QChar decodeHexEscapeCharacter(bool *ok);
 
+    friend QML_PARSER_EXPORT QDebug operator<<(QDebug dbg, const Lexer &l);
+
 private:
     Engine *_engine;
 
+    LexMode _lexMode = LexMode::WholeCode;
     QString _code;
+    const QChar *_endPtr;
+    bool _qmlMode;
+    bool _staticIsKeyword = false;
+
+    bool _skipLinefeed = false;
+
+    int _currentLineNumber = 0;
+    int _currentColumnNumber = 0;
+    int _currentOffset = 0;
+
+    int _tokenLength = 0;
+    int _tokenLine = 0;
+    int _tokenColumn = 0;
+
     QString _tokenText;
     QString _errorMessage;
     QStringView _tokenSpell;
     QStringView _rawString;
 
-    const QChar *_codePtr;
-    const QChar *_endPtr;
-    const QChar *_tokenStartPtr;
+    const QChar *_codePtr = nullptr;
+    const QChar *_tokenStartPtr = nullptr;
 
-    QChar _char;
-    Error _errorCode;
-
-    int _currentLineNumber;
-    int _currentColumnNumber;
-    double _tokenValue;
-
-    // parentheses state
-    ParenthesesState _parenthesesState;
-    int _parenthesesCount;
-
-    // template string stack
-    QStack<int> _outerTemplateBraceCount;
-    int _bracesCount = -1;
-
-    int _stackToken;
-
-    int _patternFlags;
-    int _tokenKind;
-    int _tokenLength;
-    int _tokenLine;
-    int _tokenColumn;
-    ImportState _importState = ImportState::NoQmlImport;
-
-    bool _validTokenText;
-    bool _prohibitAutomaticSemicolon;
-    bool _restrictedKeyword;
-    bool _terminator;
-    bool _followsClosingBrace;
-    bool _delimited;
-    bool _qmlMode;
-    bool _skipLinefeed = false;
-    int _generatorLevel = 0;
-    bool _staticIsKeyword = false;
-    bool _handlingDirectives = false;
+    State _state;
 };
 
 } // end of namespace QmlJS

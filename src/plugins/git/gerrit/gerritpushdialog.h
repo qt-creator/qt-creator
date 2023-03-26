@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Petar Perisin.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,16 +10,22 @@
 #include <QDate>
 #include <QSharedPointer>
 
-namespace Git {
-namespace Internal { class GitClient; }
-}
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QDialogButtonBox;
+class QLabel;
+class QLineEdit;
+QT_END_NAMESPACE
+
+namespace Git::Internal { class LogChangeWidget; }
 
 namespace Gerrit {
 namespace Internal {
 
+class BranchComboBox;
 class GerritParameters;
-
-namespace Ui { class GerritPushDialog; }
+class GerritRemoteChooser;
 
 class GerritPushDialog : public QDialog
 {
@@ -28,7 +34,6 @@ class GerritPushDialog : public QDialog
 public:
     GerritPushDialog(const Utils::FilePath &workingDir, const QString &reviewerList,
                      QSharedPointer<GerritParameters> parameters, QWidget *parent);
-    ~GerritPushDialog() override;
 
     QString selectedCommit() const;
     QString selectedRemoteName() const;
@@ -52,10 +57,21 @@ private:
     QString determineRemoteBranch(const QString &localBranch);
     void initRemoteBranches();
     QString calculateChangeRange(const QString &branch);
+
+    BranchComboBox *m_localBranchComboBox;
+    Gerrit::Internal::GerritRemoteChooser *m_remoteComboBox;
+    QComboBox *m_targetBranchComboBox;
+    Git::Internal::LogChangeWidget *m_commitView;
+    QLabel *m_infoLabel;
+    QLineEdit *m_topicLineEdit;
+    QCheckBox *m_draftCheckBox;
+    QCheckBox *m_wipCheckBox;
+    QLineEdit *m_reviewersLineEdit;
+    QDialogButtonBox *m_buttonBox;
+
     Utils::FilePath m_workingDir;
     QString m_suggestedRemoteBranch;
     QString m_initErrorMessage;
-    Ui::GerritPushDialog *m_ui;
     RemoteBranchesMap m_remoteBranches;
     bool m_hasLocalCommits = false;
     bool m_currentSupportsWip = false;

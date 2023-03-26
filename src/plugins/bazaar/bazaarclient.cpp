@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bazaarclient.h"
 
@@ -141,12 +141,12 @@ void BazaarClient::commit(const FilePath &repositoryRoot, const QStringList &fil
                           QStringList(extraOptions) << QLatin1String("-F") << commitMessageFile);
 }
 
-VcsBaseEditorWidget *BazaarClient::annotate(
-        const FilePath &workingDir, const QString &file, const QString &revision,
-        int lineNumber, const QStringList &extraOptions)
+void BazaarClient::annotate(const Utils::FilePath &workingDir, const QString &file,
+                            int lineNumber, const QString &revision,
+                            const QStringList &extraOptions, int firstLine)
 {
-    return VcsBaseClient::annotate(workingDir, file, revision, lineNumber,
-                                   QStringList(extraOptions) << QLatin1String("--long"));
+    VcsBaseClient::annotate(workingDir, file, lineNumber, revision,
+                            QStringList(extraOptions) << QLatin1String("--long"), firstLine);
 }
 
 bool BazaarClient::isVcsDirectory(const FilePath &filePath) const
@@ -164,16 +164,13 @@ FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const
 
 bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    QStringList args(QLatin1String("status"));
-    args << fileName;
-
-    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, {"status", fileName});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
     return result.rawStdOut().startsWith("unknown");
 }
 
-void BazaarClient::view(const QString &source, const QString &id, const QStringList &extraOptions)
+void BazaarClient::view(const FilePath &source, const QString &id, const QStringList &extraOptions)
 {
     QStringList args(QLatin1String("log"));
     args << QLatin1String("-p") << QLatin1String("-v") << extraOptions;
@@ -190,7 +187,7 @@ Utils::Id BazaarClient::vcsEditorKind(VcsCommandTag cmd) const
     case LogCommand:
         return Constants::FILELOG_ID;
     default:
-        return Utils::Id();
+        return {};
     }
 }
 

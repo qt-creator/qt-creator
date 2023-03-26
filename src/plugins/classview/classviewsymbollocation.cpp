@@ -1,12 +1,11 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classviewsymbollocation.h"
-#include <QPair>
+
 #include <QHash>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 /*!
     \class SymbolLocation
@@ -23,7 +22,7 @@ SymbolLocation::SymbolLocation() :
 {
 }
 
-SymbolLocation::SymbolLocation(const QString &file, int lineNumber, int columnNumber)
+SymbolLocation::SymbolLocation(const Utils::FilePath &file, int lineNumber, int columnNumber)
     : m_fileName(file)
     , m_line(lineNumber)
     , m_column(qMax(columnNumber, 0))
@@ -31,5 +30,4 @@ SymbolLocation::SymbolLocation(const QString &file, int lineNumber, int columnNu
 {
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // ClassView::Internal

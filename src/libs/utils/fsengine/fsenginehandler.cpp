@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fsenginehandler.h"
 
@@ -11,19 +11,15 @@
 
 #include "../algorithm.h"
 
-namespace Utils {
-
-namespace Internal {
+namespace Utils::Internal {
 
 QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
 {
     if (fileName.startsWith(':'))
         return nullptr;
 
-    static const QString rootPath =
-        FilePath::specialPath(FilePath::SpecialPathComponent::RootPath);
-    static const FilePath rootFilePath =
-        FilePath::specialFilePath(FilePath::SpecialPathComponent::RootPath);
+    static const QString rootPath = FilePath::specialRootPath();
+    static const FilePath rootFilePath = FilePath::fromString(rootPath);
 
     const QString fixedFileName = QDir::cleanPath(fileName);
 
@@ -60,6 +56,4 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
     return nullptr;
 }
 
-} // namespace Internal
-
-} // namespace Utils
+} // Utils::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxqtversion.h"
 
@@ -46,7 +46,7 @@ public:
         sdpPathChooser->setHistoryCompleter("Qnx.Sdp.History");
         sdpPathChooser->setFilePath(version->sdpPath());
 
-        connect(sdpPathChooser, &PathChooser::rawPathChanged, [this, version, sdpPathChooser] {
+        connect(sdpPathChooser, &PathChooser::rawPathChanged, this, [this, version, sdpPathChooser] {
             version->setSdpPath(sdpPathChooser->filePath());
             emit changed();
         });
@@ -112,14 +112,14 @@ QString QnxQtVersion::cpuDir() const
 QVariantMap QnxQtVersion::toMap() const
 {
     QVariantMap result = QtVersion::toMap();
-    result.insert(SDP_PATH_KEY, sdpPath().toVariant());
+    result.insert(SDP_PATH_KEY, sdpPath().toSettings());
     return result;
 }
 
 void QnxQtVersion::fromMap(const QVariantMap &map, const Utils::FilePath &)
 {
     QtVersion::fromMap(map);
-    setSdpPath(FilePath::fromVariant(map.value(SDP_PATH_KEY)));
+    setSdpPath(FilePath::fromSettings(map.value(SDP_PATH_KEY)));
 }
 
 Abis QnxQtVersion::detectQtAbis() const

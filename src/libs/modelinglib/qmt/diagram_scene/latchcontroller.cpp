@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "latchcontroller.h"
 
@@ -119,8 +119,8 @@ void LatchController::handleLatches()
     if (horizAction != ILatchable::Move || vertAction != ILatchable::Move)
         return;
 
-    QList<ILatchable::Latch> palpedHorizontals = palpedLatchable->horizontalLatches(horizAction, true);
-    QList<ILatchable::Latch> palpedVerticals = palpedLatchable->verticalLatches(vertAction, true);
+    const QList<ILatchable::Latch> palpedHorizontals = palpedLatchable->horizontalLatches(horizAction, true);
+    const QList<ILatchable::Latch> palpedVerticals = palpedLatchable->verticalLatches(vertAction, true);
 
     qreal horizMinDist = 10.0;
     ILatchable::Latch bestHorizLatch;
@@ -129,12 +129,12 @@ void LatchController::handleLatches()
     ILatchable::Latch bestVertLatch;
     bool foundBestVert = false;
 
-    foreach (QGraphicsItem *item, m_diagramSceneModel->graphicsItems()) {
+    for (QGraphicsItem *item : m_diagramSceneModel->graphicsItems()) {
         if (item != m_diagramSceneModel->focusItem() && !m_diagramSceneModel->isSelectedItem(item)) {
             if (auto latchable = dynamic_cast<ILatchable *>(item)) {
-                QList<ILatchable::Latch> horizontals = latchable->horizontalLatches(horizAction, false);
-                foreach (const ILatchable::Latch &palpedLatch, palpedHorizontals) {
-                    foreach (const ILatchable::Latch &latch, horizontals) {
+                const QList<ILatchable::Latch> horizontals = latchable->horizontalLatches(horizAction, false);
+                for (const ILatchable::Latch &palpedLatch : palpedHorizontals) {
+                    for (const ILatchable::Latch &latch : horizontals) {
                         if (palpedLatch.m_latchType == latch.m_latchType) {
                             // calculate distance and minimal distance with sign
                             // because this is needed later to move the objects
@@ -147,9 +147,9 @@ void LatchController::handleLatches()
                         }
                     }
                 }
-                QList<ILatchable::Latch> verticals = latchable->verticalLatches(vertAction, false);
-                foreach (const ILatchable::Latch &palpedLatch, palpedVerticals) {
-                    foreach (const ILatchable::Latch &latch, verticals) {
+                const QList<ILatchable::Latch> verticals = latchable->verticalLatches(vertAction, false);
+                for (const ILatchable::Latch &palpedLatch : palpedVerticals) {
+                    for (const ILatchable::Latch &latch : verticals) {
                         if (palpedLatch.m_latchType == latch.m_latchType) {
                             // calculate distance and minimal distance with sign
                             // because this is needed later to move the objects
@@ -227,7 +227,7 @@ void LatchController::applyLatches()
         case ILatchable::Left:
         case ILatchable::Right:
         case ILatchable::Hcenter:
-            foreach (QGraphicsItem *item, m_diagramSceneModel->selectedItems()) {
+            for (QGraphicsItem *item : m_diagramSceneModel->selectedItems()) {
                 DElement *element = m_diagramSceneModel->element(item);
                 if (auto selectedObject = dynamic_cast<DObject *>(element)) {
                     m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
@@ -252,7 +252,7 @@ void LatchController::applyLatches()
         case ILatchable::Top:
         case ILatchable::Bottom:
         case ILatchable::Vcenter:
-            foreach (QGraphicsItem *item, m_diagramSceneModel->selectedItems()) {
+            for (QGraphicsItem *item : m_diagramSceneModel->selectedItems()) {
                 DElement *element = m_diagramSceneModel->element(item);
                 if (auto selectedObject = dynamic_cast<DObject *>(element)) {
                     m_diagramSceneModel->diagramController()->startUpdateElement(selectedObject, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);

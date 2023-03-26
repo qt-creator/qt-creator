@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
@@ -190,8 +190,8 @@ enum AndroidValidation {
     JavaPathExistsAndWritableRow,
     SdkPathExistsAndWritableRow,
     SdkToolsInstalledRow,
-    PlatformToolsInstalledRow,
     SdkManagerSuccessfulRow,
+    PlatformToolsInstalledRow,
     PlatformSdkInstalledRow,
     BuildToolsInstalledRow,
     AllEssentialsInstalledRow,
@@ -279,15 +279,15 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, &m_sdkManager, this);
 
     const QMap<int, QString> androidValidationPoints = {
-        { SdkPathExistsAndWritableRow, Tr::tr("Android SDK path exists and is writable.") },
         { JavaPathExistsAndWritableRow, Tr::tr("JDK path exists and is writable.") },
-        { SdkToolsInstalledRow, Tr::tr("SDK tools installed.") },
-        { SdkManagerSuccessfulRow, Tr::tr("SDK manager runs.") },
-        { PlatformToolsInstalledRow, Tr::tr("Platform tools installed.") },
+        { SdkPathExistsAndWritableRow, Tr::tr("Android SDK path exists and is writable.") },
+        { SdkToolsInstalledRow, Tr::tr("Android SDK Command-line Tools installed.") },
+        { SdkManagerSuccessfulRow, Tr::tr("Android SDK Command-line Tools run.") },
+        { PlatformToolsInstalledRow, Tr::tr("Android SDK Platform-Tools installed.") },
         { AllEssentialsInstalledRow,
             Tr::tr( "All essential packages installed for all installed Qt versions.") },
-        { BuildToolsInstalledRow, Tr::tr("Build tools installed.") },
-        { PlatformSdkInstalledRow, Tr::tr("Platform SDK installed.") }
+        { BuildToolsInstalledRow, Tr::tr("Android SDK Build-Tools installed.") },
+        { PlatformSdkInstalledRow, Tr::tr("Android Platform SDK (version) installed.") }
     };
 
     m_androidSummary = new SummaryWidget(androidValidationPoints, Tr::tr("Android settings are OK."),
@@ -381,7 +381,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::onSdkPathChanged);
 
     connect(m_ndkListWidget, &QListWidget::currentTextChanged,
-            [this, removeCustomNdkButton](const QString &ndk) {
+            this, [this, removeCustomNdkButton](const QString &ndk) {
         updateUI();
         removeCustomNdkButton->setEnabled(m_androidConfig.getCustomNdkList().contains(ndk));
     });
@@ -608,7 +608,8 @@ void AndroidSettingsWidget::validateSdk()
 
 void AndroidSettingsWidget::openSDKDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput("https://developer.android.com/studio/"));
+    QDesktopServices::openUrl(QUrl::fromUserInput(
+                                  "https://developer.android.com/studio#command-line-tools-only"));
 }
 
 void AndroidSettingsWidget::openNDKDownloadUrl()

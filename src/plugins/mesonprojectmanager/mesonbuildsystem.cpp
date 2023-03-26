@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Alexis Jeandet.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mesonbuildsystem.h"
 
@@ -185,8 +185,7 @@ void MesonBuildSystem::init()
     m_IntroWatcher.addFile(buildConfiguration()
                                ->buildDirectory()
                                .pathAppended(Constants::MESON_INFO_DIR)
-                               .pathAppended(Constants::MESON_INFO)
-                               .toString(),
+                               .pathAppended(Constants::MESON_INFO),
                            Utils::FileSystemWatcher::WatchModifiedDate);
 }
 

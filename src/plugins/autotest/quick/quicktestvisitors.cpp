@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "quicktestvisitors.h"
 
@@ -18,16 +18,19 @@ namespace Internal {
 
 static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
-TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
+TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc,
+                               const QmlJS::Snapshot &snapshot,
+                               bool checkForDerivedTest)
     : m_currentDoc(doc)
     , m_snapshot(snapshot)
+    , m_checkForDerivedTest(checkForDerivedTest)
 {
 }
 
 static bool documentImportsQtTest(const QmlJS::Document *doc)
 {
     if (const QmlJS::Bind *bind = doc->bind()) {
-        return Utils::anyOf(bind->imports(), [] (const QmlJS::ImportInfo &info) {
+        return Utils::anyOf(bind->imports(), [](const QmlJS::ImportInfo &info) {
             return info.isValid() && info.name() == "QtTest";
         });
     }
@@ -68,8 +71,10 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     const QStringView name = ast->qualifiedTypeNameId->name;
     m_objectIsTestStack.push(false);
     if (name != QLatin1String("TestCase")) {
-        if (!isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot))
+        if (!m_checkForDerivedTest
+            || !isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot)) {
             return true;
+        }
     } else if (!documentImportsQtTest(m_currentDoc.data())) {
         return true; // find nested TestCase items as well
     }

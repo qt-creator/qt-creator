@@ -1,9 +1,10 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "buildpropertiessettings.h"
 
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -16,10 +17,7 @@ const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[]
     = "../%{JS: Util.asciify(\"build-%{Project:Name}-%{Kit:FileSystemName}-%{BuildConfig:Name}\")}";
 
 BuildPropertiesSettings::BuildTriStateAspect::BuildTriStateAspect()
-    : TriStateAspect{
-          BuildPropertiesSettings::tr("Enable"),
-          BuildPropertiesSettings::tr("Disable"),
-          BuildPropertiesSettings::tr("Use Project Default")}
+    : TriStateAspect{Tr::tr("Enable"), Tr::tr("Disable"), Tr::tr("Use Project Default")}
 {}
 
 BuildPropertiesSettings::BuildPropertiesSettings()
@@ -30,7 +28,7 @@ BuildPropertiesSettings::BuildPropertiesSettings()
     buildDirectoryTemplate.setDisplayStyle(StringAspect::LineEditDisplay);
     buildDirectoryTemplate.setSettingsKey("Directories/BuildDirectory.TemplateV2");
     buildDirectoryTemplate.setDefaultValue(DEFAULT_BUILD_DIRECTORY_TEMPLATE);
-    buildDirectoryTemplate.setLabelText(tr("Default build directory:"));
+    buildDirectoryTemplate.setLabelText(Tr::tr("Default build directory:"));
     buildDirectoryTemplate.setUseGlobalMacroExpander();
     buildDirectoryTemplate.setUseResetButton();
 
@@ -40,15 +38,15 @@ BuildPropertiesSettings::BuildPropertiesSettings()
 
     registerAspect(&separateDebugInfo);
     separateDebugInfo.setSettingsKey("ProjectExplorer/Settings/SeparateDebugInfo");
-    separateDebugInfo.setLabelText(tr("Separate debug info:"));
+    separateDebugInfo.setLabelText(Tr::tr("Separate debug info:"));
 
     registerAspect(&qmlDebugging);
     qmlDebugging.setSettingsKey("ProjectExplorer/Settings/QmlDebugging");
-    qmlDebugging.setLabelText(tr("QML debugging:"));
+    qmlDebugging.setLabelText(Tr::tr("QML debugging:"));
 
     registerAspect(&qtQuickCompiler);
     qtQuickCompiler.setSettingsKey("ProjectExplorer/Settings/QtQuickCompiler");
-    qtQuickCompiler.setLabelText(tr("Use qmlcachegen:"));
+    qtQuickCompiler.setLabelText(Tr::tr("Use qmlcachegen:"));
 
     QObject::connect(&showQtSettings, &BoolAspect::valueChanged,
                      &qmlDebugging, &BaseAspect::setVisible);
@@ -82,7 +80,7 @@ namespace Internal {
 BuildPropertiesSettingsPage::BuildPropertiesSettingsPage(BuildPropertiesSettings *settings)
 {
     setId("AB.ProjectExplorer.BuildPropertiesSettingsPage");
-    setDisplayName(BuildPropertiesSettings::tr("Default Build Properties"));
+    setDisplayName(Tr::tr("Default Build Properties"));
     setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setSettings(settings);
 

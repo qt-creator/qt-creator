@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -45,8 +45,6 @@ inline const QStringList gccPredefinedMacrosOptions(Utils::Id languageId)
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::GccToolChain)
-
 public:
     GccToolChain(Utils::Id typeId);
 
@@ -183,16 +181,12 @@ private:
 
 class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ClangToolChain)
-
 public:
     ClangToolChain();
     explicit ClangToolChain(Utils::Id typeId);
     ~ClangToolChain() override;
 
-    bool matchesCompilerCommand(
-        const Utils::FilePath &command,
-        const Utils::Environment &env = Utils::Environment::systemEnvironment()) const override;
+    bool matchesCompilerCommand(const Utils::FilePath &command) const override;
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
@@ -215,6 +209,9 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
 
+    void setPriority(int priority) { m_priority = priority; }
+    int priority() const override { return m_priority; }
+
 protected:
     Utils::LanguageExtensions defaultLanguageExtensions() const override;
     void syncAutodetectedWithParentToolchains();
@@ -224,6 +221,7 @@ private:
     // which is used for comparison with matchesCompileCommand
     mutable std::optional<Utils::FilePath> m_resolvedCompilerCommand;
     QByteArray m_parentToolChainId;
+    int m_priority = PriorityNormal;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;
 
@@ -238,8 +236,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::MingwToolChain)
-
 public:
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
@@ -258,8 +254,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::LinuxIccToolChain)
-
 public:
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     QList<Utils::OutputLineParser *> createOutputParsers() const override;

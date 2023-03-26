@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jsonwizardpagefactory_p.h"
 
@@ -10,11 +10,11 @@
 #include "jsonprojectpage.h"
 #include "jsonsummarypage.h"
 #include "jsonwizardfactory.h"
+#include "../projectexplorertr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/wizardpage.h>
 
-#include <QCoreApplication>
 #include <QVariant>
 
 namespace ProjectExplorer {
@@ -60,8 +60,7 @@ bool FieldPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStr
 
     const QList<QVariant> list = JsonWizardFactory::objectOrList(data, errorMessage);
     if (list.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "When parsing fields of page \"%1\": %2")
+        *errorMessage = Tr::tr("When parsing fields of page \"%1\": %2")
                 .arg(typeId.toString()).arg(*errorMessage);
         return false;
     }
@@ -98,8 +97,7 @@ bool FilePageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"data\" for a \"File\" page needs to be unset or an empty object.");
+        *errorMessage = Tr::tr("\"data\" for a \"File\" page needs to be unset or an empty object.");
         return false;
     }
 
@@ -110,9 +108,9 @@ bool FilePageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 // KitsPageFactory:
 // --------------------------------------------------------------------
 
-static const char KEY_PROJECT_FILE[] = "projectFilePath";
-static const char KEY_REQUIRED_FEATURES[] = "requiredFeatures";
-static const char KEY_PREFERRED_FEATURES[] = "preferredFeatures";
+const char KEY_PROJECT_FILE[] = "projectFilePath";
+const char KEY_REQUIRED_FEATURES[] = "requiredFeatures";
+const char KEY_PREFERRED_FEATURES[] = "preferredFeatures";
 
 KitsPageFactory::KitsPageFactory()
 {
@@ -138,8 +136,7 @@ static bool validateFeatureList(const QVariantMap &data, const QByteArray &key, 
     QString message;
     JsonKitsPage::parseFeatures(data.value(QLatin1String(key)), &message);
     if (!message.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "Error parsing \"%1\" in \"Kits\" page: %2")
+        *errorMessage = Tr::tr("Error parsing \"%1\" in \"Kits\" page: %2")
                 .arg(QLatin1String(key), message);
         return false;
     }
@@ -151,15 +148,13 @@ bool KitsPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
     QTC_ASSERT(canCreate(typeId), return false);
 
     if (data.isNull() || data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"data\" must be a JSON object for \"Kits\" pages.");
+        *errorMessage = Tr::tr("\"data\" must be a JSON object for \"Kits\" pages.");
         return false;
     }
 
     QVariantMap tmp = data.toMap();
     if (tmp.value(QLatin1String(KEY_PROJECT_FILE)).toString().isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"Kits\" page requires a \"%1\" set.")
+        *errorMessage = Tr::tr("\"Kits\" page requires a \"%1\" set.")
                 .arg(QLatin1String(KEY_PROJECT_FILE));
         return false;
     }
@@ -212,8 +207,7 @@ bool ProjectPageFactory::validateData(Utils::Id typeId, const QVariant &data, QS
 
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "\"data\" must be empty or a JSON object for \"Project\" pages.");
+        *errorMessage = Tr::tr("\"data\" must be empty or a JSON object for \"Project\" pages.");
         return false;
     }
     QVariantMap tmp = data.toMap();
@@ -222,7 +216,7 @@ bool ProjectPageFactory::validateData(Utils::Id typeId, const QVariant &data, QS
     if (!projectNameValidator.isNull()) {
         QRegularExpression regularExpression(projectNameValidator);
         if (!regularExpression.isValid()) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+            *errorMessage = Tr::tr(
                 "Invalid regular expression \"%1\" in \"%2\". %3").arg(
                 projectNameValidator, QLatin1String(KEY_PROJECT_NAME_VALIDATOR), regularExpression.errorString());
             return false;
@@ -259,8 +253,7 @@ bool SummaryPageFactory::validateData(Utils::Id typeId, const QVariant &data, QS
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.type() != QVariant::Map)) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-            "\"data\" for a \"Summary\" page can be unset or needs to be an object.");
+        *errorMessage = Tr::tr("\"data\" for a \"Summary\" page can be unset or needs to be an object.");
         return false;
     }
 

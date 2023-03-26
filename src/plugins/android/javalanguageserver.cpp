@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
@@ -139,14 +139,14 @@ bool JLSSettings::isValid() const
 QVariantMap JLSSettings::toMap() const
 {
     QVariantMap map = StdIOSettings::toMap();
-    map.insert(languageServerKey, m_languageServer.toVariant());
+    map.insert(languageServerKey, m_languageServer.toSettings());
     return map;
 }
 
 void JLSSettings::fromMap(const QVariantMap &map)
 {
     StdIOSettings::fromMap(map);
-    m_languageServer = FilePath::fromVariant(map[languageServerKey]);
+    m_languageServer = FilePath::fromSettings(map[languageServerKey]);
 }
 
 LanguageClient::BaseSettings *JLSSettings::copy() const

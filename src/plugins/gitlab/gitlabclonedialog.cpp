@@ -1,9 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gitlabclonedialog.h"
 
 #include "gitlabprojectsettings.h"
+#include "gitlabtr.h"
 #include "resultparser.h"
 
 #include <coreplugin/documentmanager.h>
@@ -48,28 +49,28 @@ namespace GitLab {
 GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Clone Repository"));
+    setWindowTitle(Tr::tr("Clone Repository"));
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(new QLabel(tr("Specify repository URL, checkout path and directory.")));
+    layout->addWidget(new QLabel(Tr::tr("Specify repository URL, checkout path and directory.")));
     QHBoxLayout *centerLayout = new QHBoxLayout;
     QFormLayout *form = new QFormLayout;
     m_repositoryCB = new QComboBox(this);
     m_repositoryCB->addItems({project.sshUrl, project.httpUrl});
-    form->addRow(tr("Repository"), m_repositoryCB);
+    form->addRow(Tr::tr("Repository"), m_repositoryCB);
     m_pathChooser = new PathChooser(this);
     m_pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
-    form->addRow(tr("Path"), m_pathChooser);
+    form->addRow(Tr::tr("Path"), m_pathChooser);
     m_directoryLE = new FancyLineEdit(this);
     m_directoryLE->setValidationFunction([this](FancyLineEdit *e, QString *msg) {
         const FilePath fullPath = m_pathChooser->filePath().pathAppended(e->text());
         bool alreadyExists = fullPath.exists();
         if (alreadyExists && msg)
-            *msg = tr("Path \"%1\" already exists.").arg(fullPath.toUserOutput());
+            *msg = Tr::tr("Path \"%1\" already exists.").arg(fullPath.toUserOutput());
         return !alreadyExists;
     });
-    form->addRow(tr("Directory"), m_directoryLE);
+    form->addRow(Tr::tr("Directory"), m_directoryLE);
     m_submodulesCB = new QCheckBox(this);
-    form->addRow(tr("Recursive"), m_submodulesCB);
+    form->addRow(Tr::tr("Recursive"), m_submodulesCB);
     form->addItem(new QSpacerItem(10, 10));
     centerLayout->addLayout(form);
     m_cloneOutput = new QPlainTextEdit(this);
@@ -79,7 +80,7 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     m_infoLabel = new InfoLabel(this);
     layout->addWidget(m_infoLabel);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
-    m_cloneButton = new QPushButton(tr("Clone"), this);
+    m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
     buttons->addButton(m_cloneButton, QDialogButtonBox::ActionRole);
     m_cancelButton = buttons->button(QDialogButtonBox::Cancel);
     layout->addWidget(buttons);
@@ -161,7 +162,7 @@ void GitLabCloneDialog::cloneProject()
 void GitLabCloneDialog::cancel()
 {
     if (m_commandRunning) {
-        m_cloneOutput->appendPlainText(tr("User canceled process."));
+        m_cloneOutput->appendPlainText(Tr::tr("User canceled process."));
         m_cancelButton->setEnabled(false);
         m_command->cancel();    // FIXME does not cancel the git processes... QTCREATORBUG-27567
     } else {
@@ -194,7 +195,7 @@ void GitLabCloneDialog::cloneFinished(bool success)
     QApplication::restoreOverrideCursor();
 
     if (success) {
-        m_cloneOutput->appendPlainText(tr("Cloning succeeded.") + emptyLine);
+        m_cloneOutput->appendPlainText(Tr::tr("Cloning succeeded.") + emptyLine);
         m_cloneButton->setEnabled(false);
 
         const FilePath base = m_pathChooser->filePath().pathAppended(m_directoryLE->text());
@@ -215,8 +216,8 @@ void GitLabCloneDialog::cloneFinished(bool success)
 
         hide(); // avoid to many dialogs.. FIXME: maybe change to some wizard approach?
         if (filesWeMayOpen.isEmpty()) {
-            QMessageBox::warning(this, tr("Warning"),
-                                 tr("Cloned project does not have a project file that can be "
+            QMessageBox::warning(this, Tr::tr("Warning"),
+                                 Tr::tr("Cloned project does not have a project file that can be "
                                     "opened. Try importing the project as a generic project."));
             accept();
         } else {
@@ -225,15 +226,15 @@ void GitLabCloneDialog::cloneFinished(bool success)
             });
             bool ok = false;
             const QString fileToOpen
-                    = QInputDialog::getItem(this, tr("Open Project"),
-                                            tr("Choose the project file to be opened."),
+                    = QInputDialog::getItem(this, Tr::tr("Open Project"),
+                                            Tr::tr("Choose the project file to be opened."),
                                             pFiles, 0, false, &ok);
             accept();
             if (ok && !fileToOpen.isEmpty())
                 ProjectExplorer::ProjectExplorerPlugin::openProject(base.pathAppended(fileToOpen));
         }
     } else {
-        m_cloneOutput->appendPlainText(tr("Cloning failed.") + emptyLine);
+        m_cloneOutput->appendPlainText(Tr::tr("Cloning failed.") + emptyLine);
         const FilePath fullPath = m_pathChooser->filePath().pathAppended(m_directoryLE->text());
         fullPath.removeRecursively();
         m_cloneButton->setEnabled(true);

@@ -1,15 +1,16 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangformatbaseindenter.h"
-#include "clangformatconstants.h"
-#include "clangformatsettings.h"
 #include "clangformatutils.h"
+#include "llvmfilesystem.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -25,6 +26,8 @@
 
 namespace ClangFormat {
 
+Internal::LlvmFileSystemAdapter llvmFileSystemAdapter = {};
+
 namespace {
 void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
                                    ReplacementsToKeep replacementsToKeep)
@@ -35,7 +38,11 @@ void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
 #else
     style.SortIncludes = false;
 #endif
+#if LLVM_VERSION_MAJOR >= 16
+    style.SortUsingDeclarations = clang::format::FormatStyle::SUD_Never;
+#else
     style.SortUsingDeclarations = false;
+#endif
 
     // This is a separate pass, don't do it unless it's the full formatting.
     style.FixNamespaceComments = false;
@@ -495,11 +502,8 @@ Utils::Text::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffe
     std::vector<clang::tooling::Range> ranges{{static_cast<unsigned int>(rangeStart), rangeLength}};
 
     clang::format::FormattingAttemptStatus status;
-    clang::tooling::Replacements clangReplacements = reformat(style,
-                                                              buffer.data(),
-                                                              ranges,
-                                                              m_fileName.toString().toStdString(),
-                                                              &status);
+    clang::tooling::Replacements clangReplacements = clang::format::reformat(
+        style, buffer.data(), ranges, m_fileName.toFSPathString().toStdString(), &status);
 
     clang::tooling::Replacements filtered;
     if (status.FormatComplete) {
@@ -547,7 +551,7 @@ Utils::Text::Replacements ClangFormatBaseIndenter::format(
     }
 
     clang::format::FormatStyle style = styleForFile();
-    const std::string assumedFileName = m_fileName.toString().toStdString();
+    const std::string assumedFileName = m_fileName.toFSPathString().toStdString();
     clang::tooling::Replacements clangReplacements = clang::format::sortIncludes(style,
                                                                                  buffer.data(),
                                                                                  ranges,
@@ -560,11 +564,11 @@ Utils::Text::Replacements ClangFormatBaseIndenter::format(
     ranges = clang::tooling::calculateRangesAfterReplacements(clangReplacements, ranges);
 
     clang::format::FormattingAttemptStatus status;
-    const clang::tooling::Replacements formatReplacements = reformat(style,
-                                                                     *changedCode,
-                                                                     ranges,
-                                                                     assumedFileName,
-                                                                     &status);
+    const clang::tooling::Replacements formatReplacements = clang::format::reformat(style,
+                                                                                    *changedCode,
+                                                                                    ranges,
+                                                                                    assumedFileName,
+                                                                                    &status);
     clangReplacements = clangReplacements.merge(formatReplacements);
 
     const Utils::Text::Replacements toReplace = utf16Replacements(m_doc, buffer, clangReplacements);
@@ -737,41 +741,46 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
     }
 }
 
-clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
+clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
 {
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
-        = clang::format::getStyle("file", m_fileName.path().toStdString(), "none");
-
     const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::SessionManager::projectForFile(m_fileName);
-    const bool overrideStyleFile
-        = projectForFile ? projectForFile->namedSettings(Constants::OVERRIDE_FILE_ID).toBool()
-                         : ClangFormatSettings::instance().overrideDefaultFile();
+        = ProjectExplorer::SessionManager::projectForFile(fileName);
+
     const TextEditor::ICodeStylePreferences *preferences
         = projectForFile
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
               : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 
-    if (overrideStyleFile || !styleFromProjectFolder
-        || *styleFromProjectFolder == clang::format::getNoStyle()) {
-        Utils::FilePath filePath = filePathToCurrentSettings(preferences);
+    Utils::FilePath filePath = filePathToCurrentSettings(preferences);
 
-        if (!filePath.exists())
-            return qtcStyle();
+    if (!filePath.exists())
+        return qtcStyle();
 
-        clang::format::FormatStyle currentSettingsStyle;
-        currentSettingsStyle.Language = clang::format::FormatStyle::LK_Cpp;
-        const std::error_code error = clang::format::parseConfiguration(filePath.fileContents()
-                                                                            .value_or(QByteArray())
-                                                                            .toStdString(),
-                                                                        &currentSettingsStyle);
-        QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
-                   return qtcStyle());
+    clang::format::FormatStyle currentSettingsStyle;
+    currentSettingsStyle.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = clang::format::parseConfiguration(filePath.fileContents()
+                                                                        .value_or(QByteArray())
+                                                                        .toStdString(),
+                                                                    &currentSettingsStyle);
+    QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
+               return qtcStyle());
 
-        return currentSettingsStyle;
-    }
+    return currentSettingsStyle;
+}
 
-    if (styleFromProjectFolder) {
+clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
+{
+    if (getCurrentOverriddenSettings(m_fileName))
+        return overrideStyle(m_fileName);
+
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
+        = clang::format::getStyle("file",
+                                  m_fileName.toFSPathString().toStdString(),
+                                  "none",
+                                  "",
+                                  &llvmFileSystemAdapter);
+
+    if (styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle())) {
         addQtcStatementMacros(*styleFromProjectFolder);
         return *styleFromProjectFolder;
     }

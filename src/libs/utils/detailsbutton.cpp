@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "detailsbutton.h"
 
-#include <utils/hostosinfo.h>
-#include <utils/icon.h>
-#include <utils/stylehelper.h>
+#include "hostosinfo.h"
+#include "icon.h"
+#include "stylehelper.h"
+#include "utilstr.h"
 
 #include <QGraphicsOpacityEffect>
 #include <QGuiApplication>
@@ -69,7 +70,7 @@ ExpandButton::ExpandButton(QWidget *parent)
 DetailsButton::DetailsButton(QWidget *parent)
     : ExpandButton(parent)
 {
-    setText(tr("Details"));
+    setText(Tr::tr("Details"));
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     if (HostOsInfo::isMacHost())
         setFont(QGuiApplication::font());

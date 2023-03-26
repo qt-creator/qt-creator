@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishtesttreeview.h"
 
@@ -179,8 +179,8 @@ static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePat
     const Utils::FilePath test = scripts.pathAppended(testStr + extension);
     const Utils::FilePath testFile = destination.pathAppended("test" + extension);
     QTC_ASSERT(!testFile.exists(), return false);
-    ok = test.copyFile(testFile);
-    QTC_ASSERT(ok, return false);
+    const Utils::expected_str<void> result = test.copyFile(testFile);
+    QTC_ASSERT_EXPECTED(result, return false);
 
     if (scripted)
         ok = suiteConf.ensureObjectMapExists();
@@ -197,7 +197,7 @@ void SquishTestTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
     auto sortModel = static_cast<SquishTestTreeSortModel *>(model);
     auto sourceModel = static_cast<SquishTestTreeModel *>(sortModel->sourceModel());
     auto lineEdit = static_cast<Utils::FancyLineEdit *>(editor);
-    auto removeFormerlyAdded = [sortModel, sourceModel, &index](){
+    auto removeFormerlyAdded = [sortModel, sourceModel, &index] {
         auto item = sourceModel->itemForIndex(sortModel->mapToSource(index));
         QTC_ASSERT(item, return);
         sourceModel->destroyItem(item);

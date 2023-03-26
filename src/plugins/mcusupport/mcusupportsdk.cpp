@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcusupportsdk.h"
 #include "mcuhelpers.h"
@@ -195,7 +195,7 @@ McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &se
                                                                           R"(\b(\d+\.\d+)\.\d+\b)");
 
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
-                                                          McuPackage::tr("MSVC Binary directory"),
+                                                          Tr::tr("MSVC Binary directory"),
                                                           defaultPath,
                                                           detectionPath,
                                                           "MsvcToolchain",
@@ -221,7 +221,7 @@ McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &set
                                                                           R"(\b(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
-                                                          McuPackage::tr("GCC Toolchain"),
+                                                          Tr::tr("GCC Toolchain"),
                                                           defaultPath,
                                                           detectionPath,
                                                           "GnuToolchain",
@@ -258,7 +258,7 @@ McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &
 
     return McuToolChainPackagePtr{
         new McuToolChainPackage(settingsHandler,
-                                McuPackage::tr("GNU Arm Embedded Toolchain"),
+                                Tr::tr("GNU Arm Embedded Toolchain"),
                                 defaultPath,
                                 detectionPath,
                                 "GNUArmEmbeddedToolchain",                  // settingsKey
@@ -374,7 +374,7 @@ McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &setti
 
     return McuPackagePtr{
         new McuPackage(settingsHandler,
-                       McuPackage::tr("STM32CubeProgrammer"),
+                       Tr::tr("STM32CubeProgrammer"),
                        defaultPath,
                        detectionPath,
                        "Stm32CubeProgrammer",
@@ -643,8 +643,9 @@ static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
 
     const QString typeString = type.toString();
     if (typeString.isNull()) {
-        printMessage(Tr::tr("Parsing error: the type entry in JSON kit files must be a string, "
-                            "defaulting to \"path\"")
+        printMessage(::McuSupport::Tr::tr(
+                         "Parsing error: the type entry in JSON kit files must be a string, "
+                         "defaulting to \"path\"")
                          .arg(typeString),
                      true);
 
@@ -655,7 +656,7 @@ static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
     } else if (typeString.compare("path", Qt::CaseInsensitive) == 0) {
         return Utils::PathChooser::ExistingDirectory;
     } else {
-        printMessage(Tr::tr(
+        printMessage(::McuSupport::Tr::tr(
                          "Parsing error: the type entry \"%2\" in JSON kit files is not supported, "
                          "defaulting to \"path\"")
                          .arg(typeString),
@@ -778,9 +779,9 @@ bool checkDeprecatedSdkError(const FilePath &qulDir, QString &message)
     const QString legacyVersion = legacySupportVersionFor(sdkDetectedVersion);
 
     if (!legacyVersion.isEmpty()) {
-        message = McuTarget::tr("Qt for MCUs SDK version %1 detected, "
-                                "only supported by Qt Creator version %2. "
-                                "This version of Qt Creator requires Qt for MCUs %3 or greater.")
+        message = Tr::tr("Qt for MCUs SDK version %1 detected, "
+                         "only supported by Qt Creator version %2. "
+                         "This version of Qt Creator requires Qt for MCUs %3 or greater.")
                       .arg(sdkDetectedVersion,
                            legacyVersion,
                            McuSupportOptions::minimalQulVersion().toString());
@@ -807,7 +808,7 @@ McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
         bool ok = false;
         const int compatVersion = desc.compatVersion.toInt(&ok);
         if (!desc.compatVersion.isEmpty() && ok && compatVersion > MAX_COMPATIBILITY_VERSION) {
-            printMessage(McuTarget::tr("Skipped %1. Unsupported version \"%2\".")
+            printMessage(Tr::tr("Skipped %1. Unsupported version \"%2\".")
                              .arg(QDir::toNativeSeparators(filePath.fileNameWithPathComponents(1)),
                                   desc.qulVersion),
                          false);
@@ -821,10 +822,10 @@ McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
             const QString legacyVersion = legacySupportVersionFor(desc.qulVersion);
             const QString qtcSupportText
                 = !legacyVersion.isEmpty()
-                      ? McuTarget::tr("Detected version \"%1\", only supported by Qt Creator %2.")
+                      ? Tr::tr("Detected version \"%1\", only supported by Qt Creator %2.")
                             .arg(desc.qulVersion, legacyVersion)
-                      : McuTarget::tr("Unsupported version \"%1\".").arg(desc.qulVersion);
-            printMessage(McuTarget::tr("Skipped %1. %2 Qt for MCUs version >= %3 required.")
+                      : Tr::tr("Unsupported version \"%1\".").arg(desc.qulVersion);
+            printMessage(Tr::tr("Skipped %1. %2 Qt for MCUs version >= %3 required.")
                              .arg(QDir::toNativeSeparators(filePath.fileNameWithPathComponents(1)),
                                   qtcSupportText,
                                   McuSupportOptions::minimalQulVersion().toString()),
@@ -837,7 +838,7 @@ McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
     // No valid description means invalid or old SDK installation.
     if (descriptions.empty()) {
         if (kitsPath(qtForMCUSdkPath).exists()) {
-            printMessage(McuTarget::tr("No valid kit descriptions found at %1.")
+            printMessage(Tr::tr("No valid kit descriptions found at %1.")
                              .arg(kitsPath(qtForMCUSdkPath).toUserOutput()),
                          true);
             return McuSdkRepository{};

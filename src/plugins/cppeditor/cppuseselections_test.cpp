@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppuseselections_test.h"
 
@@ -89,7 +89,7 @@ UseSelectionsTestCase::UseSelectionsTestCase(CppTestDocument &testFile,
         QEXPECT_FAIL("non-local use as macro argument - argument expanded 1", "TODO", Abort);
     }
     QVERIFY(!hasTimedOut);
-//    foreach (const Selection &selection, selections)
+//    for (const Selection &selection : selections)
 //        qDebug() << QTest::toString(selection);
     if (!clangCodeModel)
         QEXPECT_FAIL("non-local use as macro argument - argument expanded 2", "TODO", Abort);

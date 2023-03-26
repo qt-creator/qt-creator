@@ -1,9 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "editorsettingspropertiespage.h"
+
 #include "editorconfiguration.h"
 #include "project.h"
+#include "projectexplorertr.h"
 
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/behaviorsettings.h>
@@ -27,12 +29,12 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 {
     setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
 
-    m_restoreButton = new QPushButton(tr("Restore Global"));
+    m_restoreButton = new QPushButton(Tr::tr("Restore Global"));
 
-    m_displaySettings = new QGroupBox(tr("Display Settings"));
+    m_displaySettings = new QGroupBox(Tr::tr("Display Settings"));
     m_displaySettings->setEnabled(false);
 
-    m_showWrapColumn = new QCheckBox(tr("Display right &margin at column:"));
+    m_showWrapColumn = new QCheckBox(Tr::tr("Display right &margin at column:"));
 
     m_tintMarginArea = new QCheckBox("Colorize right margin area");
 
@@ -40,8 +42,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
     m_wrapColumn->setEnabled(false);
     m_wrapColumn->setMaximum(999);
 
-    m_useIndenter = new QCheckBox(tr("Use context-specific margin"));
-    m_useIndenter->setToolTip(tr("If available, use a different margin. For example, "
+    m_useIndenter = new QCheckBox(Tr::tr("Use context-specific margin"));
+    m_useIndenter->setToolTip(Tr::tr("If available, use a different margin. For example, "
                                  "the ColumnLimit from the ClangFormat plugin."));
 
     m_behaviorSettings = new TextEditor::BehaviorSettingsWidget(this);

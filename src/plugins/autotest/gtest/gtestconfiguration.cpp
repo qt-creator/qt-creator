@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gtestconfiguration.h"
 
@@ -12,11 +12,13 @@
 #include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *GTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                   Utils::QtcProcess *app) const
+TestOutputReader *GTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
+                                                         QtcProcess *app) const
 {
     return new GTestOutputReader(fi, app, buildDirectory(), projectFile());
 }
@@ -37,8 +39,8 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
                                                          "--gtest_print_time="
                                                          };
 
-    QStringList allowed = Utils::filtered(provided, [] (const QString &arg) {
-        return Utils::allOf(knownInterferingOptions, [&arg] (const QString &interfering) {
+    QStringList allowed = Utils::filtered(provided, [](const QString &arg) {
+        return Utils::allOf(knownInterferingOptions, [&arg](const QString &interfering) {
             return !arg.startsWith(interfering);
         });
     });
@@ -88,13 +90,13 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     return arguments;
 }
 
-Utils::Environment GTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment GTestConfiguration::filteredEnvironment(const Environment &original) const
 {
     const QStringList interfering{"GTEST_FILTER", "GTEST_ALSO_RUN_DISABLED_TESTS",
                                   "GTEST_REPEAT", "GTEST_SHUFFLE", "GTEST_RANDOM_SEED",
                                   "GTEST_OUTPUT", "GTEST_BREAK_ON_FAILURE", "GTEST_PRINT_TIME",
                                   "GTEST_CATCH_EXCEPTIONS"};
-    Utils::Environment result = original;
+    Environment result = original;
     if (!result.hasKey("GTEST_COLOR"))
         result.set("GTEST_COLOR", "1");  // use colored output by default
     for (const QString &key : interfering)

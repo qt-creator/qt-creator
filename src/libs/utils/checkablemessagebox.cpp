@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "checkablemessagebox.h"
 
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -56,9 +57,9 @@ public:
         messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
         checkBox = new QCheckBox(q);
-        checkBox->setText(CheckableMessageBox::tr("Do not ask again"));
+        checkBox->setText(Tr::tr("Do not ask again"));
 
-        const QString showText = CheckableMessageBox::tr("Show Details...");
+        const QString showText = Tr::tr("Show Details...");
         detailsButton = new QPushButton(showText, q);
         detailsButton->setAutoDefault(false);
         detailsButton->hide();
@@ -67,7 +68,7 @@ public:
         QObject::connect(detailsButton, &QPushButton::clicked, detailsText, [this, showText] {
             detailsText->setVisible(!detailsText->isVisible());
             detailsButton->setText(
-                detailsText->isVisible() ? CheckableMessageBox::tr("Hide Details...") : showText);
+                detailsText->isVisible() ? Tr::tr("Hide Details...") : showText);
         });
 
         buttonBox = new QDialogButtonBox(q);
@@ -461,7 +462,7 @@ bool CheckableMessageBox::hasSuppressedQuestions(QSettings *settings)
 */
 QString CheckableMessageBox::msgDoNotAskAgain()
 {
-    return QApplication::translate("Utils::CheckableMessageBox", "Do not &ask again");
+    return Tr::tr("Do not &ask again");
 }
 
 /*!
@@ -470,7 +471,7 @@ QString CheckableMessageBox::msgDoNotAskAgain()
 */
 QString CheckableMessageBox::msgDoNotShowAgain()
 {
-    return QApplication::translate("Utils::CheckableMessageBox", "Do not &show again");
+    return Tr::tr("Do not &show again");
 }
 
 } // namespace Utils

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nodeinstanceview.h"
 
@@ -2071,7 +2071,7 @@ void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const
     --m_remainingQsbTargets;
 
     const QString errStr = qsbProcess->errorString();
-    const QByteArray stdErrStr = qsbProcess->readAllStandardError();
+    const QByteArray stdErrStr = qsbProcess->readAllRawStandardError();
 
     if (!errStr.isEmpty() || !stdErrStr.isEmpty()) {
         Core::MessageManager::writeSilently(QCoreApplication::translate(

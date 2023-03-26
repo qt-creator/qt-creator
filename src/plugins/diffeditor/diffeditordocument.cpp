@@ -1,12 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "diffeditordocument.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
+#include "diffeditortr.h"
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -139,13 +141,9 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
                                 lastChunk && fileData.lastChunkAtTheEndOfFile);
 }
 
-void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const FilePath &directory,
-                                      const QString &startupFile)
+void DiffEditorDocument::setDiffFiles(const QList<FileData> &data)
 {
     m_diffFiles = data;
-    if (!directory.isEmpty())
-        m_baseDirectory = directory;
-    m_startupFile = startupFile;
     emit documentChanged();
 }
 
@@ -154,14 +152,19 @@ QList<FileData> DiffEditorDocument::diffFiles() const
     return m_diffFiles;
 }
 
-FilePath DiffEditorDocument::baseDirectory() const
+FilePath DiffEditorDocument::workingDirectory() const
 {
-    return m_baseDirectory;
+    return m_workingDirectory;
 }
 
-void DiffEditorDocument::setBaseDirectory(const FilePath &directory)
+void DiffEditorDocument::setWorkingDirectory(const FilePath &directory)
 {
-    m_baseDirectory = directory;
+    m_workingDirectory = directory;
+}
+
+void DiffEditorDocument::setStartupFile(const QString &startupFile)
+{
+    m_startupFile = startupFile;
 }
 
 QString DiffEditorDocument::startupFile() const
@@ -223,8 +226,8 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
 
 FilePath DiffEditorDocument::fallbackSaveAsPath() const
 {
-    if (!m_baseDirectory.isEmpty())
-        return m_baseDirectory;
+    if (!m_workingDirectory.isEmpty())
+        return m_workingDirectory;
     return FileUtils::homePath();
 }
 
@@ -291,14 +294,15 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
     bool ok = false;
     QList<FileData> fileDataList = DiffUtils::readPatch(patch, &ok);
     if (!ok) {
-        *errorString = tr("Could not parse patch file \"%1\". "
-                          "The content is not of unified diff format.")
+        *errorString = Tr::tr("Could not parse patch file \"%1\". "
+                              "The content is not of unified diff format.")
                 .arg(filePath.toUserOutput());
     } else {
         setTemporary(false);
         emit temporaryStateChanged();
         setFilePath(filePath.absoluteFilePath());
-        setDiffFiles(fileDataList, filePath.absoluteFilePath());
+        setWorkingDirectory(filePath.absoluteFilePath());
+        setDiffFiles(fileDataList);
     }
     endReload(ok);
     if (!ok && readResult == TextFileFormat::ReadEncodingError)
@@ -342,11 +346,11 @@ QString DiffEditorDocument::fallbackSaveAsFileName() const
 // ### fixme: git-specific handling should be done in the git plugin:
 // Remove unexpanded branches and follows-tag, clear indentation
 // and create E-mail
-static void formatGitDescription(QString *description)
+static QString formatGitDescription(const QString &description)
 {
     QString result;
-    result.reserve(description->size());
-    const auto descriptionList = description->split('\n');
+    result.reserve(description.size());
+    const auto descriptionList = description.split('\n');
     for (QString line : descriptionList) {
         if (line.startsWith("commit ") || line.startsWith("Branches: <Expand>"))
             continue;
@@ -358,23 +362,13 @@ static void formatGitDescription(QString *description)
         result.append(line);
         result.append('\n');
     }
-    *description = result;
+    return result;
 }
 
 QString DiffEditorDocument::plainText() const
 {
-    QString result = description();
-    const int formattingOptions = DiffUtils::GitFormat;
-    if (formattingOptions & DiffUtils::GitFormat)
-        formatGitDescription(&result);
-
-    const QString diff = DiffUtils::makePatch(diffFiles(), formattingOptions);
-    if (!diff.isEmpty()) {
-        if (!result.isEmpty())
-            result += '\n';
-        result += diff;
-    }
-    return result;
+    return Utils::joinStrings({formatGitDescription(description()),
+                               DiffUtils::makePatch(diffFiles())}, '\n');
 }
 
 void DiffEditorDocument::beginReload()
@@ -383,7 +377,7 @@ void DiffEditorDocument::beginReload()
     m_state = Reloading;
     emit changed();
     QSignalBlocker blocker(this);
-    setDiffFiles({}, {});
+    setDiffFiles({});
     setDescription({});
 }
 

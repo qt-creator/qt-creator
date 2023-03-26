@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "autotestplugin.h"
 
@@ -32,7 +32,11 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -62,6 +66,7 @@
 #endif
 
 using namespace Core;
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -148,9 +153,9 @@ AutotestPluginPrivate::AutotestPluginPrivate()
             this, [this] { m_runconfigCache.clear(); });
 
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
-            this, [] (ProjectExplorer::Project *project) {
-        auto it = s_projectSettings.find(project);
-        if (it != s_projectSettings.end()) {
+            this, [](ProjectExplorer::Project *project) {
+        const auto it = s_projectSettings.constFind(project);
+        if (it != s_projectSettings.constEnd()) {
             delete it.value();
             s_projectSettings.erase(it);
         }
@@ -189,7 +194,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     QAction *action = new QAction(Tr::tr("Run &All Tests"), this);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
-    action->setToolTip(Tr::tr("Run All Tests"));
+    action->setToolTip(Tr::tr("Run all tests"));
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A") : Tr::tr("Alt+Shift+T,Alt+A")));
@@ -200,7 +205,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("Run All Tests Without Deployment"), this);
     action->setIcon(Utils::Icons::RUN_SMALL.icon());
-    action->setToolTip(Tr::tr("Run All Tests Without Deployment"));
+    action->setToolTip(Tr::tr("Run all tests without deployment"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_NODEPLOY_ID);
     command->setDefaultKeySequence(
                 QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E") : Tr::tr("Alt+Shift+T,Alt+E")));
@@ -211,7 +216,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("&Run Selected Tests"), this);
     action->setIcon(Utils::Icons::RUN_SELECTED.icon());
-    action->setToolTip(Tr::tr("Run Selected Tests"));
+    action->setToolTip(Tr::tr("Run selected tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R") : Tr::tr("Alt+Shift+T,Alt+R")));
@@ -222,7 +227,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("&Run Selected Tests Without Deployment"), this);
     action->setIcon(Utils::Icons::RUN_SELECTED.icon());
-    action->setToolTip(Tr::tr("Run Selected Tests"));
+    action->setToolTip(Tr::tr("Run selected tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_NODEPLOY_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W") : Tr::tr("Alt+Shift+T,Alt+W")));
@@ -233,7 +238,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("Run &Failed Tests"),  this);
     action->setIcon(Icons::RUN_FAILED.icon());
-    action->setToolTip(Tr::tr("Run Failed Tests"));
+    action->setToolTip(Tr::tr("Run failed tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FAILED_ID);
     command->setDefaultKeySequence(
                 useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F") : Tr::tr("Alt+Shift+T,Alt+F"));
@@ -243,7 +248,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
 
     action = new QAction(Tr::tr("Run Tests for &Current File"), this);
     action->setIcon(Utils::Icons::RUN_FILE.icon());
-    action->setToolTip(Tr::tr("Run Tests for Current File"));
+    action->setToolTip(Tr::tr("Run tests for current file"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FILE_ID);
     command->setDefaultKeySequence(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C") : Tr::tr("Alt+Shift+T,Alt+C")));
@@ -272,19 +277,15 @@ void AutotestPluginPrivate::initializeMenuEntries()
             this, &AutotestPlugin::updateMenuItemsEnabledState);
 }
 
-bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorString)
+void AutotestPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     dd = new AutotestPluginPrivate;
 #ifdef WITH_TESTS
-    ExtensionSystem::PluginManager::registerScenario("TestStringTable",
-                   [] { return dd->m_loadProjectScenario(); });
     ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
                    [] { return dd->m_loadProjectScenario(); });
+
+    addTest<AutoTestUnitTests>(&dd->m_testTreeModel);
 #endif
-    return true;
 }
 
 void AutotestPlugin::extensionsInitialized()
@@ -341,14 +342,12 @@ ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
 
 void AutotestPluginPrivate::onRunAllTriggered(TestRunMode mode)
 {
-    m_testRunner.setSelectedTests(m_testTreeModel.getAllTestCases());
-    m_testRunner.prepareToRunTests(mode);
+    m_testRunner.runTests(mode, m_testTreeModel.getAllTestCases());
 }
 
 void AutotestPluginPrivate::onRunSelectedTriggered(TestRunMode mode)
 {
-    m_testRunner.setSelectedTests(m_testTreeModel.getSelectedTests());
-    m_testRunner.prepareToRunTests(mode);
+    m_testRunner.runTests(mode, m_testTreeModel.getSelectedTests());
 }
 
 void AutotestPluginPrivate::onRunFailedTriggered()
@@ -356,8 +355,7 @@ void AutotestPluginPrivate::onRunFailedTriggered()
     const QList<ITestConfiguration *> failed = m_testTreeModel.getFailedTests();
     if (failed.isEmpty()) // the framework might not be able to provide them
         return;
-    m_testRunner.setSelectedTests(failed);
-    m_testRunner.prepareToRunTests(TestRunMode::Run);
+    m_testRunner.runTests(TestRunMode::Run, failed);
 }
 
 void AutotestPluginPrivate::onRunFileTriggered()
@@ -366,7 +364,7 @@ void AutotestPluginPrivate::onRunFileTriggered()
     if (!document)
         return;
 
-    const Utils::FilePath &fileName = document->filePath();
+    const FilePath &fileName = document->filePath();
     if (fileName.isEmpty())
         return;
 
@@ -374,8 +372,7 @@ void AutotestPluginPrivate::onRunFileTriggered()
     if (tests.isEmpty())
         return;
 
-    m_testRunner.setSelectedTests(tests);
-    m_testRunner.prepareToRunTests(TestRunMode::Run);
+    m_testRunner.runTests(TestRunMode::Run, tests);
 }
 
 static QList<ITestConfiguration *> testItemsToTestConfigurations(const QList<ITestTreeItem *> &items,
@@ -392,9 +389,44 @@ static QList<ITestConfiguration *> testItemsToTestConfigurations(const QList<ITe
 void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
 {
     TextEditor::BaseTextEditor *currentEditor = TextEditor::BaseTextEditor::currentTextEditor();
+    QTC_ASSERT(currentEditor && currentEditor->textDocument(), return);
+    const int line = currentEditor->currentLine();
+    const FilePath filePath = currentEditor->textDocument()->filePath();
+
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const CPlusPlus::Document::Ptr doc = snapshot.document(filePath);
+    if (doc.isNull()) // not part of C++ snapshot
+        return;
+
+    CPlusPlus::Scope *scope = doc->scopeAt(line, currentEditor->currentColumn());
     QTextCursor cursor = currentEditor->editorWidget()->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
     const QString text = cursor.selectedText();
+
+    while (scope && scope->asBlock())
+        scope = scope->enclosingScope();
+    if (scope && scope->asFunction()) { // class, namespace for further stuff?
+        const QList<const CPlusPlus::Name *> fullName
+                = CPlusPlus::LookupContext::fullyQualifiedName(scope);
+        const QString funcName = CPlusPlus::Overview().prettyName(fullName);
+        const TestFrameworks active = AutotestPlugin::activeTestFrameworks();
+        for (auto framework : active) {
+            const QStringList testName = framework->testNameForSymbolName(funcName);
+            if (!testName.size())
+                continue;
+            TestTreeItem *it = framework->rootNode()->findTestByNameAndFile(testName, filePath);
+            if (it) {
+                const QList<ITestConfiguration *> testsToRun
+                        = testItemsToTestConfigurations({ it }, mode);
+                if (!testsToRun.isEmpty()) {
+                    m_testRunner.runTests(mode, testsToRun);
+                    return;
+                }
+            }
+        }
+    }
+
+    // general approach
     if (text.isEmpty())
         return; // Do not trigger when no name under cursor
 
@@ -403,12 +435,29 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         return; // Wrong location triggered
 
     // check whether we have been triggered on a test function definition
-    const int line = currentEditor->currentLine();
-    const Utils::FilePath &filePath = currentEditor->textDocument()->filePath();
-    const QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
+    QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
         return it->line() == line && it->filePath() == filePath;
     });
 
+    if (filteredItems.size() == 0 && testsItems.size() > 1) {
+        CPlusPlus::Scope *scope = doc->scopeAt(line, currentEditor->currentColumn());
+        if (scope->asClass()) {
+            const QList<const CPlusPlus::Name *> fullName
+                    = CPlusPlus::LookupContext::fullyQualifiedName(scope);
+            const QString className = CPlusPlus::Overview().prettyName(fullName);
+
+            filteredItems = Utils::filtered(testsItems,
+                                            [&text, &className](ITestTreeItem *it){
+                return it->name() == text
+                        && static_cast<ITestTreeItem *>(it->parent())->name() == className;
+            });
+        }
+    }
+    if ((filteredItems.size() != 1 && testsItems.size() > 1)
+            && (mode == TestRunMode::Debug || mode == TestRunMode::DebugWithoutDeploy)) {
+        MessageManager::writeFlashing(Tr::tr("Cannot debug multiple tests at once."));
+        return;
+    }
     const QList<ITestConfiguration *> testsToRun = testItemsToTestConfigurations(
                 filteredItems.size() == 1 ? filteredItems : testsItems, mode);
 
@@ -417,8 +466,25 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         return;
     }
 
-    m_testRunner.setSelectedTests(testsToRun);
-    m_testRunner.prepareToRunTests(mode);
+    m_testRunner.runTests(mode, testsToRun);
+}
+
+TestFrameworks AutotestPlugin::activeTestFrameworks()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    TestFrameworks sorted;
+    if (!project || projectSettings(project)->useGlobalSettings()) {
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 &ITestFramework::active);
+    } else { // we've got custom project settings
+        const TestProjectSettings *settings = projectSettings(project);
+        const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 [active](ITestFramework *framework) {
+            return active.value(framework, false);
+        });
+    }
+    return sorted;
 }
 
 void AutotestPlugin::updateMenuItemsEnabledState()
@@ -474,15 +540,6 @@ void AutotestPlugin::popupResultsPane()
 {
     if (dd)
         dd->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
-}
-
-QVector<QObject *> AutotestPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
-#ifdef WITH_TESTS
-    tests << new AutoTestUnitTests(&dd->m_testTreeModel);
-#endif
-    return tests;
 }
 
 bool ChoicePair::matches(const ProjectExplorer::RunConfiguration *rc) const

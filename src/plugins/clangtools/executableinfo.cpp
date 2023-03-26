@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "executableinfo.h"
 
@@ -214,13 +214,23 @@ QString queryVersion(const FilePath &clangToolPath, QueryFailMode failMode)
     return {};
 }
 
-QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolPath)
+static QPair<FilePath, QString> clangIncludeDirAndVersion(const FilePath &clangToolPath)
 {
     const FilePath dynamicResourceDir = queryResourceDir(clangToolPath);
     const QString dynamicVersion = queryVersion(clangToolPath, QueryFailMode::Noisy);
     if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
-        return {FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION)};
-    return {dynamicResourceDir + "/include", dynamicVersion};
+        return {FilePath::fromUserInput(CLANG_INCLUDE_DIR), QString(CLANG_VERSION)};
+    return {dynamicResourceDir / "include", dynamicVersion};
+}
+
+QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolPath)
+{
+    QTC_CHECK(!clangToolPath.isEmpty());
+    static QMap<FilePath, QPair<FilePath, QString>> cache;
+    auto it = cache.find(clangToolPath);
+    if (it == cache.end())
+        it = cache.insert(clangToolPath, clangIncludeDirAndVersion(clangToolPath));
+    return it.value();
 }
 
 QHash<Utils::FilePath, QPair<QDateTime, ClazyStandaloneInfo>> ClazyStandaloneInfo::cache;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
@@ -47,7 +47,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/prev"
-            ToolTip.text: qsTranslate("Tracing", "Jump to previous event.")
+            ToolTip.text: qsTranslate("QtC::Tracing", "Jump to previous event.")
             onClicked: buttons.jumpToPrev()
         }
 
@@ -56,7 +56,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/next"
-            ToolTip.text: qsTranslate("Tracing", "Jump to next event.")
+            ToolTip.text: qsTranslate("QtC::Tracing", "Jump to next event.")
             onClicked: buttons.jumpToNext()
         }
 
@@ -65,7 +65,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/zoom"
-            ToolTip.text: qsTranslate("Tracing", "Show zoom slider.")
+            ToolTip.text: qsTranslate("QtC::Tracing", "Show zoom slider.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.zoomControlChanged()
@@ -76,7 +76,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/" + (checked ? "rangeselected" : "rangeselection");
-            ToolTip.text: qsTranslate("Tracing", "Select range.")
+            ToolTip.text: qsTranslate("QtC::Tracing", "Select range.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.rangeSelectChanged()
@@ -87,7 +87,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/selectionmode"
-            ToolTip.text: qsTranslate("Tracing", "View event information on mouseover.")
+            ToolTip.text: qsTranslate("QtC::Tracing", "View event information on mouseover.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.lockChanged()

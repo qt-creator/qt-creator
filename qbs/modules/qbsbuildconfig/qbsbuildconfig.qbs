@@ -6,15 +6,21 @@ Module {
     Depends { name: "cpp" }
 
     Properties {
-        condition: qbs.toolchain.contains("gcc") && !qbs.toolchain.contains("clang")
-                   && Utilities.versionCompare(cpp.compilerVersion, "9") >= 0
-        cpp.cxxFlags: ["-Wno-deprecated-copy", "-Wno-init-list-lifetime"]
-    }
-
-    Properties {
-        condition: qbs.toolchain.contains("clang") && !qbs.hostOS.contains("darwin")
-                   && Utilities.versionCompare(cpp.compilerVersion, "10") >= 0
-        cpp.cxxFlags: ["-Wno-deprecated-copy", "-Wno-constant-logical-operand"]
+        condition: qbs.toolchain.contains("gcc")
+        cpp.cxxFlags: {
+             var flags = ["-Wno-missing-field-initializers"];
+             function isClang() { return qbs.toolchain.contains("clang"); }
+             function versionAtLeast(v) {
+                 return Utilities.versionCompare(cpp.compilerVersion, v) >= 0;
+             };
+             if (isClang())
+                 flags.push("-Wno-constant-logical-operand");
+             if ((!isClang() && versionAtLeast("9"))
+                     || (isClang() && !qbs.hostOS.contains("darwin") && versionAtLeast("10"))) {
+                 flags.push("-Wno-deprecated-copy");
+             }
+             return flags;
+         }
     }
 
     priority: 1

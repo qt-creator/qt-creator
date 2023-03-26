@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "includeutils.h"
 
@@ -450,7 +450,7 @@ int IncludeGroup::lineForNewInclude(const QString &newIncludeFileName,
         return -1;
 
     if (isSorted()) {
-        const Include newInclude(newIncludeFileName, QString(), 0, newIncludeType);
+        const Include newInclude(newIncludeFileName, FilePath(), 0, newIncludeType);
         const QList<Include>::const_iterator it = std::lower_bound(m_includes.begin(),
             m_includes.end(), newInclude, includeFileNamelessThen);
         if (it == m_includes.end())
@@ -509,7 +509,7 @@ using Tests::Internal::TestIncludePaths;
 
 namespace Internal {
 
-static QList<Include> includesForSource(const QString &filePath)
+static QList<Include> includesForSource(const FilePath &filePath)
 {
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
@@ -524,7 +524,7 @@ static QList<Include> includesForSource(const QString &filePath)
 
 void IncludeGroupsTest::testDetectIncludeGroupsByNewLines()
 {
-    const QString testFilePath = TestIncludePaths::testFilePath(
+    const FilePath testFilePath = TestIncludePaths::testFilePath(
                 QLatin1String("test_main_detectIncludeGroupsByNewLines.cpp"));
 
     QList<Include> includes = includesForSource(testFilePath);
@@ -566,7 +566,7 @@ void IncludeGroupsTest::testDetectIncludeGroupsByNewLines()
 
 void IncludeGroupsTest::testDetectIncludeGroupsByIncludeDir()
 {
-    const QString testFilePath = TestIncludePaths::testFilePath(
+    const FilePath testFilePath = TestIncludePaths::testFilePath(
                 QLatin1String("test_main_detectIncludeGroupsByIncludeDir.cpp"));
 
     QList<Include> includes = includesForSource(testFilePath);
@@ -590,7 +590,7 @@ void IncludeGroupsTest::testDetectIncludeGroupsByIncludeDir()
 
 void IncludeGroupsTest::testDetectIncludeGroupsByIncludeType()
 {
-    const QString testFilePath = TestIncludePaths::testFilePath(
+    const FilePath testFilePath = TestIncludePaths::testFilePath(
                 QLatin1String("test_main_detectIncludeGroupsByIncludeType.cpp"));
 
     QList<Include> includes = includesForSource(testFilePath);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "lldbengine.h"
 
@@ -256,20 +256,20 @@ void LldbEngine::handleLldbStarted()
                     "settings append target.source-map " + it.key() + ' ' + expand(it.value()));
     }
 
-    for (const QString &path : rp.solibSearchPath)
-        executeDebuggerCommand("settings append target.exec-search-paths " + path);
+    for (const FilePath &path : rp.solibSearchPath)
+        executeDebuggerCommand("settings append target.exec-search-paths " + path.toString());
 
     DebuggerCommand cmd2("setupInferior");
-    cmd2.arg("executable", rp.inferior.command.executable().toString());
+    cmd2.arg("executable", rp.inferior.command.executable().path());
     cmd2.arg("breakonmain", rp.breakOnMain);
     cmd2.arg("useterminal", bool(terminal()));
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
-    cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
+    cmd2.arg("workingdirectory", rp.inferior.workingDirectory.path());
     cmd2.arg("environment", rp.inferior.environment.toStringList());
     cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments()).join(QChar(0))));
     cmd2.arg("platform", rp.platform);
-    cmd2.arg("symbolfile", rp.symbolFile);
+    cmd2.arg("symbolfile", rp.symbolFile.path());
 
     if (terminal()) {
         const qint64 attachedPID = terminal()->applicationPid();
@@ -281,12 +281,12 @@ void LldbEngine::handleLldbStarted()
         cmd2.arg("attachpid", attachedPID);
 
     } else {
-
         cmd2.arg("startmode", rp.startMode);
         // it is better not to check the start mode on the python sid (as we would have to duplicate the
         // enum values), and thus we assume that if the rp.attachPID is valid we really have to attach
-        QTC_CHECK(!rp.attachPID.isValid() || (rp.startMode == AttachToCrashedProcess
-                                              || rp.startMode == AttachToLocalProcess));
+        QTC_CHECK(rp.attachPID.isValid() && (rp.startMode == AttachToRemoteProcess
+                                             || rp.startMode == AttachToLocalProcess
+                                             || rp.startMode == AttachToRemoteServer));
         cmd2.arg("attachpid", rp.attachPID.pid());
         cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toString()
                                                            : rp.deviceSymbolsRoot);
@@ -332,7 +332,7 @@ void LldbEngine::runEngine()
     showStatusMessage(Tr::tr("Running requested..."), 5000);
     DebuggerCommand cmd("runEngine");
     if (rp.startMode == AttachToCore)
-        cmd.arg("coreFile", rp.coreFile);
+        cmd.arg("coreFile", rp.coreFile.path());
     runCommand(cmd);
 }
 
@@ -413,7 +413,7 @@ void LldbEngine::executeRunToLine(const ContextData &data)
 {
     notifyInferiorRunRequested();
     DebuggerCommand cmd("executeRunToLocation");
-    cmd.arg("file", data.fileName);
+    cmd.arg("file", data.fileName.path());
     cmd.arg("line", data.lineNumber);
     cmd.arg("address", data.address);
     runCommand(cmd);
@@ -430,7 +430,7 @@ void LldbEngine::executeRunToFunction(const QString &functionName)
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     DebuggerCommand cmd("executeJumpToLocation");
-    cmd.arg("file", data.fileName);
+    cmd.arg("file", data.fileName.path());
     cmd.arg("line", data.lineNumber);
     cmd.arg("address", data.address);
     runCommand(cmd);
@@ -824,14 +824,14 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
 
 void LldbEngine::readLldbStandardError()
 {
-    QString err = QString::fromUtf8(m_lldbProc.readAllStandardError());
+    QString err = QString::fromUtf8(m_lldbProc.readAllRawStandardError());
     qDebug() << "\nLLDB STDERR UNEXPECTED: " << err;
     showMessage("Lldb stderr: " + err, LogError);
 }
 
 void LldbEngine::readLldbStandardOutput()
 {
-    QByteArray outba = m_lldbProc.readAllStandardOutput();
+    QByteArray outba = m_lldbProc.readAllRawStandardOutput();
     outba.replace("\r\n", "\n");
     QString out = QString::fromUtf8(outba);
     showMessage(out, LogOutput);

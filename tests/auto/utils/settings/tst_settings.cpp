@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <utils/algorithm.h>
 #include <utils/settingsaccessor.h>
@@ -89,8 +89,7 @@ protected:
     std::optional<Issue> writeFile(const Utils::FilePath &path, const QVariantMap &data) const override
     {
         if (data.isEmpty()) {
-            return Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Write File"),
-                         QCoreApplication::translate("Utils::SettingsAccessor", "There was nothing to write."),
+            return Issue("Failed to Write File", "There was nothing to write.",
                          Issue::Type::WARNING);
         }
 

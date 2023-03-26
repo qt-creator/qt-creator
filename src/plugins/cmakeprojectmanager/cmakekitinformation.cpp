@@ -1,12 +1,11 @@
 // Copyright (C) 2016 Canonical Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakekitinformation.h"
 
 #include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -50,6 +49,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Layouting;
 
 namespace CMakeProjectManager {
 
@@ -204,11 +204,11 @@ CMakeKitAspect::CMakeKitAspect()
 
     //make sure the default value is set if a selected CMake is removed
     connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved,
-            [this] { for (Kit *k : KitManager::kits()) fix(k); });
+            this, [this] { for (Kit *k : KitManager::kits()) fix(k); });
 
     //make sure the default value is set if a new default CMake is set
     connect(CMakeToolManager::instance(), &CMakeToolManager::defaultCMakeChanged,
-            [this] { for (Kit *k : KitManager::kits()) fix(k); });
+            this, [this] { for (Kit *k : KitManager::kits()) fix(k); });
 }
 
 Id CMakeKitAspect::id()
@@ -305,7 +305,7 @@ QSet<Id> CMakeKitAspect::availableFeatures(const Kit *k) const
 QString CMakeKitAspect::msgUnsupportedVersion(const QByteArray &versionString)
 {
     return Tr::tr("CMake version %1 is unsupported. Update to "
-              "version 3.14 (with file-api) or later.")
+              "version 3.15 (with file-api) or later.")
         .arg(QString::fromUtf8(versionString));
 }
 
@@ -678,10 +678,8 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
         return g.matches("Ninja");
     });
     if (it != known.constEnd()) {
-        const bool hasNinja = [k, tool]() {
-            Internal::CMakeSpecificSettings *settings
-                = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
-
+        const bool hasNinja = [k, tool] {
+            auto settings = Internal::CMakeSpecificSettings::instance();
             if (settings->ninjaPath.filePath().isEmpty()) {
                 auto findNinja = [](const Environment &env) -> bool {
                     return !env.searchInPath("ninja").isEmpty();
@@ -953,7 +951,7 @@ private:
 
         auto chooser = new VariableChooser(m_dialog);
         chooser->addSupportedWidget(m_editor);
-        chooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
+        chooser->addMacroExpanderProvider([this] { return kit()->macroExpander(); });
 
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
@@ -964,7 +962,7 @@ private:
 
         auto additionalChooser = new VariableChooser(m_dialog);
         additionalChooser->addSupportedWidget(m_additionalEditor);
-        additionalChooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
+        additionalChooser->addMacroExpanderProvider([this] { return kit()->macroExpander(); });
 
         auto additionalLayout = new QHBoxLayout();
         additionalLayout->addWidget(additionalLabel);
@@ -1145,7 +1143,10 @@ void CMakeConfigurationKitAspect::setKitDefaultConfigHash(ProjectExplorer::Kit *
               expanded.value = item.expandedValue(k).toUtf8();
               return expanded;
           });
-    const QByteArray kitHash = computeDefaultConfigHash(defaultConfigExpanded);
+    const CMakeTool *const tool = CMakeKitAspect::cmakeTool(k);
+    const QByteArray kitHash = computeDefaultConfigHash(defaultConfigExpanded,
+                                                        tool ? tool->cmakeExecutable()
+                                                             : FilePath());
 
     CMakeConfig config = configuration(k);
     config.append(CMakeConfigItem(QTC_KIT_DEFAULT_CONFIG_HASH, CMakeConfigItem::INTERNAL, kitHash));
@@ -1161,7 +1162,8 @@ CMakeConfigItem CMakeConfigurationKitAspect::kitDefaultConfigHashItem(const Proj
     });
 }
 
-QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConfig &config)
+QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConfig &config,
+                                                                 const FilePath &cmakeBinary)
 {
     const CMakeConfig defaultConfig = defaultConfiguration(nullptr);
     const QByteArray configValues = std::accumulate(defaultConfig.begin(),
@@ -1171,7 +1173,11 @@ QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConf
                                                              const CMakeConfigItem &item) {
                                                         return sum += config.valueOf(item.key);
                                                     });
-    return QCryptographicHash::hash(configValues, QCryptographicHash::Md5).toHex();
+    return QCryptographicHash::hash(cmakeBinary.caseSensitivity() == Qt::CaseInsensitive
+                                        ? configValues.toLower()
+                                        : configValues,
+                                    QCryptographicHash::Md5)
+        .toHex();
 }
 
 QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const

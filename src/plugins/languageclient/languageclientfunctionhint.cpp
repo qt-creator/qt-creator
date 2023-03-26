@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientfunctionhint.h"
 #include "client.h"
@@ -66,14 +66,13 @@ FunctionHintProcessor::FunctionHintProcessor(Client *client)
     : m_client(client)
 {}
 
-IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface)
+IAssistProposal *FunctionHintProcessor::perform()
 {
-    const QScopedPointer<const AssistInterface> deleter(interface);
     QTC_ASSERT(m_client, return nullptr);
-    m_pos = interface->position();
-    QTextCursor cursor(interface->textDocument());
+    m_pos = interface()->position();
+    QTextCursor cursor(interface()->textDocument());
     cursor.setPosition(m_pos);
-    auto uri = DocumentUri::fromFilePath(interface->filePath());
+    auto uri = m_client->hostPathToServerUri(interface()->filePath());
     SignatureHelpRequest request((TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(cursor))));
     request.setResponseCallback([this](auto response) { this->handleSignatureResponse(response); });
     m_client->addAssistProcessor(this);
@@ -118,15 +117,10 @@ FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
     , m_client(client)
 {}
 
-TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor(
+IAssistProcessor *FunctionHintAssistProvider::createProcessor(
     const AssistInterface *) const
 {
     return new FunctionHintProcessor(m_client);
-}
-
-IAssistProvider::RunType FunctionHintAssistProvider::runType() const
-{
-    return Asynchronous;
 }
 
 int FunctionHintAssistProvider::activationCharSequenceLength() const

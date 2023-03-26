@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -23,6 +23,7 @@ public:
     bool read();
     bool write();
 
+    QString suiteName() const;
     QString aut() const { return m_aut; }
     void setAut(const QString &aut) { m_aut = aut; }
     QString arguments() const { return m_arguments; }
@@ -34,6 +35,7 @@ public:
     QString scriptExtension() const;
     QStringList testCases() const;
     void addTestCase(const QString &testCase);
+    void removeTestCase(const QString &testCase);
 
     QStringList usedTestCases() const;
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,8 +10,7 @@
 
 #include <utils/treemodel.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class DiagnosticsModel;
 
@@ -55,5 +54,4 @@ private:
     QSet<Diagnostic> m_diagnostics;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

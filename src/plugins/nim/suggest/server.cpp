@@ -1,5 +1,5 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "server.h"
 
@@ -60,12 +60,12 @@ QString NimSuggestServer::projectFilePath() const
 void NimSuggestServer::onStandardOutputAvailable()
 {
     if (!m_portAvailable) {
-        const QString output = QString::fromUtf8(m_process.readAllStandardOutput());
+        const QString output = m_process.readAllStandardOutput();
         m_port = static_cast<uint16_t>(output.toUInt());
         m_portAvailable = true;
         emit started();
     } else {
-        qDebug() << m_process.readAllStandardOutput();
+        qDebug() << m_process.readAllRawStandardOutput();
     }
 }
 

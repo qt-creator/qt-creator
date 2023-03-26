@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Alexis Jeandet.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "toolssettingswidget.h"
 
@@ -68,7 +68,7 @@ ToolsSettingsWidget::ToolsSettingsWidget()
             this, &ToolsSettingsWidget::currentMesonToolChanged);
     connect(m_itemSettings, &ToolItemSettings::applyChanges, &m_model, &ToolsModel::updateItem);
 
-    connect(addButton, &QPushButton::clicked, &m_model, QOverload<>::of(&ToolsModel::addMesonTool));
+    connect(addButton, &QPushButton::clicked, &m_model, &ToolsModel::addMesonTool);
     connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
     connect(m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
 }

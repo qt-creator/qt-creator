@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nicknamedialog.h"
+
+#include "vcsbasetr.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
@@ -219,9 +221,7 @@ QString NickNameDialog::nickName() const
 QStandardItemModel *NickNameDialog::createModel(QObject *parent)
 {
     auto model = new QStandardItemModel(parent);
-    QStringList headers;
-    headers << tr("Name") << tr("Email")
-            << tr("Alias") << tr("Alias email");
+    QStringList headers = {Tr::tr("Name"), Tr::tr("Email"), Tr::tr("Alias"), Tr::tr("Alias email")};
     model->setHorizontalHeaderLabels(headers);
     return model;
 }

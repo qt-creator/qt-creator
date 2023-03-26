@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testnavigationwidget.h"
 
@@ -32,6 +32,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -48,10 +50,8 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     m_view->setItemDelegate(new TestTreeItemDelegate(this));
 
     QPalette pal;
-    pal.setColor(QPalette::Window,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
-    pal.setColor(QPalette::WindowText,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
+    pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
     m_missingFrameworksWidget = new QFrame;
     m_missingFrameworksWidget->setPalette(pal);
     m_missingFrameworksWidget->setAutoFillBackground(true);
@@ -70,7 +70,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
 
     connect(m_view, &TestTreeView::activated, this, &TestNavigationWidget::onItemActivated);
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Medium, this);
+    m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Medium, this);
     m_progressIndicator->attachToWidget(m_view);
     m_progressIndicator->hide();
 
@@ -84,8 +84,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
             this, &TestNavigationWidget::onParsingFinished);
     connect(m_model->parser(), &TestCodeParser::parsingFailed,
             this, &TestNavigationWidget::onParsingFinished);
-    connect(m_model, &TestTreeModel::updatedActiveFrameworks,
-            this, [this] (int numberOfActive) {
+    connect(m_model, &TestTreeModel::updatedActiveFrameworks, this, [this](int numberOfActive) {
         m_missingFrameworksWidget->setVisible(numberOfActive == 0);
     });
     ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
@@ -95,8 +94,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     });
     connect(m_model, &TestTreeModel::testTreeModelChanged,
             this, &TestNavigationWidget::reapplyCachedExpandedState);
-    connect(m_progressTimer, &QTimer::timeout,
-            m_progressIndicator, &Utils::ProgressIndicator::show);
+    connect(m_progressTimer, &QTimer::timeout, m_progressIndicator, &ProgressIndicator::show);
     connect(m_view, &TestTreeView::expanded, this, &TestNavigationWidget::updateExpandedStateCache);
     connect(m_view, &TestTreeView::collapsed, this, &TestNavigationWidget::updateExpandedStateCache);
 }
@@ -122,14 +120,12 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             if (item->canProvideTestConfiguration()) {
                 runThisTest = new QAction(Tr::tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
-                connect(runThisTest, &QAction::triggered,
-                        this, [this] () {
+                connect(runThisTest, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::Run);
                 });
                 runWithoutDeploy = new QAction(Tr::tr("Run Without Deployment"), &menu);
                 runWithoutDeploy->setEnabled(enabled);
-                connect(runWithoutDeploy, &QAction::triggered,
-                        this, [this] () {
+                connect(runWithoutDeploy, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::RunWithoutDeploy);
                 });
             }
@@ -139,14 +135,12 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             if (ttitem && ttitem->canProvideDebugConfiguration()) {
                 debugThisTest = new QAction(Tr::tr("Debug This Test"), &menu);
                 debugThisTest->setEnabled(enabled);
-                connect(debugThisTest, &QAction::triggered,
-                        this, [this] () {
+                connect(debugThisTest, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::Debug);
                 });
                 debugWithoutDeploy = new QAction(Tr::tr("Debug Without Deployment"), &menu);
                 debugWithoutDeploy->setEnabled(enabled);
-                connect(debugWithoutDeploy, &QAction::triggered,
-                        this, [this] () {
+                connect(debugWithoutDeploy, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::DebugWithoutDeploy);
                 });
             }
@@ -216,13 +210,13 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     collapse->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
     collapse->setToolTip(Tr::tr("Collapse All"));
 
-    connect(expand, &QToolButton::clicked, m_view, [this]() {
+    connect(expand, &QToolButton::clicked, m_view, [this] {
         m_view->blockSignals(true);
         m_view->expandAll();
         m_view->blockSignals(false);
         updateExpandedStateCache();
     });
-    connect(collapse, &QToolButton::clicked, m_view, [this]() {
+    connect(collapse, &QToolButton::clicked, m_view, [this] {
         m_view->blockSignals(true);
         m_view->collapseAll();
         m_view->blockSignals(false);
@@ -238,8 +232,8 @@ void TestNavigationWidget::updateExpandedStateCache()
 {
     m_expandedStateCache.evolve(ITestBase::Framework);
 
-    for (Utils::TreeItem *rootNode : *m_model->rootItem()) {
-        rootNode->forAllChildren([this](Utils::TreeItem *child) {
+    for (TreeItem *rootNode : *m_model->rootItem()) {
+        rootNode->forAllChildren([this](TreeItem *child) {
             m_expandedStateCache.insert(static_cast<ITestTreeItem *>(child),
                                         m_view->isExpanded(child->index()));
         });
@@ -248,7 +242,7 @@ void TestNavigationWidget::updateExpandedStateCache()
 
 void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 {
-    const Utils::Link link = index.data(LinkRole).value<Utils::Link>();
+    const Link link = index.data(LinkRole).value<Link>();
     if (link.hasValidTarget())
         Core::EditorManager::openEditorAt(link);
 }

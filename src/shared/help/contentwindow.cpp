@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "contentwindow.h"
 
@@ -7,11 +7,13 @@
 #include <localhelpmanager.h>
 #include <openpagesmanager.h>
 
+#include <help/helptr.h>
+
 #include <utils/navigationtreeview.h>
 
-#include <QLayout>
 #include <QFocusEvent>
 #include <QMenu>
+#include <QVBoxLayout>
 
 #include <QHelpEngine>
 #include <QHelpContentModel>
@@ -106,10 +108,10 @@ void ContentWindow::showContextMenu(const QPoint &pos)
         contentModel->contentItemAt(m_contentWidget->currentIndex());
 
     QMenu menu;
-    QAction *curTab = menu.addAction(tr("Open Link"));
+    QAction *curTab = menu.addAction(::Help::Tr::tr("Open Link"));
     QAction *newTab = 0;
     if (m_isOpenInNewPageActionVisible)
-        newTab = menu.addAction(tr("Open Link as New Page"));
+        newTab = menu.addAction(::Help::Tr::tr("Open Link as New Page"));
 
     QAction *action = menu.exec(m_contentWidget->mapToGlobal(pos));
     if (curTab == action)

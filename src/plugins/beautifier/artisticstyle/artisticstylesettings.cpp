@@ -1,15 +1,12 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "artisticstylesettings.h"
-
-#include "artisticstyleconstants.h"
 
 #include "../beautifierconstants.h"
 
 #include <coreplugin/icore.h>
 
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 #include <utils/qtcprocess.h>
 
@@ -21,8 +18,7 @@
 
 using namespace Utils;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 const char USE_OTHER_FILES[]          = "useOtherFiles";
 const char USE_SPECIFIC_CONFIG_FILE[] = "useSpecificConfigFile";
@@ -109,8 +105,8 @@ void ArtisticStyleSettings::setCustomStyle(const QString &customStyle)
 QString ArtisticStyleSettings::documentationFilePath() const
 {
     return (Core::ICore::userResourcePath(Beautifier::Constants::SETTINGS_DIRNAME)
-                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME
-            + ".xml")
+                / Beautifier::Constants::DOCUMENTATION_DIRNAME / SETTINGS_NAME)
+            .stringAppended(".xml")
         .toString();
 }
 
@@ -187,5 +183,4 @@ void ArtisticStyleSettings::createDocumentationFile() const
     }
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

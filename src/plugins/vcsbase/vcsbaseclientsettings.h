@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion and Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,8 +11,6 @@ namespace VcsBase {
 
 class VCSBASE_EXPORT VcsBaseSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(VcsBase::VcsBaseSettings)
-
 public:
     VcsBaseSettings();
     ~VcsBaseSettings();

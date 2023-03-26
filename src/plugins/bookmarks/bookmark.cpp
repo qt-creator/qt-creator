@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bookmark.h"
 
@@ -16,7 +16,7 @@ using namespace Utils;
 namespace Bookmarks::Internal {
 
 Bookmark::Bookmark(int lineNumber, BookmarkManager *manager) :
-    TextMark(FilePath(), lineNumber, Constants::BOOKMARKS_TEXT_MARK_CATEGORY),
+    TextMark(FilePath(), lineNumber, {Tr::tr("Bookmark"), Constants::BOOKMARKS_TEXT_MARK_CATEGORY}),
     m_manager(manager)
 {
     setColor(Theme::Bookmarks_TextMarkColor);
@@ -66,11 +66,11 @@ void Bookmark::updateBlock(const QTextBlock &block)
     }
 }
 
-void Bookmark::updateFileName(const FilePath &fileName)
+void Bookmark::updateFilePath(const FilePath &filePath)
 {
-    const FilePath &oldFileName = this->fileName();
-    TextMark::updateFileName(fileName);
-    m_manager->updateBookmarkFileName(this, oldFileName.toString());
+    const FilePath oldFilePath = this->filePath();
+    TextMark::updateFilePath(filePath);
+    m_manager->updateBookmarkFileName(this, oldFilePath);
 }
 
 void Bookmark::setNote(const QString &note)

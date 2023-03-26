@@ -1,7 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
-
-#include "qnxplugin.h"
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxanalyzesupport.h"
 #include "qnxconfigurationmanager.h"
@@ -20,7 +18,10 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/devicesupport/devicecheckbuildstep.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -35,8 +36,6 @@
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/makeinstallstep.h>
 #include <remotelinux/remotelinux_constants.h>
-
-#include <qtsupport/qtkitinformation.h>
 
 #include <QAction>
 
@@ -92,7 +91,7 @@ public:
     QAction *m_debugSeparator = nullptr;
     QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
 
-    QnxConfigurationManager configurationFactory;
+    QnxConfigurationManager configurationManager;
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
@@ -102,60 +101,48 @@ public:
     QnxRunConfigurationFactory runConfigFactory;
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
-
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory debugWorkerFactory{
-        RunWorkerFactory::make<QnxDebugSupport>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory qmlProfilerWorkerFactory{
-        RunWorkerFactory::make<QnxQmlProfilerSupport>(),
-        {}, // FIXME: Shouldn't this use the run mode id somehow?
-        {runConfigFactory.runConfigurationId()}
-    };
+    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
+    QnxDebugWorkerFactory debugWorkerFactory;
+    QnxQmlProfilerWorkerFactory qmlProfilerWorkerFactory;
 };
 
-static QnxPluginPrivate *dd = nullptr;
-
-QnxPlugin::~QnxPlugin()
+class QnxPlugin final : public ExtensionSystem::IPlugin
 {
-    delete dd;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
 
-bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+public:
+    ~QnxPlugin() final { delete d; }
 
-    dd = new QnxPluginPrivate;
+private:
+    void initialize() final { d = new QnxPluginPrivate; }
+    void extensionsInitialized() final;
 
-    return true;
-}
+    QnxPluginPrivate *d = nullptr;
+};
 
 void QnxPlugin::extensionsInitialized()
 {
+    // Can't do yet as not all devices are around.
+    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+            &d->configurationManager, &QnxConfigurationManager::restoreConfigurations);
+
     // Attach support
-    connect(&dd->m_attachToQnxApplication, &QAction::triggered,
-            this, [] { QnxAttachDebugSupport::showProcessesDialog(); });
+    connect(&d->m_attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
 
     const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 
     Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
     mstart->appendGroup(QNX_DEBUGGING_GROUP);
     mstart->addSeparator(Core::Context(Core::Constants::C_GLOBAL), QNX_DEBUGGING_GROUP,
-                         &dd->m_debugSeparator);
+                         &d->m_debugSeparator);
 
     Core::Command *cmd = Core::ActionManager::registerAction
-            (&dd->m_attachToQnxApplication, "Debugger.AttachToQnxApplication");
+            (&d->m_attachToQnxApplication, "Debugger.AttachToQnxApplication");
     mstart->addAction(cmd, QNX_DEBUGGING_GROUP);
 
     connect(KitManager::instance(), &KitManager::kitsChanged,
-            this, [] { dd->updateDebuggerActions(); });
+            this, [this] { d->updateDebuggerActions(); });
 }
 
 void QnxPluginPrivate::updateDebuggerActions()
@@ -172,3 +159,5 @@ void QnxPluginPrivate::updateDebuggerActions()
 }
 
 } // Qnx::Internal
+
+#include "qnxplugin.moc"

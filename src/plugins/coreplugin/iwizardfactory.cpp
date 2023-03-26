@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iwizardfactory.h"
 
 #include "actionmanager/actionmanager.h"
+#include "coreplugintr.h"
 #include "documentmanager.h"
 #include "icore.h"
 #include "featureprovider.h"
@@ -43,7 +44,7 @@
     To make your wizard known to the system, add your IWizardFactory instance to the
     plugin manager's object pool in your plugin's initialize function:
     \code
-        bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
+        void MyPlugin::initialize()
         {
             // ... do setup
             addAutoReleasedObject(new MyWizardFactory);
@@ -182,7 +183,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 
             QTC_ASSERT(existingFactory != newFactory, continue);
             if (existingFactory) {
-                qWarning("%s", qPrintable(tr("Factory with id=\"%1\" already registered. Deleting.")
+                qWarning("%s", qPrintable(Tr::tr("Factory with id=\"%1\" already registered. Deleting.")
                                           .arg(existingFactory->id().toString())));
                 delete newFactory;
                 continue;
@@ -192,7 +193,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
             newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
             ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
 
-            connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
+            connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory] {
                 if (!ICore::isNewItemDialogRunning()) {
                     FilePath path = newFactory->runPath({});
                     newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
@@ -253,15 +254,15 @@ Wizard *IWizardFactory::runWizard(const FilePath &path, QWidget *parent, Id plat
         s_currentWizard = wizard;
         // Connect while wizard exists:
         if (m_action)
-            connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
+            connect(m_action, &QAction::triggered, wizard, [wizard] { ICore::raiseWindow(wizard); });
         connect(s_inspectWizardAction, &QAction::triggered,
-                wizard, [wizard]() { wizard->showVariables(); });
+                wizard, [wizard] { wizard->showVariables(); });
         connect(wizard, &Utils::Wizard::finished, this, [wizard](int result) {
             if (result != QDialog::Accepted)
                 s_reopenData.clear();
             wizard->deleteLater();
         });
-        connect(wizard, &QObject::destroyed, this, []() {
+        connect(wizard, &QObject::destroyed, this, [] {
             s_isWizardRunning = false;
             s_currentWizard = nullptr;
             s_inspectWizardAction->setEnabled(false);
@@ -400,14 +401,14 @@ void IWizardFactory::initialize()
 {
     connect(ICore::instance(), &ICore::coreAboutToClose, &IWizardFactory::clearWizardFactories);
 
-    auto resetAction = new QAction(tr("Reload All Wizards"), ActionManager::instance());
+    auto resetAction = new QAction(Tr::tr("Reload All Wizards"), ActionManager::instance());
     ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");
 
     connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
     connect(ICore::instance(), &ICore::newItemDialogStateChanged, resetAction,
-            [resetAction]() { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
+            [resetAction] { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
 
-    s_inspectWizardAction = new QAction(tr("Inspect Wizard State"), ActionManager::instance());
+    s_inspectWizardAction = new QAction(Tr::tr("Inspect Wizard State"), ActionManager::instance());
     ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");
 }
 

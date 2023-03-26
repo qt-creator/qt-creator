@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidmanager.h"
 #include "androidsdkmanager.h"
@@ -29,11 +29,11 @@ AndroidSdkModel::AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager 
       m_sdkManager(sdkManager)
 {
     QTC_CHECK(m_sdkManager);
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadBegin, [this] {
+    connect(m_sdkManager, &AndroidSdkManager::packageReloadBegin, this, [this] {
         clearContainers();
         beginResetModel();
     });
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished, [this] {
+    connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished, this, [this] {
         refreshData();
         endResetModel();
     });
@@ -149,7 +149,9 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
         const SdkPlatform *platform = m_sdkPlatforms.at(index.row() - 1);
         if (role == Qt::DisplayRole) {
             if (index.column() == packageNameColumn) {
-                QString androidName = AndroidManager::androidNameForApiLevel(platform->apiLevel());
+                const QString androidName = AndroidManager::androidNameForApiLevel(
+                                                platform->apiLevel())
+                                            + platform->extension();
                 if (androidName.startsWith("Android"))
                     return androidName;
                 else

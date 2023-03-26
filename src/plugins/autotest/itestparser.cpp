@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "itestparser.h"
 
@@ -10,6 +10,8 @@
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+
+using namespace Utils;
 
 namespace Autotest {
 
@@ -22,7 +24,7 @@ CppParser::CppParser(ITestFramework *framework)
 {
 }
 
-void CppParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
+void CppParser::init(const FilePaths &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse)
     Q_UNUSED(fullParse)
@@ -30,7 +32,7 @@ void CppParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
     m_workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
 }
 
-bool CppParser::selectedForBuilding(const Utils::FilePath &fileName)
+bool CppParser::selectedForBuilding(const FilePath &fileName)
 {
     QList<CppEditor::ProjectPart::ConstPtr> projParts =
             CppEditor::CppModelManager::instance()->projectPart(fileName);
@@ -38,7 +40,7 @@ bool CppParser::selectedForBuilding(const Utils::FilePath &fileName)
     return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
 }
 
-QByteArray CppParser::getFileContent(const Utils::FilePath &filePath) const
+QByteArray CppParser::getFileContent(const FilePath &filePath) const
 {
     QByteArray fileContent;
     if (m_workingCopy.contains(filePath)) {
@@ -46,8 +48,8 @@ QByteArray CppParser::getFileContent(const Utils::FilePath &filePath) const
     } else {
         QString error;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        if (Utils::TextFileFormat::readFileUTF8(filePath, codec, &fileContent, &error)
-                != Utils::TextFileFormat::ReadSuccess) {
+        if (TextFileFormat::readFileUTF8(filePath, codec, &fileContent, &error)
+                != TextFileFormat::ReadSuccess) {
             qDebug() << "Failed to read file" << filePath << ":" << error;
         }
     }
@@ -56,9 +58,9 @@ QByteArray CppParser::getFileContent(const Utils::FilePath &filePath) const
 }
 
 bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                               const Utils::FilePath &filePath,
+                               const FilePath &filePath,
                                const QString &cacheString,
-                               const std::function<bool(const QString &)> &checker)
+                               const std::function<bool(const FilePath &)> &checker)
 {
     const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
@@ -70,8 +72,8 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
         auto it = s_pchLookupCache.find(info);
         if (it == s_pchLookupCache.end()) {
             it = s_pchLookupCache.insert(info,
-                                         Utils::anyOf(snapshot.allIncludesForDocument(header),
-                                                      checker));
+                         Utils::anyOf(snapshot.allIncludesForDocument(FilePath::fromString(header)),
+                                      checker));
         }
         return it.value();
     };
@@ -80,26 +82,26 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
 }
 
 bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                                          const Utils::FilePath &filePath,
+                                          const FilePath &filePath,
                                           const QString &headerFilePath)
 {
     return Autotest::precompiledHeaderContains(snapshot,
                                                filePath,
                                                headerFilePath,
-                                               [&](const QString &include) {
-                                                   return include.endsWith(headerFilePath);
+                                               [&](const FilePath &include) {
+                                                   return include.path().endsWith(headerFilePath);
                                                });
 }
 
 bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                                          const Utils::FilePath &filePath,
+                                          const FilePath &filePath,
                                           const QRegularExpression &headerFileRegex)
 {
     return Autotest::precompiledHeaderContains(snapshot,
                                                filePath,
                                                headerFileRegex.pattern(),
-                                               [&](const QString &include) {
-                                                   return headerFileRegex.match(include).hasMatch();
+                                               [&](const FilePath &include) {
+                                                   return headerFileRegex.match(include.path()).hasMatch();
                                                });
 }
 
@@ -111,7 +113,7 @@ void CppParser::release()
     s_pchLookupCache.clear();
 }
 
-CPlusPlus::Document::Ptr CppParser::document(const Utils::FilePath &fileName)
+CPlusPlus::Document::Ptr CppParser::document(const FilePath &fileName)
 {
     return selectedForBuilding(fileName) ? m_cppSnapshot.document(fileName) : nullptr;
 }

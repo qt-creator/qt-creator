@@ -1,14 +1,14 @@
 // Copyright (C) 2018 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "cppchecktextmarkmanager.h"
 
 #include "cppcheckdiagnostic.h"
 #include "cppchecktextmark.h"
-#include "cppchecktextmarkmanager.h"
 
 #include <utils/algorithm.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 CppcheckTextMarkManager::CppcheckTextMarkManager() = default;
 
@@ -36,5 +36,4 @@ void CppcheckTextMarkManager::clearFiles(const Utils::FilePaths &files)
     }
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppquickfix_test.h"
 
@@ -25,6 +25,7 @@
 using namespace Core;
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace Utils;
 
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::Internal::TestIncludePaths;
@@ -92,7 +93,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
     }
 
     // Update Code Model
-    QSet<QString> filePaths;
+    QSet<FilePath> filePaths;
     for (const TestDocumentPtr &document : std::as_const(m_testDocuments))
         filePaths << document->filePath();
     QVERIFY(parseFiles(filePaths));
@@ -150,7 +151,7 @@ BaseQuickFixTestCase::~BaseQuickFixTestCase()
 
     // Remove created files from file system
     for (const TestDocumentPtr &testDocument : std::as_const(m_testDocuments))
-        QVERIFY(QFile::remove(testDocument->filePath()));
+        QVERIFY(testDocument->filePath().removeFile());
 }
 
 /// Leading whitespace is not removed, so we can check if the indetation ranges
@@ -4554,6 +4555,39 @@ D::D()
 )";
     testDocuments << CppTestDocument::create("file.cpp", original, expected);
     QuickFixOperationTest(testDocuments, &factory);
+
+    testDocuments.clear();
+    original = R"(
+namespace ns1 { template<typename T> class span {}; }
+
+namespace ns {
+using ns1::span;
+class foo
+{
+    void @bar(ns::span<int>);
+};
+}
+)";
+    expected = R"(
+namespace ns1 { template<typename T> class span {}; }
+
+namespace ns {
+using ns1::span;
+class foo
+{
+    void bar(ns::span<int>);
+};
+
+void foo::bar(ns::span<int>)
+{
+
+}
+
+}
+)";
+    // TODO: Unneeded namespace gets inserted in RewriteName::visit(const QualifiedNameId *)
+    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    QuickFixOperationTest(testDocuments, &factory);
 }
 
 /// Find right implementation file. (QTCREATORBUG-10728)
@@ -6830,6 +6864,28 @@ void QuickfixTest::testMoveFuncDefOutsideTemplate()
         "template<class T>\n"
         "void Foo<T>::func() {}\n";
        ;
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
+void QuickfixTest::testMoveFuncDefOutsideMemberFunctionTemplate()
+{
+    const QByteArray original = R"(
+struct S {
+    template<typename In>
+    void @foo(In in) { (void)in; }
+};
+)";
+    const QByteArray expected = R"(
+struct S {
+    template<typename In>
+    void foo(In in);
+};
+
+template<typename In>
+void S::foo(In in) { (void)in; }
+)";
 
     MoveFuncDefOutside factory;
     QuickFixOperationTest(singleDocument(original, expected), &factory);

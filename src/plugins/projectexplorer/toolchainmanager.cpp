@@ -1,11 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "toolchainmanager.h"
 
 #include "abi.h"
-#include "kitinformation.h"
 #include "msvctoolchain.h"
+#include "projectexplorertr.h"
 #include "toolchain.h"
 #include "toolchainsettingsaccessor.h"
 
@@ -234,9 +234,9 @@ bool ToolChainManager::registerLanguage(const Utils::Id &language, const QString
 
 QString ToolChainManager::displayNameOfLanguageId(const Utils::Id &id)
 {
-    QTC_ASSERT(id.isValid(), return tr("None"));
+    QTC_ASSERT(id.isValid(), return Tr::tr("None"));
     auto entry = Utils::findOrDefault(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
-    QTC_ASSERT(entry.id.isValid(), return tr("None"));
+    QTC_ASSERT(entry.id.isValid(), return Tr::tr("None"));
     return entry.displayName;
 }
 

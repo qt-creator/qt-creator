@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "colorschemeedit.h"
+
+#include "texteditortr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/theme/theme.h>
@@ -13,8 +15,6 @@
 #include <QColorDialog>
 #include <QComboBox>
 #include <QDoubleSpinBox>
-#include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QListView>
 #include <QPushButton>
@@ -140,7 +140,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     auto unsetButton = [](const QString &toolTip) {
         auto tb = new QPushButton;
         tb->setToolTip(toolTip);
-        tb->setText(tr("Unset"));
+        tb->setText(Tr::tr("Unset"));
         return tb;
     };
 
@@ -167,7 +167,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     m_itemList->setUniformItemSizes(true);
 
     m_builtinSchemeLabel = new QLabel(
-        tr("<p align='center'><b>Builtin color schemes need to be <a href=\"copy\">copied</a><br/>"
+        Tr::tr("<p align='center'><b>Builtin color schemes need to be <a href=\"copy\">copied</a><br/>"
            " before they can be changed</b></p>"));
     m_builtinSchemeLabel->setScaledContents(false);
 
@@ -175,33 +175,33 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     //m_fontProperties->setContentsMargins(0, 0, 0, 0);
     m_fontProperties->setMinimumWidth(212);
 
-    m_foregroundLabel = new QLabel(tr("Foreground:"));
+    m_foregroundLabel = new QLabel(Tr::tr("Foreground:"));
     m_foregroundToolButton = colorButton();
-    m_eraseForegroundToolButton = unsetButton(tr("Unset foreground."));
-    m_backgroundLabel = new QLabel(tr("Background:"));
+    m_eraseForegroundToolButton = unsetButton(Tr::tr("Unset foreground."));
+    m_backgroundLabel = new QLabel(Tr::tr("Background:"));
     m_backgroundToolButton = colorButton();
-    m_eraseBackgroundToolButton = unsetButton(tr("Unset background."));
+    m_eraseBackgroundToolButton = unsetButton(Tr::tr("Unset background."));
 
-    m_relativeForegroundHeadline = headlineLabel(tr("Relative Foreground"));
-    m_foregroundSaturationLabel = new QLabel(tr("Saturation:"));
+    m_relativeForegroundHeadline = headlineLabel(Tr::tr("Relative Foreground"));
+    m_foregroundSaturationLabel = new QLabel(Tr::tr("Saturation:"));
     m_foregroundSaturationSpinBox = spinBox();
-    m_foregroundLightnessLabel = new QLabel(tr("Lightness:"));
+    m_foregroundLightnessLabel = new QLabel(Tr::tr("Lightness:"));
     m_foregroundLightnessSpinBox = spinBox();
 
-    m_relativeBackgroundHeadline = headlineLabel(tr("Relative Background"));
-    m_backgroundSaturationLabel = new QLabel(tr("Saturation:"));
+    m_relativeBackgroundHeadline = headlineLabel(Tr::tr("Relative Background"));
+    m_backgroundSaturationLabel = new QLabel(Tr::tr("Saturation:"));
     m_backgroundSaturationSpinBox = spinBox();
-    m_backgroundLightnessLabel = new QLabel(tr("Lightness:"));
+    m_backgroundLightnessLabel = new QLabel(Tr::tr("Lightness:"));
     m_backgroundLightnessSpinBox = spinBox();
 
-    m_fontHeadline = headlineLabel(tr("Font"));
-    m_boldCheckBox = new QCheckBox(tr("Bold"));
-    m_italicCheckBox = new QCheckBox(tr("Italic"));
+    m_fontHeadline = headlineLabel(Tr::tr("Font"));
+    m_boldCheckBox = new QCheckBox(Tr::tr("Bold"));
+    m_italicCheckBox = new QCheckBox(Tr::tr("Italic"));
 
-    m_underlineHeadline = headlineLabel(tr("Underline"));
-    m_underlineLabel = new QLabel(tr("Color:"));
+    m_underlineHeadline = headlineLabel(Tr::tr("Underline"));
+    m_underlineLabel = new QLabel(Tr::tr("Color:"));
     m_underlineColorToolButton = colorButton();
-    m_eraseUnderlineColorToolButton = unsetButton(tr("Unset background."));
+    m_eraseUnderlineColorToolButton = unsetButton(Tr::tr("Unset background."));
     m_underlineComboBox = new QComboBox;
 
     m_itemList->setModel(m_formatsModel);
@@ -687,19 +687,19 @@ void ColorSchemeEdit::setItemListBackground(const QColor &color)
 
 void ColorSchemeEdit::populateUnderlineStyleComboBox()
 {
-    m_underlineComboBox->addItem(tr("No Underline"),
+    m_underlineComboBox->addItem(Tr::tr("No Underline"),
                                      QVariant::fromValue(int(QTextCharFormat::NoUnderline)));
-    m_underlineComboBox->addItem(tr("Single Underline"),
+    m_underlineComboBox->addItem(Tr::tr("Single Underline"),
                                      QVariant::fromValue(int(QTextCharFormat::SingleUnderline)));
-    m_underlineComboBox->addItem(tr("Wave Underline"),
+    m_underlineComboBox->addItem(Tr::tr("Wave Underline"),
                                      QVariant::fromValue(int(QTextCharFormat::WaveUnderline)));
-    m_underlineComboBox->addItem(tr("Dot Underline"),
+    m_underlineComboBox->addItem(Tr::tr("Dot Underline"),
                                      QVariant::fromValue(int(QTextCharFormat::DotLine)));
-    m_underlineComboBox->addItem(tr("Dash Underline"),
+    m_underlineComboBox->addItem(Tr::tr("Dash Underline"),
                                      QVariant::fromValue(int(QTextCharFormat::DashUnderline)));
-    m_underlineComboBox->addItem(tr("Dash-Dot Underline"),
+    m_underlineComboBox->addItem(Tr::tr("Dash-Dot Underline"),
                                      QVariant::fromValue(int(QTextCharFormat::DashDotLine)));
-    m_underlineComboBox->addItem(tr("Dash-Dot-Dot Underline"),
+    m_underlineComboBox->addItem(Tr::tr("Dash-Dot-Dot Underline"),
                                      QVariant::fromValue(int(QTextCharFormat::DashDotDotLine)));
 }
 

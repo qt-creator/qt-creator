@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidtr.h"
 #include "splashscreencontainerwidget.h"
@@ -43,7 +43,7 @@ const char splashscreenFileName[] = "logo";
 const char splashscreenPortraitFileName[] = "logo_port";
 const char splashscreenLandscapeFileName[] = "logo_land";
 const char imageSuffix[] = ".png";
-const QString fileDialogImageFiles = QString(QWidget::tr("Images (*.png *.jpg *.jpeg)")); // TODO: Implement a centralized images filter string
+const QString fileDialogImageFiles = Tr::tr("Images (*.png *.jpg *.jpeg)"); // TODO: Implement a centralized images filter string
 const QSize lowDpiImageSize{200, 320};
 const QSize mediumDpiImageSize{320, 480};
 const QSize highDpiImageSize{480, 800};

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glslengine.h"
 #include "glslsymbols.h"
@@ -163,7 +163,6 @@ const ArrayType *Engine::arrayType(const Type *elementType)
 {
     return _arrayTypes.intern(ArrayType(elementType));
 }
-
 
 QList<DiagnosticMessage> Engine::diagnosticMessages() const
 {

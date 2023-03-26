@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -21,8 +21,6 @@ class TargetGroupItemPrivate;
 // Second level: Special case for the Build & Run item (with per-kit subItems)
 class TargetGroupItem : public Utils::TypedTreeItem<TargetItem /*, ProjectItem */>
 {
-    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelItem)
-
 public:
     TargetGroupItem(const QString &displayName, Project *project);
     ~TargetGroupItem() override;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -7,15 +7,19 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
+class QFontComboBox;
+class QLabel;
+class QToolButton;
 class QVariant;
-namespace Ui { class ContextPaneTextWidget; }
 QT_END_NAMESPACE
 
 namespace QmlJS { class PropertyReader; }
 
 namespace QmlEditorWidgets {
 
-class CustomColorDialog;
+class ColorButton;
+class FontSizeSpinBox;
 
 class QMLEDITORWIDGETS_EXPORT ContextPaneTextWidget : public QWidget
 {
@@ -23,7 +27,7 @@ class QMLEDITORWIDGETS_EXPORT ContextPaneTextWidget : public QWidget
 
 public:
     explicit ContextPaneTextWidget(QWidget *parent = nullptr);
-    ~ContextPaneTextWidget();
+
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setVerticalAlignmentVisible(bool);
     void setStyleVisible(bool);
@@ -52,10 +56,30 @@ protected:
     void timerEvent(QTimerEvent *event) override;
 
 private:
-    Ui::ContextPaneTextWidget *ui;
+    QFontComboBox *m_fontComboBox;
+    ColorButton *m_colorButton;
+    FontSizeSpinBox *m_fontSizeSpinBox;
+
+    QToolButton *m_boldButton;
+    QToolButton *m_italicButton;
+    QToolButton *m_underlineButton;
+    QToolButton *m_strikeoutButton;
+
+    QLabel *m_styleLabel;
+    QComboBox *m_styleComboBox;
+    ColorButton *m_textColorButton;
+
+    QToolButton *m_leftAlignmentButton;
+    QToolButton *m_centerHAlignmentButton;
+    QToolButton *m_rightAlignmentButton;
+
+    QToolButton *m_topAlignmentButton;
+    QToolButton *m_centerVAlignmentButton;
+    QToolButton *m_bottomAlignmentButton;
+
     QString m_verticalAlignment;
     QString m_horizontalAlignment;
-    int m_fontSizeTimer;
+    int m_fontSizeTimer = -1;
 };
 
 } //QmlDesigner

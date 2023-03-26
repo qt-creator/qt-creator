@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cocolanguageclient.h"
 
@@ -131,7 +131,7 @@ class CocoTextMark : public TextEditor::TextMark
 {
 public:
     CocoTextMark(const FilePath &fileName, const CocoDiagnostic &diag, const Id &clientId)
-        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, clientId)
+        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, {"Coco", clientId})
         , m_severity(diag.cocoSeverity())
     {
         setLineAnnotation(diag.message());
@@ -209,12 +209,12 @@ private:
         return {};
     }
 
-    void setDiagnostics(const DocumentUri &uri,
+    void setDiagnostics(const FilePath &filePath,
                         const QList<Diagnostic> &diagnostics,
                         const std::optional<int> &version) override
     {
-        DiagnosticManager::setDiagnostics(uri, diagnostics, version);
-        showDiagnostics(uri, client()->documentVersion(uri.toFilePath()));
+        DiagnosticManager::setDiagnostics(filePath, diagnostics, version);
+        showDiagnostics(filePath, client()->documentVersion(filePath));
     }
 };
 
@@ -227,7 +227,7 @@ void CocoLanguageClient::handleDiagnostics(const PublishDiagnosticsParams &param
 {
     using namespace TextEditor;
     Client::handleDiagnostics(params);
-    TextDocument *document = documentForFilePath(params.uri().toFilePath());
+    TextDocument *document = documentForFilePath(serverUriToHostPath(params.uri()));
     for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(document))
         editor->editorWidget()->addHoverHandler(hoverHandler());
 }

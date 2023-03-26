@@ -1,13 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "osparser.h"
-#include "projectexplorerconstants.h"
+
+#include "projectexplorertr.h"
 #include "task.h"
 
 #include <utils/hostosinfo.h>
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 OsParser::OsParser()
 {
@@ -21,7 +22,7 @@ Utils::OutputLineParser::Result OsParser::handleLine(const QString &line, Utils:
             const QString trimmed = line.trimmed();
             if (trimmed == QLatin1String("The process cannot access the file because it is "
                                          "being used by another process.")) {
-                scheduleTask(CompileTask(Task::Error, tr(
+                scheduleTask(CompileTask(Task::Error, Tr::tr(
                        "The process cannot access the file because it is being used "
                        "by another process.\n"
                        "Please close all running instances of your application before "
@@ -41,3 +42,5 @@ Utils::OutputLineParser::Result OsParser::handleLine(const QString &line, Utils:
     }
     return Status::NotHandled;
 }
+
+} // ProjectExplorer

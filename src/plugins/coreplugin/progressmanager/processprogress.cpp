@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "processprogress.h"
 
@@ -28,7 +28,9 @@ public:
     ProgressParser m_parser = {};
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
+    QPointer<FutureProgress> m_futureProgress;
     QString m_displayName;
+    FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
 };
 
 ProcessProgressPrivate::ProcessProgressPrivate(ProcessProgress *progress, QtcProcess *process)
@@ -71,8 +73,8 @@ void ProcessProgressPrivate::parseProgress(const QString &inputText)
 
     \brief The ProcessProgress class is responsible for showing progress of the running process.
 
-    It's able to cancel the running process automatically after pressing a small 'x' indicator on
-    progress panel. In this case the QtcProcess::stop() method is being called.
+    It's possible to cancel the running process automatically after pressing a small 'x'
+    indicator on progress panel. In this case QtcProcess::stop() method is being called.
 */
 
 ProcessProgress::ProcessProgress(QtcProcess *process)
@@ -80,7 +82,7 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
     , d(new ProcessProgressPrivate(this, process))
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, [this] {
-        d->m_process->stop(); // TODO: should we have different cancel policies?
+        d->m_process->stop(); // TODO: See TaskProgress::setAutoStopOnCancel
     });
     connect(d->m_process, &QtcProcess::starting, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();
@@ -91,11 +93,12 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
         const QString name = d->displayName();
         const auto id = Id::fromString(name + ".action");
         if (d->m_parser) {
-            ProgressManager::addTask(d->m_futureInterface.future(), name, id);
+            d->m_futureProgress = ProgressManager::addTask(d->m_futureInterface.future(), name, id);
         } else {
-            ProgressManager::addTimedTask(d->m_futureInterface, name, id,
-                                          qMax(2, d->m_process->timeoutS() / 5));
+            d->m_futureProgress = ProgressManager::addTimedTask(d->m_futureInterface, name, id,
+                                                   qMax(2, d->m_process->timeoutS() / 5));
         }
+        d->m_futureProgress->setKeepOnFinish(d->m_keep);
     });
     connect(d->m_process, &QtcProcess::done, this, [this] {
         if (d->m_process->result() != ProcessResult::FinishedWithSuccess)
@@ -104,18 +107,27 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
     });
 }
 
+ProcessProgress::~ProcessProgress() = default;
+
 void ProcessProgress::setDisplayName(const QString &name)
 {
     d->m_displayName = name;
+}
+
+void ProcessProgress::setKeepOnFinish(FutureProgress::KeepOnFinishType keepType)
+{
+    d->m_keep = keepType;
+    if (d->m_futureProgress)
+        d->m_futureProgress->setKeepOnFinish(d->m_keep);
 }
 
 void ProcessProgress::setProgressParser(const ProgressParser &parser)
 {
     if (d->m_parser) {
         disconnect(d->m_process, &QtcProcess::textOnStandardOutput,
-                   d, &ProcessProgressPrivate::parseProgress);
+                   d.get(), &ProcessProgressPrivate::parseProgress);
         disconnect(d->m_process, &QtcProcess::textOnStandardError,
-                   d, &ProcessProgressPrivate::parseProgress);
+                   d.get(), &ProcessProgressPrivate::parseProgress);
     }
     d->m_parser = parser;
     if (!d->m_parser)
@@ -126,9 +138,9 @@ void ProcessProgress::setProgressParser(const ProgressParser &parser)
                "text channel mode is no-op.");
 
     connect(d->m_process, &QtcProcess::textOnStandardOutput,
-            d, &ProcessProgressPrivate::parseProgress);
+            d.get(), &ProcessProgressPrivate::parseProgress);
     connect(d->m_process, &QtcProcess::textOnStandardError,
-            d, &ProcessProgressPrivate::parseProgress);
+            d.get(), &ProcessProgressPrivate::parseProgress);
 }
 
 } // namespace Core

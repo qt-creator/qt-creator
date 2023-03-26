@@ -1,11 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakeprojectmanagerplugin.h"
 
 #include "addlibrarywizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
-#include "externaleditors.h"
 #include "profileeditor.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakekitinformation.h"
@@ -59,8 +58,6 @@ namespace Internal {
 class QmakeProjectManagerPluginPrivate : public QObject
 {
 public:
-    ~QmakeProjectManagerPluginPrivate() override;
-
     void projectChanged();
     void activeTargetChanged();
     void updateActions();
@@ -84,9 +81,6 @@ public:
     ProFileEditorFactory profileEditorFactory;
 
     QmakeSettingsPage settingsPage;
-
-    ExternalQtEditor *m_designerEditor{ExternalQtEditor::createDesignerEditor()};
-    ExternalQtEditor *m_linguistEditor{ExternalQtEditor::createLinguistEditor()};
 
     QmakeProject *m_previousStartupProject = nullptr;
     Target *m_previousTarget = nullptr;
@@ -128,10 +122,8 @@ QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
     delete d;
 }
 
-bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void QmakeProjectManagerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
     const Context projectContext(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
@@ -291,14 +283,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
             d, &QmakeProjectManagerPluginPrivate::updateBuildFileAction);
 
     d->updateActions();
-
-    return true;
-}
-
-QmakeProjectManagerPluginPrivate::~QmakeProjectManagerPluginPrivate()
-{
-    delete m_designerEditor;
-    delete m_linguistEditor;
 }
 
 void QmakeProjectManagerPluginPrivate::projectChanged()

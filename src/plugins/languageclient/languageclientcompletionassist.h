@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -34,7 +34,6 @@ public:
     LanguageClientCompletionAssistProvider(Client *client);
 
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
-    RunType runType() const override;
 
     int activationCharSequenceLength() const override;
     bool isActivationCharSequence(const QString &sequence) const override;
@@ -58,9 +57,11 @@ class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProcessor
     : public TextEditor::IAssistProcessor
 {
 public:
-    LanguageClientCompletionAssistProcessor(Client *client, const QString &snippetsGroup);
+    LanguageClientCompletionAssistProcessor(Client *client,
+                                            const TextEditor::IAssistProvider *provider,
+                                            const QString &snippetsGroup);
     ~LanguageClientCompletionAssistProcessor() override;
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform() override;
     bool running() override;
     bool needsRestart() const override { return true; }
     void cancel() override;
@@ -75,9 +76,9 @@ protected:
 private:
     void handleCompletionResponse(const LanguageServerProtocol::CompletionRequest::Response &response);
 
-    QScopedPointer<const TextEditor::AssistInterface> m_assistInterface;
     Utils::FilePath m_filePath;
     QPointer<Client> m_client;
+    QPointer<const TextEditor::IAssistProvider> m_provider;
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     QMetaObject::Connection m_postponedUpdateConnection;
     const QString m_snippetsGroup;

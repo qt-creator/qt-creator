@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerrunconfigurationaspect.h"
@@ -51,8 +51,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
 
@@ -64,25 +63,39 @@ public:
     QmlProfilerActions m_actions;
 
     // The full local profiler.
-    RunWorkerFactory localQmlProfilerFactory {
-        RunWorkerFactory::make<LocalQmlProfilerSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
-        {},
-        {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE}
-    };
-
+    LocalQmlProfilerRunWorkerFactory localQmlProfilerRunWorkerFactory;
     // The bits plugged in in remote setups.
-    RunWorkerFactory qmlProfilerWorkerFactory {
-        RunWorkerFactory::make<QmlProfilerRunner>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUNNER},
-        {},
-        {}
-    };
+    QmlProfilerRunWorkerFactory qmlProfilerRunWorkerFactory;
 };
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
+
+#ifdef WITH_TESTS
+    addTest<DebugMessagesModelTest>();
+    addTest<FlameGraphModelTest>();
+    addTest<FlameGraphViewTest>();
+    addTest<InputEventsModelTest>();
+    addTest<LocalQmlProfilerRunnerTest>();
+    addTest<MemoryUsageModelTest>();
+    addTest<PixmapCacheModelTest>();
+    addTest<QmlEventTest>();
+    addTest<QmlEventLocationTest>();
+    addTest<QmlEventTypeTest>();
+    addTest<QmlNoteTest>();
+    addTest<QmlProfilerAnimationsModelTest>();
+    addTest<QmlProfilerAttachDialogTest>();
+    addTest<QmlProfilerBindingLoopsRenderPassTest>();
+    addTest<QmlProfilerClientManagerTest>();
+    addTest<QmlProfilerDetailsRewriterTest>();
+    addTest<QmlProfilerToolTest>();
+    addTest<QmlProfilerTraceClientTest>();
+    addTest<QmlProfilerTraceViewTest>();
+
+    addTest<QQmlEngine>(); // Trigger debug connector to be started
+#endif
+
     return Utils::HostOsInfo::canCreateOpenGLContext(errorString);
 }
 
@@ -111,34 +124,4 @@ QmlProfilerSettings *QmlProfilerPlugin::globalSettings()
     return qmlProfilerGlobalSettings();
 }
 
-QVector<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
-#ifdef WITH_TESTS
-    tests << new DebugMessagesModelTest;
-    tests << new FlameGraphModelTest;
-    tests << new FlameGraphViewTest;
-    tests << new InputEventsModelTest;
-    tests << new LocalQmlProfilerRunnerTest;
-    tests << new MemoryUsageModelTest;
-    tests << new PixmapCacheModelTest;
-    tests << new QmlEventTest;
-    tests << new QmlEventLocationTest;
-    tests << new QmlEventTypeTest;
-    tests << new QmlNoteTest;
-    tests << new QmlProfilerAnimationsModelTest;
-    tests << new QmlProfilerAttachDialogTest;
-    tests << new QmlProfilerBindingLoopsRenderPassTest;
-    tests << new QmlProfilerClientManagerTest;
-    tests << new QmlProfilerDetailsRewriterTest;
-    tests << new QmlProfilerToolTest;
-    tests << new QmlProfilerTraceClientTest;
-    tests << new QmlProfilerTraceViewTest;
-
-    tests << new QQmlEngine; // Trigger debug connector to be started
-#endif
-    return tests;
-}
-
-} // namespace Internal
-} // namespace QmlProfiler
+} // QmlProfiler::Internal

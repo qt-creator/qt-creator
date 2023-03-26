@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,8 +10,7 @@
 
 namespace VcsBase { class SubmitFileModel; }
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 class PerforceSubmitEditorWidget;
 class PerforcePluginPrivate;
@@ -50,5 +49,4 @@ private:
     VcsBase::SubmitFileModel *m_fileModel;
 };
 
-} // namespace Internal
-} // namespace Perforce
+} // Perforce::Internal

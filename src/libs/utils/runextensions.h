@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,7 +16,6 @@
 #include <QThreadPool>
 
 #include <functional>
-#include <optional>
 
 // hasCallOperator & Co must be outside of any namespace
 // because of internal compiler error with MSVC2015 Update 2
@@ -37,8 +36,6 @@ struct hasCallOperator
 };
 
 namespace Utils {
-
-using StackSizeInBytes = std::optional<uint>;
 
 namespace Internal {
 
@@ -375,12 +372,10 @@ template<typename Function,
          typename... Args,
          typename ResultType = typename Internal::resultType<Function>::type>
 QFuture<ResultType> runAsync_internal(QThreadPool *pool,
-                                      StackSizeInBytes stackSize,
                                       QThread::Priority priority,
                                       Function &&function,
                                       Args &&... args)
 {
-    Q_ASSERT(!(pool && stackSize)); // stack size cannot be changed once a thread is started
     auto job = new Internal::AsyncJob<ResultType,Function,Args...>
             (std::forward<Function>(function), std::forward<Args>(args)...);
     job->setThreadPriority(priority);
@@ -390,8 +385,6 @@ QFuture<ResultType> runAsync_internal(QThreadPool *pool,
         pool->start(job);
     } else {
         auto thread = new Internal::RunnableThread(job);
-        if (stackSize)
-            thread->setStackSize(stackSize.value());
         thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
         QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
         thread->start(priority);
@@ -430,7 +423,6 @@ QFuture<ResultType>
 runAsync(QThreadPool *pool, QThread::Priority priority, Function &&function, Args&&... args)
 {
     return Internal::runAsync_internal(pool,
-                                       StackSizeInBytes(),
                                        priority,
                                        std::forward<Function>(function),
                                        std::forward<Args>(args)...);
@@ -448,47 +440,6 @@ runAsync(QThread::Priority priority, Function &&function, Args&&... args)
 {
     return runAsync(static_cast<QThreadPool *>(nullptr), priority,
                     std::forward<Function>(function), std::forward<Args>(args)...);
-}
-
-/*!
-    Runs \a function with \a args in a new thread with given thread \a stackSize and
-    thread priority QThread::InheritPriority .
-    \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
-    \sa QThread::Priority
-    \sa QThread::setStackSize
-*/
-template<typename Function,
-         typename... Args,
-         typename ResultType = typename Internal::resultType<Function>::type>
-QFuture<ResultType> runAsync(StackSizeInBytes stackSize, Function &&function, Args &&... args)
-{
-    return Internal::runAsync_internal(static_cast<QThreadPool *>(nullptr),
-                                       stackSize,
-                                       QThread::InheritPriority,
-                                       std::forward<Function>(function),
-                                       std::forward<Args>(args)...);
-}
-
-/*!
-    Runs \a function with \a args in a new thread with given thread \a stackSize and
-    given thread \a priority.
-    \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
-    \sa QThread::Priority
-    \sa QThread::setStackSize
-*/
-template<typename Function,
-         typename... Args,
-         typename ResultType = typename Internal::resultType<Function>::type>
-QFuture<ResultType> runAsync(StackSizeInBytes stackSize,
-                             QThread::Priority priority,
-                             Function &&function,
-                             Args &&... args)
-{
-    return Internal::runAsync_internal(static_cast<QThreadPool *>(nullptr),
-                                       stackSize,
-                                       priority,
-                                       std::forward<Function>(function),
-                                       std::forward<Args>(args)...);
 }
 
 /*!
@@ -594,7 +545,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future,
     QObject::connect(watcher,
                      &QFutureWatcherBase::finished,
                      receiver,
-                     [receiver, member, watcher]() { (receiver->*member)(watcher->future()); });
+                     [receiver, member, watcher] { (receiver->*member)(watcher->future()); });
     watcher->setFuture(future);
     return future;
 }
@@ -610,7 +561,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future, QObject *guard, Function 
 {
     auto watcher = new QFutureWatcher<T>();
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, guard, [f, watcher]() {
+    QObject::connect(watcher, &QFutureWatcherBase::finished, guard, [f, watcher] {
         f(watcher->future());
     });
     watcher->setFuture(future);
@@ -627,7 +578,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future, Function f)
 {
     auto watcher = new QFutureWatcher<T>();
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, [f, watcher]() {
+    QObject::connect(watcher, &QFutureWatcherBase::finished, [f, watcher] {
         f(watcher->future());
     });
     watcher->setFuture(future);

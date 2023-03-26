@@ -1,28 +1,21 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsbasediffeditorcontroller.h"
-#include "vcsbaseclient.h"
-#include "vcscommand.h"
+#include "vcsplugin.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-
-#include <utils/commandline.h>
+#include <utils/asynctask.h>
 #include <utils/environment.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
-
-#include <QPointer>
+#include <utils/qtcprocess.h>
 
 using namespace DiffEditor;
-using namespace Core;
 using namespace Utils;
 
 namespace VcsBase {
 
-static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
-                      const QString &patch)
+static void readPatch(QFutureInterface<QList<FileData>> &futureInterface, const QString &patch)
 {
     bool ok;
     const QList<FileData> &fileDataList = DiffUtils::readPatch(patch, &ok, &futureInterface);
@@ -35,92 +28,12 @@ class VcsBaseDiffEditorControllerPrivate
 {
 public:
     VcsBaseDiffEditorControllerPrivate(VcsBaseDiffEditorController *q) : q(q) {}
-    ~VcsBaseDiffEditorControllerPrivate();
-
-    void processingFinished();
-    void processDiff(const QString &patch);
-    void cancelReload();
-    void commandFinished(bool success);
 
     VcsBaseDiffEditorController *q;
-    FilePath m_directory;
     Environment m_processEnvironment;
     FilePath m_vcsBinary;
-    int m_vscTimeoutS;
-    QString m_startupFile;
-    QString m_displayName;
-    QPointer<VcsCommand> m_command;
-    QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
+    const Tasking::TreeStorage<QString> m_inputStorage;
 };
-
-VcsBaseDiffEditorControllerPrivate::~VcsBaseDiffEditorControllerPrivate()
-{
-    delete m_command;
-    cancelReload();
-}
-
-void VcsBaseDiffEditorControllerPrivate::processingFinished()
-{
-    QTC_ASSERT(m_processWatcher, return);
-
-    // success is false when the user clicked the cancel micro button
-    // inside the progress indicator
-    const bool success = !m_processWatcher->future().isCanceled();
-    const QList<FileData> fileDataList = success
-            ? m_processWatcher->future().result() : QList<FileData>();
-
-    // Prevent direct deletion of m_processWatcher since
-    // processingFinished() is called directly by the m_processWatcher.
-    m_processWatcher->deleteLater();
-    m_processWatcher = nullptr;
-
-    q->setDiffFiles(fileDataList, q->workingDirectory(), q->startupFile());
-    q->reloadFinished(success);
-}
-
-void VcsBaseDiffEditorControllerPrivate::processDiff(const QString &patch)
-{
-    cancelReload();
-
-    m_processWatcher = new QFutureWatcher<QList<FileData>>();
-
-    QObject::connect(m_processWatcher, &QFutureWatcherBase::finished,
-                     q, [this] { processingFinished(); });
-
-    m_processWatcher->setFuture(Utils::runAsync(&readPatch, patch));
-
-    ProgressManager::addTask(m_processWatcher->future(),
-                             VcsBaseDiffEditorController::tr("Processing diff"), "DiffEditor");
-}
-
-void VcsBaseDiffEditorControllerPrivate::cancelReload()
-{
-    m_command.clear();
-
-    if (m_processWatcher) {
-        // Cancel the running process without the further processingFinished()
-        // notification for this process.
-        m_processWatcher->future().cancel();
-        delete m_processWatcher;
-        m_processWatcher = nullptr;
-    }
-}
-
-void VcsBaseDiffEditorControllerPrivate::commandFinished(bool success)
-{
-    const QString output = m_command->cleanedStdOut();
-    // Don't delete here, as it is called from command finished signal.
-    // Clear it only, as we may call runCommand() again from inside processCommandOutput overload.
-    m_command.clear();
-
-    if (!success) {
-        cancelReload();
-        q->reloadFinished(success);
-        return;
-    }
-
-    q->processCommandOutput(output);
-}
 
 /////////////////////
 
@@ -134,66 +47,38 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
-void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec)
+Tasking::TreeStorage<QString> VcsBaseDiffEditorController::inputStorage() const
 {
-    // Cancel the possible ongoing reload without the commandFinished() nor
-    // processingFinished() notifications, as right after that
-    // we re-reload it from scratch. So no intermediate "Retrieving data failed."
-    // and "Waiting for data..." will be shown.
-    delete d->m_command;
-    d->cancelReload();
-
-    d->m_command = VcsBaseClient::createVcsCommand(workingDirectory(), d->m_processEnvironment);
-    d->m_command->setDisplayName(d->m_displayName);
-    d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    connect(d->m_command.data(), &VcsCommand::done, this, [this] {
-        d->commandFinished(d->m_command->result() == ProcessResult::FinishedWithSuccess);
-    });
-    d->m_command->addFlags(flags);
-
-    for (const QStringList &arg : args) {
-        QTC_ASSERT(!arg.isEmpty(), continue);
-
-        d->m_command->addJob({d->m_vcsBinary, arg}, d->m_vscTimeoutS);
-    }
-
-    d->m_command->start();
+    return d->m_inputStorage;
 }
 
-void VcsBaseDiffEditorController::processCommandOutput(const QString &output)
+Tasking::TaskItem VcsBaseDiffEditorController::postProcessTask()
 {
-    d->processDiff(output);
+    using namespace Tasking;
+
+    const auto setupDiffProcessor = [this](AsyncTask<QList<FileData>> &async) {
+        const QString *storage = inputStorage().activeStorage();
+        QTC_ASSERT(storage, qWarning("Using postProcessTask() requires putting inputStorage() "
+                                     "into task tree's root group."));
+        const QString inputData = storage ? *storage : QString();
+        async.setAsyncCallData(readPatch, inputData);
+        async.setFutureSynchronizer(Internal::VcsPlugin::futureSynchronizer());
+    };
+    const auto onDiffProcessorDone = [this](const AsyncTask<QList<FileData>> &async) {
+        setDiffFiles(async.result());
+    };
+    const auto onDiffProcessorError = [this](const AsyncTask<QList<FileData>> &) {
+        setDiffFiles({});
+    };
+    return Async<QList<FileData>>(setupDiffProcessor, onDiffProcessorDone, onDiffProcessorError);
 }
 
-FilePath VcsBaseDiffEditorController::workingDirectory() const
+void VcsBaseDiffEditorController::setupCommand(QtcProcess &process, const QStringList &args) const
 {
-    return d->m_directory;
-}
-
-void VcsBaseDiffEditorController::setStartupFile(const QString &startupFile)
-{
-    d->m_startupFile = startupFile;
-}
-
-QString VcsBaseDiffEditorController::startupFile() const
-{
-    return d->m_startupFile;
-}
-
-void VcsBaseDiffEditorController::setDisplayName(const QString &displayName)
-{
-    d->m_displayName = displayName;
-}
-
-void VcsBase::VcsBaseDiffEditorController::setWorkingDirectory(const FilePath &workingDir)
-{
-    d->m_directory = workingDir;
-    setBaseDirectory(workingDir);
-}
-
-void VcsBaseDiffEditorController::setVcsTimeoutS(int value)
-{
-    d->m_vscTimeoutS = value;
+    process.setEnvironment(d->m_processEnvironment);
+    process.setWorkingDirectory(workingDirectory());
+    process.setCommand({d->m_vcsBinary, args});
+    process.setUseCtrlCStub(true);
 }
 
 void VcsBaseDiffEditorController::setVcsBinary(const FilePath &path)

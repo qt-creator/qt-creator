@@ -1,9 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
-
-#include "projectexplorerconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <utils/hostosinfo.h>
@@ -11,10 +9,8 @@
 #include <QUuid>
 
 namespace ProjectExplorer {
-namespace Internal {
 
 enum class TerminalMode { On, Off, Smart };
-enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
 enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
 enum class StopBeforeBuild { None, SameProject, All, SameBuildDir, SameApp };
 
@@ -63,6 +59,10 @@ public:
     QUuid environmentId;
 };
 
+namespace Internal {
+
+enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
+
 class AppOutputSettings
 {
 public:
@@ -82,5 +82,5 @@ public:
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
 };
 
-} // namespace ProjectExplorer
 } // namespace Internal
+} // namespace ProjectExplorer

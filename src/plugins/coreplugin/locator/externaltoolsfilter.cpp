@@ -1,24 +1,25 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "externaltoolsfilter.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/externaltool.h>
-#include <coreplugin/externaltoolmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
+#include "../coreconstants.h"
+#include "../coreplugintr.h"
+#include "../externaltool.h"
+#include "../externaltoolmanager.h"
+#include "../icore.h"
+#include "../messagemanager.h"
+
 #include <utils/qtcassert.h>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 ExternalToolsFilter::ExternalToolsFilter()
 {
     setId("Run external tool");
-    setDisplayName(tr("Run External Tool"));
-    setDescription(tr("Runs an external tool that you have set up in the preferences (Environment > "
-                      "External Tools)."));
+    setDisplayName(Tr::tr("Run External Tool"));
+    setDescription(Tr::tr("Runs an external tool that you have set up in the preferences "
+                          "(Environment > External Tools)."));
     setDefaultShortcutString("x");
     setPriority(Medium);
 }
@@ -82,3 +83,5 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
     m_results = {};
     m_results << bestEntries << betterEntries << goodEntries << configEntry;
 }
+
+} // Core::Internal

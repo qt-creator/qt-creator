@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdslandingpage.h"
 #include "qmlprojectplugin.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
+#include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
 #include "cmakegen/cmakeprojectconverter.h"
@@ -51,8 +52,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProjectManager {
-namespace Internal {
+namespace QmlProjectManager::Internal {
 
 static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
 {
@@ -90,9 +90,7 @@ class QmlProjectPluginPrivate
 {
 public:
     QmlProjectRunConfigurationFactory runConfigFactory;
-    RunWorkerFactory runWorkerFactory{RunWorkerFactory::make<SimpleTargetRunner>(),
-                                      {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-                                      {runConfigFactory.runConfigurationId()}};
+    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     QPointer<QMessageBox> lastMessageBox;
     QdsLandingPage *landingPage = nullptr;
     QdsLandingPageWidget *landingPageWidget = nullptr;
@@ -126,7 +124,7 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
     if (!qdsStarted) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              fileName.fileName(),
-                             QObject::tr("Failed to start Qt Design Studio."));
+                             Tr::tr("Failed to start Qt Design Studio."));
         if (alwaysOpenWithMode() == Core::Constants::MODE_DESIGN)
             clearAlwaysOpenWithMode();
     }
@@ -215,8 +213,8 @@ void QmlProjectPlugin::openInQDSWithProject(const Utils::FilePath &filePath)
         QTimer::singleShot(4000, [filePath] { openQDS(filePath); });
     } else {
         Core::AsynchronousMessageBox::warning(
-            tr("Qt Design Studio"),
-            tr("No project file (*.qmlproject) found for Qt Design "
+            Tr::tr("Qt Design Studio"),
+            Tr::tr("No project file (*.qmlproject) found for Qt Design "
                "Studio.\nQt Design Studio requires a .qmlproject "
                "based project to open the .ui.qml file."));
     }
@@ -239,10 +237,8 @@ static QmlBuildSystem *qmlBuildSystemforFileNode(const FileNode *fileNode)
     return nullptr;
 }
 
-bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
+void QmlProjectPlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
-
     d = new QmlProjectPluginPrivate;
 
     if (!qmlDesignerEnabled()) {
@@ -272,7 +268,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     if (QmlProject::isQtDesignStudio()) {
         Core::ActionContainer *menu = Core::ActionManager::actionContainer(
             ProjectExplorer::Constants::M_FILECONTEXT);
-        QAction *mainfileAction = new QAction(tr("Set as Main .qml File"), this);
+        QAction *mainfileAction = new QAction(Tr::tr("Set as Main .qml File"), this);
         mainfileAction->setEnabled(false);
 
         connect(mainfileAction, &QAction::triggered, this, []() {
@@ -315,7 +311,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                                                    != fileNode->filePath());
                 });
 
-        QAction *mainUifileAction = new QAction(tr("Set as Main .ui.qml File"), this);
+        QAction *mainUifileAction = new QAction(Tr::tr("Set as Main .ui.qml File"), this);
         mainUifileAction->setEnabled(false);
 
         connect(mainUifileAction, &QAction::triggered, this, []() {
@@ -360,8 +356,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     GenerateCmake::generateMenuEntry(this);
     if (QmlProject::isQtDesignStudio())
         GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
-
-    return true;
 }
 
 void QmlProjectPlugin::displayQmlLandingPage()
@@ -457,5 +451,4 @@ Utils::FilePath QmlProjectPlugin::projectFilePath()
     return {};
 }
 
-} // namespace Internal
-} // namespace QmlProjectManager
+} // QmlProjectManager::Internal

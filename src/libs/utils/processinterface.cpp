@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "processinterface.h"
 
@@ -19,6 +19,7 @@ int ProcessInterface::controlSignalToInt(ControlSignal controlSignal)
     case ControlSignal::Kill:      return 9;
     case ControlSignal::Interrupt: return 2;
     case ControlSignal::KickOff:   QTC_CHECK(false); return 0;
+    case ControlSignal::CloseWriteChannel:   QTC_CHECK(false); return 0;
     }
     return 0;
 }

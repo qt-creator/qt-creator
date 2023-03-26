@@ -1,7 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmllsclient.h"
+
+#include "qmljseditortr.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -47,7 +49,7 @@ QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
     auto interface = new StdIOClientInterface;
     interface->setCommandLine(CommandLine(qmlls));
     auto client = new QmllsClient(interface);
-    client->setName(QmllsClient::tr("Qmlls (%1)").arg(qmlls.toUserOutput()));
+    client->setName(Tr::tr("Qmlls (%1)").arg(qmlls.toUserOutput()));
     client->setActivateDocumentAutomatically(true);
     LanguageFilter filter;
     using namespace QmlJSTools::Constants;

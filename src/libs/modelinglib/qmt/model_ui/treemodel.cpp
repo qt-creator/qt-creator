@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "treemodel.h"
 
@@ -25,6 +25,8 @@
 
 #include "qmt/style/style.h"
 #include "qmt/style/stylecontroller.h"
+
+#include "../../modelinglibtr.h"
 
 #include <QStandardItem>
 
@@ -779,7 +781,7 @@ QString TreeModel::createObjectLabel(const MObject *object)
             if (!item->variety().isEmpty())
                 return filterLabel(QString("[%1]").arg(item->variety()));
         }
-        return tr("[unnamed]");
+        return Tr::tr("[unnamed]");
     }
 
     if (auto klass = dynamic_cast<const MClass *>(object)) {

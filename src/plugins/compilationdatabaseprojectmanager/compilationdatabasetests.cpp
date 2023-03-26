@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "compilationdatabasetests.h"
 
@@ -25,8 +25,7 @@ using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 CompilationDatabaseTests::CompilationDatabaseTests(QObject *parent)
     : QObject(parent)
@@ -57,7 +56,7 @@ void CompilationDatabaseTests::cleanupTestCase()
 
 void CompilationDatabaseTests::testProject()
 {
-    QFETCH(QString, projectFilePath);
+    QFETCH(FilePath, projectFilePath);
 
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     const CppEditor::ProjectInfo::ConstPtr projectInfo = projectManager.open(projectFilePath, true);
@@ -75,7 +74,7 @@ void CompilationDatabaseTests::testProject()
 
 void CompilationDatabaseTests::testProject_data()
 {
-    QTest::addColumn<QString>("projectFilePath");
+    QTest::addColumn<FilePath>("projectFilePath");
 
     addTestRow("qtc/compile_commands.json");
     addTestRow("llvm/compile_commands.json");
@@ -263,12 +262,11 @@ void CompilationDatabaseTests::testSkipOutputFiles()
     QVERIFY(testData.getFilteredFlags().isEmpty());
 }
 
-void CompilationDatabaseTests::addTestRow(const QByteArray &relativeFilePath)
+void CompilationDatabaseTests::addTestRow(const QString &relativeFilePath)
 {
-    const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
+    const FilePath absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
 
-    QTest::newRow(relativeFilePath.constData()) << absoluteFilePath;
+    QTest::newRow(qPrintable(relativeFilePath)) << absoluteFilePath;
 }
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,8 +10,7 @@
 #include <QLabel>
 #include <QPointer>
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class CommandBuilderAspect final : public Utils::BaseAspect
 {
@@ -24,7 +23,7 @@ public:
     QString fullCommandFlag(bool keepJobNum) const;
 
 private:
-    void addToLayout(Utils::LayoutBuilder &builder) final;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
     void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
 
@@ -33,5 +32,4 @@ private:
     class CommandBuilderAspectPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

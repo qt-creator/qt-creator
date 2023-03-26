@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "texteditoractionhandler.h"
 
@@ -7,8 +7,8 @@
 #include "displaysettings.h"
 #include "fontsettings.h"
 #include "linenumberfilter.h"
-#include "texteditorconstants.h"
 #include "texteditorplugin.h"
+#include "texteditortr.h"
 #include "texteditorsettings.h"
 
 #include <aggregation/aggregate.h>
@@ -20,6 +20,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -33,8 +34,6 @@ namespace Internal {
 
 class TextEditorActionHandlerPrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::TextEditorActionHandler)
-
 public:
     TextEditorActionHandlerPrivate(Utils::Id editorId, Utils::Id contextId, uint optionalActions);
 
@@ -147,9 +146,9 @@ void TextEditorActionHandlerPrivate::createActions()
     using namespace TextEditor::Constants;
 
     m_undoAction = registerAction(UNDO,
-            [] (TextEditorWidget *w) { w->undo(); }, true, tr("&Undo"));
+            [] (TextEditorWidget *w) { w->undo(); }, true, Tr::tr("&Undo"));
     m_redoAction = registerAction(REDO,
-            [] (TextEditorWidget *w) { w->redo(); }, true, tr("&Redo"));
+            [] (TextEditorWidget *w) { w->redo(); }, true, Tr::tr("&Redo"));
     m_copyAction = registerAction(COPY,
             [] (TextEditorWidget *w) { w->copy(); }, true);
     m_cutAction = registerAction(CUT,
@@ -164,110 +163,110 @@ void TextEditorActionHandlerPrivate::createActions()
     m_modifyingActions << registerAction(PRINT,
             [] (TextEditorWidget *widget) { widget->print(Core::ICore::printer()); });
     m_modifyingActions << registerAction(DELETE_LINE,
-            [] (TextEditorWidget *w) { w->deleteLine(); }, true, tr("Delete &Line"));
+            [] (TextEditorWidget *w) { w->deleteLine(); }, true, Tr::tr("Delete &Line"));
     m_modifyingActions << registerAction(DELETE_END_OF_LINE,
-            [] (TextEditorWidget *w) { w->deleteEndOfLine(); }, true, tr("Delete Line from Cursor On"));
+            [] (TextEditorWidget *w) { w->deleteEndOfLine(); }, true, Tr::tr("Delete Line from Cursor On"));
     m_modifyingActions << registerAction(DELETE_END_OF_WORD,
-            [] (TextEditorWidget *w) { w->deleteEndOfWord(); }, true, tr("Delete Word from Cursor On"));
+            [] (TextEditorWidget *w) { w->deleteEndOfWord(); }, true, Tr::tr("Delete Word from Cursor On"));
     m_modifyingActions << registerAction(DELETE_END_OF_WORD_CAMEL_CASE,
-            [] (TextEditorWidget *w) { w->deleteEndOfWordCamelCase(); }, true, tr("Delete Word Camel Case from Cursor On"));
+            [] (TextEditorWidget *w) { w->deleteEndOfWordCamelCase(); }, true, Tr::tr("Delete Word Camel Case from Cursor On"));
     m_modifyingActions << registerAction(DELETE_START_OF_LINE,
-            [] (TextEditorWidget *w) { w->deleteStartOfLine(); }, true, tr("Delete Line up to Cursor"),
-            Core::useMacShortcuts ? QKeySequence(tr("Ctrl+Backspace")) : QKeySequence());
+            [] (TextEditorWidget *w) { w->deleteStartOfLine(); }, true, Tr::tr("Delete Line up to Cursor"),
+            Core::useMacShortcuts ? QKeySequence(Tr::tr("Ctrl+Backspace")) : QKeySequence());
     m_modifyingActions << registerAction(DELETE_START_OF_WORD,
-            [] (TextEditorWidget *w) { w->deleteStartOfWord(); }, true, tr("Delete Word up to Cursor"));
+            [] (TextEditorWidget *w) { w->deleteStartOfWord(); }, true, Tr::tr("Delete Word up to Cursor"));
     m_modifyingActions << registerAction(DELETE_START_OF_WORD_CAMEL_CASE,
-            [] (TextEditorWidget *w) { w->deleteStartOfWordCamelCase(); }, true, tr("Delete Word Camel Case up to Cursor"));
+            [] (TextEditorWidget *w) { w->deleteStartOfWordCamelCase(); }, true, Tr::tr("Delete Word Camel Case up to Cursor"));
     registerAction(GOTO_BLOCK_START_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoBlockStartWithSelection(); }, true, tr("Go to Block Start with Selection"),
-            QKeySequence(tr("Ctrl+{")));
+            [] (TextEditorWidget *w) { w->gotoBlockStartWithSelection(); }, true, Tr::tr("Go to Block Start with Selection"),
+            QKeySequence(Tr::tr("Ctrl+{")));
     registerAction(GOTO_BLOCK_END_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoBlockEndWithSelection(); }, true, tr("Go to Block End with Selection"),
-            QKeySequence(tr("Ctrl+}")));
+            [] (TextEditorWidget *w) { w->gotoBlockEndWithSelection(); }, true, Tr::tr("Go to Block End with Selection"),
+            QKeySequence(Tr::tr("Ctrl+}")));
     m_modifyingActions << registerAction(MOVE_LINE_UP,
-            [] (TextEditorWidget *w) { w->moveLineUp(); }, true, tr("Move Line Up"),
-            QKeySequence(tr("Ctrl+Shift+Up")));
+            [] (TextEditorWidget *w) { w->moveLineUp(); }, true, Tr::tr("Move Line Up"),
+            QKeySequence(Tr::tr("Ctrl+Shift+Up")));
     m_modifyingActions << registerAction(MOVE_LINE_DOWN,
-            [] (TextEditorWidget *w) { w->moveLineDown(); }, true, tr("Move Line Down"),
-            QKeySequence(tr("Ctrl+Shift+Down")));
+            [] (TextEditorWidget *w) { w->moveLineDown(); }, true, Tr::tr("Move Line Down"),
+            QKeySequence(Tr::tr("Ctrl+Shift+Down")));
     m_modifyingActions << registerAction(COPY_LINE_UP,
-            [] (TextEditorWidget *w) { w->copyLineUp(); }, true, tr("Copy Line Up"),
-            QKeySequence(tr("Ctrl+Alt+Up")));
+            [] (TextEditorWidget *w) { w->copyLineUp(); }, true, Tr::tr("Copy Line Up"),
+            QKeySequence(Tr::tr("Ctrl+Alt+Up")));
     m_modifyingActions << registerAction(COPY_LINE_DOWN,
-            [] (TextEditorWidget *w) { w->copyLineDown(); }, true, tr("Copy Line Down"),
-            QKeySequence(tr("Ctrl+Alt+Down")));
+            [] (TextEditorWidget *w) { w->copyLineDown(); }, true, Tr::tr("Copy Line Down"),
+            QKeySequence(Tr::tr("Ctrl+Alt+Down")));
     m_modifyingActions << registerAction(JOIN_LINES,
-            [] (TextEditorWidget *w) { w->joinLines(); }, true, tr("Join Lines"),
-            QKeySequence(tr("Ctrl+J")));
+            [] (TextEditorWidget *w) { w->joinLines(); }, true, Tr::tr("Join Lines"),
+            QKeySequence(Tr::tr("Ctrl+J")));
     m_modifyingActions << registerAction(INSERT_LINE_ABOVE,
-            [] (TextEditorWidget *w) { w->insertLineAbove(); }, true, tr("Insert Line Above Current Line"),
-            QKeySequence(tr("Ctrl+Shift+Return")));
+            [] (TextEditorWidget *w) { w->insertLineAbove(); }, true, Tr::tr("Insert Line Above Current Line"),
+            QKeySequence(Tr::tr("Ctrl+Shift+Return")));
     m_modifyingActions << registerAction(INSERT_LINE_BELOW,
-            [] (TextEditorWidget *w) { w->insertLineBelow(); }, true, tr("Insert Line Below Current Line"),
-            QKeySequence(tr("Ctrl+Return")));
+            [] (TextEditorWidget *w) { w->insertLineBelow(); }, true, Tr::tr("Insert Line Below Current Line"),
+            QKeySequence(Tr::tr("Ctrl+Return")));
     m_modifyingActions << registerAction(SWITCH_UTF8BOM,
-            [] (TextEditorWidget *w) { w->switchUtf8bom(); }, true, tr("Toggle UTF-8 BOM"));
+            [] (TextEditorWidget *w) { w->switchUtf8bom(); }, true, Tr::tr("Toggle UTF-8 BOM"));
     m_modifyingActions << registerAction(INDENT,
-            [] (TextEditorWidget *w) { w->indent(); }, true, tr("Indent"));
+            [] (TextEditorWidget *w) { w->indent(); }, true, Tr::tr("Indent"));
     m_modifyingActions << registerAction(UNINDENT,
-            [] (TextEditorWidget *w) { w->unindent(); }, true, tr("Unindent"));
+            [] (TextEditorWidget *w) { w->unindent(); }, true, Tr::tr("Unindent"));
     m_followSymbolAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR,
-            [] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, tr("Follow Symbol Under Cursor"),
+            [] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, Tr::tr("Follow Symbol Under Cursor"),
             QKeySequence(Qt::Key_F2));
     m_followSymbolInNextSplitAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT,
-            [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, tr("Follow Symbol Under Cursor in Next Split"),
-            QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
+            [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, Tr::tr("Follow Symbol Under Cursor in Next Split"),
+            QKeySequence(Utils::HostOsInfo::isMacHost() ? Tr::tr("Meta+E, F2") : Tr::tr("Ctrl+E, F2")));
     m_findUsageAction = registerAction(FIND_USAGES,
-            [] (TextEditorWidget *w) { w->findUsages(); }, true, tr("Find References to Symbol Under Cursor"),
-            QKeySequence(tr("Ctrl+Shift+U")));
+            [] (TextEditorWidget *w) { w->findUsages(); }, true, Tr::tr("Find References to Symbol Under Cursor"),
+            QKeySequence(Tr::tr("Ctrl+Shift+U")));
     m_renameSymbolAction = registerAction(RENAME_SYMBOL,
-            [] (TextEditorWidget *w) { w->renameSymbolUnderCursor(); }, true, tr("Rename Symbol Under Cursor"),
-            QKeySequence(tr("Ctrl+Shift+R")));
+            [] (TextEditorWidget *w) { w->renameSymbolUnderCursor(); }, true, Tr::tr("Rename Symbol Under Cursor"),
+            QKeySequence(Tr::tr("Ctrl+Shift+R")));
     m_jumpToFileAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR,
-            [] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, tr("Jump to File Under Cursor"),
+            [] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, Tr::tr("Jump to File Under Cursor"),
             QKeySequence(Qt::Key_F2));
     m_jumpToFileInNextSplitAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT,
-            [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, tr("Jump to File Under Cursor in Next Split"),
-            QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")).toString());
+            [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, Tr::tr("Jump to File Under Cursor in Next Split"),
+            QKeySequence(Utils::HostOsInfo::isMacHost() ? Tr::tr("Meta+E, F2") : Tr::tr("Ctrl+E, F2")).toString());
 
     registerAction(VIEW_PAGE_UP,
-            [] (TextEditorWidget *w) { w->viewPageUp(); }, true, tr("Move the View a Page Up and Keep the Cursor Position"),
-            QKeySequence(tr("Ctrl+PgUp")));
+            [] (TextEditorWidget *w) { w->viewPageUp(); }, true, Tr::tr("Move the View a Page Up and Keep the Cursor Position"),
+            QKeySequence(Tr::tr("Ctrl+PgUp")));
     registerAction(VIEW_PAGE_DOWN,
-            [] (TextEditorWidget *w) { w->viewPageDown(); }, true, tr("Move the View a Page Down and Keep the Cursor Position"),
-            QKeySequence(tr("Ctrl+PgDown")));
+            [] (TextEditorWidget *w) { w->viewPageDown(); }, true, Tr::tr("Move the View a Page Down and Keep the Cursor Position"),
+            QKeySequence(Tr::tr("Ctrl+PgDown")));
     registerAction(VIEW_LINE_UP,
-            [] (TextEditorWidget *w) { w->viewLineUp(); }, true, tr("Move the View a Line Up and Keep the Cursor Position"),
-            QKeySequence(tr("Ctrl+Up")));
+            [] (TextEditorWidget *w) { w->viewLineUp(); }, true, Tr::tr("Move the View a Line Up and Keep the Cursor Position"),
+            QKeySequence(Tr::tr("Ctrl+Up")));
     registerAction(VIEW_LINE_DOWN,
-            [] (TextEditorWidget *w) { w->viewLineDown(); }, true, tr("Move the View a Line Down and Keep the Cursor Position"),
-            QKeySequence(tr("Ctrl+Down")));
+            [] (TextEditorWidget *w) { w->viewLineDown(); }, true, Tr::tr("Move the View a Line Down and Keep the Cursor Position"),
+            QKeySequence(Tr::tr("Ctrl+Down")));
 
     // register "Edit" Menu Actions
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(M_EDIT);
     registerAction(SELECT_ENCODING,
-            [] (TextEditorWidget *w) { w->selectEncoding(); }, false, tr("Select Encoding..."),
+            [] (TextEditorWidget *w) { w->selectEncoding(); }, false, Tr::tr("Select Encoding..."),
             QKeySequence(), G_EDIT_OTHER, editMenu);
     m_modifyingActions << registerAction(CIRCULAR_PASTE,
-        [] (TextEditorWidget *w) { w->circularPaste(); }, false, tr("Paste from Clipboard History"),
-        QKeySequence(tr("Ctrl+Shift+V")), G_EDIT_COPYPASTE, editMenu);
+        [] (TextEditorWidget *w) { w->circularPaste(); }, false, Tr::tr("Paste from Clipboard History"),
+        QKeySequence(Tr::tr("Ctrl+Shift+V")), G_EDIT_COPYPASTE, editMenu);
     m_modifyingActions << registerAction(NO_FORMAT_PASTE,
-        [] (TextEditorWidget *w) { w->pasteWithoutFormat(); }, false, tr("Paste Without Formatting"),
-        QKeySequence(Core::useMacShortcuts ? tr("Ctrl+Alt+Shift+V") : QString()), G_EDIT_COPYPASTE, editMenu);
+        [] (TextEditorWidget *w) { w->pasteWithoutFormat(); }, false, Tr::tr("Paste Without Formatting"),
+        QKeySequence(Core::useMacShortcuts ? Tr::tr("Ctrl+Alt+Shift+V") : QString()), G_EDIT_COPYPASTE, editMenu);
 
     // register "Edit -> Advanced" Menu Actions
     Core::ActionContainer *advancedEditMenu = Core::ActionManager::actionContainer(M_EDIT_ADVANCED);
     m_autoIndentAction = registerAction(AUTO_INDENT_SELECTION,
-            [] (TextEditorWidget *w) { w->autoIndent(); }, true, tr("Auto-&indent Selection"),
-            QKeySequence(tr("Ctrl+I")),
+            [] (TextEditorWidget *w) { w->autoIndent(); }, true, Tr::tr("Auto-&indent Selection"),
+            QKeySequence(Tr::tr("Ctrl+I")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_autoFormatAction = registerAction(AUTO_FORMAT_SELECTION,
-            [] (TextEditorWidget *w) { w->autoFormat(); }, true, tr("Auto-&format Selection"),
-            QKeySequence(tr("Ctrl+;")),
+            [] (TextEditorWidget *w) { w->autoFormat(); }, true, Tr::tr("Auto-&format Selection"),
+            QKeySequence(Tr::tr("Ctrl+;")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_modifyingActions << registerAction(REWRAP_PARAGRAPH,
-            [] (TextEditorWidget *w) { w->rewrapParagraph(); }, true, tr("&Rewrap Paragraph"),
-            QKeySequence(Core::useMacShortcuts ? tr("Meta+E, R") : tr("Ctrl+E, R")),
+            [] (TextEditorWidget *w) { w->rewrapParagraph(); }, true, Tr::tr("&Rewrap Paragraph"),
+            QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+E, R") : Tr::tr("Ctrl+E, R")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_visualizeWhitespaceAction = registerBoolAction(VISUALIZE_WHITESPACE,
             [] (TextEditorWidget *widget, bool checked) {
@@ -277,12 +276,12 @@ void TextEditorActionHandlerPrivate::createActions()
                      widget->setDisplaySettings(ds);
                 }
             },
-            false, tr("&Visualize Whitespace"),
-            QKeySequence(Core::useMacShortcuts ? tr("Meta+E, Meta+V") : tr("Ctrl+E, Ctrl+V")),
+            false, Tr::tr("&Visualize Whitespace"),
+            QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+E, Meta+V") : Tr::tr("Ctrl+E, Ctrl+V")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_visualizeWhitespaceAction->setCheckable(true);
     m_modifyingActions << registerAction(CLEAN_WHITESPACE,
-            [] (TextEditorWidget *w) { w->cleanWhitespace(); }, true, tr("Clean Whitespace"),
+            [] (TextEditorWidget *w) { w->cleanWhitespace(); }, true, Tr::tr("Clean Whitespace"),
             QKeySequence(),
             G_EDIT_FORMAT, advancedEditMenu);
     m_textWrappingAction = registerBoolAction(TEXT_WRAPPING,
@@ -293,145 +292,145 @@ void TextEditorActionHandlerPrivate::createActions()
                     widget->setDisplaySettings(ds);
                 }
             },
-            false, tr("Enable Text &Wrapping"),
-            QKeySequence(Core::useMacShortcuts ? tr("Meta+E, Meta+W") : tr("Ctrl+E, Ctrl+W")),
+            false, Tr::tr("Enable Text &Wrapping"),
+            QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+E, Meta+W") : Tr::tr("Ctrl+E, Ctrl+W")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_textWrappingAction->setCheckable(true);
     m_unCommentSelectionAction = registerAction(UN_COMMENT_SELECTION,
-            [] (TextEditorWidget *w) { w->unCommentSelection(); }, true, tr("Toggle Comment &Selection"),
-            QKeySequence(tr("Ctrl+/")),
+            [] (TextEditorWidget *w) { w->unCommentSelection(); }, true, Tr::tr("Toggle Comment &Selection"),
+            QKeySequence(Tr::tr("Ctrl+/")),
             G_EDIT_FORMAT, advancedEditMenu);
     m_modifyingActions << registerAction(CUT_LINE,
-            [] (TextEditorWidget *w) { w->cutLine(); }, true, tr("Cut &Line"),
-            QKeySequence(tr("Shift+Del")),
+            [] (TextEditorWidget *w) { w->cutLine(); }, true, Tr::tr("Cut &Line"),
+            QKeySequence(Tr::tr("Shift+Del")),
             G_EDIT_TEXT, advancedEditMenu);
     registerAction(COPY_LINE,
-            [] (TextEditorWidget *w) { w->copyLine(); }, false, tr("Copy &Line"),
-            QKeySequence(tr("Ctrl+Ins")),
+            [] (TextEditorWidget *w) { w->copyLine(); }, false, Tr::tr("Copy &Line"),
+            QKeySequence(Tr::tr("Ctrl+Ins")),
             G_EDIT_TEXT, advancedEditMenu);
     m_copyHtmlAction = registerAction(COPY_WITH_HTML,
-            [] (TextEditorWidget *w) { w->copyWithHtml(); }, true, tr("Copy With Highlighting"),
+            [] (TextEditorWidget *w) { w->copyWithHtml(); }, true, Tr::tr("Copy With Highlighting"),
             QKeySequence(), G_EDIT_TEXT, advancedEditMenu);
 
     registerAction(ADD_CURSORS_TO_LINE_ENDS,
-            [] (TextEditorWidget *w) { w->addCursorsToLineEnds(); }, false, tr("Create Cursors at Selected Line Ends"),
-            QKeySequence(tr("Alt+Shift+I")),
+            [] (TextEditorWidget *w) { w->addCursorsToLineEnds(); }, false, Tr::tr("Create Cursors at Selected Line Ends"),
+            QKeySequence(Tr::tr("Alt+Shift+I")),
             G_EDIT_TEXT, advancedEditMenu);
     registerAction(ADD_SELECT_NEXT_FIND_MATCH,
-            [] (TextEditorWidget *w) { w->addSelectionNextFindMatch(); }, false, tr("Add Next Occurrence to Selection"),
-            QKeySequence(tr("Ctrl+D")),
+            [] (TextEditorWidget *w) { w->addSelectionNextFindMatch(); }, false, Tr::tr("Add Next Occurrence to Selection"),
+            QKeySequence(Tr::tr("Ctrl+D")),
             G_EDIT_TEXT, advancedEditMenu);
     m_modifyingActions << registerAction(DUPLICATE_SELECTION,
-            [] (TextEditorWidget *w) { w->duplicateSelection(); }, false, tr("&Duplicate Selection"),
+            [] (TextEditorWidget *w) { w->duplicateSelection(); }, false, Tr::tr("&Duplicate Selection"),
             QKeySequence(),
             G_EDIT_TEXT, advancedEditMenu);
     m_modifyingActions << registerAction(DUPLICATE_SELECTION_AND_COMMENT,
-            [] (TextEditorWidget *w) { w->duplicateSelectionAndComment(); }, false, tr("&Duplicate Selection and Comment"),
+            [] (TextEditorWidget *w) { w->duplicateSelectionAndComment(); }, false, Tr::tr("&Duplicate Selection and Comment"),
             QKeySequence(),
             G_EDIT_TEXT, advancedEditMenu);
     m_modifyingActions << registerAction(UPPERCASE_SELECTION,
-            [] (TextEditorWidget *w) { w->uppercaseSelection(); }, true, tr("Uppercase Selection"),
-            QKeySequence(Core::useMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")),
+            [] (TextEditorWidget *w) { w->uppercaseSelection(); }, true, Tr::tr("Uppercase Selection"),
+            QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+Shift+U") : Tr::tr("Alt+Shift+U")),
             G_EDIT_TEXT, advancedEditMenu);
     m_modifyingActions << registerAction(LOWERCASE_SELECTION,
-            [] (TextEditorWidget *w) { w->lowercaseSelection(); }, true, tr("Lowercase Selection"),
-            QKeySequence(Core::useMacShortcuts ? tr("Meta+U") : tr("Alt+U")),
+            [] (TextEditorWidget *w) { w->lowercaseSelection(); }, true, Tr::tr("Lowercase Selection"),
+            QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+U") : Tr::tr("Alt+U")),
             G_EDIT_TEXT, advancedEditMenu);
     m_modifyingActions << registerAction(SORT_SELECTED_LINES,
-            [] (TextEditorWidget *w) { w->sortSelectedLines(); }, false, tr("&Sort Selected Lines"),
-            QKeySequence(Core::useMacShortcuts ? tr("Meta+Shift+S") : tr("Alt+Shift+S")),
+            [] (TextEditorWidget *w) { w->sortSelectedLines(); }, false, Tr::tr("&Sort Selected Lines"),
+            QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+Shift+S") : Tr::tr("Alt+Shift+S")),
             G_EDIT_TEXT, advancedEditMenu);
     registerAction(FOLD,
-            [] (TextEditorWidget *w) { w->fold(); }, true, tr("Fold"),
-            QKeySequence(tr("Ctrl+<")),
+            [] (TextEditorWidget *w) { w->fold(); }, true, Tr::tr("Fold"),
+            QKeySequence(Tr::tr("Ctrl+<")),
             G_EDIT_COLLAPSING, advancedEditMenu);
     registerAction(UNFOLD,
-            [] (TextEditorWidget *w) { w->unfold(); }, true, tr("Unfold"),
-            QKeySequence(tr("Ctrl+>")),
+            [] (TextEditorWidget *w) { w->unfold(); }, true, Tr::tr("Unfold"),
+            QKeySequence(Tr::tr("Ctrl+>")),
             G_EDIT_COLLAPSING, advancedEditMenu);
     m_unfoldAllAction = registerAction(UNFOLD_ALL,
-            [] (TextEditorWidget *w) { w->unfoldAll(); }, true, tr("Toggle &Fold All"),
+            [] (TextEditorWidget *w) { w->unfoldAll(); }, true, Tr::tr("Toggle &Fold All"),
             QKeySequence(),
             G_EDIT_COLLAPSING, advancedEditMenu);
     registerAction(INCREASE_FONT_SIZE,
-            [] (TextEditorWidget *w) { w->zoomF(1.f); }, false, tr("Increase Font Size"),
-            QKeySequence(tr("Ctrl++")),
+            [] (TextEditorWidget *w) { w->zoomF(1.f); }, false, Tr::tr("Increase Font Size"),
+            QKeySequence(Tr::tr("Ctrl++")),
             G_EDIT_FONT, advancedEditMenu);
     registerAction(DECREASE_FONT_SIZE,
-            [] (TextEditorWidget *w) { w->zoomF(-1.f); }, false, tr("Decrease Font Size"),
-            QKeySequence(tr("Ctrl+-")),
+            [] (TextEditorWidget *w) { w->zoomF(-1.f); }, false, Tr::tr("Decrease Font Size"),
+            QKeySequence(Tr::tr("Ctrl+-")),
             G_EDIT_FONT, advancedEditMenu);
     registerAction(RESET_FONT_SIZE,
-            [] (TextEditorWidget *w) { w->zoomReset(); }, false, tr("Reset Font Size"),
-            QKeySequence(Core::useMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")),
+            [] (TextEditorWidget *w) { w->zoomReset(); }, false, Tr::tr("Reset Font Size"),
+            QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+0") : Tr::tr("Ctrl+0")),
             G_EDIT_FONT, advancedEditMenu);
     registerAction(GOTO_BLOCK_START,
-            [] (TextEditorWidget *w) { w->gotoBlockStart(); }, true, tr("Go to Block Start"),
-            QKeySequence(tr("Ctrl+[")),
+            [] (TextEditorWidget *w) { w->gotoBlockStart(); }, true, Tr::tr("Go to Block Start"),
+            QKeySequence(Tr::tr("Ctrl+[")),
             G_EDIT_BLOCKS, advancedEditMenu);
     registerAction(GOTO_BLOCK_END,
-            [] (TextEditorWidget *w) { w->gotoBlockEnd(); }, true, tr("Go to Block End"),
-            QKeySequence(tr("Ctrl+]")),
+            [] (TextEditorWidget *w) { w->gotoBlockEnd(); }, true, Tr::tr("Go to Block End"),
+            QKeySequence(Tr::tr("Ctrl+]")),
             G_EDIT_BLOCKS, advancedEditMenu);
     registerAction(SELECT_BLOCK_UP,
-            [] (TextEditorWidget *w) { w->selectBlockUp(); }, true, tr("Select Block Up"),
-            QKeySequence(tr("Ctrl+U")),
+            [] (TextEditorWidget *w) { w->selectBlockUp(); }, true, Tr::tr("Select Block Up"),
+            QKeySequence(Tr::tr("Ctrl+U")),
             G_EDIT_BLOCKS, advancedEditMenu);
     registerAction(SELECT_BLOCK_DOWN,
-            [] (TextEditorWidget *w) { w->selectBlockDown(); }, true, tr("Select Block Down"),
-            QKeySequence(tr("Ctrl+Shift+Alt+U")),
+            [] (TextEditorWidget *w) { w->selectBlockDown(); }, true, Tr::tr("Select Block Down"),
+            QKeySequence(Tr::tr("Ctrl+Shift+Alt+U")),
             G_EDIT_BLOCKS, advancedEditMenu);
     registerAction(SELECT_WORD_UNDER_CURSOR,
             [] (TextEditorWidget *w) { w->selectWordUnderCursor(); }, true,
-            tr("Select Word Under Cursor"));
+            Tr::tr("Select Word Under Cursor"));
 
     // register GOTO Actions
     registerAction(GOTO_DOCUMENT_START,
-            [] (TextEditorWidget *w) { w->gotoDocumentStart(); }, true, tr("Go to Document Start"));
+            [] (TextEditorWidget *w) { w->gotoDocumentStart(); }, true, Tr::tr("Go to Document Start"));
     registerAction(GOTO_DOCUMENT_END,
-            [] (TextEditorWidget *w) { w->gotoDocumentEnd(); }, true, tr("Go to Document End"));
+            [] (TextEditorWidget *w) { w->gotoDocumentEnd(); }, true, Tr::tr("Go to Document End"));
     registerAction(GOTO_LINE_START,
-            [] (TextEditorWidget *w) { w->gotoLineStart(); }, true, tr("Go to Line Start"));
+            [] (TextEditorWidget *w) { w->gotoLineStart(); }, true, Tr::tr("Go to Line Start"));
     registerAction(GOTO_LINE_END,
-            [] (TextEditorWidget *w) { w->gotoLineEnd(); }, true, tr("Go to Line End"));
+            [] (TextEditorWidget *w) { w->gotoLineEnd(); }, true, Tr::tr("Go to Line End"));
     registerAction(GOTO_NEXT_LINE,
-            [] (TextEditorWidget *w) { w->gotoNextLine(); }, true, tr("Go to Next Line"));
+            [] (TextEditorWidget *w) { w->gotoNextLine(); }, true, Tr::tr("Go to Next Line"));
     registerAction(GOTO_PREVIOUS_LINE,
-            [] (TextEditorWidget *w) { w->gotoPreviousLine(); }, true, tr("Go to Previous Line"));
+            [] (TextEditorWidget *w) { w->gotoPreviousLine(); }, true, Tr::tr("Go to Previous Line"));
     registerAction(GOTO_PREVIOUS_CHARACTER,
-            [] (TextEditorWidget *w) { w->gotoPreviousCharacter(); }, true, tr("Go to Previous Character"));
+            [] (TextEditorWidget *w) { w->gotoPreviousCharacter(); }, true, Tr::tr("Go to Previous Character"));
     registerAction(GOTO_NEXT_CHARACTER,
-            [] (TextEditorWidget *w) { w->gotoNextCharacter(); }, true, tr("Go to Next Character"));
+            [] (TextEditorWidget *w) { w->gotoNextCharacter(); }, true, Tr::tr("Go to Next Character"));
     registerAction(GOTO_PREVIOUS_WORD,
-            [] (TextEditorWidget *w) { w->gotoPreviousWord(); }, true, tr("Go to Previous Word"));
+            [] (TextEditorWidget *w) { w->gotoPreviousWord(); }, true, Tr::tr("Go to Previous Word"));
     registerAction(GOTO_NEXT_WORD,
-            [] (TextEditorWidget *w) { w->gotoNextWord(); }, true, tr("Go to Next Word"));
+            [] (TextEditorWidget *w) { w->gotoNextWord(); }, true, Tr::tr("Go to Next Word"));
     registerAction(GOTO_PREVIOUS_WORD_CAMEL_CASE,
-            [] (TextEditorWidget *w) { w->gotoPreviousWordCamelCase(); }, false, tr("Go to Previous Word Camel Case"));
+            [] (TextEditorWidget *w) { w->gotoPreviousWordCamelCase(); }, false, Tr::tr("Go to Previous Word Camel Case"));
     registerAction(GOTO_NEXT_WORD_CAMEL_CASE,
-            [] (TextEditorWidget *w) { w->gotoNextWordCamelCase(); }, false, tr("Go to Next Word Camel Case"));
+            [] (TextEditorWidget *w) { w->gotoNextWordCamelCase(); }, false, Tr::tr("Go to Next Word Camel Case"));
 
     // register GOTO actions with selection
     registerAction(GOTO_LINE_START_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoLineStartWithSelection(); }, true, tr("Go to Line Start with Selection"));
+            [] (TextEditorWidget *w) { w->gotoLineStartWithSelection(); }, true, Tr::tr("Go to Line Start with Selection"));
     registerAction(GOTO_LINE_END_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoLineEndWithSelection(); }, true, tr("Go to Line End with Selection"));
+            [] (TextEditorWidget *w) { w->gotoLineEndWithSelection(); }, true, Tr::tr("Go to Line End with Selection"));
     registerAction(GOTO_NEXT_LINE_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoNextLineWithSelection(); }, true, tr("Go to Next Line with Selection"));
+            [] (TextEditorWidget *w) { w->gotoNextLineWithSelection(); }, true, Tr::tr("Go to Next Line with Selection"));
     registerAction(GOTO_PREVIOUS_LINE_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoPreviousLineWithSelection(); }, true, tr("Go to Previous Line with Selection"));
+            [] (TextEditorWidget *w) { w->gotoPreviousLineWithSelection(); }, true, Tr::tr("Go to Previous Line with Selection"));
     registerAction(GOTO_PREVIOUS_CHARACTER_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoPreviousCharacterWithSelection(); }, true, tr("Go to Previous Character with Selection"));
+            [] (TextEditorWidget *w) { w->gotoPreviousCharacterWithSelection(); }, true, Tr::tr("Go to Previous Character with Selection"));
     registerAction(GOTO_NEXT_CHARACTER_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoNextCharacterWithSelection(); }, true, tr("Go to Next Character with Selection"));
+            [] (TextEditorWidget *w) { w->gotoNextCharacterWithSelection(); }, true, Tr::tr("Go to Next Character with Selection"));
     registerAction(GOTO_PREVIOUS_WORD_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoPreviousWordWithSelection(); }, true, tr("Go to Previous Word with Selection"));
+            [] (TextEditorWidget *w) { w->gotoPreviousWordWithSelection(); }, true, Tr::tr("Go to Previous Word with Selection"));
     registerAction(GOTO_NEXT_WORD_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoNextWordWithSelection(); }, true, tr("Go to Next Word with Selection"));
+            [] (TextEditorWidget *w) { w->gotoNextWordWithSelection(); }, true, Tr::tr("Go to Next Word with Selection"));
     registerAction(GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoPreviousWordCamelCaseWithSelection(); }, false, tr("Go to Previous Word Camel Case with Selection"));
+            [] (TextEditorWidget *w) { w->gotoPreviousWordCamelCaseWithSelection(); }, false, Tr::tr("Go to Previous Word Camel Case with Selection"));
     registerAction(GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION,
-            [] (TextEditorWidget *w) { w->gotoNextWordCamelCaseWithSelection(); }, false, tr("Go to Next Word Camel Case with Selection"));
+            [] (TextEditorWidget *w) { w->gotoNextWordCamelCaseWithSelection(); }, false, Tr::tr("Go to Next Word Camel Case with Selection"));
 
     // Collect additional modifying actions so we can check for them inside a readonly file
     // and disable them

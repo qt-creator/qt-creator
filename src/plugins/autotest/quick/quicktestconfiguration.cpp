@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "quicktestconfiguration.h"
 #include "../qtest/qttestconstants.h"
@@ -12,6 +12,8 @@
 
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -21,8 +23,8 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
     setMixedDebugging(true);
 }
 
-TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                       Utils::QtcProcess *app) const
+TestOutputReader *QuickTestConfiguration::createOutputReader(
+        const QFutureInterface<TestResult> &fi, QtcProcess *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
@@ -64,7 +66,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     return arguments;
 }
 
-Utils::Environment QuickTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment QuickTestConfiguration::filteredEnvironment(const Environment &original) const
 {
     return QTestUtils::prepareBasicEnvironment(original);
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mobject.h"
 
@@ -47,7 +47,7 @@ void MObject::setName(const QString &name)
 void MObject::setChildren(const Handles<MObject> &children)
 {
     m_children = children;
-    foreach (const Handle<MObject> &handle, children) {
+    for (const Handle<MObject> &handle : children) {
         if (handle.hasTarget())
             handle.target()->setOwner(this);
     }
@@ -116,7 +116,7 @@ void MObject::decontrolChild(MObject *child)
 void MObject::setRelations(const Handles<MRelation> &relations)
 {
     m_relations = relations;
-    foreach (const Handle<MRelation> &handle, relations) {
+    for (const Handle<MRelation> &handle : relations) {
         if (handle.hasTarget())
             handle.target()->setOwner(this);
     }

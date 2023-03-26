@@ -1,8 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdcompletion.h"
 
+#include "clangcodemodeltr.h"
 #include "clangcompletioncontextanalyzer.h"
 #include "clangdclient.h"
 #include "clangpreprocessorassistproposalitem.h"
@@ -18,12 +19,16 @@
 #include <cppeditor/projectpart.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
+
 #include <languageclient/languageclientfunctionhint.h>
+
 #include <projectexplorer/headerpath.h>
+
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <utils/utilsicons.h>
 
 using namespace CppEditor;
@@ -35,10 +40,12 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace ClangCodeModel::Internal {
+
 static Q_LOGGING_CATEGORY(clangdLogCompletion, "qtc.clangcodemodel.clangd.completion",
                           QtWarningMsg);
 
 enum class CustomAssistMode { Doxygen, Preprocessor, IncludePath };
+
 class CustomAssistProcessor : public IAssistProcessor
 {
 public:
@@ -46,7 +53,7 @@ public:
                           unsigned completionOperator, CustomAssistMode mode);
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override;
+    IAssistProposal *perform() override;
 
     AssistProposalItemInterface *createItem(const QString &text, const QIcon &icon) const;
 
@@ -81,11 +88,13 @@ private:
 class ClangdCompletionAssistProcessor : public LanguageClientCompletionAssistProcessor
 {
 public:
-    ClangdCompletionAssistProcessor(ClangdClient *client, const QString &snippetsGroup);
+    ClangdCompletionAssistProcessor(ClangdClient *client,
+                                    const IAssistProvider *provider,
+                                    const QString &snippetsGroup);
     ~ClangdCompletionAssistProcessor();
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override;
+    IAssistProposal *perform() override;
     QList<AssistProposalItemInterface *> generateCompletionItems(
             const QList<LanguageServerProtocol::CompletionItem> &items) const override;
 
@@ -99,7 +108,7 @@ public:
     ClangdFunctionHintProcessor(ClangdClient *client);
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override;
+    IAssistProposal *perform() override;
 
     ClangdClient * const m_client;
 };
@@ -152,11 +161,7 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
             if (contextAnalyzer.completionAction()
                     != ClangCompletionContextAnalyzer::CompleteIncludePath) {
                 class NoOpProcessor : public IAssistProcessor {
-                    IAssistProposal *perform(const AssistInterface *interface) override
-                    {
-                        delete interface;
-                        return nullptr;
-                    }
+                    IAssistProposal *perform() override { return nullptr; }
                 };
                 return new NoOpProcessor;
             }
@@ -168,7 +173,7 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
                                       : QString();
     qCDebug(clangdLogCompletion) << "creating proper completion processor"
                                  << (snippetsGroup.isEmpty() ? "without" : "with") << "snippets";
-    return new ClangdCompletionAssistProcessor(m_client, snippetsGroup);
+    return new ClangdCompletionAssistProcessor(m_client, this, snippetsGroup);
 }
 
 bool ClangdCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
@@ -406,7 +411,7 @@ CustomAssistProcessor::CustomAssistProcessor(ClangdClient *client, int position,
     , m_mode(mode)
 {}
 
-IAssistProposal *CustomAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *CustomAssistProcessor::perform()
 {
     QList<AssistProposalItemInterface *> completions;
     switch (m_mode) {
@@ -422,21 +427,19 @@ IAssistProposal *CustomAssistProcessor::perform(const AssistInterface *interface
              : CppCompletionAssistProcessor::preprocessorCompletions()) {
             completions << createItem(completion, macroIcon);
         }
-        if (ProjectFile::isObjC(interface->filePath().toString()))
+        if (ProjectFile::isObjC(interface()->filePath().toString()))
             completions << createItem("import", macroIcon);
         break;
     }
     case CustomAssistMode::IncludePath: {
         HeaderPaths headerPaths;
-        const ProjectPart::ConstPtr projectPart
-                = projectPartForFile(interface->filePath().toString());
+        const ProjectPart::ConstPtr projectPart = projectPartForFile(interface()->filePath());
         if (projectPart)
             headerPaths = projectPart->headerPaths;
-        completions = completeInclude(m_endPos, m_completionOperator, interface, headerPaths);
+        completions = completeInclude(m_endPos, m_completionOperator, interface(), headerPaths);
         break;
     }
     }
-    delete interface;
     GenericProposalModelPtr model(new GenericProposalModel);
     model->loadContent(completions);
     const auto proposal = new GenericProposal(m_position, model);
@@ -536,7 +539,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeIncludePath(
     QList<AssistProposalItemInterface *> completions;
     QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     //: Parent folder for proposed #include completion
-    const QString hint = ClangdClient::tr("Location: %1")
+    const QString hint = Tr::tr("Location: %1")
             .arg(QDir::toNativeSeparators(QDir::cleanPath(realPath)));
     while (i.hasNext()) {
         const QString fileName = i.next();
@@ -559,8 +562,9 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeIncludePath(
 }
 
 ClangdCompletionAssistProcessor::ClangdCompletionAssistProcessor(ClangdClient *client,
+                                                                 const IAssistProvider *provider,
                                                                  const QString &snippetsGroup)
-    : LanguageClientCompletionAssistProcessor(client, snippetsGroup)
+    : LanguageClientCompletionAssistProcessor(client, provider, snippetsGroup)
     , m_client(client)
 {
     m_timer.start();
@@ -572,14 +576,14 @@ ClangdCompletionAssistProcessor::~ClangdCompletionAssistProcessor()
             << "ClangdCompletionAssistProcessor took: " << m_timer.elapsed() << " ms";
 }
 
-IAssistProposal *ClangdCompletionAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *ClangdCompletionAssistProcessor::perform()
 {
     if (m_client->testingEnabled()) {
         setAsyncCompletionAvailableHandler([this](IAssistProposal *proposal) {
             emit m_client->proposalReady(proposal);
         });
     }
-    return LanguageClientCompletionAssistProcessor::perform(interface);
+    return LanguageClientCompletionAssistProcessor::perform();
 }
 
 QList<AssistProposalItemInterface *> ClangdCompletionAssistProcessor::generateCompletionItems(
@@ -618,14 +622,14 @@ ClangdFunctionHintProcessor::ClangdFunctionHintProcessor(ClangdClient *client)
     , m_client(client)
 {}
 
-IAssistProposal *ClangdFunctionHintProcessor::perform(const AssistInterface *interface)
+IAssistProposal *ClangdFunctionHintProcessor::perform()
 {
     if (m_client->testingEnabled()) {
         setAsyncCompletionAvailableHandler([this](IAssistProposal *proposal) {
             emit m_client->proposalReady(proposal);
         });
     }
-    return FunctionHintProcessor::perform(interface);
+    return FunctionHintProcessor::perform();
 }
 
 ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &object)

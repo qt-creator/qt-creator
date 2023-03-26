@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Alexis Jeandet.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -63,7 +63,7 @@ struct Target
     static inline QString fullName(const Utils::FilePath &srcDir, const Target &target)
     {
         using namespace Utils;
-        if (FileUtils::isAbsolutePath(target.fileName.first())) {
+        if (FilePath::fromString((target.fileName.first())).isAbsolutePath()) {
             const auto fname = target.fileName.first().split('/').last();
             QString definedIn = FilePath::fromString(target.definedIn).absolutePath().toString();
             return definedIn.remove(srcDir.toString()) + '/' + fname;

@@ -14,15 +14,15 @@
 
     \title Editing State Charts
 
-    State charts provide a graphical way of modeling how a system reacts to
-    stimuli. This is done by defining the possible \e states that the system can
+    State charts are a graphical way of modeling how a system reacts to
+    stimuli. They define the \e states that the system can
     be in, and how the system can move from one state to another (\e transitions
-    between states). A key characteristic of event-driven systems (such as Qt
-    applications) is that behavior often depends not only on the last or current
-    \e event, but also the events that preceded it. With state charts, this
-    information is easy to express.
+    between states). The behavior of event-driven systems (such as Qt
+    applications) often depends not only on the last or current
+    \e event, but also on earlier events. With state charts, you
+    can easily share this information.
 
-    \QC provides a project wizard for adding \l{https://www.w3.org/TR/scxml/}
+    \QC has a project wizard for adding \l{https://www.w3.org/TR/scxml/}
     {State Chart XML (SCXML)} files with boilerplate code to projects and an
     experimental SCXML editor for editing the state charts. You can use the
     SCXML editor to add \e states and \e transitions to the files. You can then
@@ -129,7 +129,7 @@
         \li \e Initial state is the state the state machine enters when it
             starts.
 
-        \li \e {Parallel state} contains child states that execute in parallel
+        \li \e {Parallel state} has child states that execute in parallel
             and are all active simultaneously. Events are processed
             independently by each child state and may trigger different
             transitions for each child.

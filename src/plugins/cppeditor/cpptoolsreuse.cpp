@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cpptoolsreuse.h"
 
@@ -9,6 +9,7 @@
 #include "cppcompletionassist.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
 #include "cppqtstyleindenter.h"
@@ -39,6 +40,7 @@
 #include <QTextDocument>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -336,18 +338,15 @@ int indexerFileSizeLimitInMb()
     return -1;
 }
 
-bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb)
+bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
 {
     if (sizeLimitInMb <= 0)
         return false;
 
-    const qint64 fileSizeInMB = fileInfo.size() / (1000 * 1000);
+    const qint64 fileSizeInMB = filePath.fileSize() / (1000 * 1000);
     if (fileSizeInMB > sizeLimitInMb) {
-        const QString absoluteFilePath = fileInfo.absoluteFilePath();
-        const QString msg = QCoreApplication::translate(
-                    "CppIndexer",
-                    "C++ Indexer: Skipping file \"%1\" because it is too big.")
-                        .arg(absoluteFilePath);
+        const QString msg = Tr::tr("C++ Indexer: Skipping file \"%1\" because it is too big.")
+                        .arg(filePath.displayName());
 
         QMetaObject::invokeMethod(Core::MessageManager::instance(),
                                   [msg]() { Core::MessageManager::writeSilently(msg); });
@@ -373,9 +372,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     // Questionable constructs
     config = ClangDiagnosticConfig();
     config.setId(Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE);
-    config.setDisplayName(QCoreApplication::translate(
-                              "ClangDiagnosticConfigsModel",
-                              "Checks for questionable constructs"));
+    config.setDisplayName(Tr::tr("Checks for questionable constructs"));
     config.setIsReadOnly(true);
     config.setClangOptions({
         "-Wall",
@@ -388,8 +385,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     // Warning flags from build system
     config = ClangDiagnosticConfig();
     config.setId(Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM);
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Build-system warnings"));
+    config.setDisplayName(Tr::tr("Build-system warnings"));
     config.setIsReadOnly(true);
     config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
     config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);

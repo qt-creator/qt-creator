@@ -21,7 +21,7 @@
     To view and modify them, select \uicontrol Projects >
     \uicontrol {Build & Run} > \uicontrol Run.
 
-    \image qtcreator-settings-run.png "Run Settings"
+    \image qtcreator-settings-run.webp {Run Settings}
 
     To prevent \QC from automatically creating run configurations, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run},
@@ -104,7 +104,7 @@
     You can edit existing environment variables or add, reset and unset new
     variables.
 
-    \image qtcreator-run-environment.png "Run Environment section"
+    \image qtcreator-run-environment.png {Run Environment section}
 
     When running on the desktop, the \uicontrol {Build Environment} is used by
     default, but you can also use the \uicontrol {System Environment} without the
@@ -130,7 +130,7 @@
     Specify the executable to run, command line arguments, working directory,
     and environment variables to use.
 
-    \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
+    \image qmldesigner-run-custom-exe.png {Run settings for custom executables}
 
     \include qtquick/creator-projects-settings-run-qtquick.qdocinc run settings qt quick ui
     \include python/creator-python-run.qdocinc run settings python

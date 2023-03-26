@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pdbengine.h"
 
@@ -128,7 +128,10 @@ void PdbEngine::handlePdbStarted()
     showStatusMessage(Tr::tr("Running requested..."), 5000);
     BreakpointManager::claimBreakpointsForEngine(this);
     notifyEngineRunAndInferiorStopOk();
-    updateAll();
+    if (runParameters().breakOnMain)
+        updateAll();
+    else
+        continueInferior();
 }
 
 void PdbEngine::interruptInferior()
@@ -413,7 +416,7 @@ void PdbEngine::handlePdbDone()
 
 void PdbEngine::readPdbStandardError()
 {
-    QString err = QString::fromUtf8(m_proc.readAllStandardError());
+    QString err = QString::fromUtf8(m_proc.readAllRawStandardError());
     //qWarning() << "Unexpected pdb stderr:" << err;
     showMessage("Unexpected pdb stderr: " + err);
     //handleOutput(err);
@@ -421,8 +424,7 @@ void PdbEngine::readPdbStandardError()
 
 void PdbEngine::readPdbStandardOutput()
 {
-    QString out = QString::fromUtf8(m_proc.readAllStandardOutput());
-    handleOutput(out);
+    handleOutput(m_proc.readAllStandardOutput());
 }
 
 void PdbEngine::handleOutput(const QString &data)

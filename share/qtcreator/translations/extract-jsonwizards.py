@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright (C) 2019 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import os
 import sys
@@ -29,8 +29,8 @@ def recursive_iter(obj, key=''):
 
 
 def fix_value(value):
-    value = value.replace('\"', '\\\"')
-    value = value.replace('\n', '\\\n')
+    value = value.replace('\"', '\\"')
+    value = value.replace('\n', '\\n')
     return value
 
 
@@ -44,7 +44,7 @@ def parse_file(file_path):
 
     for key, value in recursive_iter(root):
         if key.startswith('tr'):
-            result += 'const char *a{} = QT_TRANSLATE_NOOP("ProjectExplorer::JsonWizard", "{}"); // {}\n'.format(index, fix_value(value), file_path)
+            result += 'const char *a{} = QT_TRANSLATE_NOOP("QtC::ProjectExplorer", "{}"); // {}\n'.format(index, fix_value(value), file_path)
 
             index += 1
     return result

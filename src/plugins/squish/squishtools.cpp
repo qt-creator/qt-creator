@@ -1,9 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishtools.h"
 
 #include "scripthelper.h"
+#include "squishmessages.h"
 #include "squishoutputpane.h"
 #include "squishplugin.h"
 #include "squishsettings.h"
@@ -15,7 +16,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <debugger/breakhandler.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggericons.h>
 #include <texteditor/textmark.h>
@@ -32,7 +32,6 @@
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
-#include <QMessageBox>
 #include <QTimer>
 #include <QWindow>
 
@@ -40,23 +39,21 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.squish.squishtools", QtWarningMsg)
 
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
-static QString runnerStateName(SquishTools::RunnerState state)
+static QString runnerStateName(RunnerState state)
 {
     switch (state) {
-    case SquishTools::RunnerState::None: return "None";
-    case SquishTools::RunnerState::Starting: return "Starting";
-    case SquishTools::RunnerState::Running: return "Running";
-    case SquishTools::RunnerState::RunRequested: return "RunRequested";
-    case SquishTools::RunnerState::Interrupted: return "Interrupted";
-    case SquishTools::RunnerState::InterruptRequested: return "InterruptedRequested";
-    case SquishTools::RunnerState::Canceling: return "Canceling";
-    case SquishTools::RunnerState::Canceled: return "Canceled";
-    case SquishTools::RunnerState::CancelRequested: return "CancelRequested";
-    case SquishTools::RunnerState::CancelRequestedWhileInterrupted: return "CancelRequestedWhileInterrupted";
-    case SquishTools::RunnerState::Finished: return "Finished";
+    case RunnerState::None: return "None";
+    case RunnerState::Starting: return "Starting";
+    case RunnerState::Running: return "Running";
+    case RunnerState::RunRequested: return "RunRequested";
+    case RunnerState::Interrupted: return "Interrupted";
+    case RunnerState::InterruptRequested: return "InterruptedRequested";
+    case RunnerState::CancelRequested: return "CancelRequested";
+    case RunnerState::CancelRequestedWhileInterrupted: return "CancelRequestedWhileInterrupted";
+    case RunnerState::Canceled: return "Canceled";
+    case RunnerState::Finished: return "Finished";
     }
     return "ThouShallNotBeHere";
 }
@@ -66,8 +63,8 @@ static QString toolsStateName(SquishTools::State state)
     switch (state) {
     case SquishTools::Idle: return "Idle";
     case SquishTools::ServerStarting: return "ServerStarting";
-    case SquishTools::ServerStarted: return "ServerStartFailed";
-    case SquishTools::ServerStartFailed: return "ServerStopped";
+    case SquishTools::ServerStarted: return "ServerStarted";
+    case SquishTools::ServerStartFailed: return "ServerStartFailed";
     case SquishTools::ServerStopped: return "ServerStopped";
     case SquishTools::ServerStopFailed: return "ServerStopFailed";
     case SquishTools::RunnerStarting: return "RunnerStarting";
@@ -78,16 +75,11 @@ static QString toolsStateName(SquishTools::State state)
     return "UnexpectedState";
 }
 
-static void logRunnerStateChange(SquishTools::RunnerState from, SquishTools::RunnerState to)
-{
-    qCInfo(LOG) << "Runner state change:" << runnerStateName(from) << ">" << runnerStateName(to);
-}
-
 class SquishLocationMark : public TextEditor::TextMark
 {
 public:
     SquishLocationMark(const FilePath &filePath, int line)
-        : TextEditor::TextMark(filePath, line, Id("Squish.LocationMark"))
+        : TextEditor::TextMark(filePath, line, {Tr::tr("Squish"), Id("Squish.LocationMark")})
     {
         setIsLocationMarker(true);
         setIcon(Debugger::Icons::LOCATION.icon());
@@ -112,46 +104,29 @@ SquishTools::SquishTools(QObject *parent)
     connect(this, &SquishTools::squishTestRunFinished,
             outputPane, &SquishOutputPane::onTestRunFinished);
 
-    m_runnerProcess.setProcessMode(ProcessMode::Writer);
-    m_recorderProcess.setProcessMode(ProcessMode::Writer);
+    connect(&m_serverProcess, &SquishServerProcess::stateChanged,
+            this, &SquishTools::onServerStateChanged);
+    connect(&m_serverProcess, &SquishServerProcess::logOutputReceived,
+            this, &SquishTools::logOutputReceived);
+    connect(&m_serverProcess, &SquishServerProcess::portRetrieved,
+            this, &SquishTools::onServerPortRetrieved);
 
-    m_runnerProcess.setStdOutLineCallback([this](const QString &line) {
-        onRunnerStdOutput(line);
-    });
-
-    connect(&m_recorderProcess, &QtcProcess::done,
-            this, &SquishTools::onRecorderFinished);
-
-    connect(&m_runnerProcess, &QtcProcess::readyReadStandardError,
-            this, &SquishTools::onRunnerErrorOutput);
-    connect(&m_runnerProcess, &QtcProcess::done,
-            this, &SquishTools::onRunnerFinished);
-
-    connect(&m_serverProcess, &QtcProcess::readyReadStandardOutput,
-            this, &SquishTools::onServerOutput);
-    connect(&m_serverProcess, &QtcProcess::readyReadStandardError,
-            this, &SquishTools::onServerErrorOutput);
-    connect(&m_serverProcess, &QtcProcess::done,
-            this, &SquishTools::onServerFinished);
     s_instance = this;
     m_perspective.initPerspective();
     connect(&m_perspective, &SquishPerspective::interruptRequested,
             this, [this] {
-        logRunnerStateChange(m_squishRunnerState, RunnerState::InterruptRequested);
-        m_squishRunnerState = RunnerState::InterruptRequested;
-        if (m_runnerProcess.processId() != -1)
+        logAndChangeRunnerState(RunnerState::InterruptRequested);
+        if (m_primaryRunner && m_primaryRunner->processId() != -1)
             interruptRunner();
     });
-    connect(&m_perspective, &SquishPerspective::stopRequested,
-            this, [this] () {
+    connect(&m_perspective, &SquishPerspective::stopRequested, this, [this] {
         bool interrupted = m_squishRunnerState == RunnerState::Interrupted;
         RunnerState state = interrupted ? RunnerState::CancelRequestedWhileInterrupted
                                         : RunnerState::CancelRequested;
-        logRunnerStateChange(m_squishRunnerState, state);
-        m_squishRunnerState = state;
+        logAndChangeRunnerState(state);
         if (interrupted)
             handlePrompt();
-        else if (m_runnerProcess.processId() != -1)
+        else if (m_primaryRunner && m_primaryRunner->processId() != -1)
             terminateRunner();
     });
     connect(&m_perspective, &SquishPerspective::stopRecordRequested,
@@ -222,18 +197,13 @@ void SquishTools::runTestCases(const FilePath &suitePath,
     if (m_shutdownInitiated)
         return;
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to run a test case.")
-                                .arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to run a test case."));
         return;
     }
     // create test results directory (if necessary) and return on fail
     if (!resultsDirectory.ensureWritableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Could not create test results folder. Canceling test run."));
+        SquishMessages::criticalMessage(
+                    Tr::tr("Could not create test results folder. Canceling test run."));
         return;
     }
 
@@ -251,13 +221,13 @@ void SquishTools::runTestCases(const FilePath &suitePath,
 
     m_xmlOutputHandler.reset(new SquishXmlOutputHandler(this));
     connect(this, &SquishTools::resultOutputCreated,
-            m_xmlOutputHandler.get(), &SquishXmlOutputHandler::outputAvailable,
-            Qt::QueuedConnection);
+            m_xmlOutputHandler.get(), &SquishXmlOutputHandler::outputAvailable);
     connect(m_xmlOutputHandler.get(), &SquishXmlOutputHandler::updateStatus,
             &m_perspective, &SquishPerspective::updateStatus);
 
     m_perspective.setPerspectiveMode(SquishPerspective::Running);
     emit squishTestRunStarted();
+    setupRunnerForRun();
     startSquishServer(RunTestRequested);
 }
 
@@ -288,16 +258,12 @@ void SquishTools::queryServer(RunnerQuery query)
         return;
 
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to execute server query.")
-                                  .arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to execute server query."));
         return;
     }
     m_perspective.setPerspectiveMode(SquishPerspective::Querying);
-    m_fullRunnerOutput.clear();
     m_query = query;
+    setupRunnerForQuery();
     startSquishServer(RunnerQueryRequested);
 }
 
@@ -307,11 +273,7 @@ void SquishTools::recordTestCase(const FilePath &suitePath, const QString &testC
     if (m_shutdownInitiated)
         return;
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to record a test case.")
-                                .arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to record a test case."));
         return;
     }
 
@@ -321,6 +283,7 @@ void SquishTools::recordTestCase(const FilePath &suitePath, const QString &testC
 
     m_additionalRunnerArguments.clear();
     m_perspective.setPerspectiveMode(SquishPerspective::Recording);
+    setupRunnerForRun();
     startSquishServer(RecordTestRequested);
 }
 
@@ -329,207 +292,215 @@ void SquishTools::writeServerSettingsChanges(const QList<QStringList> &changes)
     if (m_shutdownInitiated)
         return;
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to write configuration changes.").arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to write configuration changes."));
         return;
     }
     m_serverConfigChanges = changes;
+    m_perspective.setPerspectiveMode(SquishPerspective::Configuring);
     startSquishServer(ServerConfigChangeRequested);
 }
 
-void SquishTools::setState(SquishTools::State state)
+void SquishTools::logAndChangeRunnerState(RunnerState to)
 {
-    qCInfo(LOG) << "State change:" << toolsStateName(m_state) << ">" << toolsStateName(state);
-    // TODO check whether state transition is legal
-    m_state = state;
+    qCInfo(LOG) << "Runner state change:" << runnerStateName(m_squishRunnerState) << ">" << runnerStateName(to);
+    m_squishRunnerState = to;
+}
 
-    if (m_request == RecordTestRequested || m_request == KillOldBeforeRecordRunner) {
-        handleSetStateStartAppRunner();
-        return;
-    } else if (m_request == RunnerQueryRequested || m_request == KillOldBeforeQueryRunner) {
-        handleSetStateQueryRunner();
-        return;
-    }
+void SquishTools::logAndChangeToolsState(SquishTools::State to)
+{
+    qCInfo(LOG) << "State change:" << toolsStateName(m_state) << ">" << toolsStateName(to);
+    m_state = to;
+}
 
-    switch (m_state) {
-    case Idle:
-        setIdle();
+void SquishTools::onServerStateChanged(SquishProcessState state)
+{
+    switch (state) {
+    case Starting:
+        logAndChangeToolsState(SquishTools::ServerStarting);
         break;
-    case ServerStarted:
-        if (m_request == RunTestRequested) {
-            startSquishRunner();
-        } else if (m_request == ServerConfigChangeRequested) { // nothing to do here
-        } else {
-            QTC_ASSERT(false, qDebug() << m_state << m_request);
-        }
+    case Started:
+        logAndChangeToolsState(SquishTools::ServerStarted);
         break;
-    case ServerStartFailed:
-        m_state = Idle;
-        if (m_request == RunTestRequested) {
-            emit squishTestRunFinished();
-            m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
-        }
-        m_request = None;
-        if (toolsSettings.minimizeIDE)
-            restoreQtCreatorWindows();
-        m_perspective.destroyControlBar();
+    case StartFailed:
+        logAndChangeToolsState(SquishTools::ServerStartFailed);
+        onServerStartFailed();
         break;
-    case ServerStopped:
-        m_state = Idle;
-        emit shutdownFinished();
-        if (m_request == ServerConfigChangeRequested) {
-            if (m_serverProcess.result() == ProcessResult::FinishedWithError) {
-                emit configChangesFailed(m_serverProcess.error());
-                break;
-            }
-
-            m_serverConfigChanges.removeFirst();
-            if (!m_serverConfigChanges.isEmpty())
-                startSquishServer(ServerConfigChangeRequested);
-            else
-                emit configChangesWritten();
-        } else if (m_request == ServerStopRequested) {
-            m_request = None;
-            if (m_perspective.perspectiveMode() == SquishPerspective::Running) {
-                emit squishTestRunFinished();
-                m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
-            }
-            if (toolsSettings.minimizeIDE)
-                restoreQtCreatorWindows();
-            m_perspective.destroyControlBar();
-        } else if (m_request == KillOldBeforeRunRunner) {
-            startSquishServer(RunTestRequested);
-        } else {
-            QTC_ASSERT(false, qDebug() << m_state << m_request);
-        }
+    case Stopped:
+        logAndChangeToolsState(SquishTools::ServerStopped);
+        onServerStopped();
         break;
-    case ServerStopFailed:
-        m_serverProcess.close();
-        if (toolsSettings.minimizeIDE)
-            restoreQtCreatorWindows();
-        m_perspective.destroyControlBar();
-        m_state = Idle;
-        break;
-    case RunnerStartFailed:
-    case RunnerStopped:
-        if (m_testCases.isEmpty() || (m_squishRunnerState == RunnerState::Canceled)) {
-            m_request = ServerStopRequested;
-            qCInfo(LOG) << "Stopping server from RunnerStopped";
-            stopSquishServer();
-            QString error;
-            SquishXmlOutputHandler::mergeResultFiles(m_reportFiles,
-                                                     m_currentResultsDirectory,
-                                                     m_suitePath.fileName(),
-                                                     &error);
-            if (!error.isEmpty())
-                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"), error);
-            logrotateTestResults();
-        } else {
-            m_xmlOutputHandler->clearForNextRun();
-            m_perspective.setPerspectiveMode(SquishPerspective::Running);
-            logRunnerStateChange(m_squishRunnerState, RunnerState::Starting);
-            m_squishRunnerState = RunnerState::Starting;
-            startSquishRunner();
-        }
+    case StopFailed:
+        logAndChangeToolsState(SquishTools::ServerStopFailed);
+        onServerStopFailed();
         break;
     default:
+        // Idle currently unhandled / not needed?
         break;
     }
 }
 
-void SquishTools::handleSetStateStartAppRunner()
+void SquishTools::onServerPortRetrieved()
 {
-    switch (m_state) {
-    case Idle:
-        setIdle();
-        break;
-    case ServerStarted:
+    QTC_ASSERT(m_state == ServerStarted, return);
+    if (m_request == RunnerQueryRequested) {
+        executeRunnerQuery();
+    } else if (m_request == RunTestRequested || m_request == RecordTestRequested) {
         startSquishRunner();
-        break;
-    case ServerStartFailed:
-        m_state = Idle;
-        m_request = None;
-        if (toolsSettings.minimizeIDE)
-            restoreQtCreatorWindows();
-        m_perspective.destroyControlBar();
-        break;
-    case ServerStopped:
-        m_state = Idle;
-        emit shutdownFinished();
-        if (m_request == ServerStopRequested) {
-            m_request = None;
-            if (toolsSettings.minimizeIDE)
-                restoreQtCreatorWindows();
-            m_perspective.destroyControlBar();
-        } else if (m_request == KillOldBeforeRecordRunner) {
-            startSquishServer(RecordTestRequested);
-        } else {
-            QTC_ASSERT(false, qDebug() << m_state << m_request);
+    } else if (m_request == ServerConfigChangeRequested) { // nothing to do here
+    } else {
+        QTC_ASSERT(false, qDebug() << m_state << m_request);
+    }
+}
+
+void SquishTools::onServerStopped()
+{
+    m_state = Idle;
+    emit shutdownFinished();
+    if (m_request == ServerConfigChangeRequested) {
+        if (m_serverProcess.result() == ProcessResult::FinishedWithError) {
+            emit configChangesFailed(m_serverProcess.error());
+            return;
         }
-        break;
-    case ServerStopFailed:
-        m_serverProcess.close();
+
+        m_serverConfigChanges.removeFirst();
+        if (!m_serverConfigChanges.isEmpty()) {
+            startSquishServer(ServerConfigChangeRequested);
+            return;
+        }
+        emit configChangesWritten();
+        m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
+    } else if (m_request == ServerStopRequested) {
+        m_request = None;
+        if (m_perspective.perspectiveMode() == SquishPerspective::Running)
+            emit squishTestRunFinished();
+
+        m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
         if (toolsSettings.minimizeIDE)
             restoreQtCreatorWindows();
         m_perspective.destroyControlBar();
-        m_state = Idle;
+    } else if (m_request == KillOldBeforeQueryRunner) {
+        startSquishServer(RunnerQueryRequested);
+    } else if (m_request == KillOldBeforeRunRunner) {
+        startSquishServer(RunTestRequested);
+    } else if (m_request == KillOldBeforeRecordRunner) {
+        startSquishServer(RecordTestRequested);
+    } else {
+        QTC_ASSERT(false, qDebug() << m_request);
+    }
+}
+
+void SquishTools::onServerStartFailed()
+{
+    m_state = Idle;
+    if (m_request == RunTestRequested)
+        emit squishTestRunFinished();
+    m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
+    m_request = None;
+    if (toolsSettings.minimizeIDE)
+        restoreQtCreatorWindows();
+    m_perspective.destroyControlBar();
+}
+
+void SquishTools::onServerStopFailed()
+{
+    m_serverProcess.closeProcess();
+    if (toolsSettings.minimizeIDE)
+        restoreQtCreatorWindows();
+    m_perspective.destroyControlBar();
+    m_state = Idle;
+}
+
+void SquishTools::onRunnerStateChanged(SquishProcessState state)
+{
+    switch (state) {
+    case Starting:
+        logAndChangeToolsState(SquishTools::RunnerStarting);
         break;
-    case RunnerStartFailed:
-    case RunnerStopped:
-        if (m_recorderProcess.isRunning()) {
+    case Started:
+        logAndChangeToolsState(SquishTools::RunnerStarted);
+        break;
+    case StartFailed:
+        logAndChangeToolsState(SquishTools::RunnerStartFailed);
+        SquishMessages::criticalMessage(Tr::tr("Squish Runner Error"),
+                                        Tr::tr("Squish runner failed to start within given timeframe."));
+        onRunnerStopped();
+        break;
+    case Stopped:
+        logAndChangeToolsState(SquishTools::RunnerStopped);
+        onRunnerStopped();
+    default:
+        // rest not needed / handled
+        break;
+    }
+}
+
+void SquishTools::onRunnerStopped()
+{
+    if (m_request == RunnerQueryRequested) {
+        m_request = ServerStopRequested;
+        qCInfo(LOG) << "Stopping server from RunnerStopped (query)";
+        stopSquishServer();
+    } else if (m_request == RecordTestRequested) {
+        if (m_secondaryRunner && m_secondaryRunner->isRunning()) {
             stopRecorder();
         } else {
             m_request = ServerStopRequested;
             qCInfo(LOG) << "Stopping server from RunnerStopped (startaut)";
             stopSquishServer();
         }
-        break;
-    default:
-        break;
+    } else if (m_testCases.isEmpty() || (m_squishRunnerState == RunnerState::Canceled)) {
+        m_request = ServerStopRequested;
+        qCInfo(LOG) << "Stopping server from RunnerStopped";
+        stopSquishServer();
+        if (QTC_GUARD(m_primaryRunner) && m_primaryRunner->lastRunHadLicenseIssues()) {
+            SquishMessages::criticalMessage(Tr::tr("Could not get Squish license from server."));
+            return;
+        }
+        QString error;
+        SquishXmlOutputHandler::mergeResultFiles(m_reportFiles,
+                                                 m_currentResultsDirectory,
+                                                 m_suitePath.fileName(),
+                                                 &error);
+        if (!error.isEmpty())
+            SquishMessages::criticalMessage(error);
+        logrotateTestResults();
+    } else {
+        if (QTC_GUARD(m_primaryRunner) && m_primaryRunner->lastRunHadLicenseIssues()) {
+            m_request = ServerStopRequested;
+            qCInfo(LOG) << "Stopping server from RunnerStopped (multiple testcases, no license)";
+            stopSquishServer();
+            SquishMessages::criticalMessage(Tr::tr("Could not get Squish license from server."));
+            return;
+        }
+        m_xmlOutputHandler->clearForNextRun();
+        m_perspective.setPerspectiveMode(SquishPerspective::Running);
+        logAndChangeRunnerState(RunnerState::Starting);
+        startSquishRunner();
     }
 }
 
-void SquishTools::handleSetStateQueryRunner()
+void SquishTools::onRunnerError(SquishRunnerProcess::RunnerError error)
 {
-    switch (m_state) {
-    case Idle:
-        setIdle();
-        break;
-    case ServerStarted:
-        executeRunnerQuery();
-        break;
-    case ServerStartFailed:
-        m_state = Idle;
-        m_request = None;
-        break;
-    case ServerStopped:
-        m_state = Idle;
-        emit shutdownFinished();
-        if (m_request == KillOldBeforeQueryRunner) {
-            startSquishServer(RunnerQueryRequested);
-        } else {
-            QTC_ASSERT(false, qDebug() << m_state << m_request);
+    switch (error) {
+    case SquishRunnerProcess::InvalidSocket:
+        // we've lost connection to the AUT - if Interrupted, try to cancel the runner
+        if (m_squishRunnerState == RunnerState::Interrupted) {
+            logAndChangeRunnerState(RunnerState::CancelRequestedWhileInterrupted);
+            handlePrompt();
         }
         break;
-    case ServerStopFailed:
-        m_state = Idle;
-        break;
-    case RunnerStartFailed:
-    case RunnerStopped:
-        m_request = ServerStopRequested;
-        qCInfo(LOG) << "Stopping server from RunnerStopped (query)";
-        stopSquishServer();
-        break;
-    default:
+    case SquishRunnerProcess::MappedAutMissing:
+        SquishMessages::criticalMessage(
+                    Tr::tr("Squish could not find the AUT \"%1\" to start. Make sure it has been "
+                           "added as a Mapped AUT in the squishserver settings.\n"
+                           "(Tools > Squish > Server Settings...)").arg(m_suiteConf.aut()));
         break;
     }
 }
 
 void SquishTools::setIdle()
 {
-    QTC_ASSERT(m_state == Idle, return);
+    m_state = Idle;
     m_request = None;
     m_suitePath = {};
     m_testCases.clear();
@@ -545,7 +516,6 @@ void SquishTools::startSquishServer(Request request)
 {
     if (m_shutdownInitiated)
         return;
-    m_licenseIssues = false;
     QTC_ASSERT(m_perspective.perspectiveMode() != SquishPerspective::NoMode, return);
     m_request = request;
     if (m_serverProcess.state() != QProcess::NotRunning) {
@@ -554,17 +524,14 @@ void SquishTools::startSquishServer(Request request)
     }
 
     toolsSettings.setup();
-    m_serverPort = -1;
 
     const FilePath squishServer = Environment::systemEnvironment().searchInPath(
         toolsSettings.serverPath.toString());
     if (!squishServer.isExecutableFile()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Server Error"),
-                              Tr::tr("\"%1\" could not be found or is not executable.\n"
-                                     "Check the settings.")
-                                  .arg(toolsSettings.serverPath.toUserOutput()));
-        setState(Idle);
+        const QString detail = Tr::tr("\"%1\" could not be found or is not executable.\nCheck the "
+                                      "settings.").arg(toolsSettings.serverPath.toUserOutput());
+        SquishMessages::criticalMessage(Tr::tr("Squish Server Error"), detail);
+        setIdle();
         return;
     }
     toolsSettings.serverPath = squishServer;
@@ -580,48 +547,21 @@ void SquishTools::startSquishServer(Request request)
             m_perspective.showControlBar(nullptr);
 
         m_perspective.select();
-        logRunnerStateChange(m_squishRunnerState, RunnerState::Starting);
-        m_squishRunnerState = RunnerState::Starting;
+        logAndChangeRunnerState(RunnerState::Starting);
         if (m_request == RecordTestRequested)
             m_perspective.updateStatus(Tr::tr("Recording test case"));
+        else
+            m_perspective.updateStatus(Tr::tr("Running test case"));
     }
 
     const QStringList arguments = serverArgumentsFromSettings();
-    m_serverProcess.setCommand({toolsSettings.serverPath, arguments});
-
-    m_serverProcess.setEnvironment(squishEnvironment());
-
-    // especially when writing server config we re-use the process fast and start the server
-    // several times and may crash as the process may not have been cleanly destructed yet
-    m_serverProcess.close();
-    setState(ServerStarting);
-    qCDebug(LOG) << "Server starts:" << m_serverProcess.commandLine().toUserOutput();
-    m_serverProcess.start();
-    if (!m_serverProcess.waitForStarted()) {
-        setState(ServerStartFailed);
-        qWarning() << "squishserver did not start within 30s";
-    }
+    m_serverProcess.start({toolsSettings.serverPath, arguments}, squishEnvironment());
 }
 
 void SquishTools::stopSquishServer()
 {
     qCDebug(LOG) << "Stopping server";
-    if (m_serverProcess.state() != QProcess::NotRunning && m_serverPort > 0) {
-        QtcProcess serverKiller;
-        QStringList args;
-        args << "--stop" << "--port" << QString::number(m_serverPort);
-        serverKiller.setCommand({m_serverProcess.commandLine().executable(), args});
-        serverKiller.setEnvironment(m_serverProcess.environment());
-        serverKiller.start();
-        if (!serverKiller.waitForFinished()) {
-            qWarning() << "Could not shutdown server within 30s";
-            setState(ServerStopFailed);
-        }
-    } else {
-        qWarning() << "either no process running or port < 1?"
-                   << m_serverProcess.state() << m_serverPort;
-        setState(ServerStopFailed);
-    }
+    m_serverProcess.stop();
 }
 
 void SquishTools::startSquishRunner()
@@ -631,7 +571,6 @@ void SquishTools::startSquishRunner()
 
     const QStringList args = runnerArgumentsFromSettings();
 
-    m_autId = 0;
     if (m_request == RecordTestRequested)
         m_closeRunnerOnEndRecord = true;
 
@@ -641,13 +580,13 @@ void SquishTools::startSquishRunner()
 
 void SquishTools::setupAndStartRecorder()
 {
-    QTC_ASSERT(m_autId != 0, return);
-    QTC_ASSERT(!m_recorderProcess.isRunning(), return);
+    QTC_ASSERT(m_primaryRunner && m_primaryRunner->autId() != 0, return);
+    QTC_ASSERT(!m_secondaryRunner, return);
 
     QStringList args;
     if (!toolsSettings.isLocalServer)
         args << "--host" << toolsSettings.serverHost;
-    args << "--port" << QString::number(m_serverPort);
+    args << "--port" << QString::number(m_serverProcess.port());
     args << "--debugLog" << "alpw"; // TODO make this configurable?
     args << "--record";
     args << "--suitedir" << m_suitePath.toUserOutput();
@@ -661,24 +600,28 @@ void SquishTools::setupAndStartRecorder()
     args << "--useWaitFor" << "--recordStart";
     if (m_suiteConf.objectMapStyle() == "script")
         args << "--useScriptedObjectMap";
-    args << "--autid" << QString::number(m_autId);
+    args << "--autid" << QString::number(m_primaryRunner->autId());
 
-    m_recorderProcess.setCommand({toolsSettings.runnerPath, args});
-    qCDebug(LOG) << "Recorder starting:" << m_recorderProcess.commandLine().toUserOutput();
+    m_secondaryRunner = new SquishRunnerProcess(this);
+    m_secondaryRunner->setupProcess(SquishRunnerProcess::Record);
+    const CommandLine cmd = {toolsSettings.runnerPath, args};
+    connect(m_secondaryRunner, &SquishRunnerProcess::recorderDone,
+            this, &SquishTools::onRecorderFinished);
+    qCDebug(LOG) << "Recorder starting:" << cmd.toUserOutput();
     if (m_suiteConf.objectMapPath().isReadableFile())
         Core::DocumentManager::expectFileChange(m_suiteConf.objectMapPath());
-    m_recorderProcess.start();
+    m_secondaryRunner->start(cmd, squishEnvironment());
 }
 
 void SquishTools::stopRecorder()
 {
-    QTC_ASSERT(m_recorderProcess.isRunning(), return);
-    if (m_squishRunnerState == RunnerState::CancelRequested) {
+    QTC_ASSERT(m_secondaryRunner && m_secondaryRunner->isRunning(), return);
+    if (m_squishRunnerState == RunnerState::Canceled) {
         qCDebug(LOG) << "Stopping recorder (exit)";
-        m_recorderProcess.write("exit\n");
+        m_secondaryRunner->writeCommand(SquishRunnerProcess::Exit);
     } else {
         qCDebug(LOG) << "Stopping recorder (endrecord)";
-        m_recorderProcess.write("endrecord\n");
+        m_secondaryRunner->writeCommand(SquishRunnerProcess::EndRecord);
     }
 }
 
@@ -687,7 +630,7 @@ void SquishTools::executeRunnerQuery()
     if (!isValidToStartRunner() || !setupRunnerPath())
         return;
 
-    QStringList arguments = { "--port", QString::number(m_serverPort) };
+    QStringList arguments = { "--port", QString::number(m_serverProcess.port()) };
     Utils::CommandLine cmdLine = {toolsSettings.runnerPath, arguments};
     switch (m_query) {
     case ServerInfo:
@@ -706,7 +649,9 @@ void SquishTools::executeRunnerQuery()
     default:
         QTC_ASSERT(false, return);
     }
-    setupAndStartSquishRunnerProcess(cmdLine);
+
+    QTC_ASSERT(m_primaryRunner, return);
+    m_primaryRunner->start(cmdLine, squishEnvironment());
 }
 
 Environment SquishTools::squishEnvironment()
@@ -718,31 +663,25 @@ Environment SquishTools::squishEnvironment()
     return environment;
 }
 
-void SquishTools::onServerFinished()
+void SquishTools::handleQueryDone(const QString &stdOut, const QString &error)
 {
-    qCDebug(LOG) << "Server finished";
-    m_serverPort = -1;
-    setState(ServerStopped);
+    qCDebug(LOG) << "Runner finished";
+    if (m_queryCallback)
+        m_queryCallback(stdOut, error);
+    m_queryCallback = {};
+    m_queryParameter.clear();
 }
 
 void SquishTools::onRunnerFinished()
 {
     qCDebug(LOG) << "Runner finished";
-    if (m_request == RunnerQueryRequested) {
-        const QString error = m_licenseIssues ? Tr::tr("Could not get Squish license from server.")
-                                              : QString();
-        if (m_queryCallback)
-            m_queryCallback(m_fullRunnerOutput, error);
-        setState(RunnerStopped);
-        m_fullRunnerOutput.clear();
-        m_queryCallback = {};
-        m_queryParameter.clear();
-        return;
-    }
-
     if (!m_shutdownInitiated) {
-        logRunnerStateChange(m_squishRunnerState, RunnerState::Finished);
-        m_squishRunnerState = RunnerState::Finished;
+        if (m_squishRunnerState == RunnerState::CancelRequested
+                || m_squishRunnerState == RunnerState::CancelRequestedWhileInterrupted) {
+            logAndChangeRunnerState(RunnerState::Canceled);
+        } else {
+            logAndChangeRunnerState(RunnerState::Finished);
+        }
         if (m_request == RunTestRequested)
             m_perspective.updateStatus(Tr::tr("Test run finished."));
         else if (m_request == RecordTestRequested)
@@ -763,16 +702,19 @@ void SquishTools::onRunnerFinished()
         delete m_currentResultsXML;
         m_currentResultsXML = nullptr;
     }
-    setState(RunnerStopped);
 }
 
 void SquishTools::onRecorderFinished()
 {
-    qCDebug(LOG) << "Recorder finished:" << m_recorderProcess.exitCode();
-    if (m_runnerProcess.isRunning()) {
+    QTC_ASSERT(m_secondaryRunner, return);
+    qCDebug(LOG) << "Recorder finished"; // exit code?
+    m_secondaryRunner->deleteLater();
+    m_secondaryRunner = nullptr;
+
+    if (m_primaryRunner && m_primaryRunner->isRunning()) {
         if (m_closeRunnerOnEndRecord) {
             //terminateRunner();
-            m_runnerProcess.write("exit\n"); // why doesn't work anymore?
+            m_primaryRunner->writeCommand(SquishRunnerProcess::Exit); // why doesn't work anymore?
         }
     } else {
         m_request = ServerStopRequested;
@@ -798,46 +740,6 @@ void SquishTools::onRecorderFinished()
     qCInfo(LOG) << "Wrote recorded test case" << testFile.toUserOutput() << " " << result;
     m_currentRecorderSnippetFile.removeFile();
     m_currentRecorderSnippetFile.clear();
-}
-
-void SquishTools::onServerOutput()
-{
-    // output used for getting the port information of the current squishserver
-    const QByteArray output = m_serverProcess.readAllStandardOutput();
-    const QList<QByteArray> lines = output.split('\n');
-    for (const QByteArray &line : lines) {
-        const QByteArray trimmed = line.trimmed();
-        if (trimmed.isEmpty())
-            continue;
-        if (trimmed.startsWith("Port:")) {
-            if (m_serverPort == -1) {
-                bool ok;
-                int port = trimmed.mid(6).toInt(&ok);
-                if (ok) {
-                    m_serverPort = port;
-                    setState(ServerStarted);
-                } else {
-                    qWarning() << "could not get port number" << trimmed.mid(6);
-                    setState(ServerStartFailed);
-                }
-            } else {
-                qWarning() << "got a Port output - don't know why...";
-            }
-        }
-        emit logOutputReceived(QString("Server: ") + QLatin1String(trimmed));
-    }
-}
-
-void SquishTools::onServerErrorOutput()
-{
-    // output that must be send to the Runner/Server Log
-    const QByteArray output = m_serverProcess.readAllStandardError();
-    const QList<QByteArray> lines = output.split('\n');
-    for (const QByteArray &line : lines) {
-        const QByteArray trimmed = line.trimmed();
-        if (!trimmed.isEmpty())
-            emit logOutputReceived(QString("Server: ") + QLatin1String(trimmed));
-    }
 }
 
 static char firstNonWhitespace(const QByteArray &text)
@@ -920,142 +822,18 @@ void SquishTools::onRunnerOutput()
     }
 }
 
-void SquishTools::onRunnerErrorOutput()
-{
-    // output that must be send to the Runner/Server Log
-    const QByteArray output = m_runnerProcess.readAllStandardError();
-    const QList<QByteArray> lines = output.split('\n');
-    for (const QByteArray &line : lines) {
-        const QByteArray trimmed = line.trimmed();
-        if (!trimmed.isEmpty()) {
-            emit logOutputReceived("Runner: " + QLatin1String(trimmed));
-            if (trimmed.startsWith("QSocketNotifier: Invalid socket")) {
-                // we've lost connection to the AUT - if Interrupted, try to cancel the runner
-                if (m_squishRunnerState == RunnerState::Interrupted) {
-                    logRunnerStateChange(m_squishRunnerState,
-                                         RunnerState::CancelRequestedWhileInterrupted);
-                    m_squishRunnerState = RunnerState::CancelRequestedWhileInterrupted;
-                    handlePrompt();
-                }
-            } else if (trimmed.contains("could not be started.")
-                       && trimmed.contains("Mapped AUT")) {
-                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"),
-                                      Tr::tr("Squish could not find the AUT \"%1\" to start. "
-                                             "Make sure it has been added as a Mapped AUT in the "
-                                             "squishserver settings.\n"
-                                             "(Tools > Squish > Server Settings...)")
-                                      .arg(m_suiteConf.aut()));
-            } else if (trimmed.startsWith("Couldn't get license")
-                       || trimmed.contains("UNLICENSED version of Squish")) {
-                m_licenseIssues = true;
-            }
-        }
-    }
-}
-
-void SquishTools::onRunnerStdOutput(const QString &lineIn)
-{
-    if (m_request == RunnerQueryRequested) { // only handle test runs / record here
-        m_fullRunnerOutput.append(lineIn);   // but store output for query, see onRunnerFinished()
-        return;
-    }
-
-    int fileLine = -1;
-    int fileColumn = -1;
-    QString fileName;
-    // we might enter this function by invoking it directly instead of getting signaled
-    bool isPrompt = false;
-    QString line = lineIn;
-    line.chop(1); // line has a newline
-    if (line.startsWith("SDBG:"))
-        line = line.mid(5);
-    if (line.isEmpty()) // we have a prompt
-        isPrompt = true;
-    else if (line.startsWith("symb")) { // symbols information (locals)
-        isPrompt = true;
-        // paranoia
-        if (!line.endsWith("}"))
-            return;
-        if (line.at(4) == '.') { // single symbol information
-            line = line.mid(5);
-            emit symbolUpdated(line);
-        } else { // lline.at(4) == ':' // all locals
-            line = line.mid(6);
-            line.chop(1);
-            emit localsUpdated(line);
-        }
-    } else if (line.startsWith("@line")) { // location information (interrupted)
-        isPrompt = true;
-        // paranoia
-        if (!line.endsWith(":"))
-            return;
-
-        const QStringList locationParts = line.split(',');
-        QTC_ASSERT(locationParts.size() == 3, return);
-        fileLine = locationParts[0].mid(6).toInt();
-        fileColumn = locationParts[1].mid(7).toInt();
-        fileName = locationParts[2].trimmed();
-        fileName.chop(1); // remove the colon
-        const FilePath fp = FilePath::fromString(fileName);
-        if (fp.isRelativePath())
-            fileName = m_currentTestCasePath.resolvePath(fileName).toString();
-    } else if (m_autId == 0 && line.startsWith("AUTID: ")) {
-        isPrompt = true;
-        m_autId = line.mid(7).toInt();
-        qCInfo(LOG) << "AUT ID set" << m_autId << "(" << line << ")";
-    }
-    if (isPrompt)
-        handlePrompt(fileName, fileLine, fileColumn);
-}
-
-// FIXME: add/removal of breakpoints while debugging not handled yet
-// FIXME: enabled state of breakpoints
-Utils::Links SquishTools::setBreakpoints()
-{
-    Utils::Links setBPs;
-    using namespace Debugger::Internal;
-    const GlobalBreakpoints globalBPs  = BreakpointManager::globalBreakpoints();
-    const QString extension = m_suiteConf.scriptExtension();
-    for (const GlobalBreakpoint &gb : globalBPs) {
-        if (!gb->isEnabled())
-            continue;
-        const Utils::FilePath filePath = Utils::FilePath::fromString(
-                    gb->data(BreakpointFileColumn, Qt::DisplayRole).toString());
-        auto fileName = filePath.canonicalPath().toUserOutput();
-        if (fileName.isEmpty())
-            continue;
-        if (!fileName.endsWith(extension))
-            continue;
-
-        // mask backslashes and spaces
-        fileName.replace('\\', "\\\\");
-        fileName.replace(' ', "\\x20");
-        auto line = gb->data(BreakpointLineColumn, Qt::DisplayRole).toInt();
-        QString cmd = "break ";
-        cmd.append(fileName);
-        cmd.append(':');
-        cmd.append(QString::number(line));
-        cmd.append('\n');
-        qCInfo(LOG).noquote().nospace() << "Setting breakpoint: '" << cmd << "'";
-        m_runnerProcess.write(cmd);
-        setBPs.append({filePath, line});
-    }
-    return setBPs;
-}
-
 void SquishTools::handlePrompt(const QString &fileName, int line, int column)
 {
     if (m_perspective.perspectiveMode() == SquishPerspective::Recording) {
         switch (m_squishRunnerState) {
         case RunnerState::Starting:
             setupAndStartRecorder();
-            onRunnerRunRequested(SquishPerspective::Continue);
+            onRunnerRunRequested(StepMode::Continue);
             break;
         case RunnerState::CancelRequested:
         case RunnerState::CancelRequestedWhileInterrupted:
+            logAndChangeRunnerState(RunnerState::Canceled);
             stopRecorder();
-            logRunnerStateChange(m_squishRunnerState, RunnerState::Canceling);
-            m_squishRunnerState = RunnerState::Canceling;
             break;
         case RunnerState::Canceled:
             QTC_CHECK(false);
@@ -1066,19 +844,19 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
         return;
     }
 
+    QTC_ASSERT(m_primaryRunner, return);
     switch (m_squishRunnerState) {
     case RunnerState::Starting: {
-        const Utils::Links setBPs = setBreakpoints();
-        if (!setBPs.contains({Utils::FilePath::fromString(fileName), line})) {
-            onRunnerRunRequested(SquishPerspective::Continue);
+        const Utils::Links setBPs = m_primaryRunner->setBreakpoints(m_suiteConf.scriptExtension());
+        if (!setBPs.contains({Utils::FilePath::fromUserInput(fileName), line})) {
+            onRunnerRunRequested(StepMode::Continue);
         } else {
             m_perspective.setPerspectiveMode(SquishPerspective::Interrupted);
-            logRunnerStateChange(m_squishRunnerState, RunnerState::Interrupted);
-            m_squishRunnerState = RunnerState::Interrupted;
+            logAndChangeRunnerState(RunnerState::Interrupted);
             restoreQtCreatorWindows();
             // request local variables
-            m_runnerProcess.write("print variables\n");
-            const FilePath filePath = FilePath::fromString(fileName);
+            m_primaryRunner->writeCommand(SquishRunnerProcess::PrintVariables);
+            const FilePath filePath = FilePath::fromUserInput(fileName);
             Core::EditorManager::openEditorAt({filePath, line, column});
             updateLocationMarker(filePath, line);
         }
@@ -1086,15 +864,9 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     }
     case RunnerState::CancelRequested:
     case RunnerState::CancelRequestedWhileInterrupted:
-        m_runnerProcess.write("exit\n");
+        logAndChangeRunnerState(RunnerState::Canceled);
+        m_primaryRunner->writeCommand(SquishRunnerProcess::Exit);
         clearLocationMarker();
-        logRunnerStateChange(m_squishRunnerState, RunnerState::Canceling);
-        m_squishRunnerState = RunnerState::Canceling;
-        break;
-    case RunnerState::Canceling:
-        m_runnerProcess.write("quit\n");
-        logRunnerStateChange(m_squishRunnerState, RunnerState::Canceled);
-        m_squishRunnerState = RunnerState::Canceled;
         break;
     case RunnerState::Canceled:
         QTC_CHECK(false);
@@ -1102,16 +874,15 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     default:
         if (line != -1 && column != -1) {
             m_perspective.setPerspectiveMode(SquishPerspective::Interrupted);
-            logRunnerStateChange(m_squishRunnerState, RunnerState::Interrupted);
-            m_squishRunnerState = RunnerState::Interrupted;
+            logAndChangeRunnerState(RunnerState::Interrupted);
             restoreQtCreatorWindows();
             // if we're returning from a function we might end up without a file information
             if (fileName.isEmpty()) {
-                m_runnerProcess.write("next\n");
+                m_primaryRunner->writeCommand(SquishRunnerProcess::Next);
             } else {
                 // request local variables
-                m_runnerProcess.write("print variables\n");
-                const FilePath filePath = FilePath::fromString(fileName);
+                m_primaryRunner->writeCommand(SquishRunnerProcess::PrintVariables);
+                const FilePath filePath = FilePath::fromUserInput(fileName);
                 Core::EditorManager::openEditorAt({filePath, line, column});
                 updateLocationMarker(filePath, line);
             }
@@ -1122,8 +893,8 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
                 m_requestVarsTimer = new QTimer(this);
                 m_requestVarsTimer->setSingleShot(true);
                 m_requestVarsTimer->setInterval(1000);
-                connect(m_requestVarsTimer, &QTimer::timeout, this, [this]() {
-                    m_runnerProcess.write("print variables\n");
+                connect(m_requestVarsTimer, &QTimer::timeout, this, [this] {
+                    m_primaryRunner->writeCommand(SquishRunnerProcess::PrintVariables);
                 });
                 m_requestVarsTimer->start();
             }
@@ -1133,19 +904,20 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
 
 void SquishTools::requestExpansion(const QString &name)
 {
+    QTC_ASSERT(m_primaryRunner, return);
     QTC_ASSERT(m_squishRunnerState == RunnerState::Interrupted, return);
-    m_runnerProcess.write("print variables +" + name + "\n");
+    m_primaryRunner->requestExpanded(name);
 }
 
 bool SquishTools::shutdown()
 {
     QTC_ASSERT(!m_shutdownInitiated, return true);
     m_shutdownInitiated = true;
-    if (m_runnerProcess.isRunning())
+    if (m_primaryRunner && m_primaryRunner->isRunning())
         terminateRunner();
     if (m_serverProcess.isRunning())
         m_serverProcess.stop();
-    return !(m_serverProcess.isRunning() || m_runnerProcess.isRunning());
+    return !(m_serverProcess.isRunning() || (m_primaryRunner && m_primaryRunner->isRunning()));
 }
 
 void SquishTools::onResultsDirChanged(const QString &filePath)
@@ -1174,7 +946,7 @@ void SquishTools::onResultsDirChanged(const QString &filePath)
     } else {
         disconnect(m_resultsFileWatcher);
         // results.xml is created as soon some output has been opened - so try again in a second
-        QTimer::singleShot(1000, this, [this, filePath]() { onResultsDirChanged(filePath); });
+        QTimer::singleShot(1000, this, [this, filePath] { onResultsDirChanged(filePath); });
     }
 }
 
@@ -1201,7 +973,7 @@ void SquishTools::minimizeQtCreatorWindows()
             window->showMinimized();
             if (!m_lastTopLevelWindows.contains(window)) {
                 m_lastTopLevelWindows.append(window);
-                connect(window, &QWindow::destroyed, this, [this, window]() {
+                connect(window, &QWindow::destroyed, this, [this, window] {
                     m_lastTopLevelWindows.removeOne(window);
                 });
             }
@@ -1223,7 +995,7 @@ void SquishTools::updateLocationMarker(const Utils::FilePath &file, int line)
     if (QTC_GUARD(!m_locationMarker)) {
         m_locationMarker = new SquishLocationMark(file, line);
     } else {
-        m_locationMarker->updateFileName(file);
+        m_locationMarker->updateFilePath(file);
         m_locationMarker->move(line);
     }
 }
@@ -1234,23 +1006,23 @@ void SquishTools::clearLocationMarker()
     m_locationMarker = nullptr;
 }
 
-void SquishTools::onRunnerRunRequested(SquishPerspective::StepMode step)
+void SquishTools::onRunnerRunRequested(StepMode step)
 {
     if (m_requestVarsTimer) {
         delete m_requestVarsTimer;
         m_requestVarsTimer = nullptr;
     }
-    logRunnerStateChange(m_squishRunnerState, RunnerState::RunRequested);
-    m_squishRunnerState = RunnerState::RunRequested;
+    logAndChangeRunnerState(RunnerState::RunRequested);
 
-    if (step == SquishPerspective::Continue)
-        m_runnerProcess.write("continue\n");
-    else if (step == SquishPerspective::StepIn)
-        m_runnerProcess.write("step\n");
-    else if (step == SquishPerspective::StepOver)
-        m_runnerProcess.write("next\n");
-    else if (step == SquishPerspective::StepOut)
-        m_runnerProcess.write("return\n");
+    QTC_ASSERT(m_primaryRunner, return);
+    if (step == StepMode::Continue)
+        m_primaryRunner->writeCommand(SquishRunnerProcess::Continue);
+    else if (step == StepMode::StepIn)
+        m_primaryRunner->writeCommand(SquishRunnerProcess::Step);
+    else if (step == StepMode::StepOver)
+        m_primaryRunner->writeCommand(SquishRunnerProcess::Next);
+    else if (step == StepMode::StepOut)
+        m_primaryRunner->writeCommand(SquishRunnerProcess::Return);
 
     clearLocationMarker();
     if (toolsSettings.minimizeIDE)
@@ -1259,15 +1031,15 @@ void SquishTools::onRunnerRunRequested(SquishPerspective::StepMode step)
     if (m_perspective.perspectiveMode() == SquishPerspective::Interrupted)
         m_perspective.setPerspectiveMode(SquishPerspective::Running);
 
-    logRunnerStateChange(m_squishRunnerState, RunnerState::Running);
-    m_squishRunnerState = RunnerState::Running;
+    logAndChangeRunnerState(RunnerState::Running);
 }
 
 void SquishTools::interruptRunner()
 {
     qCDebug(LOG) << "Interrupting runner";
-    const CommandLine cmd(toolsSettings.processComPath,
-                          {QString::number(m_runnerProcess.processId()), "break"});
+    QTC_ASSERT(m_primaryRunner, return);
+    qint64 processId = m_primaryRunner->processId();
+    const CommandLine cmd(toolsSettings.processComPath, {QString::number(processId), "break"});
     QtcProcess process;
     process.setCommand(cmd);
     process.start();
@@ -1281,8 +1053,9 @@ void SquishTools::terminateRunner()
     m_currentTestCasePath.clear();
     m_perspective.updateStatus(Tr::tr("User stop initiated."));
     // should we terminate the AUT instead of the runner?!?
-    const CommandLine cmd(toolsSettings.processComPath,
-                          {QString::number(m_runnerProcess.processId()), "terminate"});
+    QTC_ASSERT(m_primaryRunner, return);
+    qint64 processId = m_primaryRunner->processId();
+    const CommandLine cmd(toolsSettings.processComPath, {QString::number(processId), "terminate"});
     QtcProcess process;
     process.setCommand(cmd);
     process.start();
@@ -1291,33 +1064,29 @@ void SquishTools::terminateRunner()
 
 void SquishTools::handleSquishServerAlreadyRunning()
 {
-    if (QMessageBox::question(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Server Already Running"),
-                              Tr::tr("There is still an old Squish server instance running.\n"
-                                     "This will cause problems later on.\n\n"
-                                     "If you continue, the old instance will be terminated.\n"
-                                     "Do you want to continue?"))
-        == QMessageBox::Yes) {
-        switch (m_request) {
-        case RunTestRequested:
-            m_request = KillOldBeforeRunRunner;
-            break;
-        case RecordTestRequested:
-            m_request = KillOldBeforeRecordRunner;
-            break;
-        case RunnerQueryRequested:
-            m_request = KillOldBeforeQueryRunner;
-            break;
-        default:
-            QMessageBox::critical(Core::ICore::dialogParent(),
-                                  Tr::tr("Error"),
-                                  Tr::tr("Unexpected state or request while starting Squish "
-                                         "server. (state: %1, request: %2)")
-                                      .arg(m_state)
-                                      .arg(m_request));
-        }
-        stopSquishServer();
+    const QString detail = Tr::tr("There is still an old Squish server instance running.\n"
+                                  "This will cause problems later on.\n\n"
+                                  "If you continue, the old instance will be terminated.\n"
+                                  "Do you want to continue?");
+    if (SquishMessages::simpleQuestion(Tr::tr("Squish Server Already Running"), detail) != QMessageBox::Yes)
+        return;
+
+    switch (m_request) {
+    case RunTestRequested:
+        m_request = KillOldBeforeRunRunner;
+        break;
+    case RecordTestRequested:
+        m_request = KillOldBeforeRecordRunner;
+        break;
+    case RunnerQueryRequested:
+        m_request = KillOldBeforeQueryRunner;
+        break;
+    default:
+        const QString detail = Tr::tr("Unexpected state or request while starting Squish server. "
+                                      "(state: %1, request: %2)").arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(detail);
     }
+    stopSquishServer();
 }
 
 QStringList SquishTools::serverArgumentsFromSettings() const
@@ -1345,7 +1114,7 @@ QStringList SquishTools::runnerArgumentsFromSettings()
     QStringList arguments;
     if (!toolsSettings.isLocalServer)
         arguments << "--host" << toolsSettings.serverHost;
-    arguments << "--port" << QString::number(m_serverPort);
+    arguments << "--port" << QString::number(m_serverProcess.port());
     arguments << "--debugLog" << "alpw"; // TODO make this configurable?
 
     QTC_ASSERT(!m_testCases.isEmpty(), m_testCases.append(""));
@@ -1386,37 +1155,26 @@ QStringList SquishTools::runnerArgumentsFromSettings()
 bool SquishTools::isValidToStartRunner()
 {
     if (!m_serverProcess.isRunning()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("No Squish Server"),
-                              Tr::tr("Squish server does not seem to be running.\n"
-                                     "(state: %1, request: %2)\n"
-                                     "Try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
-        setState(Idle);
+        const QString detail = Tr::tr("Squish server does not seem to be running.\n(state: %1, "
+                                      "request: %2)\nTry again.").arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(Tr::tr("No Squish Server"), detail);
+        setIdle();
         return false;
     }
-    if (m_serverPort == -1) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("No Squish Server Port"),
-                              Tr::tr("Failed to get the server port.\n"
-                                     "(state: %1, request: %2)\n"
-                                     "Try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
+    if (m_serverProcess.port() == -1) {
+        const QString detail = Tr::tr("Failed to get the server port.\n(state: %1, request: %2)\n"
+                                      "Try again.").arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(Tr::tr("No Squish Server Port"), detail);
         // setting state to ServerStartFailed will terminate/kill the current unusable server
-        setState(ServerStartFailed);
+        onServerStateChanged(StartFailed);
         return false;
     }
 
-    if (m_runnerProcess.state() != QProcess::NotRunning) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Runner Running"),
-                              Tr::tr("Squish runner seems to be running already.\n"
-                                     "(state: %1, request: %2)\n"
-                                     "Wait until it has finished and try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
+    if (m_primaryRunner && m_primaryRunner->state() != QProcess::NotRunning) {
+        const QString detail = Tr::tr("Squish runner seems to be running already.\n(state: %1, "
+                                      "request: %2)\nWait until it has finished and try again.")
+                .arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(Tr::tr("Squish Runner Running"), detail);
         return false;
     }
     return true;
@@ -1427,12 +1185,10 @@ bool SquishTools::setupRunnerPath()
     const FilePath squishRunner = Environment::systemEnvironment().searchInPath(
         toolsSettings.runnerPath.toString());
     if (!squishRunner.isExecutableFile()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Runner Error"),
-                              Tr::tr("\"%1\" could not be found or is not executable.\n"
-                                     "Check the settings.")
-                                  .arg(toolsSettings.runnerPath.toUserOutput()));
-        setState(RunnerStopped);
+        const QString detail = Tr::tr("\"%1\" could not be found or is not executable.\nCheck the "
+                                      "settings.").arg(toolsSettings.runnerPath.toUserOutput());
+        SquishMessages::criticalMessage(Tr::tr("Squish Runner Error"), detail);
+        onRunnerStateChanged(Stopped);
         return false;
     }
     toolsSettings.runnerPath = squishRunner;
@@ -1441,9 +1197,9 @@ bool SquishTools::setupRunnerPath()
 
 void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine)
 {
-    m_runnerProcess.setCommand(cmdLine);
-    m_runnerProcess.setEnvironment(squishEnvironment());
-    setState(RunnerStarting);
+    QTC_ASSERT(m_primaryRunner, return);
+    // avoid crashes on fast re-usage of QtcProcess
+    m_primaryRunner->closeProcess();
 
     if (m_request == RunTestRequested) {
         // set up the file system watcher for being able to read the results.xml file
@@ -1460,23 +1216,45 @@ void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmd
                 &SquishTools::onResultsDirChanged);
     }
 
-    // especially when running multiple test cases we re-use the process fast and start the runner
-    // several times and may crash as the process may not have been cleanly destructed yet
-    m_runnerProcess.close();
-    qCDebug(LOG) << "Runner starts:" << m_runnerProcess.commandLine().toUserOutput();
-    m_runnerProcess.start();
-    if (!m_runnerProcess.waitForStarted()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Runner Error"),
-                              Tr::tr("Squish runner failed to start within given timeframe."));
-        delete m_resultsFileWatcher;
-        m_resultsFileWatcher = nullptr;
-        setState(RunnerStartFailed);
-        m_runnerProcess.close();
-        return;
-    }
-    setState(RunnerStarted);
+    m_primaryRunner->setTestCasePath(m_currentTestCasePath);
+    m_primaryRunner->start(cmdLine, squishEnvironment());
 }
 
-} // namespace Internal
-} // namespace Squish
+void SquishTools::setupRunnerForQuery()
+{
+    if (m_primaryRunner)
+        delete m_primaryRunner;
+
+    m_primaryRunner = new SquishRunnerProcess(this);
+    m_primaryRunner->setupProcess(SquishRunnerProcess::QueryServer);
+    connect(m_primaryRunner, &SquishRunnerProcess::queryDone,
+            this, &SquishTools::handleQueryDone);
+    connect(m_primaryRunner, &SquishRunnerProcess::stateChanged,
+            this, &SquishTools::onRunnerStateChanged);
+    connect(m_primaryRunner, &SquishRunnerProcess::logOutputReceived,
+            this, &SquishTools::logOutputReceived);
+}
+
+void SquishTools::setupRunnerForRun()
+{
+    if (m_primaryRunner)
+        delete m_primaryRunner;
+
+    m_primaryRunner = new SquishRunnerProcess(this);
+    m_primaryRunner->setupProcess(m_request == RecordTestRequested ? SquishRunnerProcess::StartAut
+                                                                   : SquishRunnerProcess::Run);
+    connect(m_primaryRunner, &SquishRunnerProcess::interrupted,
+            this, &SquishTools::handlePrompt);
+    connect(m_primaryRunner, &SquishRunnerProcess::localsUpdated,
+            this, &SquishTools::localsUpdated);
+    connect(m_primaryRunner, &SquishRunnerProcess::runnerFinished,
+            this, &SquishTools::onRunnerFinished);
+    connect(m_primaryRunner, &SquishRunnerProcess::runnerError,
+            this, &SquishTools::onRunnerError);
+    connect(m_primaryRunner, &SquishRunnerProcess::stateChanged,
+            this, &SquishTools::onRunnerStateChanged);
+    connect(m_primaryRunner, &SquishRunnerProcess::logOutputReceived,
+            this, &SquishTools::logOutputReceived);
+}
+
+} // namespace Squish::Internal

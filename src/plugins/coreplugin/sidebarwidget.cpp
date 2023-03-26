@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sidebarwidget.h"
+
+#include "coreplugintr.h"
 #include "sidebar.h"
 #include "navigationsubwidget.h"
 
@@ -46,14 +48,14 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     spacerItem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_toolbar->addWidget(spacerItem);
 
-    m_splitAction = new QAction(tr("Split"), m_toolbar);
-    m_splitAction->setToolTip(tr("Split"));
+    m_splitAction = new QAction(Tr::tr("Split"), m_toolbar);
+    m_splitAction->setToolTip(Tr::tr("Split"));
     m_splitAction->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     connect(m_splitAction, &QAction::triggered, this, &SideBarWidget::splitMe);
     m_toolbar->addAction(m_splitAction);
 
-    m_closeAction = new QAction(tr("Close"), m_toolbar);
-    m_closeAction->setToolTip(tr("Close"));
+    m_closeAction = new QAction(Tr::tr("Close"), m_toolbar);
+    m_closeAction->setToolTip(Tr::tr("Close"));
     m_closeAction->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
     connect(m_closeAction, &QAction::triggered, this, &SideBarWidget::closeMe);
     m_toolbar->addAction(m_closeAction);

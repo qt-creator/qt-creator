@@ -1,5 +1,5 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nimcompletionassistprovider.h"
 #include "suggest/nimsuggestcache.h"
@@ -43,25 +43,24 @@ class NimCompletionAssistProcessor : public QObject, public TextEditor::IAssistP
     Q_OBJECT
 
 public:
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) final
+    TextEditor::IAssistProposal *perform() final
     {
         QTC_ASSERT(this->thread() == qApp->thread(), return nullptr);
 
-        if (interface->reason() == IdleEditor && !acceptsIdleEditor(interface))
+        if (interface()->reason() == IdleEditor && !acceptsIdleEditor(interface()))
             return nullptr;
 
-        Suggest::NimSuggest *suggest = nimSuggestInstance(interface);
+        Suggest::NimSuggest *suggest = nimSuggestInstance(interface());
         QTC_ASSERT(suggest, return nullptr);
 
         if (suggest->executablePath().isEmpty() || suggest->projectFile().isEmpty())
             return nullptr;
 
         if (!suggest->isReady()) {
-            m_interface = interface;
             QObject::connect(suggest, &Suggest::NimSuggest::readyChanged, this,
                              [this, suggest](bool ready) { onNimSuggestReady(suggest, ready); });
         } else {
-            doPerform(interface, suggest);
+            doPerform(interface(), suggest);
         }
 
         m_running = true;
@@ -76,13 +75,13 @@ public:
 private:
     void onNimSuggestReady(Suggest::NimSuggest *suggest, bool ready)
     {
-        QTC_ASSERT(m_interface, return);
+        QTC_ASSERT(interface(), return);
 
         if (!ready) {
             m_running = false;
             setAsyncProposalAvailable(nullptr);
         } else {
-            doPerform(m_interface, suggest);
+            doPerform(interface(), suggest);
         }
     }
 
@@ -231,7 +230,6 @@ private:
     std::weak_ptr<Suggest::NimSuggest> m_suggest;
     std::shared_ptr<Suggest::NimSuggestClientRequest> m_request;
     std::unique_ptr<QTemporaryFile> m_dirtyFile;
-    const TextEditor::AssistInterface *m_interface = nullptr;
 };
 
 
@@ -248,11 +246,6 @@ int NimCompletionAssistProvider::activationCharSequenceLength() const
 bool NimCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
     return !sequence.isEmpty() && isActivationChar(sequence.at(0));
-}
-
-IAssistProvider::RunType NimCompletionAssistProvider::runType() const
-{
-    return RunType::Asynchronous;
 }
 
 }

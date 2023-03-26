@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debuggerplugin.h"
 
@@ -16,25 +16,16 @@
 #include "debuggerruncontrol.h"
 #include "debuggerkitinformation.h"
 #include "debuggertr.h"
-#include "memoryagent.h"
 #include "breakhandler.h"
-#include "disassemblerlines.h"
 #include "enginemanager.h"
 #include "logwindow.h"
-#include "moduleshandler.h"
-#include "stackhandler.h"
-#include "stackwindow.h"
-#include "watchhandler.h"
-#include "watchwindow.h"
-#include "watchutils.h"
+#include "stackframe.h"
 #include "unstartedappwatcherdialog.h"
-#include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
 #include "sourceutils.h"
 #include "shared/hostutils.h"
 #include "console/console.h"
 
-#include "threadshandler.h"
 #include "commonoptionspage.h"
 
 #include "analyzer/analyzerconstants.h"
@@ -74,6 +65,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
@@ -111,7 +103,6 @@
 #include <QDialogButtonBox>
 #include <QDockWidget>
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QMenu>
@@ -612,7 +603,7 @@ public:
                 //: Message tracepoint: %1 file, %2 line %3 function hit.
                 message = Tr::tr("%1:%2 %3() hit").arg(data.fileName.fileName()).
                         arg(data.lineNumber).
-                        arg(cppFunctionAt(data.fileName.toString(), data.lineNumber));
+                        arg(cppFunctionAt(data.fileName, data.lineNumber));
             }
             QInputDialog dialog; // Create wide input dialog.
             dialog.setWindowFlags(dialog.windowFlags() & ~(Qt::MSWindowsFixedSizeDialogHint));
@@ -710,12 +701,7 @@ public:
     DebuggerKitAspect debuggerKitAspect;
     CommonOptionsPage commonOptionsPage;
 
-    RunWorkerFactory debuggerWorkerFactory{
-        RunWorkerFactory::make<DebuggerRunTool>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {}, // All local run configs?
-        {PE::DESKTOP_DEVICE_TYPE, "DockerDeviceType"}
-    };
+    DebuggerRunWorkerFactory debuggerWorkerFactory;
 
     // FIXME: Needed?
 //            QString mainScript = runConfig->property("mainScript").toString();
@@ -797,9 +783,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         vbox->insertWidget(0, label);
     };
 
-    const auto addFontSizeAdaptation = [](QWidget *widget) {
+    const auto addFontSizeAdaptation = [this](QWidget *widget) {
         QObject::connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-                [widget](const FontSettings &settings) {
+                         this, [widget](const FontSettings &settings) {
             if (!debuggerSettings()->fontSizeFollowsEditor.value())
                 return;
             qreal size = settings.fontZoom() * settings.fontSize() / 100.;
@@ -1077,19 +1063,19 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     debugMenu->addSeparator();
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger", "Move to Calling Frame"));
+    act->setText(Tr::tr("Move to Calling Frame"));
     act->setEnabled(false);
     act->setVisible(false);
     ActionManager::registerAction(act, Constants::FRAME_UP);
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger", "Move to Called Frame"));
+    act->setText(Tr::tr("Move to Called Frame"));
     act->setEnabled(false);
     act->setVisible(false);
     ActionManager::registerAction(act, Constants::FRAME_DOWN);
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger", "Operate by Instruction"));
+    act->setText(Tr::tr("Operate by Instruction"));
     act->setEnabled(false);
     act->setVisible(false);
     act->setCheckable(true);
@@ -1140,16 +1126,17 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 //        QTC_CHECK(false);
 //    });
 
+    m_optionPages.append(new LocalsAndExpressionsOptionsPage);
     addGdbOptionPages(&m_optionPages);
     addCdbOptionPages(&m_optionPages);
-    m_optionPages.append(new LocalsAndExpressionsOptionsPage);
 
     connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this, [] {
         if (ModeManager::currentModeId() == MODE_DEBUG)
             DebuggerMainWindow::leaveDebugMode();
     });
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged, [](Id mode, Id oldMode) {
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, [](Id mode, Id oldMode) {
         QTC_ASSERT(mode != oldMode, return);
         if (mode == MODE_DEBUG) {
             DebuggerMainWindow::enterDebugMode();
@@ -1533,32 +1520,27 @@ void DebuggerPluginPrivate::attachCore()
     const QString lastExternalKit = configValue("LastExternalKit").toString();
     if (!lastExternalKit.isEmpty())
         dlg.setKitId(Id::fromString(lastExternalKit));
-    dlg.setSymbolFile(FilePath::fromVariant(configValue("LastExternalExecutableFile")));
-    dlg.setLocalCoreFile(FilePath::fromVariant(configValue("LastLocalCoreFile")));
-    dlg.setRemoteCoreFile(FilePath::fromVariant(configValue("LastRemoteCoreFile")));
-    dlg.setOverrideStartScript(FilePath::fromVariant(configValue("LastExternalStartScript")));
-    dlg.setSysRoot(FilePath::fromVariant(configValue("LastSysRoot")));
-    dlg.setForceLocalCoreFile(configValue("LastForceLocalCoreFile").toBool());
+    dlg.setSymbolFile(FilePath::fromSettings(configValue("LastExternalExecutableFile")));
+    dlg.setCoreFile(FilePath::fromSettings(configValue("LastLocalCoreFile")));
+    dlg.setOverrideStartScript(FilePath::fromSettings(configValue("LastExternalStartScript")));
+    dlg.setSysRoot(FilePath::fromSettings(configValue("LastSysRoot")));
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toVariant());
-    setConfigValue("LastLocalCoreFile", dlg.localCoreFile().toVariant());
-    setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile().toVariant());
+    setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toSettings());
+    setConfigValue("LastLocalCoreFile", dlg.coreFile().toSettings());
     setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
-    setConfigValue("LastExternalStartScript", dlg.overrideStartScript().toVariant());
-    setConfigValue("LastSysRoot", dlg.sysRoot().toVariant());
-    setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
+    setConfigValue("LastExternalStartScript", dlg.overrideStartScript().toSettings());
+    setConfigValue("LastSysRoot", dlg.sysRoot().toSettings());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(dlg.kit());
-    runControl->setDisplayName(Tr::tr("Core file \"%1\"")
-        .arg(dlg.useLocalCoreFile() ? dlg.localCoreFile().toUserOutput()
-                                    : dlg.remoteCoreFile().toUserOutput()));
+    runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
     auto debugger = new DebuggerRunTool(runControl);
-    debugger->setInferiorExecutable(dlg.symbolFile());
-    debugger->setCoreFilePath(dlg.localCoreFile());
+
+    debugger->setInferiorExecutable(dlg.symbolFileCopy());
+    debugger->setCoreFilePath(dlg.coreFileCopy());
     debugger->setStartMode(AttachToCore);
     debugger->setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());
@@ -1631,7 +1613,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     kitChooser->setShowIcons(true);
 
     auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
-    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
+    dlg->addAcceptButton(Tr::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
         delete dlg;
@@ -1877,7 +1859,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             : Tr::tr("Set Breakpoint at Line %1").arg(lineNumber);
         auto act = menu->addAction(text);
         act->setEnabled(args.isValid());
-        connect(act, &QAction::triggered, [this, args] {
+        connect(act, &QAction::triggered, this, [this, args] {
             breakpointSetMarginActionTriggered(false, args);
         });
 
@@ -1887,7 +1869,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             : Tr::tr("Set Message Tracepoint at Line %1...").arg(lineNumber);
         act = menu->addAction(tracePointText);
         act->setEnabled(args.isValid());
-        connect(act, &QAction::triggered, [this, args] {
+        connect(act, &QAction::triggered, this, [this, args] {
             breakpointSetMarginActionTriggered(true, args);
         });
     }
@@ -1917,7 +1899,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             // Disassemble current function in stopped state.
             if (engine->hasCapability(DisassemblerCapability)) {
                 StackFrame frame;
-                frame.function = cppFunctionAt(args.fileName.toString(), lineNumber, 1);
+                frame.function = cppFunctionAt(args.fileName, lineNumber, 1);
                 frame.line = 42; // trick gdb into mixed mode.
                 if (!frame.function.isEmpty()) {
                     const QString text = Tr::tr("Disassemble Function \"%1\"")
@@ -2143,17 +2125,6 @@ DebuggerPlugin::~DebuggerPlugin()
     m_instance = nullptr;
 }
 
-bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage)
-
-    // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
-    ExtensionSystem::PluginManager::addObject(this);
-
-    dd = new DebuggerPluginPrivate(arguments);
-    return true;
-}
-
 IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(this);
@@ -2279,7 +2250,7 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
 
 QAction *createStartAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Start"), m_instance);
+    auto action = new QAction(Tr::tr("Start"), m_instance);
     action->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
@@ -2287,7 +2258,7 @@ QAction *createStartAction()
 
 QAction *createStopAction()
 {
-    auto action = new QAction(DebuggerMainWindow::tr("Stop"), m_instance);
+    auto action = new QAction(Tr::tr("Stop"), m_instance);
     action->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     action->setEnabled(true);
     return action;
@@ -2356,7 +2327,7 @@ void DebuggerUnitTests::cleanupTestCase()
 
 void DebuggerUnitTests::testStateMachine()
 {
-    QString proFile = m_tmpDir->absolutePath("simple/simple.pro");
+    FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(proFile, true));
@@ -2507,19 +2478,23 @@ void DebuggerUnitTests::testDebuggerMatching()
     QCOMPARE(expectedLevel, level);
 }
 
-QVector<QObject *> DebuggerPlugin::createTestObjects() const
+#endif // ifdef  WITH_TESTS
+
+bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    return {new DebuggerUnitTests};
+    Q_UNUSED(errorMessage)
+
+    // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
+    ExtensionSystem::PluginManager::addObject(this);
+
+    dd = new DebuggerPluginPrivate(arguments);
+
+#ifdef WITH_TESTS
+    addTest<DebuggerUnitTests>();
+#endif
+
+    return true;
 }
-
-#else // ^-- if WITH_TESTS else --v
-
-QVector<QObject *> DebuggerPlugin::createTestObjects() const
-{
-    return {};
-}
-
-#endif // if  WITH_TESTS
 
 } // Internal
 } // Debugger

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -139,9 +139,9 @@ public:
     const QHash<qint32, TracePoint> &tracePoints() const { return m_tracePoints; }
     const QHash<quint32, Thread> &threads() const { return m_threads; }
 
-    void loadFromTraceFile(const QString &filePath);
-    void saveToTraceFile(const QString &filePath);
-    void loadFromPerfData(const QString &filePath, const QString &executableDirPath,
+    void loadFromTraceFile(const Utils::FilePath &filePath);
+    void saveToTraceFile(const Utils::FilePath &filePath);
+    void loadFromPerfData(const Utils::FilePath &filePath, const QString &executableDirPath,
                           ProjectExplorer::Kit *kit);
 
     void finalize() override;

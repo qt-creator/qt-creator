@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -26,8 +26,6 @@ class TestOutputReader;
 class TestResult;
 enum class TestRunMode;
 
-using TestResultPtr = QSharedPointer<TestResult>;
-
 class ITestConfiguration
 {
 public:
@@ -40,9 +38,10 @@ public:
     Utils::FilePath workingDirectory() const;
     bool hasExecutable() const;
     Utils::FilePath executableFilePath() const;
+    virtual Utils::FilePath testExecutable() const { return executableFilePath(); };
 
-    virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                           Utils::QtcProcess *app) const = 0;
+    virtual TestOutputReader *createOutputReader(const QFutureInterface<TestResult> &fi,
+                                                 Utils::QtcProcess *app) const = 0;
     virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const;
 
     ITestBase *testBase() const { return m_testBase; }
@@ -126,6 +125,7 @@ public:
     explicit TestToolConfiguration(ITestBase *testBase) : ITestConfiguration(testBase) {}
     Utils::CommandLine commandLine() const { return m_commandLine; }
     void setCommandLine(const Utils::CommandLine &cmdline) { m_commandLine = cmdline; }
+    virtual Utils::FilePath testExecutable() const override { return m_commandLine.executable(); };
 
 private:
     Utils::CommandLine m_commandLine;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "relationstarter.h"
 
@@ -72,7 +72,7 @@ void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (m_currentPreviewArrow)
         return;
-    foreach (ArrowItem *item, m_arrows) {
+    for (ArrowItem *item : std::as_const(m_arrows)) {
         if (item->boundingRect().contains(mapToItem(item, event->pos()))) {
             prepareGeometryChange();
             m_currentPreviewArrowIntermediatePoints.clear();

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,7 +16,6 @@ public:
     CompletionAssistProvider(QObject *parent = nullptr);
     ~CompletionAssistProvider() override;
 
-    IAssistProvider::RunType runType() const override;
     virtual int activationCharSequenceLength() const;
     virtual bool isActivationCharSequence(const QString &sequence) const;
     virtual bool isContinuationChar(const QChar &c) const;

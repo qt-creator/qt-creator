@@ -1,12 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sshdeviceprocesslist.h"
+
 #include "idevice.h"
+#include "../projectexplorertr.h"
 
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 using namespace Utils;
 
@@ -48,13 +51,13 @@ void SshDeviceProcessList::handleProcessDone()
     if (d->m_process.result() == ProcessResult::FinishedWithSuccess) {
         reportProcessListUpdated(buildProcessList(d->m_process.cleanedStdOut()));
     } else {
-        const QString errorMessage = d->m_process.exitStatus() == QProcess::NormalExit
-                ? tr("Process listing command failed with exit code %1.").arg(d->m_process.exitCode())
+        const QString errorString = d->m_process.exitStatus() == QProcess::NormalExit
+                ? Tr::tr("Process listing command failed with exit code %1.").arg(d->m_process.exitCode())
                 : d->m_process.errorString();
         const QString stdErr = d->m_process.cleanedStdErr();
-        const QString fullMessage = stdErr.isEmpty()
-                ? errorMessage : errorMessage + '\n' + tr("Remote stderr was: %1").arg(stdErr);
-        reportError(fullMessage);
+        const QString outputString
+            = stdErr.isEmpty() ? stdErr : Tr::tr("Remote stderr was: %1").arg(stdErr);
+        reportError(Utils::joinStrings({errorString, outputString}, '\n'));
     }
     setFinished();
 }
@@ -64,7 +67,7 @@ void SshDeviceProcessList::handleKillProcessFinished(const QString &errorString)
     if (errorString.isEmpty())
         reportProcessKilled();
     else
-        reportError(tr("Error: Kill process failed: %1").arg(errorString));
+        reportError(Tr::tr("Error: Kill process failed: %1").arg(errorString));
     setFinished();
 }
 

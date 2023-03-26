@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -62,10 +62,11 @@ public:
 
     // Called from caller's or launcher's thread.
     QProcess::ProcessState state() const;
-    void sendStopPacket(StopProcessPacket::SignalType signalType);
+    void sendControlPacket(ControlProcessPacket::SignalType signalType);
     void terminate();
     void kill();
     void close();
+    void closeWriteChannel();
 
     qint64 processId() const;
 

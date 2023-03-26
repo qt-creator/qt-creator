@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "subcomponentmanager.h"
 #include "metainforeader.h"
@@ -123,7 +123,8 @@ void SubComponentManager::removeImport(int index)
         if (!m_dirToQualifier.contains(canonicalDirPath))
             m_watcher.removePath(canonicalDirPath);
 
-//        foreach (const QFileInfo &monitoredFile, watchedFiles(canonicalDirPath)) { ### todo: proper support for import as
+//        const QList<QFileInfo> files = watchedFiles(canonicalDirPath);
+//        for (const QFileInfo &monitoredFile : files) { ### todo: proper support for import as
 //            if (!m_dirToQualifier.contains(canonicalDirPath))
 //                unregisterQmlFile(monitoredFile, import.qualifier());
 //        }

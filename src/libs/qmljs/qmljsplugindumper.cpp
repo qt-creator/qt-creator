@@ -1,12 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsplugindumper.h"
-#include "qmljsmodelmanagerinterface.h"
-#include "qmljsutils.h"
 
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsviewercontext.h>
+#include "qmljsinterpreter.h"
+#include "qmljsmodelmanagerinterface.h"
+#include "qmljstr.h"
+#include "qmljsutils.h"
+#include "qmljsviewercontext.h"
 
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
@@ -123,25 +124,23 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
     plugin.importVersion = importVersion;
 
     // add default qmltypes file if it exists
-    QDirIterator it(canonicalLibraryPath.toString(), QStringList { "*.qmltypes" }, QDir::Files);
-
-    while (it.hasNext()) {
-        const FilePath defaultQmltypesPath = canonicalLibraryPath.resolvePath(it.next());
-
-        if (!plugin.typeInfoPaths.contains(defaultQmltypesPath))
-            plugin.typeInfoPaths += defaultQmltypesPath;
+    const FilePaths libEntries = canonicalLibraryPath.dirEntries({{"*.qmltypes"}, QDir::Files});
+    for (const FilePath &libEntry : libEntries) {
+        if (!plugin.typeInfoPaths.contains(libEntry))
+            plugin.typeInfoPaths += libEntry;
     }
 
     // add typeinfo files listed in qmldir
-    foreach (const QString &typeInfo, libraryInfo.typeInfos()) {
+    for (const QString &typeInfo : libraryInfo.typeInfos()) {
         const FilePath pathNow = canonicalLibraryPath.resolvePath(typeInfo);
         if (!plugin.typeInfoPaths.contains(pathNow) && pathNow.exists())
             plugin.typeInfoPaths += pathNow;
     }
 
     // watch plugin libraries
-    foreach (const QmlDirParser::Plugin &plugin, snapshot.libraryInfo(canonicalLibraryPath).plugins()) {
-        const QString pluginLibrary = resolvePlugin(canonicalLibraryPath.toString(), plugin.path, plugin.name);
+    const QList<QmlDirParser::Plugin> plugins = snapshot.libraryInfo(canonicalLibraryPath).plugins();
+    for (const QmlDirParser::Plugin &plugin : plugins) {
+        const FilePath pluginLibrary = resolvePlugin(canonicalLibraryPath, plugin.path, plugin.name);
         if (!pluginLibrary.isEmpty()) {
             if (!pluginWatcher()->watchesFile(pluginLibrary))
                 pluginWatcher()->addFile(pluginLibrary, FileSystemWatcher::WatchModifiedDate);
@@ -154,9 +153,9 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
         for (const FilePath &path : std::as_const(plugin.typeInfoPaths)) {
             if (!path.exists())
                 continue;
-            if (!pluginWatcher()->watchesFile(path.toString()))
-                pluginWatcher()->addFile(path.toString(), FileSystemWatcher::WatchModifiedDate);
-            m_libraryToPluginIndex.insert(path.toString(), index);
+            if (!pluginWatcher()->watchesFile(path))
+                pluginWatcher()->addFile(path, FileSystemWatcher::WatchModifiedDate);
+            m_libraryToPluginIndex.insert(path, index);
         }
     }
 
@@ -165,23 +164,23 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
 
 void PluginDumper::dumpAllPlugins()
 {
-    foreach (const Plugin &plugin, m_plugins) {
+    for (const Plugin &plugin : std::as_const(m_plugins)) {
         dump(plugin);
     }
 }
 
 static QString noTypeinfoError(const FilePath &libraryPath)
 {
-    return PluginDumper::tr("QML module does not contain information about components contained in plugins.\n\n"
-                            "Module path: %1\n"
-                            "See \"Using QML Modules with Plugins\" in the documentation.").arg(
+    return Tr::tr("QML module does not contain information about components contained in plugins.\n\n"
+                  "Module path: %1\n"
+                  "See \"Using QML Modules with Plugins\" in the documentation.").arg(
                 libraryPath.toUserOutput());
 }
 
 static QString qmldumpErrorMessage(const FilePath &libraryPath, const QString &error)
 {
     return noTypeinfoError(libraryPath) + "\n\n" +
-            PluginDumper::tr("Automatic type dump of QML module failed.\nErrors:\n%1").
+            Tr::tr("Automatic type dump of QML module failed.\nErrors:\n%1").
             arg(error) + QLatin1Char('\n');
 }
 
@@ -189,19 +188,19 @@ static QString qmldumpFailedMessage(const FilePath &libraryPath, const QString &
 {
     QString firstLines = QStringList(error.split('\n').mid(0, 10)).join('\n');
     return noTypeinfoError(libraryPath) + "\n\n" +
-            PluginDumper::tr("Automatic type dump of QML module failed.\n"
-                             "First 10 lines or errors:\n"
-                             "\n"
-                             "%1"
-                             "\n"
-                             "Check General Messages for details."
-                             ).arg(firstLines);
+            Tr::tr("Automatic type dump of QML module failed.\n"
+                   "First 10 lines or errors:\n"
+                   "\n"
+                   "%1"
+                   "\n"
+                   "Check General Messages for details."
+                   ).arg(firstLines);
 }
 
 static void printParseWarnings(const FilePath &libraryPath, const QString &warning)
 {
     ModelManagerInterface::writeWarning(
-                PluginDumper::tr("Warnings while parsing QML type information of %1:\n"
+                Tr::tr("Warnings while parsing QML type information of %1:\n"
                                  "%2").arg(libraryPath.toUserOutput(), warning));
 }
 
@@ -211,26 +210,26 @@ static QString qmlPluginDumpErrorMessage(QtcProcess *process)
     const QString binary = process->commandLine().executable().toUserOutput();
     switch (process->error()) {
     case QProcess::FailedToStart:
-        errorMessage = PluginDumper::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
+        errorMessage = Tr::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
         break;
     case QProcess::Crashed:
-        errorMessage = PluginDumper::tr("\"%1\" crashed.").arg(binary);
+        errorMessage = Tr::tr("\"%1\" crashed.").arg(binary);
         break;
     case QProcess::Timedout:
-        errorMessage = PluginDumper::tr("\"%1\" timed out.").arg(binary);
+        errorMessage = Tr::tr("\"%1\" timed out.").arg(binary);
         break;
     case QProcess::ReadError:
     case QProcess::WriteError:
-        errorMessage = PluginDumper::tr("I/O error running \"%1\".").arg(binary);
+        errorMessage = Tr::tr("I/O error running \"%1\".").arg(binary);
         break;
     case QProcess::UnknownError:
         if (process->exitCode())
-            errorMessage = PluginDumper::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
+            errorMessage = Tr::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
         break;
     }
-    errorMessage += '\n' + PluginDumper::tr("Arguments: %1").arg(process->commandLine().arguments());
+    errorMessage += '\n' + Tr::tr("Arguments: %1").arg(process->commandLine().arguments());
     if (process->error() != QProcess::FailedToStart) {
-        const QString stdErr = QString::fromLocal8Bit(process->readAllStandardError());
+        const QString stdErr = QString::fromLocal8Bit(process->readAllRawStandardError());
         if (!stdErr.isEmpty()) {
             errorMessage += QLatin1Char('\n');
             errorMessage += stdErr;
@@ -263,7 +262,7 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
             return;
         }
 
-        const QByteArray output = process->readAllStandardOutput();
+        const QByteArray output = process->readAllRawStandardOutput();
 
         class CppQmlTypesInfo {
         public:
@@ -318,7 +317,7 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
 
 void PluginDumper::pluginChanged(const QString &pluginLibrary)
 {
-    const int pluginIndex = m_libraryToPluginIndex.value(pluginLibrary, -1);
+    const int pluginIndex = m_libraryToPluginIndex.value(FilePath::fromString(pluginLibrary), -1);
     if (pluginIndex == -1)
         return;
 
@@ -346,7 +345,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
                                                         &error, &warning, p.toString());
             if (!error.isEmpty()) {
-                result.errors += tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
+                result.errors += Tr::tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
             } else {
                 result.objects += objs.values();
                 result.moduleApis += apis;
@@ -548,7 +547,7 @@ void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
         libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
     } else {
         printParseWarnings(libraryPath, errors.join(QLatin1Char('\n')));
-        errs.prepend(tr("Errors while reading typeinfo files:"));
+        errs.prepend(Tr::tr("Errors while reading typeinfo files:"));
         libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errs.join(QLatin1Char('\n')));
     }
 
@@ -637,7 +636,7 @@ void PluginDumper::dump(const Plugin &plugin)
             errorMessage = noTypeinfoError(plugin.qmldirPath);
         } else {
             errorMessage = qmldumpErrorMessage(plugin.qmldirPath,
-                    tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
+                    Tr::tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
                        "Please build the qmldump application on the Qt version options page."));
         }
 
@@ -665,45 +664,37 @@ void PluginDumper::dump(const Plugin &plugin)
 
   Adapted from QDeclarativeImportDatabase::resolvePlugin.
 */
-QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
-                                    const QString &baseName, const QStringList &suffixes,
-                                    const QString &prefix)
+FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &qmldirPluginPath,
+                                     const QString &baseName, const QStringList &suffixes,
+                                     const QString &prefix)
 {
-    QStringList searchPaths;
-    searchPaths.append(QLatin1String("."));
+    QStringList searchPaths = {"."};
 
     bool qmldirPluginPathIsRelative = QDir::isRelativePath(qmldirPluginPath);
     if (!qmldirPluginPathIsRelative)
         searchPaths.prepend(qmldirPluginPath);
 
-    foreach (const QString &pluginPath, searchPaths) {
+    for (const QString &pluginPath : std::as_const(searchPaths)) {
 
-        QString resolvedPath;
+        FilePath resolvedPath;
 
         if (pluginPath == QLatin1String(".")) {
             if (qmldirPluginPathIsRelative)
-                resolvedPath = qmldirPath.absoluteFilePath(qmldirPluginPath);
+                resolvedPath = qmldirPath.resolvePath(qmldirPluginPath);
             else
-                resolvedPath = qmldirPath.absolutePath();
+                resolvedPath = qmldirPath.absoluteFilePath();
         } else {
-            resolvedPath = pluginPath;
+            resolvedPath = FilePath::fromString(pluginPath);
         }
 
-        QDir dir(resolvedPath);
-        foreach (const QString &suffix, suffixes) {
-            QString pluginFileName = prefix;
-
-            pluginFileName += baseName;
-            pluginFileName += suffix;
-
-            QFileInfo fileInfo(dir, pluginFileName);
-
-            if (fileInfo.exists())
-                return fileInfo.absoluteFilePath();
+        for (const QString &suffix : suffixes) {
+            FilePath candidate = resolvedPath.pathAppended(prefix + baseName + suffix);
+            if (candidate.exists())
+                return candidate.absoluteFilePath();
         }
     }
 
-    return QString();
+    return {};
 }
 
 /*!
@@ -722,8 +713,8 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
 
   Version number on unix are ignored.
 */
-QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
-                                    const QString &baseName)
+FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &qmldirPluginPath,
+                                     const QString &baseName)
 {
     QStringList validSuffixList;
     QString prefix;

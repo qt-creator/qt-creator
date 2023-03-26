@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -116,6 +116,8 @@ public:
 
     static double luminance(const QColor &color);
     static bool isReadableOn(const QColor &background, const QColor &foreground);
+    // returns a foreground color readable on background (desiredForeground if already readable or adaption fails)
+    static QColor ensureReadableOn(const QColor &background, const QColor &desiredForeground);
 
 private:
     static QColor m_baseColor;

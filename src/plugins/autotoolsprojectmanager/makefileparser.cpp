@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Openismus GmbH.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "makefileparser.h"
 
@@ -231,9 +231,9 @@ void MakefileParser::parseSubDirs()
         // Add all sub directories of the current folder
         QDir dir(path);
         dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-        foreach (const QFileInfo& info, dir.entryInfoList()) {
+        const QFileInfoList infoList = dir.entryInfoList();
+        for (const QFileInfo &info : infoList)
             subDirs.append(info.fileName());
-        }
     }
     subDirs.removeDuplicates();
 
@@ -265,7 +265,8 @@ void MakefileParser::parseSubDirs()
 
         // Append the sources of the sub directory to the
         // current sources
-        foreach (const QString& source, parser.sources())
+        const QStringList sources = parser.sources();
+        for (const QString &source : sources)
             m_sources.append(subDir + slash + source);
 
         // Append the include paths of the sub directory
@@ -276,10 +277,10 @@ void MakefileParser::parseSubDirs()
         m_cxxflags.append(parser.cxxflags());
 
         // Append the macros of the sub directory
-        foreach (const auto& m, parser.macros())
-        {
-            if (!m_macros.contains(m))
-                m_macros.append(m);
+        const Macros macros = parser.macros();
+        for (const auto &macro : macros) {
+            if (!m_macros.contains(macro))
+                m_macros.append(macro);
         }
 
     }
@@ -308,17 +309,17 @@ QStringList MakefileParser::directorySources(const QString &directory,
     dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
 
     const QFileInfoList infos = dir.entryInfoList();
-    foreach (const QFileInfo& info, infos) {
+    for (const QFileInfo &info : infos) {
         if (info.isDir()) {
             // Append recursively sources from the sub directory
             const QStringList subDirSources = directorySources(info.absoluteFilePath(),
                                                                extensions);
             const QString dirPath = info.fileName();
-            foreach (const QString& subDirSource, subDirSources)
+            for (const QString &subDirSource : subDirSources)
                 list.append(dirPath + QLatin1Char('/') + subDirSource);
         } else {
             // Check whether the file matches to an extension
-            foreach (const QString& extension, extensions) {
+            for (const QString &extension : extensions) {
                 if (info.fileName().endsWith(extension)) {
                     list.append(info.fileName());
                     appendHeader(list, dir, info.baseName());
@@ -527,22 +528,23 @@ void MakefileParser::parseIncludePaths()
         if (varName.isEmpty())
             continue;
 
+        const QStringList termList = parseTermsAfterAssign(line);
         if (varName == QLatin1String("DEFS")) {
-            foreach (const QString &term, parseTermsAfterAssign(line))
+            for (const QString &term : termList)
                 maybeParseDefine(term);
         } else if (varName.endsWith(QLatin1String("INCLUDES"))) {
-            foreach (const QString &term, parseTermsAfterAssign(line))
+            for (const QString &term : termList)
                 maybeParseInclude(term, dirName);
         } else if (varName.endsWith(QLatin1String("CFLAGS"))) {
-            foreach (const QString &term, parseTermsAfterAssign(line))
+            for (const QString &term : termList)
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCFlag(term);
         } else if (varName.endsWith(QLatin1String("CXXFLAGS"))) {
-            foreach (const QString &term, parseTermsAfterAssign(line))
+            for (const QString &term : termList)
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCXXFlag(term);
         } else if (varName.endsWith(QLatin1String("CPPFLAGS"))) {
-            foreach (const QString &term, parseTermsAfterAssign(line))
+            for (const QString &term : termList)
                 maybeParseDefine(term) || maybeParseInclude(term, dirName)
                         || maybeParseCPPFlag(term);
         }

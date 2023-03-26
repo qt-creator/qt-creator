@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "edit3dwidget.h"
 #include "designdocument.h"
@@ -390,7 +390,6 @@ void Edit3DWidget::onCreateAction()
         if (modelNode.metaInfo().isQtQuick3DModel())
             MaterialUtils::assignMaterialTo3dModel(m_view, modelNode);
     });
-
 }
 
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

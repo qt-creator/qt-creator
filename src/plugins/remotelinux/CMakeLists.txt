@@ -2,7 +2,6 @@ add_qtc_plugin(RemoteLinux
   DEPENDS QmlDebug
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
-    abstractremotelinuxdeployservice.cpp abstractremotelinuxdeployservice.h
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
     customcommanddeploystep.cpp customcommanddeploystep.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h
@@ -24,10 +23,7 @@ add_qtc_plugin(RemoteLinux
     remotelinuxdebugsupport.cpp remotelinuxdebugsupport.h
     remotelinuxdeployconfiguration.cpp remotelinuxdeployconfiguration.h
     remotelinuxenvironmentaspect.cpp remotelinuxenvironmentaspect.h
-    remotelinuxenvironmentaspectwidget.cpp remotelinuxenvironmentaspectwidget.h
-    remotelinuxenvironmentreader.cpp remotelinuxenvironmentreader.h
     remotelinuxplugin.cpp remotelinuxplugin.h
-    remotelinuxqmltoolingsupport.cpp remotelinuxqmltoolingsupport.h
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
     remotelinuxsignaloperation.cpp remotelinuxsignaloperation.h
     rsyncdeploystep.cpp rsyncdeploystep.h
@@ -35,7 +31,6 @@ add_qtc_plugin(RemoteLinux
     sshprocessinterface.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h
     tarpackagedeploystep.cpp tarpackagedeploystep.h
-    x11forwardingaspect.cpp x11forwardingaspect.h
 )
 
 extend_qtc_plugin(RemoteLinux

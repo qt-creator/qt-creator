@@ -223,16 +223,16 @@ struct JsonMap<QMap<Key, Value>>
     {
         QJsonObject output;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
-        for (const auto &[key, val] : map.asKeyValueRange())
-            output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
-#else
-        const auto mapKeys = map.keys();
-        for (const Key &key : mapKeys) {
-            const Value &val = map.value(key);
-            output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
-        }
-#endif
+        #if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
+                for (const auto &[key, val] : map.asKeyValueRange())
+                    output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
+        #else
+                const auto mapKeys = map.keys();
+                for (const Key &key : mapKeys) {
+                    const Value &val = map.value(key);
+                    output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
+                }
+        #endif
 
         return output;
     }

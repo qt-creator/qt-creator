@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filewidget.h"
+
+#include "qmleditorwidgetstr.h"
 
 #include <QLabel>
 #include <QToolButton>
@@ -67,7 +69,7 @@ void FileWidget::comboBoxChanged()
 
 void FileWidget::onButtonReleased()
 {
-    QString newFile = QFileDialog::getOpenFileName(this, tr("Open File"),
+    QString newFile = QFileDialog::getOpenFileName(this, Tr::tr("Open File"),
                                                    m_path.toLocalFile(), m_filter);
     if (!newFile.isEmpty())
         setFileNameStr(newFile);

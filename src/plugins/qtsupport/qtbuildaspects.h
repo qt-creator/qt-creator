@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -18,7 +18,7 @@ class QTSUPPORT_EXPORT QmlDebuggingAspect : public Utils::TriStateAspect
 public:
     explicit QmlDebuggingAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
 private:
     const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
@@ -32,7 +32,7 @@ public:
     QtQuickCompilerAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
 private:
-    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override;
 
     const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
 };

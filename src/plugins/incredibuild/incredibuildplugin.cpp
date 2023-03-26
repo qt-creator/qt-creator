@@ -1,13 +1,12 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "incredibuildplugin.h"
 
 #include "buildconsolebuildstep.h"
 #include "ibconsolebuildstep.h"
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class IncrediBuildPluginPrivate
 {
@@ -21,15 +20,9 @@ IncrediBuildPlugin::~IncrediBuildPlugin()
     delete d;
 }
 
-bool IncrediBuildPlugin::initialize(const QStringList &arguments, QString *errorString)
+void IncrediBuildPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new IncrediBuildPluginPrivate;
-
-    return true;
 }
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

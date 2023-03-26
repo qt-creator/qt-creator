@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "environment.h"
 
@@ -23,7 +23,7 @@ NameValueItems Environment::diff(const Environment &other, bool checkAppendPrepe
     return m_dict.diff(other.m_dict, checkAppendPrepend);
 }
 
-int Environment::isValid() const
+bool Environment::hasChanges() const
 {
     return m_dict.size() != 0;
 }
@@ -140,47 +140,29 @@ static FilePath searchInDirectory(const QStringList &execs,
     if (directory.isEmpty() || alreadyChecked.count() == checkedCount)
         return FilePath();
 
-    const QString dir = directory.toString();
-
-    QFileInfo fi;
     for (const QString &exec : execs) {
-        fi.setFile(dir, exec);
-        if (fi.isFile() && fi.isExecutable())
-            return FilePath::fromString(fi.absoluteFilePath());
+        const FilePath filePath = directory.pathAppended(exec);
+        if (filePath.isExecutableFile())
+            return filePath;
     }
     return FilePath();
 }
 
-QStringList Environment::appendExeExtensions(const QString &executable) const
+static QStringList appendExeExtensions(const Environment &env, const QString &executable)
 {
     QStringList execs(executable);
-    const QFileInfo fi(executable);
-    if (osType() == OsTypeWindows) {
+    if (env.osType() == OsTypeWindows) {
+        const QFileInfo fi(executable);
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
         if (fi.suffix().isEmpty()) {
-            const QStringList extensions = expandedValueForKey("PATHEXT").split(';');
+            const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
 
             for (const QString &ext : extensions)
                 execs << executable + ext.toLower();
         }
     }
     return execs;
-}
-
-bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) const
-{
-    const QStringList exe1List = appendExeExtensions(exe1);
-    const QStringList exe2List = appendExeExtensions(exe2);
-    for (const QString &i1 : exe1List) {
-        for (const QString &i2 : exe2List) {
-            const FilePath f1 = FilePath::fromString(i1);
-            const FilePath f2 = FilePath::fromString(i2);
-            if (f1.isSameFile(f2))
-                return true;
-        }
-    }
-    return false;
 }
 
 QString Environment::expandedValueForKey(const QString &key) const
@@ -200,7 +182,7 @@ static FilePath searchInDirectoriesHelper(const Environment &env,
     const QString exec = QDir::cleanPath(env.expandVariables(executable));
     const QFileInfo fi(exec);
 
-    const QStringList execs = env.appendExeExtensions(exec);
+    const QStringList execs = appendExeExtensions(env, exec);
 
     if (fi.isAbsolute()) {
         for (const QString &path : execs) {
@@ -232,9 +214,10 @@ static FilePath searchInDirectoriesHelper(const Environment &env,
 }
 
 FilePath Environment::searchInDirectories(const QString &executable,
-                                          const FilePaths &dirs) const
+                                          const FilePaths &dirs,
+                                          const PathFilter &func) const
 {
-    return searchInDirectoriesHelper(*this, executable, dirs, {}, false);
+    return searchInDirectoriesHelper(*this, executable, dirs, func, false);
 }
 
 FilePath Environment::searchInPath(const QString &executable,
@@ -254,7 +237,7 @@ FilePaths Environment::findAllInPath(const QString &executable,
     const QString exec = QDir::cleanPath(expandVariables(executable));
     const QFileInfo fi(exec);
 
-    const QStringList execs = appendExeExtensions(exec);
+    const QStringList execs = appendExeExtensions(*this, exec);
 
     if (fi.isAbsolute()) {
         for (const QString &path : execs) {
@@ -413,58 +396,58 @@ std::optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArra
 
 void EnvironmentChange::addSetValue(const QString &key, const QString &value)
 {
-    m_changeItems.append({Item::SetValue, QVariant::fromValue(QPair<QString, QString>(key, value))});
+    m_changeItems.append(Item{std::in_place_index_t<SetValue>(), QPair<QString, QString>{key, value}});
 }
 
 void EnvironmentChange::addUnsetValue(const QString &key)
 {
-    m_changeItems.append({Item::UnsetValue, key});
+    m_changeItems.append(Item{std::in_place_index_t<UnsetValue>(), key});
 }
 
 void EnvironmentChange::addPrependToPath(const FilePaths &values)
 {
     for (int i = values.size(); --i >= 0; ) {
         const FilePath value = values.at(i);
-        m_changeItems.append({Item::PrependToPath, value.toVariant()});
+        m_changeItems.append(Item{std::in_place_index_t<PrependToPath>(), value});
     }
 }
 
 void EnvironmentChange::addAppendToPath(const FilePaths &values)
 {
     for (const FilePath &value : values)
-        m_changeItems.append({Item::AppendToPath, value.toVariant()});
+        m_changeItems.append(Item{std::in_place_index_t<AppendToPath>(), value});
 }
 
-EnvironmentChange EnvironmentChange::fromFixedEnvironment(const Environment &fixedEnv)
+EnvironmentChange EnvironmentChange::fromDictionary(const NameValueDictionary &dict)
 {
     EnvironmentChange change;
-    change.m_changeItems.append({Item::SetFixedEnvironment, QVariant::fromValue(fixedEnv)});
+    change.m_changeItems.append(Item{std::in_place_index_t<SetFixedDictionary>(), dict});
     return change;
 }
 
 void EnvironmentChange::applyToEnvironment(Environment &env) const
 {
     for (const Item &item : m_changeItems) {
-        switch (item.type) {
-        case Item::SetSystemEnvironment:
+        switch (item.index()) {
+        case SetSystemEnvironment:
             env = Environment::systemEnvironment();
             break;
-        case Item::SetFixedEnvironment:
-            env = item.data.value<Environment>();
+        case SetFixedDictionary:
+            env = Environment(std::get<SetFixedDictionary>(item));
             break;
-        case Item::SetValue: {
-            auto data = item.data.value<QPair<QString, QString>>();
+        case SetValue: {
+            const QPair<QString, QString> data = std::get<SetValue>(item);
             env.set(data.first, data.second);
             break;
         }
-        case Item::UnsetValue:
-            env.unset(item.data.toString());
+        case UnsetValue:
+            env.unset(std::get<UnsetValue>(item));
             break;
-        case Item::PrependToPath:
-            env.prependOrSetPath(FilePath::fromVariant(item.data));
+        case PrependToPath:
+            env.prependOrSetPath(std::get<PrependToPath>(item));
             break;
-        case Item::AppendToPath:
-            env.appendOrSetPath(FilePath::fromVariant(item.data));
+        case AppendToPath:
+            env.appendOrSetPath(std::get<AppendToPath>(item));
             break;
         }
     }

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -47,7 +47,6 @@ public:
     bool activate();
     void deactivate();
     bool isActive() const;
-    bool canCreateKits() const;
     Utils::FilePath sdpPath() const;
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
@@ -58,7 +57,7 @@ private:
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
             const ProjectExplorer::Abi &abi);
 
-    QStringList validationErrors() const;
+    QString validationErrorMessage() const;
 
     void setVersion(const QnxVersionNumber& version);
 

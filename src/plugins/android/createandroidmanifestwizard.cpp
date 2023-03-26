@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidtr.h"
 #include "createandroidmanifestwizard.h"
@@ -20,6 +20,7 @@
 
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -289,14 +290,10 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
         if (m_copyGradle) {
             FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
-            if (!gradlePath.exists())
-                gradlePath = AndroidConfigurations::currentConfig().sdkLocation() / "tools/templates/gradle/wrapper";
+            QTC_ASSERT(gradlePath.exists(), return);
             FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy);
         }
-
-        AndroidManager::updateGradleProperties(target, m_buildKey);
     }
-
 
     QString androidPackageDir;
     ProjectNode *node = target->project()->findNodeForBuildKey(m_buildKey);

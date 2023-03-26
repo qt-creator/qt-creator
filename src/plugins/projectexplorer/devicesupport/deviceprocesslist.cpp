@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "deviceprocesslist.h"
+
 #include "idevice.h"
+#include "../projectexplorertr.h"
 
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
@@ -47,7 +49,7 @@ using namespace Internal;
 DeviceProcessList::DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent)
     : QObject(parent), d(std::make_unique<DeviceProcessListPrivate>(device))
 {
-    d->model.setHeader({tr("Process ID"), tr("Command Line")});
+    d->model.setHeader({Tr::tr("Process ID"), Tr::tr("Command Line")});
 }
 
 DeviceProcessList::~DeviceProcessList() = default;
@@ -60,7 +62,7 @@ void DeviceProcessList::update()
     d->model.clear();
     d->model.rootItem()->appendChild(
                 new DeviceProcessTreeItem(
-                    {0, tr("Fetching process list. This might take a while."), ""},
+                    {0, Tr::tr("Fetching process list. This might take a while."), ""},
                     Qt::NoItemFlags));
     d->state = Listing;
     doUpdate();

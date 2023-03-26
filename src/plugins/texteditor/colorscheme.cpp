@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "colorscheme.h"
 
 #include "texteditorconstants.h"
+#include "texteditortr.h"
 
 #include <utils/fileutils.h>
 
@@ -298,7 +299,7 @@ bool ColorSchemeReader::read(const FilePath &filePath, ColorScheme *scheme)
     if (readNextStartElement() && name() == QLatin1String("style-scheme"))
         readStyleScheme();
     else
-        raiseError(QCoreApplication::translate("TextEditor::Internal::ColorScheme", "Not a color scheme file."));
+        raiseError(Tr::tr("Not a color scheme file."));
 
     return true;
 }

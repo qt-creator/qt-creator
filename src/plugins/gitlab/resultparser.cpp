@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "resultparser.h"
 
@@ -144,7 +144,7 @@ static Project projectFromJson(const QJsonObject &jsonObj)
     project.displayName = jsonObj.value("name_with_namespace").toString();
     project.pathName = jsonObj.value("path_with_namespace").toString();
     project.id = jsonObj.value("id").toInt(-1);
-    project.visibility = jsonObj.value("visibility").toString("public");
+    project.visibility = jsonObj.value("visibility").toString();
     project.httpUrl = jsonObj.value("http_url_to_repo").toString();
     project.sshUrl = jsonObj.value("ssh_url_to_repo").toString();
     if (jsonObj.contains("forks_count"))

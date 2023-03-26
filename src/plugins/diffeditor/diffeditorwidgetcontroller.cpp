@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "diffeditorwidgetcontroller.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
+#include "diffeditortr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -142,9 +143,9 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
             ? fileData.fileInfo[LeftSide].patchBehaviour
             : fileData.fileInfo[RightSide].patchBehaviour;
 
-    const FilePath workingDirectory = m_document->baseDirectory().isEmpty()
+    const FilePath workingDirectory = m_document->workingDirectory().isEmpty()
             ? FilePath::fromString(fileName).absolutePath()
-            : m_document->baseDirectory();
+            : m_document->workingDirectory();
     const FilePath absFilePath = workingDirectory.resolvePath(fileName).absoluteFilePath();
 
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(
@@ -158,7 +159,7 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
     if (patchBehaviour == DiffFileInfo::PatchFile) {
         if (textDocument && !EditorManager::saveDocument(textDocument))
             return;
-        const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
+        const int strip = m_document->workingDirectory().isEmpty() ? -1 : 0;
 
         const QString patch = m_document->makePatch(fileIndex, chunkIndex, {}, patchAction);
 
@@ -205,7 +206,7 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
     if (!m_document)
         return;
 
-    const FilePath filePath = m_document->baseDirectory().resolvePath(fileName);
+    const FilePath filePath = m_document->workingDirectory().resolvePath(fileName);
     if (filePath.exists() && !filePath.isDir())
         EditorManager::openEditorAt({filePath, lineNumber, columnNumber});
 }
@@ -225,7 +226,7 @@ void DiffEditorWidgetController::addCodePasterAction(QMenu *menu, int fileIndex,
 {
     if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
         // optional code pasting service
-        QAction *sendChunkToCodePasterAction = menu->addAction(tr("Send Chunk to CodePaster..."));
+        QAction *sendChunkToCodePasterAction = menu->addAction(Tr::tr("Send Chunk to CodePaster..."));
         connect(sendChunkToCodePasterAction, &QAction::triggered, this, [this, fileIndex, chunkIndex] {
             sendChunkToCodePaster(fileIndex, chunkIndex);
         });
@@ -264,8 +265,8 @@ bool DiffEditorWidgetController::fileNamesAreDifferent(int fileIndex) const
 void DiffEditorWidgetController::addPatchAction(QMenu *menu, int fileIndex, int chunkIndex,
                                                 PatchAction patchAction)
 {
-    const QString actionName = patchAction == PatchAction::Apply ? tr("Apply Chunk...")
-                                                                 : tr("Revert Chunk...");
+    const QString actionName = patchAction == PatchAction::Apply ? Tr::tr("Apply Chunk...")
+                                                                 : Tr::tr("Revert Chunk...");
     QAction *action = menu->addAction(actionName);
     connect(action, &QAction::triggered, this, [this, fileIndex, chunkIndex, patchAction] {
         patch(patchAction, fileIndex, chunkIndex);
@@ -293,10 +294,10 @@ void DiffEditorWidgetController::updateCannotDecodeInfo()
         if (!infoBar->canInfoBeAdded(selectEncodingId))
             return;
         InfoBarEntry info(selectEncodingId,
-                                 tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
+                                 Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
                                      .arg(m_document->displayName(),
                                           QString::fromLatin1(m_document->codec()->name())));
-        info.addCustomButton(tr("Select Encoding"), [this] { m_document->selectEncoding(); });
+        info.addCustomButton(Tr::tr("Select Encoding"), [this] { m_document->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);

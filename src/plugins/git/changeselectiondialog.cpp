@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "changeselectiondialog.h"
 
@@ -17,9 +17,7 @@
 
 #include <QCompleter>
 #include <QFileDialog>
-#include <QFormLayout>
 #include <QLabel>
-#include <QLayout>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -215,6 +213,7 @@ void ChangeSelectionDialog::recalculateCompletion()
     process->setEnvironment(client->processEnvironment());
     process->setCommand({client->vcsBinary(), {"for-each-ref", "--format=%(refname:short)"}});
     process->setWorkingDirectory(workingDir);
+    process->setUseCtrlCStub(true);
     connect(process, &QtcProcess::done, this, [this, process] {
         if (process->result() == ProcessResult::FinishedWithSuccess)
             m_changeModel->setStringList(process->cleanedStdOut().split('\n'));

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "helpindexfilter.h"
 
@@ -86,7 +86,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     QList<LocatorFilterEntry> entries;
     for (const QString &keyword : std::as_const(m_lastIndicesCache)) {
         const int index = keyword.indexOf(entry, 0, cs);
-        LocatorFilterEntry filterEntry(this, keyword, QVariant(), m_icon);
+        LocatorFilterEntry filterEntry(this, keyword, {}, m_icon);
         filterEntry.highlightInfo = {index, int(entry.length())};
         entries.append(filterEntry);
     }
@@ -101,10 +101,7 @@ void HelpIndexFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     const QString &key = selection.displayName;
-    QMultiMap<QString, QUrl> links;
-    const QList<QHelpLink> docs = LocalHelpManager::helpEngine().documentsForKeyword(key, QString());
-    for (const auto &doc : docs)
-        links.insert(doc.title, doc.url);
+    const QMultiMap<QString, QUrl> links = LocalHelpManager::linksForKeyword(key);
     emit linksActivated(links, key);
 }
 

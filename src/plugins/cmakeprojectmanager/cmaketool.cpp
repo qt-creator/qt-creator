@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmaketool.h"
 
@@ -122,7 +122,7 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
 
     setFilePath(FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 
-    m_qchFilePath = FilePath::fromVariant(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
+    m_qchFilePath = FilePath::fromSettings(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
     if (m_qchFilePath.isEmpty())
         m_qchFilePath = searchQchFile(m_executable);
@@ -149,15 +149,6 @@ void CMakeTool::setFilePath(const FilePath &executable)
 FilePath CMakeTool::filePath() const
 {
     return m_executable;
-}
-
-void CMakeTool::setAutorun(bool autoRun)
-{
-    if (m_isAutoRun == autoRun)
-        return;
-
-    m_isAutoRun = autoRun;
-    CMakeToolManager::notifyAboutUpdate(this);
 }
 
 bool CMakeTool::isValid() const
@@ -565,13 +556,6 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
     m_introspection->m_version.minor = versionInfo.value("minor").toInt();
     m_introspection->m_version.patch = versionInfo.value("patch").toInt();
     m_introspection->m_version.fullVersion = versionInfo.value("string").toByteArray();
-
-    // Fix up fileapi support for cmake 3.14:
-    if (m_introspection->m_version.major == 3 && m_introspection->m_version.minor == 14) {
-        m_introspection->m_fileApis.append({QString("codemodel"), {2, 0}});
-        m_introspection->m_fileApis.append({QString("cache"), {2, 0}});
-        m_introspection->m_fileApis.append({QString("cmakefiles"), {1, 0}});
-    }
 }
 
 } // namespace CMakeProjectManager

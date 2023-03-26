@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/qtcreator.py")
 
@@ -22,8 +22,8 @@ def main():
                            'onTriggered: console.log("Break here")'])
         invokeMenuItem("File", "Save All")
         filesAndLines = [
-                        { "%s.%s.Source Files.main\\.cpp" % (projectName, projectName) : "QQmlApplicationEngine engine;" },
-                        { "%s.%s.qml\.qrc./.main\\.qml" % (projectName, projectName) : 'onTriggered.*' }
+                        { "%s.app%s.Source Files.main\\.cpp" % (projectName, projectName) : "QQmlApplicationEngine engine;" },
+                        { "%s.app%s.Main\\.qml" % (projectName, projectName) : 'onTriggered.*' }
                         ]
         test.log("Setting breakpoints")
         expectedBreakpointsOrder = setBreakpointsForCurrentProject(filesAndLines)

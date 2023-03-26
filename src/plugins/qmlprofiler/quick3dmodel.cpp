@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerconstants.h"
 #include "qmlprofilertr.h"
@@ -30,27 +30,27 @@ QRgb Quick3DModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Frame"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Synchronize Frame"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Prepare Frame"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Load"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Custom Mesh Load"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Load"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Generate Shader"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Load Shader"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Particle Update"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Call"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Pass"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Event Data"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Frame"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Synchronize Frame"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Prepare Frame"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Mesh Load"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Custom Mesh Load"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Load"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Generate Shader"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Load Shader"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Particle Update"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Call"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Pass"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Event Data"),
 
-    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Memory consumption"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Memory consumption"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Mesh Memory consumption"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Memory consumption"),
 };
 
 static const char *unloadMessageTypes[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Unload"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Custom Mesh Unload"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Unload"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Mesh Unload"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Custom Mesh Unload"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Unload"),
 };
 
 QString Quick3DModel::messageType(uint i)
@@ -166,8 +166,8 @@ QVariantMap Quick3DModel::details(int index) const
     if ((detailType == RenderPass || detailType == PrepareFrame) && m_data[index].data) {
         quint32 width = m_data[index].data & 0xffffffff;
         quint32 height = m_data[index].data >> 32;
-        result.insert(tr("Width"), width);
-        result.insert(tr("Height"), height);
+        result.insert(Tr::tr("Width"), width);
+        result.insert(Tr::tr("Height"), height);
     }
     if ((detailType >= MeshLoad && detailType <= TextureLoad)
             || (detailType >= MeshMemoryConsumption && detailType <= TextureMemoryConsumption)) {
@@ -176,9 +176,9 @@ QVariantMap Quick3DModel::details(int index) const
     if (detailType == RenderCall) {
         quint32 primitives = m_data[index].data & 0xffffffff;
         quint32 instances = m_data[index].data >> 32;
-        result.insert(tr("Primitives"), primitives);
+        result.insert(Tr::tr("Primitives"), primitives);
         if (instances > 1)
-            result.insert(tr("Instances"), instances);
+            result.insert(Tr::tr("Instances"), instances);
     }
     if (!m_data[index].eventData.isEmpty()) {
         for (int i = 0; i < m_data[index].eventData.size(); i++) {

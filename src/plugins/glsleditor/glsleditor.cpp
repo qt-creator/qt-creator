@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
@@ -15,9 +15,10 @@
 #include <glsl/glslsemantic.h>
 #include <glsl/glslsymbols.h>
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
@@ -143,7 +144,8 @@ public:
 
     QSet<QString> identifiers() const;
 
-    AssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const override;
+    std::unique_ptr<AssistInterface> createAssistInterface(AssistKind assistKind,
+                                                           AssistReason reason) const override;
 
 private:
     void updateDocumentNow();
@@ -263,7 +265,8 @@ void GlslEditorWidget::updateDocumentNow()
         QList<QTextEdit::ExtraSelection> sels;
         QSet<int> errors;
 
-        foreach (const DiagnosticMessage &m, doc->_engine->diagnosticMessages()) {
+        const QList<DiagnosticMessage> messages = doc->_engine->diagnosticMessages();
+        for (const DiagnosticMessage &m : messages) {
             if (! m.line())
                 continue;
             else if (errors.contains(m.line()))
@@ -343,16 +346,17 @@ int languageVariant(const QString &type)
     return variant;
 }
 
-AssistInterface *GlslEditorWidget::createAssistInterface(
+std::unique_ptr<AssistInterface> GlslEditorWidget::createAssistInterface(
     AssistKind kind, AssistReason reason) const
 {
-    if (kind == Completion)
-        return new GlslCompletionAssistInterface(textCursor(),
-                                                 textDocument()->filePath(),
-                                                 reason,
-                                                 textDocument()->mimeType(),
-                                                 m_glslDocument);
-    return TextEditorWidget::createAssistInterface(kind, reason);
+    if (kind != Completion)
+        return TextEditorWidget::createAssistInterface(kind, reason);
+
+    return std::make_unique<GlslCompletionAssistInterface>(textCursor(),
+                                                           textDocument()->filePath(),
+                                                           reason,
+                                                           textDocument()->mimeType(),
+                                                           m_glslDocument);
 }
 
 
@@ -363,7 +367,7 @@ AssistInterface *GlslEditorWidget::createAssistInterface(
 GlslEditorFactory::GlslEditorFactory()
 {
     setId(Constants::C_GLSLEDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
+    setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
     addMimeType(Constants::GLSL_MIMETYPE);
     addMimeType(Constants::GLSL_MIMETYPE_VERT);
     addMimeType(Constants::GLSL_MIMETYPE_FRAG);

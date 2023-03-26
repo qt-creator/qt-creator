@@ -1,8 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "basevcseditorfactory.h"
+
 #include "vcsbaseeditor.h"
+#include "vcsbasetr.h"
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
@@ -11,7 +13,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QStringList>
 
 using namespace TextEditor;
@@ -33,22 +34,21 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                                    std::function<void (const Utils::FilePath &, const QString &)> describeFunc)
 {
     setId(parameters->id);
-    setDisplayName(QCoreApplication::translate("VCS", parameters->displayName));
+    setDisplayName(Tr::tr(parameters->displayName));
     if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         addMimeType(QLatin1String(parameters->mimeType));
 
     setEditorActionHandlers(TextEditorActionHandler::None);
     setDuplicatedSupported(false);
 
-    setDocumentCreator([parameters]() -> TextDocument* {
+    setDocumentCreator([parameters] {
         auto document = new TextDocument(parameters->id);
- //  if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         document->setMimeType(QLatin1String(parameters->mimeType));
         document->setSuspendAllowed(false);
         return document;
     });
 
-    setEditorWidgetCreator([parameters, editorWidgetCreator, describeFunc]() {
+    setEditorWidgetCreator([parameters, editorWidgetCreator, describeFunc] {
         auto widget = editorWidgetCreator();
         auto editorWidget = Aggregation::query<VcsBaseEditorWidget>(widget);
         editorWidget->setDescribeFunc(describeFunc);
@@ -56,7 +56,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         return widget;
     });
 
-    setEditorCreator([]() { return new VcsBaseEditor(); });
+    setEditorCreator([] { return new VcsBaseEditor(); });
     setMarksVisible(false);
 }
 

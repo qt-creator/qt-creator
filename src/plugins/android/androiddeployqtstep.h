@@ -1,11 +1,10 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "androidbuildapkstep.h"
-#include "androidconfigurations.h"
+#include "androiddeviceinfo.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <qtsupport/baseqtversion.h>
@@ -16,8 +15,7 @@
 
 namespace Utils { class QtcProcess; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidDeployQtStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -50,11 +48,12 @@ private:
 
     bool init() override;
     void doRun() override;
+    void doCancel() override;
     void gatherFilesToPull();
     DeployErrorCode runDeploy();
     void slotAskForUninstall(DeployErrorCode errorCode);
 
-    bool runImpl();
+    void runImpl(QFutureInterface<bool> &fi);
 
     QWidget *createConfigWidget() override;
 
@@ -78,7 +77,7 @@ private:
     QString m_serialNumber;
     QString m_avdName;
     Utils::FilePath m_apkPath;
-    QMap<QString, QString> m_filesToPull;
+    QMap<QString, Utils::FilePath> m_filesToPull;
 
     QStringList m_androidABIs;
     Utils::BoolAspect *m_uninstallPreviousPackage = nullptr;
@@ -96,5 +95,4 @@ private:
     Utils::FutureSynchronizer m_synchronizer;
 };
 
-}
-} // namespace Android
+} // Android::Internal

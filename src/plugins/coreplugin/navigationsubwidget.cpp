@@ -1,19 +1,17 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "navigationsubwidget.h"
-#include "navigationwidget.h"
 
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
+#include "coreplugintr.h"
+#include "icore.h"
 #include "inavigationwidgetfactory.h"
-
-#include <coreplugin/icore.h>
+#include "navigationwidget.h"
 
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
-
-#include <QDebug>
 
 #include <QHBoxLayout>
 #include <QMenu>
@@ -53,7 +51,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
 
     auto splitAction = new QToolButton();
     splitAction->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
-    splitAction->setToolTip(tr("Split"));
+    splitAction->setToolTip(Tr::tr("Split"));
     splitAction->setPopupMode(QToolButton::InstantPopup);
     splitAction->setProperty("noArrow", true);
     m_splitMenu = new QMenu(splitAction);
@@ -62,7 +60,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
 
     m_closeButton = new QToolButton();
     m_closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
-    m_closeButton->setToolTip(tr("Close"));
+    m_closeButton->setToolTip(Tr::tr("Close"));
 
     toolBarLayout->addWidget(splitAction);
     toolBarLayout->addWidget(m_closeButton);
@@ -134,7 +132,7 @@ void NavigationSubWidget::populateSplitMenu()
                                                                  command->keySequence().toString(
                                                                      QKeySequence::NativeText));
         QAction *action = m_splitMenu->addAction(displayName);
-        connect(action, &QAction::triggered, this, [this, i]() { emit splitMe(i); });
+        connect(action, &QAction::triggered, this, [this, i] { emit splitMe(i); });
     }
 }
 
@@ -220,7 +218,7 @@ bool CommandComboBox::event(QEvent *e)
     if (e->type() == QEvent::ToolTip) {
         const QString text = currentText();
         if (const Core::Command *cmd = command(text)) {
-            const QString tooltip = tr("Activate %1 View").arg(text);
+            const QString tooltip = Tr::tr("Activate %1 View").arg(text);
             setToolTip(cmd->stringWithAppendedShortcut(tooltip));
         } else {
             setToolTip(text);

@@ -24,11 +24,10 @@ add_qtc_test(unittest GTEST
     BEFORE "../mockup"
     BEFORE "../mockup/qmldesigner/designercore/include"
   DEPENDS
-    Qt5::Core Qt5::Network Qt5::Widgets
-    Qt5::Xml Qt5::Concurrent Qt5::Qml Qt5::Gui
+    Qt::Core Qt::Network Qt::Widgets
+    Qt::Xml Qt::Concurrent Qt::Qml Qt::Gui
     Qt6Core5Compat QmlJS Sqlite SqliteC
     Googletest
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
   DEFINES
     QT_NO_CAST_TO_ASCII
     QT_RESTRICTED_CAST_FROM_ASCII

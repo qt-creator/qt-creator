@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -34,7 +34,7 @@ public:
     void addFile(const DeployableFile &file);
     void addFile(const Utils::FilePath &localFilePath, const QString &remoteDirectory,
                  DeployableFile::Type type = DeployableFile::TypeNormal);
-    QString addFilesFromDeploymentFile(const QString &deploymentFilePath, const QString &sourceDir);
+    QString addFilesFromDeploymentFile(const Utils::FilePath &deploymentFilePath, const Utils::FilePath &sourceDir);
 
     int fileCount() const { return m_files.count(); }
     DeployableFile fileAt(int index) const { return m_files.at(index); }

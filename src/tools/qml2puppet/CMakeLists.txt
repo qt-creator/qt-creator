@@ -1,30 +1,35 @@
 cmake_minimum_required(VERSION 3.16)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
-
-
-project(qml2puppet)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
+
+  project(qml2puppet)
+
+  set(CMAKE_AUTOMOC ON)
+  set(CMAKE_AUTORCC ON)
+  set(CMAKE_AUTOUIC ON)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+
   set(DESTINATION DESTINATION .)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+
+  find_package(QT 5.15.0 NAMES Qt6 Qt5
+    COMPONENTS Core REQUIRED
+  )
+  find_package(Qt${QT_VERSION_MAJOR}
+    COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml
+    REQUIRED
+  )
+else()
+  # Qt Creator only supports Qt 6
+  set(QT_VERSION_MAJOR ${Qt6_VERSION_MAJOR})
 endif()
 
 configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
-
-find_package(Qt5
-  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml Core5Compat
-  REQUIRED
-)
 
 if (NOT TARGET QmlPuppetCommunication)
   include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
@@ -32,9 +37,10 @@ endif()
 
 add_qtc_executable(qml2puppet
   ${DESTINATION}
+  CONDITION TARGET Qt::Quick
   DEPENDS
-    Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
-    Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
+    Qt::CorePrivate Qt::Widgets Qt::QmlPrivate
+    Qt::QuickPrivate Qt::Network Qt::GuiPrivate
     QmlPuppetCommunication
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
@@ -43,27 +49,29 @@ add_qtc_executable(qml2puppet
     qml2puppet/qmlbase.h qml2puppet/appmetadata.h
     qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp qml2puppet/configcrashpad.h
     qmlpuppet.qrc
+  PROPERTIES
+    OUTPUT_NAME qml2puppet-${IDE_VERSION}
 )
 
-set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-${IDE_VERSION})
+if(TARGET qml2puppet)
+  execute_process(
+      COMMAND git describe --tags --always --dirty=+
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SHA_RESULT
+      OUTPUT_VARIABLE GIT_SHA_OUTPUT
+      ERROR_VARIABLE GIT_SHA_ERROR
+  )
 
-execute_process(
-    COMMAND git describe --tags --always --dirty=+
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    RESULT_VARIABLE GIT_SHA_RESULT
-    OUTPUT_VARIABLE GIT_SHA_OUTPUT
-    ERROR_VARIABLE GIT_SHA_ERROR
-)
+  #if we are not a git repository use the .tag file
+  if(NOT GIT_SHA_OUTPUT)
+      file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../../../.tag GIT_SHA_OUTPUT)
+  endif()
 
-#if we are not a git repository use the .tag file
-if(NOT GIT_SHA_OUTPUT)
-    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../../../.tag GIT_SHA_OUTPUT)
+  add_definitions( -D GIT_SHA=${GIT_SHA_OUTPUT} )
 endif()
 
-add_definitions( -D GIT_SHA=${GIT_SHA_OUTPUT} )
-
 extend_qtc_executable(qml2puppet
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
+  CONDITION Qt6_VERSION
   SOURCES
     editor3d_qt6.qrc
 )
@@ -85,11 +93,11 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
 
-find_package(Qt5 5.15.0 COMPONENTS Quick3D QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3D QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3D
+  CONDITION TARGET Qt::Quick3D
   FEATURE_INFO "Qt Quick 3D support"
-  DEPENDS Qt5::Quick3D Qt5::Quick3DPrivate
+  DEPENDS Qt::Quick3D Qt::Quick3DPrivate
   DEFINES QUICK3D_MODULE
 
   SOURCES_PREFIX qml2puppet/editor3d
@@ -105,33 +113,33 @@ extend_qtc_executable(qml2puppet
     icongizmoimageprovider.cpp icongizmoimageprovider.h
 )
 
-find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetImport QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetImport QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3DAssetImport
+  CONDITION TARGET Qt::Quick3DAssetImport
   FEATURE_INFO "Qt Quick 3D asset import"
-  DEPENDS Qt5::Quick3DAssetImportPrivate
+  DEPENDS Qt::Quick3DAssetImportPrivate
   DEFINES IMPORT_QUICK3D_ASSETS
 )
 
-find_package(Qt5 5.15.0 COMPONENTS Quick3DParticles QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DParticles QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3DParticles
+  CONDITION TARGET Qt::Quick3DParticles
   FEATURE_INFO "Qt Quick 3D particles"
-  DEPENDS Qt5::Quick3DParticles Qt5::Quick3DParticlesPrivate
+  DEPENDS Qt::Quick3DParticles Qt::Quick3DParticlesPrivate
   DEFINES QUICK3D_PARTICLES_MODULE
 )
 
 # Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
-find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3DAssetUtils
+  CONDITION TARGET Qt::Quick3DAssetUtils
   FEATURE_INFO "Qt Quick 3D asset utils"
-  DEPENDS Qt5::Quick3DAssetUtilsPrivate
+  DEPENDS Qt::Quick3DAssetUtilsPrivate
   DEFINES QUICK3D_ASSET_UTILS_MODULE
 )
 
 extend_qtc_executable(qml2puppet
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
+  CONDITION Qt6_VERSION
   SOURCES_PREFIX qml2puppet/editor3d/qt5compat
   SOURCES
     qquick3darealight.cpp qquick3darealight_p.h
@@ -212,7 +220,7 @@ extend_qtc_executable(qml2puppet
   DEPENDS Nanotrace
 )
 
-if (Qt5_VERSION VERSION_GREATER_EQUAL 6.4.0)
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.0)
     extend_qtc_executable(qml2puppet
       # QT_QML_DEBUG is disabled in release builds, but is necessary to have the preview debug channel
       DEFINES ENABLE_INTERNAL_QML_RUNTIME QT_QML_DEBUG

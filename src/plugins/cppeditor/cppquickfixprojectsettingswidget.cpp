@@ -1,9 +1,10 @@
 // Copyright (C) 2020 Leander Schulten <Leander.Schulten@rwth-aachen.de>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppquickfixprojectsettingswidget.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppquickfixsettingswidget.h"
 
 #include <QFile>
@@ -55,9 +56,9 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings
 {
     if (useGlobalSettings) {
         const auto &path = m_projectSettings->filePathOfSettingsFile();
-        m_pushButton->setToolTip(tr("Custom settings are saved in a file. If you use the "
-                                    "global settings, you can delete that file."));
-        m_pushButton->setText(tr("Delete Custom Settings File"));
+        m_pushButton->setToolTip(Tr::tr("Custom settings are saved in a file. If you use the "
+                                        "global settings, you can delete that file."));
+        m_pushButton->setText(Tr::tr("Delete Custom Settings File"));
         m_pushButton->setVisible(!path.isEmpty() && path.exists());
         m_projectSettings->useGlobalSettings();
     } else /*Custom*/ {
@@ -65,8 +66,8 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings
             setUseGlobalSettings(!m_projectSettings->useCustomSettings());
             return;
         }
-        m_pushButton->setToolTip(tr("Resets all settings to the global settings."));
-        m_pushButton->setText(tr("Reset to Global"));
+        m_pushButton->setToolTip(Tr::tr("Resets all settings to the global settings."));
+        m_pushButton->setText(Tr::tr("Reset to Global"));
         m_pushButton->setVisible(true);
         // otherwise you change the comboBox and exit and have no custom settings:
         m_projectSettings->saveOwnSettings();

@@ -1,11 +1,12 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formattexteditor.h"
 
 #include "textdocument.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditortr.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -42,7 +43,7 @@ static FormatTask format(FormatTask task)
     task.error.clear();
     task.formattedData.clear();
 
-    const QString executable = task.command.executable();
+    const FilePath executable = task.command.executable();
     if (executable.isEmpty())
         return task;
 
@@ -55,8 +56,7 @@ static FormatTask format(FormatTask task)
         sourceFile.setAutoRemove(true);
         sourceFile.write(task.sourceData.toUtf8());
         if (!sourceFile.finalize()) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
-                                                   "Cannot create temporary file \"%1\": %2."))
+            task.error = Tr::tr("Cannot create temporary file \"%1\": %2.")
                     .arg(sourceFile.filePath().toUserOutput(), sourceFile.errorString());
             return task;
         }
@@ -66,21 +66,21 @@ static FormatTask format(FormatTask task)
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toString());
         QtcProcess process;
         process.setTimeoutS(5);
-        process.setCommand({FilePath::fromString(executable), options});
+        process.setCommand({executable, options});
         process.runBlocking();
         if (process.result() != ProcessResult::FinishedWithSuccess) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor", "Failed to format: %1."))
+            task.error = Tr::tr("TextEditor", "Failed to format: %1.")
                              .arg(process.exitMessage());
             return task;
         }
         const QString output = process.cleanedStdErr();
         if (!output.isEmpty())
-            task.error = executable + QLatin1String(": ") + output;
+            task.error = executable.toUserOutput() + ": " + output;
 
         // Read text back
         Utils::FileReader reader;
         if (!reader.fetch(sourceFile.filePath(), QIODevice::Text)) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor", "Cannot read file \"%1\": %2."))
+            task.error = Tr::tr("Cannot read file \"%1\": %2.")
                     .arg(sourceFile.filePath().toUserOutput(), reader.errorString());
             return task;
         }
@@ -93,24 +93,22 @@ static FormatTask format(FormatTask task)
         QStringList options = task.command.options();
         options.replaceInStrings("%filename", task.filePath.fileName());
         options.replaceInStrings("%file", task.filePath.toString());
-        process.setCommand({FilePath::fromString(executable), options});
+        process.setCommand({executable, options});
         process.setWriteData(task.sourceData.toUtf8());
         process.start();
         if (!process.waitForFinished(5000)) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
-                                                   "Cannot call %1 or some other error occurred. Timeout "
-                                                   "reached while formatting file %2."))
-                    .arg(executable, task.filePath.displayName());
+            task.error = Tr::tr("Cannot call %1 or some other error occurred. Timeout "
+                                                   "reached while formatting file %2.")
+                    .arg(executable.toUserOutput(), task.filePath.displayName());
             return task;
         }
-        const QByteArray errorText = process.readAllStandardError();
+        const QString errorText = process.readAllStandardError();
         if (!errorText.isEmpty()) {
-            task.error = QString::fromLatin1("%1: %2").arg(executable,
-                                                           QString::fromUtf8(errorText));
+            task.error = QString("%1: %2").arg(executable.toUserOutput(), errorText);
             return task;
         }
 
-        task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
+        task.formattedData = process.readAllStandardOutput();
 
         if (task.command.pipeAddsNewline() && task.formattedData.endsWith('\n')) {
             task.formattedData.chop(1);
@@ -217,7 +215,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
                     }
                 }
             }
-            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, d.text.size());
+            cursor.setPosition(cursor.position() + d.text.size(), QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
             break;
         }
@@ -225,7 +223,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
         case Diff::Equal:
             // Adjust cursor position
             charactersInfrontOfCursor -= d.text.size();
-            cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, d.text.size());
+            cursor.setPosition(cursor.position() + d.text.size(), QTextCursor::MoveAnchor);
             break;
         }
     }
@@ -251,8 +249,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
 
 static void showError(const QString &error)
 {
-    Core::MessageManager::writeFlashing(
-                QString(QT_TRANSLATE_NOOP("TextEditor", "Error in text formatting: %1"))
+    Core::MessageManager::writeFlashing(Tr::tr("TextEditor", "Error in text formatting: %1")
                 .arg(error.trimmed()));
 }
 
@@ -268,14 +265,14 @@ static void checkAndApplyTask(const FormatTask &task)
     }
 
     if (task.formattedData.isEmpty()) {
-        showError(QString(QT_TRANSLATE_NOOP("TextEditor", "Could not format file %1.")).arg(
+        showError(Tr::tr("Could not format file %1.").arg(
                       task.filePath.displayName()));
         return;
     }
 
     QPlainTextEdit *textEditor = task.editor;
     if (!textEditor) {
-        showError(QString(QT_TRANSLATE_NOOP("TextEditor", "File %1 was closed.")).arg(
+        showError(Tr::tr("File %1 was closed.").arg(
                       task.filePath.displayName()));
         return;
     }
@@ -322,7 +319,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     QObject::connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
     QObject::connect(watcher, &QFutureWatcherBase::finished, [watcher] {
         if (watcher->isCanceled())
-            showError(QString(QT_TRANSLATE_NOOP("TextEditor", "File was modified.")));
+            showError(Tr::tr("File was modified."));
         else
             checkAndApplyTask(watcher->result());
         watcher->deleteLater();
@@ -332,3 +329,56 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
 }
 
 } // namespace TextEditor
+
+#ifdef WITH_TESTS
+#include "texteditorplugin.h"
+#include <QTest>
+
+namespace TextEditor::Internal {
+
+void TextEditorPlugin::testFormatting_data()
+{
+    QTest::addColumn<QString>("code");
+    QTest::addColumn<QString>("result");
+
+    {
+        QString code {
+            "import QtQuick\n\n"
+            "  Item {\n"
+            "     property string cat: [\"👩🏽‍🚒d👩🏽‍🚒d👩🏽‍🚒\"]\n"
+            "        property string dog: cat\n"
+            "}\n"
+        };
+
+        QString result {
+            "import QtQuick\n\n"
+            "Item {\n"
+            "    property string cat: [\"👩🏽‍🚒\"]\n"
+            "    property string dog: cat\n"
+            "}\n"
+        };
+
+        QTest::newRow("unicodeCharacterInFormattedCode") << code << result;
+    }
+}
+
+void TextEditorPlugin::testFormatting()
+{
+    QFETCH(QString, code);
+    QFETCH(QString, result);
+
+    QScopedPointer<TextEditorWidget> editor(new TextEditorWidget);
+    QVERIFY(editor.get());
+
+    QSharedPointer<TextDocument> doc(new TextDocument);
+    doc->setPlainText(code);
+    editor->setTextDocument(doc);
+
+    TextEditor::updateEditorText(editor.get(), result);
+
+    QCOMPARE(editor->toPlainText(), result);
+}
+
+} // namespace TextEditor::Internal
+
+#endif

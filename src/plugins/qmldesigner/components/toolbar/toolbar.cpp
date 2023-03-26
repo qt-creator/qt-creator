@@ -106,7 +106,7 @@ void ToolBar::createStatusBar()
 
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
-    Utils::FilePath qmlFilePath = qmlSourcesStatusBarPath() + QStringLiteral("/Main.qml");
+    Utils::FilePath qmlFilePath = qmlSourcesStatusBarPath().pathAppended("/Main.qml");
     QTC_ASSERT(qmlFilePath.exists(), return);
 
     Theme::setupTheme(quickWidget->engine());

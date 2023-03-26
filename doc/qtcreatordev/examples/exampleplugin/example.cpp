@@ -1,5 +1,7 @@
 #include "example.h"
+
 #include "exampleconstants.h"
+#include "examplefunctions.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -13,8 +15,30 @@
 #include <QMainWindow>
 #include <QMenu>
 
+//! [test include]
+#ifdef WITH_TESTS
+#include <QtTest>
+#endif
+//! [test include]
+
 namespace Example {
 namespace Internal {
+
+//! [plugin tests]
+#ifdef WITH_TESTS
+class MyPluginTests : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testMyTest()
+    {
+        // a failing test
+        QVERIFY(false);
+    }
+};
+#endif
+//! [plugin tests]
 
 ExamplePlugin::ExamplePlugin()
 {
@@ -53,6 +77,11 @@ bool ExamplePlugin::initialize(const QStringList &arguments, QString *errorStrin
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 //! [add menu]
 
+//! [register tests]
+#ifdef WITH_TESTS
+    addTest<MyPluginTests>();
+#endif
+    //! [register tests]
     return true;
 }
 
@@ -81,4 +110,18 @@ void ExamplePlugin::triggerAction()
 //! [slot implementation]
 
 } // namespace Internal
+
+//! [exported function]
+int addOne(int i)
+{
+    return i; // that is wrong!
+}
+//! [exported function]
+
 } // namespace Example
+
+//! [include moc]
+#ifdef WITH_TESTS
+#include "example.moc"
+#endif
+//! [include moc]

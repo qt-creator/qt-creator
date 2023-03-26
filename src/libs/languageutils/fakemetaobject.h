@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -162,7 +162,7 @@ public:
 
     void addExport(const QString &name, const QString &package, ComponentVersion version);
     void setExportMetaObjectRevision(int exportIndex, int metaObjectRevision);
-    QList<Export> exports() const;
+    const QList<Export> exports() const;
     Export exportInPackage(const QString &package) const;
 
     void setSuperclassName(const QString &superclass);

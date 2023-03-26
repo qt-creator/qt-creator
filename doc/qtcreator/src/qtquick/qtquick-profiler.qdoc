@@ -659,7 +659,7 @@
     To view the total amount of memory allocated by the functions, select
     \uicontrol Memory in the drop-down menu.
 
-    To view the the number of memory allocations performed by the functions,
+    To view the number of memory allocations performed by the functions,
     select \uicontrol Allocations.
 
     Double-click an item in a view to zoom into it. Double-click an empty

@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "makeinstallstep.h"
 
@@ -25,7 +25,6 @@
 
 #include <QDirIterator>
 #include <QFileInfo>
-#include <QFormLayout>
 #include <QSet>
 #include <QTemporaryDir>
 
@@ -116,6 +115,13 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootPath);
     QTC_ASSERT(!cmd.command.isEmpty(), return);
     makeAspect->setExecutable(cmd.command.executable());
+
+    connect(this, &BuildStep::addOutput, this, [this](const QString &string, OutputFormat format) {
+        // When using Makefiles: "No rule to make target 'install'"
+        // When using ninja: "ninja: error: unknown target 'install'"
+        if (format == OutputFormat::Stderr && string.contains("target 'install'"))
+            m_noInstallTarget = true;
+    });
 }
 
 Utils::Id MakeInstallStep::stepId()
@@ -164,7 +170,7 @@ bool MakeInstallStep::init()
     }
 
     const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootDir);
-    if (cmd.environment.isValid()) {
+    if (cmd.environment.hasChanges()) {
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
             if (cmd.environment.isEnabled(it)) {
@@ -184,9 +190,9 @@ bool MakeInstallStep::init()
     return true;
 }
 
-void MakeInstallStep::finish(bool success)
+void MakeInstallStep::finish(ProcessResult result)
 {
-    if (success) {
+    if (isSuccess(result)) {
         const FilePath rootDir = installRoot().onDevice(makeCommand());
 
         m_deploymentData = DeploymentData();
@@ -203,7 +209,7 @@ void MakeInstallStep::finish(bool success)
                 : DeployableFile::TypeNormal;
             const QString targetDir = filePath.parentDir().path().mid(startPos);
             m_deploymentData.addFile(filePath, targetDir, type);
-            return true;
+            return IterationPolicy::Continue;
         };
         rootDir.iterateDirectory(handleFile,
                                  {{}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
@@ -213,16 +219,7 @@ void MakeInstallStep::finish(bool success)
         emit addTask(DeploymentTask(Task::Warning, Tr::tr("You need to add an install statement "
                    "to your CMakeLists.txt file for deployment to work.")));
     }
-    MakeStep::finish(success);
-}
-
-void MakeInstallStep::stdError(const QString &line)
-{
-    // When using Makefiles: "No rule to make target 'install'"
-    // When using ninja: "ninja: error: unknown target 'install'"
-    if (line.contains("target 'install'"))
-        m_noInstallTarget = true;
-    MakeStep::stdError(line);
+    MakeStep::finish(result);
 }
 
 FilePath MakeInstallStep::installRoot() const

@@ -1,64 +1,48 @@
 import QmlProject 1.3
 
 Project {
-    // importPaths: ["."] // optional extra import paths
-    // projectRootPath: "." // optional root path relative to qmlproject file path
+    qtForMCUs: true // Required by QDS to enable/disable features Supported/Unsupported by QtMCUs projects. Currently ignored by qmlprojectexporter.
+    // importPaths: ["imports/CustomModule"] // Alternative API for importing modules.
+    // projectRootPath: "." // Optional root path relative to qmlproject file path.
+    mainFile: "%{MainQmlFile}" // Required to determin which qml file is the application entrypoint, when no custom c++ entrypoint is specified.
 
     /* Global configuration */
     MCU.Config {
         controlsStyle: "QtQuick.Controls.StyleDefault"
         debugBytecode: false
         debugLineDirectives: false
-        binaryAssetOptions: "Automatic"
-        // platformImageAlignment: 1 // undefined by default
-        platformPixelWidthAlignment: 1
-        platformAlphaPixelFormat: "ARGB8888"
-        platformOpaquePixelFormat: "XRGB8888"
-        platformAlphaCompressedLosslessResourcePixelFormat: "ARGB8888RLE"
-        platformOpaqueCompressedLosslessResourcePixelFormat: "RGB888RLE"
-        // maxResourceCacheSize: 102400 // undefined by default
 
-        // global defaults for image properties
-        resourceAlphaOptions: "ForTransformations"
-        resourceRlePremultipliedAlpha: true
+        // maxResourceCacheSize: 0 // Set to 0 by default. Required for OnDemand resource cache policy and resource compression.
+
+        // Global settings for image properties. Can be overridden for selected resources in ImageFiles nodes.
         resourceImagePixelFormat: "Automatic"
-        resourceCachePolicy: "OnStartup"
+        resourceCachePolicy: "NoCaching"
         resourceCompression: false
-        resourceStorageSection: "QulResourceData"
-        resourceRuntimeAllocationType: 3
-        resourceOptimizeForRotation: false
-        resourceOptimizeForScale: false
 
-        // default font engine selection
-        fontEngine: "Static" // alternative option: "Spark"
+        // Font engine selection
+        fontEngine: "Static" // alternative option: "Spark".
 
-        // font defaults for both engines
-        defaultFontFamily: "DejaVu Sans"
+        // Font defaults for both engines
+        defaultFontFamily: "DejaVu Sans Mono"
         defaultFontQuality: "VeryHigh"
-        glyphsCachePolicy: "OnStartup"
-        glyphsStorageSection: "QulFontResourceData"
-        glyphsRuntimeAllocationType: 3
+        glyphsCachePolicy: "NoCaching"
+        maxParagraphSize: 100
 
-        // font defaults for "Static"
+        // Font properties for "Static"
+        addDefaultFonts: false // Set to true to add the default fonts to your project.
         autoGenerateGlyphs: true
-        complexTextRendering: true
-        fontFilesCachePolicy: "OnStartup"
-        fontFilesStorageSection: "QulFontResourceData"
-        fontFilesRuntimeAllocationType: 3
 
-        // font properties for "Spark"
-        fontCachePriming: true
-        fontCacheSize: 104800
-        fontHeapSize: -1
+        // Font properties for "Spark"
+        // These properties are in effect only if the "Spark" font engine is used
+        complexTextRendering: true // Set this to false if complex scripts are not needed (Arabic scripts, Indic scripts, etc.)
+        fontCachePriming: false // Set to true to decrease application startup time. Only applies to fonts configured with unicode ranges (font.unicodeCoverage).
+        fontCacheSize: 0 // If this is needed, use a suitable number. Setting this to a sensible value will improve performance, the global default is 104800.
+        fontHeapSize: -1 // Set to sufficient value to improve performance. -1 means no restrictions to heap allocation.
         fontHeapPrealloc: true
         fontCachePrealloc: true
-        fontVectorOutlinesDrawing: false
-        maxParagraphSize: 100
     }
 
     /* QML files */
-    // optional root property for adding one single qml file
-    // mainFile: "%{MainQmlFile}"
     QmlFiles {
         files: ["%{MainQmlFile}"]
         MCU.copyQmlFiles: false
@@ -66,25 +50,29 @@ Project {
 
     /* Images */
     ImageFiles {
-        // files: [""] // uncomment and add image files
-        MCU.base: "images" // example base "images".
-        MCU.prefix: "pics" // example prefix "pics".
+        files: ["images/icon.png"]
+        MCU.base: "images"
+        MCU.prefix: "assets"
 
-        MCU.resourceAlphaOptions: "ForTransformations"
-        MCU.resourceRlePremultipliedAlpha: true
-        MCU.resourceImagePixelFormat: "Automatic"
-        MCU.resourceCachePolicy: "OnStartup"
         MCU.resourceCompression: false
-        MCU.resourceStorageSection: "QulResourceData"
-        MCU.resourceRuntimeAllocationType: 3
+        MCU.resourceImagePixelFormat: "Automatic"
         MCU.resourceOptimizeForRotation: false
         MCU.resourceOptimizeForScale: false
+
+        // Uncomment to override the default values for images in this node
+        // MCU.resourceCachePolicy: "NoCaching" // Uncomment to override the default cache policy for these images.
+        // MCU.resourceStorageSection: "QulResourceData" // Uncomment to override the default storage section for these images
+
+        // Uncomment the following properties as needed when adding image files for an animated sprite:
+        // MCU.resourceAnimatedSprite: true
+        // MCU.resourceAnimatedSpriteFrameWidth: 180
+        // MCU.resourceAnimatedSpriteFrameHeight: 160
     }
 
     /* Modules */
     ModuleFiles {
-        files: ["%{ModuleFile}"]
-        // qulModules: [ // Uncomment for adding Qul modules
+        files: ["imports/CustomModule/%{ModuleFile}"]
+        // MCU.qulModules: [ // Uncomment for adding Qul modules
             // "Qul::Controls",
             // "Qul::ControlsTemplates",
             // "Qul::Shapes",
@@ -94,46 +82,17 @@ Project {
 
     /* Interfaces */
     InterfaceFiles {
-        // files: [""] // uncomment for adding header files
+        files: ["src/%{InterfaceFile}"]
         MCU.qmlImports: ["QtQuick"]
     }
 
     /* Translations */
     TranslationFiles {
-        // files: [""] // Uncomment for adding translation files with .ts extension
+        files: ["translations/%{TsFile}"]
         MCU.omitSourceLanguage: false
     }
 
     FontFiles {
-        // files: [""] // Uncomment for adding font files (.ttf, .otf, .pfa, .ttc, .pfb)
-        MCU.addDefaultFonts: true
-    }
-
-    FontConfiguration {
-        // font engine selection overriddes default
-        MCU.fontEngine: "Static" // or "Spark"
-
-        // properties shared between both engines
-        MCU.defaultFontFamily: "DejaVu Sans"
-        MCU.defaultFontQuality: "VeryHigh"
-        MCU.glyphsCachePolicy: "OnStartup"
-        MCU.glyphsStorageSection: "QulFontResourceData"
-        MCU.glyphsRuntimeAllocationType: 3
-
-        // properties for Static engine
-        MCU.autoGenerateGlyphs: true
-        MCU.complexTextRendering: true
-        MCU.fontFilesCachePolicy: "OnStartup"
-        MCU.fontFilesStorageSection: "QulFontResourceData"
-        MCU.fontFilesRuntimeAllocationType: 3
-
-        // monotype for Spark engine
-        MCU.fontCachePriming: true
-        MCU.fontCacheSize: 104800
-        MCU.fontHeapSize: -1
-        MCU.fontHeapPrealloc: true
-        MCU.fontCachePrealloc: true
-        MCU.fontVectorOutlinesDrawing: false
-        MCU.maxParagraphSize: 100
+        files: ["fonts/DejaVuSansMono.ttf"]
     }
 }

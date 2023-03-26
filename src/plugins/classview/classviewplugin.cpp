@@ -1,7 +1,8 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classviewplugin.h"
+
 #include "classviewmanager.h"
 #include "classviewnavigationwidgetfactory.h"
 
@@ -33,14 +34,9 @@ ClassViewPlugin::~ClassViewPlugin()
     dd = nullptr;
 }
 
-bool ClassViewPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void ClassViewPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new ClassViewPluginPrivate;
-
-    return true;
 }
 
 } // namespace Internal

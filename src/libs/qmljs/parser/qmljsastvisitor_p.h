@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -377,8 +377,8 @@ public:
     virtual bool visit(Type *) = 0;
     virtual void endVisit(Type *) = 0;
 
-    virtual bool visit(TypeArgumentList *) = 0;
-    virtual void endVisit(TypeArgumentList *) = 0;
+    virtual bool visit(TypeArgument *) = 0;
+    virtual void endVisit(TypeArgument *) = 0;
 
     virtual bool visit(TypeAnnotation *) = 0;
     virtual void endVisit(TypeAnnotation *) = 0;
@@ -721,8 +721,8 @@ public:
     bool visit(Type *) override { return true; }
     void endVisit(Type *) override {}
 
-    bool visit(TypeArgumentList *) override { return true; }
-    void endVisit(TypeArgumentList *) override {}
+    bool visit(TypeArgument *) override { return true; }
+    void endVisit(TypeArgument *) override {}
 
     bool visit(TypeAnnotation *) override { return true; }
     void endVisit(TypeAnnotation *) override {}

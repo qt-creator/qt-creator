@@ -1,10 +1,12 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "buildsystem.h"
 
 #include "buildconfiguration.h"
+#include "extracompiler.h"
 #include "projectexplorer.h"
+#include "projectexplorertr.h"
 #include "runconfiguration.h"
 #include "runcontrol.h"
 #include "session.h"
@@ -189,6 +191,12 @@ void BuildSystem::requestParseHelper(int delay)
     d->m_delayedParsingTimer.start();
 }
 
+ExtraCompiler *BuildSystem::findExtraCompiler(
+        const std::function<bool (const ExtraCompiler *)> &) const
+{
+    return nullptr;
+}
+
 bool BuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *notAdded)
 {
     Q_UNUSED(filePaths)
@@ -233,6 +241,18 @@ bool BuildSystem::addDependencies(Node *, const QStringList &dependencies)
 bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
 {
     return false;
+}
+
+ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source) const
+{
+    return findExtraCompiler([source](const ExtraCompiler *ec) { return ec->source() == source; });
+}
+
+ExtraCompiler *BuildSystem::extraCompilerForTarget(const Utils::FilePath &target) const
+{
+    return findExtraCompiler([target](const ExtraCompiler *ec) {
+        return ec->targets().contains(target);
+    });
 }
 
 MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) const
@@ -377,11 +397,11 @@ void BuildSystem::appendBuildSystemOutput(const QString &message)
 QString BuildSystem::disabledReason(const QString &buildKey) const
 {
     if (!hasParsingData()) {
-        QString msg = isParsing() ? tr("The project is currently being parsed.")
-                                  : tr("The project could not be fully parsed.");
+        QString msg = isParsing() ? Tr::tr("The project is currently being parsed.")
+                                  : Tr::tr("The project could not be fully parsed.");
         const FilePath projectFilePath = buildTarget(buildKey).projectFilePath;
         if (!projectFilePath.isEmpty() && !projectFilePath.exists())
-            msg += '\n' + tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
+            msg += '\n' + Tr::tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
         return msg;
     }
     return {};

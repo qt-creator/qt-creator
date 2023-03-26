@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iconshape.h"
 
@@ -15,7 +15,7 @@ template<class T>
 QList<T *> cloneAll(const QList<T *> &rhs)
 {
     QList<T *> result;
-    foreach (T *t, rhs)
+    for (T *t : rhs)
         result.append(t ? t->clone() : nullptr);
     return result;
 }
@@ -157,7 +157,7 @@ void IconShape::closePath()
 
 void IconShape::visitShapes(ShapeConstVisitor *visitor) const
 {
-    foreach (IShape *p, d->m_shapes)
+    for (IShape *p : d->m_shapes)
         p->accept(visitor);
 }
 

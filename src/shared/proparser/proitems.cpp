@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "proitems.h"
 
@@ -443,16 +443,21 @@ bool ProStringList::contains(const char *str, Qt::CaseSensitivity cs) const
     return false;
 }
 
-ProFile::ProFile(int id, const QString &fileName)
+ProFile::ProFile(const QString &device, int id, const QString &fileName)
     : m_refCount(1),
       m_fileName(fileName),
+      m_device(device),
       m_id(id),
       m_ok(true),
       m_hostBuild(false)
 {
-    if (!fileName.startsWith(QLatin1Char('(')))
-        m_directoryName = QFileInfo( // qmake sickness: canonicalize only the directory!
-                fileName.left(fileName.lastIndexOf(QLatin1Char('/')))).canonicalFilePath();
+    if (!fileName.startsWith(QLatin1Char('('))) {
+        m_directoryName = fileName.left(fileName.lastIndexOf(QLatin1Char('/')));
+        if (device.isEmpty()) {
+            // qmake sickness: canonicalize only the directory!
+            m_directoryName = QFileInfo(m_directoryName).canonicalFilePath();
+        }
+    }
 }
 
 ProFile::~ProFile()

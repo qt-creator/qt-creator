@@ -2,7 +2,7 @@ set(UTILSDIR "${PROJECT_SOURCE_DIR}/src/libs/utils")
 
 add_qtc_executable(qtcreator_processlauncher
   INCLUDES "${UTILSDIR}"
-  DEPENDS Qt5::Core Qt5::Network
+  DEPENDS Qt::Core Qt::Network
   DEFINES UTILS_STATIC_LIBRARY
   SOURCES
     launcherlogging.cpp

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "giteditor.h"
 
@@ -21,7 +21,6 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QRegularExpression>
 #include <QSet>
@@ -245,7 +244,7 @@ void GitEditorWidget::init()
     const bool isRebaseEditor = editorId == Git::Constants::GIT_REBASE_EDITOR_ID;
     if (!isCommitEditor && !isRebaseEditor)
         return;
-    const QChar commentChar = GitClient::instance()->commentChar(FilePath::fromString(source()));
+    const QChar commentChar = GitClient::instance()->commentChar(source());
     if (isCommitEditor)
         textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter(commentChar));
     else if (isRebaseEditor)
@@ -274,9 +273,8 @@ void GitEditorWidget::aboutToOpen(const FilePath &filePath, const FilePath &real
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         const FilePath gitPath = filePath.absolutePath();
-        setSource(gitPath.toString());
-        textDocument()->setCodec(
-                    GitClient::instance()->encoding(gitPath, "i18n.commitEncoding"));
+        setSource(gitPath);
+        textDocument()->setCodec(GitClient::instance()->encoding(GitClient::EncodingCommit, gitPath));
     }
 }
 
@@ -329,7 +327,7 @@ bool GitEditorWidget::supportChangeLinks() const
             || (textDocument()->id() == Git::Constants::GIT_REBASE_EDITOR_ID);
 }
 
-QString GitEditorWidget::fileNameForLine(int line) const
+FilePath GitEditorWidget::fileNameForLine(int line) const
 {
     // 7971b6e7 share/qtcreator/dumper/dumper.py   (hjk
     QTextBlock block = document()->findBlockByLineNumber(line - 1);
@@ -339,7 +337,7 @@ QString GitEditorWidget::fileNameForLine(int line) const
     if (match.hasMatch()) {
         const QString fileName = match.captured(1).trimmed();
         if (!fileName.isEmpty())
-            return fileName;
+            return FilePath::fromString(fileName);
     }
     return source();
 }

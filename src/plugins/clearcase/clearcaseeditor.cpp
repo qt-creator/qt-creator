@@ -1,5 +1,5 @@
 // Copyright (C) 2016 AudioCodes Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clearcaseeditor.h"
 #include "clearcasetr.h"
@@ -33,7 +33,7 @@ QString ClearCaseEditorWidget::changeUnderCursor(const QTextCursor &c) const
     cursor.select(QTextCursor::BlockUnderCursor);
     if (!cursor.hasSelection())
         return QString();
-    QString change = cursor.selectedText();
+    const QString change = cursor.selectedText();
     // Annotation output has number, log output has revision numbers
     // as r1, r2...
     const QRegularExpressionMatch match = m_versionNumberPattern.match(change);

@@ -1,13 +1,14 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pxnodecontroller.h"
 
-#include "pxnodeutilities.h"
-#include "componentviewcontroller.h"
 #include "classviewcontroller.h"
+#include "componentviewcontroller.h"
+#include "modeleditortr.h"
 #include "modelutilities.h"
 #include "packageviewcontroller.h"
+#include "pxnodeutilities.h"
 
 #include "qmt/model/mpackage.h"
 #include "qmt/model/mclass.h"
@@ -27,6 +28,8 @@
 #include <QAction>
 #include <QMenu>
 #include <QQueue>
+
+using namespace Utils;
 
 namespace ModelEditor {
 namespace Internal {
@@ -132,15 +135,16 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
     QFileInfo fileInfo(filePath);
     if (fileInfo.exists() && fileInfo.isFile()) {
         auto menu = new QMenu;
-        menu->addAction(new MenuAction(tr("Add Component %1").arg(elementName), elementName,
+        menu->addAction(new MenuAction(Tr::tr("Add Component %1").arg(elementName), elementName,
                                        MenuAction::TYPE_ADD_COMPONENT, menu));
         const QStringList classNames = Utils::toList(
-            d->classViewController->findClassDeclarations(filePath, line, column));
+            d->classViewController->findClassDeclarations(
+                        FilePath::fromString(filePath), line, column));
         if (!classNames.empty()) {
             menu->addSeparator();
             int index = 0;
             for (const QString &className : classNames) {
-                auto action = new MenuAction(tr("Add Class %1").arg(className), elementName,
+                auto action = new MenuAction(Tr::tr("Add Class %1").arg(className), elementName,
                                              MenuAction::TYPE_ADD_CLASS, index, menu);
                 action->className = className;
                 menu->addAction(action);
@@ -158,15 +162,15 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
         // ignore line and column
         QString stereotype;
         auto menu = new QMenu;
-        auto action = new MenuAction(tr("Add Package %1").arg(elementName), elementName,
+        auto action = new MenuAction(Tr::tr("Add Package %1").arg(elementName), elementName,
                                      MenuAction::TYPE_ADD_PACKAGE, menu);
         action->packageStereotype = stereotype;
         menu->addAction(action);
-        action = new MenuAction(tr("Add Package and Diagram %1").arg(elementName), elementName,
+        action = new MenuAction(Tr::tr("Add Package and Diagram %1").arg(elementName), elementName,
                                 MenuAction::TYPE_ADD_PACKAGE_AND_DIAGRAM, menu);
         action->packageStereotype = stereotype;
         menu->addAction(action);
-        action = new MenuAction(tr("Add Component Model"), elementName,
+        action = new MenuAction(Tr::tr("Add Component Model"), elementName,
                                 MenuAction::TYPE_ADD_COMPONENT_MODEL, menu);
         action->packageStereotype = stereotype;
         menu->addAction(action);
@@ -297,7 +301,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         package->setName(action->elementName);
         if (!action->packageStereotype.isEmpty())
             package->setStereotypes({action->packageStereotype});
-        d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Create Component Model"));
+        d->diagramSceneController->modelController()->undoController()->beginMergeSequence(Tr::tr("Create Component Model"));
         QStringList relativeElements = qmt::NameController::buildElementsPath(
                     d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder), true);
         if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, package)) {
@@ -318,7 +322,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
     }
 
     if (newObject) {
-        d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Drop Node"));
+        d->diagramSceneController->modelController()->undoController()->beginMergeSequence(Tr::tr("Drop Node"));
         qmt::MObject *parentForDiagram = nullptr;
         QStringList relativeElements = qmt::NameController::buildElementsPath(
                     d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder),

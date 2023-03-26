@@ -1,10 +1,10 @@
 add_qtc_plugin(ClangFormat
   CONDITION TARGET ${CLANG_FORMAT_LIB} AND LLVM_PACKAGE_VERSION VERSION_GREATER_EQUAL 10.0.0 AND (QTC_CLANG_BUILDMODE_MATCH OR CLANGTOOLING_LINK_CLANG_DYLIB)
-  DEPENDS Utils Qt5::Widgets ${CLANG_FORMAT_LIB}
+  DEPENDS Utils Qt::Widgets ${CLANG_FORMAT_LIB}
   PLUGIN_DEPENDS Core TextEditor CppEditor ProjectExplorer
   SOURCES
     clangformatbaseindenter.cpp clangformatbaseindenter.h
-    clangformatchecks.ui
+    clangformatchecks.cpp clangformatchecks.h
     clangformatconfigwidget.cpp clangformatconfigwidget.h
     clangformatglobalconfigwidget.cpp clangformatglobalconfigwidget.h
     clangformatconstants.h

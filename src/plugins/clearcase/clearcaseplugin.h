@@ -1,5 +1,5 @@
 // Copyright (C) 2016 AudioCodes Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -67,7 +67,7 @@ public:
     static QSharedPointer<StatusMap> statusMap();
 
 private:
-    bool initialize(const QStringList &arguments, QString *error_message) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 #ifdef WITH_TESTS

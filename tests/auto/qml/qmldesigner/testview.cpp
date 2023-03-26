@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testview.h"
 
@@ -46,10 +46,10 @@ void TestView::fileUrlChanged(const QUrl & oldBaseUrl, const QUrl &newBaseUrl)
     m_methodCalls += MethodCall("fileUrlChanged", QStringList() << oldBaseUrl.toString() << newBaseUrl.toString());
 }
 
-void TestView::propertiesAboutToBeRemoved(const QList<QmlDesigner::AbstractProperty>& propertyList)
+void TestView::propertiesAboutToBeRemoved(const QList<QmlDesigner::AbstractProperty> &propertyList)
 {
     QStringList propertyNames;
-    foreach (const QmlDesigner::AbstractProperty &property, propertyList)
+    for (const QmlDesigner::AbstractProperty &property : propertyList)
         propertyNames += QString::fromUtf8(property.name());
     m_methodCalls += MethodCall("propertiesAboutToBeRemoved", QStringList() << propertyNames.join(", "));
 }
@@ -57,15 +57,15 @@ void TestView::propertiesAboutToBeRemoved(const QList<QmlDesigner::AbstractPrope
 void TestView::propertiesRemoved(const QList<QmlDesigner::AbstractProperty> &propertyList)
 {
     QStringList propertyNames;
-    foreach (const QmlDesigner::AbstractProperty &property, propertyList)
+    for (const QmlDesigner::AbstractProperty &property : propertyList)
         propertyNames += QString::fromUtf8(property.name());
     m_methodCalls += MethodCall("propertiesRemoved", QStringList() << propertyNames.join(", "));
 }
 
-void TestView::signalHandlerPropertiesChanged(const QVector<QmlDesigner::SignalHandlerProperty> &propertyList, PropertyChangeFlags )
+void TestView::signalHandlerPropertiesChanged(const QVector<QmlDesigner::SignalHandlerProperty> &propertyList, PropertyChangeFlags)
 {
     QStringList propertyNames;
-    foreach (const QmlDesigner::AbstractProperty &property, propertyList)
+    for (const QmlDesigner::AbstractProperty &property : propertyList)
         propertyNames += QString::fromUtf8(property.name());
     m_methodCalls += MethodCall("signalHandlerPropertiesChanged", QStringList() << propertyNames.join(", "));
 }
@@ -103,31 +103,31 @@ void TestView::nodeAboutToBeReparented(const QmlDesigner::ModelNode &node, const
     m_methodCalls += MethodCall("nodeAboutToBeReparented", QStringList() << node.id() << QString::fromUtf8(newPropertyParent.name()) << QString::fromUtf8(oldPropertyParent.name()) << serialize(propertyChange));
 }
 
-void TestView::bindingPropertiesChanged(const QList<QmlDesigner::BindingProperty>& propertyList, PropertyChangeFlags propertyChange)
+void TestView::bindingPropertiesChanged(const QList<QmlDesigner::BindingProperty> &propertyList, PropertyChangeFlags propertyChange)
 {
     QStringList propertyNames;
-    foreach (const QmlDesigner::BindingProperty &property, propertyList)
+    for (const QmlDesigner::BindingProperty &property : propertyList)
         propertyNames += QString::fromUtf8(property.name());
     m_methodCalls += MethodCall("bindingPropertiesChanged", QStringList() << propertyNames.join(", ") << serialize(propertyChange));
 }
 
-void TestView::variantPropertiesChanged(const QList<QmlDesigner::VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
+void TestView::variantPropertiesChanged(const QList<QmlDesigner::VariantProperty> &propertyList, PropertyChangeFlags propertyChange)
 {
     QStringList propertyNames;
-    foreach (const QmlDesigner::VariantProperty &property, propertyList)
+    for (const QmlDesigner::VariantProperty &property : propertyList)
         propertyNames += QString::fromUtf8(property.name());
 
     m_methodCalls += MethodCall("variantPropertiesChanged", QStringList() << propertyNames.join(", ") << serialize(propertyChange));
 }
 
 void TestView::selectedNodesChanged(const QList<QmlDesigner::ModelNode> &selectedNodeList,
-                       const QList<QmlDesigner::ModelNode> &lastSelectedNodeList)
+                                    const QList<QmlDesigner::ModelNode> &lastSelectedNodeList)
 {
     QStringList selectedNodes;
-    foreach (const QmlDesigner::ModelNode &node, selectedNodeList)
+    for (const QmlDesigner::ModelNode &node : selectedNodeList)
         selectedNodes += node.id();
     QStringList lastSelectedNodes;
-    foreach (const QmlDesigner::ModelNode &node, lastSelectedNodeList)
+    for (const QmlDesigner::ModelNode &node : lastSelectedNodeList)
         lastSelectedNodes += node.id();
     m_methodCalls += MethodCall("selectedNodesChanged", QStringList() << selectedNodes.join(", ") << lastSelectedNodes.join(", "));
 }

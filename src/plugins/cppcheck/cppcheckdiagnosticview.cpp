@@ -1,16 +1,17 @@
 // Copyright (C) 2019 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcheckdiagnosticview.h"
+
+#include "cppchecktr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
-namespace Cppcheck {
-namespace Internal {
-
 using namespace Debugger;
+
+namespace Cppcheck::Internal {
 
 DiagnosticView::DiagnosticView(QWidget *parent)
     : DetailedErrorView(parent)
@@ -21,7 +22,7 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     setAutoScroll(false);
     sortByColumn(DiagnosticColumn, Qt::AscendingOrder);
     setObjectName("CppcheckIssuesView");
-    setWindowTitle(tr("Cppcheck Diagnostics"));
+    setWindowTitle(Tr::tr("Cppcheck Diagnostics"));
     setHeaderHidden(true);
 }
 
@@ -90,7 +91,4 @@ void DiagnosticView::mouseDoubleClickEvent(QMouseEvent *event)
     DetailedErrorView::mouseDoubleClickEvent(event);
 }
 
-} // namespace Internal
-} // namespace Cppcheck
-
-//#include "clangtoolsdiagnosticview.moc"
+} // Cppcheck::Internal

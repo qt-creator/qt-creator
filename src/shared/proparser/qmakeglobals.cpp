@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmakeglobals.h"
 
@@ -78,7 +78,7 @@ QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &s
 {
     QString ret = QDir::cleanPath(spec);
     if (ret.contains(QLatin1Char('/'))) {
-        QString absRet = IoUtils::resolvePath(state.pwd, ret);
+        QString absRet = IoUtils::resolvePath(device_root, state.pwd, ret);
         if (QFile::exists(absRet))
             ret = absRet;
     }
@@ -108,10 +108,10 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
             user_template_prefix = arg;
             break;
         case ArgCache:
-            cachefile = args[*pos] = IoUtils::resolvePath(state.pwd, arg);
+            cachefile = args[*pos] = IoUtils::resolvePath(device_root, state.pwd, arg);
             break;
         case ArgQtConf:
-            qtconf = args[*pos] = IoUtils::resolvePath(state.pwd, arg);
+            qtconf = args[*pos] = IoUtils::resolvePath(device_root, state.pwd, arg);
             break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
@@ -168,7 +168,7 @@ void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
 {
     if (!state.extraargs.isEmpty()) {
         QString extra = fL1S("QMAKE_EXTRA_ARGS =");
-        foreach (const QString &ea, state.extraargs)
+        for (const QString &ea  : std::as_const(state.extraargs))
             extra += QLatin1Char(' ') + QMakeEvaluator::quoteValue(ProString(ea));
         state.cmds[QMakeEvalBefore] << extra;
     }
@@ -204,8 +204,9 @@ void QMakeGlobals::setCommandLineArguments(const QString &pwd, const QStringList
     useEnvironment();
 }
 
-void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir)
+void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir, const QString &device_root)
 {
+    this->device_root = device_root;
     if (input_dir != output_dir && !output_dir.isEmpty()) {
         QString srcpath = input_dir;
         if (!srcpath.endsWith(QLatin1Char('/')))
@@ -245,7 +246,7 @@ QStringList QMakeGlobals::splitPathList(const QString &val) const
         const QStringList vals = val.split(dirlist_sep);
         ret.reserve(vals.length());
         for (const QString &it : vals)
-            ret << IoUtils::resolvePath(cwd, it);
+            ret << IoUtils::resolvePath(device_root, cwd, it);
     }
     return ret;
 }

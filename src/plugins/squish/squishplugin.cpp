@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishplugin.h"
 
@@ -23,7 +23,6 @@
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>
@@ -121,17 +120,16 @@ bool SquishPluginPrivate::initializeGlobalScripts()
 
         // FIXME? comma, special characters in paths
         const Utils::FilePaths globalDirs = Utils::transform(
-                    output.trimmed().split(',', Qt::SkipEmptyParts), &Utils::FilePath::fromString);
+                    output.trimmed().split(',', Qt::SkipEmptyParts), &Utils::FilePath::fromUserInput);
         SquishFileHandler::instance()->setSharedFolders(globalDirs);
     });
     return true;
 }
 
-bool SquishPlugin::initialize(const QStringList &, QString *)
+void SquishPlugin::initialize()
 {
     dd = new SquishPluginPrivate;
     ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
-    return true;
 }
 
 bool SquishPlugin::delayedInitialize()

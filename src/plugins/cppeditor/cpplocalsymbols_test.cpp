@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cpplocalsymbols_test.h"
 
@@ -10,6 +10,8 @@
 #include <utils/algorithm.h>
 
 #include <QtTest>
+
+using namespace Utils;
 
 namespace {
 
@@ -147,7 +149,8 @@ void LocalSymbolsTest::test()
     QFETCH(QByteArray, source);
     QFETCH(QList<Result>, expectedUses);
 
-    CPlusPlus::Document::Ptr document = CPlusPlus::Document::create(QLatin1String("test.cpp"));
+    CPlusPlus::Document::Ptr document =
+            CPlusPlus::Document::create(FilePath::fromPathPart(u"test.cpp"));
     document->setUtf8Source(source);
     document->check();
     QVERIFY(document->diagnosticMessages().isEmpty());
@@ -160,7 +163,7 @@ void LocalSymbolsTest::test()
     LocalSymbols localSymbols(document, functionDefinition);
 
     const QList<Result> actualUses = Result::fromLocalUses(localSymbols.uses);
-//    foreach (const Result &result, actualUses)
+//    for (const Result &result : actualUses)
 //        qDebug() << QTest::toString(result);
     QCOMPARE(actualUses, expectedUses);
 }

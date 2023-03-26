@@ -1,7 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "searchresultwidget.h"
+
 #include "searchresulttreeview.h"
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
@@ -9,15 +10,14 @@
 
 #include "findplugin.h"
 #include "itemviewfind.h"
+#include "../coreplugintr.h"
 
 #include <aggregation/aggregate.h>
-#include <coreplugin/coreplugin.h>
 
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/fancylineedit.h>
 
-#include <QDir>
 #include <QFrame>
 #include <QLabel>
 #include <QLineEdit>
@@ -139,30 +139,29 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     descriptionLayout->addWidget(m_label);
     descriptionLayout->addWidget(m_searchTerm);
     m_cancelButton = new QToolButton(topFindWidget);
-    m_cancelButton->setText(tr("Cancel"));
+    m_cancelButton->setText(Tr::tr("Cancel"));
     m_cancelButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     connect(m_cancelButton, &QAbstractButton::clicked, this, &SearchResultWidget::cancel);
     m_searchAgainButton = new QToolButton(topFindWidget);
-    m_searchAgainButton->setToolTip(tr("Repeat the search with same parameters."));
-    m_searchAgainButton->setText(tr("&Search Again"));
+    m_searchAgainButton->setToolTip(Tr::tr("Repeat the search with same parameters."));
+    m_searchAgainButton->setText(Tr::tr("&Search Again"));
     m_searchAgainButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_searchAgainButton->setVisible(false);
     connect(m_searchAgainButton, &QAbstractButton::clicked, this, &SearchResultWidget::searchAgain);
 
-    m_replaceLabel = new QLabel(tr("Repla&ce with:"), m_topReplaceWidget);
+    m_replaceLabel = new QLabel(Tr::tr("Repla&ce with:"), m_topReplaceWidget);
     m_replaceTextEdit = new WideEnoughLineEdit(m_topReplaceWidget);
     m_replaceLabel->setBuddy(m_replaceTextEdit);
     m_replaceTextEdit->setMinimumWidth(120);
-    m_replaceTextEdit->setEnabled(false);
     setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
     m_preserveCaseCheck = new QCheckBox(m_topReplaceWidget);
-    m_preserveCaseCheck->setText(tr("Preser&ve case"));
+    m_preserveCaseCheck->setText(Tr::tr("Preser&ve case"));
     m_preserveCaseCheck->setEnabled(false);
     m_additionalReplaceWidget = new QWidget(m_topReplaceWidget);
     m_additionalReplaceWidget->setVisible(false);
     m_replaceButton = new QToolButton(m_topReplaceWidget);
-    m_replaceButton->setToolTip(tr("Replace all occurrences."));
-    m_replaceButton->setText(tr("&Replace"));
+    m_replaceButton->setToolTip(Tr::tr("Replace all occurrences."));
+    m_replaceButton->setText(Tr::tr("&Replace"));
     m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_replaceButton->setEnabled(false);
 
@@ -194,6 +193,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
             this, &SearchResultWidget::replaceTextChanged);
     connect(m_replaceButton, &QAbstractButton::clicked,
             this, &SearchResultWidget::handleReplaceButton);
+
+    topFindWidget->setMinimumHeight(m_cancelButton->sizeHint().height());
 }
 
 SearchResultWidget::~SearchResultWidget()
@@ -235,22 +236,15 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
         if (!m_dontAskAgainGroup.isEmpty()) {
             Id undoWarningId = Id("warninglabel/").withSuffix(m_dontAskAgainGroup);
             if (m_infoBar.canInfoBeAdded(undoWarningId)) {
-                InfoBarEntry info(undoWarningId, tr("This change cannot be undone."),
+                InfoBarEntry info(undoWarningId, Tr::tr("This change cannot be undone."),
                                   InfoBarEntry::GlobalSuppression::Enabled);
                 m_infoBar.addInfo(info);
             }
         }
 
-        m_replaceTextEdit->setEnabled(true);
-        // We didn't have an item before, set the focus to the search widget or replace text edit
-        setShowReplaceUI(m_replaceSupported);
-        if (m_replaceSupported) {
-            m_replaceTextEdit->setFocus();
-            m_replaceTextEdit->selectAll();
-        } else {
-            m_searchResultTreeView->setFocus();
-        }
-        m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
+        m_searchResultTreeView->selectionModel()
+            ->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()),
+                     QItemSelectionModel::Select);
         emit navigateStateChanged();
     } else if (m_count <= SEARCHRESULT_WARNING_LIMIT) {
         return;
@@ -260,10 +254,10 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
             return;
         emit paused(true);
         InfoBarEntry info(sizeWarningId,
-                          tr("The search resulted in more than %n items, do you still want to continue?",
+                          Tr::tr("The search resulted in more than %n items, do you still want to continue?",
                              nullptr, SEARCHRESULT_WARNING_LIMIT));
-        info.setCancelButtonInfo(tr("Cancel"), [this] { cancelAfterSizeWarning(); });
-        info.addCustomButton(tr("Continue"), [this] { continueAfterSizeWarning(); });
+        info.setCancelButtonInfo(Tr::tr("Cancel"), [this] { cancelAfterSizeWarning(); });
+        info.addCustomButton(Tr::tr("Continue"), [this] { continueAfterSizeWarning(); });
         m_infoBar.addInfo(info);
         emit requestPopup(false/*no focus*/);
     }
@@ -289,6 +283,7 @@ bool SearchResultWidget::supportsReplace() const
 void SearchResultWidget::setTextToReplace(const QString &textToReplace)
 {
     m_replaceTextEdit->setText(textToReplace);
+    m_replaceTextEdit->selectAll();
 }
 
 QString SearchResultWidget::textToReplace() const
@@ -307,6 +302,10 @@ void SearchResultWidget::setShowReplaceUI(bool visible)
     m_searchResultTreeView->model()->setShowReplaceUI(visible);
     m_topReplaceWidget->setVisible(visible);
     m_isShowingReplaceUI = visible;
+    if (visible)
+        m_replaceTextEdit->setFocus();
+    else
+        m_searchResultTreeView->setFocus();
 }
 
 bool SearchResultWidget::hasFocusInternally() const
@@ -316,23 +315,17 @@ bool SearchResultWidget::hasFocusInternally() const
 
 void SearchResultWidget::setFocusInternally()
 {
-    if (m_count > 0) {
-        if (m_isShowingReplaceUI) {
-            if (!focusWidget() || focusWidget() == m_replaceTextEdit) {
-                m_replaceTextEdit->setFocus();
-                m_replaceTextEdit->selectAll();
-            } else {
-                m_searchResultTreeView->setFocus();
-            }
-        } else {
-            m_searchResultTreeView->setFocus();
-        }
-    }
+    if (!canFocusInternally() || hasFocusInternally())
+        return;
+    if (m_isShowingReplaceUI && (!focusWidget() || focusWidget() == m_replaceTextEdit))
+        m_replaceTextEdit->setFocus();
+    else
+        m_searchResultTreeView->setFocus();
 }
 
 bool SearchResultWidget::canFocusInternally() const
 {
-    return m_count > 0;
+    return m_isShowingReplaceUI || m_count > 0;
 }
 
 void SearchResultWidget::notifyVisibilityChanged(bool visible)
@@ -389,7 +382,6 @@ void SearchResultWidget::goToPrevious()
 
 void SearchResultWidget::restart()
 {
-    m_replaceTextEdit->setEnabled(false);
     m_replaceButton->setEnabled(false);
     m_searchResultTreeView->clear();
     m_searching = true;
@@ -440,12 +432,11 @@ void SearchResultWidget::finishSearch(bool canceled, const QString &reason)
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
     m_infoBar.unsuppressInfo(sizeWarningId);
-    m_replaceTextEdit->setEnabled(m_count > 0);
     m_replaceButton->setEnabled(m_count > 0);
     m_preserveCaseCheck->setEnabled(m_count > 0);
     m_cancelButton->setVisible(false);
     if (canceled)
-        m_messageLabel->setText(reason.isEmpty() ? tr("Search was canceled.") : reason);
+        m_messageLabel->setText(reason.isEmpty() ? Tr::tr("Search was canceled.") : reason);
     m_messageWidget->setVisible(canceled);
     m_searchAgainButton->setVisible(m_searchAgainSupported);
     m_searching = false;
@@ -479,12 +470,16 @@ void SearchResultWidget::handleReplaceButton()
 {
     // check if button is actually enabled, because this is also triggered
     // by pressing return in replace line edit
-    if (m_replaceButton->isEnabled()) {
-        m_infoBar.clear();
-        setShowReplaceUI(false);
-        emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(),
-                                  m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
-    }
+    if (m_replaceButton->isEnabled())
+        doReplace();
+}
+
+void SearchResultWidget::doReplace()
+{
+    m_infoBar.clear();
+    setShowReplaceUI(false);
+    emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(),
+                              m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
 }
 
 void SearchResultWidget::cancel()
@@ -523,11 +518,11 @@ QList<SearchResultItem> SearchResultWidget::checkedItems() const
 void SearchResultWidget::updateMatchesFoundLabel()
 {
     if (m_count > 0) {
-        m_matchesFoundLabel->setText(tr("%n matches found.", nullptr, m_count));
+        m_matchesFoundLabel->setText(Tr::tr("%n matches found.", nullptr, m_count));
     } else if (m_searching) {
-        m_matchesFoundLabel->setText(tr("Searching..."));
+        m_matchesFoundLabel->setText(Tr::tr("Searching..."));
     } else {
-        m_matchesFoundLabel->setText(tr("No matches found."));
+        m_matchesFoundLabel->setText(Tr::tr("No matches found."));
     }
 }
 

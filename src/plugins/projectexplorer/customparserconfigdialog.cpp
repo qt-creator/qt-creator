@@ -1,7 +1,9 @@
 // Copyright (C) 2016 Andre Hartmann.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customparserconfigdialog.h"
+
+#include "projectexplorertr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/theme/theme.h>
@@ -11,9 +13,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
-#include <QGridLayout>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLineEdit>
@@ -22,7 +22,6 @@
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QTabWidget>
-#include <QVBoxLayout>
 
 namespace ProjectExplorer::Internal {
 
@@ -30,15 +29,15 @@ CustomParserConfigDialog::CustomParserConfigDialog(QWidget *parent)
     : QDialog(parent)
 {
     resize(516, 480);
-    setWindowTitle(tr("Custom Parser"));
+    setWindowTitle(Tr::tr("Custom Parser"));
 
     m_errorPattern = new QLineEdit;
-    auto label_1 = new QLabel(tr("&Error message capture pattern:"));
+    auto label_1 = new QLabel(Tr::tr("&Error message capture pattern:"));
     label_1->setBuddy(m_errorPattern);
 
-    auto label = new QLabel(tr("&File name:"));
-    auto label_2 = new QLabel(tr("&Line number:"));
-    auto label_3 = new QLabel(tr("&Message:"));
+    auto label = new QLabel(Tr::tr("&File name:"));
+    auto label_2 = new QLabel(Tr::tr("&Line number:"));
+    auto label_3 = new QLabel(Tr::tr("&Message:"));
 
     m_errorFileNameCap = new QSpinBox;
     m_errorFileNameCap->setMaximum(9);
@@ -56,10 +55,10 @@ CustomParserConfigDialog::CustomParserConfigDialog(QWidget *parent)
     label_2->setBuddy(m_errorLineNumberCap);
     label_3->setBuddy(m_errorMessageCap);
 
-    m_errorStdOutChannel = new QCheckBox(tr("Standard output"));
-    m_errorStdErrChannel = new QCheckBox(tr("Standard error"));
+    m_errorStdOutChannel = new QCheckBox(Tr::tr("Standard output"));
+    m_errorStdErrChannel = new QCheckBox(Tr::tr("Standard error"));
 
-    auto label_5 = new QLabel(tr("E&rror message:"));
+    auto label_5 = new QLabel(Tr::tr("E&rror message:"));
     m_errorOutputMessage = new QLineEdit;
     m_errorFileNameTest = new QLabel;
     m_errorLineNumberTest = new QLabel;
@@ -69,9 +68,9 @@ CustomParserConfigDialog::CustomParserConfigDialog(QWidget *parent)
 
     m_warningPattern = new QLineEdit;
 
-    auto label_11 = new QLabel(tr("&File name:"));
-    auto label_12 = new QLabel(tr("&Line number:"));
-    auto label_13 = new QLabel(tr("&Message:"));
+    auto label_11 = new QLabel(Tr::tr("&File name:"));
+    auto label_12 = new QLabel(Tr::tr("&Line number:"));
+    auto label_13 = new QLabel(Tr::tr("&Message:"));
 
     m_warningLineNumberCap = new QSpinBox;
     m_warningLineNumberCap->setMaximum(9);
@@ -89,10 +88,10 @@ CustomParserConfigDialog::CustomParserConfigDialog(QWidget *parent)
     label_12->setBuddy(m_warningLineNumberCap);
     label_13->setBuddy(m_warningMessageCap);
 
-    m_warningStdOutChannel = new QCheckBox(tr("Standard output"));
-    m_warningStdErrChannel = new QCheckBox(tr("Standard error"));
+    m_warningStdOutChannel = new QCheckBox(Tr::tr("Standard output"));
+    m_warningStdErrChannel = new QCheckBox(Tr::tr("Standard error"));
 
-    auto label_14 = new QLabel(tr("Warning message:"));
+    auto label_14 = new QLabel(Tr::tr("Warning message:"));
     m_warningOutputMessage = new QLineEdit;
     m_warningFileNameTest = new QLabel;
     m_warningLineNumberTest = new QLabel;
@@ -106,28 +105,28 @@ CustomParserConfigDialog::CustomParserConfigDialog(QWidget *parent)
 
     auto tabWarning = new QWidget;
     Column {
-        tr("Warning message capture pattern:"),
+        Tr::tr("Warning message capture pattern:"),
         m_warningPattern,
         Group {
-            title(tr("Capture Positions")),
+            title(Tr::tr("Capture Positions")),
             Grid {
                 label_11, label_12, label_13, br,
                 m_warningFileNameCap, m_warningLineNumberCap,  m_warningMessageCap
             }
         },
         Group {
-            title(tr("Capture Output Channels")),
+            title(Tr::tr("Capture Output Channels")),
             Row { m_warningStdOutChannel, m_warningStdErrChannel }
         },
         Group {
-            title(tr("Test")),
+            title(Tr::tr("Test")),
             Column {
                 label_14,
                 m_warningOutputMessage,
                 Form {
-                    tr("File name:"), m_warningFileNameTest, br,
-                    tr("Line number:"), m_warningLineNumberTest, br,
-                    tr("Message:"), m_warningMessageTest
+                    Tr::tr("File name:"), m_warningFileNameTest, br,
+                    Tr::tr("Line number:"), m_warningLineNumberTest, br,
+                    Tr::tr("Message:"), m_warningMessageTest
                 }
             }
         }
@@ -138,33 +137,33 @@ CustomParserConfigDialog::CustomParserConfigDialog(QWidget *parent)
         label_1,
         m_errorPattern,
         Group {
-            title(tr("Capture Positions")),
+            title(Tr::tr("Capture Positions")),
             Grid {
                 label, label_2, label_3, br,
                 m_errorFileNameCap, m_errorLineNumberCap, m_errorMessageCap
             }
         },
         Group {
-            title(tr("Capture Output Channels")),
+            title(Tr::tr("Capture Output Channels")),
             Row { m_errorStdOutChannel, m_errorStdErrChannel }
         },
         Group {
-            title(tr("Test")),
+            title(Tr::tr("Test")),
             Column {
                 label_5,
                 m_errorOutputMessage,
                 Form {
-                    tr("File name:"), m_errorFileNameTest, br,
-                    tr("Line number:"), m_errorLineNumberTest, br,
-                    tr("Message:"), m_errorMessageTest
+                    Tr::tr("File name:"), m_errorFileNameTest, br,
+                    Tr::tr("Line number:"), m_errorLineNumberTest, br,
+                    Tr::tr("Message:"), m_errorMessageTest
                 }
             }
         },
     }.attachTo(tabError);
 
     auto tabWidget = new QTabWidget(this);
-    tabWidget->addTab(tabError, tr("Error"));
-    tabWidget->addTab(tabWarning, tr("Warning"));
+    tabWidget->addTab(tabError, Tr::tr("Error"));
+    tabWidget->addTab(tabWarning, Tr::tr("Warning"));
     tabWidget->setCurrentIndex(0);
 
     Column {
@@ -417,15 +416,15 @@ bool CustomParserConfigDialog::checkPattern(QLineEdit *pattern, const QString &o
     if (rx.pattern().isEmpty() || !rx.isValid() || !match->hasMatch()) {
         *errorMessage = QString::fromLatin1("<font color=\"%1\">%2 ").arg(
                     Utils::creatorTheme()->color(Utils::Theme::TextColorError).name(),
-                    tr("Not applicable:"));
+                    Tr::tr("Not applicable:"));
         if (rx.pattern().isEmpty())
-            *errorMessage += tr("Pattern is empty.");
+            *errorMessage += Tr::tr("Pattern is empty.");
         else if (!rx.isValid())
             *errorMessage += rx.errorString();
         else if (outputText.isEmpty())
-            *errorMessage += tr("No message given.");
+            *errorMessage += Tr::tr("No message given.");
         else
-            *errorMessage += tr("Pattern does not match the message.");
+            *errorMessage += Tr::tr("Pattern does not match the message.");
 
         return false;
     }

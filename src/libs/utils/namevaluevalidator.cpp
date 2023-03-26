@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "namevaluevalidator.h"
 #include "namevaluemodel.h"
@@ -22,7 +22,7 @@ NameValueValidator::NameValueValidator(QWidget *parent,
 {
     m_hideTipTimer.setInterval(2000);
     m_hideTipTimer.setSingleShot(true);
-    connect(&m_hideTipTimer, &QTimer::timeout, this, []() { ToolTip::hide(); });
+    connect(&m_hideTipTimer, &QTimer::timeout, this, [] { ToolTip::hide(); });
 }
 
 QValidator::State NameValueValidator::validate(QString &in, int &pos) const

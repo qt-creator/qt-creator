@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "console.h"
 
@@ -18,7 +18,6 @@
 #include <coreplugin/find/itemviewfind.h>
 
 #include <QAction>
-#include <QCoreApplication>
 #include <QToolButton>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -256,8 +255,7 @@ void Console::evaluate(const QString &expression)
         m_scriptEvaluator(expression);
     } else {
         auto item = new ConsoleItem(
-            ConsoleItem::ErrorType,
-            QCoreApplication::translate("Debugger", "Can only evaluate during a debug session."));
+            ConsoleItem::ErrorType, Tr::tr("Can only evaluate during a debug session."));
         m_consoleItemModel->shiftEditableRow();
         printItem(item);
     }

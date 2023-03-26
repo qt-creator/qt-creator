@@ -1,8 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmloutputparser.h"
+
 #include "qmldebugconstants.h"
+#include "qmldebugtr.h"
+
 #include <QRegularExpression>
 
 namespace QmlDebug {
@@ -68,10 +71,10 @@ void QmlOutputParser::processOutput(const QString &output)
                 }
             } else if (status.startsWith(unableToListen)) {
                 //: Error message shown after 'Could not connect ... debugger:"
-                emit errorMessage(tr("The port seems to be in use."));
+                emit errorMessage(Tr::tr("The port seems to be in use."));
             } else if (status.startsWith(debuggingNotEnabled)) {
                 //: Error message shown after 'Could not connect ... debugger:"
-                emit errorMessage(tr("The application is not set up for QML/JS debugging."));
+                emit errorMessage(Tr::tr("The application is not set up for QML/JS debugging."));
             } else if (status.startsWith(connectionEstablished)) {
                 emit connectionEstablishedMessage();
             } else if (status.startsWith(connectingToSocket)) {

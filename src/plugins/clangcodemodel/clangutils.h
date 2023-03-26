@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -47,9 +47,9 @@ QJsonArray clangOptionsForFile(const CppEditor::ProjectFile &file,
                                const QJsonArray &generalOptions,
                                CppEditor::UsePrecompiledHeaders usePch, bool clStyle);
 
-CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
+CppEditor::ProjectPart::ConstPtr projectPartForFile(const Utils::FilePath &filePath);
 
-QString currentCppEditorDocumentFilePath();
+Utils::FilePath currentCppEditorDocumentFilePath();
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 

@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "codestylesettingspropertiespage.h"
 
 #include "editorconfiguration.h"
 #include "project.h"
+#include "projectexplorertr.h"
 
 #include <cppeditor/cppeditorconstants.h>
 
@@ -50,7 +51,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
     using namespace Utils::Layouting;
 
     Column {
-        Row { new QLabel(tr("Language:")), languageComboBox, st },
+        Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
         stackedWidget
     }.attachTo(this, WithoutMargins);
 }

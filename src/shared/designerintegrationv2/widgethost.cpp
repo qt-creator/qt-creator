@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "widgethost.h"
 #include "formresizer.h"
@@ -8,11 +8,10 @@
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowCursorInterface>
 
-#include <QPalette>
-#include <QLayout>
-#include <QFrame>
-#include <QResizeEvent>
 #include <QDebug>
+#include <QFrame>
+#include <QPalette>
+#include <QResizeEvent>
 
 using namespace SharedTools;
 

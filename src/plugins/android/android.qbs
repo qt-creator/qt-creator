@@ -86,9 +86,6 @@ Project {
             "androidsdkmodel.h",
             "androidsdkpackage.cpp",
             "androidsdkpackage.h",
-            "androidservicewidget.cpp",
-            "androidservicewidget.h",
-            "androidservicewidget_p.h",
             "androidsettingswidget.cpp",
             "androidsettingswidget.h",
             "androidsignaloperation.cpp",
@@ -114,7 +111,9 @@ Project {
             "splashscreencontainerwidget.cpp",
             "splashscreencontainerwidget.h",
             "splashscreenwidget.cpp",
-            "splashscreenwidget.h"
+            "splashscreenwidget.h",
+            "sdkmanageroutputparser.cpp",
+            "sdkmanageroutputparser.h"
         ]
 
         Group {
@@ -122,6 +121,10 @@ Project {
             condition: qtc.testsEnabled
             files: [
                 "android_tst.qrc",
+                "androidsdkmanager_test.cpp",
+                "androidsdkmanager_test.h",
+                "sdkmanageroutputparser_test.cpp",
+                "sdkmanageroutputparser_test.h",
             ]
         }
     }

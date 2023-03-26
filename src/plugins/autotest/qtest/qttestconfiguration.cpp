@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qttestconfiguration.h"
 #include "qttestconstants.h"
@@ -10,13 +10,26 @@
 #include "../itestframework.h"
 #include "../testsettings.h"
 
+#include <utils/algorithm.h>
 #include <utils/stringutils.h>
+
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *QtTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                    Utils::QtcProcess *app) const
+static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
+{
+    if (debugMode)
+        return testCases;
+
+    return Utils::transform(testCases, [](const QString &testCase){
+        return testCase.contains(' ') ? '"' + testCase + '"' : testCase;
+    });
+}
+
+TestOutputReader *QtTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
+                                                          QtcProcess *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
@@ -39,7 +52,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     if (qtSettings->useXMLOutput.value())
         arguments << "-xml";
     if (!testCases().isEmpty())
-        arguments << testCases();
+        arguments << quoteIfNeeded(testCases(), isDebugRunMode());
 
     const QString &metricsOption = QtTestSettings::metricsTypeToOption(MetricsType(qtSettings->metrics.value()));
     if (!metricsOption.isEmpty())
@@ -60,7 +73,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     return arguments;
 }
 
-Utils::Environment QtTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment QtTestConfiguration::filteredEnvironment(const Environment &original) const
 {
     return QTestUtils::prepareBasicEnvironment(original);
 }

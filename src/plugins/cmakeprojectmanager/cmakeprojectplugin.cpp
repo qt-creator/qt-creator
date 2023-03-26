@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeprojectplugin.h"
 
@@ -7,6 +7,9 @@
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakeeditor.h"
+#include "cmakeformatter.h"
+#include "cmakeformattersettings.h"
+#include "cmakeinstallstep.h"
 #include "cmakekitinformation.h"
 #include "cmakelocatorfilter.h"
 #include "cmakeproject.h"
@@ -26,12 +29,14 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 
+#include <texteditor/formattexteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/parameteraction.h>
 
 #include <QTimer>
+#include <QMenu>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -39,9 +44,27 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeProjectPluginPrivate
+bool isAutoFormatApplicable(const Core::IDocument *document, const QStringList &allowedMimeTypes)
+{
+    if (!document)
+        return false;
+
+    if (allowedMimeTypes.isEmpty())
+        return true;
+
+    const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
+    return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const QString &mime) {
+        return documentMimeType.inherits(mime);
+    });
+}
+
+class CMakeProjectPluginPrivate : public QObject
 {
 public:
+    CMakeProjectPluginPrivate();
+    void updateActions(Core::IEditor *editor = nullptr);
+    void autoFormatOnSave(Core::IDocument *document);
+
     CMakeToolManager cmakeToolManager; // have that before the first CMakeKitAspect
 
     ParameterAction buildTargetContextAction{
@@ -51,24 +74,68 @@ public:
     };
 
     CMakeSettingsPage settingsPage;
-    CMakeSpecificSettingsPage specificSettings{CMakeProjectPlugin::projectTypeSpecificSettings()};
+    CMakeSpecificSettingsPage specificSettings;
 
     CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
+    CMakeInstallStepFactory installStepFactory;
     BuildCMakeTargetLocatorFilter buildCMakeTargetLocatorFilter;
     OpenCMakeTargetLocatorFilter openCMakeTargetLocationFilter;
 
     CMakeKitAspect cmakeKitAspect;
     CMakeGeneratorKitAspect cmakeGeneratorKitAspect;
     CMakeConfigurationKitAspect cmakeConfigurationKitAspect;
+
+    CMakeFormatter cmakeFormatter;
 };
 
-CMakeSpecificSettings *CMakeProjectPlugin::projectTypeSpecificSettings()
+CMakeProjectPluginPrivate::CMakeProjectPluginPrivate()
 {
-    static CMakeSpecificSettings theSettings;
-    return &theSettings;
+    const Core::EditorManager *editorManager = Core::EditorManager::instance();
+    QObject::connect(editorManager, &Core::EditorManager::currentEditorChanged,
+            this, &CMakeProjectPluginPrivate::updateActions);
+    QObject::connect(editorManager, &Core::EditorManager::aboutToSave,
+            this, &CMakeProjectPluginPrivate::autoFormatOnSave);
+}
+
+void CMakeProjectPluginPrivate::updateActions(Core::IEditor *editor)
+{
+    cmakeFormatter.updateActions(editor);
+}
+
+void CMakeProjectPluginPrivate::autoFormatOnSave(Core::IDocument *document)
+{
+    if (!CMakeFormatterSettings::instance()->autoFormatOnSave())
+        return;
+
+    if (!isAutoFormatApplicable(document, CMakeFormatterSettings::instance()->autoFormatMime()))
+        return;
+
+    // Check if file is contained in the current project (if wished)
+    if (CMakeFormatterSettings::instance()->autoFormatOnlyCurrentProject()) {
+        const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
+        if (!pro || pro->files([document](const ProjectExplorer::Node *n) {
+                      return ProjectExplorer::Project::SourceFiles(n)
+                             && n->filePath() == document->filePath();
+                  }).isEmpty()) {
+            return;
+        }
+    }
+
+    if (!cmakeFormatter.isApplicable(document))
+        return;
+    const TextEditor::Command command = cmakeFormatter.command();
+    if (!command.isValid())
+        return;
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
+    if (editors.isEmpty())
+        return;
+    IEditor *currentEditor = EditorManager::currentEditor();
+    IEditor *editor = editors.contains(currentEditor) ? currentEditor : editors.first();
+    if (auto widget = TextEditor::TextEditorWidget::fromEditor(editor))
+        TextEditor::formatEditor(widget, command);
 }
 
 CMakeProjectPlugin::~CMakeProjectPlugin()
@@ -76,12 +143,10 @@ CMakeProjectPlugin::~CMakeProjectPlugin()
     delete d;
 }
 
-bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+void CMakeProjectPlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
-
     d = new CMakeProjectPluginPrivate;
-    projectTypeSpecificSettings()->readSettings(ICore::settings());
+    CMakeSpecificSettings::instance()->readSettings(ICore::settings());
 
     const Context projectContext{CMakeProjectManager::Constants::CMAKE_PROJECT_ID};
 
@@ -115,7 +180,13 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
         }
     });
 
-    return true;
+    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::CMAKEFORMATTER_MENU_ID);
+    menu->menu()->setTitle(Tr::tr("CMakeFormatter"));
+    menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
+    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+
+    d->cmakeFormatter.initialize();
+    d->updateActions();
 }
 
 void CMakeProjectPlugin::extensionsInitialized()

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "progressbar.h"
 
@@ -181,17 +181,15 @@ QSize ProgressBar::sizeHint() const
 
 namespace { const int INDENT = 6; }
 
-void ProgressBar::mousePressEvent(QMouseEvent *event)
+void ProgressBar::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_cancelEnabled) {
         if (event->modifiers() == Qt::NoModifier
             && m_cancelRect.contains(event->pos())) {
-            event->accept();
             emit clicked();
-            return;
         }
     }
-    QWidget::mousePressEvent(event);
+    QWidget::mouseReleaseEvent(event);
 }
 
 QFont ProgressBar::titleFont() const
@@ -202,9 +200,10 @@ QFont ProgressBar::titleFont() const
     return boldFont;
 }
 
-void ProgressBar::mouseMoveEvent(QMouseEvent *)
+void ProgressBar::mouseMoveEvent(QMouseEvent *ev)
 {
     update();
+    QWidget::mouseMoveEvent(ev);
 }
 
 void ProgressBar::paintEvent(QPaintEvent *)

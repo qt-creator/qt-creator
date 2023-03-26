@@ -10,7 +10,7 @@
 /*!
     \page creator-qml-debugging-example.html
     \if defined(qtdesignstudio)
-    \previouspage creator-debugging-qml.html
+    \previouspage creator-expressions-view.html
     \nextpage creator-qml-performance-monitor.html
     \else
     \previouspage creator-debugging-example.html
@@ -41,7 +41,7 @@
 
         \li To look at the code that starts a new game, place a breakpoint in
             samegame.qml by clicking between the line number and the window
-            border on the line where where the \c startNewGame() function is
+            border on the line where the \c startNewGame() function is
             called (1).
 
             \image qtquick-example-setting-breakpoint1.png

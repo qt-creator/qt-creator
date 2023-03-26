@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "deploymentdata.h"
 
@@ -48,11 +48,12 @@ bool DeploymentData::operator==(const DeploymentData &other) const
             && m_localInstallRoot == other.m_localInstallRoot;
 }
 
-QString DeploymentData::addFilesFromDeploymentFile(const QString &deploymentFilePath,
-                                                   const QString &sourceDir)
+QString DeploymentData::addFilesFromDeploymentFile(const FilePath &deploymentFilePath,
+                                                   const FilePath &sourceDir_)
 {
+    const QString sourceDir = sourceDir_.toString();
     const QString sourcePrefix = sourceDir.endsWith('/') ? sourceDir : sourceDir + '/';
-    QFile deploymentFile(deploymentFilePath);
+    QFile deploymentFile(deploymentFilePath.toString());
     QTextStream deploymentStream;
     QString deploymentPrefix;
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -53,7 +53,7 @@ public:
     };
     Q_ENUM(Kind)
 
-    // Default is <Directory>
+    // Default is <ExistingDirectory>
     void setExpectedKind(Kind expected);
     Kind expectedKind() const;
 
@@ -73,12 +73,10 @@ public:
 
     FilePath rawFilePath() const; // The raw unexpanded input as FilePath.
 
-    static QString expandedDirectory(const QString &input, const Environment &env,
-                                     const QString &baseDir);
-
     FilePath baseDirectory() const;
     void setBaseDirectory(const FilePath &base);
 
+    void setEnvironment(const Environment &env);
     void setEnvironmentChange(const EnvironmentChange &change);
 
     /** Returns the suggested label title when used in a form layout. */
@@ -91,6 +89,7 @@ public:
     static FilePath homePath();
 
     void addButton(const QString &text, QObject *context, const std::function<void()> &callback);
+    void insertButton(int index, QAbstractButton *button);
     void insertButton(int index, const QString &text, QObject *context, const std::function<void()> &callback);
     QAbstractButton *buttonAtIndex(int index) const;
 
@@ -132,6 +131,8 @@ public:
     // input value during validation if the real value is empty
     // setting an empty QString will disable this and clear the placeHolderText
     void setDefaultValue(const QString &defaultValue);
+    void setPlaceholderText(const QString &placeholderText);
+    void setToolTip(const QString &toolTip);
 
     void setAllowPathFromDevice(bool allow);
     bool allowPathFromDevice() const;
@@ -157,7 +158,7 @@ private:
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
-    void slotBrowse();
+    void slotBrowse(bool remote);
     void contextMenuRequested(const QPoint &pos);
 
     PathChooserPrivate *d = nullptr;

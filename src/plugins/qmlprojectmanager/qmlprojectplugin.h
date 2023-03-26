@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -36,7 +36,7 @@ public slots:
     void openQds(bool permanent = false);
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     void displayQmlLandingPage();
     void hideQmlLandingPage();
     void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);

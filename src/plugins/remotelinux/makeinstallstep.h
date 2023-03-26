@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -23,8 +23,7 @@ private:
     bool fromMap(const QVariantMap &map) override;
     QWidget *createConfigWidget() override;
     bool init() override;
-    void finish(bool success) override;
-    void stdError(const QString &line) override;
+    void finish(Utils::ProcessResult result) override;
     bool isJobCountSupported() const override { return false; }
 
     Utils::FilePath installRoot() const;

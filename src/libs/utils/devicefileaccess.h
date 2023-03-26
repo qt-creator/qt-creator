@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -15,10 +15,12 @@ class QTCREATOR_UTILS_EXPORT DeviceFileAccess
 public:
     virtual ~DeviceFileAccess();
 
+    virtual Environment deviceEnvironment() const;
+
 protected:
     friend class FilePath;
 
-    virtual QString mapToDevicePath(const FilePath &filePath) const;
+    virtual QString mapToDevicePath(const QString &hostPath) const;
 
     virtual bool isExecutableFile(const FilePath &filePath) const;
     virtual bool isReadableFile(const FilePath &filePath) const;
@@ -34,7 +36,9 @@ protected:
     virtual bool exists(const FilePath &filePath) const;
     virtual bool removeFile(const FilePath &filePath) const;
     virtual bool removeRecursively(const FilePath &filePath, QString *error) const;
-    virtual bool copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual expected_str<void> copyRecursively(const FilePath &filePath,
+                                               const FilePath &target) const;
     virtual bool renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual OsType osType(const FilePath &filePath) const;
@@ -47,36 +51,38 @@ protected:
     virtual qint64 bytesAvailable(const FilePath &filePath) const;
     virtual QByteArray fileId(const FilePath &filePath) const;
 
+    virtual std::optional<FilePath> refersToExecutableFile(
+            const FilePath &filePath,
+            FilePath::MatchScope matchScope) const;
+
     virtual void iterateDirectory(
             const FilePath &filePath,
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const;
 
-    virtual std::optional<QByteArray> fileContents(
-            const FilePath &filePath,
-            qint64 limit,
-            qint64 offset) const;
-    virtual bool writeFileContents(
-            const FilePath &filePath,
-            const QByteArray &data,
-            qint64 offset) const;
+    virtual expected_str<QByteArray> fileContents(const FilePath &filePath,
+                                                  qint64 limit,
+                                                  qint64 offset) const;
 
-    virtual void asyncFileContents(
-            const FilePath &filePath,
-            const Continuation<std::optional<QByteArray>> &cont,
-            qint64 limit,
-            qint64 offset) const;
+    virtual expected_str<qint64> writeFileContents(const FilePath &filePath,
+                                                   const QByteArray &data,
+                                                   qint64 offset) const;
 
-    virtual void asyncWriteFileContents(
-            const FilePath &filePath,
-            const Continuation<bool> &cont,
-            const QByteArray &data,
-            qint64 offset) const;
+    virtual void asyncFileContents(const FilePath &filePath,
+                                   const Continuation<expected_str<QByteArray>> &cont,
+                                   qint64 limit,
+                                   qint64 offset) const;
 
-    virtual void asyncCopyFile(
-            const FilePath &filePath,
-            const Continuation<bool> &cont,
-            const FilePath &target) const;
+    virtual void asyncWriteFileContents(const FilePath &filePath,
+                                        const Continuation<expected_str<qint64>> &cont,
+                                        const QByteArray &data,
+                                        qint64 offset) const;
+
+    virtual void asyncCopyFile(const FilePath &filePath,
+                               const Continuation<expected_str<void>> &cont,
+                               const FilePath &target) const;
+
+    virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -101,7 +107,7 @@ protected:
     bool exists(const FilePath &filePath) const override;
     bool removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    bool copyFile(const FilePath &filePath, const FilePath &target) const override;
+    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     OsType osType(const FilePath &filePath) const override;
@@ -114,19 +120,26 @@ protected:
     qint64 bytesAvailable(const FilePath &filePath) const override;
     QByteArray fileId(const FilePath &filePath) const override;
 
+    std::optional<FilePath> refersToExecutableFile(
+            const FilePath &filePath,
+            FilePath::MatchScope matchScope) const override;
+
     void iterateDirectory(
             const FilePath &filePath,
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
-    std::optional<QByteArray> fileContents(
-            const FilePath &filePath,
-            qint64 limit,
-            qint64 offset) const override;
-    bool writeFileContents(
-            const FilePath &filePath,
-            const QByteArray &data,
-            qint64 offset) const override;
+    Environment deviceEnvironment() const override;
+
+    expected_str<QByteArray> fileContents(const FilePath &filePath,
+                                          qint64 limit,
+                                          qint64 offset) const override;
+    expected_str<qint64> writeFileContents(const FilePath &filePath,
+                                           const QByteArray &data,
+                                           qint64 offset) const override;
+
+    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess
@@ -152,7 +165,7 @@ protected:
     bool exists(const FilePath &filePath) const override;
     bool removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    bool copyFile(const FilePath &filePath, const FilePath &target) const override;
+    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
@@ -170,14 +183,16 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
-    std::optional<QByteArray> fileContents(
-            const FilePath &filePath,
-            qint64 limit,
-            qint64 offset) const override;
-    bool writeFileContents(
-            const FilePath &filePath,
-            const QByteArray &data,
-            qint64 offset) const override;
+    Environment deviceEnvironment() const override;
+    expected_str<QByteArray> fileContents(const FilePath &filePath,
+                                          qint64 limit,
+                                          qint64 offset) const override;
+    expected_str<qint64> writeFileContents(const FilePath &filePath,
+                                           const QByteArray &data,
+                                           qint64 offset) const override;
+
+    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+
 
 private:
     bool iterateWithFind(
@@ -190,6 +205,7 @@ private:
             QStringList *found) const;
 
     mutable bool m_tryUseFind = true;
+    mutable std::optional<bool> m_hasMkTemp;
 };
 
 } // Utils

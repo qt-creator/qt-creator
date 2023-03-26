@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "devicemanagermodel.h"
 
 #include "devicemanager.h"
+#include "../projectexplorertr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
@@ -148,7 +149,7 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
         return dev->id().toSetting();
     QString name;
     if (d->deviceManager->defaultDevice(dev->type()) == dev)
-        name = tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
+        name = Tr::tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
     else
         name = dev->displayName();
     return name;

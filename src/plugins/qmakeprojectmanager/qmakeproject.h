@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -88,6 +88,8 @@ public:
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &file) const final;
     QVariant additionalData(Utils::Id id) const final;
+    QList<QPair<Utils::Id, QString>> generators() const override;
+    void runGenerator(Utils::Id id) override;
 
     void asyncUpdate();
     void buildFinished(bool success);
@@ -111,14 +113,16 @@ public:
     void warnOnToolChainMismatch(const QmakeProFile *pro) const;
     void testToolChain(ProjectExplorer::ToolChain *tc, const Utils::FilePath &path) const;
 
+    QString deviceRoot() const;
+
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFile *qmakeProFile);
     /// \internal
-    QMakeGlobals *qmakeGlobals();
+    QMakeGlobals *qmakeGlobals() const;
     /// \internal
-    QMakeVfs *qmakeVfs();
+    QMakeVfs *qmakeVfs() const;
     /// \internal
-    QString qmakeSysroot();
+    const Utils::FilePath &qmakeSysroot() const;
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
     void deregisterFromCacheManager();
@@ -159,6 +163,9 @@ public:
     void scheduleUpdateAllNowOrLater();
 
 private:
+    ProjectExplorer::ExtraCompiler *findExtraCompiler(
+            const ExtraCompilerFilter &filter) const override;
+
     void scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay);
     void scheduleUpdateAllLater() { scheduleUpdateAll(QmakeProFile::ParseLater); }
 
@@ -177,7 +184,7 @@ private:
     int m_qmakeGlobalsRefCnt = 0;
     bool m_invalidateQmakeVfsContents = false;
 
-    QString m_qmakeSysroot;
+    Utils::FilePath m_qmakeSysroot;
 
     std::unique_ptr<QFutureInterface<void>> m_asyncUpdateFutureInterface;
     int m_pendingEvaluateFuturesCount = 0;

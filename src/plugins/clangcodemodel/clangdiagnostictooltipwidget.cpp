@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangdiagnostictooltipwidget.h"
 
+#include "clangcodemodeltr.h"
 #include "clangfixitoperation.h"
 #include "clangutils.h"
 
@@ -132,8 +133,7 @@ public:
         if (!source.isEmpty()) {
             text.append(QString::fromUtf8("<tr><td colspan='2' align='left'>"
                                           "<font color='gray'>%1</font></td></tr>")
-                        .arg(QCoreApplication::translate("ClangDiagnosticWidget", "[Source: %1]"))
-                        .arg(source));
+                            .arg(Tr::tr("[Source: %1]").arg(source)));
         }
 
         text.append("</table>");

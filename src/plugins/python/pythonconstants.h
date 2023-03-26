@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -11,8 +11,7 @@ namespace Constants {
 const char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
 const char C_PYTHONRUNCONFIGURATION_ID[] = "PythonEditor.RunConfiguration.";
 
-const char C_EDITOR_DISPLAY_NAME[] =
-        QT_TRANSLATE_NOOP("OpenWith::Editors", "Python Editor");
+const char C_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "Python Editor");
 
 const char C_PYTHONOPTIONS_PAGE_ID[] = "PythonEditor.OptionsPage";
 const char C_PYLSCONFIGURATION_PAGE_ID[] = "PythonEditor.PythonLanguageServerConfiguration";

@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "cmake-plugin-minimal",
+      "displayName": "CMake, C++, Git, Debug minimal Build",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "BUILD_PLUGINS": "Core;Designer;DiffEditor;TextEditor;ProjectExplorer;CppEditor;CodePaster;Docker;Git;Help;QmakeProjectManager;CMakeProjectManager;ClangCodeModel;ClangTools;ClangFormat;Debugger;QtSupport;ResourceEditor;VcsBase;Welcome;LanguageClient;RemoteLinux",
+        "BUILD_EXECUTABLES": "QtCreator;qtcreator_ctrlc_stub;qtcreator_process_stub;win64interrupt;qtcreator_processlauncher"
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QtTest>
 
@@ -28,6 +28,7 @@ private slots:
     void findOrDefault();
     void toReferences();
     void take();
+    void sorted();
 };
 
 
@@ -547,6 +548,106 @@ void tst_Algorithm::take()
         std::optional<Struct> r1 = Utils::take(v, &Struct::member);
         QVERIFY(static_cast<bool>(r1));
         QCOMPARE(r1.value().member, 1);
+    }
+}
+
+void tst_Algorithm::sorted()
+{
+    const QList<int> vOrig{4, 3, 6, 5, 8};
+    const QList<int> vExpected{3, 4, 5, 6, 8};
+
+    // plain
+    {
+        // non-const lvalue
+        QList<int> vncl = vOrig;
+        const QList<int> rncl = Utils::sorted(vncl);
+        QCOMPARE(rncl, vExpected);
+        QCOMPARE(vncl, vOrig); // was not modified
+
+        // const lvalue
+        const QList<int> rcl = Utils::sorted(vOrig);
+        QCOMPARE(rcl, vExpected);
+
+        // non-const rvalue
+        const auto vncr = [vOrig]() -> QList<int> { return vOrig; };
+        const QList<int> rncr = Utils::sorted(vncr());
+        QCOMPARE(rncr, vExpected);
+
+        // const rvalue
+        const auto vcr = [vOrig]() -> const QList<int> { return vOrig; };
+        const QList<int> rcr = Utils::sorted(vcr());
+        QCOMPARE(rcr, vExpected);
+    }
+
+    // predicate
+    {
+        // non-const lvalue
+        QList<int> vncl = vOrig;
+        const QList<int> rncl = Utils::sorted(vncl, [](int a, int b) { return a < b; });
+        QCOMPARE(rncl, vExpected);
+        QCOMPARE(vncl, vOrig); // was not modified
+
+        // const lvalue
+        const QList<int> rcl = Utils::sorted(vOrig, [](int a, int b) { return a < b; });
+        QCOMPARE(rcl, vExpected);
+
+        // non-const rvalue
+        const auto vncr = [vOrig]() -> QList<int> { return vOrig; };
+        const QList<int> rncr = Utils::sorted(vncr(), [](int a, int b) { return a < b; });
+        QCOMPARE(rncr, vExpected);
+
+        // const rvalue
+        const auto vcr = [vOrig]() -> const QList<int> { return vOrig; };
+        const QList<int> rcr = Utils::sorted(vcr(), [](int a, int b) { return a < b; });
+        QCOMPARE(rcr, vExpected);
+    }
+
+    const QList<Struct> mvOrig({4, 3, 2, 1});
+    const QList<Struct> mvExpected({1, 2, 3, 4});
+    // member
+    {
+        // non-const lvalue
+        QList<Struct> mvncl = mvOrig;
+        const QList<Struct> rncl = Utils::sorted(mvncl, &Struct::member);
+        QCOMPARE(rncl, mvExpected);
+        QCOMPARE(mvncl, mvOrig); // was not modified
+
+        // const lvalue
+        const QList<Struct> rcl = Utils::sorted(mvOrig, &Struct::member);
+        QCOMPARE(rcl, mvExpected);
+
+        // non-const rvalue
+        const auto vncr = [mvOrig]() -> QList<Struct> { return mvOrig; };
+        const QList<Struct> rncr = Utils::sorted(vncr(), &Struct::member);
+        QCOMPARE(rncr, mvExpected);
+
+        // const rvalue
+        const auto vcr = [mvOrig]() -> const QList<Struct> { return mvOrig; };
+        const QList<Struct> rcr = Utils::sorted(vcr(), &Struct::member);
+        QCOMPARE(rcr, mvExpected);
+    }
+
+    // member function
+    {
+        // non-const lvalue
+        QList<Struct> mvncl = mvOrig;
+        const QList<Struct> rncl = Utils::sorted(mvncl, &Struct::getMember);
+        QCOMPARE(rncl, mvExpected);
+        QCOMPARE(mvncl, mvOrig); // was not modified
+
+        // const lvalue
+        const QList<Struct> rcl = Utils::sorted(mvOrig, &Struct::getMember);
+        QCOMPARE(rcl, mvExpected);
+
+        // non-const rvalue
+        const auto vncr = [mvOrig]() -> QList<Struct> { return mvOrig; };
+        const QList<Struct> rncr = Utils::sorted(vncr(), &Struct::getMember);
+        QCOMPARE(rncr, mvExpected);
+
+        // const rvalue
+        const auto vcr = [mvOrig]() -> const QList<Struct> { return mvOrig; };
+        const QList<Struct> rcr = Utils::sorted(vcr(), &Struct::getMember);
+        QCOMPARE(rcr, mvExpected);
     }
 }
 

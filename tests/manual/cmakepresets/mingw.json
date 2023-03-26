@@ -1,0 +1,61 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "mingw",
+      "displayName": "MinGW 11.2.0",
+      "generator": "Ninja",
+      "installDir": "../inst-${presetName}",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "$env{SYSTEMDRIVE}/Qt/6.4.2/mingw_64"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "environment": {
+        "PATH": "$env{SYSTEMDRIVE}/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
+      },
+      "debug" : {
+        "find" : true
+      }
+    },
+    {
+      "name": "mingw-make",
+      "binaryDir": "${sourceDir}/build-${presetName}-release",
+      "displayName": "MinGW 11.2.0 Makefiles",
+      "generator": "MinGW Makefiles",
+      "inherits" : "mingw",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_PREFIX_PATH": "$env{SystemDrive}/Qt/6.4.2/mingw_64"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "mingw",
+      "displayName": "MinGW default",
+      "configurePreset": "mingw",
+      "targets": "${sourceDirName}"
+    },
+    {
+      "name": "mingw-verbose",
+      "inherits": "mingw",
+      "displayName": "MinGW verbose",
+      "verbose": true
+    },
+    {
+      "name": "mingw-make",
+      "displayName": "MinGW make 4 CPUs",
+      "configurePreset": "mingw-make",
+      "jobs": 4
+    }
+  ]
+}

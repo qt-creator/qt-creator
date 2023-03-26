@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Nicolas Arnaud-Cormos
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -16,7 +16,7 @@ class MacrosPlugin final : public ExtensionSystem::IPlugin
 public:
     ~MacrosPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
 private:
     class MacrosPluginPrivate *d = nullptr;

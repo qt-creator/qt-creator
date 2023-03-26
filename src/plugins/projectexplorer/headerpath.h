@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -25,7 +25,8 @@ public:
     HeaderPath(const QString &path, HeaderPathType type) : path(path), type(type) { }
     HeaderPath(const char *path, HeaderPathType type) : HeaderPath(QLatin1String(path), type) {}
     HeaderPath(const Utils::FilePath &path, HeaderPathType type)
-        : HeaderPath(path.toString(), type) { }
+        : HeaderPath(path.path(), type)
+    {}
 
     bool operator==(const HeaderPath &other) const
     {

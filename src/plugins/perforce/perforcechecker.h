@@ -1,13 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 // Perforce checker:  Calls perforce asynchronously to do
 // a check of the configuration and emits signals with the top level or
@@ -53,5 +52,4 @@ private:
     bool m_isOverrideCursor = false;
 };
 
-} // namespace Internal
-} // namespace Perforce
+} // Perforce::Internal

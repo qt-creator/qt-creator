@@ -25,6 +25,7 @@ QtcPlugin {
         "subversionsettings.h",
         "subversionsubmiteditor.cpp",
         "subversionsubmiteditor.h",
+        "subversiontr.h",
     ]
 }
 

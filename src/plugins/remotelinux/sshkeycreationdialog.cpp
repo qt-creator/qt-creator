@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sshkeycreationdialog.h"
 
@@ -118,7 +118,7 @@ void SshKeyCreationDialog::generateKeys()
     if (!keygen.waitForFinished())
         errorMsg = keygen.errorString();
     else if (keygen.exitCode() != 0)
-        errorMsg = QString::fromLocal8Bit(keygen.readAllStandardError());
+        errorMsg = QString::fromLocal8Bit(keygen.readAllRawStandardError());
     if (!errorMsg.isEmpty()) {
         showError(Tr::tr("The ssh-keygen tool at \"%1\" failed: %2")
                   .arg(SshSettings::keygenFilePath().toUserOutput(), errorMsg));

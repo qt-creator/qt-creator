@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "remotelinuxsignaloperation.h"
 
@@ -89,7 +89,7 @@ void RemoteLinuxSignalOperation::runnerDone()
     } else if (m_process->exitCode() != 0) {
         m_errorMessage = Tr::tr("Exit code is %1. stderr:").arg(m_process->exitCode())
                 + QLatin1Char(' ')
-                + QString::fromLatin1(m_process->readAllStandardError());
+                + QString::fromLatin1(m_process->readAllRawStandardError());
     }
     m_process.release()->deleteLater();
     emit finished(m_errorMessage);

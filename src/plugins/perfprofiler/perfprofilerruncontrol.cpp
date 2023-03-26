@@ -1,18 +1,22 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perfprofilerruncontrol.h"
 
 #include "perfdatareader.h"
 #include "perfprofilertool.h"
+#include "perfprofilertr.h"
 #include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -22,8 +26,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfParserWorker : public RunWorker
 {
@@ -60,13 +63,14 @@ public:
 
     void start() override
     {
-        QStringList args = m_reader.findTargetArguments(runControl());
+        CommandLine cmd{findPerfParser()};
+        m_reader.addTargetArguments(&cmd, runControl());
         QUrl url = runControl()->property("PerfConnection").toUrl();
         if (url.isValid()) {
-            args.append(QStringList{"--host", url.host(), "--port", QString::number(url.port())});
+            cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
         }
-        appendMessage("PerfParser args: " + args.join(' '), Utils::NormalMessageFormat);
-        m_reader.createParser(args);
+        appendMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
+        m_reader.createParser(cmd);
         m_reader.startParser();
     }
 
@@ -191,11 +195,11 @@ void PerfProfilerRunner::start()
         // That's the local case.
         QtcProcess *recorder = prw->recorder();
         connect(recorder, &QtcProcess::readyReadStandardError, this, [this, recorder] {
-            appendMessage(QString::fromLocal8Bit(recorder->readAllStandardError()),
+            appendMessage(QString::fromLocal8Bit(recorder->readAllRawStandardError()),
                           Utils::StdErrFormat);
         });
         connect(recorder, &QtcProcess::readyReadStandardOutput, this, [this, reader, recorder] {
-            if (!reader->feedParser(recorder->readAllStandardOutput()))
+            if (!reader->feedParser(recorder->readAllRawStandardOutput()))
                 reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
         });
     }
@@ -203,7 +207,14 @@ void PerfProfilerRunner::start()
     reportStarted();
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+// PerfProfilerRunWorkerFactory
+
+PerfProfilerRunWorkerFactory::PerfProfilerRunWorkerFactory()
+{
+    setProduct<PerfProfilerRunner>();
+    addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+}
+
+} // PerfProfiler::Internal
 
 #include "perfprofilerruncontrol.moc"

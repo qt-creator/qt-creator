@@ -1,17 +1,16 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdbdevicetracker.h"
-#include "qdbwatcher.h"
 
-#include "../qdbutils.h"
 #include "hostmessages.h"
+#include "qdbwatcher.h"
+#include "../qdbtr.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 QdbDeviceTracker::QdbDeviceTracker(QObject *parent)
     : QObject(parent)
@@ -36,7 +35,7 @@ void QdbDeviceTracker::handleWatchMessage(const QJsonDocument &document)
     if (type != ResponseType::NewDevice && type != ResponseType::DisconnectedDevice) {
         stop();
         const QString message =
-                tr("Shutting down device discovery due to unexpected response: %1");
+                Tr::tr("Shutting down device discovery due to unexpected response: %1");
         emit trackerError(message.arg(QString::fromUtf8(document.toJson())));
         return;
     }
@@ -61,5 +60,4 @@ void QdbDeviceTracker::handleWatchMessage(const QJsonDocument &document)
     emit deviceEvent(eventType, info);
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2017 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include <utils/fileutils.h>
 
 #include <QList>
@@ -56,6 +56,7 @@ public:
 
     QString displayText() const;
     QString descriptionText() const;
+    QString extension() const;
     const QVersionNumber &revision() const;
     PackageState state() const;
     const QString &sdkStylePath() const;
@@ -66,6 +67,7 @@ protected:
     void setDescriptionText(const QString &str);
     void setState(PackageState state);
     void setInstalledLocation(const Utils::FilePath &path);
+    void setExtension(const QString &extension);
 
     virtual void updatePackageDetails();
 
@@ -75,6 +77,7 @@ private:
     QVersionNumber m_revision;
     PackageState m_state = PackageState::Unknown;
     QString m_sdkStylePath;
+    QString m_extension;
     Utils::FilePath m_installedLocation;
 
     friend class Internal::SdkManagerOutputParser;
@@ -145,6 +148,7 @@ public:
     bool isValid() const override;
     PackageType type() const override;
 };
+using BuildToolsList = QList<BuildTools*>;
 
 class PlatformTools : public AndroidSdkPackage
 {

@@ -1,13 +1,15 @@
 // Copyright (C) 2016 Andre Hartmann.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customparser.h"
 
-#include "projectexplorerconstants.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "task.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -160,7 +162,7 @@ CustomParsersAspect::CustomParsersAspect(Target *target)
     Q_UNUSED(target)
     setId("CustomOutputParsers");
     setSettingsKey("CustomOutputParsers");
-    setDisplayName(tr("Custom Output Parsers"));
+    setDisplayName(Tr::tr("Custom Output Parsers"));
     addDataExtractor(this, &CustomParsersAspect::parsers, &Data::parsers);
     setConfigWidgetCreator([this] {
         const auto widget = new Internal::CustomParsersSelectionWidget;
@@ -261,7 +263,7 @@ public:
     SelectionWidget(QWidget *parent = nullptr) : QWidget(parent)
     {
         const auto layout = new QVBoxLayout(this);
-        const auto explanatoryLabel = new QLabel(tr(
+        const auto explanatoryLabel = new QLabel(Tr::tr(
             "Custom output parsers scan command line output for user-provided error patterns<br>"
             "to create entries in Issues.<br>"
             "The parsers can be configured <a href=\"dummy\">here</a>."));
@@ -343,9 +345,9 @@ void CustomParsersSelectionWidget::updateSummary()
     const QList<Utils::Id> parsers
             = qobject_cast<SelectionWidget *>(widget())->selectedParsers();
     if (parsers.isEmpty())
-        setSummaryText(tr("There are no custom parsers active"));
+        setSummaryText(Tr::tr("There are no custom parsers active"));
     else
-        setSummaryText(tr("There are %n custom parsers active", nullptr, parsers.count()));
+        setSummaryText(Tr::tr("There are %n custom parsers active", nullptr, parsers.count()));
 }
 
 } // namespace Internal

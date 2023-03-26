@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -22,7 +22,6 @@ struct CORE_EXPORT FileUtils
     // Helpers for common directory browser options.
     static void showInGraphicalShell(QWidget *parent, const Utils::FilePath &path);
     static void showInFileSystemView(const Utils::FilePath &path);
-    static void openTerminal(const Utils::FilePath &path);
     static void openTerminal(const Utils::FilePath &path, const Utils::Environment &env);
     static QString msgFindInDirectory();
     static QString msgFileSystemAction();

@@ -92,7 +92,7 @@ add_qtc_test(tst_mesonwrapper
   INCLUDES
     BEFORE "."
   DEPENDS
-    Qt5::Core Qt5::Test Core
+    Qt::Core Qt::Test Core
     Utils
   DEFINES
      MESON_SAMPLES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/resources"
@@ -113,7 +113,7 @@ add_qtc_test(tst_mesoninfoparser
   INCLUDES
     BEFORE "."
   DEPENDS
-    Qt5::Core Qt5::Test Core
+    Qt::Core Qt::Test Core
     Utils
   DEFINES
      MESON_SAMPLES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/resources"
@@ -134,7 +134,7 @@ add_qtc_test(tst_ninjaparser
   INCLUDES
     BEFORE "."
   DEPENDS
-    Qt5::Core Qt5::Test Core
+    Qt::Core Qt::Test Core
     Utils ProjectExplorer
   SOURCES
     tests/testninjaparser.cpp
@@ -147,7 +147,7 @@ add_qtc_test(tst_mesonparser
   DEFINES
     MESONPARSER_DISABLE_TASKS_FOR_TESTS
   DEPENDS
-    Qt5::Core Qt5::Test Core
+    Qt::Core Qt::Test Core
     Utils ProjectExplorer
   SOURCES
     tests/testmesonparser.cpp

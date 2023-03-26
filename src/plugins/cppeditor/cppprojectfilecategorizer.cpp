@@ -1,9 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppprojectfilecategorizer.h"
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
+
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -38,7 +41,7 @@ ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
     ProjectFiles ambiguousHeaders;
 
     for (const QString &filePath : filePaths) {
-        const ProjectFile projectFile(filePath,
+        const ProjectFile projectFile(FilePath::fromString(filePath),
                                       getMimeType
                                           ? ProjectFile::classifyByMimeType(getMimeType(filePath))
                                           : ProjectFile::classify(filePath),

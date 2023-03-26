@@ -29,8 +29,8 @@
     Profile builds produce optimized binaries with separate debug symbols and
     should generally be used for profiling.
 
-    To manually set up a build configuration to provide separate debug symbols,
-    edit the project build settings:
+    To manually set up a build configuration that generates separate debug
+    symbols, edit the project build settings:
 
     \list 1
         \li To generate debug symbols also for applications compiled in release
@@ -294,7 +294,7 @@
     events to move the cursor in the code editor to the part of the code the
     event is associated with.
 
-    As the Perf tool only provides periodic samples, the Performance Analyzer
+    As the Perf tool only collects periodic samples, the Performance Analyzer
     cannot determine the exact time when a function was called or when it
     returned. You can, however, see exactly when a sample was taken in the
     second row of each thread. The Performance Analyzer assumes that if the same

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "logchangedialog.h"
 
@@ -76,7 +76,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setActivationMode(Utils::DoubleClickActivation);
     connect(this, &LogChangeWidget::activated, this, &LogChangeWidget::emitCommitActivated);
-    QTimer::singleShot(0, [this] { setFocus(); });
+    QTimer::singleShot(0, this, [this] { setFocus(); });
 }
 
 bool LogChangeWidget::init(const FilePath &repository, const QString &commit, LogFlags flags)
@@ -125,7 +125,7 @@ void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
 void LogChangeWidget::emitCommitActivated(const QModelIndex &index)
 {
     if (index.isValid()) {
-        QString commit = index.sibling(index.row(), Sha1Column).data().toString();
+        const QString commit = index.sibling(index.row(), Sha1Column).data().toString();
         if (!commit.isEmpty())
             emit commitActivated(commit);
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -30,11 +30,12 @@
         \li \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
             {Boot2Qt Device} (commercial only)
         \li \l{Emulator}{Boot2Qt Emulator Device} (commercial only)
-        \li \l{Connecting Remote Linux Devices}{Remote Linux Device}
+        \li \l{Adding Docker Devices}{Docker Device} (experimental)
         \li \l{Connecting iOS Devices}{iOS Device}
         \li iOS Simulator
         \li \l{Connecting MCUs}{MCU Device} (commercial only)
         \li \l{Connecting QNX Devices}{QNX Device}
+        \li \l{Connecting Remote Linux Devices}{Remote Linux Device}
         \li \l{Building Applications for the Web}{WebAssembly Runtime}
     \endlist
 

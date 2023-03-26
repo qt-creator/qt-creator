@@ -1,12 +1,11 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "texteditor_global.h"
 
-#include <QString>
-#include <QStringList>
+#include <utils/filepath.h>
 
 namespace TextEditor {
 
@@ -20,11 +19,12 @@ public:
 
     bool isValid() const;
 
-    QString executable() const;
-    void setExecutable(const QString &executable);
+    Utils::FilePath executable() const;
+    void setExecutable(const Utils::FilePath &executable);
 
     QStringList options() const;
     void addOption(const QString &option);
+    void addOptions(const QStringList &options);
 
     Processing processing() const;
     void setProcessing(const Processing &processing);
@@ -36,7 +36,7 @@ public:
     void setReturnsCRLF(bool returnsCRLF);
 
 private:
-    QString m_executable;
+    Utils::FilePath m_executable;
     QStringList m_options;
     Processing m_processing = FileProcessing;
     bool m_pipeAddsNewline = false;

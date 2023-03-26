@@ -1,15 +1,15 @@
 // Copyright (C) 2019 Klarälvdalens Datakonsult AB, a KDAB Group company,
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "ctfvisualizerconstants.h"
-#include "ctfvisualizertr.h"
 
 #include <debugger/debuggermainwindow.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
 
+#include <QCoreApplication>
 #include <QScopedPointer>
 
 namespace CtfVisualizer {
@@ -46,7 +46,8 @@ private:
     void toggleThreadRestriction(QAction *action);
 
     Utils::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
-                                     ::CtfVisualizer::Tr::tr("Chrome Trace Format Visualizer")};
+                                     QCoreApplication::translate("QtC::CtfVisualizer",
+                                                                 "Chrome Trace Format Visualizer")};
 
     bool m_isLoading;
     QScopedPointer<QAction> m_loadJson;

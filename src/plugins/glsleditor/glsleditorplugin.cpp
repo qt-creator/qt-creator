@@ -1,10 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glsleditorplugin.h"
+
 #include "glslcompletionassist.h"
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
+#include "glsleditortr.h"
 #include "glslhighlighter.h"
 
 #include <glsl/glslengine.h>
@@ -92,7 +94,7 @@ GlslEditorPlugin::~GlslEditorPlugin()
     dd = nullptr;
 }
 
-bool GlslEditorPlugin::initialize(const QStringList &, QString *)
+void GlslEditorPlugin::initialize()
 {
     dd = new GlslEditorPluginPrivate;
 
@@ -101,7 +103,7 @@ bool GlslEditorPlugin::initialize(const QStringList &, QString *)
     glslToolsMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     QMenu *menu = glslToolsMenu->menu();
     //: GLSL sub-menu in the Tools menu
-    menu->setTitle(tr("GLSL"));
+    menu->setTitle(Tr::tr("GLSL"));
     ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
 
     // Insert marker for "Refactoring" menu:
@@ -111,8 +113,6 @@ bool GlslEditorPlugin::initialize(const QStringList &, QString *)
 
     Command *cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
-
-    return true;
 }
 
 void GlslEditorPlugin::extensionsInitialized()

@@ -1,8 +1,9 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pipsupport.h"
 
+#include "pythonplugin.h"
 #include "pythontr.h"
 
 #include <coreplugin/messagemanager.h>
@@ -15,6 +16,7 @@
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
+#include <utils/runextensions.h>
 
 using namespace Utils;
 
@@ -88,46 +90,16 @@ void PipInstallTask::handleDone()
 
 void PipInstallTask::handleOutput()
 {
-    const QString &stdOut = QString::fromLocal8Bit(m_process.readAllStandardOutput().trimmed());
+    const QString &stdOut = QString::fromLocal8Bit(m_process.readAllRawStandardOutput().trimmed());
     if (!stdOut.isEmpty())
         Core::MessageManager::writeSilently(stdOut);
 }
 
 void PipInstallTask::handleError()
 {
-    const QString &stdErr = QString::fromLocal8Bit(m_process.readAllStandardError().trimmed());
+    const QString &stdErr = QString::fromLocal8Bit(m_process.readAllRawStandardError().trimmed());
     if (!stdErr.isEmpty())
         Core::MessageManager::writeSilently(stdErr);
-}
-
-PipPackageInfo PipPackage::info(const FilePath &python) const
-{
-    PipPackageInfo result;
-
-    QtcProcess pip;
-    pip.setCommand(CommandLine(python, {"-m", "pip", "show", "-f", packageName}));
-    pip.runBlocking();
-    QString fieldName;
-    QStringList data;
-    const QString pipOutput = pip.allOutput();
-    for (const QString &line : pipOutput.split('\n')) {
-        if (line.isEmpty())
-            continue;
-        if (line.front().isSpace()) {
-            data.append(line.trimmed());
-        } else {
-            result.parseField(fieldName, data);
-            if (auto colonPos = line.indexOf(':'); colonPos >= 0) {
-                fieldName = line.left(colonPos);
-                data = QStringList(line.mid(colonPos + 1).trimmed());
-            } else {
-                fieldName.clear();
-                data.clear();
-            }
-        }
-    }
-    result.parseField(fieldName, data);
-    return result;
 }
 
 void PipPackageInfo::parseField(const QString &field, const QStringList &data)
@@ -161,5 +133,56 @@ void PipPackageInfo::parseField(const QString &field, const QStringList &data)
         }
     }
 }
+
+Pip *Pip::instance(const FilePath &python)
+{
+    static QMap<FilePath, Pip *> pips;
+    auto it = pips.find(python);
+    if (it == pips.end())
+        it = pips.insert(python, new Pip(python));
+    return it.value();
+}
+
+QFuture<PipPackageInfo> Pip::info(const PipPackage &package)
+{
+    return Utils::runAsync(&Pip::infoImpl, this, package);
+}
+
+PipPackageInfo Pip::infoImpl(const PipPackage &package)
+{
+    PipPackageInfo result;
+
+    QtcProcess pip;
+    pip.setCommand(CommandLine(m_python, {"-m", "pip", "show", "-f", package.packageName}));
+    m_lock.lock();
+    pip.runBlocking();
+    m_lock.unlock();
+    QString fieldName;
+    QStringList data;
+    const QString pipOutput = pip.allOutput();
+    for (const QString &line : pipOutput.split('\n')) {
+        if (line.isEmpty())
+            continue;
+        if (line.front().isSpace()) {
+            data.append(line.trimmed());
+        } else {
+            result.parseField(fieldName, data);
+            if (auto colonPos = line.indexOf(':'); colonPos >= 0) {
+                fieldName = line.left(colonPos);
+                data = QStringList(line.mid(colonPos + 1).trimmed());
+            } else {
+                fieldName.clear();
+                data.clear();
+            }
+        }
+    }
+    result.parseField(fieldName, data);
+    return result;
+}
+
+Pip::Pip(const Utils::FilePath &python)
+    : QObject(PythonPlugin::instance())
+    , m_python(python)
+{}
 
 } // Python::Internal

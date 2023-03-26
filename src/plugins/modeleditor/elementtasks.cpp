@@ -1,12 +1,13 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "elementtasks.h"
 
+#include "componentviewcontroller.h"
+#include "modeleditor_plugin.h"
+#include "modeleditortr.h"
 #include "modelsmanager.h"
 #include "openelementvisitor.h"
-#include "modeleditor_plugin.h"
-#include "componentviewcontroller.h"
 
 #include "qmt/diagram/delement.h"
 #include "qmt/diagram/dpackage.h"
@@ -136,7 +137,7 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;
             if (Core::EditorManager::instance()->openEditorAt(
-                    {Utils::FilePath::fromString(info->fileName()), info->line(), info->column()})) {
+                    {info->filePath(), info->line(), info->column()})) {
                 return;
             }
         }
@@ -407,7 +408,7 @@ bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::M
 {
     bool extended = false;
     if (dynamic_cast<const qmt::DPackage *>(delement)) {
-        menu->addAction(new qmt::ContextMenuAction(tr("Update Include Dependencies"), "updateIncludeDependencies", menu));
+        menu->addAction(new qmt::ContextMenuAction(Tr::tr("Update Include Dependencies"), "updateIncludeDependencies", menu));
         extended = true;
     }
     return extended;

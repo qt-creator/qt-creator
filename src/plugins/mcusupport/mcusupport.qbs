@@ -37,6 +37,8 @@ QtcPlugin {
         "mcusupportoptions.h",
         "mcukitmanager.cpp",
         "mcukitmanager.h",
+        "mcuqmlprojectnode.cpp",
+        "mcuqmlprojectnode.h",
         "mcusupportoptionspage.cpp",
         "mcusupportoptionspage.h",
         "mcusupportplugin.cpp",

@@ -1,15 +1,15 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 // Tested with version 2.01, 2.02, 2.02.1, 2.03 and 2.04
 
 #include "artisticstyle.h"
 
 #include "artisticstyleconstants.h"
-#include "artisticstyleoptionspage.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -35,13 +35,12 @@
 
 using namespace TextEditor;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 ArtisticStyle::ArtisticStyle()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu("ArtisticStyle.Menu");
-    menu->menu()->setTitle(tr("&Artistic Style"));
+    menu->menu()->setTitle(Tr::tr("&Artistic Style"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     menu->addAction(Core::ActionManager::registerAction(m_formatFile, "ArtisticStyle.FormatFile"));
@@ -50,7 +49,7 @@ ArtisticStyle::ArtisticStyle()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(&m_settings, &ArtisticStyleSettings::supportedMimeTypesChanged,
-            [this] { updateActions(Core::EditorManager::currentEditor()); });
+            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
 }
 
 QString ArtisticStyle::id() const
@@ -68,7 +67,7 @@ void ArtisticStyle::formatFile()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
+                                        Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
     } else {
         formatCurrentFile(command(cfgFileName));
     }
@@ -125,7 +124,7 @@ bool ArtisticStyle::isApplicable(const Core::IDocument *document) const
 Command ArtisticStyle::command(const QString &cfgFile) const
 {
     Command command;
-    command.setExecutable(m_settings.command().toString());
+    command.setExecutable(m_settings.command());
     command.addOption("-q");
     command.addOption("--options=" + cfgFile);
 
@@ -143,5 +142,4 @@ Command ArtisticStyle::command(const QString &cfgFile) const
     return command;
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

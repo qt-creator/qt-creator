@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -504,6 +504,12 @@ public:
     std::optional<SemanticTokensClientCapabilities> semanticTokens() const;
     void setSemanticTokens(const SemanticTokensClientCapabilities &semanticTokens);
     void clearSemanticTokens() { remove(semanticTokensKey); }
+
+    std::optional<DynamicRegistrationCapabilities> callHierarchy() const
+    { return optionalValue<DynamicRegistrationCapabilities>(callHierarchyKey); }
+    void setCallHierarchy(const DynamicRegistrationCapabilities &callHierarchy)
+    { insert(callHierarchyKey, callHierarchy); }
+    void clearCallHierarchy() { remove(callHierarchyKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensWorkspaceClientCapabilities : public JsonObject

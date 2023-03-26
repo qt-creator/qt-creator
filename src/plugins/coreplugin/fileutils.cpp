@@ -1,16 +1,19 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fileutils.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/foldernavigationwidget.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/navigationwidget.h>
-#include <coreplugin/vcsmanager.h>
+#include "coreconstants.h"
+#include "coreplugintr.h"
+#include "documentmanager.h"
+#include "editormanager/editormanager.h"
+#include "foldernavigationwidget.h"
+#include "icore.h"
+#include "iversioncontrol.h"
+#include "messagemanager.h"
+#include "navigationwidget.h"
+#include "vcsmanager.h"
+
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -29,15 +32,6 @@
 #include <QTextCodec>
 #include <QWidget>
 
-#ifdef Q_OS_WIN
-
-#include <windows.h>
-#include <stdlib.h>
-#include <cstring>
-
-#endif
-
-
 using namespace Utils;
 
 namespace Core {
@@ -45,14 +39,11 @@ namespace Core {
 // Show error with option to open settings.
 static void showGraphicalShellError(QWidget *parent, const QString &app, const QString &error)
 {
-    const QString title = QApplication::translate("Core::Internal",
-                                                  "Launching a file browser failed");
-    const QString msg = QApplication::translate("Core::Internal",
-                                                "Unable to start the file manager:\n\n%1\n\n").arg(app);
+    const QString title = Tr::tr("Launching a file browser failed");
+    const QString msg = Tr::tr("Unable to start the file manager:\n\n%1\n\n").arg(app);
     QMessageBox mbox(QMessageBox::Warning, title, msg, QMessageBox::Close, parent);
     if (!error.isEmpty())
-        mbox.setDetailedText(QApplication::translate("Core::Internal",
-                                                     "\"%1\" returned the following error:\n\n%2").arg(app, error));
+        mbox.setDetailedText(Tr::tr("\"%1\" returned the following error:\n\n%2").arg(app, error));
     QAbstractButton *settingsButton = mbox.addButton(Core::ICore::msgShowOptionsDialog(),
                                                      QMessageBox::ActionRole);
     mbox.exec();
@@ -68,10 +59,8 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
         const FilePath explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
         if (explorer.isEmpty()) {
             QMessageBox::warning(parent,
-                                 QApplication::translate("Core::Internal",
-                                                         "Launching Windows Explorer Failed"),
-                                 QApplication::translate("Core::Internal",
-                                                         "Could not find explorer.exe in path to launch Windows Explorer."));
+                                 Tr::tr("Launching Windows Explorer Failed"),
+                                 Tr::tr("Could not find explorer.exe in path to launch Windows Explorer."));
             return;
         }
         QStringList param;
@@ -89,8 +78,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
                     UnixUtils::substituteFileBrowserParameters(app, folder));
         QString error;
         if (browserArgs.isEmpty()) {
-            error = QApplication::translate("Core::Internal",
-                                            "The command for file browser is not set.");
+            error = Tr::tr("The command for file browser is not set.");
         } else {
             QProcess browserProc;
             browserProc.setProgram(browserArgs.takeFirst());
@@ -98,8 +86,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
             const bool success = browserProc.startDetached();
             error = QString::fromLocal8Bit(browserProc.readAllStandardError());
             if (!success && error.isEmpty())
-                error = QApplication::translate("Core::Internal",
-                                                "Error while starting file browser.");
+                error = Tr::tr("Error while starting file browser.");
         }
         if (!error.isEmpty())
             showGraphicalShellError(parent, app, error);
@@ -115,104 +102,45 @@ void FileUtils::showInFileSystemView(const FilePath &path)
         navWidget->syncWithFilePath(path);
 }
 
-static void startTerminalEmulator(const QString &workingDir, const Environment &env)
-{
-#ifdef Q_OS_WIN
-    STARTUPINFO si;
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-
-    PROCESS_INFORMATION pinfo;
-    ZeroMemory(&pinfo, sizeof(pinfo));
-
-    static const auto quoteWinCommand = [](const QString &program) {
-        const QChar doubleQuote = QLatin1Char('"');
-
-        // add the program as the first arg ... it works better
-        QString programName = program;
-        programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
-        if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)
-                && programName.contains(QLatin1Char(' '))) {
-            programName.prepend(doubleQuote);
-            programName.append(doubleQuote);
-        }
-        return programName;
-    };
-    const QString cmdLine = quoteWinCommand(qtcEnvironmentVariable("COMSPEC"));
-    // cmdLine is assumed to be detached -
-    // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
-
-    const QString totalEnvironment = env.toStringList().join(QChar(QChar::Null)) + QChar(QChar::Null);
-    LPVOID envPtr = (env != Environment::systemEnvironment())
-            ? (WCHAR *)(totalEnvironment.utf16()) : nullptr;
-
-    const bool success = CreateProcessW(0, (WCHAR *)cmdLine.utf16(),
-                                  0, 0, FALSE, CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
-                                  envPtr, workingDir.isEmpty() ? 0 : (WCHAR *)workingDir.utf16(),
-                                  &si, &pinfo);
-
-    if (success) {
-        CloseHandle(pinfo.hThread);
-        CloseHandle(pinfo.hProcess);
-    }
-#else
-    const TerminalCommand term = TerminalCommand::terminalEmulator();
-    QProcess process;
-    process.setProgram(term.command);
-    process.setArguments(ProcessArgs::splitArgs(term.openArgs));
-    process.setProcessEnvironment(env.toProcessEnvironment());
-    process.setWorkingDirectory(workingDir);
-    process.startDetached();
-#endif
-}
-
-void FileUtils::openTerminal(const FilePath &path)
-{
-    openTerminal(path, Environment::systemEnvironment());
-}
-
 void FileUtils::openTerminal(const FilePath &path, const Environment &env)
 {
-    const QFileInfo fileInfo = path.toFileInfo();
-    const QString workingDir = QDir::toNativeSeparators(fileInfo.isDir() ?
-                                                        fileInfo.absoluteFilePath() :
-                                                        fileInfo.absolutePath());
-    startTerminalEmulator(workingDir, env);
+    QTC_ASSERT(DeviceFileHooks::instance().openTerminal, return);
+    DeviceFileHooks::instance().openTerminal(path, env);
 }
 
 QString FileUtils::msgFindInDirectory()
 {
-    return QApplication::translate("Core::Internal", "Find in This Directory...");
+    return Tr::tr("Find in This Directory...");
 }
 
 QString FileUtils::msgFileSystemAction()
 {
-    return QApplication::translate("Core::Internal", "Show in File System View");
+    return Tr::tr("Show in File System View");
 }
 
 QString FileUtils::msgGraphicalShellAction()
 {
     if (HostOsInfo::isWindowsHost())
-        return QApplication::translate("Core::Internal", "Show in Explorer");
+        return Tr::tr("Show in Explorer");
     if (HostOsInfo::isMacHost())
-        return QApplication::translate("Core::Internal", "Show in Finder");
-    return QApplication::translate("Core::Internal", "Show Containing Folder");
+        return Tr::tr("Show in Finder");
+    return Tr::tr("Show Containing Folder");
 }
 
 QString FileUtils::msgTerminalHereAction()
 {
     if (HostOsInfo::isWindowsHost())
-        return QApplication::translate("Core::Internal", "Open Command Prompt Here");
-    return QApplication::translate("Core::Internal", "Open Terminal Here");
+        return Tr::tr("Open Command Prompt Here");
+    return Tr::tr("Open Terminal Here");
 }
 
 QString FileUtils::msgTerminalWithAction()
 {
     if (HostOsInfo::isWindowsHost())
-        return QApplication::translate("Core::Internal", "Open Command Prompt With",
-                        "Opens a submenu for choosing an environment, such as \"Run Environment\"");
-    return QApplication::translate("Core::Internal", "Open Terminal With",
-                        "Opens a submenu for choosing an environment, such as \"Run Environment\"");
+        return Tr::tr("Open Command Prompt With",
+                      "Opens a submenu for choosing an environment, such as \"Run Environment\"");
+    return Tr::tr("Open Terminal With",
+                  "Opens a submenu for choosing an environment, such as \"Run Environment\"");
 }
 
 void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
@@ -230,8 +158,7 @@ void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
             continue;
         if (!file.remove()) {
             MessageManager::writeDisrupting(
-                QCoreApplication::translate("Core::Internal", "Failed to remove file \"%1\".")
-                    .arg(fp.toUserOutput()));
+                Tr::tr("Failed to remove file \"%1\".").arg(fp.toUserOutput()));
         }
     }
 }
@@ -251,12 +178,9 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
     if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
         result = orgFilePath.renameFile(newFilePath);
     if (result) {
-        // yeah we moved, tell the filemanager about it
         DocumentManager::renamedFile(orgFilePath, newFilePath);
-    }
-
-    if (result)
         updateHeaderFileGuardIfApplicable(orgFilePath, newFilePath, handleGuards);
+    }
     return result;
 }
 
@@ -271,8 +195,7 @@ void FileUtils::updateHeaderFileGuardIfApplicable(const Utils::FilePath &oldFile
     if (headerUpdateSuccess)
         return;
     MessageManager::writeDisrupting(
-                QCoreApplication::translate("Core::FileUtils",
-                                            "Failed to rename the include guard in file \"%1\".")
+                Tr::tr("Failed to rename the include guard in file \"%1\".")
                 .arg(newFilePath.toUserOutput()));
 }
 
@@ -291,11 +214,16 @@ bool FileUtils::updateHeaderFileGuardAfterRename(const QString &headerPath,
     int guardStartLine = -1;
     int guardCloseLine = -1;
 
-    QByteArray data = headerFile.readAll();
+    const QByteArray data = headerFile.readAll();
     headerFile.close();
 
-    const auto headerFileTextFormat = Utils::TextFileFormat::detect(data);
-    QTextStream inStream(&data);
+    auto headerFileTextFormat = Utils::TextFileFormat::detect(data);
+    if (!headerFileTextFormat.codec)
+        headerFileTextFormat.codec = EditorManager::defaultTextCodec();
+    QString stringContent;
+    if (!headerFileTextFormat.decode(data, &stringContent))
+        return false;
+    QTextStream inStream(&stringContent);
     int lineCounter = 0;
     QString line;
     while (!inStream.atEnd()) {
@@ -398,10 +326,7 @@ bool FileUtils::updateHeaderFileGuardAfterRename(const QString &headerPath,
                 }
                 lineCounter++;
             }
-            const QTextCodec *textCodec = (headerFileTextFormat.codec == nullptr)
-                                              ? QTextCodec::codecForName("UTF-8")
-                                              : headerFileTextFormat.codec;
-            tmpHeader.write(textCodec->fromUnicode(outString));
+            tmpHeader.write(headerFileTextFormat.codec->fromUnicode(outString));
             tmpHeader.close();
         } else {
             // if opening the temp file failed report error

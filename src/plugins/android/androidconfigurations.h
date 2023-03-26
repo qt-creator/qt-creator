@@ -1,6 +1,6 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -51,7 +51,6 @@ struct SdkForQtVersions
 {
     QList<QVersionNumber> versions;
     QStringList essentialPackages;
-    QString ndkPath;
 
 public:
     bool containsVersion(const QVersionNumber &qtVersion) const;
@@ -80,7 +79,7 @@ public:
 
     QUrl sdkToolsUrl() const { return m_sdkToolsUrl; }
     QByteArray getSdkToolsSha256() const { return m_sdkToolsSha256; }
-    QString ndkPathFromQtVersion(const QtSupport::QtVersion &version) const;
+    Utils::FilePath ndkSubPathFromQtVersion(const QtSupport::QtVersion &version) const; // relative!
 
     QStringList defaultEssentials() const;
     QStringList essentialsFromQtVersion(const QtSupport::QtVersion &version) const;
@@ -133,8 +132,6 @@ public:
 
     QString getProductModel(const QString &device) const;
     bool isConnected(const QString &serialNumber) const;
-
-    bool preCmdlineSdkToolsInstalled() const;
 
     bool sdkFullyConfigured() const { return m_sdkFullyConfigured; }
     void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; }
@@ -217,7 +214,6 @@ private:
     static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
-    bool m_force32bit;
 };
 
 } // namespace Android

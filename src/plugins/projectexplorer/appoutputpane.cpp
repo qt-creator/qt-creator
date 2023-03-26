@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "appoutputpane.h"
 
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
+#include "projectexplorertr.h"
 #include "runcontrol.h"
 #include "session.h"
 #include "showoutputtaskhandler.h"
@@ -68,8 +69,8 @@ static QObject *debuggerPlugin()
 static QString msgAttachDebuggerTooltip(const QString &handleDescription = QString())
 {
     return handleDescription.isEmpty() ?
-           AppOutputPane::tr("Attach debugger to this process") :
-           AppOutputPane::tr("Attach debugger to %1").arg(handleDescription);
+           Tr::tr("Attach debugger to this process") :
+           Tr::tr("Attach debugger to %1").arg(handleDescription);
 }
 
 class TabWidget : public QTabWidget
@@ -135,21 +136,20 @@ AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::Output
 }
 
 AppOutputPane::AppOutputPane() :
-    m_mainWidget(new QWidget),
     m_tabWidget(new TabWidget),
-    m_stopAction(new QAction(tr("Stop"), this)),
-    m_closeCurrentTabAction(new QAction(tr("Close Tab"), this)),
-    m_closeAllTabsAction(new QAction(tr("Close All Tabs"), this)),
-    m_closeOtherTabsAction(new QAction(tr("Close Other Tabs"), this)),
+    m_stopAction(new QAction(Tr::tr("Stop"), this)),
+    m_closeCurrentTabAction(new QAction(Tr::tr("Close Tab"), this)),
+    m_closeAllTabsAction(new QAction(Tr::tr("Close All Tabs"), this)),
+    m_closeOtherTabsAction(new QAction(Tr::tr("Close Other Tabs"), this)),
     m_reRunButton(new QToolButton),
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton),
     m_settingsButton(new QToolButton),
     m_formatterWidget(new QWidget),
     m_handler(new ShowOutputTaskHandler(this,
-        tr("Show &App Output"),
-        tr("Show the output that generated this issue in Application Output."),
-        tr("A")))
+        Tr::tr("Show &App Output"),
+        Tr::tr("Show the output that generated this issue in Application Output."),
+        Tr::tr("A")))
 {
     ExtensionSystem::PluginManager::addObject(m_handler);
 
@@ -158,14 +158,14 @@ AppOutputPane::AppOutputPane() :
 
     // Rerun
     m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
-    m_reRunButton->setToolTip(tr("Re-run this run-configuration."));
+    m_reRunButton->setToolTip(Tr::tr("Re-run this run-configuration."));
     m_reRunButton->setEnabled(false);
     connect(m_reRunButton, &QToolButton::clicked,
             this, &AppOutputPane::reRunRunControl);
 
     // Stop
     m_stopAction->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
-    m_stopAction->setToolTip(tr("Stop running program."));
+    m_stopAction->setToolTip(Tr::tr("Stop running program."));
     m_stopAction->setEnabled(false);
 
     Core::Command *cmd = Core::ActionManager::registerAction(m_stopAction, Constants::STOP);
@@ -188,7 +188,7 @@ AppOutputPane::AppOutputPane() :
     connect(this, &IOutputPane::zoomOutRequested, this, &AppOutputPane::zoomOut);
     connect(this, &IOutputPane::resetZoomRequested, this, &AppOutputPane::resetZoom);
 
-    m_settingsButton->setToolTip(tr("Open Settings Page"));
+    m_settingsButton->setToolTip(Core::ICore::msgShowOptionsDialog());
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
     connect(m_settingsButton, &QToolButton::clicked, this, [] {
         Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
@@ -200,20 +200,16 @@ AppOutputPane::AppOutputPane() :
 
     // Spacer (?)
 
-    auto *layout = new QVBoxLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
     connect(m_tabWidget, &QTabWidget::tabCloseRequested,
             this, [this](int index) { closeTab(index); });
-    layout->addWidget(m_tabWidget);
 
-    connect(m_tabWidget, &QTabWidget::currentChanged, this, &AppOutputPane::tabChanged);
+    connect(m_tabWidget, &QTabWidget::currentChanged,
+            this, &AppOutputPane::tabChanged);
     connect(m_tabWidget, &TabWidget::contextMenuRequested,
             this, &AppOutputPane::contextMenuRequested);
-
-    m_mainWidget->setLayout(layout);
 
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
             this, &AppOutputPane::aboutToUnloadSession);
@@ -221,7 +217,7 @@ AppOutputPane::AppOutputPane() :
     setupFilterUi("AppOutputPane.Filter");
     setFilteringEnabled(false);
     setZoomButtonsEnabled(false);
-    setupContext("Core.AppOutputPane", m_mainWidget);
+    setupContext("Core.AppOutputPane", m_tabWidget);
 }
 
 AppOutputPane::~AppOutputPane()
@@ -232,7 +228,7 @@ AppOutputPane::~AppOutputPane()
         delete rt.window;
         delete rt.runControl;
     }
-    delete m_mainWidget;
+    delete m_tabWidget;
     ExtensionSystem::PluginManager::removeObject(m_handler);
     delete m_handler;
 }
@@ -299,7 +295,7 @@ void AppOutputPane::aboutToUnloadSession()
 
 QWidget *AppOutputPane::outputWidget(QWidget *)
 {
-    return m_mainWidget;
+    return m_tabWidget;
 }
 
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
@@ -310,7 +306,7 @@ QList<QWidget*> AppOutputPane::toolBarWidgets() const
 
 QString AppOutputPane::displayName() const
 {
-    return tr("Application Output");
+    return Tr::tr("Application Output");
 }
 
 int AppOutputPane::priorityInStatusBar() const
@@ -432,7 +428,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     Id contextId = Id(C_APP_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, SETTINGS_KEY, m_tabWidget);
-    ow->setWindowTitle(tr("Application Output Window"));
+    ow->setWindowTitle(Tr::tr("Application Output Window"));
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(m_settings.wrapOutput);
     ow->setMaxCharCount(m_settings.maxCharCount);
@@ -703,8 +699,8 @@ void AppOutputPane::enableButtons(const RunControl *rc)
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
             m_attachButton->setEnabled(true);
             ProcessHandle h = rc->applicationProcessHandle();
-            QString tip = h.isValid() ? RunControl::tr("PID %1").arg(h.pid())
-                                      : RunControl::tr("Invalid");
+            QString tip = h.isValid() ? Tr::tr("PID %1").arg(h.pid())
+                                      : Tr::tr("Invalid");
             m_attachButton->setToolTip(msgAttachDebuggerTooltip(tip));
         } else {
             m_attachButton->setEnabled(false);
@@ -809,22 +805,21 @@ bool AppOutputPane::canNavigate() const
 
 class AppOutputSettingsWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::AppOutputSettingsPage)
 public:
     AppOutputSettingsWidget()
     {
         const AppOutputSettings &settings = ProjectExplorerPlugin::appOutputSettings();
-        m_wrapOutputCheckBox.setText(tr("Word-wrap output"));
+        m_wrapOutputCheckBox.setText(Tr::tr("Word-wrap output"));
         m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
-        m_cleanOldOutputCheckBox.setText(tr("Clear old output on a new run"));
+        m_cleanOldOutputCheckBox.setText(Tr::tr("Clear old output on a new run"));
         m_cleanOldOutputCheckBox.setChecked(settings.cleanOldOutput);
-        m_mergeChannelsCheckBox.setText(tr("Merge stderr and stdout"));
+        m_mergeChannelsCheckBox.setText(Tr::tr("Merge stderr and stdout"));
         m_mergeChannelsCheckBox.setChecked(settings.mergeChannels);
         for (QComboBox * const modeComboBox
              : {&m_runOutputModeComboBox, &m_debugOutputModeComboBox}) {
-            modeComboBox->addItem(tr("Always"), int(AppOutputPaneMode::PopupOnOutput));
-            modeComboBox->addItem(tr("Never"), int(AppOutputPaneMode::FlashOnOutput));
-            modeComboBox->addItem(tr("On First Output Only"),
+            modeComboBox->addItem(Tr::tr("Always"), int(AppOutputPaneMode::PopupOnOutput));
+            modeComboBox->addItem(Tr::tr("Never"), int(AppOutputPaneMode::FlashOnOutput));
+            modeComboBox->addItem(Tr::tr("On First Output Only"),
                                   int(AppOutputPaneMode::PopupOnFirstOutput));
         }
         m_runOutputModeComboBox.setCurrentIndex(m_runOutputModeComboBox
@@ -838,15 +833,15 @@ public:
         layout->addWidget(&m_cleanOldOutputCheckBox);
         layout->addWidget(&m_mergeChannelsCheckBox);
         const auto maxCharsLayout = new QHBoxLayout;
-        const QString msg = tr("Limit output to %1 characters");
+        const QString msg = Tr::tr("Limit output to %1 characters");
         const QStringList parts = msg.split("%1") << QString() << QString();
         maxCharsLayout->addWidget(new QLabel(parts.at(0).trimmed()));
         maxCharsLayout->addWidget(&m_maxCharsBox);
         maxCharsLayout->addWidget(new QLabel(parts.at(1).trimmed()));
         maxCharsLayout->addStretch(1);
         const auto outputModeLayout = new QFormLayout;
-        outputModeLayout->addRow(tr("Open Application Output when running:"), &m_runOutputModeComboBox);
-        outputModeLayout->addRow(tr("Open Application Output when debugging:"),
+        outputModeLayout->addRow(Tr::tr("Open Application Output when running:"), &m_runOutputModeComboBox);
+        outputModeLayout->addRow(Tr::tr("Open Application Output when debugging:"),
                                  &m_debugOutputModeComboBox);
         layout->addLayout(outputModeLayout);
         layout->addLayout(maxCharsLayout);
@@ -880,7 +875,7 @@ private:
 AppOutputSettingsPage::AppOutputSettingsPage()
 {
     setId(OPTIONS_PAGE_ID);
-    setDisplayName(AppOutputSettingsWidget::tr("Application Output"));
+    setDisplayName(Tr::tr("Application Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new AppOutputSettingsWidget; });
 }

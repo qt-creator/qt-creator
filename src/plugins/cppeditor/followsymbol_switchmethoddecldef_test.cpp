@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "followsymbol_switchmethoddecldef_test.h"
 
@@ -17,6 +17,8 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
@@ -60,6 +62,7 @@ using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 class OverrideItem
 {
@@ -118,13 +121,13 @@ public:
     {
         VirtualFunctionAssistProvider::configure(params);
 
-        AssistInterface *assistInterface
+        std::unique_ptr<AssistInterface> assistInterface
             = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
-        const QScopedPointer<IAssistProcessor> processor(createProcessor(assistInterface));
-
-        const QScopedPointer<IAssistProposal> immediateProposal(
-            processor->immediateProposal(assistInterface));
-        const QScopedPointer<IAssistProposal> finalProposal(processor->perform(assistInterface));
+        const QScopedPointer<AsyncProcessor> processor(
+            dynamic_cast<AsyncProcessor *>(createProcessor(assistInterface.get())));
+        processor->setupAssistInterface(std::move(assistInterface));
+        const QScopedPointer<IAssistProposal> immediateProposal(processor->immediateProposal());
+        const QScopedPointer<IAssistProposal> finalProposal(processor->performAsync());
 
         VirtualFunctionAssistProvider::clearParams();
 
@@ -254,7 +257,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QVERIFY(testFile->baseDirectory().isEmpty());
         testFile->setBaseDirectory(temporaryDir.path());
         QVERIFY(testFile->writeToDisk());
-        projectFileContent += QString::fromLatin1("\"%1\",").arg(testFile->filePath());
+        projectFileContent += QString::fromLatin1("\"%1\",")
+                .arg(testFile->filePath().toString());
     }
     projectFileContent += "]}\n";
 
@@ -270,9 +274,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         CppTestDocument projectFile("project.qbs", projectFileContent.toUtf8());
         projectFile.setBaseDirectory(temporaryDir.path());
         QVERIFY(projectFile.writeToDisk());
-        const auto openProjectResult =
-                ProjectExplorerPlugin::openProject(
-                    Utils::FilePath::fromString(projectFile.filePath()));
+        const auto openProjectResult = ProjectExplorerPlugin::openProject(projectFile.filePath());
         QVERIFY2(openProjectResult && openProjectResult.project(),
                  qPrintable(openProjectResult.errorMessage()));
         projectCloser.setProject(openProjectResult.project());
@@ -284,7 +286,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     }
 
     // Update Code Model
-    QSet<QString> filePaths;
+    QSet<FilePath> filePaths;
    for (const TestDocumentPtr &testFile : testFiles)
         filePaths << testFile->filePath();
     QVERIFY(parseFiles(filePaths));
@@ -403,7 +405,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     BaseTextEditor *currentTextEditor = dynamic_cast<BaseTextEditor*>(currentEditor);
     QVERIFY(currentTextEditor);
 
-    QCOMPARE(currentTextEditor->document()->filePath().toString(), targetTestFile->filePath());
+    QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
     if (useClangd && expectedVirtualFunctionProposal.size() == 1) {
         expectedLine = expectedVirtualFunctionProposal.first().line;
@@ -487,7 +489,7 @@ void FollowSymbolTest::initTestCase()
     const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (clangdFromEnv.isEmpty())
         return;
-    ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
+    ClangdSettings::setClangdFilePath(Utils::FilePath::fromUserInput(clangdFromEnv));
     const auto clangd = ClangdSettings::instance().clangdFilePath();
     if (clangd.isEmpty() || !clangd.exists())
         return;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qnxrunconfiguration.h"
 
@@ -80,7 +80,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
 
 QnxRunConfigurationFactory::QnxRunConfigurationFactory()
 {
-    registerRunConfiguration<QnxRunConfiguration>("Qt4ProjectManager.QNX.QNXRunConfiguration.");
+    registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_RUNCONFIG_ID);
     addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
 }
 

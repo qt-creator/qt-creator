@@ -18,6 +18,7 @@ QtcPlugin {
         "beautifierconstants.h",
         "beautifierplugin.cpp",
         "beautifierplugin.h",
+        "beautifiertr.h",
         "configurationdialog.cpp",
         "configurationdialog.h",
         "configurationeditor.cpp",

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppeditordocument.h"
 
@@ -7,9 +7,11 @@
 #include "cppcodeformatter.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cpphighlighter.h"
 #include "cppquickfixassistant.h"
 
@@ -27,7 +29,6 @@
 #include <utils/mimeutils.h>
 #include <utils/minimizableinfobars.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
@@ -63,7 +64,7 @@ public:
         mm()->unregisterCppEditorDocument(m_registrationFilePath);
     }
 
-    QString filePath() const override { return m_cppEditorDocument->filePath().toString(); }
+    FilePath filePath() const override { return m_cppEditorDocument->filePath(); }
     QByteArray contents() const override { return m_cppEditorDocument->contentsText(); }
     unsigned revision() const override { return m_cppEditorDocument->contentsRevision(); }
 
@@ -110,8 +111,8 @@ CppEditorDocument::CppEditorDocument()
     minimizableInfoBars()->setSettingsGroup(Constants::CPPEDITOR_SETTINGSGROUP);
     minimizableInfoBars()->setPossibleInfoBarEntries(
         {{NO_PROJECT_CONFIGURATION,
-          tr("<b>Warning</b>: This file is not part of any project. "
-             "The code model might have issues parsing this file properly.")}});
+          Tr::tr("<b>Warning</b>: This file is not part of any project. "
+                 "The code model might have issues parsing this file properly.")}});
 
     // See also onFilePathChanged() for more initialization
 }
@@ -343,8 +344,8 @@ void CppEditorDocument::showHideInfoBarAboutMultipleParseContexts(bool show)
 
     if (show) {
         InfoBarEntry info(id,
-                          tr("Note: Multiple parse contexts are available for this file. "
-                             "Choose the preferred one from the editor toolbar."),
+                          Tr::tr("Note: Multiple parse contexts are available for this file. "
+                                 "Choose the preferred one from the editor toolbar."),
                           InfoBarEntry::GlobalSuppression::Enabled);
         info.removeCancelButton();
         if (infoBar()->canInfoBeAdded(id))
@@ -496,13 +497,13 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
     const Utils::Id category = Utils::Id::fromString(kind);
 
     for (const auto &diagnostic : mm()->diagnosticMessages()) {
-        if (FilePath::fromString(diagnostic.fileName()) == filePath()) {
+        if (diagnostic.filePath() == filePath()) {
             auto it = std::find_if(std::begin(removedMarks),
                                    std::end(removedMarks),
                                    [&category, &diagnostic](TextMark *existing) {
                                        return (diagnostic.line() == existing->lineNumber()
                                                && diagnostic.text() == existing->lineAnnotation()
-                                               && category == existing->category());
+                                               && category == existing->category().id);
                                    });
 
             if (it != std::end(removedMarks)) {
@@ -510,7 +511,9 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
                 continue;
             }
 
-            auto mark = new TextMark(filePath(), diagnostic.line(), category);
+            auto mark = new TextMark(filePath(),
+                                     diagnostic.line(),
+                                     {Tr::tr("C++ Code Model"), category});
             mark->setLineAnnotation(diagnostic.text());
             mark->setToolTip(diagnostic.text());
 
@@ -525,7 +528,7 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
     }
 
     for (auto it = removedMarks.begin(); it != removedMarks.end(); ++it) {
-        if ((*it)->category() == category) {
+        if ((*it)->category().id == category) {
             removeMark(*it);
             delete *it;
         }

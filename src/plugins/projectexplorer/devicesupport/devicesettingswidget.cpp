@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "devicesettingswidget.h"
 
@@ -11,8 +11,8 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
+#include "../projectexplorericons.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/icore.h>
 
@@ -88,21 +88,21 @@ DeviceSettingsWidget::~DeviceSettingsWidget()
 
 void DeviceSettingsWidget::initGui()
 {
-    m_configurationLabel = new QLabel(tr("&Device:"));
+    m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
     m_configurationComboBox->setModel(m_deviceManagerModel);
-    m_generalGroupBox = new QGroupBox(tr("General"));
+    m_generalGroupBox = new QGroupBox(Tr::tr("General"));
     m_nameLineEdit = new QLineEdit;
     m_nameLineEdit->setValidator(m_nameValidator);
     m_osTypeValueLabel = new QLabel;
     m_autoDetectionLabel = new QLabel;
     m_deviceStateIconLabel = new QLabel;
     m_deviceStateTextLabel = new QLabel;
-    m_osSpecificGroupBox = new QGroupBox(tr("Type Specific"));
+    m_osSpecificGroupBox = new QGroupBox(Tr::tr("Type Specific"));
     m_osSpecificGroupBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    m_addConfigButton = new QPushButton(tr("&Add..."));
-    m_removeConfigButton = new QPushButton(tr("&Remove"));
-    m_defaultDeviceButton = new QPushButton(tr("Set As Default"));
+    m_addConfigButton = new QPushButton(Tr::tr("&Add..."));
+    m_removeConfigButton = new QPushButton(Tr::tr("&Remove"));
+    m_defaultDeviceButton = new QPushButton(Tr::tr("Set As Default"));
     auto line = new QFrame;
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
@@ -121,10 +121,10 @@ void DeviceSettingsWidget::initGui()
     }.attachTo(scrollAreaWidget);
 
     Form {
-        tr("&Name:"), m_nameLineEdit, br,
-        tr("Type:"), m_osTypeValueLabel, br,
-        tr("Auto-detected:"), m_autoDetectionLabel, br,
-        tr("Current state:"), Row { m_deviceStateIconLabel, m_deviceStateTextLabel, st, }, br,
+        Tr::tr("&Name:"), m_nameLineEdit, br,
+        Tr::tr("Type:"), m_osTypeValueLabel, br,
+        Tr::tr("Auto-detected:"), m_autoDetectionLabel, br,
+        Tr::tr("Current state:"), Row { m_deviceStateIconLabel, m_deviceStateTextLabel, st, }, br,
     }.attachTo(m_generalGroupBox);
 
     Row {
@@ -204,7 +204,7 @@ void DeviceSettingsWidget::displayCurrent()
         m_deviceManager->defaultDevice(current->type()) != current);
     m_osTypeValueLabel->setText(current->displayType());
     m_autoDetectionLabel->setText(current->isAutoDetected()
-            ? tr("Yes (id is \"%1\")").arg(current->id().toString()) : tr("No"));
+            ? Tr::tr("Yes (id is \"%1\")").arg(current->id().toString()) : Tr::tr("No"));
     m_nameValidator->setDisplayName(current->displayName());
     m_deviceStateIconLabel->show();
     switch (current->deviceState()) {
@@ -251,6 +251,7 @@ void DeviceSettingsWidget::updateDeviceFromUi()
 
 void DeviceSettingsWidget::saveSettings()
 {
+    updateDeviceFromUi();
     ICore::settings()->setValueWithDefault(LastDeviceIndexKey, currentIndex(), 0);
     DeviceManager::replaceInstance();
 }
@@ -318,14 +319,14 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     m_removeConfigButton->setEnabled(true);
 
     if (device->hasDeviceTester()) {
-        QPushButton * const button = new QPushButton(tr("Test"));
+        QPushButton * const button = new QPushButton(Tr::tr("Test"));
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked, this, &DeviceSettingsWidget::testDevice);
         m_buttonsLayout->insertWidget(m_buttonsLayout->count() - 1, button);
     }
 
     if (device->canCreateProcessModel()) {
-        QPushButton * const button = new QPushButton(tr("Show Running Processes..."));
+        QPushButton * const button = new QPushButton(Tr::tr("Show Running Processes..."));
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked,
                 this, &DeviceSettingsWidget::handleProcessListRequested);

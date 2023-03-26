@@ -1,34 +1,31 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gerritmodel.h"
 #include "../gitclient.h"
 #include "../gittr.h"
 
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/processprogress.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
+#include <QApplication>
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QStringList>
-#include <QProcess>
-#include <QVariant>
-#include <QTextStream>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QDebug>
-#include <QScopedPointer>
+#include <QStringList>
+#include <QTextStream>
 #include <QTimer>
-#include <QApplication>
-#include <QFutureWatcher>
 #include <QUrl>
+#include <QVariant>
 
 enum { debug = 0 };
 
@@ -235,8 +232,6 @@ private:
     FilePath m_binary;
     QByteArray m_output;
     QString m_error;
-    QFutureInterface<void> m_progress;
-    QFutureWatcher<void> m_watcher;
     QStringList m_arguments;
 };
 
@@ -248,6 +243,7 @@ QueryContext::QueryContext(const QString &query,
                            QObject *parent)
     : QObject(parent)
 {
+    m_process.setUseCtrlCStub(true);
     if (server.type == GerritServer::Ssh) {
         m_binary = p->ssh;
         if (server.port)
@@ -264,18 +260,15 @@ QueryContext::QueryContext(const QString &query,
         m_arguments = server.curlArguments() << url;
     }
     connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        const QString text = QString::fromLocal8Bit(m_process.readAllStandardError());
+        const QString text = QString::fromLocal8Bit(m_process.readAllRawStandardError());
         VcsOutputWindow::appendError(text);
         m_error.append(text);
     });
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-        m_output.append(m_process.readAllStandardOutput());
+        m_output.append(m_process.readAllRawStandardOutput());
     });
     connect(&m_process, &QtcProcess::done, this, &QueryContext::processDone);
-    connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
-    m_watcher.setFuture(m_progress.future());
     m_process.setEnvironment(Git::Internal::GitClient::instance()->processEnvironment());
-    m_progress.setProgressRange(0, 1);
 
     m_timer.setInterval(timeOutMS);
     m_timer.setSingleShot(true);
@@ -284,32 +277,26 @@ QueryContext::QueryContext(const QString &query,
 
 QueryContext::~QueryContext()
 {
-    if (m_progress.isRunning())
-        m_progress.reportFinished();
     if (m_timer.isActive())
         m_timer.stop();
-    m_process.disconnect(this);
-    terminate();
 }
 
 void QueryContext::start()
 {
-    Core::FutureProgress *fp = Core::ProgressManager::addTask(m_progress.future(), Git::Tr::tr("Querying Gerrit"),
-                                           "gerrit-query");
-    fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
-    m_progress.reportStarted();
     // Order: synchronous call to error handling if something goes wrong.
-    VcsOutputWindow::appendCommand(m_process.workingDirectory(), {m_binary, m_arguments});
+    const CommandLine commandLine{m_binary, m_arguments};
+    VcsOutputWindow::appendCommand(m_process.workingDirectory(), commandLine);
     m_timer.start();
-    m_process.setCommand({m_binary, m_arguments});
+    m_process.setCommand(commandLine);
+    auto progress = new Core::ProcessProgress(&m_process);
+    progress->setDisplayName(Git::Tr::tr("Querying Gerrit"));
     m_process.start();
 }
 
 void QueryContext::errorTermination(const QString &msg)
 {
-    if (!m_progress.isCanceled())
+    if (!m_process.resultData().m_canceledByUser)
         VcsOutputWindow::appendError(msg);
-    m_progress.reportCanceled();
 }
 
 void QueryContext::terminate()
@@ -335,7 +322,6 @@ void QueryContext::processDone()
     else
         emit resultRetrieved(m_output);
 
-    m_progress.reportFinished();
     emit finished();
 }
 
@@ -782,9 +768,8 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(adaptedOutput, &error);
     if (doc.isNull()) {
-        QString errorMessage = Git::Tr::tr("Parse error: \"%1\" -> %2")
-                .arg(QString::fromUtf8(output))
-                .arg(error.errorString());
+        const QString errorMessage = Git::Tr::tr("Parse error: \"%1\" -> %2")
+                                         .arg(QString::fromUtf8(output), error.errorString());
         qWarning() << errorMessage;
         VcsOutputWindow::appendError(errorMessage);
         res = false;
@@ -919,9 +904,8 @@ void GerritModel::resultRetrieved(const QByteArray &output)
                 // too-deeply nested items.
                 for (; changeFromItem(parent)->depth >= 1; parent = parent->parent()) {}
                 parent->appendRow(newRow);
-                QString parentFilterString = parent->data(FilterRole).toString();
-                parentFilterString += ' ';
-                parentFilterString += newRow.first()->data(FilterRole).toString();
+                const QString parentFilterString = parent->data(FilterRole).toString() + ' '
+                                                   + newRow.first()->data(FilterRole).toString();
                 parent->setData(QVariant(parentFilterString), FilterRole);
             } else {
                 appendRow(newRow);

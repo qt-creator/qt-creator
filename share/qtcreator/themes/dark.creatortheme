@@ -2,6 +2,7 @@
 ThemeName=Dark
 PreferredStyles=
 DefaultTextEditorColorScheme=dark.xml
+EnforceAccentColorOnMacOS=selectedBackground
 
 [Palette]
 shadowBackground=ff232323
@@ -10,7 +11,6 @@ textDisabled=7fffffff
 textHighlighted=ffe7e7e7
 hoverBackground=18ffffff
 selectedBackground=aa1f75cc
-selectedBackgroundText=aa1f75cc
 normalBackground=ff333333
 alternateBackground=ff515151
 error=ffd84044
@@ -414,7 +414,7 @@ PaletteText=text
 PaletteButtonText=text
 PaletteButtonTextDisabled=textDisabled
 PaletteToolTipBase=66000000
-PaletteHighlight=selectedBackgroundText
+PaletteHighlight=selectedBackground
 PaletteDark=shadowBackground
 PaletteHighlightedText=textHighlighted
 PaletteToolTipText=text

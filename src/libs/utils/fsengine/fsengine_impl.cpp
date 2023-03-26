@@ -1,9 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fsengine_impl.h"
 
 #include "diriterator.h"
+#include "expected.h"
 #include "filepathinfocache.h"
 
 #include "../filepath.h"
@@ -44,11 +45,15 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
                                                                           createCacheData);
     bool exists = (data.filePathInfo.fileFlags & QAbstractFileEngine::ExistsFlag);
 
+    if (data.filePathInfo.fileFlags & QAbstractFileEngine::DirectoryType)
+        return false;
+
     g_filePathInfoCache.invalidate(m_filePath);
 
     ensureStorage();
 
-    QTC_ASSERT(m_tempStorage->open(), return false);
+    const bool isOpened = m_tempStorage->open();
+    QTC_ASSERT(isOpened, return false);
 
     bool read = openMode & QIODevice::ReadOnly;
     bool write = openMode & QIODevice::WriteOnly;
@@ -61,8 +66,11 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
         return false;
 
     if (read || append) {
-        const std::optional<QByteArray> contents = m_filePath.fileContents();
-        QTC_ASSERT(contents && m_tempStorage->write(*contents) >= 0, return false);
+        const expected_str<QByteArray> readResult = m_filePath.fileContents();
+        QTC_ASSERT_EXPECTED(readResult, return false);
+
+        const expected_str<qint64> writeResult = m_tempStorage->write(*readResult);
+        QTC_ASSERT_EXPECTED(writeResult, return false);
 
         if (!append)
             m_tempStorage->seek(0);
@@ -76,7 +84,8 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 
 bool FSEngineImpl::close()
 {
-    QTC_ASSERT(flush(), return false);
+    const bool isFlushed = flush();
+    QTC_ASSERT(isFlushed, return false);
     if (m_tempStorage)
         m_tempStorage->close();
     return true;
@@ -131,7 +140,9 @@ bool FSEngineImpl::remove()
 
 bool FSEngineImpl::copy(const QString &newName)
 {
-    return m_filePath.copyFile(FilePath::fromString(newName));
+    expected_str<void> result = m_filePath.copyFile(FilePath::fromString(newName));
+    QTC_ASSERT_EXPECTED(result, return false);
+    return true;
 }
 
 bool FSEngineImpl::rename(const QString &newName)
@@ -197,7 +208,7 @@ QStringList FSEngineImpl::entryList(QDir::Filters filters, const QStringList &fi
                 .cache(p,
                        new FilePathInfoCache::CachedData{fi,
                                                          QDateTime::currentDateTime().addSecs(60)});
-            return true;
+            return IterationPolicy::Continue;
         },
         {filterNames, filters});
     return result;
@@ -227,7 +238,7 @@ QString FSEngineImpl::fileName(FileName file) const
         return m_filePath.toFSPathString();
         break;
     case QAbstractFileEngine::BaseName:
-        return m_filePath.baseName();
+        return m_filePath.fileName();
         break;
     case QAbstractFileEngine::PathName:
     case QAbstractFileEngine::AbsolutePathName:
@@ -301,7 +312,7 @@ QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filter
                 = new FilePathInfoCache::CachedData{fi,
                                                     QDateTime::currentDateTime().addSecs(60)};
             g_filePathInfoCache.cache(p, data);
-            return true;
+            return IterationPolicy::Continue;
         },
         {filterNames, filters});
 

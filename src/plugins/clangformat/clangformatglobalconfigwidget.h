@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -31,6 +31,7 @@ private:
     void initCheckBoxes();
     void initIndentationOrFormattingCombobox();
     void initOverrideCheckBox();
+    void initUseGlobalSettingsCheckBox();
 
     bool projectClangFormatFileExists();
 
@@ -42,6 +43,7 @@ private:
     QCheckBox *m_formatWhileTyping;
     QCheckBox *m_formatOnSave;
     QCheckBox *m_overrideDefault;
+    QCheckBox *m_useGlobalSettings;
 };
 
 } // namespace ClangFormat

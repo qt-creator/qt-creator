@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -27,7 +27,6 @@ public:
     explicit FunctionHintAssistProvider(Client *client);
 
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
-    RunType runType() const override;
 
     int activationCharSequenceLength() const override;
     bool isActivationCharSequence(const QString &sequence) const override;
@@ -45,7 +44,7 @@ class LANGUAGECLIENT_EXPORT FunctionHintProcessor : public TextEditor::IAssistPr
 {
 public:
     explicit FunctionHintProcessor(Client *client);
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform() override;
     bool running() override { return m_currentRequest.has_value(); }
     bool needsRestart() const override { return true; }
     void cancel() override;

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilereventtypes.h"
 #include "qmlprofilermodelmanager.h"
@@ -15,32 +15,32 @@ namespace QmlProfiler {
 namespace Internal {
 
 static const char *ThreadLabels[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "GUI Thread"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Thread"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Thread Details")
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "GUI Thread"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Thread"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Thread Details")
 };
 
 static const char *StageLabels[] = {
-    QT_TRANSLATE_NOOP("QmlProfiler", "Polish"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Wait"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "GUI Thread Sync"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Animations"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Thread Sync"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Swap"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Preprocess"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Update"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Bind"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Render Render"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Material Compile"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Glyph Render"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Glyph Upload"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Bind"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Convert"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Swizzle"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Upload"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Mipmap"),
-    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Delete")
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Polish"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Wait"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "GUI Thread Sync"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Animations"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Thread Sync"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Swap"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Preprocess"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Update"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Bind"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Render Render"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Material Compile"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Glyph Render"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Glyph Upload"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Bind"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Convert"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Swizzle"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Upload"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Mipmap"),
+    QT_TRANSLATE_NOOP("QtC::QmlProfiler", "Texture Delete")
 };
 
 enum SceneGraphCategoryType {

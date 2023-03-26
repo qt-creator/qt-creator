@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "configcontroller.h"
 
@@ -24,8 +24,8 @@ public:
 };
 
 ConfigController::ConfigController(QObject *parent)
-    : QObject(parent),
-      d(new ConfigControllerPrivate)
+    : QObject(parent)
+    , d(new ConfigControllerPrivate)
 {
 }
 
@@ -68,7 +68,7 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
         // TODO add error handling
         return;
     }
-    foreach (const QString &fileName, fileNames) {
+    for (const QString &fileName : std::as_const(fileNames)) {
         QFile file(QFileInfo(dir, fileName).absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
             QString text = QString::fromUtf8(file.readAll());

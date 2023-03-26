@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "shapegroupwidget.h"
 #include "dragshapebutton.h"
@@ -30,7 +30,7 @@ ShapeGroupWidget::ShapeGroupWidget(ShapeProvider *shapeProvider, int groupIndex,
         m_content->layout()->addWidget(button);
     }
 
-    connect(m_closeButton, &QToolButton::clicked, this, [this]() {
+    connect(m_closeButton, &QToolButton::clicked, this, [this] {
         m_content->setVisible(!m_content->isVisible());
         m_closeButton->setIcon(m_content->isVisible()
                                ? Utils::Icons::COLLAPSE_TOOLBAR.icon()

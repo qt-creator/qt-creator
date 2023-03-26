@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -90,6 +90,7 @@ public:
     void inheritFrom(const ConfigurePreset &other);
 
     QString name;
+    Utils::FilePath fileDir;
     std::optional<bool> hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
@@ -115,6 +116,7 @@ public:
     void inheritFrom(const BuildPreset &other);
 
     QString name;
+    Utils::FilePath fileDir;
     std::optional<bool> hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
@@ -140,6 +142,8 @@ public:
     int version = 0;
     QVersionNumber cmakeMinimimRequired;
     QHash<QString, QString> vendor;
+    std::optional<QStringList> include;
+    Utils::FilePath fileDir;
     QList<PresetsDetails::ConfigurePreset> configurePresets;
     QList<PresetsDetails::BuildPreset> buildPresets;
 };

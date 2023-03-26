@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -9,6 +9,9 @@
 
 namespace Utils {
 class CommandLine;
+enum class ProcessResult;
+class QtcProcess;
+namespace Tasking { class Group; }
 }
 
 namespace ProjectExplorer {
@@ -42,18 +45,19 @@ protected:
     void doRun() override;
     void doCancel() override;
     void setLowPriority();
+    void setDisplayedParameters(ProcessParameters *params);
+    bool isSuccess(Utils::ProcessResult result) const;
 
-    virtual void finish(bool success);
-    virtual void processStarted();
-    virtual void processFinished(int exitCode, QProcess::ExitStatus status);
-    virtual void processStartupFailed();
-    virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
-    virtual void stdOutput(const QString &output);
-    virtual void stdError(const QString &output);
+    virtual void finish(Utils::ProcessResult result);
+
+    bool checkWorkingDirectory();
+    void setupProcess(Utils::QtcProcess *process);
+    void runTaskTree(const Utils::Tasking::Group &recipe);
+    ProcessParameters *displayedParameters() const;
 
 private:
-    void processReadyReadStdOutput();
-    void processReadyReadStdError();
+    void setupStreams();
+    void processStartupFailed();
     void handleProcessDone();
 
     class Private;

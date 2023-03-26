@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "session.h"
 
@@ -10,6 +10,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectnodes.h"
 #include "target.h"
 
@@ -25,13 +26,12 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QDir>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -68,14 +68,14 @@ public:
     void restoreDependencies(const PersistentSettingsReader &reader);
     void restoreStartupProject(const PersistentSettingsReader &reader);
     void restoreEditors(const PersistentSettingsReader &reader);
-    void restoreProjects(const Utils::FilePaths &fileList);
+    void restoreProjects(const FilePaths &fileList);
     void askUserAboutFailedProjects();
     void sessionLoadingProgress();
 
-    bool recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const;
-    QStringList dependencies(const QString &proName) const;
-    QStringList dependenciesOrder() const;
-    void dependencies(const QString &proName, QStringList &result) const;
+    bool recursiveDependencyCheck(const FilePath &newDep, const FilePath &checkDep) const;
+    FilePaths dependencies(const FilePath &proName) const;
+    FilePaths dependenciesOrder() const;
+    void dependencies(const FilePath &proName, FilePaths &result) const;
 
     static QString windowTitleAddition(const FilePath &filePath);
     static QString sessionTitle(const FilePath &filePath);
@@ -94,7 +94,7 @@ public:
     Project *m_startupProject = nullptr;
     QList<Project *> m_projects;
     FilePaths m_failedProjects;
-    QMap<QString, QStringList> m_depMap;
+    QMap<FilePath, FilePaths> m_depMap;
     QMap<QString, QVariant> m_values;
     QFutureInterface<void> m_future;
     PersistentSettingsWriter *m_writer = nullptr;
@@ -176,13 +176,14 @@ void SessionManager::saveActiveMode(Id mode)
         setValue(QLatin1String("ActiveMode"), mode.toString());
 }
 
-bool SessionManagerPrivate::recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const
+bool SessionManagerPrivate::recursiveDependencyCheck(const FilePath &newDep,
+                                                     const FilePath &checkDep) const
 {
     if (newDep == checkDep)
         return false;
 
-    const QStringList depList = m_depMap.value(checkDep);
-    for (const QString &dependency : depList) {
+    const FilePaths depList = m_depMap.value(checkDep);
+    for (const FilePath &dependency : depList) {
         if (!recursiveDependencyCheck(newDep, dependency))
             return false;
     }
@@ -199,13 +200,14 @@ bool SessionManagerPrivate::recursiveDependencyCheck(const QString &newDep, cons
 
 QList<Project *> SessionManager::dependencies(const Project *project)
 {
-    const QString proName = project->projectFilePath().toString();
-    const QStringList proDeps = d->m_depMap.value(proName);
+    const FilePath proName = project->projectFilePath();
+    const FilePaths proDeps = d->m_depMap.value(proName);
 
     QList<Project *> projects;
-    for (const QString &dep : proDeps) {
-        const Utils::FilePath fn = Utils::FilePath::fromString(dep);
-        Project *pro = Utils::findOrDefault(d->m_projects, [&fn](Project *p) { return p->projectFilePath() == fn; });
+    for (const FilePath &dep : proDeps) {
+        Project *pro = Utils::findOrDefault(d->m_projects, [&dep](Project *p) {
+            return p->projectFilePath() == dep;
+        });
         if (pro)
             projects += pro;
     }
@@ -215,31 +217,31 @@ QList<Project *> SessionManager::dependencies(const Project *project)
 
 bool SessionManager::hasDependency(const Project *project, const Project *depProject)
 {
-    const QString proName = project->projectFilePath().toString();
-    const QString depName = depProject->projectFilePath().toString();
+    const FilePath proName = project->projectFilePath();
+    const FilePath depName = depProject->projectFilePath();
 
-    const QStringList proDeps = d->m_depMap.value(proName);
+    const FilePaths proDeps = d->m_depMap.value(proName);
     return proDeps.contains(depName);
 }
 
 bool SessionManager::canAddDependency(const Project *project, const Project *depProject)
 {
-    const QString newDep = project->projectFilePath().toString();
-    const QString checkDep = depProject->projectFilePath().toString();
+    const FilePath newDep = project->projectFilePath();
+    const FilePath checkDep = depProject->projectFilePath();
 
     return d->recursiveDependencyCheck(newDep, checkDep);
 }
 
 bool SessionManager::addDependency(Project *project, Project *depProject)
 {
-    const QString proName = project->projectFilePath().toString();
-    const QString depName = depProject->projectFilePath().toString();
+    const FilePath proName = project->projectFilePath();
+    const FilePath depName = depProject->projectFilePath();
 
     // check if this dependency is valid
     if (!d->recursiveDependencyCheck(proName, depName))
         return false;
 
-    QStringList proDeps = d->m_depMap.value(proName);
+    FilePaths proDeps = d->m_depMap.value(proName);
     if (!proDeps.contains(depName)) {
         proDeps.append(depName);
         d->m_depMap[proName] = proDeps;
@@ -251,10 +253,10 @@ bool SessionManager::addDependency(Project *project, Project *depProject)
 
 void SessionManager::removeDependency(Project *project, Project *depProject)
 {
-    const QString proName = project->projectFilePath().toString();
-    const QString depName = depProject->projectFilePath().toString();
+    const FilePath proName = project->projectFilePath();
+    const FilePath depName = depProject->projectFilePath();
 
-    QStringList proDeps = d->m_depMap.value(proName);
+    FilePaths proDeps = d->m_depMap.value(proName);
     proDeps.removeAll(depName);
     if (proDeps.isEmpty())
         d->m_depMap.remove(proName);
@@ -473,18 +475,16 @@ bool SessionManager::save()
         if (filePath.exists()) {
             PersistentSettingsReader reader;
             if (!reader.load(filePath)) {
-                QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
-                                     tr("Could not save session %1").arg(filePath.toUserOutput()));
+                QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while saving session"),
+                                     Tr::tr("Could not save session %1").arg(filePath.toUserOutput()));
                 return false;
             }
             data = reader.restoreValues();
         }
     } else {
         // save the startup project
-        if (d->m_startupProject) {
-            data.insert(QLatin1String("StartupProject"),
-                        d->m_startupProject->projectFilePath().toString());
-        }
+        if (d->m_startupProject)
+            data.insert("StartupProject", d->m_startupProject->projectFilePath().toSettings());
 
         const QColor c = StyleHelper::requestedBaseColor();
         if (c.isValid()) {
@@ -510,11 +510,11 @@ bool SessionManager::save()
         QVariantMap depMap;
         auto i = d->m_depMap.constBegin();
         while (i != d->m_depMap.constEnd()) {
-            QString key = i.key();
+            QString key = i.key().toString();
             QStringList values;
-            const QStringList valueList = i.value();
-            for (const QString &value : valueList)
-                values << value;
+            const FilePaths valueList = i.value();
+            for (const FilePath &value : valueList)
+                values << value.toString();
             depMap.insert(key, values);
             ++i;
         }
@@ -539,8 +539,8 @@ bool SessionManager::save()
         if (!isDefaultVirgin())
             d->m_sessionDateTimes.insert(activeSession(), QDateTime::currentDateTime());
     } else {
-        QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
-            tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
+        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while saving session"),
+            Tr::tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
     }
 
     return result;
@@ -569,18 +569,18 @@ bool SessionManager::hasProject(Project *p)
     return d->m_projects.contains(p);
 }
 
-QStringList SessionManagerPrivate::dependencies(const QString &proName) const
+FilePaths SessionManagerPrivate::dependencies(const FilePath &proName) const
 {
-    QStringList result;
+    FilePaths result;
     dependencies(proName, result);
     return result;
 }
 
-void SessionManagerPrivate::dependencies(const QString &proName, QStringList &result) const
+void SessionManagerPrivate::dependencies(const FilePath &proName, FilePaths &result) const
 {
-    const QStringList depends = m_depMap.value(proName);
+    const FilePaths depends = m_depMap.value(proName);
 
-    for (const QString &dep : depends)
+    for (const FilePath &dep : depends)
         dependencies(dep, result);
 
     if (!result.contains(proName))
@@ -599,7 +599,7 @@ QString SessionManagerPrivate::sessionTitle(const FilePath &filePath)
     } else {
         QString sessionName = d->m_sessionName;
         if (sessionName.isEmpty())
-            sessionName = SessionManager::tr("Untitled");
+            sessionName = Tr::tr("Untitled");
         return sessionName;
     }
     return QString();
@@ -630,18 +630,18 @@ QString SessionManagerPrivate::windowTitleAddition(const FilePath &filePath)
     return filePath.isEmpty() ? QString() : locationInProject(filePath);
 }
 
-QStringList SessionManagerPrivate::dependenciesOrder() const
+FilePaths SessionManagerPrivate::dependenciesOrder() const
 {
-    QList<QPair<QString, QStringList> > unordered;
-    QStringList ordered;
+    QList<QPair<FilePath, FilePaths>> unordered;
+    FilePaths ordered;
 
     // copy the map to a temporary list
     for (const Project *pro : m_projects) {
-        const QString proName = pro->projectFilePath().toString();
-        const QStringList depList = filtered(m_depMap.value(proName),
-                                             [this](const QString &proPath) {
+        const FilePath proName = pro->projectFilePath();
+        const FilePaths depList = filtered(m_depMap.value(proName),
+                                             [this](const FilePath &proPath) {
             return contains(m_projects, [proPath](const Project *p) {
-                return p->projectFilePath().toString() == proPath;
+                return p->projectFilePath() == proPath;
             });
         });
         unordered.push_back({proName, depList});
@@ -658,8 +658,8 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
         // remove the handled projects from the dependency lists
         // of the remaining unordered projects
         for (int i = 0; i < unordered.count(); ++i) {
-            for (const QString &pro : std::as_const(ordered)) {
-                QStringList depList = unordered.at(i).second;
+            for (const FilePath &pro : std::as_const(ordered)) {
+                FilePaths depList = unordered.at(i).second;
                 depList.removeAll(pro);
                 unordered[i].second = depList;
             }
@@ -673,15 +673,15 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
 {
     QList<Project *> result;
 
-    QStringList pros;
+    FilePaths pros;
     if (project)
-        pros = d->dependencies(project->projectFilePath().toString());
+        pros = d->dependencies(project->projectFilePath());
     else
         pros = d->dependenciesOrder();
 
-    for (const QString &proFile : std::as_const(pros)) {
+    for (const FilePath &proFile : std::as_const(pros)) {
         for (Project *pro : projects()) {
-            if (pro->projectFilePath().toString() == proFile) {
+            if (pro->projectFilePath() == proFile) {
                 result << pro;
                 break;
             }
@@ -691,13 +691,25 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
     return result;
 }
 
-Project *SessionManager::projectForFile(const Utils::FilePath &fileName)
+Project *SessionManager::projectForFile(const FilePath &fileName)
 {
+    if (Project * const project = Utils::findOrDefault(SessionManager::projects(),
+            [&fileName](const Project *p) { return p->isKnownFile(fileName); })) {
+        return project;
+    }
     return Utils::findOrDefault(SessionManager::projects(),
-                                [&fileName](const Project *p) { return p->isKnownFile(fileName); });
+                                [&fileName](const Project *p) {
+        for (const Target * const target : p->targets()) {
+            for (const BuildConfiguration * const bc : target->buildConfigurations()) {
+                if (fileName.isChildOf(bc->buildDirectory()))
+                    return false;
+            }
+        }
+        return fileName.isChildOf(p->projectDirectory());
+    });
 }
 
-Project *SessionManager::projectWithProjectFilePath(const Utils::FilePath &filePath)
+Project *SessionManager::projectWithProjectFilePath(const FilePath &filePath)
 {
     return Utils::findOrDefault(SessionManager::projects(),
             [&filePath](const Project *p) { return p->projectFilePath() == filePath; });
@@ -846,10 +858,10 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
 */
 bool SessionManager::confirmSessionDelete(const QStringList &sessions)
 {
-    const QString title = sessions.size() == 1 ? tr("Delete Session") : tr("Delete Sessions");
+    const QString title = sessions.size() == 1 ? Tr::tr("Delete Session") : Tr::tr("Delete Sessions");
     const QString question = sessions.size() == 1
-            ? tr("Delete session %1?").arg(sessions.first())
-            : tr("Delete these sessions?\n    %1").arg(sessions.join("\n    "));
+            ? Tr::tr("Delete session %1?").arg(sessions.first())
+            : Tr::tr("Delete these sessions?\n    %1").arg(sessions.join("\n    "));
     return QMessageBox::question(ICore::dialogParent(),
                                  title,
                                  question,
@@ -866,9 +878,9 @@ bool SessionManager::deleteSession(const QString &session)
     d->m_sessions.removeOne(session);
     d->m_lastActiveTimes.remove(session);
     emit instance()->sessionRemoved(session);
-    QFile fi(sessionNameToFileName(session).toString());
-    if (fi.exists())
-        return fi.remove();
+    FilePath sessionFile = sessionNameToFileName(session);
+    if (sessionFile.exists())
+        return sessionFile.removeFile();
     return false;
 }
 
@@ -883,9 +895,9 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     if (!d->m_sessions.contains(original))
         return false;
 
-    QFile fi(sessionNameToFileName(original).toString());
+    FilePath sessionFile = sessionNameToFileName(original);
     // If the file does not exist, we can still clone
-    if (!fi.exists() || fi.copy(sessionNameToFileName(clone).toString())) {
+    if (!sessionFile.exists() || sessionFile.copyFile(sessionNameToFileName(clone))) {
         d->m_sessions.insert(1, clone);
         d->m_sessionDateTimes.insert(clone, sessionNameToFileName(clone).lastModified());
         return true;
@@ -908,11 +920,11 @@ void SessionManagerPrivate::restoreDependencies(const PersistentSettingsReader &
     auto i = depMap.constBegin();
     while (i != depMap.constEnd()) {
         const QString &key = i.key();
-        QStringList values;
+        FilePaths values;
         const QStringList valueList = i.value().toStringList();
         for (const QString &value : valueList)
-            values << value;
-        m_depMap.insert(key, values);
+            values << FilePath::fromString(value);
+        m_depMap.insert(FilePath::fromString(key), values);
         ++i;
     }
 }
@@ -923,11 +935,11 @@ void SessionManagerPrivate::askUserAboutFailedProjects()
     if (!failedProjects.isEmpty()) {
         QString fileList = FilePath::formatFilePaths(failedProjects, "<br>");
         QMessageBox box(QMessageBox::Warning,
-                                   SessionManager::tr("Failed to restore project files"),
-                                   SessionManager::tr("Could not restore the following project files:<br><b>%1</b>").
+                                   Tr::tr("Failed to restore project files"),
+                                   Tr::tr("Could not restore the following project files:<br><b>%1</b>").
                                    arg(fileList));
-        auto keepButton = new QPushButton(SessionManager::tr("Keep projects in Session"), &box);
-        auto removeButton = new QPushButton(SessionManager::tr("Remove projects from Session"), &box);
+        auto keepButton = new QPushButton(Tr::tr("Keep projects in Session"), &box);
+        auto removeButton = new QPushButton(Tr::tr("Remove projects from Session"), &box);
         box.addButton(keepButton, QMessageBox::AcceptRole);
         box.addButton(removeButton, QMessageBox::DestructiveRole);
 
@@ -940,10 +952,10 @@ void SessionManagerPrivate::askUserAboutFailedProjects()
 
 void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader &reader)
 {
-    const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
+    const FilePath startupProject = FilePath::fromSettings(reader.restoreValue("StartupProject"));
     if (!startupProject.isEmpty()) {
         for (Project *pro : std::as_const(m_projects)) {
-            if (pro->projectFilePath().toString() == startupProject) {
+            if (pro->projectFilePath() == startupProject) {
                 m_instance->setStartupProject(pro);
                 break;
             }
@@ -1030,8 +1042,8 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
-            QMessageBox::warning(ICore::dialogParent(), tr("Error while restoring session"),
-                                 tr("Could not restore session %1").arg(fileName.toUserOutput()));
+            QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while restoring session"),
+                                 Tr::tr("Could not restore session %1").arg(fileName.toUserOutput()));
 
             return false;
         }
@@ -1087,7 +1099,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     if (fileName.exists()) {
         d->m_virginSession = false;
 
-        ProgressManager::addTask(d->m_future.future(), tr("Loading Session"),
+        ProgressManager::addTask(d->m_future.future(), Tr::tr("Loading Session"),
            "ProjectExplorer.SessionFile.Load");
 
         d->m_future.setProgressRange(0, 1);
@@ -1178,17 +1190,18 @@ void SessionManagerPrivate::sessionLoadingProgress()
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
-QStringList SessionManager::projectsForSessionName(const QString &session)
+FilePaths SessionManager::projectsForSessionName(const QString &session)
 {
     const FilePath fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
             qWarning() << "Could not restore session" << fileName.toUserOutput();
-            return QStringList();
+            return {};
         }
     }
-    return reader.restoreValue(QLatin1String("ProjectList")).toStringList();
+    return transform(reader.restoreValue(QLatin1String("ProjectList")).toStringList(),
+                     &FilePath::fromUserInput);
 }
 
 #ifdef WITH_TESTS

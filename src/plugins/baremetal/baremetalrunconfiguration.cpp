@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Tim Sander <tim@krieglstein.org>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "baremetalrunconfiguration.h"
 
@@ -79,7 +79,7 @@ Tasks BareMetalCustomRunConfiguration::checkForIssues() const
 
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 {
-    registerRunConfiguration<BareMetalRunConfiguration>("BareMetalCustom");
+    registerRunConfiguration<BareMetalRunConfiguration>(Constants::BAREMETAL_RUNCONFIG_ID);
     setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
@@ -89,7 +89,7 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory()
     : FixedRunConfigurationFactory(Tr::tr("Custom Executable"), true)
 {
-    registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal");
+    registerRunConfiguration<BareMetalCustomRunConfiguration>(Constants::BAREMETAL_CUSTOMRUNCONFIG_ID);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 

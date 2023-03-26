@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,6 +8,7 @@
 
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/environmentaspect.h>
 
 namespace CMakeProjectManager {
 class CMakeProject;
@@ -15,7 +16,6 @@ class CMakeProject;
 namespace Internal {
 
 class CMakeBuildSystem;
-class CMakeBuildConfigurationPrivate;
 class CMakeBuildSettingsWidget;
 class CMakeProjectImporter;
 
@@ -45,14 +45,6 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
 
     Utils::Environment configureEnvironment() const;
-    void setUserConfigureEnvironmentChanges(const Utils::EnvironmentItems &diff);
-    Utils::EnvironmentItems userConfigureEnvironmentChanges() const;
-    bool useClearConfigureEnvironment() const;
-    void setUseClearConfigureEnvironment(bool b);
-    void updateAndEmitConfigureEnvironmentChanged();
-
-    Utils::Environment baseConfigureEnvironment() const;
-    QString baseConfigureEnvironmentText() const;
 
 signals:
     void signingFlagsChanged();
@@ -76,8 +68,6 @@ private:
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;
-
-    Internal::CMakeBuildConfigurationPrivate *d = nullptr;
 };
 
 class CMAKE_EXPORT CMakeBuildConfigurationFactory
@@ -146,6 +136,17 @@ class BuildTypeAspect final : public Utils::StringAspect
 public:
     BuildTypeAspect();
     using Utils::StringAspect::update;
+};
+
+class ConfigureEnvironmentAspect final: public ProjectExplorer::EnvironmentAspect
+{
+    Q_OBJECT
+
+public:
+    ConfigureEnvironmentAspect(ProjectExplorer::Target *target);
+
+    void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const;
 };
 
 } // namespace Internal

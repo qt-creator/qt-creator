@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
+#include "fakevimtr.h"
 
 // Please do not add any direct dependencies to other Qt Creator code  here.
 // Instead emit signals and let the FakeVimPlugin channel the information to
@@ -66,40 +67,40 @@ FakeVimSettings::FakeVimSettings()
     setAutoApply(false);
 
 #ifndef FAKEVIM_STANDALONE
-    setup(&useFakeVim,     false, "UseFakeVim",     {},    tr("Use FakeVim"));
+    setup(&useFakeVim,     false, "UseFakeVim",     {},    Tr::tr("Use FakeVim"));
 #endif
     // Specific FakeVim settings
-    setup(&readVimRc,      false, "ReadVimRc",      {},    tr("Read .vimrc from location:"));
-    setup(&vimRcPath,      QString(), "VimRcPath",  {},    {}); // tr("Path to .vimrc")
-    setup(&showMarks,      false, "ShowMarks",      "sm",  tr("Show position of text marks"));
-    setup(&passControlKey, false, "PassControlKey", "pck", tr("Pass control keys"));
-    setup(&passKeys,       true,  "PassKeys",       "pk",  tr("Pass keys in insert mode"));
+    setup(&readVimRc,      false, "ReadVimRc",      {},    Tr::tr("Read .vimrc from location:"));
+    setup(&vimRcPath,      QString(), "VimRcPath",  {},    {}); // Tr::tr("Path to .vimrc")
+    setup(&showMarks,      false, "ShowMarks",      "sm",  Tr::tr("Show position of text marks"));
+    setup(&passControlKey, false, "PassControlKey", "pck", Tr::tr("Pass control keys"));
+    setup(&passKeys,       true,  "PassKeys",       "pk",  Tr::tr("Pass keys in insert mode"));
 
     // Emulated Vsetting
-    setup(&startOfLine,    true,  "StartOfLine",    "sol", tr("Start of line"));
-    setup(&tabStop,        8,     "TabStop",        "ts",  tr("Tabulator size:"));
-    setup(&smartTab,       false, "SmartTab",       "sta", tr("Smart tabulators"));
-    setup(&hlSearch,       true,  "HlSearch",       "hls", tr("Highlight search results"));
-    setup(&shiftWidth,     8,     "ShiftWidth",     "sw",  tr("Shift width:"));
-    setup(&expandTab,      false, "ExpandTab",      "et",  tr("Expand tabulators"));
-    setup(&autoIndent,     false, "AutoIndent",     "ai",  tr("Automatic indentation"));
-    setup(&smartIndent,    false, "SmartIndent",    "si",  tr("Smart indentation"));
-    setup(&incSearch,      true,  "IncSearch",      "is",  tr("Incremental search"));
-    setup(&useCoreSearch,  false, "UseCoreSearch",  "ucs", tr("Use search dialog"));
-    setup(&smartCase,      false, "SmartCase",      "scs", tr("Use smartcase"));
-    setup(&ignoreCase,     false, "IgnoreCase",     "ic",  tr("Use ignorecase"));
-    setup(&wrapScan,       true,  "WrapScan",       "ws",  tr("Use wrapscan"));
-    setup(&tildeOp,        false, "TildeOp",        "top", tr("Use tildeop"));
-    setup(&showCmd,        true,  "ShowCmd",        "sc",  tr("Show partial command"));
-    setup(&relativeNumber, false, "RelativeNumber", "rnu", tr("Show line numbers relative to cursor"));
-    setup(&blinkingCursor, false, "BlinkingCursor", "bc",  tr("Blinking cursor"));
-    setup(&scrollOff,      0,     "ScrollOff",      "so",  tr("Scroll offset:"));
+    setup(&startOfLine,    true,  "StartOfLine",    "sol", Tr::tr("Start of line"));
+    setup(&tabStop,        8,     "TabStop",        "ts",  Tr::tr("Tabulator size:"));
+    setup(&smartTab,       false, "SmartTab",       "sta", Tr::tr("Smart tabulators"));
+    setup(&hlSearch,       true,  "HlSearch",       "hls", Tr::tr("Highlight search results"));
+    setup(&shiftWidth,     8,     "ShiftWidth",     "sw",  Tr::tr("Shift width:"));
+    setup(&expandTab,      false, "ExpandTab",      "et",  Tr::tr("Expand tabulators"));
+    setup(&autoIndent,     false, "AutoIndent",     "ai",  Tr::tr("Automatic indentation"));
+    setup(&smartIndent,    false, "SmartIndent",    "si",  Tr::tr("Smart indentation"));
+    setup(&incSearch,      true,  "IncSearch",      "is",  Tr::tr("Incremental search"));
+    setup(&useCoreSearch,  false, "UseCoreSearch",  "ucs", Tr::tr("Use search dialog"));
+    setup(&smartCase,      false, "SmartCase",      "scs", Tr::tr("Use smartcase"));
+    setup(&ignoreCase,     false, "IgnoreCase",     "ic",  Tr::tr("Use ignorecase"));
+    setup(&wrapScan,       true,  "WrapScan",       "ws",  Tr::tr("Use wrapscan"));
+    setup(&tildeOp,        false, "TildeOp",        "top", Tr::tr("Use tildeop"));
+    setup(&showCmd,        true,  "ShowCmd",        "sc",  Tr::tr("Show partial command"));
+    setup(&relativeNumber, false, "RelativeNumber", "rnu", Tr::tr("Show line numbers relative to cursor"));
+    setup(&blinkingCursor, false, "BlinkingCursor", "bc",  Tr::tr("Blinking cursor"));
+    setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
     setup(&backspace,      "indent,eol,start",
-                                  "Backspace",      "bs",  tr("Backspace:"));
+                                  "Backspace",      "bs",  Tr::tr("Backspace:"));
     setup(&isKeyword,      "@,48-57,_,192-255,a-z,A-Z",
-                                  "IsKeyword",      "isk", tr("Keyword characters:"));
-    setup(&clipboard,      {},    "Clipboard",      "cb",  tr(""));
-    setup(&formatOptions,  {},    "formatoptions",  "fo",  tr(""));
+                                  "IsKeyword",      "isk", Tr::tr("Keyword characters:"));
+    setup(&clipboard,      {},    "Clipboard",      "cb",  Tr::tr(""));
+    setup(&formatOptions,  {},    "formatoptions",  "fo",  Tr::tr(""));
 
     // Emulated plugins
     setup(&emulateVimCommentary, false, "commentary", {}, "vim-commentary");
@@ -109,19 +110,19 @@ FakeVimSettings::FakeVimSettings()
     setup(&emulateSurround, false, "surround", {}, "vim-surround");
 
     // Some polish
-    useFakeVim.setDisplayName(tr("Use Vim-style Editing"));
+    useFakeVim.setDisplayName(Tr::tr("Use Vim-style Editing"));
 
-    relativeNumber.setToolTip(tr("Displays line numbers relative to the line containing "
+    relativeNumber.setToolTip(Tr::tr("Displays line numbers relative to the line containing "
         "text cursor."));
 
-    passControlKey.setToolTip(tr("Does not interpret key sequences like Ctrl-S in FakeVim "
+    passControlKey.setToolTip(Tr::tr("Does not interpret key sequences like Ctrl-S in FakeVim "
         "but handles them as regular shortcuts. This gives easier access to core functionality "
         "at the price of losing some features of FakeVim."));
 
-    passKeys.setToolTip(tr("Does not interpret some key presses in insert mode so that "
+    passKeys.setToolTip(Tr::tr("Does not interpret some key presses in insert mode so that "
         "code can be properly completed and expanded."));
 
-    tabStop.setToolTip(tr("Vim tabstop option."));
+    tabStop.setToolTip(Tr::tr("Vim tabstop option."));
 
 #ifndef FAKEVIM_STANDALONE
     backspace.setDisplayStyle(FvStringAspect::LineEditDisplay);
@@ -130,9 +131,9 @@ FakeVimSettings::FakeVimSettings()
     const QString vimrcDefault = QLatin1String(HostOsInfo::isAnyUnixHost()
                 ? "$HOME/.vimrc" : "%USERPROFILE%\\_vimrc");
     vimRcPath.setExpectedKind(PathChooser::File);
-    vimRcPath.setToolTip(tr("Keep empty to use the default path, i.e. "
+    vimRcPath.setToolTip(Tr::tr("Keep empty to use the default path, i.e. "
                "%USERPROFILE%\\_vimrc on Windows, ~/.vimrc otherwise."));
-    vimRcPath.setPlaceHolderText(tr("Default: %1").arg(vimrcDefault));
+    vimRcPath.setPlaceHolderText(Tr::tr("Default: %1").arg(vimrcDefault));
     vimRcPath.setDisplayStyle(FvStringAspect::PathChooserDisplay);
 #endif
 }
@@ -148,10 +149,10 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 {
     FvBaseAspect *aspect = m_nameToAspect.value(name, nullptr);
     if (!aspect)
-        return tr("Unknown option: %1").arg(name);
+        return Tr::tr("Unknown option: %1").arg(name);
     if (aspect == &tabStop || aspect == &shiftWidth) {
         if (value.toInt() <= 0)
-            return tr("Argument must be positive: %1=%2")
+            return Tr::tr("Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
     aspect->setValue(value);

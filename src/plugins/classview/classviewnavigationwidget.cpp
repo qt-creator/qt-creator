@@ -1,24 +1,22 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classviewnavigationwidget.h"
-#include "classviewmanager.h"
-#include "classviewsymbollocation.h"
-#include "classviewsymbolinformation.h"
-#include "classviewutils.h"
+
 #include "classviewconstants.h"
+#include "classviewmanager.h"
+#include "classviewtr.h"
+#include "classviewutils.h"
 
 #include <coreplugin/find/itemviewfind.h>
-
 #include <cplusplus/Icons.h>
-
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QVariant>
 #include <QVBoxLayout>
-#include <QElapsedTimer>
 
 enum { debug = false };
 
@@ -124,7 +122,7 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
         fullProjectsModeButton->setIcon(
                     ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Class));
         fullProjectsModeButton->setCheckable(true);
-        fullProjectsModeButton->setToolTip(tr("Show Subprojects"));
+        fullProjectsModeButton->setToolTip(Tr::tr("Show Subprojects"));
 
         // by default - not a flat mode
         setFlatMode(false);

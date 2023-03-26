@@ -1,16 +1,19 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qdbplugin.h"
 
 #include "device-detection/devicedetector.h"
+#include "qdbconstants.h"
 #include "qdbdeployconfigurationfactory.h"
+#include "qdbdevice.h"
 #include "qdbstopapplicationstep.h"
 #include "qdbmakedefaultappstep.h"
 #include "qdbdevicedebugsupport.h"
 #include "qdbqtversion.h"
 #include "qdbrunconfiguration.h"
 #include "qdbutils.h"
+#include "qdbtr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -19,6 +22,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtversionfactory.h>
@@ -33,7 +37,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QAction>
-#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -55,8 +58,7 @@ static void startFlashingWizard()
     } else if (QtcProcess::startDetached({filePath, {}})) {
         return;
     }
-    const QString message =
-            QCoreApplication::translate("Qdb", "Flash wizard \"%1\" failed to start.");
+    const QString message = Tr::tr("Flash wizard \"%1\" failed to start.");
     showMessage(message.arg(filePath.toUserOutput()), true);
 }
 
@@ -75,9 +77,8 @@ void registerFlashAction(QObject *parentForAction)
         return;
     const FilePath fileName = flashWizardFilePath();
     if (!fileName.exists()) {
-        const QString message =
-                QCoreApplication::translate("Qdb", "Flash wizard executable \"%1\" not found.");
-        showMessage(message.arg(fileName.toString()));
+        const QString message = Tr::tr("Flash wizard executable \"%1\" not found.");
+        showMessage(message.arg(fileName.toUserOutput()));
         return;
     }
 
@@ -91,44 +92,13 @@ void registerFlashAction(QObject *parentForAction)
 
     Core::Context globalContext(Core::Constants::C_GLOBAL);
 
-    const QString actionText = QCoreApplication::translate("Qdb", "Flash Boot to Qt Device");
-    QAction *flashAction = new QAction(actionText, parentForAction);
+    QAction *flashAction = new QAction(Tr::tr("Flash Boot to Qt Device"), parentForAction);
     Core::Command *flashCommand = Core::ActionManager::registerAction(flashAction,
                                                                       flashActionId,
                                                                       globalContext);
     QObject::connect(flashAction, &QAction::triggered, startFlashingWizard);
     toolsContainer->addAction(flashCommand, flashActionId);
 }
-
-class QdbQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    QdbQtVersionFactory()
-    {
-        setQtVersionCreator([] { return new QdbQtVersion; });
-        setSupportedType("Qdb.EmbeddedLinuxQt");
-        setPriority(99);
-        setRestrictionChecker([](const SetupData &setup) {
-            return setup.platforms.contains("boot2qt");
-        });
-    }
-};
-
-class QdbDeviceRunSupport : public SimpleTargetRunner
-{
-public:
-    QdbDeviceRunSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setStartModifier([this] {
-            CommandLine plain = commandLine();
-            CommandLine cmd;
-            cmd.setExecutable(plain.executable().withNewPath(Constants::AppcontrollerFilepath));
-            cmd.addCommandLineAsArgs(plain);
-            setCommandLine(cmd);
-        });
-    }
-};
 
 template <class Step>
 class QdbDeployStepFactory : public ProjectExplorer::BuildStepFactory
@@ -167,31 +137,10 @@ public:
         "QmlProjectManager.QmlRunConfiguration"
     };
 
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceRunSupport>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        supportedRunConfigs,
-        {Qdb::Constants::QdbLinuxOsType}
-    };
-    RunWorkerFactory debugWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceDebugSupport>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        supportedRunConfigs,
-        {Qdb::Constants::QdbLinuxOsType}
-    };
-    RunWorkerFactory qmlToolWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceQmlToolingSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
-         ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
-        supportedRunConfigs,
-        {Qdb::Constants::QdbLinuxOsType}
-    };
-    RunWorkerFactory perfRecorderFactory{
-        RunWorkerFactory::make<QdbDevicePerfProfilerSupport>(),
-        {"PerfRecorder"},
-        {},
-        {Qdb::Constants::QdbLinuxOsType}
-    };
+    QdbRunWorkerFactory runWorkerFactory{supportedRunConfigs};
+    QdbDebugWorkerFactory debugWorkerFactory{supportedRunConfigs};
+    QdbQmlToolingWorkerFactory qmlToolingWorkerFactory{supportedRunConfigs};
+    QdbPerfProfilerWorkerFactory perfRecorderWorkerFactory;
 
     DeviceDetector m_deviceDetector;
 };
@@ -201,16 +150,11 @@ QdbPlugin::~QdbPlugin()
     delete d;
 }
 
-bool QdbPlugin::initialize(const QStringList &arguments, QString *errorString)
+void QdbPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new QdbPluginPrivate;
 
     registerFlashAction(this);
-
-    return true;
 }
 
 void QdbPlugin::extensionsInitialized()

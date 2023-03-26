@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "processparameters.h"
 
@@ -7,6 +7,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
+#include <utils/utilstr.h>
 
 #include <QDir>
 
@@ -156,7 +157,7 @@ static QString invalidCommandMessage(const QString &displayName)
 {
     return QString("<b>%1:</b> <font color='%3'>%2</font>")
                     .arg(displayName,
-                         QtcProcess::tr("Invalid command"),
+                         ::Utils::Tr::tr("Invalid command"),
                          creatorTheme()->color(Theme::TextColorError).name());
 }
 

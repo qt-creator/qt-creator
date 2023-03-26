@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangformatfile.h"
 #include "clangformatsettings.h"
@@ -116,6 +116,18 @@ void ClangFormatFile::saveNewFormat(QByteArray style)
         return;
 
     m_filePath.writeFileContents(style);
+}
+
+void ClangFormatFile::saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
+{
+    std::string styleStr = clang::format::configurationAsText(style);
+
+    // workaround: configurationAsText() add comment "# " before BasedOnStyle line
+    const int pos = styleStr.find("# BasedOnStyle");
+    if (pos != int(std::string::npos))
+        styleStr.erase(pos, 2);
+    styleStr.append("\n");
+    filePath.writeFileContents(QByteArray::fromStdString(styleStr));
 }
 
 CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(

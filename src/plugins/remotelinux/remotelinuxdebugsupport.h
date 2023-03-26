@@ -1,16 +1,28 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include <debugger/debuggerruncontrol.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace RemoteLinux::Internal {
 
-class LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
+class RemoteLinuxRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
+    explicit RemoteLinuxRunWorkerFactory();
+};
+
+class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    explicit RemoteLinuxDebugWorkerFactory();
+};
+
+class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    explicit RemoteLinuxQmlToolingWorkerFactory();
 };
 
 } // RemoteLinux::Internal

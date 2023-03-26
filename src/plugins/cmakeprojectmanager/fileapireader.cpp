@@ -1,10 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fileapireader.h"
 
 #include "cmakeprocess.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
 
@@ -106,7 +108,8 @@ void FileApiReader::parse(bool forceCMakeRun,
     //  * A query file is newer than the reply file
     const bool hasArguments = !args.isEmpty();
     const bool replyFileMissing = !replyFile.exists();
-    const bool cmakeFilesChanged = m_parameters.cmakeTool() && m_parameters.cmakeTool()->isAutoRun()
+    const auto settings = CMakeSpecificSettings::instance();
+    const bool cmakeFilesChanged = m_parameters.cmakeTool() && settings->autorunCMake.value()
                                    && anyOf(m_cmakeFiles, [&replyFile](const CMakeFileInfo &info) {
                                           return !info.isGenerated
                                                  && info.path.lastModified() > replyFile.lastModified();
@@ -282,8 +285,8 @@ void FileApiReader::makeBackupConfiguration(bool store)
             replyPrev.removeRecursively();
         QTC_CHECK(!replyPrev.exists());
         if (!reply.renameFile(replyPrev))
-            Core::MessageManager::writeFlashing(Tr::tr("Failed to rename %1 to %2.")
-                                                .arg(reply.toString(), replyPrev.toString()));
+            Core::MessageManager::writeFlashing(Tr::tr("Failed to rename \"%1\" to \"%2\".")
+                                                    .arg(reply.toString(), replyPrev.toString()));
     }
 
     FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended("CMakeCache.txt");
@@ -293,9 +296,9 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     if (cmakeCacheTxt.exists())
         if (!FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev))
-            Core::MessageManager::writeFlashing(Tr::tr("Failed to copy %1 to %2.")
-                                                .arg(cmakeCacheTxt.toString(), cmakeCacheTxtPrev.toString()));
-
+            Core::MessageManager::writeFlashing(
+                Tr::tr("Failed to copy \"%1\" to \"%2\".")
+                    .arg(cmakeCacheTxt.toString(), cmakeCacheTxtPrev.toString()));
 }
 
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
@@ -342,19 +345,19 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
     // Reset watcher:
-    m_watcher.removeFiles(m_watcher.files());
-    m_watcher.removeDirectories(m_watcher.directories());
+    m_watcher.removeFiles(m_watcher.filePaths());
+    m_watcher.removeDirectories(m_watcher.directoryPaths());
 
     makeBackupConfiguration(true);
     writeConfigurationIntoBuildDirectory(configurationArguments);
     m_cmakeProcess->run(m_parameters, configurationArguments);
 }
 
-void FileApiReader::cmakeFinishedState()
+void FileApiReader::cmakeFinishedState(int exitCode)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: CMAKE FINISHED STATE.";
 
-    m_lastCMakeExitCode = m_cmakeProcess->lastExitCode();
+    m_lastCMakeExitCode = exitCode;
     m_cmakeProcess.release()->deleteLater();
 
     if (m_lastCMakeExitCode != 0)

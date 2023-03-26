@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pathlisteditor.h"
 
 #include "fileutils.h"
 #include "hostosinfo.h"
+#include "utilstr.h"
 
 #include <QMimeData>
 #include <QPlainTextEdit>
@@ -97,13 +98,13 @@ PathListEditor::PathListEditor(QWidget *parent) :
         d(new PathListEditorPrivate)
 {
     setLayout(d->layout);
-    addButton(tr("Insert..."), this, [this] {
+    addButton(Tr::tr("Insert..."), this, [this] {
         const FilePath dir = FileUtils::getExistingDirectory(this, d->fileDialogTitle);
         if (!dir.isEmpty())
             insertPathAtCursor(dir.toUserOutput());
     });
-    addButton(tr("Delete Line"), this, [this] { deletePathAtCursor(); });
-    addButton(tr("Clear"), this, [this] { d->edit->clear(); });
+    addButton(Tr::tr("Delete Line"), this, [this] { deletePathAtCursor(); });
+    addButton(Tr::tr("Clear"), this, [this] { d->edit->clear(); });
     connect(d->edit, &QPlainTextEdit::textChanged, this, &PathListEditor::changed);
 }
 

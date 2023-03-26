@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gerritparameters.h"
 #include "gerritplugin.h"
@@ -93,8 +93,8 @@ void GerritParameters::toSettings(QSettings *s) const
     s->setValue(userKeyC, server.user.userName);
     s->setValue(portKeyC, server.port);
     s->setValue(portFlagKeyC, portFlag);
-    s->setValue(sshKeyC, ssh.toVariant());
-    s->setValue(curlKeyC, curl.toVariant());
+    s->setValue(sshKeyC, ssh.toSettings());
+    s->setValue(curlKeyC, curl.toSettings());
     s->setValue(httpsKeyC, https);
     s->endGroup();
 }
@@ -111,8 +111,8 @@ void GerritParameters::fromSettings(const QSettings *s)
     const QString rootKey = QLatin1String(settingsGroupC) + '/';
     server.host = s->value(rootKey + hostKeyC, GerritServer::defaultHost()).toString();
     server.user.userName = s->value(rootKey + userKeyC, QString()).toString();
-    ssh = FilePath::fromVariant(s->value(rootKey + sshKeyC, QString()));
-    curl = FilePath::fromVariant(s->value(rootKey + curlKeyC));
+    ssh = FilePath::fromSettings(s->value(rootKey + sshKeyC, QString()));
+    curl = FilePath::fromSettings(s->value(rootKey + curlKeyC));
     server.port = ushort(s->value(rootKey + portKeyC, QVariant(GerritServer::defaultPort)).toInt());
     portFlag = s->value(rootKey + portFlagKeyC, defaultPortFlag).toString();
     savedQueries = s->value(rootKey + savedQueriesKeyC, QString()).toString()

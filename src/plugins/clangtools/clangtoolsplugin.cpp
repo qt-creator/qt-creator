@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtoolsplugin.h"
 
 #include "clangtool.h"
 #include "clangtoolsconstants.h"
-#include "clangtoolsprojectsettings.h"
 #include "clangtoolsprojectsettingswidget.h"
+#include "clangtoolstr.h"
 #include "documentclangtoolrunner.h"
 #include "documentquickfixfactory.h"
 #include "settingswidget.h"
@@ -48,8 +48,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static ProjectPanelFactory *m_projectPanelFactoryInstance = nullptr;
 
@@ -75,7 +74,8 @@ public:
         return nullptr;
     }
 
-    ClangTool clangTool;
+    ClangTidyTool clangTidyTool;
+    ClazyTool clazyTool;
     ClangToolsOptionsPage optionsPage;
     QMap<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
     DocumentQuickFixFactory quickFixFactory;
@@ -86,12 +86,9 @@ ClangToolsPlugin::~ClangToolsPlugin()
     delete d;
 }
 
-bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ClangToolsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
-    TaskHub::addCategory(taskCategory(), tr("Clang Tools"));
+    TaskHub::addCategory(taskCategory(), Tr::tr("Clang Tools"));
 
     // Import tidy/clazy diagnostic configs from CppEditor now
     // instead of at opening time of the settings page
@@ -104,7 +101,7 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     auto panelFactory = m_projectPanelFactoryInstance = new ProjectPanelFactory;
     panelFactory->setPriority(100);
     panelFactory->setId(Constants::PROJECT_PANEL_ID);
-    panelFactory->setDisplayName(tr("Clang Tools"));
+    panelFactory->setDisplayName(Tr::tr("Clang Tools"));
     panelFactory->setCreateWidgetFunction(
         [](Project *project) { return new ClangToolsProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
@@ -114,7 +111,11 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
             this,
             &ClangToolsPlugin::onCurrentEditorChanged);
 
-    return true;
+#ifdef WITH_TESTS
+    addTest<PreconfiguredSessionTests>();
+    addTest<ClangToolsUnitTests>();
+    addTest<ReadExportedDiagnosticsTest>();
+#endif
 }
 
 void ClangToolsPlugin::onCurrentEditorChanged()
@@ -124,7 +125,7 @@ void ClangToolsPlugin::onCurrentEditorChanged()
         if (d->documentRunners.contains(document))
             continue;
         auto runner = new DocumentClangToolRunner(document);
-        connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document]() {
+        connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document] {
             d->documentRunners.remove(document);
         });
         d->documentRunners[document] = runner;
@@ -133,22 +134,30 @@ void ClangToolsPlugin::onCurrentEditorChanged()
 
 void ClangToolsPlugin::registerAnalyzeActions()
 {
-    ActionManager::registerAction(d->clangTool.startAction(), Constants::RUN_ON_PROJECT);
-    Command *cmd = ActionManager::registerAction(d->clangTool.startOnCurrentFileAction(),
-                                                 Constants::RUN_ON_CURRENT_FILE);
-    ActionContainer *mtoolscpp = ActionManager::actionContainer(CppEditor::Constants::M_TOOLS_CPP);
-    if (mtoolscpp)
-        mtoolscpp->addAction(cmd);
+    for (const auto &toolInfo : {std::make_tuple(ClangTidyTool::instance(),
+                                                 Constants::RUN_CLANGTIDY_ON_PROJECT,
+                                                 Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
+                                 std::make_tuple(ClazyTool::instance(),
+                                                 Constants::RUN_CLAZY_ON_PROJECT,
+                                                 Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
+        ClangTool * const tool = std::get<0>(toolInfo);
+        ActionManager::registerAction(tool->startAction(), std::get<1>(toolInfo));
+        Command *cmd = ActionManager::registerAction(tool->startOnCurrentFileAction(),
+                                                     std::get<2>(toolInfo));
+        ActionContainer *mtoolscpp = ActionManager::actionContainer(CppEditor::Constants::M_TOOLS_CPP);
+        if (mtoolscpp)
+            mtoolscpp->addAction(cmd);
 
-    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(
-        CppEditor::Constants::M_CONTEXT);
-    if (mcontext)
-        mcontext->addAction(cmd, CppEditor::Constants::G_CONTEXT_FIRST);
+        Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(
+            CppEditor::Constants::M_CONTEXT);
+        if (mcontext)
+            mcontext->addAction(cmd, CppEditor::Constants::G_CONTEXT_FIRST);
+    }
 
     // add button to tool bar of C++ source files
-    connect(EditorManager::instance(), &EditorManager::editorOpened, this, [this, cmd](IEditor *editor) {
+    connect(EditorManager::instance(), &EditorManager::editorOpened, this, [](IEditor *editor) {
         if (editor->document()->filePath().isEmpty()
-            || !Utils::mimeTypeForName(editor->document()->mimeType()).inherits("text/x-c++src"))
+                || !Utils::mimeTypeForName(editor->document()->mimeType()).inherits("text/x-c++src"))
             return;
         auto *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
         if (!textEditor)
@@ -157,25 +166,27 @@ void ClangToolsPlugin::registerAnalyzeActions()
         if (!widget)
             return;
         const QIcon icon = Utils::Icon({{":/debugger/images/debugger_singleinstructionmode.png",
-                                         Utils::Theme::IconsBaseColor}})
-                               .icon();
-        QAction *action = widget->toolBar()->addAction(icon, tr("Analyze File"), [this, editor]() {
-            d->clangTool.startTool(editor->document()->filePath());
-        });
-        cmd->augmentActionWithShortcutToolTip(action);
+                                         Utils::Theme::IconsBaseColor}}).icon();
+        const auto button = new QToolButton;
+        button->setPopupMode(QToolButton::InstantPopup);
+        button->setIcon(icon);
+        button->setToolTip(Tr::tr("Analyze File..."));
+        button->setProperty("noArrow", true);
+        widget->toolBar()->addWidget(button);
+        const auto toolsMenu = new QMenu(widget);
+        button->setMenu(toolsMenu);
+        for (const auto &toolInfo : {std::make_pair(ClangTidyTool::instance(),
+                                                    Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
+                                     std::make_pair(ClazyTool::instance(),
+                                                    Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
+            ClangTool * const tool = toolInfo.first;
+            Command * const cmd = ActionManager::command(toolInfo.second);
+            QAction *const action = toolsMenu->addAction(tool->name(), [editor, tool] {
+                tool->startTool(editor->document()->filePath());
+            });
+            cmd->augmentActionWithShortcutToolTip(action);
+        }
     });
 }
 
-QVector<QObject *> ClangToolsPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
-#ifdef WITH_TESTS
-    tests << new PreconfiguredSessionTests;
-    tests << new ClangToolsUnitTests;
-    tests << new ReadExportedDiagnosticsTest;
-#endif
-    return tests;
-}
-
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal

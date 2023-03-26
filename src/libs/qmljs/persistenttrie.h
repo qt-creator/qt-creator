@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -88,7 +88,7 @@ template <typename T> void enumerateTrieNode(const TrieNode::Ptr &trie, T &t,
     if (trie.isNull())
         return;
     base.append(trie->prefix);
-    foreach (const TrieNode::Ptr subT, trie->postfixes) {
+    for (const TrieNode::Ptr &subT : std::as_const(trie->postfixes)) {
         enumerateTrieNode(subT,t,base);
     }
     if (trie->postfixes.isEmpty())

@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -63,9 +63,6 @@ public:
 
     void setId(const QString &id);
 
-    void setStartTimeout(int ms, const std::function<void()> &callback = {});
-    void setStopTimeout(int ms, const std::function<void()> &callback = {});
-
     void recordData(const QString &channel, const QVariant &data);
     QVariant recordedData(const QString &channel) const;
 
@@ -100,7 +97,6 @@ signals:
 protected:
     void virtual start();
     void virtual stop();
-    void virtual onFinished() {}
 
 private:
     friend class Internal::RunControlPrivate;
@@ -114,34 +110,24 @@ public:
     using WorkerCreator = std::function<RunWorker *(RunControl *)>;
 
     RunWorkerFactory();
-    RunWorkerFactory(const WorkerCreator &producer,
-                     const QList<Utils::Id> &runModes,
-                     const QList<Utils::Id> &runConfigs = {},
-                     const QList<Utils::Id> &deviceTypes = {});
-
     ~RunWorkerFactory();
 
-    bool canRun(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
-    WorkerCreator producer() const { return m_producer; }
-
-    template <typename Worker>
-    static WorkerCreator make()
-    {
-        return [](RunControl *runControl) { return new Worker(runControl); };
-    }
-
-    // For debugging only.
-    static void dumpAll();
+    static void dumpAll(); // For debugging only.
 
 protected:
     template <typename Worker>
     void setProduct() { setProducer([](RunControl *rc) { return new Worker(rc); }); }
     void setProducer(const WorkerCreator &producer);
+    void setSupportedRunConfigs(const QList<Utils::Id> &runConfigs);
     void addSupportedRunMode(Utils::Id runMode);
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
 
 private:
+    friend class RunControl;
+    bool canCreate(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
+    RunWorker *create(RunControl *runControl) const;
+
     WorkerCreator m_producer;
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;
@@ -296,6 +282,12 @@ private:
     void setRunnable(const Runnable &) = delete;
 
     const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
+};
+
+class PROJECTEXPLORER_EXPORT SimpleTargetRunnerFactory : public RunWorkerFactory
+{
+public:
+    explicit SimpleTargetRunnerFactory(const QList<Utils::Id> &runConfig);
 };
 
 class PROJECTEXPLORER_EXPORT OutputFormatterFactory

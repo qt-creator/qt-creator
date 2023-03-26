@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "locator.h"
 
@@ -16,28 +16,22 @@
 #include "opendocumentsfilter.h"
 #include "spotlightlocatorfilter.h"
 #include "urllocatorfilter.h"
+#include "../actionmanager/actioncontainer.h"
+#include "../actionmanager/actionmanager.h"
+#include "../actionsfilter.h"
+#include "../coreplugintr.h"
+#include "../editormanager/editormanager_p.h"
+#include "../icore.h"
+#include "../progressmanager/taskprogress.h"
+#include "../settingsdatabase.h"
+#include "../statusbarmanager.h"
 
-#include <coreplugin/coreplugin.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/settingsdatabase.h>
-#include <coreplugin/statusbarmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/editormanager_p.h>
-#include <coreplugin/actionsfilter.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
-#include <utils/mapreduce.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QAction>
 #include <QMainWindow>
-#include <QSettings>
 
 using namespace Utils;
 
@@ -65,8 +59,8 @@ public:
     ExternalToolsFilter m_externalToolsFilter;
     LocatorFiltersFilter m_locatorsFiltersFilter;
     ActionsFilter m_actionsFilter;
-    UrlLocatorFilter m_urlFilter{UrlLocatorFilter::tr("Web Search"), "RemoteHelpFilter"};
-    UrlLocatorFilter m_bugFilter{UrlLocatorFilter::tr("Qt Project Bugs"), "QtProjectBugs"};
+    UrlLocatorFilter m_urlFilter{Tr::tr("Web Search"), "RemoteHelpFilter"};
+    UrlLocatorFilter m_bugFilter{Tr::tr("Qt Project Bugs"), "QtProjectBugs"};
     SpotlightLocatorFilter m_spotlightLocatorFilter;
 };
 
@@ -107,9 +101,9 @@ void Locator::initialize()
 {
     m_locatorData = new LocatorData;
 
-    QAction *action = new QAction(Utils::Icons::ZOOM.icon(), tr("Locate..."), this);
+    QAction *action = new QAction(Utils::Icons::ZOOM.icon(), Tr::tr("Locate..."), this);
     Command *cmd = ActionManager::registerAction(action, Constants::LOCATE);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+K")));
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+K")));
     connect(action, &QAction::triggered, this, [] {
         LocatorManager::show(QString());
     });
@@ -154,10 +148,7 @@ ExtensionSystem::IPlugin::ShutdownFlag Locator::aboutToShutdown(
 {
     m_shuttingDown = true;
     m_refreshTimer.stop();
-    if (m_refreshTask.isRunning()) {
-        m_refreshTask.cancel();
-        m_refreshTask.waitForFinished();
-    }
+    m_taskTree.reset();
     return LocatorWidget::aboutToShutdown(emitAsynchronousShutdownFinished);
 }
 
@@ -249,7 +240,7 @@ void Locator::updateEditorManagerPlaceholderText()
 {
     Command *openCommand = ActionManager::command(Constants::OPEN);
     Command *locateCommand = ActionManager::command(Constants::LOCATE);
-    const QString placeholderText = tr("<html><body style=\"color:#909090; font-size:14px\">"
+    const QString placeholderText = Tr::tr("<html><body style=\"color:#909090; font-size:14px\">"
           "<div align='center'>"
           "<div style=\"font-size:20px\">Open a document</div>"
           "<table><tr><td>"
@@ -276,7 +267,7 @@ void Locator::updateEditorManagerPlaceholderText()
                                                          Utils::equal(&ILocatorFilter::id,
                                                                       Id("Classes")));
     if (classesFilter)
-        classes = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
+        classes = Tr::tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
                      " to jump to a class definition</div>").arg(classesFilter->shortcutString());
 
     QString methods;
@@ -284,7 +275,7 @@ void Locator::updateEditorManagerPlaceholderText()
     ILocatorFilter *methodsFilter = Utils::findOrDefault(m_filters, Utils::equal(&ILocatorFilter::id,
                                                                                  Id("Methods")));
     if (methodsFilter)
-        methods = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
+        methods = Tr::tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
                      " to jump to a function definition</div>").arg(methodsFilter->shortcutString());
 
     EditorManagerPrivate::setPlaceholderText(placeholderText.arg(classes, methods));
@@ -380,28 +371,38 @@ void Locator::setUseCenteredPopupForShortcut(bool center)
     m_instance->m_settings.useCenteredPopup = center;
 }
 
-void Locator::refresh(QList<ILocatorFilter *> filters)
+void Locator::refresh(const QList<ILocatorFilter *> &filters)
 {
     if (m_shuttingDown)
         return;
 
-    if (m_refreshTask.isRunning()) {
-        m_refreshTask.cancel();
-        m_refreshTask.waitForFinished();
-        // this is not ideal because some of the previous filters might have finished, but we
-        // currently cannot find out which part of a map-reduce has finished
-        filters = Utils::filteredUnique(m_refreshingFilters + filters);
+    m_taskTree.reset(); // Superfluous, just for clarity. The next reset() below is enough.
+    m_refreshingFilters = Utils::filteredUnique(m_refreshingFilters + filters);
+
+    using namespace Tasking;
+    QList<TaskItem> tasks{parallel};
+    for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
+        const auto setupRefresh = [filter](AsyncTask<void> &async) {
+            async.setAsyncCallData(&ILocatorFilter::refresh, filter);
+        };
+        const auto onRefreshDone = [this, filter](const AsyncTask<void> &async) {
+            Q_UNUSED(async)
+            m_refreshingFilters.removeOne(filter);
+        };
+        tasks.append(Async<void>(setupRefresh, onRefreshDone));
     }
-    m_refreshingFilters = filters;
-    m_refreshTask = Utils::map(filters, &ILocatorFilter::refresh, Utils::MapReduceOption::Unordered);
-    ProgressManager::addTask(m_refreshTask, tr("Updating Locator Caches"), Constants::TASK_INDEX);
-    Utils::onFinished(m_refreshTask, this, [this](const QFuture<void> &future) {
-        if (!future.isCanceled()) {
-            saveSettings();
-            m_refreshingFilters.clear();
-            m_refreshTask = QFuture<void>();
-        }
+
+    m_taskTree.reset(new TaskTree{tasks});
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
+        saveSettings();
+        m_taskTree.release()->deleteLater();
     });
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
+        m_taskTree.release()->deleteLater();
+    });
+    auto progress = new TaskProgress(m_taskTree.get());
+    progress->setDisplayName(Tr::tr("Updating Locator Caches"));
+    m_taskTree->start();
 }
 
 void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)

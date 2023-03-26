@@ -16,7 +16,7 @@
 
     The \e {code model} is the part of an IDE that understands the language you
     are using to write your application. It is the framework that allows \QC
-    to provide the following services:
+    to offer the following services:
 
     \list
 
@@ -42,17 +42,17 @@
 
     \endlist
 
-    \QC comes with a plugin that provides some of these services
+    The Clang code model plugin offers some of these services
     for C++ on top of \l{https://clangd.llvm.org/}{Clangd}.
 
     \section1 About the Clang Code Model
 
-    The Clang project provides libraries for parsing
+    The Clang project has libraries for parsing
     C language family source files. The feedback you get through warning and
     error markers is the same as a compiler will give you, not an incomplete
     set or a close approximation, as when using the built-in \QC code model.
     Clang focuses on detailed information for diagnostics, which is really
-    useful if the code contains typos, for example.
+    useful if the code has typos, for example.
     We make use of these libraries via the clangd tool, which implements
     an \l{https://microsoft.github.io/language-server-protocol/}{LSP} server.
 
@@ -67,9 +67,8 @@
     include several files, processing a single file and all the included files
     can take a while.
 
-    The Clang code model plugin now provides some of the services that were
-    previously provided by the built-in C/C++ code model. Currently, the
-    following services are implemented:
+    The Clang code model plugin now offers some of the same services as the
+    built-in C/C++ code model:
 
     \list
 
@@ -87,7 +86,7 @@
     To use the built-in code model instead, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol C++ > \uicontrol clangd, and deselect the \uicontrol {Use clangd} check box.
     This setting also exists on the project level, so that you can have the clang-based
-    services generally enabled, but switch them off for for certain projects, or vice versa.
+    services generally enabled, but switch them off for certain projects, or vice versa.
 
     You can configure Clang diagnostics either globally or separately for:
 
@@ -105,7 +104,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
             \uicontrol {Code Model}.
 
-            \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
+            \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
 
         \li To instruct the code model to interpret ambiguous header files as C
             language files if you develop mainly using C, select the
@@ -128,6 +127,10 @@
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
 
+        \li To ignore files that match wildcard patterns, select the
+            \uicontrol {Ignore files} check box and enter each wildcard pattern
+            on a separate line in the field.
+
     \endlist
 
     \section1 Configuring clangd
@@ -140,8 +143,14 @@
     re-scanning is incremental, so nothing is lost by closing and re-starting
     \QC.
 
+    To temporarily disable global indexing, select
+    \uicontrol {Toggle Progress Details} (1), and then select \uicontrol X on
+    the progress bar.
+
+    \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
+
     By default, \QC runs one clangd process per project. If you have created
-    \l{Managing Sessions}{sessions} that contain related projects, you can
+    \l{Managing Sessions}{sessions} that have related projects, you can
     specify that the projects in the session should be managed by a single
     clangd process.
 

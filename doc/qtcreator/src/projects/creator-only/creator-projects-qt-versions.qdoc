@@ -15,7 +15,7 @@
     \title Adding Qt Versions
 
     You can install multiple versions of Qt development PC and use them to build
-    your projects. For example, \l{glossary-device}{device} manufacturers provide
+    your projects. For example, \l{glossary-device}{device} manufacturers offer
     special Qt versions for developing applications for their devices.
 
     \section1 Registering Installed Qt Versions

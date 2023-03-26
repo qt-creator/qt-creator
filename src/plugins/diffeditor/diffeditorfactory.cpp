@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "diffeditorfactory.h"
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
-#include "diffeditorfactory.h"
+#include "diffeditortr.h"
 
 #include "texteditor/texteditoractionhandler.h"
 
@@ -44,7 +45,7 @@ DiffEditorFactory::DiffEditorFactory() :
     }
 {
     setId(Constants::DIFF_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME));
+    setDisplayName(Tr::tr("Diff Editor"));
     addMimeType(Constants::DIFF_EDITOR_MIMETYPE);
     setEditorCreator([] { return new DiffEditor(new DiffEditorDocument); });
 }

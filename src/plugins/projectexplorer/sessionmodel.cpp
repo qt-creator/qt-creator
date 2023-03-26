@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sessionmodel.h"
-#include "session.h"
 
+#include "projectexplorertr.h"
+#include "session.h"
 #include "sessiondialog.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -46,9 +47,9 @@ QVariant SessionModel::headerData(int section, Qt::Orientation orientation, int 
         switch (role) {
         case Qt::DisplayRole:
             switch (section) {
-            case 0: result = tr("Session");
+            case 0: result = Tr::tr("Session");
                 break;
-            case 1: result = tr("Last Modified");
+            case 1: result = Tr::tr("Last Modified");
                 break;
             } // switch (section)
             break;
@@ -74,18 +75,14 @@ int SessionModel::rowCount(const QModelIndex &) const
     return m_sortedSessions.count();
 }
 
-QStringList pathsToBaseNames(const QStringList &paths)
+QStringList pathsToBaseNames(const FilePaths &paths)
 {
-    return Utils::transform(paths, [](const QString &path) {
-        return QFileInfo(path).completeBaseName();
-    });
+    return Utils::transform(paths, &FilePath::completeBaseName);
 }
 
-QStringList pathsWithTildeHomePath(const QStringList &paths)
+QStringList pathsWithTildeHomePath(const FilePaths &paths)
 {
-    return Utils::transform(paths, [](const QString &path) {
-        return Utils::withTildeHomePath(QDir::toNativeSeparators(path));
-    });
+    return Utils::transform(paths, &FilePath::withTildeHomePath);
 }
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const
@@ -198,8 +195,8 @@ void SessionModel::resetSessions()
 void SessionModel::newSession(QWidget *parent)
 {
     SessionNameInputDialog sessionInputDialog(parent);
-    sessionInputDialog.setWindowTitle(tr("New Session Name"));
-    sessionInputDialog.setActionText(tr("&Create"), tr("Create and &Open"));
+    sessionInputDialog.setWindowTitle(Tr::tr("New Session Name"));
+    sessionInputDialog.setActionText(Tr::tr("&Create"), Tr::tr("Create and &Open"));
 
     runSessionNameInputDialog(&sessionInputDialog, [](const QString &newName) {
         SessionManager::createSession(newName);
@@ -209,8 +206,8 @@ void SessionModel::newSession(QWidget *parent)
 void SessionModel::cloneSession(QWidget *parent, const QString &session)
 {
     SessionNameInputDialog sessionInputDialog(parent);
-    sessionInputDialog.setWindowTitle(tr("New Session Name"));
-    sessionInputDialog.setActionText(tr("&Clone"), tr("Clone and &Open"));
+    sessionInputDialog.setWindowTitle(Tr::tr("New Session Name"));
+    sessionInputDialog.setActionText(Tr::tr("&Clone"), Tr::tr("Clone and &Open"));
     sessionInputDialog.setValue(session + " (2)");
 
     runSessionNameInputDialog(&sessionInputDialog, [session](const QString &newName) {
@@ -232,8 +229,8 @@ void SessionModel::deleteSessions(const QStringList &sessions)
 void SessionModel::renameSession(QWidget *parent, const QString &session)
 {
     SessionNameInputDialog sessionInputDialog(parent);
-    sessionInputDialog.setWindowTitle(tr("Rename Session"));
-    sessionInputDialog.setActionText(tr("&Rename"), tr("Rename and &Open"));
+    sessionInputDialog.setWindowTitle(Tr::tr("Rename Session"));
+    sessionInputDialog.setActionText(Tr::tr("&Rename"), Tr::tr("Rename and &Open"));
     sessionInputDialog.setValue(session);
 
     runSessionNameInputDialog(&sessionInputDialog, [session](const QString &newName) {

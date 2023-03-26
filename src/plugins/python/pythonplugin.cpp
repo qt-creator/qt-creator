@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythonplugin.h"
 
@@ -20,8 +20,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 static PythonPlugin *m_instance = nullptr;
 
@@ -33,12 +32,8 @@ public:
     PythonRunConfigurationFactory runConfigFactory;
     PySideBuildStepFactory buildStepFactory;
     PySideBuildConfigurationFactory buildConfigFactory;
-
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
+    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
+    PythonSettings settings;
 };
 
 PythonPlugin::PythonPlugin()
@@ -57,18 +52,11 @@ PythonPlugin *PythonPlugin::instance()
     return m_instance;
 }
 
-bool PythonPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void PythonPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
-
-    PythonSettings::init();
-
-    return true;
 }
 
 void PythonPlugin::extensionsInitialized()
@@ -81,5 +69,4 @@ void PythonPlugin::extensionsInitialized()
     TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

@@ -1,17 +1,9 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classviewparser.h"
-#include "classviewconstants.h"
-#include "classviewutils.h"
 
-// cplusplus shared library. the same folder (cplusplus)
-#include <cplusplus/Symbol.h>
-
-// other
 #include <cppeditor/cppmodelmanager.h>
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QElapsedTimer>
 #include <QDebug>
@@ -223,7 +215,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
     if (doc.isNull())
         return ParserTreeItem::ConstPtr();
 
-    const FilePath fileName = FilePath::fromString(doc->fileName());
+    const FilePath fileName = doc->filePath();
 
     ParserTreeItem::ConstPtr itemPtr = ParserTreeItem::parseDocument(doc);
 
@@ -243,8 +235,7 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
     if (doc.isNull())
         return ParserTreeItem::ConstPtr();
 
-    const QString &fileName = doc->fileName();
-    const auto it = d->m_documentCache.constFind(FilePath::fromString(fileName));
+    const auto it = d->m_documentCache.constFind(doc->filePath());
     if (it != d->m_documentCache.constEnd() && !it.value().tree.isNull()
             && it.value().treeRevision == doc->revision()) {
         return it.value().tree;

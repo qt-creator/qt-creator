@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsbaseeditorconfig.h"
+
+#include "vcsbasetr.h"
 
 #include <utils/aspects.h>
 #include <utils/utilsicons.h>
@@ -9,7 +11,6 @@
 #include <QAction>
 #include <QComboBox>
 #include <QDebug>
-#include <QHBoxLayout>
 #include <QStringList>
 
 using namespace Utils;
@@ -130,7 +131,7 @@ void VcsBaseEditorConfig::setBaseArguments(const QStringList &b)
 
 QAction *VcsBaseEditorConfig::addReloadButton()
 {
-    auto action = new QAction(Utils::Icons::RELOAD_TOOLBAR.icon(), tr("Reload"), d->m_toolBar);
+    auto action = new QAction(Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload"), d->m_toolBar);
     connect(action, &QAction::triggered, this, &VcsBaseEditorConfig::argumentsChanged);
     addAction(action);
     return action;

@@ -1,14 +1,11 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
-#include <qglobal.h>
-
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 enum class QdbTool {
     FlashingWizard,
@@ -21,5 +18,4 @@ void showMessage(const QString &message, bool important = false);
 QString settingsGroupKey();
 QString settingsKey(QdbTool tool);
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

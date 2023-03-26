@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pxnodeutilities.h"
 
@@ -219,12 +219,12 @@ bool PxNodeUtilities::isProxyHeader(const QString &file) const
     CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
-    CPlusPlus::Document::Ptr document = snapshot.document(file);
+    CPlusPlus::Document::Ptr document = snapshot.document(Utils::FilePath::fromString(file));
     if (document) {
         QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
         if (includes.count() != 1)
             return false;
-        return QFileInfo(includes.at(0).resolvedFileName()).fileName() == QFileInfo(file).fileName();
+        return includes.at(0).resolvedFileName().fileName() == QFileInfo(file).fileName();
     }
     return false;
 }

@@ -1,10 +1,11 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "mcutarget.h"
 #include "mcukitmanager.h"
 #include "mcupackage.h"
 #include "mcusupportplugin.h"
+#include "mcusupporttr.h"
+#include "mcutarget.h"
 
 #include <utils/algorithm.h>
 
@@ -86,13 +87,13 @@ void McuTarget::printPackageProblems() const
     for (auto package : packages()) {
         package->updateStatus();
         if (!package->isValidStatus())
-            printMessage(tr("Error creating kit for target %1, package %2: %3")
+            printMessage(Tr::tr("Error creating kit for target %1, package %2: %3")
                              .arg(McuKitManager::generateKitNameFromTarget(this),
                                   package->label(),
                                   package->statusText()),
                          true);
         if (package->status() == McuAbstractPackage::Status::ValidPackageMismatchedVersion)
-            printMessage(tr("Warning creating kit for target %1, package %2: %3")
+            printMessage(Tr::tr("Warning creating kit for target %1, package %2: %3")
                              .arg(McuKitManager::generateKitNameFromTarget(this),
                                   package->label(),
                                   package->statusText()),

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectpart.h"
 
@@ -163,6 +163,7 @@ CPlusPlus::LanguageFeatures ProjectPart::deriveLanguageFeatures() const
     CPlusPlus::LanguageFeatures features;
     features.cxx11Enabled = languageVersion >= Utils::LanguageVersion::CXX11;
     features.cxx14Enabled = languageVersion >= Utils::LanguageVersion::CXX14;
+    features.cxx20Enabled = languageVersion >= Utils::LanguageVersion::CXX20;
     features.cxxEnabled = hasCxx;
     features.c99Enabled = languageVersion >= Utils::LanguageVersion::C99;
     features.objCEnabled = languageExtensions.testFlag(Utils::LanguageExtension::ObjectiveC);

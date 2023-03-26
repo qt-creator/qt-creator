@@ -1,5 +1,5 @@
 // Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nimblebuildsystem.h"
 
@@ -22,7 +22,7 @@ const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
 
 static QList<QByteArray> linesFromProcessOutput(QtcProcess *process)
 {
-    QList<QByteArray> lines = process->readAllStandardOutput().split('\n');
+    QList<QByteArray> lines = process->readAllRawStandardOutput().split('\n');
     lines = Utils::transform(lines, [](const QByteArray &line){ return line.trimmed(); });
     Utils::erase(lines, [](const QByteArray &line) { return line.isEmpty(); });
     return lines;

@@ -1,5 +1,5 @@
 # Copyright (C) 2016 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 try:
     import __builtin__
@@ -1004,8 +1004,11 @@ class Dumper(DumperBase):
 
     def importPlainDumpersForObj(self, obj):
         for printers in obj.pretty_printers + gdb.pretty_printers:
-            for printer in printers.subprinters:
-                self.importPlainDumper(printer)
+            if hasattr(printers, "subprinters"):
+                for printer in printers.subprinters:
+                    self.importPlainDumper(printer)
+            else:
+                self.warn('Loading a printer without the subprinters attribute not supported.')
 
     def importPlainDumpers(self):
         for obj in gdb.objfiles():
@@ -1531,7 +1534,10 @@ class CliDumper(Dumper):
         for n in names:
             while n:
                 toExpand.add(n)
-                n = n[0:n.rfind('.')]
+                try:
+                    n = n[0:n.rindex('.')]
+                except ValueError:
+                    break
 
         args = {}
         args['fancy'] = 1

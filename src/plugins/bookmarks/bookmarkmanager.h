@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -31,7 +31,7 @@ public:
     ~BookmarkManager() final;
 
     void updateBookmark(Bookmark *bookmark);
-    void updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName);
+    void updateBookmarkFileName(Bookmark *bookmark, const Utils::FilePath &oldFilePath);
     void deleteBookmark(Bookmark *bookmark); // Does not remove the mark
     void removeAllBookmarks();
     Bookmark *bookmarkForIndex(const QModelIndex &index) const;

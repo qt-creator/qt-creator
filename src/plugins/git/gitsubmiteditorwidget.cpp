@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gitsubmiteditorwidget.h"
 
@@ -40,7 +40,7 @@ public:
 
         repositoryLabel = new QLabel(Tr::tr("repository"));
         branchLabel = new QLabel(Tr::tr("branch")); // FIXME: Isn't this overwritten soon?
-        showHeadLabel = new QLabel(Tr::tr("<a href=\"head\">Show HEAD</a>")); // FIXME: Simplify string in tr()
+        showHeadLabel = new QLabel("<a href=\"head\">" + Tr::tr("Show HEAD") + "</a>");
 
         authorLineEdit = new QLineEdit;
         authorLineEdit->setObjectName("authorLineEdit");

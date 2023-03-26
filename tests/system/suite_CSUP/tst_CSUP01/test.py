@@ -1,5 +1,5 @@
 # Copyright (C) 2022 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 source("../../shared/suites_qtta.py")
 source("../../shared/qtcreator.py")
@@ -31,7 +31,7 @@ def main():
             checkCodeModelSettings(useClang)
             changeAutocompleteToManual(False)
 # Step 2: Open .cpp file in Edit mode.
-            if not openDocument("SampleApp.SampleApp.Source Files.main\\.cpp"):
+            if not openDocument("SampleApp.appSampleApp.Source Files.main\\.cpp"):
                 test.fatal("Could not open main.cpp")
                 invokeMenuItem("File", "Exit")
                 return

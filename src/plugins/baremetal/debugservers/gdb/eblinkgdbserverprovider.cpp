@@ -1,5 +1,5 @@
 // Copyright (C) 2019 Andrey Sobol <andrey.sobol.nn@gmail.com>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "eblinkgdbserverprovider.h"
 
@@ -145,10 +145,10 @@ bool EBlinkGdbServerProvider::isValid() const
 QVariantMap EBlinkGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(executableFileKeyC, m_executableFile.toVariant());
+    data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(verboseLevelKeyC, m_verboseLevel);
     data.insert(interfaceTypeC, m_interfaceType);
-    data.insert(deviceScriptC, m_deviceScript.toVariant());
+    data.insert(deviceScriptC, m_deviceScript.toSettings());
     data.insert(interfaceResetOnConnectC, m_interfaceResetOnConnect);
     data.insert(interfaceSpeedC, m_interfaceSpeed);
     data.insert(interfaceExplicidDeviceC, m_interfaceExplicidDevice);
@@ -165,12 +165,12 @@ bool EBlinkGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
+    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_verboseLevel = data.value(verboseLevelKeyC).toInt();
     m_interfaceResetOnConnect = data.value(interfaceResetOnConnectC).toBool();
     m_interfaceType = static_cast<InterfaceType>(
                 data.value(interfaceTypeC).toInt());
-    m_deviceScript = FilePath::fromVariant(data.value(deviceScriptC));
+    m_deviceScript = FilePath::fromSettings(data.value(deviceScriptC));
     m_interfaceResetOnConnect = data.value(interfaceResetOnConnectC).toBool();
     m_interfaceSpeed = data.value(interfaceSpeedC).toInt();
     m_interfaceExplicidDevice = data.value(interfaceExplicidDeviceC).toString();

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Lorenz Haas
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -8,13 +8,10 @@
 #include "artisticstyleoptionspage.h"
 #include "artisticstylesettings.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ArtisticStyle : public BeautifierAbstractTool
 {
-    Q_OBJECT
-
 public:
     ArtisticStyle();
 
@@ -33,5 +30,4 @@ private:
     ArtisticStyleOptionsPage m_page{&m_settings};
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

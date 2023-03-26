@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -95,6 +95,9 @@ public:
     void updateMark(TextMark *mark);
     void moveMark(TextMark *mark, int previousLine);
     void removeMarkFromMarksCache(TextMark *mark);
+    static void temporaryHideMarksAnnotation(const Utils::Id &category);
+    static void showMarksAnnotation(const Utils::Id &category);
+    static bool marksAnnotationHidden(const Utils::Id &category);
 
     // IDocument implementation.
     bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;

@@ -1,9 +1,9 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "languageclientinterface.h"
 
-#include "languageclientsettings.h"
+#include "languageclienttr.h"
 
 #include <QLoggingCategory>
 
@@ -71,10 +71,17 @@ void BaseClientInterface::parseCurrentMessage()
     if (m_currentMessage.mimeType == JsonRpcMessage::jsonRpcMimeType()) {
         emit messageReceived(JsonRpcMessage(m_currentMessage));
     } else {
-        emit error(tr("Cannot handle MIME type of message %1")
+        emit error(Tr::tr("Cannot handle MIME type of message %1")
                        .arg(QString::fromUtf8(m_currentMessage.mimeType)));
     }
     m_currentMessage = BaseMessage();
+}
+
+StdIOClientInterface::StdIOClientInterface()
+    : m_logFile("lspclient.XXXXXX.log")
+{
+    m_logFile.setAutoRemove(false);
+    m_logFile.open();
 }
 
 StdIOClientInterface::~StdIOClientInterface()
@@ -88,7 +95,7 @@ void StdIOClientInterface::startImpl()
         QTC_CHECK(!m_process->isRunning());
         delete m_process;
     }
-    m_process = new Utils::QtcProcess;
+    m_process = new QtcProcess;
     m_process->setProcessMode(ProcessMode::Writer);
     connect(m_process, &QtcProcess::readyReadStandardError,
             this, &StdIOClientInterface::readError);
@@ -96,13 +103,17 @@ void StdIOClientInterface::startImpl()
             this, &StdIOClientInterface::readOutput);
     connect(m_process, &QtcProcess::started, this, &StdIOClientInterface::started);
     connect(m_process, &QtcProcess::done, this, [this] {
+        m_logFile.flush();
         if (m_process->result() != ProcessResult::FinishedWithSuccess)
-            emit error(m_process->exitMessage());
+            emit error(QString("%1 (see logs in \"%2\")")
+                           .arg(m_process->exitMessage())
+                           .arg(m_logFile.fileName()));
         emit finished();
     });
+    m_logFile.write(QString("Starting server: %1\nOutput:\n\n").arg(m_cmd.toUserOutput()).toUtf8());
     m_process->setCommand(m_cmd);
     m_process->setWorkingDirectory(m_workingDirectory);
-    if (m_env.isValid())
+    if (m_env.hasChanges())
         m_process->setEnvironment(m_env);
     m_process->start();
 }
@@ -117,15 +128,20 @@ void StdIOClientInterface::setWorkingDirectory(const FilePath &workingDirectory)
     m_workingDirectory = workingDirectory;
 }
 
-void StdIOClientInterface::setEnvironment(const Utils::Environment &environment)
+void StdIOClientInterface::setEnvironment(const Environment &environment)
 {
     m_env = environment;
+}
+
+FilePath StdIOClientInterface::serverDeviceTemplate() const
+{
+    return m_cmd.executable();
 }
 
 void StdIOClientInterface::sendData(const QByteArray &data)
 {
     if (!m_process || m_process->state() != QProcess::Running) {
-        emit error(tr("Cannot send data to unstarted server %1")
+        emit error(Tr::tr("Cannot send data to unstarted server %1")
             .arg(m_cmd.toUserOutput()));
         return;
     }
@@ -137,14 +153,18 @@ void StdIOClientInterface::sendData(const QByteArray &data)
 void StdIOClientInterface::readError()
 {
     QTC_ASSERT(m_process, return);
+
+    const QByteArray stdErr = m_process->readAllRawStandardError();
+    m_logFile.write(stdErr);
+
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std err:\n";
-    qCDebug(LOGLSPCLIENTV).noquote() << m_process->readAllStandardError();
+    qCDebug(LOGLSPCLIENTV).noquote() << stdErr;
 }
 
 void StdIOClientInterface::readOutput()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray &out = m_process->readAllStandardOutput();
+    const QByteArray &out = m_process->readAllRawStandardOutput();
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std out:\n";
     qCDebug(LOGLSPCLIENTV).noquote() << out;
     parseData(out);

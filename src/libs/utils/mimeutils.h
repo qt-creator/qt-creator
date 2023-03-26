@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR LGPL-3.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #pragma once
 
@@ -7,6 +7,8 @@
 
 #include <mimemagicrule_p.h>
 #include <mimetype.h>
+
+#include <functional>
 
 namespace Utils {
 
@@ -49,4 +51,8 @@ QTCREATOR_UTILS_EXPORT void setGlobPatternsForMimeType(const MimeType &mimeType,
 QTCREATOR_UTILS_EXPORT void setMagicRulesForMimeType(
     const MimeType &mimeType, const QMap<int, QList<MimeMagicRule>> &rules); // priority -> rules
 
+// visits all parents breadth-first
+// visitor should return false to break the loop, true to continue
+QTCREATOR_UTILS_EXPORT void visitMimeParents(
+    const MimeType &mimeType, const std::function<bool(const MimeType &mimeType)> &visitor);
 } // namespace Utils

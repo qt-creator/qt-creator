@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -31,7 +31,7 @@ public:
         auto widget = new ObjectToFieldWidgetConverter();
         widget->toVariantFunction = toVariantFunction;
         connect(sender, &QObject::destroyed, widget, &QObject::deleteLater);
-        connect(sender, member, widget, [widget]() { emit widget->valueChanged(widget->value()); });
+        connect(sender, member, widget, [widget] { emit widget->valueChanged(widget->value()); });
         return widget;
     }
 

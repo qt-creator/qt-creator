@@ -1,9 +1,10 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filterkitaspectsdialog.h"
 
 #include "kitmanager.h"
+#include "projectexplorertr.h"
 
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
@@ -80,7 +81,7 @@ class FilterKitAspectsModel : public TreeModel<TreeItem, FilterTreeItem>
 public:
     FilterKitAspectsModel(const Kit *kit, QObject *parent) : TreeModel(parent)
     {
-        setHeader({FilterKitAspectsDialog::tr("Setting"), FilterKitAspectsDialog::tr("Visible")});
+        setHeader({Tr::tr("Setting"), Tr::tr("Visible")});
         for (const KitAspect * const aspect : KitManager::kitAspects()) {
             if (kit && !aspect->isApplicableToKit(kit))
                 continue;

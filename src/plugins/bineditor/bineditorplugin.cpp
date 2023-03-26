@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bineditorplugin.h"
 
@@ -8,6 +8,7 @@
 #include "bineditortr.h"
 #include "bineditorwidget.h"
 
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
 
@@ -416,7 +417,7 @@ BinEditorPluginPrivate::BinEditorPluginPrivate()
     ExtensionSystem::PluginManager::addObject(&m_factoryService);
     ExtensionSystem::PluginManager::addObject(&m_editorFactory);
 
-    m_undoAction = new QAction(BinEditorPlugin::tr("&Undo"), this);
+    m_undoAction = new QAction(Tr::tr("&Undo"), this);
     m_redoAction = new QAction(Tr::tr("&Redo"), this);
     m_copyAction = new QAction(this);
     m_selectAllAction = new QAction(this);
@@ -444,7 +445,7 @@ static BinEditorPluginPrivate *dd = nullptr;
 BinEditorFactory::BinEditorFactory()
 {
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Binary Editor"));
+    setDisplayName(::Core::Tr::tr("Binary Editor"));
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 
     setEditorCreator([] {
@@ -502,14 +503,9 @@ BinEditorPlugin::~BinEditorPlugin()
     dd = nullptr;
 }
 
-bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void BinEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new BinEditorPluginPrivate;
-
-    return true;
 }
 
 } // BinEditor::Internal

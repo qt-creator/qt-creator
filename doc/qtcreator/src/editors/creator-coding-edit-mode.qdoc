@@ -28,7 +28,7 @@
     open in the editor.
 
     \if defined(qtcreator)
-    \image qtcreator-editortoolbar-symbols.png
+    \image qtcreator-editortoolbar-symbols.webp {Edit mode toolbar}
     \else
     \image studio-edit-mode.png
     \endif
@@ -48,7 +48,7 @@
     \uicontrol Window > \uicontrol {Go to Last Edit}.
 
     To go to any open file, select it from the \uicontrol {Open files} drop-down
-    menu (1). To open a context menu that contains commands for managing open
+    menu (1). To open a context menu that has commands for managing open
     files, right-click the file name or icon on the toolbar. In addition to the
     commands also available in the \uicontrol File menu, you can copy the path
     and name of the current file and the number of the line where the cursor is
@@ -66,8 +66,8 @@
     \l{Searching with the Locator}{locator}. Enter the line number and column
     number in the locator, separated by a colon (:).
 
-    \note Other convenient ways of navigating in \QC are provided
-    by the \l{Browsing Project Contents}{sidebars}.
+    \note You can also use the \l{Browsing Project Contents}{sidebars} to
+    move around in \QC.
 
     \if defined(qtcreator)
     \section2 Selecting Parse Context
@@ -116,11 +116,21 @@
     \uicontrol {Project Settings} > \uicontrol Editor.
     \if defined(qtcreator)
     For more information, see \l {Specifying Editor Settings}.
+
+    \section2 Managing Language Servers
+
+    Select the \inlineimage icons/languageclient.png
+    icon on the editor toolbar (7) to view the \l{Using Language Servers}
+    {language server} for the current project. You can restart the language
+    server or select another one in the menu. Also, you can
+    \l{Inspecting Language Clients}{inspect the communication} between \QC
+    and language servers and view server capabilities, as well as
+    \l{Specifying Settings for Language Clients}{set language server preferences}.
     \endif
 
     \section1 Editing Selected Lines
 
-    The \uicontrol Edit > \uicontrol Advanced menu contains options for editing
+    The \uicontrol Edit > \uicontrol Advanced menu has options for editing
     selected lines of text.
 
     To duplicate the selected lines, select \uicontrol {Duplicate Selection}.

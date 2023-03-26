@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "infobar.h"
 
@@ -7,6 +7,7 @@
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -268,7 +269,7 @@ void InfoBarDisplay::update()
 {
     for (QWidget *widget : std::as_const(m_infoWidgets)) {
         widget->disconnect(this); // We want no destroyed() signal now
-        delete widget;
+        widget->deleteLater();
     }
     m_infoWidgets.clear();
 
@@ -299,8 +300,8 @@ void InfoBarDisplay::update()
             auto showDetailsButton = new QToolButton;
             showDetailsButton->setCheckable(true);
             showDetailsButton->setChecked(m_isShowingDetailsWidget);
-            showDetailsButton->setText(tr("&Show Details"));
-            connect(showDetailsButton, &QToolButton::clicked, [this, vbox, info] (bool) {
+            showDetailsButton->setText(Tr::tr("&Show Details"));
+            connect(showDetailsButton, &QToolButton::clicked, this, [this, vbox, info] (bool) {
                 QWidget *detailsWidget = vbox->count() == 2 ? vbox->itemAt(1)->widget() : nullptr;
                 if (!detailsWidget) {
                     detailsWidget = info.m_detailsWidgetCreator();
@@ -323,7 +324,7 @@ void InfoBarDisplay::update()
                 cb->addItem(comboInfo.displayText, comboInfo.data);
             if (info.m_combo.currentIndex >= 0 && info.m_combo.currentIndex < cb->count())
                 cb->setCurrentIndex(info.m_combo.currentIndex);
-            connect(cb, &QComboBox::currentIndexChanged, this, [cb, info]() {
+            connect(cb, &QComboBox::currentIndexChanged, this, [cb, info] {
                 info.m_combo.callback({cb->currentText(), cb->currentData()});
             }, Qt::QueuedConnection);
 
@@ -334,7 +335,7 @@ void InfoBarDisplay::update()
             auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(button.text);
             infoWidgetButton->setToolTip(button.tooltip);
-            connect(infoWidgetButton, &QAbstractButton::clicked, [button]() { button.callback(); });
+            connect(infoWidgetButton, &QAbstractButton::clicked, [button] { button.callback(); });
             hbox->addWidget(infoWidgetButton);
         }
 
@@ -342,7 +343,7 @@ void InfoBarDisplay::update()
         QToolButton *infoWidgetSuppressButton = nullptr;
         if (info.m_globalSuppression == InfoBarEntry::GlobalSuppression::Enabled) {
             infoWidgetSuppressButton = new QToolButton;
-            infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
+            infoWidgetSuppressButton->setText(Tr::tr("Do Not Show Again"));
             connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
                 m_infoBar->removeInfo(id);
                 InfoBar::globallySuppressInfo(id);
@@ -361,26 +362,21 @@ void InfoBarDisplay::update()
             });
         }
 
-        if (info.m_cancelButtonText.isEmpty()) {
-            if (infoWidgetCloseButton) {
+        if (infoWidgetCloseButton) {
+            if (info.m_cancelButtonText.isEmpty()) {
                 infoWidgetCloseButton->setAutoRaise(true);
                 infoWidgetCloseButton->setIcon(Icons::CLOSE_FOREGROUND.icon());
-                infoWidgetCloseButton->setToolTip(tr("Close"));
-            }
-
-            if (infoWidgetSuppressButton)
-                hbox->addWidget(infoWidgetSuppressButton);
-
-            if (infoWidgetCloseButton)
-                hbox->addWidget(infoWidgetCloseButton);
-        } else {
-            if (infoWidgetCloseButton) {
+                infoWidgetCloseButton->setToolTip(Tr::tr("Close"));
+            } else {
                 infoWidgetCloseButton->setText(info.m_cancelButtonText);
-                hbox->addWidget(infoWidgetCloseButton);
             }
-            if (infoWidgetSuppressButton)
-                hbox->addWidget(infoWidgetSuppressButton);
         }
+
+        if (infoWidgetSuppressButton)
+            hbox->addWidget(infoWidgetSuppressButton);
+
+        if (infoWidgetCloseButton)
+            hbox->addWidget(infoWidgetCloseButton);
 
         connect(infoWidget, &QObject::destroyed, this, [this, infoWidget] {
             m_infoWidgets.removeOne(infoWidget);

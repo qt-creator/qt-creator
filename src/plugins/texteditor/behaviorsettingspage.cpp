@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "behaviorsettingspage.h"
 
@@ -12,6 +12,7 @@
 #include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
+#include "texteditortr.h"
 #include "typingsettings.h"
 
 #include <coreplugin/icore.h>
@@ -55,7 +56,7 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate()
 {
     // global tab preferences for all other languages
     m_codeStyle = new SimpleCodeStylePreferences(this);
-    m_codeStyle->setDisplayName(tr("Global", "Settings"));
+    m_codeStyle->setDisplayName(Tr::tr("Global", "Settings"));
     m_codeStyle->setId(Constants::GLOBAL_SETTINGS_ID);
 
     // default pool for all other languages
@@ -75,10 +76,10 @@ BehaviorSettingsPage::BehaviorSettingsPage()
 {
     // Add the GUI used to configure the tab, storage and interaction settings
     setId(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
-    setDisplayName(tr("Behavior"));
+    setDisplayName(Tr::tr("Behavior"));
 
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 

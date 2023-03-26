@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "localhelpmanager.h"
 
@@ -33,6 +33,7 @@
 #include <QDesktopServices>
 #include <QFontDatabase>
 #include <QHelpEngine>
+#include <QHelpLink>
 #include <QMutexLocker>
 
 #include <optional>
@@ -520,4 +521,9 @@ bool LocalHelpManager::openOnlineHelp(const QUrl &url)
         return true;
     }
     return false;
+}
+
+QMultiMap<QString, QUrl> LocalHelpManager::linksForKeyword(const QString &keyword)
+{
+    return HelpManager::linksForKeyword(&LocalHelpManager::helpEngine(), keyword, std::nullopt);
 }

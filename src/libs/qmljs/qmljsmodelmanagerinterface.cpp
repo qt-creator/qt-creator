@@ -1,15 +1,17 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "qmljsmodelmanagerinterface.h"
 
 #include "qmljsbind.h"
 #include "qmljsconstants.h"
+#include "qmljsdialect.h"
 #include "qmljsfindexportedcpptypes.h"
 #include "qmljsinterpreter.h"
-#include "qmljsmodelmanagerinterface.h"
 #include "qmljsplugindumper.h"
-#include "qmljsdialect.h"
-#include "qmljsviewercontext.h"
+#include "qmljstr.h"
 #include "qmljsutils.h"
+#include "qmljsviewercontext.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <utils/algorithm.h>
@@ -343,7 +345,7 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QList<Utils::FileP
     addFuture(result);
 
     if (sourceFiles.count() > 1)
-         addTaskInternal(result, tr("Parsing QML Files"), Constants::TASK_INDEX);
+         addTaskInternal(result, Tr::tr("Parsing QML Files"), Constants::TASK_INDEX);
 
     if (sourceFiles.count() > 1 && !m_shouldScanImports) {
         bool scan = false;
@@ -449,13 +451,18 @@ bool pInfoLessThanImports(const ModelManagerInterface::ProjectInfo &p1,
 
 }
 
+inline void combine(QSet<FilePath> &set, const QList<FilePath> &list)
+{
+    for (const FilePath &path : list)
+        set.insert(path);
+}
+
 static QSet<Utils::FilePath> generatedQrc(
     const QList<ModelManagerInterface::ProjectInfo> &projectInfos)
 {
     QSet<Utils::FilePath> res;
     for (const auto &pInfo : projectInfos) {
-        for (const auto &generatedQrcFile: pInfo.generatedQrcFiles)
-            res.insert(generatedQrcFile);
+        combine(res, pInfo.generatedQrcFiles);
     }
     return res;
 }
@@ -475,24 +482,20 @@ void ModelManagerInterface::iterateQrcFiles(
             Utils::sort(pInfos, &pInfoLessThanAll);
     }
 
-    QSet<Utils::FilePath> pathsChecked;
+    QSet<Utils::FilePath> allQrcs = generatedQrc(pInfos);
+
     for (const ModelManagerInterface::ProjectInfo &pInfo : std::as_const(pInfos)) {
-        QList<Utils::FilePath> qrcFilePaths;
         if (resources == ActiveQrcResources)
-            qrcFilePaths = pInfo.activeResourceFiles;
+            combine(allQrcs, pInfo.activeResourceFiles);
         else
-            qrcFilePaths = pInfo.allResourceFiles;
-        for (const Utils::FilePath &p : generatedQrc({pInfo}))
-            qrcFilePaths.append(p);
-        for (const Utils::FilePath &qrcFilePath : std::as_const(qrcFilePaths)) {
-            if (pathsChecked.contains(qrcFilePath))
-                continue;
-            pathsChecked.insert(qrcFilePath);
-            QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath.toString());
-            if (qrcFile.isNull())
-                continue;
-            callback(qrcFile);
-        }
+            combine(allQrcs, pInfo.allResourceFiles);
+    }
+
+    for (const Utils::FilePath &qrcFilePath : std::as_const(allQrcs)) {
+        QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath.toFSPathString());
+        if (qrcFile.isNull())
+            continue;
+        callback(qrcFile);
     }
 }
 
@@ -875,7 +878,7 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
     }
 
     // found a new library!
-    const std::optional<QByteArray> contents = qmldirFile.fileContents();
+    const expected_str<QByteArray> contents = qmldirFile.fileContents();
     if (!contents)
         return false;
     QString qmldirData = QString::fromUtf8(*contents);
@@ -985,7 +988,7 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
             contents = entry.first;
             documentRevision = entry.second;
         } else {
-            const std::optional<QByteArray> fileContents = fileName.fileContents();
+            const expected_str<QByteArray> fileContents = fileName.fileContents();
             if (fileContents) {
                 QTextStream ins(*fileContents);
                 contents = ins.readAll();
@@ -1208,7 +1211,7 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
                                                workingCopyInternal(), pathToScan,
                                                this, true, true, false);
         addFuture(result);
-        addTaskInternal(result, tr("Scanning QML Imports"), Constants::TASK_IMPORT_SCAN);
+        addTaskInternal(result, Tr::tr("Scanning QML Imports"), Constants::TASK_IMPORT_SCAN);
     }
 }
 
@@ -1350,10 +1353,10 @@ void ModelManagerInterface::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document
 
 void ModelManagerInterface::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan)
 {
-    QPair<CPlusPlus::Document::Ptr, bool> prev = m_queuedCppDocuments.value(doc->fileName());
+    QPair<CPlusPlus::Document::Ptr, bool> prev = m_queuedCppDocuments.value(doc->filePath().path());
     if (prev.first && prev.second)
         prev.first->releaseSourceAndAST();
-    m_queuedCppDocuments.insert(doc->fileName(), {doc, scan});
+    m_queuedCppDocuments.insert(doc->filePath().path(), {doc, scan});
     m_updateCppQmlTypesTimer->start();
 }
 
@@ -1439,13 +1442,13 @@ void ModelManagerInterface::updateCppQmlTypes(
 
         CPlusPlus::Document::Ptr doc = pair.first;
         const bool scan = pair.second;
-        const QString fileName = doc->fileName();
+        const FilePath filePath = doc->filePath();
         if (!scan) {
-            hasNewInfo = newData.remove(fileName) || hasNewInfo;
-            const auto savedDocs = newDeclarations.value(fileName);
+            hasNewInfo = newData.remove(filePath.path()) || hasNewInfo;
+            const auto savedDocs = newDeclarations.value(filePath.path());
             for (const CPlusPlus::Document::Ptr &savedDoc : savedDocs) {
                 finder(savedDoc);
-                hasNewInfo = rescanExports(savedDoc->fileName(), finder, newData) || hasNewInfo;
+                hasNewInfo = rescanExports(savedDoc->filePath().path(), finder, newData) || hasNewInfo;
             }
             continue;
         }
@@ -1453,7 +1456,7 @@ void ModelManagerInterface::updateCppQmlTypes(
         for (auto it = newDeclarations.begin(), end = newDeclarations.end(); it != end;) {
             for (auto docIt = it->begin(), endDocIt = it->end(); docIt != endDocIt;) {
                 const CPlusPlus::Document::Ptr &savedDoc = *docIt;
-                if (savedDoc->fileName() == fileName) {
+                if (savedDoc->filePath() == filePath) {
                     savedDoc->releaseSourceAndAST();
                     it->erase(docIt);
                     break;
@@ -1472,7 +1475,7 @@ void ModelManagerInterface::updateCppQmlTypes(
             doc->keepSourceAndAST(); // keep for later reparsing when dependent doc changes
         }
 
-        hasNewInfo = rescanExports(fileName, finder, newData) || hasNewInfo;
+        hasNewInfo = rescanExports(filePath.path(), finder, newData) || hasNewInfo;
         doc->releaseSourceAndAST();
     }
 

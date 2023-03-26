@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppeditoroutline.h"
 
 #include "cppeditordocument.h"
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppoutlinemodel.h"
@@ -95,7 +96,7 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     m_combo->setMaxVisibleItems(40);
 
     m_combo->setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_sortAction = new QAction(tr("Sort Alphabetically"), m_combo);
+    m_sortAction = new QAction(Tr::tr("Sort Alphabetically"), m_combo);
     m_sortAction->setCheckable(true);
     m_sortAction->setChecked(isSorted());
     connect(m_sortAction, &QAction::toggled,
@@ -123,7 +124,7 @@ QWidget *CppEditorOutline::widget() const
     return m_combo;
 }
 
-QSharedPointer<CPlusPlus::Document> getDocument(const QString &filePath)
+QSharedPointer<CPlusPlus::Document> getDocument(const Utils::FilePath &filePath)
 {
     const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
     return snapshot.document(filePath);

@@ -1,5 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -131,7 +131,6 @@ struct ClientType {
 
 class LANGUAGECLIENT_EXPORT LanguageClientSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(LanguageClientSettings)
 public:
     static void init();
     static QList<BaseSettings *> fromSettings(QSettings *settings);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "arrowitem.h"
 
@@ -454,7 +454,7 @@ void ArrowItem::updateHeadGeometry(QGraphicsItem *headItem, const QPointF &pos, 
 
     QVector2D directionVector(pos - otherPos);
     directionVector.normalize();
-    double angle = qAcos(directionVector.x()) * 180.0 / 3.1415926535;
+    double angle = qAcos(directionVector.x()) * 180.0 / M_PI;
     if (directionVector.y() > 0.0)
         angle = -angle;
     headItem->setRotation(-angle);

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "basehoverhandler.h"
 #include "texteditor.h"
@@ -17,6 +17,11 @@ BaseHoverHandler::~BaseHoverHandler() = default;
 void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point)
 {
     operateTooltip(widget, point);
+}
+
+bool BaseHoverHandler::lastHelpItemAppliesTo(const TextEditorWidget *widget) const
+{
+    return m_lastWidget == widget;
 }
 
 void BaseHoverHandler::checkPriority(TextEditorWidget *widget,
@@ -106,8 +111,12 @@ void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority
     m_toolTip.clear();
     m_priority = -1;
     m_lastHelpItemIdentified = Core::HelpItem();
+    m_lastWidget = nullptr;
 
-    identifyMatch(widget, pos, report);
+    identifyMatch(widget, pos, [this, widget, report](int priority) {
+        m_lastWidget = widget;
+        report(priority);
+    });
 }
 
 void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)

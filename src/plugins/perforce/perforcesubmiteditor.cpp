@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "perforcesubmiteditor.h"
 #include "perforcesubmiteditorwidget.h"
-#include "perforceplugin.h"
+#include "perforcetr.h"
 
 #include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
@@ -11,8 +11,7 @@
 
 #include <QRegularExpression>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 enum { FileSpecRole = Qt::UserRole + 1 };
 
@@ -20,7 +19,7 @@ PerforceSubmitEditor::PerforceSubmitEditor() :
     VcsBaseSubmitEditor(new PerforceSubmitEditorWidget),
     m_fileModel(new VcsBase::SubmitFileModel(this))
 {
-    document()->setPreferredDisplayName(tr("Perforce Submit"));
+    document()->setPreferredDisplayName(Tr::tr("Perforce Submit"));
     setFileModel(m_fileModel);
 }
 
@@ -139,5 +138,4 @@ void PerforceSubmitEditor::updateEntries()
     m_entries.insert(QLatin1String("Files"), files);
 }
 
-} // Internal
-} // Perforce
+} // Perforce::Internal

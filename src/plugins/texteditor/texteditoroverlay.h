@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -45,8 +45,6 @@ public:
     inline void hide() { setVisible(false); }
     inline void show() { setVisible(true); }
 
-    void setBorderWidth(int bw) {m_borderWidth = bw; }
-
     void update();
 
     void setAlpha(bool enabled) { m_alpha = enabled; }
@@ -83,7 +81,6 @@ private:
 
     bool m_visible;
     bool m_alpha;
-    int m_borderWidth;
     int m_dropShadowWidth;
     int m_firstSelectionOriginalBegin;
     TextEditorWidget *m_editor;

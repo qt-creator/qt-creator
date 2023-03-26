@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "testprojectsettings.h"
 
@@ -11,6 +11,8 @@
 #include <utils/algorithm.h>
 
 #include <QLoggingCategory>
+
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -43,7 +45,7 @@ void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
      m_useGlobalSettings = useGlobal;
 }
 
-void TestProjectSettings::activateFramework(const Utils::Id &id, bool activate)
+void TestProjectSettings::activateFramework(const Id &id, bool activate)
 {
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
     m_activeTestFrameworks[framework] = activate;
@@ -51,7 +53,7 @@ void TestProjectSettings::activateFramework(const Utils::Id &id, bool activate)
         framework->resetRootNode();
 }
 
-void TestProjectSettings::activateTestTool(const Utils::Id &id, bool activate)
+void TestProjectSettings::activateTestTool(const Id &id, bool activate)
 {
     ITestTool *testTool = TestFrameworkManager::testToolForId(id);
     m_activeTestTools[testTool] = activate;
@@ -74,12 +76,12 @@ void TestProjectSettings::load()
     if (activeFrameworks.isValid()) {
         const QMap<QString, QVariant> frameworksMap = activeFrameworks.toMap();
         for (ITestFramework *framework : registeredFrameworks) {
-            const Utils::Id id = framework->id();
+            const Id id = framework->id();
             bool active = frameworksMap.value(id.toString(), framework->active()).toBool();
             m_activeTestFrameworks.insert(framework, active);
         }
         for (ITestTool *testTool : registeredTestTools) {
-            const Utils::Id id = testTool->id();
+            const Id id = testTool->id();
             bool active = frameworksMap.value(id.toString(), testTool->active()).toBool();
             m_activeTestTools.insert(testTool, active);
         }
@@ -108,7 +110,7 @@ void TestProjectSettings::save()
         activeFrameworks.insert(it.key()->id().toString(), it.value());
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworks);
     m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(m_runAfterBuild));
-    m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings());
+    m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings(Qt::Checked));
 }
 
 } // namespace Internal

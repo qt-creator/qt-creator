@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Alexis Jeandet.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mesonprojectparser.h"
 
@@ -81,9 +81,7 @@ QStringList toAbsolutePath(const Utils::FilePath &refPath, QStringList &pathList
                    std::cend(pathList),
                    std::back_inserter(allAbs),
                    [refPath](const QString &path) {
-                       if (Utils::FileUtils::isAbsolutePath(path))
-                           return path;
-                       return refPath.pathAppended(path).toString();
+                        return refPath.resolvePath(path).toString();
                    });
     return allAbs;
 }

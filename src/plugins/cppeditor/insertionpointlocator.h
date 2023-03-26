@@ -1,10 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "cppeditor_global.h"
 #include "cpprefactoringchanges.h"
+
+#include <utils/filepath.h>
 
 namespace CPlusPlus {
 class Namespace;
@@ -18,11 +20,11 @@ class CPPEDITOR_EXPORT InsertionLocation
 {
 public:
     InsertionLocation();
-    InsertionLocation(const QString &fileName, const QString &prefix,
+    InsertionLocation(const Utils::FilePath &filePath, const QString &prefix,
                       const QString &suffix, int line, int column);
 
-    QString fileName() const
-    { return m_fileName; }
+    const Utils::FilePath &filePath() const
+    { return m_filePath; }
 
     /// \returns The prefix to insert before any other text.
     QString prefix() const
@@ -41,10 +43,10 @@ public:
     { return m_column; }
 
     bool isValid() const
-    { return !m_fileName.isEmpty() && m_line > 0 && m_column > 0; }
+    { return !m_filePath.isEmpty() && m_line > 0 && m_column > 0; }
 
 private:
-    QString m_fileName;
+    Utils::FilePath m_filePath;
     QString m_prefix;
     QString m_suffix;
     int m_line = 0;
@@ -80,8 +82,7 @@ public:
 public:
     explicit InsertionPointLocator(const CppRefactoringChanges &refactoringChanges);
 
-    InsertionLocation methodDeclarationInClass(
-            const QString &fileName,
+    InsertionLocation methodDeclarationInClass(const Utils::FilePath &fileName,
             const CPlusPlus::Class *clazz,
             AccessSpec xsSpec,
             ForceAccessSpec forceAccessSpec = ForceAccessSpec::No
@@ -100,10 +101,9 @@ public:
                                                     AccessSpec xsSpec,
                                                     int constructorArgumentCount) const;
 
-    const QList<InsertionLocation> methodDefinition(
-            CPlusPlus::Symbol *declaration,
+    const QList<InsertionLocation> methodDefinition(CPlusPlus::Symbol *declaration,
             bool useSymbolFinder = true,
-            const QString &destinationFile = QString()) const;
+            const Utils::FilePath &destinationFile = {}) const;
 
 private:
     CppRefactoringChanges m_refactoringChanges;
@@ -116,7 +116,7 @@ insertLocationForMethodDefinition(CPlusPlus::Symbol *symbol,
                                   const bool useSymbolFinder,
                                   NamespaceHandling namespaceHandling,
                                   const CppRefactoringChanges &refactoring,
-                                  const QString &fileName,
+                                  const Utils::FilePath &fileName,
                                   QStringList *insertedNamespaces = nullptr);
 
 } // namespace CppEditor

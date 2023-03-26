@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addtovcsdialog.h"
+
+#include "../coreplugintr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -44,8 +46,8 @@ AddToVcsDialog::AddToVcsDialog(QWidget *parent,
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     const QString addTo = files.size() == 1
-                              ? tr("Add the file to version control (%1)").arg(vcsDisplayName)
-                              : tr("Add the files to version control (%1)").arg(vcsDisplayName);
+                              ? Tr::tr("Add the file to version control (%1)").arg(vcsDisplayName)
+                              : Tr::tr("Add the files to version control (%1)").arg(vcsDisplayName);
 
     // clang-format off
     Column {

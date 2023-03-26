@@ -1,10 +1,11 @@
 // Copyright (C) 2016 Nicolas Arnaud-Cormos
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "macrolocatorfilter.h"
 
 #include "macro.h"
 #include "macromanager.h"
+#include "macrostr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -19,9 +20,9 @@ MacroLocatorFilter::MacroLocatorFilter()
     : m_icon(QPixmap(":/macros/images/macro.png"))
 {
     setId("Macros");
-    setDisplayName(tr("Text Editing Macros"));
-    setDescription(tr("Runs a text editing macro that was recorded with Tools > Text Editing "
-                      "Macros > Record Macro."));
+    setDisplayName(Tr::tr("Text Editing Macros"));
+    setDescription(Tr::tr("Runs a text editing macro that was recorded with Tools > Text Editing "
+                          "Macros > Record Macro."));
     setDefaultShortcutString("rm");
 }
 
@@ -49,7 +50,7 @@ QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<
         }
 
         if (index >= 0) {
-            Core::LocatorFilterEntry filterEntry(this, displayName, QVariant(), m_icon);
+            Core::LocatorFilterEntry filterEntry(this, displayName, {}, m_icon);
             filterEntry.extraInfo = description;
             filterEntry.highlightInfo = Core::LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeprojectmanager.h"
 
@@ -31,7 +31,9 @@
 #include <QMessageBox>
 
 using namespace ProjectExplorer;
-using namespace CMakeProjectManager::Internal;
+using namespace Utils;
+
+namespace CMakeProjectManager::Internal {
 
 CMakeManager::CMakeManager()
     : m_runCMakeAction(new QAction(QIcon(), Tr::tr("Run CMake"), this))
@@ -56,7 +58,7 @@ CMakeManager::CMakeManager()
                                                                  globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_runCMakeAction, &QAction::triggered, [this]() {
+    connect(m_runCMakeAction, &QAction::triggered, this, [this] {
         runCMake(SessionManager::startupBuildSystem());
     });
 
@@ -65,7 +67,7 @@ CMakeManager::CMakeManager()
                                                   globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_clearCMakeCacheAction, &QAction::triggered, [this]() {
+    connect(m_clearCMakeCacheAction, &QAction::triggered, this, [this] {
         clearCMakeCache(SessionManager::startupBuildSystem());
     });
 
@@ -75,7 +77,7 @@ CMakeManager::CMakeManager()
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_runCMakeActionContextMenu, &QAction::triggered, [this]() {
+    connect(m_runCMakeActionContextMenu, &QAction::triggered, this, [this] {
         runCMake(ProjectTree::currentBuildSystem());
     });
 
@@ -93,7 +95,7 @@ CMakeManager::CMakeManager()
                                                   globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_rescanProjectAction, &QAction::triggered, [this]() {
+    connect(m_rescanProjectAction, &QAction::triggered, this, [this] {
         rescanProject(ProjectTree::currentBuildSystem());
     });
 
@@ -218,12 +220,12 @@ void CMakeManager::buildFile(Node *node)
     CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(fileNode->parentProjectNode());
     if (!targetNode)
         return;
-    Utils::FilePath filePath = fileNode->filePath();
+    FilePath filePath = fileNode->filePath();
     if (filePath.fileName().contains(".h")) {
         bool wasHeader = false;
-        const QString sourceFile = CppEditor::correspondingHeaderOrSource(filePath.toString(), &wasHeader);
+        const FilePath sourceFile = CppEditor::correspondingHeaderOrSource(filePath, &wasHeader);
         if (wasHeader && !sourceFile.isEmpty())
-            filePath = Utils::FilePath::fromString(sourceFile);
+            filePath = sourceFile;
     }
     Target *target = project->activeTarget();
     QTC_ASSERT(target, return);
@@ -252,3 +254,5 @@ void CMakeManager::buildFileContextMenu()
     if (Node *node = ProjectTree::currentNode())
         buildFile(node);
 }
+
+} // CMakeProjectManager::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -413,12 +413,13 @@ enum ProToken {
 class QMAKE_EXPORT ProFile
 {
 public:
-    ProFile(int id, const QString &fileName);
+    ProFile(const QString &device, int id, const QString &fileName);
     ~ProFile();
 
     int id() const { return m_id; }
-    QString fileName() const { return m_fileName; }
-    QString directoryName() const { return m_directoryName; }
+    const QString &fileName() const { return m_fileName; }
+    const QString &device() const { return m_device; }
+    const QString &directoryName() const { return m_directoryName; }
     const QString &items() const { return m_proitems; }
     QString *itemsRef() { return &m_proitems; }
     const ushort *tokPtr() const { return (const ushort *)m_proitems.constData(); }
@@ -439,7 +440,8 @@ public:
 private:
     ProItemRefCount m_refCount;
     QString m_proitems;
-    QString m_fileName;
+    const QString m_fileName;
+    const QString m_device;
     QString m_directoryName;
     int m_id;
     bool m_ok;

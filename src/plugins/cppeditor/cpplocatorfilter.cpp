@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cpplocatorfilter.h"
 
 #include "cppeditorconstants.h"
-#include "cppmodelmanager.h"
+#include "cppeditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
@@ -20,7 +20,7 @@ CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
     : m_data(locatorData)
 {
     setId(Constants::LOCATOR_FILTER_ID);
-    setDisplayName(Constants::LOCATOR_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::LOCATOR_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
@@ -120,9 +120,7 @@ void CppLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    Core::EditorManager::openEditorAt({Utils::FilePath::fromString(info->fileName()),
-                                       info->line(),
-                                       info->column()},
+    Core::EditorManager::openEditorAt({info->filePath(), info->line(), info->column()},
                                       {},
                                       Core::EditorManager::AllowExternalEditor);
 }
@@ -131,7 +129,7 @@ CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
     : CppLocatorFilter(locatorData)
 {
     setId(Constants::CLASSES_FILTER_ID);
-    setDisplayName(Constants::CLASSES_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::CLASSES_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
@@ -145,7 +143,7 @@ Core::LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::P
     filterEntry.extraInfo = info->symbolScope().isEmpty()
         ? info->shortNativeFilePath()
         : info->symbolScope();
-    filterEntry.filePath = Utils::FilePath::fromString(info->fileName());
+    filterEntry.filePath = info->filePath();
     return filterEntry;
 }
 
@@ -153,7 +151,7 @@ CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
     : CppLocatorFilter(locatorData)
 {
     setId(Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }
@@ -170,7 +168,7 @@ Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem:
     if (extraInfo.isEmpty()) {
         extraInfo = info->shortNativeFilePath();
     } else {
-        extraInfo.append(" (" + Utils::FilePath::fromString(info->fileName()).fileName() + ')');
+        extraInfo.append(" (" + info->filePath().fileName() + ')');
     }
 
     Core::LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());

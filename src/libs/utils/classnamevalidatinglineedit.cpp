@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "classnamevalidatinglineedit.h"
 
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QRegularExpression>
 
@@ -78,15 +79,15 @@ bool ClassNameValidatingLineEdit::validateClassName(FancyLineEdit *edit, QString
     const QString value = edit->text();
     if (!d->m_namespacesEnabled && value.contains(d->m_namespaceDelimiter)) {
         if (errorMessage)
-            *errorMessage = tr("The class name must not contain namespace delimiters.");
+            *errorMessage = Tr::tr("The class name must not contain namespace delimiters.");
         return false;
     } else if (value.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("Please enter a class name.");
+            *errorMessage = Tr::tr("Please enter a class name.");
         return false;
     } else if (!d->m_nameRegexp.match(value).hasMatch()) {
         if (errorMessage)
-            *errorMessage = tr("The class name contains invalid characters.");
+            *errorMessage = Tr::tr("The class name contains invalid characters.");
         return false;
     }
     return true;
@@ -121,8 +122,8 @@ QString ClassNameValidatingLineEdit::fixInputString(const QString &string)
 void ClassNameValidatingLineEdit::updateRegExp() const
 {
     const QString pattern = "^%1(%2%1)*$";
-    d->m_nameRegexp.setPattern(pattern.arg("[a-zA-Z_][a-zA-Z0-9_]*")
-                               .arg(QRegularExpression::escape(d->m_namespaceDelimiter)));
+    d->m_nameRegexp.setPattern(pattern.arg(QString("[a-zA-Z_][a-zA-Z0-9_]*"),
+                                           QRegularExpression::escape(d->m_namespaceDelimiter)));
 }
 
 QString ClassNameValidatingLineEdit::createClassName(const QString &name)

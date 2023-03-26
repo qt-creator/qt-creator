@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "squishwizardpages.h"
 
@@ -369,17 +369,16 @@ bool SquishFileGenerator::writeFile(const ProjectExplorer::JsonWizard *,
     return true;
 }
 
-bool SquishFileGenerator::allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
-             QString *errorMessage)
+bool SquishFileGenerator::allDone(const ProjectExplorer::JsonWizard *wizard,
+                                  Core::GeneratedFile *file, QString *errorMessage)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(errorMessage)
 
-    if (m_mode == "TestSuite") {
-        if (file->filePath().fileName() == "suite.conf")
-            QTimer::singleShot(0, [filePath = file->filePath()] {
-                SquishFileHandler::instance()->openTestSuite(filePath);
-            });
+    if (m_mode == "TestSuite" && file->filePath().fileName() == "suite.conf") {
+        QMetaObject::invokeMethod(SquishFileHandler::instance(), [filePath = file->filePath()] {
+            SquishFileHandler::instance()->openTestSuite(filePath);
+        }, Qt::QueuedConnection);
     }
     return true;
 }

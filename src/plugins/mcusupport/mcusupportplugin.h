@@ -1,5 +1,5 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -19,15 +19,11 @@ class McuSupportPlugin final : public ExtensionSystem::IPlugin
 public:
     ~McuSupportPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
     void askUserAboutMcuSupportKitsSetup();
     static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler);
+};
 
-private:
-    QVector<QObject *> createTestObjects() const final;
-
-}; // class McuSupportPlugin
-
-} // namespace McuSupport::Internal
+} // McuSupport::Internal

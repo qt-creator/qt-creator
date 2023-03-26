@@ -1,10 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsfindexportedcpptypes.h"
 
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsdocument.h>
+#include "qmljsdocument.h"
+#include "qmljsinterpreter.h"
+#include "qmljstr.h"
+
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/cppmodelmanagerbase.h>
@@ -248,9 +250,9 @@ protected:
             translationUnit()->getTokenStartPosition(nameExp->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
-                        _doc->fileName(),
+                        _doc->filePath(),
                         line, column,
-                        QmlJS::FindExportedCppTypes::tr(
+                        QmlJS::Tr::tr(
                             "The type will only be available in the QML editors when the type name is a string literal."));
             return false;
         }
@@ -309,9 +311,9 @@ protected:
             translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
-                        _doc->fileName(),
+                        _doc->filePath(),
                         line, column,
-                        QmlJS::FindExportedCppTypes::tr(
+                        QmlJS::Tr::tr(
                             "The module URI cannot be determined by static analysis. The type will not be available\n"
                             "globally in the QML editor. You can add a \"// @uri My.Module.Uri\" annotation to let\n"
                             "the QML editor know about a likely URI."));
@@ -491,9 +493,9 @@ protected:
             translationUnit()->getTokenStartPosition(ast->expression_list->value->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
-                        _doc->fileName(),
+                        _doc->filePath(),
                         line, column,
-                        QmlJS::FindExportedCppTypes::tr(
+                        QmlJS::Tr::tr(
                             "must be a string literal to be available in the QML editor"));
             return false;
         }
@@ -637,9 +639,9 @@ static QString toQmlType(const FullySpecifiedType &type)
 
 static Class *lookupClass(const QString &expression, Scope *scope, TypeOfExpression &typeOf)
 {
-    QList<LookupItem> results = typeOf(expression.toUtf8(), scope);
+    const QList<LookupItem> results = typeOf(expression.toUtf8(), scope);
     Class *klass = nullptr;
-    foreach (const LookupItem &item, results) {
+    for (const LookupItem &item : results) {
         if (item.declaration()) {
             klass = item.declaration()->asClass();
             if (klass)
@@ -707,8 +709,8 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
         if (QtEnum *qtEnum = member->asQtEnum()) {
             // find the matching enum
             Enum *e = nullptr;
-            QList<LookupItem> result = typeOf(namePrinter.prettyName(qtEnum->name()).toUtf8(), klass);
-            foreach (const LookupItem &item, result) {
+            const QList<LookupItem> result = typeOf(namePrinter.prettyName(qtEnum->name()).toUtf8(), klass);
+            for (const LookupItem &item : result) {
                 if (item.declaration()) {
                     e = item.declaration()->asEnum();
                     if (e)
@@ -757,7 +759,7 @@ static void buildExportedQmlObjects(
     if (cppExports.isEmpty())
         return;
 
-    foreach (const ExportedQmlType &exportedType, cppExports) {
+    for (const ExportedQmlType &exportedType : cppExports) {
         Class *klass = nullptr;
         if (!exportedType.typeExpression.isEmpty())
             klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
@@ -785,7 +787,7 @@ static void buildContextProperties(
 {
     using namespace LanguageUtils;
 
-    foreach (const ContextProperty &property, contextPropertyDescriptions) {
+    for (const ContextProperty &property : contextPropertyDescriptions) {
         Scope *scope = doc->scopeAt(property.line, property.column);
         QList<LookupItem> results = typeOf(property.expression.toUtf8(), scope);
         QString typeName;
@@ -840,7 +842,7 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
     FindExportsVisitor finder(document);
     finder();
     static const QString kindKey = QLatin1String("QmlJSTools.ExportedQmlTypesDiagnostic");
-    CppModelManagerBase::trySetExtraDiagnostics(document->fileName(), kindKey,
+    CppModelManagerBase::trySetExtraDiagnostics(document->filePath().toString(), kindKey,
                                                 finder.messages());
 
     // if nothing was found, done
@@ -851,8 +853,9 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
 
     // context properties need lookup inside function scope, and thus require a full check
     CPlusPlus::Document::Ptr localDoc = document;
-    if (document->checkMode() != CPlusPlus::Document::FullCheck && !contextPropertyDescriptions.isEmpty()) {
-        localDoc = m_snapshot.documentFromSource(document->utf8Source(), document->fileName());
+    if (document->checkMode() != CPlusPlus::Document::FullCheck
+            && !contextPropertyDescriptions.isEmpty()) {
+        localDoc = m_snapshot.documentFromSource(document->utf8Source(), document->filePath());
         localDoc->check();
     }
 
@@ -879,7 +882,7 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
         m_exportedTypes += it.value();
         fileNames += QLatin1String(it.key()->fileName());
     }
-    foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, extraFakeMetaObjects) {
+    for (const LanguageUtils::FakeMetaObject::Ptr &fmo : std::as_const(extraFakeMetaObjects)) {
         fmo->updateFingerprint();
         m_exportedTypes += fmo;
     }

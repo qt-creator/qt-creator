@@ -1,11 +1,11 @@
 // Copyright (C) 2018 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include "basemessage.h"
-#include "lsptypes.h"
 #include "jsonkeys.h"
+#include "lsptypes.h"
 
 #include <utils/qtcassert.h>
 
@@ -65,7 +65,8 @@ public:
         return {};
     }
 
-    friend auto qHash(const MessageId &id)
+private:
+    friend size_t qHash(const MessageId &id)
     {
         if (std::holds_alternative<int>(id))
             return QT_PREPEND_NAMESPACE(qHash(std::get<int>(id)));
@@ -73,17 +74,16 @@ public:
             return QT_PREPEND_NAMESPACE(qHash(std::get<QString>(id)));
         return QT_PREPEND_NAMESPACE(qHash(0));
     }
-};
 
-template <typename Error>
-inline QDebug operator<<(QDebug stream, const LanguageServerProtocol::MessageId &id)
-{
-    if (std::holds_alternative<int>(id))
-        stream << std::get<int>(id);
-    else
-        stream << std::get<QString>(id);
-    return stream;
-}
+    friend QDebug operator<<(QDebug stream, const MessageId &id)
+    {
+        if (std::holds_alternative<int>(id))
+            stream << std::get<int>(id);
+        else
+            stream << std::get<QString>(id);
+        return stream;
+    }
+};
 
 struct ResponseHandler
 {
@@ -94,7 +94,6 @@ struct ResponseHandler
 
 class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessage
 {
-    Q_DECLARE_TR_FUNCTIONS(JsonRpcMessage)
 public:
     JsonRpcMessage();
     explicit JsonRpcMessage(const BaseMessage &message);
@@ -163,7 +162,7 @@ public:
         if (auto parameter = params())
             return parameter->isValid();
         if (errorMessage)
-            *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Notification",
+            *errorMessage = QCoreApplication::translate("QtC::LanguageServerProtocol",
                                                         "No parameters in \"%1\".").arg(method());
         return false;
     }
@@ -254,8 +253,7 @@ public:
         CASE_ERRORCODES(ServerNotInitialized);
         CASE_ERRORCODES(RequestCancelled);
         default:
-            return QCoreApplication::translate("LanguageClient::ResponseError",
-                                               "Error %1").arg(code);
+            return QCoreApplication::translate("QtC::LanguageClient", "Error %1").arg(code);
         }
     }
 #undef CASE_ERRORCODES
@@ -376,10 +374,9 @@ public:
             return false;
         if (id().isValid())
             return true;
-        if (errorMessage) {
-            *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Request",
+        if (errorMessage)
+            *errorMessage = QCoreApplication::translate("QtC::LanguageServerProtocol",
                                                         "No ID set in \"%1\".").arg(this->method());
-        }
         return false;
     }
 

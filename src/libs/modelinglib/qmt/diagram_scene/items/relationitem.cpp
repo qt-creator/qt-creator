@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "relationitem.h"
 
@@ -249,7 +249,7 @@ void RelationItem::moveDelta(const QPointF &delta)
 {
     m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
     QList<DRelation::IntermediatePoint> points;
-    foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints())
+    for (const DRelation::IntermediatePoint &point : m_relation->intermediatePoints())
         points << DRelation::IntermediatePoint(point.pos() + delta);
     m_relation->setIntermediatePoints(points);
     m_diagramSceneModel->diagramController()->finishUpdateElement(m_relation, m_diagramSceneModel->diagram(), false);
@@ -259,7 +259,7 @@ void RelationItem::alignItemPositionToRaster(double rasterWidth, double rasterHe
 {
     m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateGeometry);
     QList<DRelation::IntermediatePoint> points;
-    foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints()) {
+    for (const DRelation::IntermediatePoint &point : m_relation->intermediatePoints()) {
         QPointF pos = point.pos();
         double x = qRound(pos.x() / rasterWidth) * rasterWidth;
         double y = qRound(pos.y() / rasterHeight) * rasterHeight;
@@ -440,7 +440,7 @@ void RelationItem::update(const Style *style)
 
     QList<QPointF> points;
     points << (endAPos - endAPos);
-    foreach (const DRelation::IntermediatePoint &point, m_relation->intermediatePoints())
+    for (const DRelation::IntermediatePoint &point : m_relation->intermediatePoints())
         points << (point.pos() - endAPos);
     points << (endBPos - endAPos);
 

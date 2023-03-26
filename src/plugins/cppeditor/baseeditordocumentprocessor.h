@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -10,6 +10,7 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/helpitem.h>
+
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditor.h>
@@ -18,7 +19,6 @@
 #include <cplusplus/CppDocument.h>
 
 #include <QTextEdit>
-
 #include <QVariant>
 
 #include <functional>
@@ -28,7 +28,8 @@ namespace TextEditor { class TextDocument; }
 namespace CppEditor {
 
 // For clang code model only, move?
-struct CPPEDITOR_EXPORT ToolTipInfo {
+struct CPPEDITOR_EXPORT ToolTipInfo
+{
     QString text;
     QString briefComment;
 
@@ -45,7 +46,7 @@ class CPPEDITOR_EXPORT BaseEditorDocumentProcessor : public QObject
     Q_OBJECT
 
 public:
-    BaseEditorDocumentProcessor(QTextDocument *textDocument, const QString &filePath);
+    BaseEditorDocumentProcessor(QTextDocument *textDocument, const Utils::FilePath &filePath);
     ~BaseEditorDocumentProcessor() override;
 
     void run(bool projectsUpdated = false);
@@ -65,7 +66,7 @@ public:
 
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
 
-    QString filePath() const { return m_filePath; }
+    const Utils::FilePath &filePath() const { return m_filePath; }
 
 signals:
     // Signal interface to implement
@@ -94,7 +95,7 @@ private:
     virtual void runImpl(const BaseEditorDocumentParser::UpdateParams &updateParams) = 0;
 
 private:
-    QString m_filePath;
+    Utils::FilePath m_filePath;
     QTextDocument *m_textDocument;
 };
 

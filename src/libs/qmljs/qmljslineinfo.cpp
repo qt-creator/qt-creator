@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 /*
     This file is a self-contained interactive indenter for Qt Script.
@@ -105,7 +105,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
     yyLinizerState.tokens = scanner(t, startState);
     QString trimmed;
     int previousTokenEnd = 0;
-    foreach (const Token &token, yyLinizerState.tokens) {
+    for (const Token &token : std::as_const(yyLinizerState.tokens)) {
         trimmed.append(t.mid(previousTokenEnd, token.begin() - previousTokenEnd));
 
         if (token.is(Token::String)) {
@@ -131,7 +131,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
     }
 
     bool isBinding = false;
-    foreach (const Token &token, yyLinizerState.tokens) {
+    for (const Token &token : std::as_const(yyLinizerState.tokens)) {
         if (token.is(Token::Colon)) {
             isBinding = true;
             break;

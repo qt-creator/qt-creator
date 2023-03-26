@@ -1,12 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "openeditorswindow.h"
 
 #include "editormanager.h"
 #include "editormanager_p.h"
 #include "editorview.h"
-#include <coreplugin/idocument.h>
+#include "../coreplugintr.h"
+#include "../idocument.h"
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
@@ -21,8 +22,7 @@
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IDocument*)
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 enum class Role
 {
@@ -226,11 +226,11 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     QTC_ASSERT(!title.isEmpty(), return);
     auto item = new QTreeWidgetItem();
     if (entry->document->isModified())
-        title += tr("*");
-    item->setIcon(0, !entry->fileName().isEmpty() && entry->document->isFileReadOnly()
-                  ? DocumentModel::lockedIcon() : Utils::FileIconProvider::icon(entry->fileName()));
+        title += Tr::tr("*");
+    item->setIcon(0, !entry->filePath().isEmpty() && entry->document->isFileReadOnly()
+                  ? DocumentModel::lockedIcon() : Utils::FileIconProvider::icon(entry->filePath()));
     item->setText(0, title);
-    item->setToolTip(0, entry->fileName().toString());
+    item->setToolTip(0, entry->filePath().toString());
     item->setData(0, int(Role::Entry), QVariant::fromValue(entry));
     item->setData(0, int(Role::View), QVariant::fromValue(view));
     item->setTextAlignment(0, Qt::AlignLeft);
@@ -240,3 +240,5 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     if (m_editorList->topLevelItemCount() == 1)
         m_editorList->setCurrentItem(item);
 }
+
+} // Core::Internal

@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "commandline.h"
 
@@ -12,13 +12,6 @@
 #include <QDir>
 #include <QRegularExpression>
 #include <QStack>
-
-QT_BEGIN_NAMESPACE
-QDebug operator<<(QDebug dbg, const Utils::CommandLine &cmd)
-{
-    return dbg << cmd.toUserOutput();
-}
-QT_END_NAMESPACE
 
 // The main state of the Unix shell parser
 enum MxQuoting { MxBasic, MxSingleQuote, MxDoubleQuote, MxParen, MxSubst, MxGroup, MxMath };
@@ -629,15 +622,25 @@ void ProcessArgs::addArgs(QString *args, const QStringList &inArgs)
         addArg(args, arg);
 }
 
+CommandLine &CommandLine::operator<<(const QString &arg)
+{
+    addArg(arg);
+    return *this;
+}
+
+CommandLine &CommandLine::operator<<(const QStringList &args)
+{
+    addArgs(args);
+    return *this;
+}
+
 bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
                                  const Environment *env, const FilePath *pwd)
 {
-    FilePath executable = cmdLine.executable();
-    const QString arguments = cmdLine.arguments();
-    if (env && executable.isRelativePath())
-        executable = env->searchInPath(executable.toString());
+    const FilePath executable = cmdLine.executable();
     if (executable.isEmpty())
         return false;
+    const QString arguments = cmdLine.arguments();
     ProcessArgs::SplitError err;
     *outArgs = ProcessArgs::prepareArgs(arguments, &err, executable.osType(), env, pwd);
     if (err == ProcessArgs::SplitOk) {
@@ -1441,12 +1444,26 @@ CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *ex
 
 void CommandLine::addArg(const QString &arg)
 {
-    ProcessArgs::addArg(&m_arguments, arg, m_executable.osType());
+    addArg(arg, m_executable.osType());
 }
 
 void CommandLine::addArg(const QString &arg, OsType osType)
 {
     ProcessArgs::addArg(&m_arguments, arg, osType);
+}
+
+void CommandLine::addMaskedArg(const QString &arg)
+{
+    addMaskedArg(arg, m_executable.osType());
+}
+
+void CommandLine::addMaskedArg(const QString &arg, OsType osType)
+{
+    int start = m_arguments.size();
+    if (start > 0)
+        ++start;
+    addArg(arg, osType);
+    m_masked.push_back({start, m_arguments.size() - start});
 }
 
 void CommandLine::addArgs(const QStringList &inArgs)
@@ -1475,6 +1492,26 @@ void CommandLine::addCommandLineAsArgs(const CommandLine &cmd, RawType)
     addArgs(cmd.arguments(), Raw);
 }
 
+void CommandLine::addCommandLineAsSingleArg(const CommandLine &cmd)
+{
+    QString combined;
+    ProcessArgs::addArg(&combined, cmd.executable().path());
+    ProcessArgs::addArgs(&combined, cmd.arguments());
+
+    addArg(combined);
+}
+
+void CommandLine::addCommandLineWithAnd(const CommandLine &cmd)
+{
+    if (m_executable.isEmpty()) {
+        *this = cmd;
+        return;
+    }
+
+    addArgs("&&", Raw);
+    addCommandLineAsArgs(cmd, Raw);
+}
+
 void CommandLine::addArgs(const QString &inArgs, RawType)
 {
     ProcessArgs::addArgs(&m_arguments, inArgs);
@@ -1498,8 +1535,12 @@ void CommandLine::prependArgs(const QString &inArgs, RawType)
 QString CommandLine::toUserOutput() const
 {
     QString res = m_executable.toUserOutput();
-    if (!m_arguments.isEmpty())
-        res += ' ' + m_arguments;
+    if (!m_arguments.isEmpty()) {
+        QString args = m_arguments;
+        for (auto it = m_masked.crbegin(), end = m_masked.crend(); it != end; ++it)
+            args.replace(it->first, it->second, "*******");
+        res += ' ' + args;
+    }
     return res;
 }
 
@@ -1513,4 +1554,14 @@ QStringList CommandLine::splitArguments() const
     return ProcessArgs::splitArgs(m_arguments, m_executable.osType());
 }
 
-} // namespace Utils
+QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second)
+{
+    return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;
+}
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const CommandLine &cmd)
+{
+    return dbg << cmd.toUserOutput();
+}
+
+} // Utils

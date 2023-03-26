@@ -1,17 +1,20 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
+#include "classviewsymbollocation.h"
 
 #include <cplusplus/CppDocument.h>
 
 #include <QSharedPointer>
-#include <QHash>
 
-QT_FORWARD_DECLARE_CLASS(QStandardItem)
+QT_BEGIN_NAMESPACE
+template <typename K, typename T>
+class QHash;
+class QStandardItem;
+QT_END_NAMESPACE
 
 namespace ClassView {
 namespace Internal {

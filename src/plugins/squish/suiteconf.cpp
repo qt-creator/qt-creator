@@ -1,5 +1,5 @@
 // Copyright (C) 2022 The Qt Company Ltd
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "suiteconf.h"
 
@@ -32,7 +32,7 @@ static QStringList parseHelper(const QStringView input)
     QStringList result;
     QString chunk;
 
-    auto appendChunk = [&]() {
+    auto appendChunk = [&] {
         if (!chunk.isEmpty())
             result.append(chunk);
         chunk.clear();
@@ -80,7 +80,7 @@ static QMap<QString, QString> readSuiteConfContent(const Utils::FilePath &file)
     if (!file.isReadableFile())
         return {};
 
-    std::optional<QByteArray> suiteConfContent = file.fileContents();
+    const Utils::expected_str<QByteArray> suiteConfContent = file.fileContents();
     if (!suiteConfContent)
         return {};
 
@@ -112,7 +112,9 @@ static bool writeSuiteConfContent(const Utils::FilePath &file, const QMap<QStrin
         else
             outData.append(it.key().toUtf8()).append('=').append(it.value().toUtf8()).append('\n');
     }
-    return file.writeFileContents(outData);
+    const Utils::expected_str<qint64> result = file.writeFileContents(outData);
+    QTC_ASSERT_EXPECTED(result, return false);
+    return true;
 }
 
 bool SuiteConf::read()
@@ -169,6 +171,13 @@ bool SuiteConf::write()
     suiteConf.insert(squishTestCasesKey, m_testcases);
 
     return writeSuiteConfContent(m_filePath, suiteConf);
+}
+
+QString SuiteConf::suiteName() const
+{
+    if (!m_filePath.exists())
+        return {};
+    return m_filePath.parentDir().fileName();
 }
 
 QString SuiteConf::langParameter() const
@@ -230,6 +239,17 @@ void SuiteConf::addTestCase(const QString &name)
             break;
     }
     current.insert(insertAt, name);
+    m_testcases = joinItems(current);
+}
+
+void SuiteConf::removeTestCase(const QString &name)
+{
+    QStringList current = testCases();
+    int position = current.indexOf(name);
+    if (position == -1) // it had been an unlisted test case
+        return;
+
+    current.remove(position);
     m_testcases = joinItems(current);
 }
 
@@ -306,9 +326,9 @@ bool SuiteConf::ensureObjectMapExists() const
     const Utils::FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
     bool ok = destinationObjectMap.parentDir().ensureWritableDir();
     QTC_ASSERT(ok, return false);
-    ok = objectMap.copyFile(destinationObjectMap);
-    QTC_ASSERT(ok, return false);
-    return ok;
+    const Utils::expected_str<void> result = objectMap.copyFile(destinationObjectMap);
+    QTC_ASSERT_EXPECTED(result, return false);
+    return true;
 }
 
 } // namespace Internal

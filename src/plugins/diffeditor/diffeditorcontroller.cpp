@@ -1,26 +1,25 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "diffeditorcontroller.h"
 
 #include "diffeditorconstants.h"
-#include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 
 #include <utils/qtcassert.h>
-
-#include <QStringList>
 
 using namespace Core;
 using namespace Utils;
 
 namespace DiffEditor {
 
-DiffEditorController::DiffEditorController(Core::IDocument *document) :
-    QObject(document),
-    m_document(qobject_cast<Internal::DiffEditorDocument *>(document))
+DiffEditorController::DiffEditorController(IDocument *document)
+    : QObject(document)
+    , m_document(qobject_cast<Internal::DiffEditorDocument *>(document))
+    , m_reloadRecipe{}
 {
     QTC_ASSERT(m_document, return);
     m_document->setController(this);
@@ -28,17 +27,17 @@ DiffEditorController::DiffEditorController(Core::IDocument *document) :
 
 bool DiffEditorController::isReloading() const
 {
-    return m_isReloading;
+    return m_taskTree.get() != nullptr;
 }
 
-FilePath DiffEditorController::baseDirectory() const
+FilePath DiffEditorController::workingDirectory() const
 {
-    return m_document->baseDirectory();
+    return m_document->workingDirectory();
 }
 
-void DiffEditorController::setBaseDirectory(const FilePath &directory)
+void DiffEditorController::setWorkingDirectory(const FilePath &directory)
 {
-    m_document->setBaseDirectory(directory);
+    m_document->setWorkingDirectory(directory);
 }
 
 int DiffEditorController::contextLineCount() const
@@ -60,36 +59,29 @@ QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
                                  options & AddPrefix);
 }
 
-Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
-                                                            const QString &displayName)
+IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
+                                                      const QString &displayName)
 {
     QString preferredDisplayName = displayName;
-    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Constants::DIFF_EDITOR_ID, &preferredDisplayName, {}, vcsId);
+    IEditor *editor = EditorManager::openEditorWithContents(Constants::DIFF_EDITOR_ID,
+                                                            &preferredDisplayName, {}, vcsId);
     return editor ? editor->document() : nullptr;
 }
 
-DiffEditorController *DiffEditorController::controller(Core::IDocument *document)
+DiffEditorController *DiffEditorController::controller(IDocument *document)
 {
     auto doc = qobject_cast<Internal::DiffEditorDocument *>(document);
     return doc ? doc->controller() : nullptr;
 }
 
-void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
-                                        const FilePath &workingDirectory,
-                                        const QString &startupFile)
+void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList)
 {
-    m_document->setDiffFiles(diffFileList, workingDirectory, startupFile);
+    m_document->setDiffFiles(diffFileList);
 }
 
 void DiffEditorController::setDescription(const QString &description)
 {
     m_document->setDescription(description);
-}
-
-QString DiffEditorController::description() const
-{
-    return m_document->description();
 }
 
 /**
@@ -105,12 +97,7 @@ void DiffEditorController::forceContextLineCount(int lines)
     m_document->forceContextLineCount(lines);
 }
 
-void DiffEditorController::setReloader(const std::function<void ()> &reloader)
-{
-    m_reloader = reloader;
-}
-
-Core::IDocument *DiffEditorController::document() const
+IDocument *DiffEditorController::document() const
 {
     return m_document;
 }
@@ -120,16 +107,25 @@ Core::IDocument *DiffEditorController::document() const
  */
 void DiffEditorController::requestReload()
 {
-    m_isReloading = true;
     m_document->beginReload();
-    QTC_ASSERT(m_reloader, reloadFinished(false); return);
-    m_reloader();
+    m_taskTree.reset(new TaskTree(m_reloadRecipe));
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] { reloadFinished(true); });
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] { reloadFinished(false); });
+    auto progress = new TaskProgress(m_taskTree.get());
+    progress->setDisplayName(m_displayName);
+    m_taskTree->start();
 }
 
 void DiffEditorController::reloadFinished(bool success)
 {
+    if (m_taskTree)
+        m_taskTree.release()->deleteLater();
     m_document->endReload(success);
-    m_isReloading = false;
+}
+
+void DiffEditorController::setStartupFile(const QString &startupFile)
+{
+    m_document->setStartupFile(startupFile);
 }
 
 void DiffEditorController::requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex,

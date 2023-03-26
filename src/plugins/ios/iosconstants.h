@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -22,6 +22,7 @@ const char IOS_SIMULATOR_DEVICE_ID[] = "iOS Simulator Device ";
 const char IOS_PRESET_BUILD_STEP_ID[] = "Ios.IosPresetBuildStep";
 const char IOS_DSYM_BUILD_STEP_ID[] = "Ios.IosDsymBuildStep";
 const char IOS_DEPLOY_STEP_ID[] = "Qt4ProjectManager.IosDeployStep";
+const char IOS_RUNCONFIG_ID[] = "Qt4ProjectManager.IosRunConfiguration:";
 
 const char IosTarget[] = "IosTarget"; // QString
 const char IosBuildDir[] = "IosBuildDir"; // QString

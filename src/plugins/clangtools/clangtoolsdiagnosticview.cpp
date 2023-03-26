@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangtoolsdiagnosticview.h"
 
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticconfigswidget.h"
 
@@ -118,19 +119,19 @@ DiagnosticView::DiagnosticView(QWidget *parent)
                                            Utils::Theme::PanelTextColorMid}},
                                          Utils::Icon::Tint).icon();
 
-    m_showFilter = new QAction(tr("Filter..."), this);
+    m_showFilter = new QAction(Tr::tr("Filter..."), this);
     m_showFilter->setIcon(filterIcon);
     connect(m_showFilter, &QAction::triggered,
             this, &DiagnosticView::showFilter);
-    m_clearFilter = new QAction(tr("Clear Filter"), this);
+    m_clearFilter = new QAction(Tr::tr("Clear Filter"), this);
     m_clearFilter->setIcon(filterIcon);
     connect(m_clearFilter, &QAction::triggered,
             this, &DiagnosticView::clearFilter);
-    m_filterForCurrentKind = new QAction(tr("Filter for This Diagnostic Kind"), this);
+    m_filterForCurrentKind = new QAction(Tr::tr("Filter for This Diagnostic Kind"), this);
     m_filterForCurrentKind->setIcon(filterIcon);
     connect(m_filterForCurrentKind, &QAction::triggered,
             this, &DiagnosticView::filterForCurrentKind);
-    m_filterOutCurrentKind = new QAction(tr("Filter out This Diagnostic Kind"), this);
+    m_filterOutCurrentKind = new QAction(Tr::tr("Filter out This Diagnostic Kind"), this);
     m_filterOutCurrentKind->setIcon(filterIcon);
     connect(m_filterOutCurrentKind, &QAction::triggered,
             this, &DiagnosticView::filterOutCurrentKind);
@@ -141,7 +142,7 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     m_separator2 = new QAction(this);
     m_separator2->setSeparator(true);
 
-    m_help = new QAction(tr("Web Page"), this);
+    m_help = new QAction(Tr::tr("Web Page"), this);
     m_help->setIcon(Utils::Icons::ONLINE.icon());
     connect(m_help, &QAction::triggered,
             this, &DiagnosticView::showHelp);
@@ -333,11 +334,11 @@ QList<QAction *> DiagnosticView::customActions() const
     m_filterForCurrentKind->setEnabled(isDiagnosticItem && !hasMultiSelection);
     m_filterOutCurrentKind->setEnabled(isDiagnosticItem && !hasMultiSelection);
     m_suppressAction->setEnabled(isDiagnosticItem || hasMultiSelection);
-    m_suppressAction->setText(hasMultiSelection ? tr("Suppress Selected Diagnostics")
-                                                : tr("Suppress This Diagnostic"));
+    m_suppressAction->setText(hasMultiSelection ? Tr::tr("Suppress Selected Diagnostics")
+                                                : Tr::tr("Suppress This Diagnostic"));
     m_disableChecksAction->setEnabled(disableChecksEnabled());
-    m_disableChecksAction->setText(hasMultiSelection ? tr("Disable These Checks")
-                                                     : tr("Disable This Check"));
+    m_disableChecksAction->setText(hasMultiSelection ? Tr::tr("Disable These Checks")
+                                                     : Tr::tr("Disable This Check"));
 
     return {
         m_help,

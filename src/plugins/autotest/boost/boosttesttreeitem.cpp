@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "boosttesttreeitem.h"
 
@@ -15,6 +15,8 @@
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
+
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -123,7 +125,7 @@ bool BoostTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *BoostTestTreeItem::createParentGroupNode() const
 {
-    const Utils::FilePath &absPath = filePath().absolutePath();
+    const FilePath &absPath = filePath().absolutePath();
     return new BoostTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
@@ -164,7 +166,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
     };
 
     // we only need the unique project files (and number of test cases for the progress indicator)
-    QHash<Utils::FilePath, BoostTestCases> testsPerProjectfile;
+    QHash<FilePath, BoostTestCases> testsPerProjectfile;
     forAllChildItems([&testsPerProjectfile](TestTreeItem *item){
         if (item->type() != TestSuite)
             return;
@@ -207,7 +209,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getTestConfigurations(
         QSet<QString> internalTargets;
     };
 
-    QHash<Utils::FilePath, BoostTestCases> testCasesForProjectFile;
+    QHash<FilePath, BoostTestCases> testCasesForProjectFile;
     forAllChildren([&testCasesForProjectFile, &predicate](TreeItem *it){
         auto item = static_cast<BoostTestTreeItem *>(it);
         if (item->type() != TestCase)
@@ -346,10 +348,10 @@ bool BoostTestTreeItem::enabled() const
 
 TestTreeItem *BoostTestTreeItem::findChildByNameStateAndFile(const QString &name,
                                                              BoostTestTreeItem::TestStates state,
-                                                             const Utils::FilePath &proFile) const
+                                                             const FilePath &proFile) const
 {
     return static_cast<TestTreeItem *>(
-                findAnyChild([name, state, proFile](const Utils::TreeItem *other){
+                findAnyChild([name, state, proFile](const TreeItem *other){
         const BoostTestTreeItem *boostItem = static_cast<const BoostTestTreeItem *>(other);
         return boostItem->proFile() == proFile && boostItem->fullName() == name
                 && boostItem->state() == state;

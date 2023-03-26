@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "builtineditordocumentprocessor.h"
 
@@ -89,6 +89,8 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     for (const CPlusPlus::Macro &macro : doc->definedMacros()) {
         int line, column;
         convertPosition(textDocument, macro.utf16CharOffset(), &line, &column);
+        QTC_ASSERT(line >= 0 && column >= 0, qDebug() << doc->filePath() << macro.toString();
+                   continue);
 
         Result use(line, column, macro.nameToQString().size(), SemanticHighlighter::MacroUse);
         macroUses.append(use);
@@ -114,6 +116,8 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
 
         int line, column;
         convertPosition(textDocument, macro.utf16charsBegin(), &line, &column);
+        QTC_ASSERT(line >= 0 && column >= 0, qDebug() << doc->filePath()
+                                                      << macro.macro().toString(); continue);
 
         Result use(line, column, name.size(), SemanticHighlighter::MacroUse);
         macroUses.append(use);
@@ -136,9 +140,8 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 } // anonymous namespace
 
 BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document)
-    : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
-    , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString(),
-                                               indexerFileSizeLimitInMb()))
+    : BaseEditorDocumentProcessor(document->document(), document->filePath())
+    , m_parser(new BuiltinEditorDocumentParser(document->filePath(), indexerFileSizeLimitInMb()))
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(new SemanticHighlighter(document))
 {
@@ -241,13 +244,13 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
     if (document.isNull())
         return;
 
-    if (document->fileName() != filePath())
+    if (document->filePath() != filePath())
         return; // some other document got updated
 
     if (document->editorRevision() != revision())
         return; // outdated content, wait for a new document to be parsed
 
-    qCDebug(log) << "document parsed" << document->fileName() << document->editorRevision();
+    qCDebug(log) << "document parsed" << document->filePath() << document->editorRevision();
 
     // Emit ifdefed out blocks
     const auto ifdefoutBlocks = toTextEditorBlocks(document->skippedBlocks());
@@ -261,14 +264,14 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
 
     m_documentSnapshot = snapshot;
     const auto source = createSemanticInfoSource(false);
-    QTC_CHECK(source.snapshot.contains(document->fileName()));
+    QTC_CHECK(source.snapshot.contains(document->filePath()));
     m_semanticInfoUpdater.updateDetached(source);
 }
 
 void BuiltinEditorDocumentProcessor::onSemanticInfoUpdated(const SemanticInfo semanticInfo)
 {
     qCDebug(log) << "semantic info updated"
-                 << semanticInfo.doc->fileName() << semanticInfo.revision << semanticInfo.complete;
+                 << semanticInfo.doc->filePath() << semanticInfo.revision << semanticInfo.complete;
 
     emit semanticInfoUpdated(semanticInfo);
 
@@ -283,7 +286,7 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
     if (document.isNull())
         return;
 
-    if (document->fileName() != filePath())
+    if (document->filePath() != filePath())
         return; // some other document got updated
 
     if (document->editorRevision() != revision())
@@ -302,10 +305,9 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
 SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bool force) const
 {
     const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
-    const QString path = filePath();
-    return SemanticInfo::Source(path,
-                                workingCopy.source(path),
-                                workingCopy.revision(path),
+    return SemanticInfo::Source(filePath().toString(),
+                                workingCopy.source(filePath()),
+                                workingCopy.revision(filePath()),
                                 m_documentSnapshot,
                                 force);
 }

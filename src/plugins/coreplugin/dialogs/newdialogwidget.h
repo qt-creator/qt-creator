@@ -1,5 +1,5 @@
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -25,14 +25,10 @@ class QTextBrowser;
 class QTreeView;
 QT_END_NAMESPACE
 
-namespace Core {
-
-namespace Internal {
+namespace Core::Internal {
 
 class NewDialogWidget : public QDialog, public NewDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::NewDialog)
-
 public:
     explicit NewDialogWidget(QWidget *parent);
     ~NewDialogWidget() override;
@@ -77,5 +73,4 @@ private:
     QVariantMap m_extraVariables;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

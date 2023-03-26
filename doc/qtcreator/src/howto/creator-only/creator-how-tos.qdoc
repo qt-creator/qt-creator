@@ -94,7 +94,7 @@
 
     \section1 View output
 
-    The \l{Viewing Output}{taskbar} provides different views to output from
+    The \l{Viewing Output}{taskbar} shows output from
     several sources, such as a list of errors and warnings encountered during
     a build, detailed output from the compiler, status of a program when it is
     executed, debug output, or search results.
@@ -119,7 +119,7 @@
 
     \section1 Find keyboard shortcuts
 
-    \QC provides \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
+    \QC has \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
     You can see the keyboard shortcut for a menu command in the menu
     or the tooltip for a button.
 
@@ -227,7 +227,7 @@
 
     \section1 Quickly locate files using the keyboard
 
-    The \uicontrol Locator provides one of the easiest ways in \QC to browse
+    Use the \uicontrol Locator to browse
     through projects, files, classes, functions, documentation, and file systems.
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
@@ -257,13 +257,13 @@
 
     \section1 Add a license header template for C++ code
 
-    Specify a file containing a license header for C++ in \uicontrol Edit >
+    Specify a file that has a license header for C++ in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol C++ > \uicontrol {File Naming} >
     \uicontrol {License template}.
 
     \image qtcreator-options-cpp-files.png "File Naming preferences"
 
-    The license file may contain special placeholders enclosed
+    The license file may have special placeholders enclosed
     in \c{%%} that are replaced when generating a new file:
 
     \list 1

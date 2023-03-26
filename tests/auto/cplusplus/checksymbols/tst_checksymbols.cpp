@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../cplusplus_global.h"
 
@@ -9,7 +9,10 @@
 #include <cppeditor/cppchecksymbols.h>
 #include <cppeditor/cppsemanticinfo.h>
 #include <cppeditor/cpptoolstestcase.h>
+
 #include <texteditor/semantichighlighter.h>
+
+#include <utils/filepath.h>
 
 #include <QDebug>
 #include <QDir>
@@ -26,6 +29,7 @@ enum { enableListing = 0 };
 
 using namespace CPlusPlus;
 using namespace CppEditor;
+using namespace Utils;
 
 typedef QByteArray _;
 typedef CheckSymbols::Result Use;
@@ -89,7 +93,7 @@ public:
     {
         // Write source to temporary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
-        Tests::TestCase::writeFile(filePath, source);
+        Tests::TestCase::writeFile(FilePath::fromString(filePath), source);
 
         // Process source
         const Document::Ptr document = createDocument(filePath, source);
@@ -112,12 +116,12 @@ public:
 
     static Document::Ptr createDocument(const QString &filePath, const QByteArray &source)
     {
-        Environment env;
+        CPlusPlus::Environment env;
         Preprocessor preprocess(0, &env);
         preprocess.setKeepComments(true);
         const QByteArray preprocessedSource = preprocess.run(filePath, source);
 
-        Document::Ptr document = Document::create(filePath);
+        Document::Ptr document = Document::create(Utils::FilePath::fromString(filePath));
         document->setUtf8Source(preprocessedSource);
         if (!document->parse())
             return Document::Ptr();
@@ -1142,16 +1146,16 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     QFETCH(QByteArray, source2);
 
     const QString filePath1 = QDir::tempPath() + QLatin1String("/file1.h");
-    Tests::TestCase::writeFile(filePath1, source1);
+    Tests::TestCase::writeFile(FilePath::fromString(filePath1), source1);
 
-    const QString filePath2 = QDir::tempPath() + QLatin1String("/file2.h");
+    const FilePath filePath2 = FilePath::fromString(QDir::tempPath()) / "/file2.h";
     Tests::TestCase::writeFile(filePath2, source2);
 
     const Document::Ptr document1 = TestCase::createDocument(filePath1, source1);
     document1->addIncludeFile(Document::Include("file2.h", filePath2, 1, Client::IncludeLocal));
     Snapshot snapshot;
     snapshot.insert(document1);
-    snapshot.insert(TestCase::createDocument(filePath2, source2));
+    snapshot.insert(TestCase::createDocument(filePath2.toString(), source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
 }

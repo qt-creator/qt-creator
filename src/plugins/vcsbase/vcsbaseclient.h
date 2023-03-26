@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Brian McGillion and Hugues Delorme
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -30,6 +30,8 @@ class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
 class VcsCommand;
 
+using CommandHandler = std::function<void(const CommandResult &)>;
+
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 {
     Q_OBJECT
@@ -43,22 +45,16 @@ public:
     virtual Utils::FilePath vcsBinary() const;
     int vcsTimeoutS() const;
 
-    enum JobOutputBindMode {
-        NoOutputBind,
-        VcsWindowOutputBind
-    };
-
     static VcsCommand *createVcsCommand(const Utils::FilePath &defaultWorkingDir,
                                         const Utils::Environment &environment);
 
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
-                                         const QString &source, QTextCodec *codec,
+                                         const Utils::FilePath &source, QTextCodec *codec,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
     VcsCommand *createCommand(const Utils::FilePath &workingDirectory,
-                              VcsBaseEditorWidget *editor = nullptr,
-                              JobOutputBindMode mode = NoOutputBind) const;
+                              VcsBaseEditorWidget *editor = nullptr) const;
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const Utils::ExitCodeInterpreter &interpreter = {}) const;
@@ -66,11 +62,9 @@ public:
     virtual Utils::Environment processEnvironment() const;
 
     // VCS functionality:
-    virtual VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir,
-                                          const QString &file,
-                                          const QString &revision = {},
-                                          int lineNumber = -1,
-                                          const QStringList &extraOptions = {}) = 0;
+    virtual void annotate(const Utils::FilePath &workingDir, const QString &file,
+                          int lineNumber = -1, const QString &revision = {},
+                          const QStringList &extraOptions = {}, int firstLine = -1) = 0;
 
     static QStringList splitLines(const QString &s);
 
@@ -85,12 +79,18 @@ public:
                                      RunFlags flags = RunFlags::None,
                                      int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
-    // Simple helper to execute a single command using createCommand and enqueueJob.
-    VcsCommand *vcsExec(const Utils::FilePath &workingDirectory,
-                        const QStringList &arguments,
-                        VcsBaseEditorWidget *editor = nullptr,
-                        bool useOutputToWindow = false,
-                        RunFlags additionalFlags = RunFlags::None) const;
+    void vcsExecWithHandler(const Utils::FilePath &workingDirectory,
+                            const QStringList &arguments,
+                            const QObject *context,
+                            const CommandHandler &handler,
+                            RunFlags additionalFlags = RunFlags::None,
+                            QTextCodec *codec = nullptr) const;
+    void vcsExec(const Utils::FilePath &workingDirectory,
+                 const QStringList &arguments,
+                 RunFlags additionalFlags = RunFlags::None) const;
+    void vcsExecWithEditor(const Utils::FilePath &workingDirectory,
+                           const QStringList &arguments,
+                           VcsBaseEditorWidget *editor) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
@@ -139,18 +139,17 @@ public:
     virtual bool synchronousPush(const Utils::FilePath &workingDir,
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = {});
-    VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir,
-                                  const QString &file,
-                                  const QString &revision = {},
-                                  int lineNumber = -1,
-                                  const QStringList &extraOptions = {}) override;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) override;
     virtual void diff(const Utils::FilePath &workingDir,
                       const QStringList &files = {},
                       const QStringList &extraOptions = {});
     virtual void log(const Utils::FilePath &workingDir,
                      const QStringList &files = {},
                      const QStringList &extraOptions = {},
-                     bool enableAnnotationContextMenu = false);
+                     bool enableAnnotationContextMenu = false,
+                     const std::function<void(Utils::CommandLine &)> &addAuthOptions = {});
     virtual void status(const Utils::FilePath &workingDir,
                         const QString &file = {},
                         const QStringList &extraOptions = {});
@@ -176,7 +175,7 @@ public:
 
     virtual Utils::FilePath findTopLevelForFile(const Utils::FilePath &/*file*/) const { return {}; }
 
-    virtual void view(const QString &source, const QString &id,
+    virtual void view(const Utils::FilePath &source, const QString &id,
                       const QStringList &extraOptions = QStringList());
 
 signals:

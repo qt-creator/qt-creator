@@ -1,21 +1,11 @@
 // Copyright (C) 2016 Denis Mingulov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <QObject>
 
 #include "classviewparsertreeitem.h"
-
-#include <cplusplus/CppDocument.h>
-
-// might be changed to forward declaration - is not done to be less dependent
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/project.h>
-
-#include <QList>
-#include <QSharedPointer>
-#include <QStandardItem>
 
 namespace ClassView {
 namespace Internal {

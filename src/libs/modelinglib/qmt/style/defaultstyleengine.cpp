@@ -1,5 +1,5 @@
 // Copyright (C) 2016 Jochen Becher
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "defaultstyleengine.h"
 
@@ -262,7 +262,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
     DObject::VisualPrimaryRole styledVisualPrimaryRole = styledObject.objectVisuals().visualPrimaryRole();
     DObject::VisualSecondaryRole styledVisualSecondaryRole = styledObject.objectVisuals().visualSecondaryRole();
     QHash<int, DepthProperties> depths;
-    foreach (const DObject *collidingObject, styledObject.collidingObjects()) {
+    const QList<const DObject *> collidingObjectList = styledObject.collidingObjects();
+    for (const DObject *collidingObject : collidingObjectList) {
         int collidingDepth = collidingObject->depth();
         if (collidingDepth < styledObject.object()->depth()) {
             ElementType collidingElementType = objectType(collidingObject);
@@ -297,7 +298,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
     int depth = 0;
     if (!depths.isEmpty()) {
         const QList<int> keys = Utils::sorted(depths.keys());
-        foreach (int d, keys) {
+        for (int d : keys) {
             DepthProperties properties = depths.value(d);
             if (properties.m_elementType == elementType
                     && areStackingRoles(properties.m_visualPrimaryRole, properties.m_visualSecondaryRole,

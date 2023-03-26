@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "designertr.h"
 #include "formeditorfactory.h"
@@ -18,6 +18,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -57,17 +58,15 @@ FormEditorPlugin::~FormEditorPlugin()
     delete d;
 }
 
-bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
+void FormEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-
     d = new FormEditorPluginPrivate;
 
 #ifdef CPP_ENABLED
     IWizardFactory::registerFactoryCreator([]() -> IWizardFactory * {
         IWizardFactory *wizard = new FormClassWizard;
         wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
-        wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+        wizard->setDisplayCategory(::Core::Tr::tr(Core::Constants::WIZARD_TR_CATEGORY_QT));
         wizard->setDisplayName(Tr::tr("Qt Designer Form Class"));
         wizard->setIcon({}, "ui/h");
         wizard->setId("C.FormClass");
@@ -90,8 +89,6 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
             QCoreApplication::installTranslator(qtr);
     }
-    error->clear();
-    return true;
 }
 
 void FormEditorPlugin::extensionsInitialized()

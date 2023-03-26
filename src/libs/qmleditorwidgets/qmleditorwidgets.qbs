@@ -17,12 +17,10 @@ QtcLibrary {
         files: [
             "colorbox.cpp", "colorbox.h",
             "colorbutton.cpp", "colorbutton.h",
-            "contextpanetext.ui",
             "contextpanetextwidget.cpp", "contextpanetextwidget.h",
             "contextpanewidget.cpp", "contextpanewidget.h",
-            "contextpanewidgetborderimage.ui",
-            "contextpanewidgetimage.cpp", "contextpanewidgetimage.h", "contextpanewidgetimage.ui",
-            "contextpanewidgetrectangle.cpp", "contextpanewidgetrectangle.h", "contextpanewidgetrectangle.ui",
+            "contextpanewidgetimage.cpp", "contextpanewidgetimage.h",
+            "contextpanewidgetrectangle.cpp", "contextpanewidgetrectangle.h",
             "customcolordialog.cpp", "customcolordialog.h",
             "filewidget.cpp", "filewidget.h",
             "fontsizespinbox.cpp", "fontsizespinbox.h",
@@ -39,7 +37,7 @@ QtcLibrary {
         id: easingPane
         prefix: "easingpane/"
         files: [
-            "easingcontextpane.cpp", "easingcontextpane.h", "easingcontextpane.ui",
+            "easingcontextpane.cpp", "easingcontextpane.h",
             "easinggraph.cpp", "easinggraph.h",
             "easingpane.qrc",
         ]

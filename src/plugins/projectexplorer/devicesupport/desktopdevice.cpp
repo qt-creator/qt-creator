@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "desktopdevice.h"
+
+#include "desktopprocesssignaloperation.h"
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
-#include "desktopprocesssignaloperation.h"
+#include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/fileutils.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
@@ -16,15 +17,73 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/terminalcommand.h>
 #include <utils/url.h>
 
 #include <QCoreApplication>
 #include <QDateTime>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <stdlib.h>
+#include <cstring>
+#endif
+
 using namespace ProjectExplorer::Constants;
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+static void startTerminalEmulator(const QString &workingDir, const Environment &env)
+{
+#ifdef Q_OS_WIN
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+
+    PROCESS_INFORMATION pinfo;
+    ZeroMemory(&pinfo, sizeof(pinfo));
+
+    static const auto quoteWinCommand = [](const QString &program) {
+        const QChar doubleQuote = QLatin1Char('"');
+
+        // add the program as the first arg ... it works better
+        QString programName = program;
+        programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
+        if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)
+                && programName.contains(QLatin1Char(' '))) {
+            programName.prepend(doubleQuote);
+            programName.append(doubleQuote);
+        }
+        return programName;
+    };
+    const QString cmdLine = quoteWinCommand(qtcEnvironmentVariable("COMSPEC"));
+    // cmdLine is assumed to be detached -
+    // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
+
+    const QString totalEnvironment = env.toStringList().join(QChar(QChar::Null)) + QChar(QChar::Null);
+    LPVOID envPtr = (env != Environment::systemEnvironment())
+            ? (WCHAR *)(totalEnvironment.utf16()) : nullptr;
+
+    const bool success = CreateProcessW(0, (WCHAR *)cmdLine.utf16(),
+                                  0, 0, FALSE, CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+                                  envPtr, workingDir.isEmpty() ? 0 : (WCHAR *)workingDir.utf16(),
+                                  &si, &pinfo);
+
+    if (success) {
+        CloseHandle(pinfo.hThread);
+        CloseHandle(pinfo.hProcess);
+    }
+#else
+    const TerminalCommand term = TerminalCommand::terminalEmulator();
+    QProcess process;
+    process.setProgram(term.command.nativePath());
+    process.setArguments(ProcessArgs::splitArgs(term.openArgs));
+    process.setProcessEnvironment(env.toProcessEnvironment());
+    process.setWorkingDirectory(workingDir);
+    process.startDetached();
+#endif
+}
 
 DesktopDevice::DesktopDevice()
 {
@@ -32,8 +91,8 @@ DesktopDevice::DesktopDevice()
 
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
-    setDefaultDisplayName(tr("Local PC"));
-    setDisplayType(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Desktop"));
+    setDefaultDisplayName(Tr::tr("Local PC"));
+    setDisplayType(Tr::tr("Desktop"));
 
     setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);
@@ -42,8 +101,14 @@ DesktopDevice::DesktopDevice()
     const QString portRange =
             QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
-    setOpenTerminal([](const Environment &env, const FilePath &workingDir) {
-        Core::FileUtils::openTerminal(workingDir, env);
+
+    setOpenTerminal([](const Environment &env, const FilePath &path) {
+        const QFileInfo fileInfo = path.toFileInfo();
+        const QString workingDir = QDir::toNativeSeparators(fileInfo.isDir() ?
+                                                            fileInfo.absoluteFilePath() :
+                                                            fileInfo.absolutePath());
+        const Environment realEnv = env.hasChanges() ? env : Environment::systemEnvironment();
+        startTerminalEmulator(workingDir, realEnv);
     });
 }
 
@@ -78,22 +143,6 @@ DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
-}
-
-class DesktopDeviceEnvironmentFetcher : public DeviceEnvironmentFetcher
-{
-public:
-    DesktopDeviceEnvironmentFetcher() = default;
-
-    void start() override
-    {
-        emit finished(Utils::Environment::systemEnvironment(), true);
-    }
-};
-
-DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
-{
-    return DeviceEnvironmentFetcher::Ptr(new DesktopDeviceEnvironmentFetcher());
 }
 
 PortsGatheringMethod DesktopDevice::portsGatheringMethod() const
@@ -139,10 +188,9 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
     return !filePath.needsDevice();
 }
 
-FilePath DesktopDevice::mapToGlobalPath(const Utils::FilePath &pathOnDevice) const
+FilePath DesktopDevice::filePath(const QString &pathOnDevice) const
 {
-    QTC_CHECK(!pathOnDevice.needsDevice());
-    return pathOnDevice;
+    return FilePath::fromParts({}, {}, pathOnDevice);
 }
 
 Environment DesktopDevice::systemEnvironment() const

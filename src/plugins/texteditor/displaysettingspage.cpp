@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "displaysettingspage.h"
 
@@ -7,9 +7,9 @@
 #include "marginsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
+#include "texteditortr.h"
 
 #include <coreplugin/icore.h>
-
 
 #include <utils/layoutbuilder.h>
 
@@ -39,28 +39,27 @@ DisplaySettingsPagePrivate::DisplaySettingsPagePrivate()
 
 class DisplaySettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::DisplaySettingsPage)
-
 public:
     DisplaySettingsWidget(DisplaySettingsPagePrivate *data)
         : m_data(data)
     {
         resize(452, 458);
 
-        enableTextWrapping = new QCheckBox(tr("Enable text &wrapping"));
+        enableTextWrapping = new QCheckBox(Tr::tr("Enable text &wrapping"));
 
-        enableTextWrappingHintLabel = new QLabel(tr("<i>Set <a href=\"font zoom\">font line spacing</a> "
+        enableTextWrappingHintLabel = new QLabel(Tr::tr("<i>Set <a href=\"font zoom\">font line spacing</a> "
                                                     "to 100% to enable text wrapping option.</i>"));
 
         fontSettingsPageLineSpacing = fontSettingsPageLineSpacingLink();
 
         if (fontSettingsPageLineSpacing) {
-            connect(fontSettingsPageLineSpacing, QOverload<int>::of(&QSpinBox::valueChanged),
-                [=](const int &value) {
-                    if (value != 100)
-                        enableTextWrapping->setChecked(false);
-                    enableTextWrapping->setEnabled(value == 100);
-                    enableTextWrappingHintLabel->setVisible(value != 100); } );
+            connect(fontSettingsPageLineSpacing, &QSpinBox::valueChanged,
+                    this, [this](const int &value) {
+                if (value != 100)
+                    enableTextWrapping->setChecked(false);
+                enableTextWrapping->setEnabled(value == 100);
+                enableTextWrappingHintLabel->setVisible(value != 100);
+            });
 
             if (fontSettingsPageLineSpacing->value() != 100)
                 enableTextWrapping->setChecked(false);
@@ -69,12 +68,12 @@ public:
             enableTextWrappingHintLabel->setVisible(fontSettingsPageLineSpacing->value() != 100);
         }
 
-        connect(enableTextWrappingHintLabel, &QLabel::linkActivated, []() {
+        connect(enableTextWrappingHintLabel, &QLabel::linkActivated, [] {
             Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_FONT_SETTINGS); } );
 
 
-        showWrapColumn = new QCheckBox(tr("Display right &margin at column:"));
-        tintMarginArea = new QCheckBox(tr("Tint whole margin area"));
+        showWrapColumn = new QCheckBox(Tr::tr("Display right &margin at column:"));
+        tintMarginArea = new QCheckBox(Tr::tr("Tint whole margin area"));
 
         wrapColumn = new QSpinBox;
         wrapColumn->setMaximum(999);
@@ -82,36 +81,36 @@ public:
         connect(showWrapColumn, &QAbstractButton::toggled, wrapColumn, &QWidget::setEnabled);
         connect(showWrapColumn, &QAbstractButton::toggled, tintMarginArea, &QWidget::setEnabled);
 
-        useIndenter = new QCheckBox(tr("Use context-specific margin"));
-        useIndenter->setToolTip(tr("If available, use a different margin. "
+        useIndenter = new QCheckBox(Tr::tr("Use context-specific margin"));
+        useIndenter->setToolTip(Tr::tr("If available, use a different margin. "
            "For example, the ColumnLimit from the ClangFormat plugin."));
 
-        animateMatchingParentheses = new QCheckBox(tr("&Animate matching parentheses"));
-        scrollBarHighlights = new QCheckBox(tr("Highlight search results on the scrollbar"));
-        displayLineNumbers = new QCheckBox(tr("Display line &numbers"));
-        animateNavigationWithinFile = new QCheckBox(tr("Animate navigation within file"));
-        highlightCurrentLine = new QCheckBox(tr("Highlight current &line"));
-        highlightBlocks = new QCheckBox(tr("Highlight &blocks"));
-        markTextChanges = new QCheckBox(tr("Mark &text changes"));
-        autoFoldFirstComment = new QCheckBox(tr("Auto-fold first &comment"));
-        displayFoldingMarkers = new QCheckBox(tr("Display &folding markers"));
-        centerOnScroll = new QCheckBox(tr("Center &cursor on scroll"));
-        visualizeIndent = new QCheckBox(tr("Visualize indent"));
-        displayFileLineEnding = new QCheckBox(tr("Display file line ending"));
-        displayFileEncoding = new QCheckBox(tr("Display file encoding"));
-        openLinksInNextSplit = new QCheckBox(tr("Always open links in another split"));
-        highlightMatchingParentheses = new QCheckBox(tr("&Highlight matching parentheses"));
+        animateMatchingParentheses = new QCheckBox(Tr::tr("&Animate matching parentheses"));
+        scrollBarHighlights = new QCheckBox(Tr::tr("Highlight search results on the scrollbar"));
+        displayLineNumbers = new QCheckBox(Tr::tr("Display line &numbers"));
+        animateNavigationWithinFile = new QCheckBox(Tr::tr("Animate navigation within file"));
+        highlightCurrentLine = new QCheckBox(Tr::tr("Highlight current &line"));
+        highlightBlocks = new QCheckBox(Tr::tr("Highlight &blocks"));
+        markTextChanges = new QCheckBox(Tr::tr("Mark &text changes"));
+        autoFoldFirstComment = new QCheckBox(Tr::tr("Auto-fold first &comment"));
+        displayFoldingMarkers = new QCheckBox(Tr::tr("Display &folding markers"));
+        centerOnScroll = new QCheckBox(Tr::tr("Center &cursor on scroll"));
+        visualizeIndent = new QCheckBox(Tr::tr("Visualize indent"));
+        displayFileLineEnding = new QCheckBox(Tr::tr("Display file line ending"));
+        displayFileEncoding = new QCheckBox(Tr::tr("Display file encoding"));
+        openLinksInNextSplit = new QCheckBox(Tr::tr("Always open links in another split"));
+        highlightMatchingParentheses = new QCheckBox(Tr::tr("&Highlight matching parentheses"));
 
-        visualizeWhitespace = new QCheckBox(tr("&Visualize whitespace"));
-        visualizeWhitespace->setToolTip(tr("Shows tabs and spaces."));
+        visualizeWhitespace = new QCheckBox(Tr::tr("&Visualize whitespace"));
+        visualizeWhitespace->setToolTip(Tr::tr("Shows tabs and spaces."));
 
-        leftAligned = new QRadioButton(tr("Next to editor content"));
-        atMargin = new QRadioButton(tr("Next to right margin"));
-        rightAligned = new QRadioButton(tr("Aligned at right side"));
+        leftAligned = new QRadioButton(Tr::tr("Next to editor content"));
+        atMargin = new QRadioButton(Tr::tr("Next to right margin"));
+        rightAligned = new QRadioButton(Tr::tr("Aligned at right side"));
         rightAligned->setChecked(true);
-        betweenLines = new QRadioButton(tr("Between lines"));
+        betweenLines = new QRadioButton(Tr::tr("Between lines"));
 
-        displayAnnotations = new QGroupBox(tr("Line annotations")),
+        displayAnnotations = new QGroupBox(Tr::tr("Line annotations")),
         displayAnnotations->setCheckable(true);
 
         using namespace Utils::Layouting;
@@ -125,21 +124,21 @@ public:
 
         Column {
             Group {
-                title(tr("Margin")),
+                title(Tr::tr("Margin")),
                 Column {
                     Row { showWrapColumn, wrapColumn, st },
                     Row { useIndenter, tintMarginArea, st }
                 }
             },
             Group {
-                title(tr("Wrapping")),
+                title(Tr::tr("Wrapping")),
                 Column {
                     enableTextWrapping,
                     Row { enableTextWrappingHintLabel, st}
                 }
             },
             Group {
-                title(tr("Display")),
+                title(Tr::tr("Display")),
                 Row {
                     Column {
                         displayLineNumbers,
@@ -344,9 +343,9 @@ DisplaySettingsPage::DisplaySettingsPage()
   : d(new DisplaySettingsPagePrivate)
 {
     setId(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
-    setDisplayName(DisplaySettingsWidget::tr("Display"));
+    setDisplayName(Tr::tr("Display"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setDisplayCategory(Tr::tr("Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this] { return new DisplaySettingsWidget(d); });
 }

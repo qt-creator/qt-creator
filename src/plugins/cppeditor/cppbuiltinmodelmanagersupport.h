@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -38,9 +38,12 @@ private:
     void startLocalRenaming(const CursorInEditor &data,
                             const ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
-    void globalRename(const CursorInEditor &data, const QString &replacement) override;
+    void globalRename(const CursorInEditor &data, const QString &replacement,
+                      const std::function<void()> &callback) override;
     void findUsages(const CursorInEditor &data) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
+    void checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                     const Utils::LinkHandler &callback) override;
 
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbol;

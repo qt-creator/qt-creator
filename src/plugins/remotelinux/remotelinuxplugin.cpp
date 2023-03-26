@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "remotelinuxplugin.h"
 
@@ -10,7 +10,6 @@
 #include "makeinstallstep.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeployconfiguration.h"
@@ -62,32 +61,9 @@ public:
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
     KillAppStepFactory killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
-
-    const QList<Utils::Id> supportedRunConfigs {
-        runConfigurationFactory.runConfigurationId(),
-        customRunConfigurationFactory.runConfigurationId(),
-        "QmlProjectManager.QmlRunConfiguration"
-    };
-
-    RunWorkerFactory runnerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        supportedRunConfigs,
-        {Constants::GenericLinuxOsType}
-    };
-    RunWorkerFactory debuggerFactory{
-        RunWorkerFactory::make<LinuxDeviceDebugSupport>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        supportedRunConfigs,
-        {Constants::GenericLinuxOsType}
-    };
-    RunWorkerFactory qmlToolingFactory{
-        RunWorkerFactory::make<RemoteLinuxQmlToolingSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
-         ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
-        supportedRunConfigs,
-        {Constants::GenericLinuxOsType}
-    };
+    RemoteLinuxRunWorkerFactory runWorkerFactory;
+    RemoteLinuxDebugWorkerFactory debugWorkerFactory;
+    RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;
 };
 
 static RemoteLinuxPluginPrivate *dd = nullptr;
@@ -104,23 +80,13 @@ RemoteLinuxPlugin::~RemoteLinuxPlugin()
     delete dd;
 }
 
-QVector<QObject *> RemoteLinuxPlugin::createTestObjects() const
+void RemoteLinuxPlugin::initialize()
 {
-    return {
-#ifdef WITH_TESTS
-        new FileSystemAccessTest,
-#endif
-    };
-}
-
-bool RemoteLinuxPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new RemoteLinuxPluginPrivate;
 
-    return true;
+#ifdef WITH_TESTS
+    addTest<FileSystemAccessTest>();
+#endif
 }
 
 } // namespace Internal

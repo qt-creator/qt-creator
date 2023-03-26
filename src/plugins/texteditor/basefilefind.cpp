@@ -1,10 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "basefilefind.h"
+
+#include "refactoringchanges.h"
 #include "textdocument.h"
+#include "texteditortr.h"
 
 #include <aggregation/aggregate.h>
+
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -12,8 +16,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <texteditor/refactoringchanges.h>
-#include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
@@ -37,13 +40,12 @@ using namespace Core;
 namespace TextEditor {
 namespace Internal {
 
-namespace {
 class InternalEngine : public TextEditor::SearchEngine
 {
 public:
     InternalEngine() : m_widget(new QWidget) {}
     ~InternalEngine() override { delete m_widget;}
-    QString title() const override { return TextEditor::SearchEngine::tr("Internal"); }
+    QString title() const override { return Tr::tr("Internal"); }
     QString toolTip() const override { return {}; }
     QWidget *widget() const override { return m_widget; }
     QVariant parameters() const override { return {}; }
@@ -72,7 +74,6 @@ public:
 private:
     QWidget *m_widget;
 };
-} // namespace
 
 class SearchEnginePrivate
 {
@@ -305,10 +306,10 @@ void BaseFileFind::runSearch(SearchResult *search)
     watcher->setFuture(future);
     d->m_futureSynchronizer.addFuture(future);
     FutureProgress *progress = ProgressManager::addTask(future,
-                                                        tr("Searching"),
+                                                        Tr::tr("Searching"),
                                                         Constants::TASK_SEARCH);
     connect(search, &SearchResult::countChanged, progress, [progress](int c) {
-        progress->setSubtitle(BaseFileFind::tr("%n found.", nullptr, c));
+        progress->setSubtitle(Tr::tr("%n found.", nullptr, c));
     });
     progress->setSubtitleVisibleInStatusBar(true);
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
@@ -338,7 +339,7 @@ void BaseFileFind::doReplace(const QString &text,
     const FilePaths files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
         Utils::FadingIndicator::showText(ICore::dialogParent(),
-            tr("%n occurrences replaced.", nullptr, items.size()),
+            Tr::tr("%n occurrences replaced.", nullptr, items.size()),
             Utils::FadingIndicator::SmallText);
         DocumentManager::notifyFilesChangedInternally(files);
         SearchResultWindow::instance()->hide();
@@ -484,7 +485,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
 
     QHash<FilePath, QList<SearchResultItem> > changes;
     for (const SearchResultItem &item : items)
-        changes[FilePath::fromUserInput(item.path().first())].append(item);
+        changes[FilePath::fromUserInput(item.path().constFirst())].append(item);
 
     // Checking for files without write permissions
     QSet<FilePath> roFiles;
@@ -496,7 +497,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
     // Query the user for permissions
     if (!roFiles.isEmpty()) {
         ReadOnlyFilesDialog roDialog(Utils::toList(roFiles), ICore::dialogParent());
-        roDialog.setShowFailWarning(true, tr("Aborting replace."));
+        roDialog.setShowFailWarning(true, Tr::tr("Aborting replace."));
         if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
             return {};
     }

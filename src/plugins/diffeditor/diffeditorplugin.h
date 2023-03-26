@@ -1,17 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
-
-#include "diffeditor_global.h"
 
 #include <coreplugin/diffservice.h>
 #include <extensionsystem/iplugin.h>
 
-QT_BEGIN_NAMESPACE
-template <typename T>
-class QFuture;
-QT_END_NAMESPACE
+namespace Utils { class FutureSynchronizer; }
 
 namespace DiffEditor {
 namespace Internal {
@@ -37,11 +32,9 @@ public:
     DiffEditorPlugin();
     ~DiffEditorPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
-    template <typename T>
-    static void addFuture(const QFuture<T> &future) { addFuture(QFuture<void>(future)); }
-    static void addFuture(const QFuture<void> &future);
+    static Utils::FutureSynchronizer *futureSynchronizer();
 
 private:
     class DiffEditorPluginPrivate *d = nullptr;

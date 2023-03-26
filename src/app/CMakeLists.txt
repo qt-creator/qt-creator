@@ -12,7 +12,7 @@ install(
 
 add_qtc_executable(qtcreator
   DEFINES IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
-  DEPENDS Aggregation ExtensionSystem Qt5::Core Qt5::Widgets Utils shared_qtsingleapplication app_version
+  DEPENDS Aggregation ExtensionSystem Qt::Core Qt::Widgets Utils shared_qtsingleapplication app_version
   SOURCES
     main.cpp
     ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.h
@@ -66,7 +66,7 @@ if (QTC_STATIC_BUILD)
     SOURCES "${CMAKE_CURRENT_BINARY_DIR}/plugin_imports.cpp"
   )
 
-  if (Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0 AND TARGET QmlDesigner)
+  if (TARGET QmlDesigner)
     qt6_import_qml_plugins(qtcreator
       PATH_TO_SCAN "${CMAKE_CURRENT_SOURCE_DIR}/../../share/qtcreator/qmldesigner")
   endif()

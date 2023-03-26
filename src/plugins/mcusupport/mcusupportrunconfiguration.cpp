@@ -1,11 +1,14 @@
 // Copyright (C) 2020 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcusupportrunconfiguration.h"
+
 #include "mcusupportconstants.h"
+#include "mcusupporttr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
@@ -16,8 +19,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 static FilePath cmakeFilePath(const Target *target)
 {
@@ -39,14 +41,12 @@ static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *tar
 
 class FlashAndRunConfiguration final : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(McuSupport::Internal::FlashAndRunConfiguration)
-
 public:
     FlashAndRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
         auto flashAndRunParameters = addAspect<StringAspect>();
-        flashAndRunParameters->setLabelText(tr("Flash and run CMake parameters:"));
+        flashAndRunParameters->setLabelText(Tr::tr("Flash and run CMake parameters:"));
         flashAndRunParameters->setDisplayStyle(StringAspect::TextEditDisplay);
         flashAndRunParameters->setSettingsKey("FlashAndRunConfiguration.Parameters");
 
@@ -76,17 +76,19 @@ public:
     }
 };
 
-RunWorkerFactory::WorkerCreator makeFlashAndRunWorker()
-{
-    return RunWorkerFactory::make<FlashAndRunWorker>();
-}
+// Factories
 
 McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
-    : RunConfigurationFactory()
 {
     registerRunConfiguration<FlashAndRunConfiguration>(Constants::RUNCONFIGURATION);
     addSupportedTargetDeviceType(Constants::DEVICE_TYPE);
 }
 
-} // namespace Internal
-} // namespace McuSupport
+FlashRunWorkerFactory::FlashRunWorkerFactory()
+{
+    setProduct<FlashAndRunWorker>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfig(Constants::RUNCONFIGURATION);
+}
+
+} // McuSupport::Internal

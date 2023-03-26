@@ -111,16 +111,23 @@ function(qtc_source_dir varName)
   endif()
 endfunction()
 
+function(get_default_defines varName allow_ascii_casts)
+  get_directory_property(_compile_definitions COMPILE_DEFINITIONS)
+  list(FIND _compile_definitions QT_NO_CAST_FROM_ASCII no_cast_index)
+  set(default_defines_copy ${DEFAULT_DEFINES})
+  if(allow_ascii_casts OR no_cast_index GREATER_EQUAL 0)
+    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
+  endif()
+  set(${varName} ${default_defines_copy} PARENT_SCOPE)
+endfunction()
+
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT;SHARED;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH"
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SHARED;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH;EXCLUDE_FROM_INSTALL"
     "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
 
-  set(default_defines_copy ${DEFAULT_DEFINES})
-  if (_arg_ALLOW_ASCII_CASTS)
-    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
-  endif()
+  get_default_defines(default_defines_copy ${_arg_ALLOW_ASCII_CASTS})
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_library had unparsed arguments")
@@ -265,7 +272,7 @@ function(add_qtc_library name)
     set(COMPONENT_OPTION "COMPONENT" "${_arg_COMPONENT}")
   endif()
 
-  if (NOT QTC_STATIC_BUILD OR _arg_SHARED)
+  if (NOT _arg_EXCLUDE_FROM_INSTALL AND (NOT QTC_STATIC_BUILD OR _arg_SHARED))
     install(TARGETS ${name}
       EXPORT QtCreator
       RUNTIME
@@ -304,7 +311,8 @@ function(add_qtc_library name)
   endif()
 
   get_target_property(have_automoc_prop ${name} AUTOMOC)
-  if("${Qt5_VERSION}" VERSION_GREATER_EQUAL "6.2.0" AND "${have_automoc_prop}")
+  # check for Qt 6 is needed because sdktool & qml2puppet still build with Qt 5
+  if(Qt6_VERSION AND "${have_automoc_prop}")
     qt_extract_metatypes(${name})
   endif()
 endfunction(add_qtc_library)
@@ -616,10 +624,7 @@ function(add_qtc_executable name)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
   endif()
 
-  set(default_defines_copy ${DEFAULT_DEFINES})
-  if (_arg_ALLOW_ASCII_CASTS)
-    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
-  endif()
+  get_default_defines(default_defines_copy ${_arg_ALLOW_ASCII_CASTS})
 
   update_cached_list(__QTC_EXECUTABLES "${name}")
 
@@ -831,7 +836,12 @@ function(add_qtc_test name)
   endif()
   set(${_build_test_var} "${_build_test_default}" CACHE BOOL "Build test ${name}.")
 
-  if (NOT ${_build_test_var} OR NOT ${_arg_CONDITION})
+  if ((${_arg_CONDITION}) AND ${_build_test_var})
+    set(_test_enabled ON)
+  else()
+    set(_test_enabled OFF)
+  endif()
+  if (NOT _test_enabled)
     return()
   endif()
 
@@ -847,8 +857,7 @@ function(add_qtc_test name)
   set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   # relax cast requirements for tests
-  set(default_defines_copy ${DEFAULT_DEFINES})
-  list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
+  get_default_defines(default_defines_copy YES)
 
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
 
@@ -860,7 +869,6 @@ function(add_qtc_test name)
     DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${default_defines_copy}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
-    CONDITION ${_arg_CONDITION}
   )
 
   set_target_properties(${name} PROPERTIES
@@ -981,7 +989,10 @@ function(qtc_add_resources target resourceName)
     message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
   endif()
 
-  if (DEFINED _arg_CONDITION AND NOT _arg_CONDITION)
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
+  if (NOT (${_arg_CONDITION}))
     return()
   endif()
 
@@ -1055,11 +1066,11 @@ function(qtc_add_resources target resourceName)
 
   # Process .qrc file:
   add_custom_command(OUTPUT "${generatedSourceCode}"
-                     COMMAND Qt5::rcc ${rccArgs}
+                     COMMAND Qt::rcc ${rccArgs}
                      DEPENDS
                       ${resource_dependencies}
                       ${generatedResourceFile}
-                      "Qt5::rcc"
+                      "Qt::rcc"
                      COMMENT "RCC ${newResourceName}"
                      VERBATIM)
 

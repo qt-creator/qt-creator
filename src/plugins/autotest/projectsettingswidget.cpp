@@ -1,5 +1,5 @@
 // Copyright (C) 2019 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectsettingswidget.h"
 
@@ -86,8 +86,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
         m_projectSettings->setRunAfterBuild(RunAfterBuildMode(index));
     });
     m_syncTimer.setSingleShot(true);
-    connect(&m_syncTimer, &QTimer::timeout,
-            [this]() {
+    connect(&m_syncTimer, &QTimer::timeout, this, [this] {
         auto testTreeModel = TestTreeModel::instance();
         if (m_syncType & ITestBase::Framework)
             testTreeModel->synchronizeTestFrameworks();

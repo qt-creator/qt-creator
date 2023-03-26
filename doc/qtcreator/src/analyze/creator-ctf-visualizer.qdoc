@@ -18,13 +18,13 @@
     JavaScript down to the C++ and all the way to the kernel space. This
     enables you to measure the performance of an application and to check
     whether it is CPU or I/O bound or influenced by other applications
-    running on the same system. Tracing provides insight into what a system is
+    running on the same system. Tracing gives insight into what a system is
     doing and why an application is performing in a particular way. It indicates
     how the hardware is utilized and what the kernel and application are doing.
 
-    Tracing information can also provide you additional insight into the data
-    collected by \l{Profiling QML Applications}{QML Profiler}. For example, you
-    could check why a trivial binding evaluation is taking so long. This might
+    Tracing information can tell you more about the data that
+    \l{Profiling QML Applications}{QML Profiler} collects. For example, you
+    can check why a trivial binding evaluation is taking so long. This might
     be caused by C++ being executed or the disk I/O being slow.
 
     Several tracing tools (such as \c {chrome://about}) can generate information
@@ -110,7 +110,7 @@
     LTTng is a tracing toolkit for Linux that you can apply on embedded Linux
     systems to find out how to optimize the startup time of an application.
 
-    Since Qt 5.13, Qt provides a set of kernel trace points and a tracing
+    Since Qt 5.13, Qt has a set of kernel trace points and a tracing
     subsystem for custom user space trace points.
 
     \section2 Configuring the Kernel
@@ -180,7 +180,7 @@
 
     Scheduler switch trace points are reached when an application is switched
     out due to predemption, for example, when another process gets the chance
-    to run on the CPU core. Enable scheduler schwitch trace points to record
+    to run on the CPU core. Enable scheduler switch trace points to record
     the thread that is currently running and the process it belongs to, as
     well as the time when the process started and stopped.
 
@@ -212,7 +212,7 @@
         \li Count memory page allocations
     \endlist
 
-    To generate JSON files that contain the trace data in Chrome Trace Format,
+    To generate JSON files that have the trace data in Chrome Trace Format,
     enter the following command on the command line:
 
     \code

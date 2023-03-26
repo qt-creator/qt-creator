@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include <string>
 #include <memory>
+#include <optional>
+#include <string>
 
 #include <Python.h>
 
@@ -16,6 +17,7 @@ public:
     PyType() = default;
     PyType(ULONG64 module, unsigned long typeId,
            const std::string &name = std::string(), int tag = -1);
+    explicit PyType(const std::string &name, ULONG64 module = 0);
     PyType(const PyType &other) = default;
 
     std::string name(bool withModule = false) const;
@@ -48,13 +50,13 @@ public:
     static PyType lookupType(const std::string &typeName, ULONG64 module = 0);
 
 private:
-    static PyType createUnresolvedType(const std::string &typeName);
+    bool resolve() const;
 
-    unsigned long           m_typeId = 0;
-    ULONG64                 m_module = 0;
-    bool                    m_resolved = false;
-    mutable std::string     m_name;
-    mutable int             m_tag = -1;
+    mutable unsigned long m_typeId = 0;
+    mutable ULONG64 m_module = 0;
+    mutable std::optional<bool> m_resolved;
+    mutable std::string m_name;
+    mutable int m_tag = -1;
 };
 
 struct TypePythonObject

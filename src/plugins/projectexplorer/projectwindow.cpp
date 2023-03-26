@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectwindow.h"
 
@@ -9,8 +9,8 @@
 #include "kitoptionspage.h"
 #include "panelswidget.h"
 #include "project.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectimporter.h"
 #include "projectpanelfactory.h"
 #include "projectsettingswidget.h"
@@ -22,6 +22,7 @@
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/find/optionspopup.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icontext.h>
@@ -102,14 +103,14 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
     connect(&m_clear, &QAction::triggered, this, &OutputWindow::clear);
 
     m_filterActionRegexp.setCheckable(true);
-    m_filterActionRegexp.setText(ProjectWindow::tr("Use Regular Expressions"));
+    m_filterActionRegexp.setText(Tr::tr("Use Regular Expressions"));
     connect(&m_filterActionRegexp, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
     Core::ActionManager::registerAction(&m_filterActionRegexp,
                                         kRegExpActionId,
                                         Context(Constants::C_PROJECTEXPLORER));
 
     m_filterActionCaseSensitive.setCheckable(true);
-    m_filterActionCaseSensitive.setText(ProjectWindow::tr("Case Sensitive"));
+    m_filterActionCaseSensitive.setText(Tr::tr("Case Sensitive"));
     connect(&m_filterActionCaseSensitive,
             &QAction::toggled,
             this,
@@ -119,7 +120,7 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
                                         Context(Constants::C_PROJECTEXPLORER));
 
     m_invertFilterAction.setCheckable(true);
-    m_invertFilterAction.setText(ProjectWindow::tr("Show Non-matching Lines"));
+    m_invertFilterAction.setText(Tr::tr("Show Non-matching Lines"));
     connect(&m_invertFilterAction, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
     Core::ActionManager::registerAction(&m_invertFilterAction,
                                         kInvertActionId,
@@ -292,7 +293,7 @@ public:
     {
         switch (role) {
         case Qt::DisplayRole:
-            return ProjectWindow::tr("Project Settings");
+            return Tr::tr("Project Settings");
 
         case PanelWidgetRole:
         case ActiveItemRole:
@@ -337,7 +338,7 @@ public:
         : m_project(project), m_changeListener(changeListener)
     {
         QTC_ASSERT(m_project, return);
-        QString display = ProjectWindow::tr("Build & Run");
+        QString display = Tr::tr("Build & Run");
         appendChild(m_targetsItem = new TargetGroupItem(display, project));
         appendChild(m_miscItem = new MiscSettingsGroupItem(project));
     }
@@ -521,7 +522,7 @@ public:
     ProjectWindowPrivate(ProjectWindow *parent)
         : q(parent)
     {
-        m_projectsModel.setHeader({ProjectWindow::tr("Projects")});
+        m_projectsModel.setHeader({Tr::tr("Projects")});
 
         m_selectorTree = new SelectorTree;
         m_selectorTree->setModel(&m_projectsModel);
@@ -553,14 +554,14 @@ public:
         connect(sessionManager, &SessionManager::startupProjectChanged,
                 this, &ProjectWindowPrivate::startupProjectChanged);
 
-        m_importBuild = new QPushButton(ProjectWindow::tr("Import Existing Build..."));
+        m_importBuild = new QPushButton(Tr::tr("Import Existing Build..."));
         connect(m_importBuild, &QPushButton::clicked,
                 this, &ProjectWindowPrivate::handleImportBuild);
         connect(sessionManager, &SessionManager::startupProjectChanged, this, [this](Project *project) {
             m_importBuild->setEnabled(project && project->projectImporter());
         });
 
-        m_manageKits = new QPushButton(ProjectWindow::tr("Manage Kits..."));
+        m_manageKits = new QPushButton(Tr::tr("Manage Kits..."));
         connect(m_manageKits, &QPushButton::clicked,
                 this, &ProjectWindowPrivate::handleManageKits);
 
@@ -569,13 +570,13 @@ public:
 
         auto selectorView = new QWidget; // Black blob + Combobox + Project tree below.
         selectorView->setObjectName("ProjectSelector"); // Needed for dock widget state saving
-        selectorView->setWindowTitle(ProjectWindow::tr("Project Selector"));
+        selectorView->setWindowTitle(Tr::tr("Project Selector"));
         selectorView->setAutoFillBackground(true);
         selectorView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(selectorView, &QWidget::customContextMenuRequested,
                 this, &ProjectWindowPrivate::openContextMenu);
 
-        auto activeLabel = new QLabel(ProjectWindow::tr("Active Project"));
+        auto activeLabel = new QLabel(Tr::tr("Active Project"));
         QFont font = activeLabel->font();
         font.setBold(true);
         font.setPointSizeF(font.pointSizeF() * 1.2);
@@ -611,7 +612,7 @@ public:
         // especially the find tool bar (resulting in wrong label color)
         output->setBackgroundRole(QPalette::Window);
         output->setObjectName("BuildSystemOutput");
-        output->setWindowTitle(ProjectWindow::tr("Build System Output"));
+        output->setWindowTitle(Tr::tr("Build System Output"));
         auto outputLayout = new QVBoxLayout;
         output->setLayout(outputLayout);
         outputLayout->setContentsMargins(0, 0, 0, 0);
@@ -625,9 +626,8 @@ public:
         m_toggleRightSidebarAction.setCheckable(true);
         m_toggleRightSidebarAction.setChecked(true);
         const auto toolTipText = [](bool checked) {
-            return checked
-                       ? QCoreApplication::translate("Core", Core::Constants::TR_HIDE_RIGHT_SIDEBAR)
-                       : QCoreApplication::translate("Core", Core::Constants::TR_SHOW_RIGHT_SIDEBAR);
+            return checked ? ::Core::Tr::tr(Core::Constants::TR_HIDE_RIGHT_SIDEBAR)
+                           : ::Core::Tr::tr(Core::Constants::TR_SHOW_RIGHT_SIDEBAR);
         };
         m_toggleRightSidebarAction.setText(toolTipText(false)); // always "Show Right Sidebar"
         m_toggleRightSidebarAction.setToolTip(toolTipText(m_toggleRightSidebarAction.isChecked()));
@@ -731,9 +731,9 @@ public:
         if (!menu.actions().isEmpty())
             menu.addSeparator();
 
-        QAction *importBuild = menu.addAction(ProjectWindow::tr("Import Existing Build..."));
+        QAction *importBuild = menu.addAction(Tr::tr("Import Existing Build..."));
         importBuild->setEnabled(project && project->projectImporter());
-        QAction *manageKits = menu.addAction(ProjectWindow::tr("Manage Kits..."));
+        QAction *manageKits = menu.addAction(Tr::tr("Manage Kits..."));
 
         QAction *act = menu.exec(m_selectorTree->mapToGlobal(pos));
 
@@ -760,7 +760,7 @@ public:
         QTC_ASSERT(projectImporter, return);
 
         FilePath importDir =
-                FileUtils::getExistingDirectory(nullptr, ProjectWindow::tr("Import Directory"),
+                FileUtils::getExistingDirectory(nullptr, Tr::tr("Import Directory"),
                                                 project->projectDirectory());
 
         Target *lastTarget = nullptr;

@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "contextpanewidget.h"
+
+#include "qmleditorwidgetstr.h"
 
 #include <utils/hostosinfo.h>
 
@@ -9,8 +11,6 @@
 #include <QFontComboBox>
 #include <QComboBox>
 #include <QSpinBox>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QGridLayout>
@@ -145,7 +145,7 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(16, 16);
 
-    m_toolButton->setToolTip(tr("Hides this toolbar."));
+    m_toolButton->setToolTip(Tr::tr("Hides this toolbar."));
     connect(m_toolButton, &QToolButton::clicked, this, &ContextPaneWidget::onTogglePane);
     layout->addWidget(m_toolButton, 0, 0, 1, 1);
     colorDialog();
@@ -165,12 +165,12 @@ ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_cu
     setAutoFillBackground(true);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    m_resetAction = new QAction(tr("Pin Toolbar"), this);
+    m_resetAction = new QAction(Tr::tr("Pin Toolbar"), this);
     m_resetAction->setCheckable(true);
     addAction(m_resetAction.data());
     connect(m_resetAction.data(), &QAction::triggered, this, &ContextPaneWidget::onResetPosition);
 
-    m_disableAction = new QAction(tr("Show Always"), this);
+    m_disableAction = new QAction(Tr::tr("Show Always"), this);
     addAction(m_disableAction.data());
     m_disableAction->setCheckable(true);
     connect(m_disableAction.data(), &QAction::toggled, this, &ContextPaneWidget::onDisable);
@@ -191,8 +191,9 @@ ContextPaneWidget::~ContextPaneWidget()
 void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2, bool pinned)
 {
     //uncheck all color buttons
-    foreach (ColorButton *colorButton, findChildren<ColorButton*>()) {
-            colorButton->setChecked(false);
+    const QList<ColorButton *> children = findChildren<ColorButton*>();
+    for (ColorButton *colorButton : children) {
+        colorButton->setChecked(false);
     }
     show();
     update();
@@ -466,7 +467,7 @@ void ContextPaneWidget::setPinButton()
     m_toolButton->setIcon(QPixmap::fromImage(QImage(pin_xpm)));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(20, 20);
-    m_toolButton->setToolTip(tr("Unpins the toolbar and moves it to the default position."));
+    m_toolButton->setToolTip(Tr::tr("Unpins the toolbar and moves it to the default position."));
 
     emit pinnedChanged(true);
     if (m_resetAction) {
@@ -482,7 +483,7 @@ void ContextPaneWidget::setLineButton()
     m_toolButton->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     m_toolButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolButton->setFixedSize(20, 20);
-    m_toolButton->setToolTip(tr("Hides this toolbar. This toolbar can be"
+    m_toolButton->setToolTip(Tr::tr("Hides this toolbar. This toolbar can be"
                                 " permanently disabled in the options page or in the context menu."));
 
     emit pinnedChanged(false);

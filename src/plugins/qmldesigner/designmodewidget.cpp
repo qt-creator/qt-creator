@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "designmodewidget.h"
 
@@ -7,8 +7,6 @@
 
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
-#include "documentwarningwidget.h"
-#include "edit3dview.h"
 
 #include <texteditor/textdocument.h>
 #include <nodeinstanceview.h>
@@ -44,7 +42,6 @@
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QDir>
-#include <QLayout>
 #include <QSettings>
 #include <QToolBar>
 

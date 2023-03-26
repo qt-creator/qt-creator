@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ifindfilter.h"
 
-#include <coreplugin/coreicons.h>
+#include "../coreicons.h"
+#include "../coreplugintr.h"
 
 #include <QApplication>
 #include <QKeySequence>
@@ -315,18 +316,18 @@ QString IFindFilter::descriptionForFindFlags(FindFlags flags)
 {
     QStringList flagStrings;
     if (flags & FindCaseSensitively)
-        flagStrings.append(tr("Case sensitive"));
+        flagStrings.append(Tr::tr("Case sensitive"));
     if (flags & FindWholeWords)
-        flagStrings.append(tr("Whole words"));
+        flagStrings.append(Tr::tr("Whole words"));
     if (flags & FindRegularExpression)
-        flagStrings.append(tr("Regular expressions"));
+        flagStrings.append(Tr::tr("Regular expressions"));
     if (flags & FindPreserveCase)
-        flagStrings.append(tr("Preserve case"));
-    QString description = tr("Flags: %1");
+        flagStrings.append(Tr::tr("Preserve case"));
+    QString description = Tr::tr("Flags: %1");
     if (flagStrings.isEmpty())
-        description = description.arg(tr("None"));
+        description = description.arg(Tr::tr("None"));
     else
-        description = description.arg(flagStrings.join(tr(", ")));
+        description = description.arg(flagStrings.join(Tr::tr(", ")));
     return description;
 }
 

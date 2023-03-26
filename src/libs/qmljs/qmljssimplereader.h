@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
@@ -17,9 +17,6 @@
 #include <QStringList>
 #include <QVariant>
 #include <QWeakPointer>
-
-// for Q_DECLARE_TR_FUNCTIONS
-#include <QCoreApplication>
 
 namespace QmlJS {
 
@@ -84,8 +81,6 @@ using namespace QQmlJS;
 
 class QMLJS_EXPORT SimpleAbstractStreamReader
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::SimpleAbstractStreamReader)
-
 public:
     SimpleAbstractStreamReader();
     virtual ~SimpleAbstractStreamReader();
@@ -124,8 +119,6 @@ private:
 
 class QMLJS_EXPORT SimpleReader: public SimpleAbstractStreamReader
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::SimpleReader)
-
 public:
     SimpleReader();
     SimpleReaderNode::Ptr readFile(const QString &fileName);

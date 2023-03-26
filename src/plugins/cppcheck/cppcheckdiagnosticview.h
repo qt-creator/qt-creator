@@ -1,16 +1,14 @@
 // Copyright (C) 2019 Sergey Morozov
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <debugger/analyzer/detailederrorview.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class DiagnosticView : public Debugger::DetailedErrorView
 {
-    Q_OBJECT
 public:
     explicit DiagnosticView(QWidget *parent = nullptr);
     ~DiagnosticView() override;
@@ -23,5 +21,4 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal
