@@ -193,6 +193,14 @@ static bool isDelegateModel(QObject *object)
     return false;
 }
 
+static bool isConnections(QObject *object)
+{
+    if (object)
+        return isMetaObjectofType(object->metaObject(), "QQmlConnections");
+
+    return false;
+}
+
 // This is used in share/qtcreator/qml/qmlpuppet/qml2puppet/instances/objectnodeinstance.cpp
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
@@ -389,7 +397,7 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
                 doComponentCompleteRecursive(child, nodeInstanceServer);
         }
 
-        if (!isQuickStyleItem(object) && !isDelegateModel(object)) {
+        if (!isQuickStyleItem(object) && !isDelegateModel(object) && !isConnections(object)) {
             if (item) {
                 static_cast<QQmlParserStatus *>(item)->componentComplete();
             } else {
