@@ -132,12 +132,15 @@ TerminalPane::TerminalPane(QObject *parent)
 
     auto updateEscButton = [this] {
         m_escSettingButton->setChecked(TerminalSettings::instance().sendEscapeToTerminal.value());
+        static QString escKey = QKeySequence(Qt::Key_Escape).toString(QKeySequence::NativeText);
+        static QString shiftEsc = QKeySequence(QKeyCombination(Qt::ShiftModifier, Qt::Key_Escape))
+                                      .toString(QKeySequence::NativeText);
         if (TerminalSettings::instance().sendEscapeToTerminal.value()) {
-            m_escSettingButton->setText("⎋");
+            m_escSettingButton->setText(escKey);
             m_escSettingButton->setToolTip(Tr::tr("Sending ESC to terminal instead of Qt Creator"));
         } else {
-            m_escSettingButton->setText("⇧+⎋");
-            m_escSettingButton->setToolTip(Tr::tr("Press ⇧+⎋ to send ESC to terminal"));
+            m_escSettingButton->setText(shiftEsc);
+            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send ESC to terminal").arg(shiftEsc));
         }
     };
 
