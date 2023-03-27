@@ -5,10 +5,18 @@
 
 #include "../coreplugintr.h"
 
+#include <utils/icon.h>
+#include <utils/overlaywidget.h>
+
 #include <QApplication>
 #include <QEvent>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QVBoxLayout>
+
+using namespace Utils;
+
+const int PIN_SIZE = 12;
 
 namespace Core::Internal {
 
@@ -21,15 +29,29 @@ ProgressView::ProgressView(QWidget *parent)
     m_layout->setSpacing(0);
     m_layout->setSizeConstraint(QLayout::SetFixedSize);
     setWindowTitle(Tr::tr("Processes"));
+
+    auto pinButton = new OverlayWidget(this);
+    pinButton->attachToWidget(this);
+    pinButton->setAttribute(Qt::WA_TransparentForMouseEvents, false); // override OverlayWidget
+    pinButton->setPaintFunction([](QWidget *that, QPainter &p, QPaintEvent *) {
+        static const QIcon icon = Icon({{":/utils/images/pinned_small.png", Theme::IconsBaseColor}},
+                                        Icon::Tint)
+                                       .icon();
+        QRect iconRect(0, 0, PIN_SIZE, PIN_SIZE);
+        iconRect.moveTopRight(that->rect().topRight());
+        icon.paint(&p, iconRect);
+    });
+    pinButton->setVisible(false);
+    pinButton->installEventFilter(this);
+    m_pinButton = pinButton;
 }
 
 ProgressView::~ProgressView() = default;
 
 void ProgressView::addProgressWidget(QWidget *widget)
 {
-    if (m_layout->count() == 0)
-        m_anchorBottomRight = {}; // reset temporarily user-moved progress details
     m_layout->insertWidget(0, widget);
+    m_pinButton->raise();
 }
 
 void ProgressView::removeProgressWidget(QWidget *widget)
@@ -63,9 +85,12 @@ bool ProgressView::event(QEvent *event)
         reposition();
     } else if (event->type() == QEvent::Enter) {
         m_hovered = true;
+        if (m_anchorBottomRight != QPoint())
+            m_pinButton->setVisible(true);
         emit hoveredChanged(m_hovered);
     } else if (event->type() == QEvent::Leave) {
         m_hovered = false;
+        m_pinButton->setVisible(false);
         emit hoveredChanged(m_hovered);
     } else if (event->type() == QEvent::Show) {
         m_anchorBottomRight = {}; // reset temporarily user-moved progress details
@@ -78,6 +103,16 @@ bool ProgressView::eventFilter(QObject *obj, QEvent *event)
 {
     if ((obj == parentWidget() || obj == m_referenceWidget) && event->type() == QEvent::Resize)
         reposition();
+    if (obj == m_pinButton && event->type() == QEvent::MouseButtonRelease) {
+        auto me = static_cast<QMouseEvent *>(event);
+        if (me->button() == Qt::LeftButton
+            && QRectF(m_pinButton->width() - PIN_SIZE, 0, PIN_SIZE, PIN_SIZE)
+                   .contains(me->position())) {
+            me->accept();
+            m_anchorBottomRight = {};
+            reposition();
+        }
+    }
     return false;
 }
 
@@ -133,6 +168,9 @@ void ProgressView::reposition()
 {
     if (!parentWidget() || !m_referenceWidget)
         return;
+
+    m_pinButton->setVisible(m_anchorBottomRight != QPoint() && m_hovered);
+
     move(boundedInParent(this, topRightReferenceInParent() + m_anchorBottomRight, parentWidget())
          - rect().bottomRight());
 }
