@@ -125,7 +125,7 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QStr
                                               "Unchecked - Remove mark.\n"
                                               "Partially checked - Do not change current state."));
     m_commitView->setToolTip(::Git::Tr::tr(
-            "Pushes the selected commit and all dependent commits."));
+            "Pushes the selected commit and all commits it depends on."));
     m_reviewersLineEdit->setToolTip(::Git::Tr::tr("Comma-separated list of reviewers.\n"
             "\n"
             "Reviewers can be specified by nickname or email address. Spaces not allowed.\n"
