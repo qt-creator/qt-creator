@@ -67,6 +67,7 @@ public:
         assign,
         attach_medium,
         back_medium,
+        backspace_small,
         bevelAll,
         bevelCorner,
         bezier_medium,
