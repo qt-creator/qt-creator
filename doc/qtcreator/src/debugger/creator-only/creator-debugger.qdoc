@@ -632,9 +632,11 @@
     \row
         \li Peripheral Registers
         \li View the current state of peripheral registers.
-        \li
+        \li \l {Peripheral Registers}
     \row
-        \li Debugger Log
+        \li Global Debugger Log
+
+            Debugger Log
         \li View debug output to find out why the debugger does not work.
 
             The log view acts as a console, so you can send the contents
@@ -652,6 +654,9 @@
         \li Open the current source file in the text editor for changing it.
         \li \l {Working in Edit Mode}
     \endtable
+
+    \note The \uicontrol Views menu shows some views only while you are
+    debugging.
 
     \section1 Managing Debug Views
 
@@ -1003,7 +1008,7 @@
 /*!
     \page creator-registers-view.html
     \previouspage creator-expressions-view.html
-    \nextpage creator-debugger-log-view.html
+    \nextpage creator-peripheral-registers-view.html
 
     \title Viewing and Editing Register State
 
@@ -1033,6 +1038,7 @@
         \li Open \l {Examining Memory}{Memory Editor} at the selected value.
         \li Open the \l {Viewing Disassembled Code}{Disassembler} view.
         \li Display a value in hexadecimal, decimal, octal, or binary format.
+        \li Set \l{Debugger Preferences}{debugger preferences}.
     \endlist
 
     By default, the \uicontrol Registers view is hidden. To show it, select it in
@@ -1061,8 +1067,41 @@
 */
 
 /*!
-    \page creator-debugger-log-view.html
+    \page creator-peripheral-registers-view.html
     \previouspage creator-registers-view.html
+    \nextpage creator-debugger-log-view.html
+
+    \title Peripheral Registers
+
+    The \uicontrol {Peripheral Registers} view displays the current state of
+    peripheral devices, such as a mouse, keyboard, display, printer, or USB
+    drive. Applications write registers to send information to the device and
+    read them to get information from the device. To read registers in a
+    peripheral device, the application accesses its I/O addresses with a load
+    or store instruction that the CPU issues.
+
+    \image qtcreator-debugger-peripheral-registers-view.webp {Peripheral Registers view}
+
+    The \uicontrol Access column shows whether the register is read-and-write
+    (\uicontrol RW), read-only (\uicontrol RO), or write-only (\uicontrol WO).
+    \uicontrol N/A means that the access type is not available.
+
+    Right-click column headers to show and hide columns in the view.
+
+    Right-click the view to select the following actions:
+
+    \list
+        \li View register groups.
+        \li Set \l{Debugger Preferences}{debugger preferences}.
+    \endlist
+
+    By default, the \uicontrol {Peripheral Registers} view is hidden. To show it,
+    select it in \uicontrol Views on the debugger toolbar.
+*/
+
+/*!
+    \page creator-debugger-log-view.html
+    \previouspage creator-peripheral-registers-view.html
     \nextpage creator-disassembler-view.html
 
     \title Debugger Log
