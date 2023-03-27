@@ -63,10 +63,10 @@ bool IDeviceFactory::canCreate() const
 
 IDevice::Ptr IDeviceFactory::create() const
 {
-    if (m_creator)
+    if (!m_creator)
         return {};
 
-    IDevice::Ptr device = m_constructor();
+    IDevice::Ptr device = m_creator();
     QTC_ASSERT(device, return {});
     device->setDefaultDisplayName(displayName());
     return device;
