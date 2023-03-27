@@ -6,9 +6,8 @@
 #include "asset.h"
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
-#include "designeractionmanager.h"
 #include "assetslibraryview.h"
-
+#include "designeractionmanager.h"
 #include "modelnodeoperations.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -58,7 +57,7 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         if (obj == m_assetsWidget->quickWidget())
             QMetaObject::invokeMethod(m_assetsWidget->rootObject(), "handleViewFocusOut");
     } else if (event->type() == QMouseEvent::MouseMove) {
-        if (!m_assetsToDrag.isEmpty() && !m_model.isNull()) {
+        if (!m_assetsToDrag.isEmpty() && m_assetsView->model()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
                 QMimeData *mimeData = new QMimeData;
@@ -70,8 +69,8 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
                 mimeData->setUrls(urlsToDrag);
 
-                m_model->startDrag(mimeData, m_assetsIconProvider->requestPixmap(m_assetsToDrag[0],
-                                                                                 nullptr, {128, 128}));
+                m_assetsView->model()->startDrag(mimeData, m_assetsIconProvider->requestPixmap(
+                                                     m_assetsToDrag[0], nullptr, {128, 128}));
 
                 m_assetsToDrag.clear();
             }
@@ -92,6 +91,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
     , m_assetsModel{new AssetsLibraryModel(this)}
     , m_assetsView{view}
+    , m_createTextures{view}
     , m_assetsWidget{new StudioQuickWidget(this)}
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
@@ -225,22 +225,27 @@ int AssetsLibraryWidget::qtVersion() const
 
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
 {
-    emit addTexturesRequested(filePaths, AddTextureMode::Texture);
+    m_assetsView->executeInTransaction(__FUNCTION__, [&] {
+        m_createTextures.execute(filePaths, AddTextureMode::Texture,
+                                 m_assetsView->model()->active3DSceneId());
+    });
 }
 
 void AssetsLibraryWidget::addLightProbe(const QString &filePath)
 {
-    emit addTexturesRequested({filePath}, AddTextureMode::LightProbe);
+    m_assetsView->executeInTransaction(__FUNCTION__, [&] {
+        m_createTextures.execute({filePath}, AddTextureMode::LightProbe,
+                                 m_assetsView->model()->active3DSceneId());
+    });
 }
 
-void AssetsLibraryWidget::updateHasMaterialLibrary()
+void AssetsLibraryWidget::updateContextMenuActionsEnableState()
 {
-    emit hasMaterialLibraryUpdateRequested();
-}
+    setHasMaterialLibrary(m_assetsView->materialLibraryNode().isValid()
+                          && m_assetsView->model()->hasImport("QtQuick3D"));
 
-bool AssetsLibraryWidget::hasMaterialLibrary() const
-{
-    return m_hasMaterialLibrary;
+    ModelNode activeSceneEnv = m_createTextures.resolveSceneEnv(m_assetsView->model()->active3DSceneId());
+    setHasSceneEnv(activeSceneEnv.isValid());
 }
 
 void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
@@ -250,6 +255,15 @@ void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
 
     m_hasMaterialLibrary = enable;
     emit hasMaterialLibraryChanged();
+}
+
+void AssetsLibraryWidget::setHasSceneEnv(bool b)
+{
+    if (b == m_hasSceneEnv)
+        return;
+
+    m_hasSceneEnv = b;
+    emit hasSceneEnvChanged();
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
@@ -331,7 +345,7 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
     if (!complexFilePathStrings.empty())
         addResources(complexFilePathStrings);
 
-    emit endDrag();
+    m_assetsView->model()->endDrag();
 }
 
 QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
@@ -351,11 +365,6 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
 void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
 {
     ModelNodeOperations::openEffectMaker(filePath);
-}
-
-void AssetsLibraryWidget::setModel(Model *model)
-{
-    m_model = model;
 }
 
 QString AssetsLibraryWidget::qmlSourcesPath()

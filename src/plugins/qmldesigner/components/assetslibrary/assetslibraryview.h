@@ -4,7 +4,6 @@
 #pragma once
 
 #include "abstractview.h"
-#include "createtexture.h"
 
 #include <QPointer>
 
@@ -31,7 +30,6 @@ public:
     void modelAboutToBeDetached(Model *model) override;
 
     void setResourcePath(const QString &resourcePath);
-    void active3DSceneChanged(qint32 sceneId) override;
 
 private:
     class ImageCacheData;
@@ -44,8 +42,6 @@ private:
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     QPointer<AssetsLibraryWidget> m_widget;
     QString m_lastResourcePath;
-    CreateTextures m_createTextures;
-    qint32 m_sceneId = -1;
 };
 
 }

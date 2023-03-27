@@ -31,7 +31,7 @@ StudioControls.Menu {
     {
         root.__showInGraphicalShellEnabled = true
 
-        rootView.updateHasMaterialLibrary()
+        rootView.updateContextMenuActionsEnableState()
 
         root.__onFolderCreated = onFolderCreated
         root.__fileIndex = ""
@@ -46,7 +46,7 @@ StudioControls.Menu {
     {
         root.__showInGraphicalShellEnabled = true
 
-        rootView.updateHasMaterialLibrary()
+        rootView.updateContextMenuActionsEnableState()
 
         root.__onFolderCreated = onFolderCreated
         root.__dirPath = dirPath
@@ -77,7 +77,7 @@ StudioControls.Menu {
             addTexturesItem.text = qsTr("Add Texture")
         }
 
-        rootView.updateHasMaterialLibrary()
+        rootView.updateContextMenuActionsEnableState()
 
         root.__onFolderCreated = onFolderCreated
         root.__selectedAssetPathsList = selectedAssetPathsList
@@ -132,7 +132,7 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         id: addLightProbes
         text: qsTr("Add Light Probe")
-        enabled: rootView.hasMaterialLibrary
+        enabled: rootView.hasMaterialLibrary && rootView.hasSceneEnv
         visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
                  && AssetsLibraryBackend.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: addLightProbes.visible ? addLightProbes.implicitHeight : 0

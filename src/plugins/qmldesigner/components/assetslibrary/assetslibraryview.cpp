@@ -4,7 +4,6 @@
 #include "assetslibraryview.h"
 
 #include "assetslibrarywidget.h"
-#include "createtexture.h"
 #include "designmodecontext.h"
 #include "qmldesignerplugin.h"
 
@@ -47,7 +46,6 @@ public:
 
 AssetsLibraryView::AssetsLibraryView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
-    , m_createTextures{this}
 {}
 
 AssetsLibraryView::~AssetsLibraryView()
@@ -67,23 +65,6 @@ WidgetInfo AssetsLibraryView::widgetInfo()
 
         auto context = new Internal::AssetsLibraryContext(m_widget.data());
         Core::ICore::addContextObject(context);
-
-        connect(m_widget, &AssetsLibraryWidget::addTexturesRequested, this,
-        [&] (const QStringList &filePaths, AddTextureMode mode) {
-            executeInTransaction("AssetsLibraryView::widgetInfo", [&]() {
-                m_createTextures.execute(filePaths, mode, m_sceneId);
-            });
-        });
-
-        connect(m_widget, &AssetsLibraryWidget::hasMaterialLibraryUpdateRequested, this, [&]() {
-            m_widget->setHasMaterialLibrary(model() && materialLibraryNode().isValid()
-                                            && model()->hasImport("QtQuick3D"));
-        });
-
-        connect(m_widget, &AssetsLibraryWidget::endDrag, this, [&]() {
-            if (model())
-                model()->endDrag();
-        });
     }
 
     return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));
@@ -103,18 +84,13 @@ void AssetsLibraryView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->clearSearchFilter();
-    m_widget->setModel(model);
 
     setResourcePath(DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath());
-
-    m_sceneId = model->active3DSceneId();
 }
 
 void AssetsLibraryView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
-
-    m_widget->setModel(nullptr);
 }
 
 void AssetsLibraryView::setResourcePath(const QString &resourcePath)
@@ -139,11 +115,6 @@ AssetsLibraryView::ImageCacheData *AssetsLibraryView::imageCacheData()
     std::call_once(imageCacheFlag,
                    [this]() { m_imageCacheData = std::make_unique<ImageCacheData>(); });
     return m_imageCacheData.get();
-}
-
-void AssetsLibraryView::active3DSceneChanged(qint32 sceneId)
-{
-    m_sceneId = sceneId;
 }
 
 } // namespace QmlDesigner
