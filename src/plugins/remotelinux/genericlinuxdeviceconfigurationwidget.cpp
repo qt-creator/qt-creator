@@ -41,8 +41,9 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 
     m_keyButton = new QRadioButton(Tr::tr("Specific &key"));
 
-    m_hostLineEdit = new QLineEdit(this);
+    m_hostLineEdit = new FancyLineEdit(this);
     m_hostLineEdit->setPlaceholderText(Tr::tr("IP or host name of the device"));
+    m_hostLineEdit->setHistoryCompleter("HostName");
 
     m_sshPortSpinBox = new QSpinBox(this);
     m_sshPortSpinBox->setMinimum(0);
@@ -51,8 +52,9 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 
     m_hostKeyCheckBox = new QCheckBox(Tr::tr("&Check host key"));
 
-    m_portsLineEdit = new QLineEdit(this);
+    m_portsLineEdit = new FancyLineEdit(this);
     m_portsLineEdit->setToolTip(Tr::tr("You can enter lists and ranges like this: '1024,1026-1028,1030'."));
+    m_portsLineEdit->setHistoryCompleter("PortRange");
 
     m_portsWarningLabel = new QLabel(this);
 
@@ -62,7 +64,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_timeoutSpinBox->setValue(1000);
     m_timeoutSpinBox->setSuffix(Tr::tr("s"));
 
-    m_userLineEdit = new QLineEdit(this);
+    m_userLineEdit = new FancyLineEdit(this);
+    m_userLineEdit->setHistoryCompleter("UserName");
 
     m_keyLabel = new QLabel(Tr::tr("Private key file:"));
 
@@ -77,11 +80,13 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_gdbServerLineEdit->setExpectedKind(PathChooser::ExistingCommand);
     m_gdbServerLineEdit->setPlaceholderText(hint);
     m_gdbServerLineEdit->setToolTip(hint);
+    m_gdbServerLineEdit->setHistoryCompleter("GdbServer");
 
     m_qmlRuntimeLineEdit = new PathChooser(this);
     m_qmlRuntimeLineEdit->setExpectedKind(PathChooser::ExistingCommand);
     m_qmlRuntimeLineEdit->setPlaceholderText(hint);
     m_qmlRuntimeLineEdit->setToolTip(hint);
+    m_qmlRuntimeLineEdit->setHistoryCompleter("QmlRuntime");
 
     m_sourceProfileCheckBox =
         new QCheckBox(Tr::tr("Source %1 and %2").arg("/etc/profile").arg("$HOME/.profile"));
